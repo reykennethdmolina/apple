@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="bootstrap material admin template">
+		<meta name="viewport" content="width=device-width">
+		<title>Validation | Porish Material Admin Template</title>
+		<!-- Favicons -->
+        {% include 'favicon.html' %}
+		<!-- Google Fonts -->
+		<!-- <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300%7CRaleway:400,300%7CRoboto:400,700,300%7CLato' rel='stylesheet' type='text/css' /> -->
+		<!-- Icon CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/iconstyle.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/font-awasome/font-awesome.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/material-design/material-design.min.css' %}">
+		<!-- Global plugin CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/bootstrap.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/switchery/switchery.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/slidePanel.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/waves.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-tour/css/bootstrap-tour.css' %}" />
+		<!--  Global Template CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/style.css' %}" />
+		<link id="site-color" rel="stylesheet" href="{% static 'financial-layout/assets/css/colors/default.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/responsive.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/site.min.css' %}" />
+		<!-- Page CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/jQuery-Form-Validator/css/theme-default.css' %}">
+	</head>
+	<body class="dashboard site-navbar-small validations">
+		<!-- Start Header Section -->
+		{% include "header-section.html" %}
+		<!-- End Header Section -->
+		<!-- Start Contain Section -->
+		<div class="main-content">
+			<div class="page-header">
+				<div class="header-left-panel">
+					<!--  Title Page -->
+					<h1 class="page-title">Form validation</h1>
+					<!--  Breadcrumb Section -->
+					<ol class="breadcrumb">
+						<li><a href="../dashboard_v1.html">Home</a></li>
+						<li class="text-info">Forms</li>
+						<li class="active">Form validation</li>
+					</ol>
+				</div>
+			</div>
+			<div class="page-content validation">
+				<div class="panel">
+					<!-- Start Validation Styles -->
+					<div class="panel-heading">
+						<h3 class="panel-title">Validation Styles</h3>
+					</div>
+					<div class="panel-body container-fluid">
+						<p class="margin-bottom-15">
+							Bootstrap includes validation styles for error, warning, and success messages. To use, add <code>.has-warning</code>, <code>.has-error</code>, or <code>.has-success</code> to the parent element. Any <code>.form-control</code> within that element will receive the validation styles
+						</p>
+						<div class="row">
+							<div class="col-md-6 col-sm-12 margin-bottom-15">
+								<div class="form-group has-success has-feedback">
+									<div class="row">
+										<label class="col-md-12 col-sm-12 control-label" for="inputSuccess">Input with success and glyphicon</label>
+										<div class="col-md-12 col-sm-12">
+											<input type="text" class="form-control" id="inputSuccess">
+											<span class="glyphicon glyphicon-ok form-control-feedback"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-12 margin-bottom-15">
+								<div class="form-group has-warning has-feedback">
+									<div class="row">
+										<label class="col-md-12 col-sm-12 control-label">Input with Warning and glyphicon</label>
+										<div class="col-md-12 col-sm-12">
+											<input type="text" class="form-control" id="inputWarning">
+											<span class="form-control-feedback" aria-hidden="true"><i class="icon md-alert-triangle" aria-hidden="true"></i></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="clearfix visible-sm-block"></div>
+							<div class="col-md-6 col-sm-12">
+								<div class="form-group has-error has-feedback">
+									<div class="row">
+										<label class="col-md-12 col-sm-12 control-label">Input with Error and glyphicon</label>
+										<div class="col-md-12 col-sm-12">
+											<input type="text" class="form-control" id="inputError">
+											<span class="form-control-feedback" aria-hidden="true"><i class="icon md-close" aria-hidden="true"></i></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-12">
+								<div class="form-group margin-bottom-0">
+									<div class="row">
+										<label class="col-md-12 col-sm-12 control-label">Focus and glyphicon</label>
+										<div class="col-md-12 col-sm-12">
+											<input class="form-control" id="focusedInput" type="text">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- End Validation Styles -->
+				</div>
+				<div class="row no-box-shadow">
+					<div class="col-md-6">
+						<div class="panel margin-bottom-0">
+							<!-- Start Simple Form Validation -->
+							<div class="panel-heading">
+								<h3 class="panel-title">Simple Form Validation</h3>
+							</div>
+							<div class="panel-body">
+								<form action="#" autocomplete="off" id="form-b" class="">
+									<div class="form-group">
+										<label for="inputName" class="control-label">Name</label>
+										<input type="text" class="form-control" id="forminputName" placeholder="Jack Harold" name="summary_fullName" data-validation="required">
+									</div>
+									<div class="form-group">
+										<label for="inputEmail" class="control-label">Email</label>
+										<input type="email" class="form-control" id="forminputEmail" placeholder="Email" data-validation="email" name="summary_email">
+									</div>
+									<div class="form-group">
+										<label for="inputPassword" class="control-label">Password</label>
+										<input type="password" data-validation="strength" data-validation-strength="2" class="form-control" placeholder="Password" name="summary_password">
+									</div>
+									<div class="form-group">
+										<label class="control-label">Content (<span id="max-len">100</span> characters left)</label>
+										<div class="">
+											<textarea id="text-area" class="form-control" name="summary_content" rows="5"></textarea>
+										</div>
+									</div>
+									<div class="form-group margin-bottom-0">
+										<button type="submit" class="btn btn-info" id="validateButton2">Submit</button>
+									</div>
+								</form>
+							</div>
+							<!-- End Simple Form Validation -->
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="panel spacingTop">
+							<!-- Start Error List Mode Validation -->
+							<div class="panel-heading">
+								<h3 class="panel-title">Error List Mode</h3>
+							</div>
+							<div class="panel-body">
+								<form action="#" id="form-a">
+									<div class="form-group">
+										<label for="inputName" class="control-label">Name</label>
+										<input type="text" class="form-control" id="inputName" placeholder="Jack Harold" data-validation="required">
+									</div>
+									<div class="form-group">
+										<label for="inputEmail" class="control-label">Email</label>
+										<input type="email" class="form-control" id="inputEmail" placeholder="Email" data-error="Email address is invalid" data-validation="email">
+										<div class="help-block with-errors"></div>
+									</div>
+									<div class="form-group">
+										<label for="inputPassword" class="control-label">Password</label>
+										<input type="password" data-validation="strength" data-validation-strength="2" class="form-control" id="inputPassword" placeholder="Password">
+									</div>
+									<div class="form-group">
+										<label class="control control-checkbox">Check yourself
+										<input type="checkbox" checked="checked" id="terms" data-validation="required" data-validation-error-msg="You have to agree to our terms" required>
+										<span class="control_indicator"></span>
+										<span class="help-block with-errors"></span>
+										</label>
+									</div>
+									<div class="form-group margin-bottom-0">
+										<button type="submit" class="btn btn-info" id="form1">Submit</button>
+									</div>
+								</form>
+							</div>
+							<!-- End Error List Mode Validation -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Contain Section -->
+		<!-- Start Footer Section -->
+		{% include 'main-footer.html' %}
+		<!--  Start Site Right Setting Section -->
+		{% include 'right-side-setting.html' %}
+		<!--  End Site Right Setting Section -->        <!-- End Footer Section -->
+		<!-- Global Plugin JavaScript -->
+		<script src="{%static 'financial-layout/assets/js/global/jquery.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/global/bootstrap.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/plugin/bootstrap-tour/js/bootstrap-tour.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/global/waves.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/switchery/jQuery.switchery.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/full-screen-page/screenfull.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/home-page/jquery-slidePanel.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/home-page/sidebar.min.js' %}"></script>
+		<!-- Global Template JavaScript -->
+		<script src="{%static 'financial-layout/assets/js/global/site.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/sitesettings/site-settings.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/custom/custom-side-menu.js' %}"></script>
+		<!-- Page JavaScript -->
+		<script src="{%static 'financial-layout/assets/plugin/jQuery-Form-Validator/js/jquery.form-validator.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/plugin/jquery-ui/js/jquery-ui.min.js' %}"></script>
+		<script src="{%static 'financial-layout/assets/js/validation-form/custom-validation.min.js' %}"></script>
+	</body>
+</html>

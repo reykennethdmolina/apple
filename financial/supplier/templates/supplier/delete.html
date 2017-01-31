@@ -1,0 +1,39 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Supplier {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <!--<h3 class="panel-title">Simple Form Validation</h3>-->
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="col-md-4 col-sm-12 col-xs-12">
+                            <div class="alert-box">
+                                <div class="alert dark alert-danger style-alert danger-border-color">
+                                    <button class="close" type="button" data-dismiss="alert">
+                                    <span>×</span>
+                                    </button>
+                                    <p>Are you sure you want to delete {{ object.code }}?</p>
+                                </div>
+                            </div>
+                                <div class="col-md-4 col-sm-2 col-xs-6">
+                                    <input type="submit" value="yes" class="btn btn-block btn-default waves-effect waves-light"/>
+                                </div>
+                                 <div class="col-md-4 col-sm-2 col-xs-6">
+                                    <a href="{% url 'supplier:index' %}" class="btn btn-block btn-info waves-effect waves-light">no</a>
+                                 </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

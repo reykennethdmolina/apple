@@ -1,0 +1,476 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Chart of Account {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Create</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post" class="form-horizontal form-shrink">
+                        {% csrf_token %}
+                        <div class="panel-body">
+                            <div class="row col-md-3">
+                                <div class="form-group form-group-sm form-group-xs form-group-5">
+							    	<label class="col-sm-5 control-label">Account Code</label>
+							    	<div class="col-sm-7">
+                                        <div class="input-group input-group-icon text-warning" id="id_accountcode"></div>
+							    	</div>
+                                    <br><span class="help-block form-error">{{ form.accountcode.errors.as_text }}</span><br>
+							    </div>
+							    <div class="form-group form-group-sm form-group-xs form-group-5 {{ form.main.errors|yesno:'has-error,' }}">
+							    	<label class="col-sm-3 control-label">main</label>
+							    	<div class="col-sm-9">
+							    		<div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Assets">
+							    			<input type="number" class="form-control accountcode-code" id="id_main" max="9" min="0" name="main" data-validation="required" value={{ form.main.value|default:"0" }}>
+							    		</div>
+							    	</div>
+                                    <span class="help-block form-error">{{ form.main.errors.as_text }}</span>
+							    </div>
+                                <div class="form-group form-group-sm form-group-xs form-group-5 {{ form.clas.errors|yesno:'has-error,' }}">
+							    	<label class="col-sm-3 control-label">class</label>
+							    	<div class="col-sm-9">
+							    		<div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Current Assets">
+							    			<input type="number" class="form-control accountcode-code" id="id_clas" max="9" min="0" name="clas" data-validation="required" value={{ form.clas.value|default:"0" }}>
+							    		</div>
+							    	</div>
+                                    <span class="help-block form-error">{{ form.clas.errors.as_text }}</span>
+							    </div>
+                                <div class="form-group form-group-sm form-group-xs form-group-5 {{ form.item.errors|yesno:'has-error,' }}">
+							    	<label class="col-sm-3 control-label">item</label>
+							    	<div class="col-sm-9">
+							    		<div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Accounts Receivable">
+							    			<input type="number" class="form-control accountcode-code" id="id_item" max="9" min="0" name="item" data-validation="required" value={{ form.item.value|default:"0" }}>
+							    		</div>
+							    	</div>
+                                    <span class="help-block form-error">{{ form.item.errors.as_text }}</span>
+							    </div>
+                                <div class="form-group form-group-sm form-group-xs form-group-5 {{ form.cont.errors|yesno:'has-error,' }}">
+							    	<label class="col-sm-3 control-label">cont</label>
+							    	<div class="col-sm-9">
+							    		<div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Advertising Receivable">
+							    			<input type="number" class="form-control accountcode-code" id="id_cont" max="9" min="0" name="cont" data-validation="required" value={{ form.cont.value|default:"0" }}>
+							    		</div>
+							    	</div>
+                                    <span class="help-block form-error">{{ form.cont.errors.as_text }}</span>
+							    </div>
+                                <div class="form-group form-group-sm form-group-xs form-group-5 {{ form.sub.errors|yesno:'has-error,' }}">
+							    	<label class="col-sm-3 control-label">sub</label>
+							    	<div class="col-sm-9">
+							    		<div class="input-group input-group-icon">
+							    			<input type="number" class="form-control accountcode-code" id="id_sub" max="999999" min="0" name="sub" data-validation="required" value={{ form.sub.value|default:"000000" }}>
+							    		</div>
+							    	</div>
+                                    <span class="help-block form-error">{{ form.sub.errors.as_text }}</span>
+							    </div>
+                            </div>
+                            <div class="row col-md-9">
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_title" class="col-sm-2 control-label">Account Title</label>
+									<div class="col-sm-10">
+                                        <input type="text" class="form-control" id="id_title" maxlength="255" placeholder="Account Title" name="title" data-validation="required" value="{{ form.title.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.title.errors.as_text }}</span>
+									</div>
+								</div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_description" class="col-sm-2 control-label">Description</label>
+									<div class="col-sm-10">
+                                        <input type="text" class="form-control" id="id_description" maxlength="255" placeholder="Description" name="description" data-validation="required" value="{{ form.description.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
+									</div>
+								</div>
+                                <div class="col-md-12 gray-back" style="padding-right:0">
+                                    <div class="col-md-12"><br></div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_balancecode" class="col-sm-4 col-shrink control-label">Balance Code: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_balancecode" name="balancecode" value="D" {% if form.balancecode.value == 'D' %} checked="checked" {% endif %}>
+							        				<label for="id_balancecode">Debit</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_balancecode" name="balancecode" value="C" {% if form.balancecode.value == 'c' %} checked="checked" {% endif %}>
+							        				<label for="id_balancecode">Credit</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_charttype" class="col-sm-4 col-shrink control-label">Chart Type: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_charttype" name="charttype" value="D" {% if form.charttype.value == 'D' %} checked="checked" {% endif %}>
+							        				<label for="id_charttype">Debit</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_charttype" name="charttype" value="C" {% if form.charttype.value == 'C' %} checked="checked" {% endif %}>
+							        				<label for="id_charttype">Credit</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_accounttype" class="col-sm-4 col-shrink control-label">Account Type: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_accounttype" name="accounttype" value="P" {% if form.accounttype.value == 'P' %} checked="checked" {% endif %}>
+							        				<label for="id_accounttype">Posting</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_accounttype" name="accounttype" value="T" {% if form.accounttype.value == 'T' %} checked="checked" {% endif %}>
+							        				<label for="id_accounttype">Title</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+								        	<label for="id_ctax" class="col-sm-4 col-shrink control-label">CTax: </label>
+								        	<div class="col-sm-8">
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_ctax" name="ctax" value="Y" {% if form.ctax.value == 'Y' %} checked="checked" {% endif %}>
+								        			<label for="id_ctax">Yes</label>
+								        		</div>
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_ctax" name="ctax" value="N" {% if form.ctax.value == 'N' %} checked="checked" {% endif %}>
+								        			<label for="id_ctax">No</label>
+								        		</div>
+								        	</div>
+								        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+								        	<label for="id_taxstatus" class="col-sm-4 col-shrink control-label">Tax Status: </label>
+								        	<div class="col-sm-8">
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_taxstatus" name="taxstatus" value="Y" {% if form.taxstatus.value == 'Y' %} checked="checked" {% endif %}>
+								        			<label for="id_taxstatus">Yes</label>
+								        		</div>
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_taxstatus" name="taxstatus" value="N" {% if form.taxstatus.value == 'N' %} checked="checked" {% endif %}>
+								        			<label for="id_taxstatus">No</label>
+								        		</div>
+								        	</div>
+								        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+								        	<label for="id_wtaxstatus" class="col-sm-4 col-shrink control-label">W/Tax Status: </label>
+								        	<div class="col-sm-8">
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_wtaxstatus" name="wtaxstatus" value="Y" {% if form.wtaxstatus.value == 'Y' %} checked="checked" {% endif %}>
+								        			<label for="id_wtaxstatus">Yes</label>
+								        		</div>
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_wtaxstatus" name="wtaxstatus" value="N" {% if form.wtaxstatus.value == 'N' %} checked="checked" {% endif %}>
+								        			<label for="id_wtaxstatus">No</label>
+								        		</div>
+								        	</div>
+								        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_mainposting" class="col-sm-4 col-shrink control-label">Main Posting: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_mainposting" name="mainposting" value="Y" {% if form.mainposting.value == 'Y' %} checked="checked" {% endif %}>
+							        				<label for="id_mainposting">Yes</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_mainposting" name="mainposting" value="N" {% if form.mainposting.value == 'N' %} checked="checked" {% endif %}>
+							        				<label for="id_mainposting">No</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_fixedasset" class="col-sm-4 col-shrink control-label">Fixed Asset: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_fixedasset" name="fixedasset" value="Y" {% if form.fixedasset.value == 'Y' %} checked="checked" {% endif %}>
+							        				<label for="id_fixedasset">Yes</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_fixedasset" name="fixedasset" value="N" {% if form.fixedasset.value == 'N' %} checked="checked" {% endif %}>
+							        				<label for="id_fixedasset">No</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+							        		<label for="id_taxespayable" class="col-sm-4 col-shrink control-label">Taxes Payable: </label>
+							        		<div class="col-sm-8">
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_taxespayable" name="taxespayable" value="Y" {% if form.taxespayable.value == 'Y' %} checked="checked" {% endif %}>
+							        				<label for="id_taxespayable">Yes</label>
+							        			</div>
+							        			<div class="radio-custom radio-default radio-inline padding-top-0">
+							        				<input type="radio" id="id_taxespayable" name="taxespayable" value="N" {% if form.taxespayable.value == 'N' %} checked="checked" {% endif %}>
+							        				<label for="id_taxespayable">No</label>
+							        			</div>
+							        		</div>
+							        	</div>
+                                    </div>
+                                    <div class="col-md-12"><br></div>
+                                </div>
+                                <div class="col-md-12"><br></div>
+                                <div class="col-md-6">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_product" class="col-sm-5 control-label">Product</label>
+							    		<div class="col-sm-7">
+                                            <select id="id_product" name="product" class="form-control">
+                                                <option value="">-- Select --</option>
+                                                {% for product in product %}
+                                                    <option value="{{ product.id }}" {% if form.product.value|add:0 == product.id %} selected="selected" {% endif %}>{{ product.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
+							    		</div>
+							    	</div>
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_typeofexpense" class="col-sm-5 control-label">Type of Expense</label>
+							    		<div class="col-sm-7">
+                                            <select id="id_typeofexpense" name="typeofexpense" class="form-control">
+                                                <option value="">-- Select --</option>
+                                                {% for typeofexpense in typeofexpense %}
+                                                    <option value="{{ typeofexpense.id }}" {% if form.typeofexpense.value|add:0 == typeofexpense.id %} selected="selected" {% endif %}>{{ typeofexpense.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
+							    		</div>
+							    	</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_kindofexpense" class="col-sm-5 control-label">Kind of Expense</label>
+							    		<div class="col-sm-7">
+                                            <select id="id_kindofexpense" name="kindofexpense" class="form-control">
+                                                <option value="">-- Select --</option>
+                                                {% for kindofexpense in kindofexpense %}
+                                                    <option value="{{ kindofexpense.id }}" {% if form.kindofexpense.value|add:0 == kindofexpense.id %} selected="selected" {% endif %}>{{ kindofexpense.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <span class="help-block form-error">{{ form.kindofexpense.errors.as_text }}</span>
+							    		</div>
+							    	</div>
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_mainunit" class="col-sm-5 control-label">Main Unit</label>
+							    		<div class="col-sm-7">
+                                           <select id="id_mainunit" name="mainunit" class="form-control">
+                                               <option value="">-- Select --</option>
+                                               {% for mainunit in mainunit %}
+                                                   <option value="{{ mainunit.id }}" {% if form.mainunit.value|add:0 == mainunit.id %} selected="selected" {% endif %}>{{ mainunit.description }}</option>
+                                               {% endfor %}
+                                           </select>
+                                           <span class="help-block form-error">{{ form.mainunit.errors.as_text }}</span>
+							    		</div>
+							    	</div>
+                                </div>
+                                <div class="col-md-12"><br></div>
+                                <div class="col-md-12 gray-back" style="padding-right:0">
+                                    <div class="col-md-12"><br><b>Enabled</b><br><br></div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+								        	<label for="id_bankaccount_enable" class="col-sm-4 col-shrink control-label">Bank Account: </label>
+								        	<div class="col-sm-8">
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_bankaccount_enable" name="bankaccount_enable" value="Y" {% if form.bankaccount_enable.value == 'Y' %} checked="checked" {% endif %}>
+								        			<label for="id_bankaccount_enable">Yes</label>
+								        		</div>
+								        		<div class="radio-custom radio-default radio-inline padding-top-0">
+								        			<input type="radio" id="id_bankaccount_enable" name="bankaccount_enable" value="N" {% if form.bankaccount_enable.value == 'N' %} checked="checked" {% endif %}>
+								        			<label for="id_bankaccount_enable">No</label>
+								        		</div>
+								        	</div>
+								        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_department_enable" class="col-sm-4 col-shrink control-label">Department: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_department_enable" name="department_enable" value="Y" {% if form.department_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_department_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_department_enable" name="department_enable" value="N" {% if form.department_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_department_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_employee_enable" class="col-sm-4 col-shrink control-label">Employee: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_employee_enable" name="employee_enable" value="Y" {% if form.employee_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_employee_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_employee_enable" name="employee_enable" value="N" {% if form.employee_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_employee_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_supplier_enable" class="col-sm-4 col-shrink control-label">Supplier: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_supplier_enable" name="supplier_enable" value="Y" {% if form.supplier_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_supplier_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_supplier_enable" name="supplier_enable" value="N" {% if form.supplier_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_supplier_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_customer_enable" class="col-sm-4 col-shrink control-label">Customer: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_customer_enable" name="customer_enable" value="Y" {% if form.customer_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_customer_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_customer_enable" name="customer_enable" value="N" {% if form.customer_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_customer_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_branch_enable" class="col-sm-4 col-shrink control-label">Branch: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_branch_enable" name="branch_enable" value="Y" {% if form.branch_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_branch_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_branch_enable" name="branch_enable" value="N" {% if form.branch_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_branch_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_product_enable" class="col-sm-4 col-shrink control-label">Product: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_product_enable" name="product_enable" value="Y" {% if form.product_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_product_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_product_enable" name="product_enable" value="N" {% if form.product_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_product_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_unit_enable" class="col-sm-4 col-shrink control-label">Unit: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_unit_enable" name="unit_enable" value="Y" {% if form.unit_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_unit_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_unit_enable" name="unit_enable" value="N" {% if form.unit_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_unit_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_inputvat_enable" class="col-sm-4 col-shrink control-label">Input VAT: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_inputvat_enable" name="inputvat_enable" value="Y" {% if form.inputvat_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_inputvat_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_inputvat_enable" name="inputvat_enable" value="N" {% if form.inputvat_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_inputvat_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_outputvat_enable" class="col-sm-4 col-shrink control-label">Output VAT: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_outputvat_enable" name="outputvat_enable" value="Y" {% if form.outputvat_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_outputvat_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_outputvat_enable" name="outputvat_enable" value="N" {% if form.outputvat_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_outputvat_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_vat_enable" class="col-sm-4 col-shrink control-label">VAT: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_vat_enable" name="vat_enable" value="Y" {% if form.vat_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_vat_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_vat_enable" name="vat_enable" value="N" {% if form.vat_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_vat_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_wtax_enable" class="col-sm-4 col-shrink control-label">WTax: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_wtax_enable" name="wtax_enable" value="Y" {% if form.wtax_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_wtax_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_wtax_enable" name="wtax_enable" value="N" {% if form.wtax_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_wtax_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_ataxcode_enable" class="col-sm-4 col-shrink control-label">ATax Code: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_ataxcode_enable" name="ataxcode_enable" value="Y" {% if form.ataxcode_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_ataxcode_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_ataxcode_enable" name="ataxcode_enable" value="N" {% if form.ataxcode_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_ataxcode_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12"><br></div>
+                                </div>
+                                <div class="col-md-12"><br></div>
+                                <button type="submit" class="btn btn-info pull-right" id="validateButton">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script>
+        $(function(){
+        $('.accountcode-code').on('click keyup', getaccountcode)
+        $( window ).load(getaccountcode)
+
+        function getaccountcode(){
+            accountcode = $('#id_main').val() + $('#id_clas').val() + $('#id_item').val() + $('#id_cont').val()
+            sub = $('#id_sub').val()
+            for (i = $('#id_sub').val().length; i < 6; i++) {
+                sub = '0' + sub
+            }
+            accountcode = accountcode + sub
+            $('#id_accountcode').text(accountcode)
+        }
+    })
+    </script>
+{% endblock extra_js %}

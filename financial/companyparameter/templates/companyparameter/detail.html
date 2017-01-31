@@ -1,0 +1,220 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Company Parameter {% endblock page-title %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+    h4.list-title{
+        padding-bottom: 10px;
+    }
+    div.panel-body{
+        padding: 20px 30px;
+    }
+    .detail-profile.contact-person{
+        float: left;
+        margin-left: 30px;
+    }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Information</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-30">
+                            <div class="panel-body">
+                                <h4 class="list-title">Main Details</h4>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Code : </span>
+                                            <span class="detail-profile">{{ object.code }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Name : </span>
+                                            <span class="detail-profile">{{ object.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Address : </span>
+                                            <span class="detail-profile">{{ object.address }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Zip Code : </span>
+                                            <span class="detail-profile">{{ object.zipcode }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Tel. No. 1 : </span>
+                                            <span class="detail-profile">{{ object.telno1 }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Tel. No. 2 : </span>
+                                            <span class="detail-profile">{{ object.telno2 }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel top-profile skill-profile margin-bottom-30">
+                            <div class="panel-body">
+                                <h4 class="list-title">Contact Persons</h4>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+{#                                            <span class="text-name-profile text-info">Contact Persons:</span>#}
+                                            {% if object.contactperson_acctg1 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_acctg1 }} (Accounting)</span>{% endif %}
+                                            {% if object.contactperson_acctg2 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_acctg2 }} (Accounting)</span>{% endif %}
+                                            {% if object.contactperson_it1 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_it1 }} (IT)</span>{% endif %}
+                                            {% if object.contactperson_it2 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_it2 }} (IT)</span>{% endif %}
+                                            {% if object.contactperson_other1 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_other1 }}</span>{% endif %}
+                                            {% if object.contactperson_other2 %}<span class="detail-profile contact-person">
+                                                {{ object.contactperson_other2 }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel top-profile skill-profile margin-bottom-30">
+                            <div class="panel-body">
+                                <h4 class="list-title">Reference Numbers</h4>
+                                <div class="row">
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">SSS No. : </span>
+                                            <span class="detail-profile">{{ object.sssnum }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Res. Cert. No. : </span>
+                                            <span class="detail-profile">{{ object.rescertnum }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">TIN : </span>
+                                            <span class="detail-profile">{{ object.tinnum }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Issued at : </span>
+                                            <span class="detail-profile">{{ object.issued_at }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                    </div>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Issued on : </span>
+                                            <span class="detail-profile">{{ object.issued_date }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  End Profile Tab Section -->
+        </div>
+        <div class="col-md-4">
+            <div class="right-box-profile">
+                <h4 class="skill-title">Activity Logs</h4>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Created By:</span>
+                            <div class="univer-profile">{{ object.enterby }}</div>
+                            <div class="univer-profile">{{ object.enterdate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Modify By:</span>
+                            <div class="univer-profile">{{ object.modifyby }}</div>
+                            <div class="univer-profile">{{ object.modifydate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <div class="iconlist">
+                            {% if perms.companyparameter.change_companyparameter %}
+                            <a href="{% url 'companyparameter:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if perms.companyparameter.delete_companyparameter %}
+                            <a href="{% url 'companyparameter:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_trash" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-box-profile">
+                <div class="panel">
+                    <div class="panel-body">
+                        <h4 class="list-title">Withholding Tax Signatory</h4>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Name : </span>
+                                    <span class="detail-profile">{{ object.wtaxsign_name }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">TIN : </span>
+                                    <span class="detail-profile">{{ object.wtaxsign_tin }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <span class="text-name-profile text-info">Position : </span>
+                                    <span class="detail-profile">{{ object.wtaxsign_position }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-box-profile">
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="first-name-profile">
+                                    <br><span class="text-name-profile text-info">Status : </span>
+                                    <span class="detail-profile">{{ object.status_verbose }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

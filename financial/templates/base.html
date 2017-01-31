@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="robots" content="NONE,NOARCHIVE"/>
+        <title>{% block title %} Login {% endblock title %}</title>
+        <title>Log in | Django site admin</title>
+        <link rel="stylesheet" type="text/css" href="{% static '/static/admin/css/base.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static '/static/admin/css/login.css' %}"/>
+    </head>
+    <body>
+    {% block content %}
+    {% endblock %}
+    </body>
+</html>

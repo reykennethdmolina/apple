@@ -1,0 +1,290 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Company Parameter {% endblock page-title %}
+{% block extra_css %}
+    <style>
+        /* Style the list */
+        ul.tab {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+
+        /* Float the list items side by side */
+        ul.tab li {float: left;}
+
+        /* Style the links inside the list items */
+        ul.tab li a {
+            display: inline-block;
+            color: black;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+
+        /* Change background color of links on hover */
+        ul.tab li a:hover {background-color: #ddd;}
+
+        /* Create an active/current tablink class */
+        ul.tab li a:focus, form .active {background-color: #ccc;}
+
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 20px 12px 10px 0px;
+            border: 1px solid #ccc;
+            border-top: none;
+            overflow: auto;
+        }
+        .help-block.form-error{
+            font-size: 12px;
+        }
+
+        .mark-with-error{
+            background-color: #f2dede;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <ul class="tab">
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'maindetails')">Main Details</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'contactpersons')">Contact Persons</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'refnumbers')">Reference Numbers</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'wtaxsign')">Withholding Tax Signatory</a></li>
+                        </ul>
+                        <div id="maindetails" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6
+                             {{ form.code.errors|yesno:'has-error,' }}">
+                                <label for="id_code" class="col-sm-3 control-label">Code</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6
+                             {{ form.name.errors|yesno:'has-error,' }}">
+                                <label for="id_description" class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Name" name="description" data-validation="required" value="{{ form.description.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.address.errors|yesno:'has-error,' }}">
+                                <label for="id_address" class="col-sm-3 control-label">Address</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="id_address" maxlength="250" placeholder="Address" name="address" data-validation="required" value="{{ form.address.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.address.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6
+                             {{ form.tin.errors|yesno:'has-error,' }}">
+                                <label for="id_zipcode" class="col-sm-3 control-label">Zip Code</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control zipCode" id="id_zipcode" placeholder="Zip Code" name="zipcode" value={{ form.zipcode.value|default:"" }}>
+                                    <span class="help-block form-error">{{ form.zipcode.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.telno1.errors|yesno:'has-error,' }}">
+                                <label for="id_telno1" class="col-sm-3 control-label">Tel. No. 1</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_telno1" maxlength="20" placeholder="Tel. No." name="telno1"
+                                           data-validation="required" value="{{ form.telno1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.telno1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.telno2.errors|yesno:'has-error,' }}">
+                                <label for="id_telno2" class="col-sm-3 control-label">Tel. No. 2</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_telno2" maxlength="20" placeholder="Tel. No." name="telno2"
+                                           value="{{ form.telno2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.telno2.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="contactpersons" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_acctg1.errors|yesno:'has-error,' }}">
+                                <label for="id_contactperson_acctg1" class="col-sm-5 control-label">Accounting</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_acctg1" maxlength="75" placeholder="Contact Person 1"
+                                           name="contactperson_acctg1" data-validation="required" value="{{ form.contactperson_acctg1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_acctg1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_acctg2.errors|yesno:'has-error,' }}">
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_acctg2" maxlength="75" placeholder="Contact Person 2"
+                                           name="contactperson_acctg2" value="{{ form.contactperson_acctg2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_acctg2.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_it1.errors|yesno:'has-error,' }}">
+                                <label for="id_contactperson_it1" class="col-sm-5 control-label">Information Technology</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_it1" maxlength="75" placeholder="Contact Person 1"
+                                           name="contactperson_it1" data-validation="required" value="{{ form.contactperson_it1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_it1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_it2.errors|yesno:'has-error,' }}">
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_it2" maxlength="75" placeholder="Contact Person 2"
+                                           name="contactperson_it2" value="{{ form.contactperson_it2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_it2.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_other1.errors|yesno:'has-error,' }}">
+                                <label for="id_contactperson_other1" class="col-sm-5 control-label">Others</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_other1" maxlength="75" placeholder="Contact Person 1"
+                                           name="contactperson_other1" value="{{ form.contactperson_other1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_other1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.contactperson_other2.errors|yesno:'has-error,' }}">
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_contactperson_other2" maxlength="75" placeholder="Contact Person 2"
+                                           name="contactperson_other2" value="{{ form.contactperson_other2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contactperson_other2.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="refnumbers" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.rescertnum.errors|yesno:'has-error,' }}">
+                                <label for="id_rescertnum" class="col-sm-3 control-label">Res. Cert. No.</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control resCertNumber" id="id_rescertnum" maxlength="20" placeholder="Res. Cert. No." name="rescertnum"
+                                           value="{{ form.rescertnum.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.rescertnum.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.sssnum.errors|yesno:'has-error,' }}">
+                                <label for="id_sssnum" class="col-sm-3 control-label">SSS No.</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control sssNumber" id="id_sssnum" maxlength="20" placeholder="SSS No." name="sssnum"
+                                           value="{{ form.sssnum.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.sssnum.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.issued_at.errors|yesno:'has-error,' }}">
+                                <label for="id_issued_at" class="col-sm-3 control-label">Issued At</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_issued_at" maxlength="20" name="issued_at"
+                                           value="{{ form.issued_at.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.issued_at.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.tinnum.errors|yesno:'has-error,' }}">
+                                <label for="id_tinnum" class="col-sm-3 control-label">TIN</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control tinNumber" id="id_tinnum" maxlength="20" placeholder="TIN No." name="tinnum"
+                                           value="{{ form.tinnum.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.tinnum.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.issued_date.errors|yesno:'has-error,' }}">
+                                <label for="id_issued_date" class="col-sm-3 control-label">Issued On</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control datepicker" id="id_issued_date" name="issued_date" value="{{ form.issued_date.value|date:'Y-m-d'|default:'' }}">
+                                    <span class="help-block form-error">{{ form.issued_date.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="wtaxsign" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.wtaxsign_name.errors|yesno:'has-error,' }}">
+                                <label for="id_wtaxsign_name" class="col-sm-3 control-label">Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_wtaxsign_name" maxlength="50" name="wtaxsign_name"
+                                           value="{{ form.wtaxsign_name.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.wtaxsign_name.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.wtaxsign_tin.errors|yesno:'has-error,' }}">
+                                <label for="id_wtaxsign_tin" class="col-sm-3 control-label">TIN</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control tinNumber" id="id_wtaxsign_tin" maxlength="20" name="wtaxsign_tin"
+                                           value="{{ form.wtaxsign_tin.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.wtaxsign_tin.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.wtaxsign_position.errors|yesno:'has-error,' }}">
+                                <label for="id_wtaxsign_position" class="col-sm-3 control-label">Position</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_wtaxsign_position" maxlength="20" name="wtaxsign_position"
+                                           value="{{ form.wtaxsign_position.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.wtaxsign_position.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <ul id="errorList"></ul>
+                            <br><button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script type="text/javascript">
+function openTab(evt, tabName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the link that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+$(document).ready(function() {
+    openTab(event, 'maindetails');
+    $('.tablinks').eq(0).addClass('active');
+
+    $('#validateButton').on('click', function(){
+        setTimeout(red,1)
+    })
+
+    function red(){
+        if ($('#maindetails').find(".has-error").length > 0){ $('.tab li:eq(0)').addClass('mark-with-error')}
+        else{$('.tab li:eq(0)').removeClass('mark-with-error')}
+        if ($('#contactpersons').find(".has-error").length > 0){$('.tab li:eq(1)').addClass('mark-with-error')}
+        else{$('.tab li:eq(1)').removeClass('mark-with-error')}
+        if ($('#refnumbers').find(".has-error").length > 0){$('.tab li:eq(2)').addClass('mark-with-error')}
+        else{$('.tab li:eq(2)').removeClass('mark-with-error')}
+        if ($('#wtaxsign').find(".has-error").length > 0){$('.tab li:eq(3)').addClass('mark-with-error')}
+        else{$('.tab li:eq(3)').removeClass('mark-with-error')}
+    }
+});
+
+</script>
+{% endblock extra_js %}

@@ -1,0 +1,72 @@
+{% extends 'base-form.html' %}
+{% block page-title %} JV Type {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Edit</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-md-12 {{ form.code.errors|yesno:'has-error,' }}">
+                                <label for="id_code" class="control-label">Code</label>
+                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
+                                <div>
+                                    <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group form-material col-md-4">
+                                <label for="id_taxstatus" class="control-label">Tax Status</label>
+                                <select id="id_taxstatus" name="taxstatus" class="form-control" data-validation="required">
+                                    <option value="Y" {% if form.taxstatus.value == 'Y' %} selected="selected" {% endif %}>Yes</option>
+                                    <option value="N" {% if form.taxstatus.value == 'N' %} selected="selected" {% endif %}>No</option>
+                                </select>
+                                <span class="help-block form-error">{{ form.taxstatus.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group form-material col-md-4">
+                                <label for="id_department" class="control-label">Department</label>
+                                <select id="id_department" name="department" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    {% for department in department %}
+                                        <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.departmentname }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group form-material col-md-4">
+                                <label for="branch" class="control-label">Branch</label>
+                                <select id="branch" name="branch" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    {% for branch in branch %}
+                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="id_particulars" class="control-label">Particulars</label>
+                                <input type="text" class="form-control" id="id_particulars" maxlength="255" placeholder="Particulars" name="particulars" data-validation="required" value="{{ form.particulars.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

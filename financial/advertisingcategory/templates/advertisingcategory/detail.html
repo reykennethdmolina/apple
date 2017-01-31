@@ -1,0 +1,84 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Advertising Category {% endblock page-title %}
+
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Information</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body">
+                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Code : </span>
+                                            <span class="detail-profile">{{ object.code }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Description : </span>
+                                            <span class="detail-profile">{{ object.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Status : </span>
+                                            <span class="detail-profile">{{ object.status_verbose }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  End Profile Tab Section -->
+        </div>
+        <div class="col-md-4">
+            <div class="right-box-profile">
+                <h4 class="skill-title">Activity Logs</h4>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Created By:</span>
+                            <div class="univer-profile">{{ object.enterby }}</div>
+                            <div class="univer-profile">{{ object.enterdate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Modify By:</span>
+                            <div class="univer-profile">{{ object.modifyby }}</div>
+                            <div class="univer-profile">{{ object.modifydate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <div class="iconlist">
+                            {% if perms.advertisingcategory.change_advertisingcategory %}
+                            <a href="{% url 'advertisingcategory:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if perms.advertisingcategory.delete_advertisingcategory %}
+                            <a href="{% url 'advertisingcategory:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_trash" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

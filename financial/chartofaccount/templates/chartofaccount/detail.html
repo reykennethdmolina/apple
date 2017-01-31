@@ -1,0 +1,333 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Chart of Account {% endblock page-title %}
+{% block extra_css %}
+    <style>
+        .heading-top-index-2 {
+            background-color: #ffffff;
+            color: #505050;
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(0,0,0,0.09);
+            position: relative;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Information</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="widgett widgett-article widgett-shadow">
+                                    <div class="product-main">
+                                        <div class="static-box product-main-div margin-0">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <table class="table table-condensed">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Acct. Code</th>
+                                                            <th style="text-align:right">{{ object.accountcode }}</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>Main</td>
+                                                            <td align="right">{{ object.main }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Class</td>
+                                                            <td align="right">{{ object.clas }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Item</td>
+                                                            <td align="right">{{ object.item }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Cont</td>
+                                                            <td align="right">{{ object.cont }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Sub</td>
+                                                            <td align="right">{{ object.sub }}</td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-7 col-md-offset-1">
+                                                    <strong>Account Title : </strong>{{ object.title }}<br><br>
+                                                    <strong>Description : </strong>{{ object.description }}<br><br>
+                                                    <strong>Status : </strong>{{ object.status_verbose }}<br><br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="widgett widgett-article widgett-shadow">
+                                    <div class="product-main">
+                                        <div class="static-box product-main-div margin-0">
+                                            <strong>Product : </strong>{{ object.product.code|default:" - " }}<br><br>
+                                            <strong>Type of Expense : </strong>{{ object.typeofexpense.code|default:" - " }}<br><br>
+                                            <strong>Kind of Expense : </strong>{{ object.kindofexpense.code|default:" - " }}<br><br>
+                                            <strong>Main Unit : </strong>{{ object.mainunit.code|default:" - " }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="widgett widgett-article widgett-shadow">
+                                    <div class="heading-top-index-2">
+                                        <h3>Types</h3>
+                                    </div>
+                                    <div class="product-main">
+                                        <div class="static-box product-main-div margin-0">
+                                            <div class="example table-responsive">
+                                                <div class="responsive-table">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>Balance Code</td>
+                                                            <td><small><b>{{ object.get_balancecode_display }}</small></b></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Chart Type</td>
+                                                            <td><small><b>{{ object.get_charttype_display }}</small></b></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Account Type</td>
+                                                            <td><small><b>{{ object.get_accounttype_display }}</small></b></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>CTax</td>
+                                                            <td>
+                                                                {% if object.ctax == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tax Status</td>
+                                                            <td>
+                                                                {% if object.taxstatus == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>W/Tax Status</td>
+                                                            <td>
+                                                                {% if object.wtaxstatus == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Main Posting</td>
+                                                            <td>
+                                                                {% if object.mainposting == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Fixed Asset</td>
+                                                            <td>
+                                                                {% if object.fixedasset == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Taxes Payable</td>
+                                                            <td>
+                                                                {% if object.taxespayable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="widgett widgett-article widgett-shadow">
+                                    <div class="heading-top-index-2">
+                                        <h3>Enabled</h3>
+                                    </div>
+                                    <div class="product-main">
+                                        <div class="static-box product-main-div margin-0">
+                                            <div class="example table-responsive">
+                                                <div class="responsive-table">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>Bank Account</td>
+                                                            <td>
+                                                                {% if object.bankaccount_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Department</td>
+                                                            <td>
+                                                                {% if object.department_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Employee</td>
+                                                            <td>
+                                                                {% if object.employee_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Supplier</td>
+                                                            <td>
+                                                                {% if object.supplier_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Customer</td>
+                                                            <td>
+                                                                {% if object.customer_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Branch</td>
+                                                            <td>
+                                                                {% if object.branch_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Product</td>
+                                                            <td>
+                                                                {% if object.product_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Unit</td>
+                                                            <td>
+                                                                {% if object.unit_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Input VAT</td>
+                                                            <td>
+                                                                {% if object.inputvat_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Output VAT</td>
+                                                            <td>
+                                                                {% if object.outputvat_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>VAT</td>
+                                                            <td>
+                                                                {% if object.vat_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>WTax</td>
+                                                            <td>
+                                                                {% if object.wtax_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>ATax Code</td>
+                                                            <td>
+                                                                {% if object.ataxcode_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  End Profile Tab Section -->
+        </div>
+        <div class="col-md-4">
+            <div class="right-box-profile">
+                <h4 class="skill-title">Activity Logs</h4>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Created By:</span>
+                            <div class="univer-profile">{{ object.enterby }}</div>
+                            <div class="univer-profile">{{ object.enterdate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Modify By:</span>
+                            <div class="univer-profile">{{ object.modifyby }}</div>
+                            <div class="univer-profile">{{ object.modifydate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <div class="iconlist">
+                            {% if perms.chartofaccount.change_chartofaccount %}
+                            <a href="{% url 'chartofaccount:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if perms.chartofaccount.delete_chartofaccount %}
+                            <a href="{% url 'chartofaccount:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_trash" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

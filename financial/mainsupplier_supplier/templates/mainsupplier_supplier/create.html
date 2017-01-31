@@ -1,0 +1,53 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Main Supplier - Supplier {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <span class="help-block form-error">{{ form.non_field_errors.as_text }}</span>
+                        <div class="form-group form-group-0 form-material col-md-6
+                         {{ form.mainsupplier.errors|yesno:'has-error,' }}">
+                            <br><label for="id_mainsupplier" class="col-sm-4 control-label">Main Supplier</label>
+                            <div class="col-sm-7">
+                                <select id="id_mainsupplier" class="form-control" name="mainsupplier" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for mainsupplier in mainsupplier %}
+                                        <option value="{{ mainsupplier.id }}" {% if form.mainsupplier.value|add:0 == mainsupplier.id %} selected="selected" {% endif %}>{{ mainsupplier.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.mainsupplier.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-0 form-material col-md-6
+                         {{ form.supplier.errors|yesno:'has-error,' }}">
+                            <br><label for="id_supplier" class="col-sm-4 control-label">Supplier</label>
+                            <div class="col-sm-7">
+                                <select id="id_supplier" class="form-control" name="supplier" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for supplier in supplier %}
+                                        <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}>{{ supplier.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info margin-top-20" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

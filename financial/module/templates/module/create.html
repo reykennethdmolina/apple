@@ -1,0 +1,67 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Module {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Create</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group form-material {{ form.mainmodule.errors|yesno:'has-error,' }}">
+                            <label for="id_mainmodule" class="control-label">Main Module</label>
+                            <select id="id_mainmodule" name="mainmodule" class="form-control" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for mainmodule in mainmodule %}
+                                    <option value="{{ mainmodule.id }}" {% if form.mainmodule.value|add:0 == mainmodule.id %} selected="selected" {% endif %}>{{ mainmodule.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.mainmodule.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group form-material {{ form.django_content_type.errors|yesno:'has-error,' }}">
+                            <label for="id_django_content_type" class="control-label">Model</label>
+                            <select id="id_django_content_type" name="django_content_type" class="form-control" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for django_content_type in django_content_type %}
+                                    <option value="{{ django_content_type.id }}" {% if form.django_content_type.value|add:0 == django_content_type.id %} selected="selected" {% endif %}>{{ django_content_type.app_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.django_content_type.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="50" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_name" class="control-label">Name</label>
+                            <input type="text" class="form-control" id="id_name" maxlength="150" placeholder="Name" name="name" value="{{ form.name.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.name.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
+                            <div>
+                                <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group {{ form.segment.errors|yesno:'has-error,' }}">
+                            <label for="id_segment" class="control-label">Segment</label>
+                            <input type="text" class="form-control" id="id_segment" maxlength="10" placeholder="Segment" name="segment" data-validation="required" value="{{ form.segment.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.segment.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

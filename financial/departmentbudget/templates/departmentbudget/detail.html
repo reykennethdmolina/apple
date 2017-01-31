@@ -1,0 +1,208 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Department Budget {% endblock page-title %}
+
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Information</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body">
+                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Year : </span>
+                                            <span class="detail-profile">{{ object.year }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Unit : </span>
+                                            <span class="detail-profile">{{ object.unit.code }} - {{ object.unit.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Department Code : </span>
+                                            <span class="detail-profile">{{ object.department.code }} - {{ object.department.departmentname }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Account Code : </span>
+                                            <span class="detail-profile">[{{ object.chartofaccount.accountcode }}]<br> {{ object.chartofaccount.title }}<br> {{ object.chartofaccount.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Status : </span>
+                                            <span class="detail-profile">{{ object.status_verbose }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12"><br></div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Remarks : </span>
+                                            <span class="detail-profile">{{ object.remarks|default:" - " }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Formula : </span>
+                                            <span class="detail-profile">{{ object.formula|default:" - " }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Method : </span>
+                                            <span class="detail-profile">{{ object.method|default:" - " }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body">
+                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-hover table-striped" data-mobile-responsive="true">
+                                            <thead>
+                                                <tr>
+                                                    <th>Month</th>
+                                                    <th style="text-align:right">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Jan</td>
+                                                    <td align="right" class="amountValue">{{ object.mjan }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Feb</td>
+                                                    <td align="right" class="amountValue">{{ object.mfeb }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Mar</td>
+                                                    <td align="right" class="amountValue">{{ object.mmar }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Apr</td>
+                                                    <td align="right" class="amountValue">{{ object.mapr }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>May</td>
+                                                    <td align="right" class="amountValue">{{ object.mmay }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Jun</td>
+                                                    <td align="right" class="amountValue">{{ object.mjun }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Jul</td>
+                                                    <td align="right" class="amountValue">{{ object.mjul }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Aug</td>
+                                                    <td align="right" class="amountValue">{{ object.maug }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Sep</td>
+                                                    <td align="right" class="amountValue">{{ object.msep }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Oct</td>
+                                                    <td align="right" class="amountValue">{{ object.moct }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Nov</td>
+                                                    <td align="right" class="amountValue">{{ object.mnov }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Dec</td>
+                                                    <td align="right" class="amountValue">{{ object.mdec }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Total</strong></td>
+                                                    <td align="right" class="text-warning" id="budgetTotal"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  End Profile Tab Section -->
+        </div>
+        <div class="col-md-4">
+            <div class="right-box-profile">
+                <h4 class="skill-title">Activity Logs</h4>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Created By:</span>
+                            <div class="univer-profile">{{ object.enterby }}</div>
+                            <div class="univer-profile">{{ object.enterdate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Modify By:</span>
+                            <div class="univer-profile">{{ object.modifyby }}</div>
+                            <div class="univer-profile">{{ object.modifydate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <div class="iconlist">
+                            {% if perms.departmentbudget.change_departmentbudget %}
+                            <a href="{% url 'departmentbudget:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if perms.departmentbudget.delete_departmentbudget %}
+                            <a href="{% url 'departmentbudget:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_trash" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script>
+        $(function(){
+            $('.amountValue').each(function(){
+                value = parseFloat($(this).text()) || 0
+                $(this).text(value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+            })
+            $( window ).load(showTotal)
+            function showTotal(){
+                var total = 0
+                $('.amountValue').each(function(){
+                    var s = $(this).text().toString()
+                    var t = s.replace( /,/g, "")
+                    total += parseFloat(t) || 0
+                })
+                $('#budgetTotal').text(total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+            }
+        })
+    </script>
+{% endblock extra_js %}

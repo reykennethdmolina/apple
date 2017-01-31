@@ -1,0 +1,13 @@
+.swMain ul.anchor li{
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+.swMain ul.anchor li a {
+    width:180px;
+    padding: 0px;
+    height: 55px;
+}
+.swMain ul.anchor li a .stepDesc{
+    padding: 7px 0px 0px 10px;
+    font: 12px Verdana, Arial, Helvetica, sans-serif;
+}

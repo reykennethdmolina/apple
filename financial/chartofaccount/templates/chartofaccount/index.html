@@ -1,0 +1,267 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Chart of Account {% endblock page-title %}
+
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if perms.chartofaccount.add_chartofaccount %}
+                <div class="text-right"><a href="{% url 'chartofaccount:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a></div>
+                {% endif  %}
+            </div>
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Data List</p></h4>
+                    <div class="table-responsive" style="position:relative">
+                        <div id="shade">
+                            <div class="loader two-color"></div>
+                        </div>
+                        <table class="table table-hover table-bordered" id="datalist">
+                            <thead>
+                                <tr>
+                                    <th><span>Id</span></th>
+                                    <th><span>Account Code</span></th>
+                                    <th><span>Title</span></th>
+                                    <th><span>Description</span></th>
+                                    <th class="text-center"><span>Action</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in data_list %}
+                                <tr>
+                                    <td>{{ data.id }}</td>
+                                    <td>{{ data.accountcode }}</td>
+                                    <td>{{ data.title }}</td>
+                                    <td>{{ data.description }}</td>
+                                    <td class="text-center" id="commandList">
+                                        <div class="iconlist-wrap auto-0">
+                                            <div class="iconlist">
+                                            <a href="{% url 'chartofaccount:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% if perms.chartofaccount.change_chartofaccount %}
+                                            <a href="{% url 'chartofaccount:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            {% if perms.chartofaccount.delete_chartofaccount %}
+                                            <a href="{% url 'chartofaccount:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row col-md-12" style="text-align: right">
+                        <input type="text" class="paginate-search">
+                        <input type="button" class="paginate-search-button" value="Search" data-command="search">
+                        <div id="pagination-container">
+                            <select id="limit" class="form-control paginate paginate-limit">
+                                <option data-command="10">10</option>
+                                <option data-command="50">50</option>
+                                <option data-command="100">100</option>
+                            </select>&nbsp;&nbsp;&nbsp;
+                            <ul id="pages" class="pagination" style="visibility: visible;"></ul>
+                        </div>
+                        <input type="hidden" id="current" value="0">
+                        <input type="hidden" id="listcount" value="{{ listcount }}">
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var limit = parseInt($('#limit').children('option:selected').data('command'));
+            var current = 0;
+            var listcount = parseInt($('#listcount').val());
+            var pagecount = Math.floor(listcount / limit);
+            var activepage = 0;
+            var searchvalue = '';
+            var getList;
+            var command;
+
+            $('.paginate-search-button').attr('disabled',true);
+            pages(command);
+            markpage(0,0);
+
+            //to fix later
+            //pagination for search
+            //scrollable table
+            //disable buttons (prev, next)
+            //allow all limit
+            //multiple click handler
+
+            $(document).on('click', '.paginate-nav, .paginate-page, .paginate-search-button', function() {
+                paginate($(this));
+            });
+            $(document).on('change', '.paginate-limit', function() {
+                paginate($(this));
+            });
+
+
+            $('.paginate-search').keyup(function(){
+                if($(this).val().length !=0){
+                    $('.paginate-search-button').attr('disabled', false);
+                }
+                else{
+                    $('.paginate-search-button').attr('disabled',true);
+                    paginate($('.paginate-search-button-clear'));
+                }
+            });
+            $('.paginate-search-button-clear').on('click', function(){
+                $('.paginate-search').val('');
+                paginate($(this));
+            });
+
+            function paginate(obj){
+                var current = parseInt($('#current').val());
+
+                if(obj.data('command') == "prev"){
+                    if((current - limit) <= 0){
+                        current = 0;
+                    }
+                    else{
+                        current = current - limit;
+                    }
+                }
+                else if(obj.data('command') == "next"){
+                    if((current + limit) < listcount){
+                        current = current + limit;
+                    }
+                }
+                else if(obj.hasClass('pages')){
+                    current = (parseInt(obj.data('command')) * limit) - limit;
+                }
+
+                if(obj.data('command') == null){
+                    command = parseInt($('#limit').children('option:selected').data('command'));
+                }
+                else{
+                    command = obj.data('command');
+                }
+                limit = parseInt($('#limit').children('option:selected').data('command'));
+
+                searchvalue = $('.paginate-search').val();
+                if(searchvalue == '' || searchvalue == null){
+                    searchvalue = 'null';
+                }
+
+                var url = "page/" + command + "/" + current + "/" + limit + "/" + convertToSlug(searchvalue);
+
+                $('#shade').fadeIn();
+                getList = $.getJSON(url, function(result) {
+
+                    $('#current').val(current);
+
+                    tableList = $('table#datalist tbody');
+                    commandList = tableList.find('tr:eq(0) td:last()').html();
+                    tableList.html('');
+
+                    if(result.length > 0){
+
+                        if(command == "search"){
+                            arraylimit = result.length;
+                            $('#pages').html('');
+                        }
+                        else{
+                            arraylimit = limit;
+                        }
+
+                        for (var i = 0; i < arraylimit; i++) {
+                            tableList.append("<tr><td>" + result[i].pk + "</td>" +
+                                    "<td>" + result[i].fields['accountcode'] + "</td>" +
+                                    "<td>" + result[i].fields['title'] + "</td>" +
+                                    "<td>" + result[i].fields['description'] + "</td>" + "</tr>");
+
+                            tableList.find('tr').eq(i).last('td').append("<td>" + commandList + "</td>");
+
+                            commandLink = tableList.find('tr').eq(i).last('td');
+                            oldPk = commandLink.find('a:eq(0)').attr("href").replace( /^\D+/g, '');
+                            commandLink.find('a:eq(0)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
+                            commandLink.find('a:eq(1)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
+                            commandLink.find('a:eq(2)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
+
+                            $('#shade').fadeOut();
+                        }
+                        if(command == "search"){
+                            $('#pagination-container').hide();
+                        }
+                        else{
+                            $('#pagination-container').show();
+                            pages(command);
+                            markpage(current, limit);
+                        }
+                    }
+                    else{
+                        tableList.append("<tr><td colspan='4'> No result found </td>" + "</tr>");
+                        $('#shade').fadeOut();
+                    }
+                }).fail(function() {
+                    console.log("error");
+
+                    tableList.html('');
+                    tableList.append("<tr><td colspan='4'> No result found </td>" + "</tr>");
+                    $('#shade').fadeOut();
+                });
+            }
+
+            function markpage(current, limit){
+                if(current == 0 && limit == 0){
+                    activepage = 0;
+                }
+                else{
+                    activepage = parseInt(Math.floor((current + limit) / limit)) - 1;
+                }
+
+                $('.paginate-page').removeClass('active').eq(activepage).addClass('active');
+
+                if(activepage < 3){
+                    $('.paginate-page').slice(0, 7).removeClass('hidden');
+                }
+                else{
+                    $('.paginate-page').slice((activepage - 3), (activepage + 4)).removeClass('hidden');
+                }
+            }
+
+            function convertToSlug(Text){
+                return Text
+                    .toLowerCase()
+                    .replace(/ /g,'-')
+                    .replace(/[^\w-]+/g,'');
+            }
+
+            function pages(command){
+                if(command == "search"){
+                    console.log(123)
+                }
+
+                limit = parseInt($('#limit').children('option:selected').data('command'));
+                pagecount = Math.floor(listcount / limit);
+                if(listcount%limit != 0){
+                    pagecount = pagecount + 1;
+                }
+
+                $('#pages').html('');
+                $('#pages').prepend("<li data-command='prev' class='prev paginate paginate-nav'><a title='Prev' ><i class='fa fa-angle-left'></i></a></li>");
+                for (var j = 1; j <= pagecount; j++){
+                    $('#pages').append("<li data-command='" + j + "' class='paginate paginate-page pages hidden'><a>"+ j +"</a></li>");
+                }
+                $('#pages').append("<li data-command='next' class='next paginate paginate-nav'><a title='Next' ><i class='fa fa-angle-right'></i></a></li>");
+            }
+        });
+    </script>
+{% endblock extra_js %}
+

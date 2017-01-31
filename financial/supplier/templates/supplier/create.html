@@ -1,0 +1,149 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Supplier {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group form-group-sm form-group-0 col-md-6
+                         {{ form.code.errors|yesno:'has-error,' }}">
+                            <label for="id_code" class="col-sm-3 control-label">Code</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.code.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6
+                         {{ form.name.errors|yesno:'has-error,' }}">
+                            <label for="id_name" class="col-sm-3 control-label">Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="id_name" maxlength="250" placeholder="Name" name="name" data-validation="required" value="{{ form.name.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.name.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address1.errors|yesno:'has-error,' }}">
+                            <br><label for="id_address1" class="col-sm-3 control-label">Address 1</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="id_address1" maxlength="250" placeholder="Address" name="address1" data-validation="required" value="{{ form.address1.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.address1.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6
+                         {{ form.tin.errors|yesno:'has-error,' }}">
+                            <br><label for="id_tin" class="col-sm-3 control-label">TIN</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control tinNumber" id="id_tin" placeholder="TIN" name="tin" data-validation="required" value={{ form.tin.value|default:"" }}>
+                                <span class="help-block form-error help-block-sm">{{ form.tin.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address2.errors|yesno:'has-error,' }}">
+                            <label for="id_address2" class="col-sm-3 control-label">Address 2</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="id_address2" maxlength="250" placeholder="Address" name="address2" value="{{ form.address2.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.address2.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.telno.errors|yesno:'has-error,' }}">
+                            <label for="id_telno" class="col-sm-3 control-label">Tel. No.</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="id_telno" maxlength="20" placeholder="Tel. No." name="telno" value="{{ form.telno.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.telno.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address3.errors|yesno:'has-error,' }}">
+                            <label for="id_address3" class="col-sm-3 control-label">Address 3</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="id_address3" maxlength="250" placeholder="Address" name="address3" value="{{ form.address3.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.address3.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.faxno.errors|yesno:'has-error,' }}">
+                            <label for="id_faxno" class="col-sm-3 control-label">Fax. No.</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="id_faxno" maxlength="20" placeholder="Fax. No." name="faxno" value="{{ form.faxno.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.faxno.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-4 {{ form.zipcode.errors|yesno:'has-error,' }}">
+                            <br><label for="id_zipcode" class="col-sm-4 control-label">Zip Code</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control zipCode" id="id_zipcode" maxlength="10" placeholder="Zip Code" name="zipcode" value="{{ form.zipcode.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.zipcode.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                         {{ form.ataxcode.errors|yesno:'has-error,' }}">
+                            <br><label for="id_ataxcode" class="col-sm-4 control-label">ATax Code</label>
+                            <div class="col-sm-7">
+                                <select id="id_ataxcode" class="form-control" name="ataxcode" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for ataxcode in ataxcode %}
+                                        <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.description }} ({{ ataxcode.rate }}%)</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.ataxcode.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                         {{ form.inputvat.errors|yesno:'has-error,' }}">
+                            <br><label for="id_inputvat" class="col-sm-4 control-label">Input VAT</label>
+                            <div class="col-sm-7">
+                                <select id="id_inputvat" class="form-control" name="inputvat" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for inputvat in inputvat %}
+                                        <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.inputvat.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-4 form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">
+                            <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>
+                            <div class="col-sm-7">
+                                <select id="id_multiplestatus" name="multiplestatus" class="form-control">
+                                    {% for id,name in form.fields.multiplestatus.choices %}
+                                        <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.multiplestatus.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                         {{ form.vat.errors|yesno:'has-error,' }}">
+                            <label for="id_vat" class="col-sm-4 control-label">VAT</label>
+                            <div class="col-sm-7">
+                                <select id="id_vat" class="form-control" name="vat" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for vat in vat %}
+                                        <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.description }} ({{ vat.rate }}%)</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.vat.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-4 {{ form.inputvatrate.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvatrate" class="col-sm-4 control-label">Input VAT Rate</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control rate" id="id_inputvatrate" name="inputvatrate" placeholder="Rate" data-validation="required" value="{{ form.inputvatrate.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.inputvatrate.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-info margin-top-25" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

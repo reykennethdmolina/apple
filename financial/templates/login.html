@@ -1,0 +1,41 @@
+{% extends 'base-login.html' %}
+{% block title %} Financial - Login {% endblock %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="branding">
+                <h1 id="site-name"><a href="#">Financial Staff - Login</a></h1>
+            </div>
+        </div>
+        <div id="content" class="colM">
+            <div id="content-main">
+                <form action="{% url 'django.contrib.auth.views.login' %}" method="post" id="login-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <label class="required" for="id_username">Username:</label>
+                        <input id="id_username" maxlength="254" name="username" type="text"/>
+                    </div>
+                    <div class="form-row">
+                        <label class="required" for="id_password">Password:</label>
+                        <input id="id_password" name="password" type="password"/>
+                        <input type="hidden" name="next" value="{{ next }}"/>
+                    </div>
+                    <div class="form-row">
+                        {% if form.errors %}
+                        <p class="errornote">
+                            Your username and password didn't match.
+                            Please try again
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="submit-row">
+                        <label> </label>
+                        <input type="submit" value="Log in"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <br class="clear"/>
+    </div>
+{% endblock content %}

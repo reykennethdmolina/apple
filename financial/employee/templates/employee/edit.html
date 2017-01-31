@@ -1,0 +1,101 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Employee {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="row col-md-6">
+                                <div class="form-group form-material form-group-0 form-group-sm col-md-12
+                                 {{ form.department.errors|yesno:'has-error,' }}">
+                                    <label for="id_department" class="col-sm-4 control-label">Department</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_department" class="form-control" name="department" data-validation="required">
+                                            <option value="">-- Select --</option>
+                                            {% for department in department %}
+                                                <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %}
+                                                        selected="selected" {% endif %}>{{ department.departmentname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error help-block-sm">{{ form.department.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.firstname.errors|yesno:'has-error,' }}">
+                                    <br><label for="id_firstname" class="col-sm-4 control-label">First Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="id_firstname" maxlength="75" placeholder="First Name"
+                                               name="firstname" data-validation="required" value="{{ form.firstname.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.firstname.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.middlename.errors|yesno:'has-error,' }}">
+                                    <label for="id_middlename" class="col-sm-4 control-label">Middle Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="id_middlename" maxlength="75" placeholder="Middle Name"
+                                               name="middlename" value="{{ form.middlename.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.middlename.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.lastname.errors|yesno:'has-error,' }}">
+                                    <label for="id_lastname" class="col-sm-4 control-label">Last Name</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="id_lastname" maxlength="75" placeholder="Last Name"
+                                               name="lastname" data-validation="required" value="{{ form.lastname.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.lastname.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.code.errors|yesno:'has-error,' }}">
+                                    <label for="id_code" class="col-sm-4 control-label">Employee No.</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="id_code" maxlength="10" readonly="readonly" placeholder="Emp. No." name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.code.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.email.errors|yesno:'has-error,' }}">
+                                    <br><label for="id_email" class="col-sm-4 control-label">Email Address</label>
+                                    <div class="col-sm-7">
+                                        <input type="email" class="form-control" id="id_email" maxlength="100" placeholder="Email Address"
+                                               name="email" value="{{ form.email.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.email.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">
+                                    <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_multiplestatus" name="multiplestatus" class="form-control">
+                                            {% for id,name in form.fields.multiplestatus.choices %}
+                                                <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error help-block-sm">{{ form.multiplestatus.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-info margin-top-25" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

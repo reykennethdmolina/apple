@@ -1,0 +1,60 @@
+.form-group.form-group-0{
+    margin-bottom: 0px;
+}
+.auto-0 {
+    height: 0px;
+    margin: 0px;
+}
+.form-group.form-group-5{
+    margin-bottom: 5px;
+}
+.form-group-sm.form-group-xs .form-control{
+    height: 25px;
+    font-size: 11px;
+}
+.form-horizontal.form-shrink .checkbox-custom, .form-horizontal .radio-custom{
+    min-height: 25px;
+}
+.col-shrink{
+    padding-right: 0px;
+}
+.form-horizontal .form-group-sm .control-label.col-shrink{
+    font-size: 10px;
+}
+.form-group-5 .radio-custom label{
+    font-size: 11px;
+}
+
+/*pagination css start*/
+#shade{
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    display: none;
+}
+.loader{
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+}
+.paginate-page{
+    display: none;
+}
+.paginate{
+    cursor: pointer;
+}
+.pagination, .paginate-limit{
+    display: inline-block;
+    vertical-align: top;
+    margin: 20px 0;
+}
+.paginate-limit{
+    max-width: 60px;
+    height: 38px;
+}
+/*pagination css end*/

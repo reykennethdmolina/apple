@@ -1,0 +1,202 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Product Group {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Edit</h3>
+                </div>
+                <div class="panel-body">
+
+                    <form autocomplete="off" id="form-b" method="post" class="form-horizontal form-shrink">
+                        {% csrf_token %}
+                        <div class="col-md-3">
+                            <div class="form-group form-group-sm">
+                                <span class="help-block form-error">{{ form.non_field_errors.as_text }}</span>
+                                <label for="id_year" class="col-sm-3 control-label">Year</label>
+                                <div class="col-sm-9">
+                                    <input type="number" class="form-control" id="id_year" min="1980" max="2100" placeholder="Year" name="year" data-validation="required" value="{{ form.year.value|default:'' }}">
+                                </div>
+                                <span class="help-block form-error">{{ form.year.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group form-group-5 form-group-sm form-material">
+                                <label for="id_product" class="col-sm-3 control-label">Product</label>
+								<div class="col-sm-9">
+                                    <select id="id_product" name="product" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        {% for product in product %}
+                                            <option value="{{ product.id }}" data-description="{{ product.description }}" {% if form.product.value|add:0 == product.id %} selected="selected" {% endif %}>{{ product.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
+                                    <small><span id="product_description" class="control-label pull-right text-info"></span></small>
+								</div>
+							</div>
+                            <div class="form-group form-group-5 form-group-sm form-material">
+                                <label for="id_product" class="col-sm-3 control-label">Account</label>
+								<div class="col-sm-9">
+                                    <select id="id_chartofaccount" name="chartofaccount" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        {% for chartofaccount in chartofaccount %}
+                                            <option value="{{ chartofaccount.id }}" data-description="{{ chartofaccount.title }}" {% if form.chartofaccount.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.chartofaccount.errors.as_text }}</span>
+                                    <small><span id="account_description" class="control-label pull-right text-info"></span></small>
+								</div>
+							</div>
+                        </div>
+                        <div class="col-md-8 col-md-offset-1">
+                            <div class="form-group form-group-5 form-group-sm">
+                                <label for="id_remarks" class="col-sm-1 control-label">Remarks</label>
+								<div class="col-sm-11">
+                                    <input type="text" class="form-control" id="id_remarks" maxlength="255" placeholder="Remarks" name="remarks" value="{{ form.remarks.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
+								</div>
+                            </div>
+                            <div class="form-group form-group-5 form-group-sm">
+                                <label for="id_formula" class="col-sm-1 control-label">Formula</label>
+								<div class="col-sm-11">
+                                    <input type="text" class="form-control" id="id_formula" maxlength="255" placeholder="Formula" name="formula" value="{{ form.formula.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.formula.errors.as_text }}</span>
+								</div>
+                            </div>
+                            <div class="form-group form-group-5 form-group-sm">
+                                <label for="id_method" class="col-sm-1 control-label">Method</label>
+								<div class="col-sm-11">
+                                    <input type="text" class="form-control" id="id_method" maxlength="255" placeholder="Method" name="method" value="{{ form.method.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.method.errors.as_text }}</span>
+								</div>
+                            </div>
+                            <div class="col-md-12"><br><br></div>
+                            <div class="col-md-4">
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mjan" class="col-sm-2 control-label">Jan</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mjan" maxlength="19" placeholder="Amount" name="mjan" value="{{ form.mjan.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mjan.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mfeb" class="col-sm-2 control-label">Feb</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mfeb" maxlength="19" placeholder="Amount" name="mfeb" value="{{ form.mfeb.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mfeb.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mmar" class="col-sm-2 control-label">Mar</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mmar" maxlength="19" placeholder="Amount" name="mmar" value="{{ form.mmar.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mmar.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mapr" class="col-sm-2 control-label">Apr</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mapr" maxlength="19" placeholder="Amount" name="mapr" value="{{ form.mapr.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mapr.errors.as_text }}</span>
+								    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mmay" class="col-sm-2 control-label">May</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mmay" maxlength="19" placeholder="Amount" name="mmay" value="{{ form.mmay.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mmay.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mjun" class="col-sm-2 control-label">Jun</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mjun" maxlength="19" placeholder="Amount" name="mjun" value="{{ form.mjun.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mjun.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mjul" class="col-sm-2 control-label">Jul</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mjul" maxlength="19" placeholder="Amount" name="mjul" value="{{ form.mjul.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mjul.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_maug" class="col-sm-2 control-label">Aug</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_maug" maxlength="19" placeholder="Amount" name="maug" value="{{ form.maug.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.maug.errors.as_text }}</span>
+								    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_msep" class="col-sm-2 control-label">Sep</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_msep" maxlength="19" placeholder="Amount" name="msep" value="{{ form.msep.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.msep.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_moct" class="col-sm-2 control-label">Oct</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_moct" maxlength="19" placeholder="Amount" name="moct" value="{{ form.moct.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.moct.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mnov" class="col-sm-2 control-label">Nov</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mnov" maxlength="19" placeholder="Amount" name="mnov" value="{{ form.mnov.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mnov.errors.as_text }}</span>
+								    </div>
+                                </div>
+                                <div class="form-group form-group-5 form-group-sm">
+                                    <label for="id_mdec" class="col-sm-2 control-label">Dec</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control amount" id="id_mdec" maxlength="19" placeholder="Amount" name="mdec" value="{{ form.mdec.value|default:'' }}">
+                                        <span class="help-block form-error">{{ form.mdec.errors.as_text }}</span>
+								    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12"><br></div>
+                            <div class="col-md-12">Budget for the Year: &nbsp;&nbsp;&nbsp;
+                                <span id="budgetTotal" class="text-warning amount" style="background-color: #5a5a5a; padding-left: 5px; padding-right: 5px;"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><br></div>
+                        <button type="submit" class="btn btn-info pull-right" id="validateButton">Submit</button>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script>
+        $(function(){
+            $( window ).load(showSelected).load(showTotal)
+            $('#id_product, #id_chartofaccount').on('change', showSelected)
+            $('.amount').on('click keyup', showTotal)
+            function showSelected(){
+                $('#product_description').text($('#id_product').find(':selected').data('description'))
+                $('#account_description').text($('#id_chartofaccount').find(':selected').data('description'))
+            }
+            function showTotal(){
+                var total = 0
+                $('.amount').each(function(){
+                    var s = $(this).val().toString()
+                    var t = s.replace( /,/g, "")
+                    total += parseFloat(t) || 0
+                })
+                $('#budgetTotal').text(total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+            }
+        })
+    </script>
+{% endblock extra_js %}

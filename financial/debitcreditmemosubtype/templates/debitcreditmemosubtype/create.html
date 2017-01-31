@@ -1,0 +1,143 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Debit Credit Memo Subtype {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="row col-md-6">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.code.errors|yesno:'has-error,' }}">
+                                    <label for="id_code" class="col-sm-4 control-label">Code</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.code.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group form-group-0 form-group-sm col-md-12 {{ form.group.errors|yesno:'has-error,' }} form-material">
+                                    <br><label for="id_group" class="col-sm-4 control-label">Group</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_group" name="group" class="form-control">
+                                            {% for id,name in form.fields.group.choices %}
+                                                <option value="{{ id }}"{% if form.group.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.group.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group form-group-0 form-group-sm col-md-12 {{ form.applicationstatus.errors|yesno:'has-error,' }} form-material">
+                                    <label for="id_group" class="col-sm-4 control-label">Application Status</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_applicationstatus" name="applicationstatus" class="form-control">
+                                            {% for id,name in form.fields.applicationstatus.choices %}
+                                                <option value="{{ id }}"{% if form.applicationstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.applicationstatus.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-6">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.description.errors|yesno:'has-error,' }}">
+                                    <label for="id_description" class="col-sm-4 control-label">Description</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Description"
+                                               name="description" data-validation="required" value="{{ form.description.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.description.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group form-group-0 form-group-sm col-md-12 {{ form.particular.errors|yesno:'has-error,' }}">
+                                    <br><label class="col-sm-4 control-label" for="id_particular">Particular (<span id="max-len">250</span> characters left)</label>
+                                    <div class="col-sm-8">
+                                        <textarea id="id_particular" class="form-control text-area" name="particular" rows="3">{{ form.particular.value|default:"" }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-12">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm {{ form.debit1chartofaccount.errors|yesno:'has-error,' }}
+                                form-material">
+                                    <br><label class="col-sm-4 control-label" for="id_debit1chartofaccount">Debit 1 Chart of Account</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_debit1chartofaccount" class="form-control" name="debit1chartofaccount"
+                                                data-validation="required">
+                                            <option value="">-- Select --</option>
+                                            {% for chartofaccount in chartofaccount %}
+                                                <option value="{{ chartofaccount.id }}" {% if form.debit1chartofaccount.value|add:0 == chartofaccount.id %}
+                                                        selected="selected" {% endif %}>[{{ chartofaccount.accountcode }}] {{ chartofaccount.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.debit1chartofaccount.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-12">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm {{ form.debit2chartofaccount.errors|yesno:'has-error,' }}
+                                form-material">
+                                    <label class="col-sm-4 control-label" for="id_debit2chartofaccount">Debit 2 Chart of Account</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_debit2chartofaccount" class="form-control" name="debit2chartofaccount"
+                                                data-validation="required">
+                                            <option value="">-- Select --</option>
+                                            {% for chartofaccount in chartofaccount %}
+                                                <option value="{{ chartofaccount.id }}" {% if form.debit2chartofaccount.value|add:0 == chartofaccount.id %}
+                                                        selected="selected" {% endif %}>[{{ chartofaccount.accountcode }}] {{ chartofaccount.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.debit2chartofaccount.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row col-md-12">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm {{ form.credit1chartofaccount.errors|yesno:'has-error,' }}
+                                form-material">
+                                    <label class="col-sm-4 control-label" for="id_credit1chartofaccount">Credit 1 Chart of Account</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_credit1chartofaccount" class="form-control" name="credit1chartofaccount"
+                                                data-validation="required">
+                                            <option value="">-- Select --</option>
+                                            {% for chartofaccount in chartofaccount %}
+                                                <option value="{{ chartofaccount.id }}" {% if form.credit1chartofaccount.value|add:0 == chartofaccount.id %}
+                                                        selected="selected" {% endif %}>[{{ chartofaccount.accountcode }}] {{ chartofaccount.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.credit1chartofaccount.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm {{ form.credit2chartofaccount.errors|yesno:'has-error,' }}
+                                form-material">
+                                    <label class="col-sm-4 control-label" for="id_credit2chartofaccount">Credit 2 Chart of Account</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_credit2chartofaccount" class="form-control" name="credit2chartofaccount"
+                                                data-validation="required">
+                                            <option value="">-- Select --</option>
+                                            {% for chartofaccount in chartofaccount %}
+                                                <option value="{{ chartofaccount.id }}" {% if form.credit2chartofaccount.value|add:0 == chartofaccount.id %}
+                                                        selected="selected" {% endif %}>[{{ chartofaccount.accountcode }}] {{ chartofaccount.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.credit2chartofaccount.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-info margin-top-25" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

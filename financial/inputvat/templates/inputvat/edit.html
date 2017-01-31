@@ -1,0 +1,62 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Input VAT {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Edit</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group form-material {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvattype" class="control-label">Input VAT Type</label>
+                            <select id="id_inputvattype" name="inputvattype" class="form-control" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for inputvattype in inputvattype %}
+                                    <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group form-material {{ form.inputvatchartofaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvatchartofaccount" class="control-label">Input VAT Chart of Account</label>
+                            <select id="id_inputvatchartofaccount" name="inputvatchartofaccount" class="form-control" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for inputvatchartofaccount in inputvatchartofaccount %}
+                                    <option value="{{ inputvatchartofaccount.id }}" {% if form.inputvatchartofaccount.value|add:0 == inputvatchartofaccount.id %} selected="selected" {% endif %}>{{ inputvatchartofaccount.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.inputvatchartofaccount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
+                            <div>
+                                <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_title" class="control-label">Title</label>
+                            <input type="text" class="form-control" id="id_title" maxlength="50" placeholder="Title" name="title" data-validation="required" value="{{ form.title.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.title.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

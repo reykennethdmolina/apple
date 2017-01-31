@@ -1,0 +1,62 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Company {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Edit</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
+                            <div>
+                                <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_address1" class="control-label">Address #1</label>
+                            <input type="text" class="form-control" id="id_address1" maxlength="20" placeholder="Address #1" name="address1" value="{{ form.address1.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.address1.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_address2" class="control-label">Address #2</label>
+                            <input type="text" class="form-control" id="id_address2" maxlength="20" placeholder="Address #2" name="address2" value="{{ form.address2.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.address2.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_address3" class="control-label">Address #3</label>
+                            <input type="text" class="form-control" id="id_address3" maxlength="20" placeholder="Address #3" name="address3" value="{{ form.address3.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.address3.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_telno" class="control-label">Tel no.</label>
+                            <input type="text" class="form-control" id="id_telno" maxlength="20" placeholder="Tel no." name="telno" value="{{ form.telno.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.telno.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_tin" class="control-label">Tin</label>
+                            <input type="text" class="form-control tinNumber" id="id_tin" maxlength="15" placeholder="Tin" name="tin" value="{{ form.tin.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.tin.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

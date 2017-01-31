@@ -1,0 +1,167 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Journal Voucher {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                    <form method="post" id="form-a">
+                        {% csrf_token %}
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group form-material col-sm-2">
+                                    <label class="control-label" for="inputUsername">Number</label>
+                                    <input type="text" class="form-control input-sm" id="inputUsername" name="inputUsername" placeholder="xxxxxxx">
+                                </div>
+                                <div class="form-group form-material col-sm-2">
+                                    <label class="control-label" for="inputUsername">Date</label>
+                                    <input type="text" class="form-control input-sm" id="inputUsername" name="inputUsername" placeholder="YYYY-MM-DD">
+                                </div>
+                                <div class="form-group form-material col-sm-2">
+                                    <label class="control-label" for="inputUsername">Type</label>
+                                    <select class="form-control input-sm">
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-material col-sm-3">
+                                    <label class="control-label" for="inputUsername">Currency</label>
+                                    <select class="form-control input-sm">
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group form-material col-sm-2">
+                                    <label class="control-label" for="inputUsername">Reference#</label>
+                                    <input type="text" class="form-control input-sm" id="inputUsername" name="inputUsername" placeholder="xxxxx">
+                                </div>
+                                <div class="form-group form-material col-sm-3">
+                                    <label class="control-label" for="inputUsername">Branch</label>
+                                    <select class="form-control input-sm">
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-material col-sm-3">
+                                    <label class="control-label" for="inputUsername">Department</label>
+                                    <select class="form-control input-sm">
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                        <option>Option 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label" for="inputUsername">Particular</label>
+                                    <textarea data-fv-field="standard_content" class="form-control" name="standard_content" rows="5">{% lorem 50 w random %}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="panel">
+                                <div class="panel-body">
+                                    <!-- Start Editable Section -->
+                                    <table class="table table-striped margin-bottom-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Chart of Account</th>
+                                                <th>Particular</th>
+                                                <th>Debit</th>
+                                                <th>Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>430</td>
+                                                <td>540</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    <strong>Total</strong>
+                                                </th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{#    <script type="text/javascript">#}
+{#        $(document).ready(function() {#}
+{#            $("select#id_bank").change(function () {#}
+{#                if ($(this).val() == "") {#}
+{#                    $("select#id_bankbranch").html("<option>-- Select --</option>");#}
+{#                    $("select#id_bankbranch").attr('disabled', true);#}
+{#                }#}
+{#                else {#}
+{#                    var url = $(this).val() + "/all_branches/";#}
+{#                    $.getJSON(url, function(branches) {#}
+{#                        var options = '<option value="">-- Select --</option>';#}
+{#                        for (var i = 0; i < branches.length; i++) {#}
+{#                            options += '<option value="' + branches[i].pk + '">' + branches[i].fields['description'] + '</option>';#}
+{#                        }#}
+{#                        $("select#id_bankbranch").html(options);#}
+{#                        $("select#id_bankbranch option:first").attr('selected', 'selected');#}
+{#                        $("select#id_bankbranch").attr('disabled', false);#}
+{#                    });#}
+{#                }#}
+{#            });#}
+{#            $("select#id_bankbranch").change(function(){#}
+{#                if($(this).val() == -1){#}
+{#                    return;#}
+{#                }#}
+{#            })#}
+{#        });#}
+{#    </script>#}
+{% endblock extra_js %}#}

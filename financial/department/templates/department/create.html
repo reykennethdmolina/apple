@@ -1,0 +1,80 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Department {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Create</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-md-4 {{ form.code.errors|yesno:'has-error,' }}">
+                                <label for="id_code" class="control-label">Code</label>
+                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <label for="id_departmentname" class="control-label">Department Name</label>
+                                <input type="text" class="form-control" id="id_departmentname" maxlength="255" placeholder="Department Name" name="departmentname" data-validation="required" value="{{ form.departmentname.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.departmentname.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group form-material col-md-4">
+                                <label for="id_expchartofaccount" class="control-label">Expense Chart of Account</label>
+                                <select id="id_expchartofaccount" name="expchartofaccount" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for expchartofaccount in expchartofaccount %}
+                                        <option value="{{ expchartofaccount.id }}" {% if form.expchartofaccount.value|add:0 == expchartofaccount.id %} selected="selected" {% endif %}>[ {{ expchartofaccount.accountcode }} ] - {{ expchartofaccount.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.expchartofaccount.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="id_sectionname" class="control-label">Section Name</label>
+                                <input type="text" class="form-control" id="id_sectionname" maxlength="255" placeholder="Section Name" name="sectionname" data-validation="required" value="{{ form.sectionname.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.sectionname.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="id_groupname" class="control-label">Group Name</label>
+                                <input type="text" class="form-control" id="id_groupname" maxlength="255" placeholder="Group Name" name="groupname" data-validation="required" value="{{ form.groupname.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.groupname.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group form-material col-md-4">
+                                <label for="id_branchstatus" class="control-label">Branch Status</label>
+                                <select id="id_branchstatus" name="branchstatus" class="form-control" data-validation="required">
+                                    <option value="Y" {% if form.branchstatus.value == 'Y' %} selected="selected" {% endif %}>Yes</option>
+                                    <option value="N" {% if form.branchstatus.value == 'N' %} selected="selected" {% endif %}>No</option>
+                                </select>
+                                <span class="help-block form-error">{{ form.productgroup.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group form-material col-md-8">
+                                <label for="id_productgroup" class="control-label">Product Group</label>
+                                <select id="id_productgroup" name="productgroup" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    {% for productgroup in productgroup %}
+                                        <option value="{{ productgroup.id }}" {% if form.productgroup.value|add:0 == productgroup.id %} selected="selected" {% endif %}>{{ productgroup.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.productgroup.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

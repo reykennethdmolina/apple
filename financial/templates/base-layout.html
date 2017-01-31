@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="description" content="bootstrap material admin template">
+      <meta name="viewport" content="width=device-width">
+      <title>Inquirer Enterprise Solutions - Financial</title>
+      <!-- Favicons -->
+      {% include 'favicon.html' %}
+      <!-- Google Fonts -->
+      <!-- <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300%7CRaleway:400,300%7CRoboto:400,700,300%7CLato' rel='stylesheet' type='text/css' /> -->
+      <!--  Icon CSS -->
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/iconstyle.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/font-awasome/font-awesome.min.css' %}" />
+      <!-- Global plugin CSS -->
+      <link class="nor-css" rel="stylesheet" href="{% static 'financial-layout/assets/css/global/bootstrap.min.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/switchery/switchery.min.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/slidePanel.min.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/waves.min.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-tour/css/bootstrap-tour.css' %}" />
+      <!--  Page CSS -->
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/vector-map/custom.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/infobox.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+      <!--  Global Template CSS -->
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/style.css' %}" />
+      <link id="site-color" rel="stylesheet" href="{% static 'financial-layout/assets/css/colors/default.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/responsive.css' %}" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/site.min.css' %}" />
+      <!--  Page plugin CSS -->
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/magnific-popup/css/magnific-popup.min.css' %}" />
+      <link href="{% static 'financial-layout/assets/css/vector-map//jquery-jvectormap-2.0.1.css' %}" rel="stylesheet" type="text/css" media="screen" />
+      <link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/weather/weather-icons.min.css' %}" />
+      <link href="{% static 'financial-layout/assets/css/morrischarts/morris.css' %}" rel="stylesheet" type="text/css" />
+      <link href="{% static 'financial-layout/assets/css/rickshaw/rickshaw.min.css'%}" rel="stylesheet" type="text/css"/>
+   </head>
+   <body class="dashboard site-navbar-small">
+      <!-- Start Header Section -->
+      {% include "header-section.html" %}
+      <!-- End Header Section -->
+      <!-- Start Contain Section -->
+      <div class="main-content">
+         <div class="page-content container-fluid">
+            <div class="dashboard-main">
+               <div class="row">
+                  <!-- Start Boxes Section -->
+                  <div class="first-icon-main">
+                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 ">
+                        <div class="ia-container">
+                           <figure>
+                              <div class="card-box-dash box-1-dash">
+                                 <div>
+                                    <i class="fa  fa-comments-o  fa-5x dash-icon-head blue"></i>
+                                    <div class="wid-u-info">
+                                       <div class="huge">Your <b>Messages</b></div>
+                                       <div class="counter">
+                                          <b>250</b>
+                                       </div>
+                                       <div class="text-icon-dash">Open All Messages</div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </figure>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <div class="ia-container greenBg">
+                           <figure>
+                              <div class="card-box-dash box-2-dash">
+                                 <div>
+                                    <i class="fa fa-tasks  fa-5x dash-icon-head bg-light-green-500"></i>
+                                    <div class="wid-u-info">
+                                       <div class="huge">Our <b>Tasks</b></div>
+                                       <div class="counter">
+                                          <b>16,250</b>
+                                       </div>
+                                       <div class="text-icon-dash">Popularity over time</div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </figure>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <div class="ia-container blueBG">
+                           <figure>
+                              <div class="card-box-dash box-3-dash">
+                                 <div>
+                                    <i class="fa fa-credit-card-alt fa-5x dash-icon-head purple"></i>
+                                    <div class="wid-u-info">
+                                       <div class="huge">Our <b>Outlay</b></div>
+                                       <div class="counter">
+                                          <b>28,000k</b>
+                                       </div>
+                                       <div class="text-icon-dash">Profit For The Year</div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </figure>
+                        </div>
+                     </div>
+                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <div class="ia-container redBG">
+                           <figure>
+                              <div class="card-box-dash box-4-dash">
+                                 <div>
+                                    <i class="fa fa fa-archive fa-5x dash-icon-head blue"></i>
+                                    <div class="wid-u-info">
+                                       <div class="huge">Total <b>Space</b></div>
+                                       <div class="counter">
+                                          <b>99.7%</b>
+                                       </div>
+                                       <div class="text-icon-dash">Disk Space</div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </figure>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- End Boxes Section -->
+               </div>
+               <div class="row">
+                  <div class="col-sm-12">
+                     <div class="row">
+                        <div class="col-sm-12 col-md-4">
+                           <div class="widgett widgett-article widgett-shadow">
+                              <!-- Start Products Section -->
+                              <div class="heading-top-index-2">
+                                 <h3>Our <span>Products</span></h3>
+                              </div>
+                              <div class="product-main">
+                                 <div class="static-box product-main-div margin-0">
+                                    <div class="example table-responsive">
+                                       <div class="responsive-table">
+                                          <table class="table table-hover">
+                                             <thead>
+                                                <tr>
+                                                   <th>#</th>
+                                                   <th>Products</th>
+                                                   <th>Popularity</th>
+                                                   <th>Sales</th>
+                                                   <th>Position</th>
+                                                </tr>
+                                             </thead>
+                                             <tbody>
+                                                <tr>
+                                                   <td>1</td>
+                                                   <td>Protin Powder</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">5,3,9,6,5,9,7,3,5,2</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="9.777777777777777" width="3.52" height="12.222222222222223"></rect>
+                                                         <rect x="4.840000000000001" y="14.666666666666668" width="3.5199999999999987" height="7.333333333333332"></rect>
+                                                         <rect x="9.24" y="0" width="3.5199999999999996" height="22"></rect>
+                                                         <rect x="13.64" y="7.333333333333334" width="3.5199999999999996" height="14.666666666666666"></rect>
+                                                         <rect x="18.04" y="9.777777777777777" width="3.520000000000003" height="12.222222222222223"></rect>
+                                                         <rect x="22.439999999999998" y="0" width="3.520000000000003" height="22"></rect>
+                                                         <rect x="26.839999999999996" y="4.888888888888889" width="3.5200000000000067" height="17.11111111111111"></rect>
+                                                         <rect x="31.24" y="14.666666666666668" width="3.5200000000000067" height="7.333333333333332"></rect>
+                                                         <rect x="35.64" y="9.777777777777777" width="3.520000000000003" height="12.222222222222223"></rect>
+                                                         <rect x="40.04" y="17.11111111111111" width="3.520000000000003" height="4.888888888888889"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-danger text-semibold">28.76%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-danger text-semibold">Down</span>
+                                                   </td>
+                                                </tr>
+                                                <tr>
+                                                   <td>2</td>
+                                                   <td>Air Conditioner</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">10,6,2,4,5,8,4,1,8,7</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="0" width="3.52" height="22"></rect>
+                                                         <rect x="4.840000000000001" y="8.8" width="3.5199999999999987" height="13.2"></rect>
+                                                         <rect x="9.24" y="17.6" width="3.5199999999999996" height="4.399999999999999"></rect>
+                                                         <rect x="13.64" y="13.2" width="3.5199999999999996" height="8.8"></rect>
+                                                         <rect x="18.04" y="11" width="3.520000000000003" height="11"></rect>
+                                                         <rect x="22.439999999999998" y="4.399999999999999" width="3.520000000000003" height="17.6"></rect>
+                                                         <rect x="26.839999999999996" y="13.2" width="3.5200000000000067" height="8.8"></rect>
+                                                         <rect x="31.24" y="19.8" width="3.5200000000000067" height="2.1999999999999993"></rect>
+                                                         <rect x="35.64" y="4.399999999999999" width="3.520000000000003" height="17.6"></rect>
+                                                         <rect x="40.04" y="6.600000000000001" width="3.520000000000003" height="15.399999999999999"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">8.55%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">Down</span>
+                                                   </td>
+                                                </tr>
+                                                <tr>
+                                                   <td>3</td>
+                                                   <td>RC Cars</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">2,8,3,10,7,4,9,8,4,3</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="17.6" width="3.52" height="4.399999999999999"></rect>
+                                                         <rect x="4.840000000000001" y="4.399999999999999" width="3.5199999999999987" height="17.6"></rect>
+                                                         <rect x="9.24" y="15.4" width="3.5199999999999996" height="6.6"></rect>
+                                                         <rect x="13.64" y="0" width="3.5199999999999996" height="22"></rect>
+                                                         <rect x="18.04" y="6.600000000000001" width="3.520000000000003" height="15.399999999999999"></rect>
+                                                         <rect x="22.439999999999998" y="13.2" width="3.520000000000003" height="8.8"></rect>
+                                                         <rect x="26.839999999999996" y="2.1999999999999993" width="3.5200000000000067" height="19.8"></rect>
+                                                         <rect x="31.24" y="4.399999999999999" width="3.5200000000000067" height="17.6"></rect>
+                                                         <rect x="35.64" y="13.2" width="3.520000000000003" height="8.8"></rect>
+                                                         <rect x="40.04" y="15.4" width="3.520000000000003" height="6.6"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-success text-semibold">58.56%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-success text-semibold">Up</span>
+                                                   </td>
+                                                </tr>
+                                                <tr>
+                                                   <td>4</td>
+                                                   <td>Down Coat</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">0,5,8,7,6,2,8,3,9,10</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="21" width="3.52" height="1"></rect>
+                                                         <rect x="4.840000000000001" y="11" width="3.5199999999999987" height="11"></rect>
+                                                         <rect x="9.24" y="4.399999999999999" width="3.5199999999999996" height="17.6"></rect>
+                                                         <rect x="13.64" y="6.600000000000001" width="3.5199999999999996" height="15.399999999999999"></rect>
+                                                         <rect x="18.04" y="8.8" width="3.520000000000003" height="13.2"></rect>
+                                                         <rect x="22.439999999999998" y="17.6" width="3.520000000000003" height="4.399999999999999"></rect>
+                                                         <rect x="26.839999999999996" y="4.399999999999999" width="3.5200000000000067" height="17.6"></rect>
+                                                         <rect x="31.24" y="15.4" width="3.5200000000000067" height="6.6"></rect>
+                                                         <rect x="35.64" y="2.1999999999999993" width="3.520000000000003" height="19.8"></rect>
+                                                         <rect x="40.04" y="0" width="3.520000000000003" height="22"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-info text-semibold">35.76%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-info text-semibold">Up</span>
+                                                   </td>
+                                                </tr>
+                                                <tr>
+                                                   <td>5</td>
+                                                   <td>Android Phone</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">2,4,6,4,7,6,3,6,8,10</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="17.6" width="3.52" height="4.399999999999999"></rect>
+                                                         <rect x="4.840000000000001" y="13.2" width="3.5199999999999987" height="8.8"></rect>
+                                                         <rect x="9.24" y="8.8" width="3.5199999999999996" height="13.2"></rect>
+                                                         <rect x="13.64" y="13.2" width="3.5199999999999996" height="8.8"></rect>
+                                                         <rect x="18.04" y="6.600000000000001" width="3.520000000000003" height="15.399999999999999"></rect>
+                                                         <rect x="22.439999999999998" y="8.8" width="3.520000000000003" height="13.2"></rect>
+                                                         <rect x="26.839999999999996" y="15.4" width="3.5200000000000067" height="6.6"></rect>
+                                                         <rect x="31.24" y="8.8" width="3.5200000000000067" height="13.2"></rect>
+                                                         <rect x="35.64" y="4.399999999999999" width="3.520000000000003" height="17.6"></rect>
+                                                         <rect x="40.04" y="0" width="3.520000000000003" height="22"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">21.13%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">down</span>
+                                                   </td>
+                                                </tr>
+                                                <tr>
+                                                   <td>6</td>
+                                                   <td>Electronics</td>
+                                                   <td>
+                                                      <span data-plugin="peityBar" data-skin="blue" style="display: none;">2,4,6,4,7,6,3,6,8,10</span>
+                                                      <svg class="peity" height="22" width="44">
+                                                         <rect x="0.44000000000000006" y="17.6" width="3.52" height="4.399999999999999"></rect>
+                                                         <rect x="4.840000000000001" y="13.2" width="3.5199999999999987" height="8.8"></rect>
+                                                         <rect x="9.24" y="8.8" width="3.5199999999999996" height="13.2"></rect>
+                                                         <rect x="13.64" y="13.2" width="3.5199999999999996" height="8.8"></rect>
+                                                         <rect x="18.04" y="6.600000000000001" width="3.520000000000003" height="15.399999999999999"></rect>
+                                                         <rect x="22.439999999999998" y="8.8" width="3.520000000000003" height="13.2"></rect>
+                                                         <rect x="26.839999999999996" y="15.4" width="3.5200000000000067" height="6.6"></rect>
+                                                         <rect x="31.24" y="8.8" width="3.5200000000000067" height="13.2"></rect>
+                                                         <rect x="35.64" y="4.399999999999999" width="3.520000000000003" height="17.6"></rect>
+                                                         <rect x="40.04" y="0" width="3.520000000000003" height="22"></rect>
+                                                      </svg>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">19.75%</span>
+                                                   </td>
+                                                   <td>
+                                                      <span class="text-warning text-semibold">down</span>
+                                                   </td>
+                                                </tr>
+                                             </tbody>
+                                          </table>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- End Products Section -->
+                           </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                           <div class="widgett widgett-article widgett-shadow">
+                              <!-- Start Client Section -->
+                              <div class="heading-top-index-2">
+                                 <h3>Our <span>Clients </span></h3>
+                              </div>
+                              <div class="message-box client-main-div">
+                                 <a href="javascript:void(0)" class="media margin-top-0">
+                                    <div class="media-left user-img padding-right-0"> <img src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="user" class="margin-top-5"> <span class="profile-status status-online pull-right profile-sm-status"></span> </div>
+                                    <div class="media-body msg-detail">
+                                       <div class="left-client-content">
+                                          <h4>Domare Dos</h4>
+                                          <p>Gud mrng</p>
+                                       </div>
+                                       <div class="right-client-content">
+                                          <i class="icon fa fa-comment-o" aria-hidden="true"></i>
+                                       </div>
+                                    </div>
+                                 </a>
+                                 <a href="javascript:void(0)" class="media margin-top-0">
+                                    <div class="media-left user-img padding-right-0"> <img src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="user" class="margin-top-5"> <span class="profile-status status-busy pull-right profile-sm-status"></span> </div>
+                                    <div class="media-body msg-detail">
+                                       <div class="left-client-content">
+                                          <h4>Sevral Den</h4>
+                                          <p>I've sung a song!</p>
+                                       </div>
+                                       <div class="right-client-content">
+                                          <i class="icon fa fa-comment-o" aria-hidden="true"></i>
+                                       </div>
+                                    </div>
+                                 </a>
+                                 <a href="javascript:void(0)" class="media margin-top-0">
+                                    <div class="media-left user-img padding-right-0"> <img src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="user" class="margin-top-5"> <span class="profile-status status-off pull-right profile-sm-status"></span> </div>
+                                    <div class="media-body msg-detail">
+                                       <div class="left-client-content">
+                                            <h4>Rony Swag</h4>
+                                            <p>Hello</p>
+                                       </div>
+                                       <div class="right-client-content">
+                                          <i class="icon fa fa-comment-o" aria-hidden="true"></i>
+                                       </div>
+                                    </div>
+                                 </a>
+                                 <a href="javascript:void(0)" class="media margin-top-0">
+                                    <div class="media-left user-img padding-right-0"> <img src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="user" class="margin-top-5"> <span class="profile-status status-online pull-right profile-sm-status"></span> </div>
+                                    <div class="media-body msg-detail">
+                                       <div class="left-client-content">
+                                            <h4>Jack Darpa</h4>
+                                            <p>See you!</p>
+                                       </div>
+                                       <div class="right-client-content">
+                                          <i class="icon fa fa-comment-o" aria-hidden="true"></i>
+                                       </div>
+                                    </div>
+                                 </a>
+                              </div>
+                              <!-- End Client Section -->
+                           </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                           <div class="widgett widgett-article widgett-shadow">
+                              <!-- Start Weather Section -->
+                              <div class="heading-top-index-2">
+                                 <h3>Weather <span>Station </span></h3>
+                              </div>
+                              <div class="weath-main-dash-1">
+                                 <div class="widgett-article " style='background-image: url("{% static 'financial-layout/assets/images/blog/blog3.jpeg' %}"); background-size: cover;'>
+                                    <div class="widgett-header padding-30">
+                                       <div class="font-16 pull-right"><i class="icon_pin_alt white" aria-hidden="true"></i></div>
+                                       <div class="text-center">
+                                          <h2 class="white weather-font">Today</h2>
+                                          <p class="margin-bottom-5 white">05:25pm</p>
+                                          <canvas id="icon6" width="60" height="60" class="weather-ic"></canvas>
+                                       </div>
+                                    </div>
+                                    <div class="widgett-footer overlap-background">
+                                       <div class="row white">
+                                          <div class="col-md-12 col-sm-12 col-xs-12">
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Mon</div>
+                                                         <i class="wi wi-day-cloudy-high font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">24°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Tue</div>
+                                                         <i class="wi wi-day-sunny font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">32°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Wed</div>
+                                                         <i class="wi wi-day-cloudy-gusts font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">29°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Thur</div>
+                                                         <i class="wi wi-day-haze font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">27°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Fri</div>
+                                                         <i class="wi wi-day-rain-wind font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">23°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-md-2 col-sm-2 col-xs-2 padding-0">
+                                                <div class="day text-center v-align">
+                                                   <div class="align-middle font-16">
+                                                      <div class="inner-middle">
+                                                         <div class="margin-bottom-10">Sat</div>
+                                                         <i class="wi wi-day-sleet-storm font-21 margin-bottom-10"></i>
+                                                         <div class="weather-deg">24°
+                                                            <span class="font-12">C</span>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <!-- End Weather Section -->
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                     <div class="widgett widgett-article widgett-shadow">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <div class="heading-top-index-2">
+                                 <h3>Site <span>Visits</span></h3>
+                              </div>
+                              <div id="myfirstchart" class="myfirstchart morrisheight"></div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="widgett widgett-article widgett-shadow our-target">
+                        <!-- Start Target Section -->
+                        <div class="heading-top-index-2">
+                           <h3>Our <span>Target</span></h3>
+                        </div>
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <div class="widget">
+                                 <div class="total-sales-sec">
+                                    <div class="circle-chart">
+                                       <div class="cirlce-chart-detail">
+                                          <span>TODAY</span>
+                                          <h5>$256</h5>
+                                       </div>
+                                       <p class="data-attributes">
+                                          <span style="display: none;" data-peity="{ &quot;fill&quot;: [&quot;#666&quot;, &quot;#e8edf2&quot;],   &quot;innerRadius&quot;: 56, &quot;radius&quot;: 70 }">5/7</span>
+                                          <svg width="140" height="140" class="peity">
+                                             <path fill="#666" d="M 70 0 A 70 70 0 1 1 1.7550461472723526 85.57646537694201 L 15.404036917817876 82.46117230155362 A 56 56 0 1 0 70 14"></path>
+                                             <path fill="#e8edf2" d="M 1.7550461472723526 85.57646537694201 A 70 70 0 0 1 69.99999999999999 0 L 69.99999999999999 14 A 56 56 0 0 0 15.404036917817876 82.46117230155362"></path>
+                                          </svg>
+                                       </p>
+                                    </div>
+                                    <!-- Circle Chart -->
+                                    <div class="total-sales-info">
+                                       <span class="target-title">Total sales made of all time</span>
+                                       <h3>$1,225</h3>
+                                       <div class="total-sales-info-line"></div>
+                                       <ul>
+                                          <li>
+                                             <span>Target</span>
+                                             <h5>$2,251</h5>
+                                          </li>
+                                          <li>
+                                             <span>Today</span>
+                                             <h5>$107</h5>
+                                          </li>
+                                          <li>
+                                             <span>Week</span>
+                                             <h5>$545</h5>
+                                          </li>
+                                          <li>
+                                             <span>All time</span>
+                                             <h5>$3,463</h5>
+                                          </li>
+                                       </ul>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                        <!-- End Target Section -->
+                     </div>
+                     <div class="widgett widgett-article widgett-shadow">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <!-- Start Tasks Section -->
+                              <div class="heading-top-index-2">
+                                 <h3>Our <span>Tasks </span></h3>
+                              </div>
+                              <div class="static-box pull-left margin-bottom-0">
+                                 <div class="tasks-progress">
+                                    <ul>
+                                       <li>
+                                          <span>Update JQuery</span>
+                                          <div class="progress">
+                                             <div style="width:84%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="84" role="progressbar" class="progress-bar progress-bar-danger"></div>
+                                          </div>
+                                       </li>
+                                       <li>
+                                          <span>Updating 256</span>
+                                          <div class="progress">
+                                             <div style="width:45%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="45" role="progressbar" class="progress-bar progress-bar-default"></div>
+                                          </div>
+                                       </li>
+                                       <li>
+                                          <span>Fontawesome</span>
+                                          <div class="progress">
+                                             <div style="width:68%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="68" role="progressbar" class="progress-bar progress-bar-info"></div>
+                                          </div>
+                                       </li>
+                                       <li>
+                                          <span>Latest jQuery</span>
+                                          <div class="progress">
+                                             <div style="width:75%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="75" role="progressbar" class="progress-bar progress-bar-success"></div>
+                                          </div>
+                                       </li>
+                                       <li>
+                                          <span>Google API</span>
+                                          <div class="progress">
+                                             <div style="width:35%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="35" role="progressbar" class="progress-bar progress-bar-warning"></div>
+                                          </div>
+                                       </li>
+                                       <li>
+                                          <span>Montsiser</span>
+                                          <div class="progress margin-bottom-0">
+                                             <div style="width:55%;" aria-valuemax="100" aria-valuemin="0" aria-valuenow="55" role="progressbar" class="progress-bar progress-bar-dark"></div>
+                                          </div>
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </div>
+                              <!-- End Tasks Section -->
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class=" col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                     <div class="widgett widgett-article widgett-shadow">
+                        <!-- Start Chat Section -->
+                        <div class="heading-top-index-2">
+                           <h3>New<span> Messages</span></h3>
+                        </div>
+                        <div class="static-box margin-bottom-30">
+                           <div class="row">
+                              <div class="col-md-12 col-sm-12 col-xs-12">
+                                 <div class="chat_message_wrapper">
+                                    <div class="chat_user_avatar">
+                                       <img class="user-image-left" src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="chat-img">
+                                    </div>
+                                    <ul class="chat_message_left">
+                                       <li class="chat_margin">
+                                          <h3 class="chat-name-left">Verdell Rea</h3>
+                                          <p>It has survived not only five centuries. <span class="chat_message_time_left"><i class="icon icon_clock_alt"></i> 19 JUN 1:30 PM</span> </p>
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </div>
+                              <div class="col-md-12 col-sm-12 col-xs-12">
+                                 <div class="chat_message_wrapper">
+                                    <div class="chat_user_avatar">
+                                       <img class="user-image-right" src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="chat-img">
+                                    </div>
+                                    <ul class="chat_message_right">
+                                       <li class="chat_margin">
+                                          <h3 class="chat-name-right">Sevral Den</h3>
+                                          <p>Maecenas nec odio..<span class="chat_message_time_right"><i class="icon icon_clock_alt"></i> 13:39</span>
+                                          </p>
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </div>
+                              <div class="col-md-12 col-sm-12 col-xs-12">
+                                 <div class="chat_message_wrapper">
+                                    <div class="chat_user_avatar">
+                                       <img class="user-image-left" src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="chat-img">
+                                    </div>
+                                    <ul class="chat_message_left">
+                                       <li class="chat_margin">
+                                          <h3 class="chat-name-left">Verdell Rea</h3>
+                                          <p>Donec sodales sagittis magna.<span class="chat_message_time_left"><i class="icon icon_clock_alt"></i> 19 JUN 1:30 PM</span> </p>
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </div>
+                              <div class="col-md-12 col-sm-12 col-xs-12">
+                                 <div class="chat_message_wrapper">
+                                    <div class="chat_user_avatar">
+                                       <img class="user-image-right" src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="chat-img">
+                                    </div>
+                                    <ul class="chat_message_right">
+                                       <li class="chat_margin">
+                                          <h3 class="chat-name-right">Sevral Den</h3>
+                                          <p>Lorem Ipsum is simply dummy text<span class="chat_message_time_right"><i class="icon icon_clock_alt"></i> 13:39</span>
+                                          </p>
+                                       </li>
+                                    </ul>
+                                 </div>
+                              </div>
+                              <form>
+                                 <div class="input-group">
+                                    <span class="input-group-btn">
+                                    <a href="#" class="btn fa fa-camera"></a>
+                                    </span>
+                                    <textarea class="form-control dash-form-group"  placeholder="Type message here ..."></textarea>
+                                    <span class="input-group-btn">
+                                    <button type="button" class="btn margin-0 send-messages-dash"><i class="fa fa-paper-plane"></i>
+                                    </button>
+                                    </span>
+                                 </div>
+                              </form>
+                           </div>
+                        </div>
+                        <!-- End Chat Section -->
+                     </div>
+                     <div class="widgett widgett-article widgett-shadow">
+                        <div class="row">
+                           <div class="col-sm-12">
+                              <div class="heading-top-index-2">
+                                 <h3>Sales <span>Analytics</span></h3>
+                              </div>
+                              <div id="barcharts" class="morrisheight"></div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="col-sm-12">
+                     <div class="widgett widgett-article widgett-shadow">
+                        <!-- Start Map Section -->
+                        <div class="heading-top-index-2">
+                           <h3>Regional <span>State</span></h3>
+                        </div>
+                        <figure>
+                           <div id="us_aea_en-map" class="map-size"></div>
+                        </figure>
+                        <!-- End Map Section -->
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- End Contain Section -->
+      <!-- Start Footer Section -->
+      {% include 'main-footer.html' %}
+      <!--  Start Site Right Setting Section -->
+      {% include 'right-side-setting.html' %}
+      <!--  End Site Right Setting Section -->        <!-- End Footer Section -->
+      <!-- Global Plugin JavaScript -->
+      <script src="{% static 'financial-layout/assets/js/global/jquery.min.js' %}"></script>
+      <script class="nor-js" src="{% static 'financial-layout/assets/js/global/bootstrap.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/plugin/bootstrap-tour/js/bootstrap-tour.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/global/waves.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/switchery/jQuery.switchery.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/full-screen-page/screenfull.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/home-page/jquery-slidePanel.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/home-page/sidebar.min.js' %}"></script>
+      <!-- Page Plugin JavaScript -->
+      <script src="{% static 'financial-layout/assets/plugin/magnific-popup/js/jquery.magnific-popup.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/weather/skycons.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/google-map/modernizr.min.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/vector-map/jquery-jvectormap-2.0.1.min.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/vector-map/jquery-jvectormap-us-aea-en.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/rickshaw/d3.min.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/rickshaw/rickshaw.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/morrischarts/raphael-min.js' %}" type="text/javascript"></script>
+      <script src="{% static 'financial-layout/assets/js/morrischarts/morris.min.js' %}" type="text/javascript"></script>
+      <!-- Global Template JavaScript -->
+      <script src="{% static 'financial-layout/assets/js/global/site.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/sitesettings/site-settings.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/custom/custom-side-menu.js' %}"></script>
+      <!-- Page JavaScript -->
+      <script src="{% static 'financial-layout/assets/js/media/media.min.js' %}"></script>
+      <script src="{% static 'financial-layout/assets/js/dashboard/dashboard.js' %}" type="text/javascript"></script>
+   </body>
+</html>
