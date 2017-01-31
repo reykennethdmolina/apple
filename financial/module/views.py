@@ -38,7 +38,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['mainmodule'] = Mainmodule.objects.filter(isdeleted=0).order_by('description')
-        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 3, 4, 5, 6]).order_by('app_label')
+        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
         return context
 
     def form_valid(self, form):
@@ -63,7 +63,7 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['mainmodule'] = Mainmodule.objects.filter(isdeleted=0).order_by('description')
-        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 3, 4, 5, 6]).order_by('app_label')
+        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
         return context
 
     def form_valid(self, form):

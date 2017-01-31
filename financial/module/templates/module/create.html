@@ -27,7 +27,7 @@
                             <select id="id_django_content_type" name="django_content_type" class="form-control" data-validation="required">
                                 <option value="">-- Select --</option>
                                 {% for django_content_type in django_content_type %}
-                                    <option value="{{ django_content_type.id }}" {% if form.django_content_type.value|add:0 == django_content_type.id %} selected="selected" {% endif %}>{{ django_content_type.app_label }}</option>
+                                    <option value="{{ django_content_type.id }}" {% if form.django_content_type.value|add:0 == django_content_type.id %} selected="selected" {% endif %}>{{ django_content_type.app_label }} - {{ django_content_type.model }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.django_content_type.errors.as_text }}</span>
