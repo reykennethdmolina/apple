@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="form-group form-material col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_currency">Currency</label>
-                                    <select class="form-control input-sm" id="id_currency" name="currency">
+                                    <select class="form-control input-sm" id="id_currency" name="currency" data-validation="required">
                                         {% for currency in currency %}
                                             <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}] - {{ currency.description }}</option>
                                         {% endfor %}
@@ -41,32 +41,38 @@
                         <div class="col-sm-12">
                             <div class="row row-lg">
                                 <div class="form-group form-material col-sm-2">
-                                    <label class="control-label" for="inputUsername">Reference#</label>
-                                    <input type="text" class="form-control input-sm" id="inputUsername" name="inputUsername" placeholder="xxxxx">
+                                    <label class="control-label" for="id_refnum">Reference#</label>
+                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="xxxxx">
                                 </div>
-                                <div class="form-group form-material col-sm-3">
-                                    <label class="control-label" for="inputUsername">Branch</label>
-                                    <select class="form-control input-sm">
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                        <option>Option 3</option>
+                                <div class="form-group form-material col-sm-3 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm" id="id_branch" name="branch" data-validation="required">
+                                        {% for branch in branch %}
+                                            {% if branch.id == 5 %}
+                                                <option value="{{ branch.id }}" selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
+
+                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == jvtype.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
+                                        {% endfor %}
                                     </select>
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-material col-sm-3">
-                                    <label class="control-label" for="inputUsername">Department</label>
-                                    <select class="form-control input-sm">
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                        <option>Option 3</option>
+                                <div class="form-group form-material col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_department">Department</label>
+                                    <select class="form-control input-sm" id="id_department" name="department">
+                                        <option value="">-- Select --</option>
+                                        {% for department in department %}
+                                            <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
+                                        {% endfor %}
                                     </select>
+                                    <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="row row-lg">
                                 <div class="form-group col-sm-12">
-                                    <label class="control-label" for="inputUsername">Particular</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" name="standard_content" rows="5">{% lorem 50 w random %}</textarea>
+                                    <label class="control-label" for="id_particular">Particular</label>
+                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particular" name="particular" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
                                 </div>
                             </div>
                         </div>
