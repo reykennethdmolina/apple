@@ -5,47 +5,48 @@ from django.contrib.auth.models import User
 import datetime
 
 
-# class Jvmain(models.Model):
-#     id = models.BigIntegerField(primary_key=True)
-#     jv_num = models.CharField(unique=True, max_length=10)
-#     jv_date = models.DateTimeField()
-#     jvtype_id = models.ForeignKey('jvtype.Jvtype', related_name='jvtype_jvmain_id', null=True, blank=True)
-#     refnum = models.CharField(max_length=150, blank=True, null=True)
-#     department = models.ForeignKey('department.Department', related_name='department_jvmain_id', null=True, blank=True)
-#     branch = models.ForeignKey('branch.Branch', related_name='branch_main_id', null=True, blank=True)
-#     particular = models.TextField(blank=True, null=True)
-#     STATUS_CHOICES = (
-#         ('A', 'Active'),
-#         ('I', 'Inactive'),
-#         ('C', 'Cancelled'),
-#         ('O', 'Posted'),
-#         ('P', 'Printed'),
-#     )
-#     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
-#     enterby = models.ForeignKey(User, default=1, related_name='jvmain_enter')
-#     enterdate = models.DateTimeField(auto_now_add=True)
-#     modifyby = models.ForeignKey(User, default=1, related_name='jvmain_modify')
-#     modifydate = models.DateTimeField(default=datetime.datetime.now())
-#     postby = models.ForeignKey(User, default=1, related_name='jvmain_modify')
-#     postdate = models.DateTimeField(default=datetime.datetime.now())
-#     isdeleted = models.IntegerField(default=0)
-#
-#     class Meta:
-#         db_table = 'jvmain'
-#         ordering = ['-pk']
-#         permissions = (("view_jvmain", "Can view jvmain"),)
-#
-#     def get_absolute_url(self):
-#         return reverse('jvtype:detail', kwargs={'pk': self.pk})
-#
-#     def __str__(self):
-#         return self.code
-#
-#     def __unicode__(self):
-#         return self.code
-#
-#     def status_verbose(self):
-#         return dict(Jvmain.STATUS_CHOICES)[self.status]
+class Jvmain(models.Model):
+    jvnum = models.CharField(unique=True, max_length=10)
+    jvprefix = models.CharField(default='JV', max_length=5)
+    jvdate = models.DateTimeField()
+    jvtype = models.ForeignKey('jvtype.Jvtype', related_name='jvtype_jvmain_id')
+    refnum = models.CharField(max_length=150, blank=True, null=True)
+    currency = models.ForeignKey('currency.Currency', related_name='currency_jvmain_id')
+    branch = models.ForeignKey('branch.Branch', related_name='branch_jvmain_id')
+    department = models.ForeignKey('department.Department', related_name='department_jvmain_id', null=True, blank=True)
+    particular = models.TextField()
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='jvmain_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='jvmain_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='jvmain_post')
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'jvmain'
+        ordering = ['-pk']
+        permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('jvmain:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.jvnum
+
+    def __unicode__(self):
+        return self.jvnum
+
+    def status_verbose(self):
+        return dict(Jvmain.STATUS_CHOICES)[self.status]
 
 # # Create your models here.
 #
