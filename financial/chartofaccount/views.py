@@ -1,17 +1,17 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
-from django.core import serializers
-from django.db.models import Q
-from django.http import HttpResponseRedirect, Http404, HttpResponse
-
 from chartofaccount.models import Chartofaccount
 from product.models import Product
 from typeofexpense.models import Typeofexpense
 from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
 import datetime
+
+#pagination
+from django.core import serializers
+from django.db.models import Q
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -189,18 +189,10 @@ def paginate(request, command, current, limit, search):
                                                              Q(title__icontains=search) |
                                                              Q(accountcode__icontains=search_not_slug) |
                                                              Q(description__icontains=search_not_slug) |
-                                                             Q(title__icontains=search_not_slug)).filter(isdeleted=0).order_by('-pk')
-
-        chartofaccountlength = Chartofaccount.objects.all().filter(Q(id__icontains=search) |
-                                                                   Q(accountcode__icontains=search) |
-                                                                   Q(description__icontains=search) |
-                                                                   Q(title__icontains=search) |
-                                                                   Q(accountcode__icontains=search_not_slug) |
-                                                                   Q(description__icontains=search_not_slug) |
-                                                                   Q(title__icontains=search_not_slug)).filter(isdeleted=0).order_by('-pk').count()
+                                                             Q(title__icontains=search_not_slug))\
+                                                            .filter(isdeleted=0).order_by('-pk')
     else:
         chartofaccount = Chartofaccount.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
-        chartofaccountlength = Chartofaccount.objects.all().filter(isdeleted=0).order_by('-pk').count()
 
     json_models = serializers.serialize("json", chartofaccount)
     print json_models
