@@ -17,6 +17,7 @@
       padding-right: 20px;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-size: 12px;
       white-space: nowrap; }
     .select2-container .select2-selection--single .select2-selection__clear {
       position: relative; }
