@@ -399,8 +399,8 @@ function openTab(evt, tabName) {
     evt.currentTarget.className += " active";
 }
 
-$(document).ready(function() {
     openTab(event, 'maindetails');
+$(document).ready(function() {
     $('.tablinks').eq(0).addClass('active');
 
     $('#validateButton').on('click', function(){

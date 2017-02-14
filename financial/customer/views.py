@@ -1,13 +1,15 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from . models import Customer
 from customertype.models import Customertype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from bankaccount.models import Bankaccount
 from industry.models import Industry
+from django.core import serializers
+from django.db.models import Q
 import datetime
 
 
@@ -19,7 +21,12 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Customer.objects.all().filter(isdeleted=0).order_by('-pk')
+        return Customer.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['listcount'] = Customer.objects.filter(isdeleted=0).count()
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -77,7 +84,12 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save()
+        self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'telno1', 'telno2', 'telno3',
+                                        'faxno1', 'faxno2', 'tin', 'pagerno', 'payterms', 'creditlimit', 'creditstatus',
+                                        'creditrating', 'contactperson', 'contactposition', 'contactemail', 'remarks',
+                                        'multiplestatus', 'beg_amount', 'beg_code', 'beg_date', 'end_amount',
+                                        'end_code', 'end_date', 'bankaccount', 'creditterm', 'currency', 'customertype',
+                                        'industry', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/customer')
 
     def get_context_data(self, **kwargs):
@@ -108,4 +120,23 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/customer')
+
+def paginate(request, command, current, limit, search):
+    current = int(current)
+    limit = int(limit)
+
+    if command == "search" and search != "null":
+        search_not_slug = search.replace('-', ' ')
+        customer = Customer.objects.all().filter(Q(id__icontains=search) |
+                                                 Q(code__icontains=search) |
+                                                 Q(name__icontains=search) |
+                                                 Q(code__icontains=search_not_slug) |
+                                                 Q(name__icontains=search_not_slug))\
+                                                .filter(isdeleted=0).order_by('-pk')
+    else:
+        customer = Customer.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
+
+    json_models = serializers.serialize("json", customer)
+    print json_models
+    return HttpResponse(json_models, content_type="application/javascript")
 

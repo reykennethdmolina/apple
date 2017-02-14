@@ -27,8 +27,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Bankbranch
     template_name = 'bankbranch/create.html'
-    fields = ['code', 'description',
-              'bank', 'description',
+    fields = ['code', 'bank', 'description',
               'address', 'contact_person',
               'contact_position', 'telephone1',
               'telephone2', 'remarks']
@@ -55,8 +54,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Bankbranch
     template_name = 'bankbranch/edit.html'
-    fields = ['code', 'description',
-              'bank', 'description',
+    fields = ['code', 'bank', 'description',
               'address', 'contact_person',
               'contact_position', 'telephone1',
               'telephone2', 'remarks']
@@ -75,7 +73,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save()
+        self.object.save(update_fields=['bank', 'description', 'address', 'contact_person', 'contact_position',
+                                        'telephone1', 'telephone2', 'remarks', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/bankbranch')
 
 

@@ -63,7 +63,11 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save()
+        self.object.save(update_fields=['description', 'address', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
+                                        'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2',
+                                        'contactperson_other1', 'contactperson_other2', 'sssnum', 'tinnum',
+                                        'rescertnum', 'issued_at', 'issued_date', 'wtaxsign_name', 'wtaxsign_tin',
+                                        'wtaxsign_position', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/companyparameter')
 
 

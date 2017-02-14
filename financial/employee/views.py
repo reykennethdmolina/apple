@@ -1,9 +1,11 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from . models import Employee
 from department.models import Department
+from django.core import serializers
+from django.db.models import Q
 import datetime
 
 
@@ -14,7 +16,12 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Employee.objects.all().filter(isdeleted=0).order_by('-pk')
+        return Employee.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['listcount'] = Employee.objects.filter(isdeleted=0).count()
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -89,4 +96,23 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/employee')
+
+def paginate(request, command, current, limit, search):
+    current = int(current)
+    limit = int(limit)
+
+    if command == "search" and search != "null":
+        search_not_slug = search.replace('-', ' ')
+        employee = Employee.objects.all().filter(Q(id__icontains=search) |
+                                                             Q(code__icontains=search) |
+                                                             Q(name__icontains=search) |
+                                                             Q(code__icontains=search_not_slug) |
+                                                             Q(name__icontains=search_not_slug))\
+                                                            .filter(isdeleted=0).order_by('-pk')
+    else:
+        employee = Employee.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
+
+    json_models = serializers.serialize("json", employee)
+    print json_models
+    return HttpResponse(json_models, content_type="application/javascript")
 

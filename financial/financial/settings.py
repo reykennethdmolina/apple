@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'journalvoucher',
     'jvtype',
     'employee',
+    'departmentbudget',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -93,6 +93,7 @@ urlpatterns = [
     url(r'^productbudget/', include('productbudget.urls', namespace='productbudget')),
     url(r'^department/', include('department.urls', namespace='department')),
     url(r'^jvtype/', include('jvtype.urls', namespace='jvtype')),
+    url(r'^departmentbudget/', include('departmentbudget.urls', namespace='departmentbudget')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
