@@ -83,7 +83,7 @@ class Chartofaccount(models.Model):
         return self.accountcode
 
     def __unicode__(self):
-        return self.coaccountcodede
+        return self.accountcode
 
     def status_verbose(self):
         return dict(Chartofaccount.STATUS_CHOICES)[self.status]
