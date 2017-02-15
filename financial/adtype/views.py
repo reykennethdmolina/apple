@@ -9,7 +9,7 @@ import datetime
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
     model = Adtype
-    template_name = 'Adtype/index.html'
+    template_name = 'adtype/index.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
