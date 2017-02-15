@@ -1,6 +1,10 @@
 {% extends 'base-form.html' %}
+{% load staticfiles %}
 {% block page-title %} Journal Voucher {% endblock page-title %}
 {% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
@@ -9,15 +13,17 @@
                         {% csrf_token %}
                         <div class="col-sm-12">
                             <div class="row row-lg">
-                                <div class="form-group col-sm-2">
+                                <div class="form-group  col-sm-2">
                                     <label class="control-label" for="id_jvnum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_jvnum" name="jvnum" placeholder="JVxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-material col-sm-2">
+                                <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_jvdate">Date</label>
-                                    <input type="text" class="form-control input-sm" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required">
+                                    <span class="help-block form-error">{{ form.jvdate.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-material col-sm-2 {{ form.jvtype.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-2 {{ form.jvtype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_jvtype">Type</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
                                         <option value="">-- Select --</option>
@@ -27,7 +33,7 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.jvtype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-material col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_currency">Currency</label>
                                     <select class="form-control input-sm" id="id_currency" name="currency" data-validation="required">
                                         {% for currency in currency %}
@@ -40,25 +46,22 @@
                         </div>
                         <div class="col-sm-12">
                             <div class="row row-lg">
-                                <div class="form-group form-material col-sm-2">
+                                <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_refnum">Reference#</label>
                                     <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="xxxxx">
                                 </div>
-                                <div class="form-group form-material col-sm-3 {{ form.branch.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-3 {{ form.branch.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_branch">Branch</label>
                                     <select class="form-control input-sm" id="id_branch" name="branch" data-validation="required">
                                         {% for branch in branch %}
-                                            {% if branch.id == 5 %}
-                                                <option value="{{ branch.id }}" selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
-
-                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == jvtype.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
+                                            <option value="{{ branch.id }}" {% if form.branch.value|default_if_none:5 == branch.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-material col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
-                                    <select class="form-control input-sm" id="id_department" name="department">
+                                    <select class="form-control input-sm select2" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
                                             <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
@@ -76,8 +79,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-12">
-                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        <div class="col-sm-12 margin-bottom-10">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton" data-target="#form-modal" data-toggle="modal"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                            </div>
                         </div>
                         <div class="col-sm-12">
                             <div class="panel">
@@ -144,10 +153,60 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="form-modal">
+    <div class="modal-dialog">
+        <form class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                    </button>
+                <h4 class="modal-title">Set Manual Accounting Entry</h4>
+            </div>
+            <div class="modal-body" id="modal-body-content">
+{#                <div class="row">#}
+{#                    <div class="col-lg-12 form-group">#}
+{#                        <select class="form-control input-sm select2modal" style="width:100%;">#}
+{##}
+{#                        {% for chartofaccount in chartofaccount%}#}
+{#                            <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>#}
+{#                        {% endfor %}#}
+{##}
+{#                        </select>#}
+{#                    </div>#}
+{#                    <div class="col-lg-12 form-group">#}
+{#                        <input type="email" class="form-control input-sm" name="lastName" placeholder="Last Name">#}
+{#                    </div>#}
+{#                    <div class="col-lg-12 form-group">#}
+{#                        <input type="email" class="form-control" name="email" placeholder="Your Email">#}
+{#                    </div>#}
+{#                    <div class="col-lg-12 form-group">#}
+{#                        <textarea class="form-control" rows="5" placeholder="Type your message"></textarea>#}
+{#                    </div>#}
+{#                    <div class="col-sm-12 pull-right">#}
+{#                        <button type="button" class="btn btn-info waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>#}
+{#                    </div>#}
+{#                </div>#}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
-{#    <script type="text/javascript">#}
-{#        $(document).ready(function() {#}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#manualbutton").click(function (){
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'test': '1'},
+                    success: function(response){
+                        alert('asda');
+                        $("#modal-body-content").html(response['viewhtml']);
+                    }, error: function(response) {
+                        console.debug(reponse);
+                    }
+                })
+            });
 {#            $("select#id_bank").change(function () {#}
 {#                if ($(this).val() == "") {#}
 {#                    $("select#id_bankbranch").html("<option>-- Select --</option>");#}
@@ -171,6 +230,13 @@
 {#                    return;#}
 {#                }#}
 {#            })#}
-{#        });#}
-{#    </script>#}
-{% endblock extra_js %}#}
+        });
+    </script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+        $('.select2modal').select2({
+          dropdownParent: $('.modal')
+        });
+    </script>
+{% endblock extra_js %}

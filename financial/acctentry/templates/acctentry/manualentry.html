@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-lg-12 form-group">
+        <select class="form-control input-sm select2modal" style="width:100%;">
+
+        {% for chartofaccount in chartofaccount%}
+            <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+        {% endfor %}
+
+        </select>
+    </div>
+    <div class="col-lg-12 form-group">
+        <input type="email" class="form-control input-sm" name="lastName" placeholder="Last Name">
+    </div>
+    <div class="col-lg-12 form-group">
+        <input type="email" class="form-control" name="email" placeholder="Your Email">
+    </div>
+    <div class="col-lg-12 form-group">
+        <textarea class="form-control" rows="5" placeholder="Type your message"></textarea>
+    </div>
+    <div class="col-sm-12 pull-right">
+        <button type="button" class="btn btn-info waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>
+    </div>
+</div>
