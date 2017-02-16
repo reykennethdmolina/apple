@@ -6,8 +6,8 @@ from easy_pdf.views import PDFTemplateView
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 import xlwt
-import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -18,38 +18,32 @@ class IndexView(ListView):
 
 
 @csrf_exempt
-def Report(request):
+def report(request):
     if request.method == 'POST':
-        date_from = request.POST['from'] + ' 00:00:00'
-        date_to = request.POST['to'] + ' 23:59:59'
-        date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S')
-        date_to = datetime.datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S')
+        date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())
+        date_to = datetime.combine(datetime.strptime(request.POST['to'], '%Y-%m-%d'), datetime.max.time())
 
         list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
-
         data = {
             'status': 'success',
-            'list_chartofaccount': serializers.serialize("json", list_chartofaccount),
+            'list_chartofaccount': serializers.serialize('json', list_chartofaccount),
         }
     else:
-        list_chartofaccount = Chartofaccount.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
         data = {
             'status': 'error',
-            'list_chartofaccount': serializers.serialize("json", list_chartofaccount),
         }
-
     print data
     return JsonResponse(data)
 
 
 @method_decorator(login_required, name='dispatch')
-class PDF(PDFTemplateView):
+class Pdf(PDFTemplateView):
     model = Chartofaccount
     template_name = 'rep_chartofaccount/pdf.html'
 
     def get_context_data(self, **kwargs):
         try:
-            context = super(PDF, self).get_context_data(**kwargs)
+            context = super(Pdf, self).get_context_data(**kwargs)
             date_from = self.request.GET.get('from')
             date_to = self.request.GET.get('to')
 
@@ -73,7 +67,7 @@ class PDF(PDFTemplateView):
         return context
 
 
-def XLS(request):
+def xls(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="chartofaccount.xls"'
 

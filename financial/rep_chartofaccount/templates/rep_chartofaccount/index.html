@@ -71,38 +71,24 @@ $(function(){
         from = $('.datepickerfrom').val();
         to = $('.datepickerto').val();
 
+        tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
             url: "{% url 'rep_chartofaccount:report' %}",
             type: "post",
             data: {'from': from, 'to': to},
-            success: function(response){
-{#                    console.log(response.list_chartofaccount)#}
+            success: function(response) {
 
-{#                $.each(response.list_chartofaccount, function(index, element) {#}
-{#                    console.log(123)#}
-{#                });#}
+                if(response.list_chartofaccount != "[]"){
+                    var list_chartofaccount = jQuery.parseJSON(response.list_chartofaccount);
+                    console.debug(list_chartofaccount);
 
-                var chartofaccount = response.list_chartofaccount;
-                console.log(chartofaccount.length)
+                    for (var i = 0; i < list_chartofaccount.length; i++) {
+                        console.log(1)
+                        tableList.append("<tr><td>" + list_chartofaccount[i].fields['accountcode'] + "</td></tr>");
 
-{#                for (var i = 0; i < chartofaccount.length; i++) {#}
-{#                var object = forum[i];#}
-{#                for (property in object) {#}
-{#                    var value = object[property];#}
-{#                    alert(property + "=" + value); // This alerts "id=1", "created=2010-03-19", etc..#}
-{#                }#}
-{#            }#}
-
-                console.log(response.length)
-                tableList.html('');
-                if(response.length > 0){
-                    for (var i = 0; i < response.length; i++) {
-
-                        tableList.append("<tr><td>" + response[i].fields['accountcode'] + "</td></tr>");
-
-                        tableList.find('tr').eq(i).last('td').append("<td>" + response[i].fields['title'] + "</td>");
-                        tableList.find('tr').eq(i).last('td').append("<td>" + response[i].fields['description'] + "</td>");
+                        tableList.find('tr').eq(i).last('td').append("<td>" + list_chartofaccount[i].fields['title'] + "</td>");
+                        tableList.find('tr').eq(i).last('td').append("<td>" + list_chartofaccount[i].fields['description'] + "</td>");
 
                         $('#shade').fadeOut();
                     }
@@ -111,16 +97,13 @@ $(function(){
                     tableList.append("<tr><td colspan='3'> No result found </td></tr>");
                     $('#shade').fadeOut();
                 }
-            }, error: function(response) {
+            }
+            ,error: function(response) {
+                console.debug(response);
                 tableList.html('');
                 tableList.append("<tr><td colspan='3> No result found </td></tr>");
                 $('#shade').fadeOut();
             }
-
-{#            $.each(response['asda'], function(i){#}
-{#                var item = response['asda'][i]#}
-{#            item['id']#}
-{#                })#}
         });
 
         changeLink(from, to)
