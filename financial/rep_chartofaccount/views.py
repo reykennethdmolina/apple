@@ -11,19 +11,14 @@ import datetime
 
 
 @method_decorator(login_required, name='dispatch')
-class ReportView(TemplateView):
-    template_name = 'report/index.html'
-
-
-@method_decorator(login_required, name='dispatch')
-class ChartofaccountView(ListView):
+class IndexView(ListView):
     model = Chartofaccount
-    template_name = 'report/chartofaccount/report.html'
+    template_name = 'rep_chartofaccount/index.html'
     context_object_name = 'data_list'
 
 
 @csrf_exempt
-def ChartofaccountGenerate(request):
+def Report(request):
     if request.method == 'POST':
         date_from = request.POST['from'] + ' 00:00:00'
         date_to = request.POST['to'] + ' 23:59:59'
@@ -48,13 +43,13 @@ def ChartofaccountGenerate(request):
 
 
 @method_decorator(login_required, name='dispatch')
-class ChartofaccountPDF(PDFTemplateView):
+class PDF(PDFTemplateView):
     model = Chartofaccount
-    template_name = 'report/chartofaccount/pdf.html'
+    template_name = 'rep_chartofaccount/pdf.html'
 
     def get_context_data(self, **kwargs):
         try:
-            context = super(ChartofaccountPDF, self).get_context_data(**kwargs)
+            context = super(PDF, self).get_context_data(**kwargs)
             date_from = self.request.GET.get('from')
             date_to = self.request.GET.get('to')
 
@@ -78,7 +73,7 @@ class ChartofaccountPDF(PDFTemplateView):
         return context
 
 
-def ChartofaccountXLS(request):
+def XLS(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="chartofaccount.xls"'
 
