@@ -113,18 +113,16 @@ class DeleteView(DeleteView):
 @csrf_exempt
 def get_branch(request):
     if request.method == 'POST':
-        current_bank = request.POST['bank']
-        list_bankbranch = Bankbranch.objects.filter(bank=current_bank).order_by('description')
+        bank = request.POST['bank']
+        bankbranch = Bankbranch.objects.filter(bank=bank).order_by('description')
         data = {
             'status': 'success',
-            'list_bankbranch': serializers.serialize('json', list_bankbranch),
+            'bankbranch': serializers.serialize("json", bankbranch),
         }
     else:
-        # current_bank = 1
-        # list_bankbranch = Bankbranch.objects.all().filter(bank=current_bank).order_by('description')
         data = {
             'status': 'error',
         }
-    print data
+    # print data
     return JsonResponse(data)
 

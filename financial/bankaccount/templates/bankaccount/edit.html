@@ -219,35 +219,34 @@
                     getBranches(this);
             });
             function getBranches(selectedbank) {
-                var existing_bank_branch_value = {{ bankbranch_id }};
+                var currentbankbranch = {{ bankbranch_id }};
 
                 $.ajax({
                     url: "{% url 'bankaccount:get_branch' %}",
                     type: "post",
                     data: {'bank': $(selectedbank).val()},
+
                     success: function(response) {
+                        bankbranch = response.bankbranch;
+                        bankbranchlist = $.parseJSON(bankbranch);
+
                         $("#id_bankbranch").html("<option>-- Select --</option>");
-                        console.debug(response.list_bankbranch);
 
-                        if(response.list_bankbranch != "[]"){
-                            var list_bankbranch = jQuery.parseJSON(response.list_bankbranch);
-                            console.log(list_bankbranch[1]['fields']['code']);
-                            for (var i = 0; i < list_bankbranch.length; i++) {
-                                console.log("PK: " + list_bankbranch[i]['pk']);
-                                console.log("Description: " + list_bankbranch[i]['fields']['description']);
+                        $.each(bankbranchlist, function(k, v){
+                            console.log("PK: " + v.pk);
+                            console.log("Description: " + v.fields.description);
 
-                                if(existing_bank_branch_value == list_bankbranch[i]['pk']) {
-                                    $('#id_bankbranch').append('<option value="' + list_bankbranch[i]['pk'] + '" ' +
-                                            'selected="selected">' + list_bankbranch[i]['fields']['description'] +
-                                            '</option>');
-                                }
-                                else {
-                                    $('#id_bankbranch').append( '<option value="' + list_bankbranch[i]['pk'] + '">'
-                                            + list_bankbranch[i]['fields']['description'] + '</option>' );
-                                }
+                            if(currentbankbranch == v.pk) {
+                                $('#id_bankbranch').append('<option value="' + v.pk + '" selected="selected">' +
+                                        v.fields.description + '</option>');
                             }
-                            $("#id_bankbranch").attr('disabled', false);
-                        }
+                            else {
+                                $('#id_bankbranch').append('<option value="' + v.pk + '">' + v.fields.description +
+                                        '</option>');
+                            }
+                        });
+
+                        $("#id_bankbranch").attr('disabled', false);
                     }
                     , error: function(response) {
                     console.debug(response);
