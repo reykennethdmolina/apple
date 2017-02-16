@@ -198,45 +198,18 @@
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
-                    data: {'test': '1'},
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
                     success: function(response){
-                        alert('asda');
                         $("#modal-body-content").html(response['viewhtml']);
                     }, error: function(response) {
-                        console.debug(reponse);
+                        console.debug(response);
                     }
                 })
             });
-{#            $("select#id_bank").change(function () {#}
-{#                if ($(this).val() == "") {#}
-{#                    $("select#id_bankbranch").html("<option>-- Select --</option>");#}
-{#                    $("select#id_bankbranch").attr('disabled', true);#}
-{#                }#}
-{#                else {#}
-{#                    var url = $(this).val() + "/all_branches/";#}
-{#                    $.getJSON(url, function(branches) {#}
-{#                        var options = '<option value="">-- Select --</option>';#}
-{#                        for (var i = 0; i < branches.length; i++) {#}
-{#                            options += '<option value="' + branches[i].pk + '">' + branches[i].fields['description'] + '</option>';#}
-{#                        }#}
-{#                        $("select#id_bankbranch").html(options);#}
-{#                        $("select#id_bankbranch option:first").attr('selected', 'selected');#}
-{#                        $("select#id_bankbranch").attr('disabled', false);#}
-{#                    });#}
-{#                }#}
-{#            });#}
-{#            $("select#id_bankbranch").change(function(){#}
-{#                if($(this).val() == -1){#}
-{#                    return;#}
-{#                }#}
-{#            })#}
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-        $('.select2modal').select2({
-          dropdownParent: $('.modal')
-        });
     </script>
 {% endblock extra_js %}

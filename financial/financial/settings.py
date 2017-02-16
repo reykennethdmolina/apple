@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'jvtype',
     'employee',
     'departmentbudget',
+    'acctentry',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -1,11 +1,10 @@
 <div class="row">
     <div class="col-lg-12 form-group">
-        <select class="form-control input-sm select2modal" style="width:100%;">
-
+        <select class="form-control input-sm select2modal" style="width:100%;" id="detail_chartofaccount">
+        <option value="">-- Select --</option>
         {% for chartofaccount in chartofaccount%}
             <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
         {% endfor %}
-
         </select>
     </div>
     <div class="col-lg-12 form-group">
@@ -20,4 +19,42 @@
     <div class="col-sm-12 pull-right">
         <button type="button" class="btn btn-info waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>
     </div>
+<div id="test">ken molina</div>
 </div>
+
+{% block extra_js %}
+    <script type="text/javascript">
+    $('.select2modal').select2({
+        dropdownParent: $('.modal')
+    });
+
+    $('#detail_chartofaccount').change(function() {
+        $.ajax({
+            url: "{% url 'acctentry:checkchartvalidatetion' %}",
+            type: "post",
+            dataType: "json",
+            data: {
+                'csrfmiddlewaretoken': "{{csrf_token}}",
+                'chartid':  $('#detail_chartofaccount').val(),
+            },
+            success: function(response){
+
+                bank = response.bank;
+                console.log(bank);
+                banklist = $.parseJSON(bank);
+                console.log(banklist);
+
+                $.each(banklist, function(k, v){
+                    console.log(v.fields.code);
+                    console.log(v.pk);
+                    console.log(v.fields.description);
+                });
+
+
+            }, error: function(response) {
+                console.debug(reponse);
+            }
+        })
+    });
+    </script>
+{% endblock extra_js %}
