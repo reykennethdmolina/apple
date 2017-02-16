@@ -69,7 +69,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save()
+        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus',
+                                        'modifyby', 'modifydate'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):

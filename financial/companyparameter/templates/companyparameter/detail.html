@@ -28,7 +28,11 @@
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-30">
                             <div class="panel-body">
-                                <h4 class="list-title">Main Details</h4>
+                                <h4 class="list-title">Main Details<div style="float: right">
+                                    {% if object.status == 'A' %}<i class="icon fa-check" aria-hidden="true"></i>
+                                    {% elif object.status == 'I' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                    {% endif %}
+                                    <span class="text-info">{{ object.status_verbose }}</span></div></h4>
                                 <div class="row">
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
@@ -194,20 +198,6 @@
                                 <div class="first-name-profile">
                                     <span class="text-name-profile text-info">Position&nbsp;: </span>
                                     <span class="detail-profile">{{ object.wtaxsign_position }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="right-box-profile">
-                <div class="panel">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <div class="first-name-profile">
-                                    <br><span class="text-name-profile text-info">Status&nbsp;: </span>
-                                    <span class="detail-profile">{{ object.status_verbose }}</span>
                                 </div>
                             </div>
                         </div>

@@ -51,3 +51,8 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    {% load static %}
+    <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+{% endblock extra_js %}

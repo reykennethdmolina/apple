@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.core import serializers
 from . models import Bankaccount
 from bank.models import Bank
@@ -9,6 +9,7 @@ from bankbranch.models import Bankbranch
 from bankaccounttype.models import Bankaccounttype
 from currency.models import Currency
 from chartofaccount.models import Chartofaccount
+from django.views.decorators.csrf import csrf_exempt
 import datetime
 
 
@@ -71,8 +72,8 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['bank', 'bankbranch', 'bankaccounttype', 'currency', 'chartofaccount',
                                         'accountnumber', 'remarks', 'beg_amount', 'beg_code', 'beg_date', 'run_amount',
                                         'run_code', 'run_date', 'modifyby', 'modifydate'])
@@ -109,10 +110,21 @@ class DeleteView(DeleteView):
         return HttpResponseRedirect('/bankaccount')
 
 
-def all_json_branches(request, bank):
-    current_bank = Bank.objects.get(pk=bank)
-    branches = Bankbranch.objects.all().filter(bank=current_bank).order_by('description')
-    json_models = serializers.serialize("json", branches)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")
+@csrf_exempt
+def get_branch(request):
+    if request.method == 'POST':
+        current_bank = request.POST['bank']
+        list_bankbranch = Bankbranch.objects.filter(bank=current_bank).order_by('description')
+        data = {
+            'status': 'success',
+            'list_bankbranch': serializers.serialize('json', list_bankbranch),
+        }
+    else:
+        # current_bank = 1
+        # list_bankbranch = Bankbranch.objects.all().filter(bank=current_bank).order_by('description')
+        data = {
+            'status': 'error',
+        }
+    print data
+    return JsonResponse(data)
 

@@ -70,7 +70,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save()
+        self.object.save(update_fields=['description', 'mainmodule', 'django_content_type', 'name', 'segment',
+                                        'modifyby', 'modifydate'])
         return HttpResponseRedirect('/module')
 
 

@@ -60,6 +60,7 @@
                 </div>
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
+                        <div id="error-list"></div>
                         {% csrf_token %}
                         <ul class="tab">
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'maindetails')">Main Details</a></li>
@@ -350,14 +351,14 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.beg_date.errors|yesno:'has-error,' }}">
                                 <label for="id_beg_date" class="col-sm-4 control-label">Beginning Date</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control datepickerfrom" id="id_beg_date" name="beg_date" value="{{ form.beg_date.value|date:'Y-m-d'|default:'' }}">
+                                    <input type="text" class="form-control datepickerfrom date-yyyymmdd" id="id_beg_date" name="beg_date" value="{{ form.beg_date.value|date:'Y-m-d'|default:'' }}">
                                     <span class="help-block form-error">{{ form.beg_date.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.end_date.errors|yesno:'has-error,' }}">
                                 <label for="id_end_date" class="col-sm-4 control-label">End Date</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control datepickerto" id="id_end_date" name="end_date" value="{{ form.beg_date.value|date:'Y-m-d'|default:'' }}">
+                                    <input type="text" class="form-control datepickerto date-yyyymmdd" id="id_end_date" name="end_date" value="{{ form.beg_date.value|date:'Y-m-d'|default:'' }}">
                                     <span class="help-block form-error">{{ form.end_date.errors.as_text }}</span>
                                 </div>
                             </div>
@@ -405,7 +406,6 @@ $(document).ready(function() {
     $('#validateButton').on('click', function(){
         setTimeout(red,1)
     })
-
     function red(){
         if ($('#maindetails').find(".has-error").length > 0){ $('.tab li:eq(0)').addClass('mark-with-error')}
         else{$('.tab li:eq(0)').removeClass('mark-with-error')}

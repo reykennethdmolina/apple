@@ -14,6 +14,7 @@ class Companyparameter(models.Model):
         ('P', 'Printed'),
     )
     code = models.CharField(max_length=10, unique=True)
+    company = models.ForeignKey('company.Company', default=1, related_name='company_id')
     description = models.CharField(max_length=250)
     address = models.CharField(max_length=250)
     telno1 = models.CharField(max_length=20)

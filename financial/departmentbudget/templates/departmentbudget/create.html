@@ -192,6 +192,9 @@
 </div>
 {% endblock page-content %}
 {% block extra_js %}
+    {% load static %}
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script>
         $(function(){
             $( window ).load(showSelected).load(showTotal)
