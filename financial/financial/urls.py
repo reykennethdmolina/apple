@@ -95,7 +95,7 @@ urlpatterns = [
     url(r'^department/', include('department.urls', namespace='department')),
     url(r'^departmentbudget/', include('departmentbudget.urls', namespace='departmentbudget')),
     url(r'^jvtype/', include('jvtype.urls', namespace='jvtype')),
-    url(r'^report/', include('report.urls', namespace='report')),
+    url(r'^rep_chartofaccount/', include('rep_chartofaccount.urls', namespace='rep_chartofaccount')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

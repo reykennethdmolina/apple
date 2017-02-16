@@ -98,7 +98,7 @@ INSTALLED_APPS = [
     'journalvoucher',
     'jvtype',
     'employee',
-    'report',
+    'rep_chartofaccount',
     'debitcreditmemosubtype',
 ]
 
