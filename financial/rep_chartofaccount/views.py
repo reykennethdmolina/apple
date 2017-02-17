@@ -50,16 +50,16 @@ class Pdf(PDFTemplateView):
             date_from = date_from + ' 00:00:00'
             date_to = date_to + ' 23:59:59'
             date_limit = '1990-01-01 00:00:00'
-            date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S')
-            date_to = datetime.datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S')
-            date_limit = datetime.datetime.strptime(date_limit, '%Y-%m-%d %H:%M:%S')
+            date_from = datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S')
+            date_to = datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S')
+            date_limit = datetime.strptime(date_limit, '%Y-%m-%d %H:%M:%S')
 
             # invalid dates
-            if date_from > datetime.datetime.now() or date_from < date_limit or date_to > datetime.datetime.now() or date_to < date_limit:
+            if date_from > datetime.now() or date_from < date_limit or date_to > datetime.now() or date_to < date_limit:
                 context['data_list'] = Chartofaccount.objects.all()[0:0]
             else:
                 # context['data_list'] = Chartofaccount.objects.filter(enterdate__date__gt=date_from, enterdate__date__lt=date_to).filter(isdeleted=0)
-                context['data_list'] = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')
+                context['data_list'] = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
 
         except ValueError:
             context['data_list'] = Chartofaccount.objects.all()[0:0]
@@ -95,11 +95,11 @@ def xls(request):
         date_from = date_from + ' 00:00:00'
         date_to = date_to + ' 23:59:59'
         date_limit = '1990-01-01 00:00:00'
-        date_from = datetime.datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S')
-        date_to = datetime.datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S')
-        date_limit = datetime.datetime.strptime(date_limit, '%Y-%m-%d %H:%M:%S')
+        date_from = datetime.strptime(date_from, '%Y-%m-%d %H:%M:%S')
+        date_to = datetime.strptime(date_to, '%Y-%m-%d %H:%M:%S')
+        date_limit = datetime.strptime(date_limit, '%Y-%m-%d %H:%M:%S')
 
-        if date_from > datetime.datetime.now() or date_from < date_limit or date_to > datetime.datetime.now() or date_to < date_limit:
+        if date_from > datetime.now() or date_from < date_limit or date_to > datetime.now() or date_to < date_limit:
             rows = Chartofaccount.objects.values_list('accountcode', 'title', 'description')[0:0]
         else:
             rows = Chartofaccount.objects.filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).values_list('accountcode', 'title', 'description')
