@@ -16,14 +16,36 @@ class IndexView(ListView):
     template_name = 'rep_chartofaccount/index.html'
     context_object_name = 'data_list'
 
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        # display options
+        # insert aliases
+        context['tableheader'] = ['accountcode', 'title', 'description']
+        return context
+
 
 @csrf_exempt
 def report(request):
     if request.method == 'POST':
+
+        # blank date handler
         date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())
         date_to = datetime.combine(datetime.strptime(request.POST['to'], '%Y-%m-%d'), datetime.max.time())
 
-        list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
+        # simplify more
+        # apply to pdf,xls
+        if request.POST.getlist('orderby[]') and request.POST['orderasc']:
+            orderby = request.POST.getlist('orderby[]')
+            orderasc = request.POST['orderasc']
+
+            if orderasc == 'd':
+                list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by(*orderby).reverse()[0:10]
+            else:
+                list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by(*orderby)[0:10]
+
+        else:
+            list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
+
         data = {
             'status': 'success',
             'list_chartofaccount': serializers.serialize('json', list_chartofaccount),
@@ -32,7 +54,6 @@ def report(request):
         data = {
             'status': 'error',
         }
-    print data
     return JsonResponse(data)
 
 

@@ -3,6 +3,7 @@
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
 {% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
@@ -13,34 +14,58 @@
                     <!-- Start Basic Table Section -->
                     <h4><p>Report List</p></h4>
                     <div class="text-left">
-                        <div class="row col-md-2">
-                            <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <span>Date</span>
+                                <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
+                            </div>
+                            <div class="col-md-2" style="margin-left:5px">
+                                <br>
+                                <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
+                            </div>
                         </div>
-                        <div class="row col-md-2" style="margin-left:5px">
-                            <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span>Order by</span>
+                                <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
+                                    {% for data in tableheader %}
+                                        <option value="{{ data }}">{{ data }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="margin-left:5px">
+                                <br>
+                                <select name="orderasc" class="form-control orderasc">
+                                    <option value="a">Ascending</option>
+                                    <option value="d">Descending</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="row col-md-2" style="margin-left:20px">
-                            <button id="generate" class="btn btn-info">Generate</button>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button id="generate" class="btn btn-info">Generate</button>
+                            </div>
+                            <a href="{% url 'rep_chartofaccount:pdf' %}?from=none&to=none" target="_blank" id="generate_pdf"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                            </button></a>
+                            <a href="{% url 'rep_chartofaccount:xls' %}?from=none&to=none" target="_blank" id="generate_xls"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
+                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
+                            </button></a>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <a href="{% url 'rep_chartofaccount:pdf' %}?from=none&to=none" target="_blank" id="generate_pdf"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
-                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
-                        </button></a>
-                        <a href="{% url 'rep_chartofaccount:xls' %}?from=none&to=none" target="_blank" id="generate_xls"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
-                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
-                        </button></a>
-                        <br><br>
                     </div>
 
-                    <div class="table-responsive" style="position: relative">
+                    <div class="row col-md-12"><br></div>
+
+                    <div class="table-responsive row col-md-12" style="position: relative">
                         <div id="shade"><div class="loader two-color"></div></div>
                         <table class="table table-hover table-bordered">
                             <thead>
                                 <tr>
-                                    <th><span>Account Code</span></th>
-                                    <th><span>Title</span></th>
-                                    <th><span>Description</span></th>
+                                    {% for data in tableheader %}
+                                        <th><span>{{ data | title }}</span></th>
+                                    {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -57,11 +82,23 @@
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
 <script type="text/javascript">
 $(function(){
     var from, to, regEx, newurl;
     var pdf_link, xls_link;
     var tableList = $('table tbody');
+
+    $('select').select2();
+
+    $('select').on('select2:select', function (evt) {
+        var element = evt.params.data.element;
+        var $element = $(element);
+
+        $element.detach();
+        $(this).append($element);
+        $(this).trigger('change');
+    });
 
     $(document).on('click', '#generate', function() {
         generateReport();
@@ -70,13 +107,15 @@ $(function(){
     function generateReport(){
         from = $('.datepickerfrom').val();
         to = $('.datepickerto').val();
+        orderby = $('.ordeyby').val();
+        orderasc = $('.orderasc').val();
 
         tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
             url: "{% url 'rep_chartofaccount:report' %}",
             type: "post",
-            data: {'from': from, 'to': to},
+            data: {'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc},
             success: function(response) {
 
                 if(response.list_chartofaccount != "[]"){
