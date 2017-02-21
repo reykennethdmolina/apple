@@ -11,7 +11,7 @@ from datetime import datetime
 import xlwt
 
 
-defaultheader = ['accountcode', 'title', 'description']
+default_header = ['accountcode', 'title', 'description']
 
 
 @method_decorator(login_required, name='dispatch')
@@ -23,7 +23,7 @@ class IndexView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
         # insert aliases
-        context['list_header'] = defaultheader
+        context['list_header'] = default_header
         return context
 
 
@@ -32,7 +32,7 @@ def report(request):
     if request.method == 'POST':
 
         list_table = Chartofaccount.objects
-        list_header = defaultheader
+        list_header = default_header
 
         if request.POST.getlist('list_header[]'):
             list_header = request.POST.getlist('list_header[]')

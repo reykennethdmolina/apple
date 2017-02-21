@@ -15,35 +15,47 @@
                     <h4><p>Report List</p></h4>
                     <div class="row">
                         <div class="col-md-12">
-                            <span>Table headers</span>
-                            <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header">
-                                {% for data in list_header %}
-                                    <option value="{{ data }}">{{ data | title }}</option>
-                                {% endfor %}
-                            </select><br>
-                        </div>
-                        <div class="col-md-2">
-                            <span>Date</span>
-                            <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
-                        </div>
-                        <div class="col-md-2">
-                            <br>
-                            <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
-                        </div>
-                        <div class="col-md-6">
-                            <span>Order by</span>
-                            <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
-                                {% for data in list_header %}
-                                    <option value="{{ data }}">{{ data | title }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <br>
-                            <select name="orderasc" class="form-control orderasc">
-                                <option value="a">Ascending</option>
-                                <option value="d">Descending</option>
-                            </select>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
+                                <li role="presentation"><a href="#advanced" aria-controls="advanced" role="tab" data-toggle="tab">Advanced</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade in active" id="basic">
+                                    <div class="col-md-12">
+                                        <span>Table headers</span>
+                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header">
+                                            {% for data in list_header %}
+                                                <option value="{{ data }}">{{ data | title }}</option>
+                                            {% endfor %}
+                                        </select><br>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>Date</span>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span>Order by</span>
+                                        <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
+                                            {% for data in list_header %}
+                                                <option value="{{ data }}">{{ data | title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <select name="orderasc" class="form-control orderasc">
+                                            <option value="a">Ascending</option>
+                                            <option value="d">Descending</option>
+                                        </select>
+                                        <br>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="advanced">Coming soon...</div>
+                            </div>
                         </div>
                     </div>
                     <br>
@@ -59,7 +71,7 @@
                         </div>
                     </div>
 
-                    <div class="row"><br></div>
+                    <div class="row"><br><br><br></div>
                     <div class="row">
                         <div class="table-responsive col-md-12" style="position: relative">
                             <div id="shade"><div class="loader two-color"></div></div>
@@ -93,7 +105,7 @@ $(function(){
     var pdf_link, xls_link;
     var tableList = $('table tbody');
     var thead = $('table thead tr');
-    thead.css({'textTransform': 'capitalize', 'font-weight': 'bold'});
+    thead.css('textTransform', 'capitalize');
 
     $('select').select2();
 
@@ -129,9 +141,9 @@ $(function(){
                     var list_table = jQuery.parseJSON(response.list_table);
                     var list_header = response.list_header;
 
-                    thead.html("<td>" + list_header[0] + "</td>");
+                    thead.html("<th>" + list_header[0] + "</th>");
                     for (var i = 1; i < list_header.length; i++) {
-                        thead.last('td').append("<td>" + list_header[i] + "</td>");
+                        thead.last('th').append("<th>" + list_header[i] + "</th>");
                     }
 
                     for (var i = 0; i < list_table.length; i++) {
