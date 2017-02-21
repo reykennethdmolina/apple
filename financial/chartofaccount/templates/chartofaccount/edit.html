@@ -26,7 +26,7 @@
 							    	<label class="col-sm-3 control-label">main</label>
 							    	<div class="col-sm-9">
 							    		<div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Assets">
-							    			<input type="number" disabled="disabled" class="form-control accountcode-code" id="id_main" max="9" min="0" name="main" data-validation="required" value={{ form.main.value|default:"0" }}>
+							    			<input type="number" readOnly="readOnly" class="form-control accountcode-code" id="id_main" max="9" min="0" name="main" data-validation="required" value={{ form.main.value|default:"0" }}>
 							    		</div>
 							    	</div>
                                     <span class="help-block form-error">{{ form.main.errors.as_text }}</span>
