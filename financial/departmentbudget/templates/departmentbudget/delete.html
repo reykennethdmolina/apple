@@ -12,13 +12,14 @@
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
-                        <div class="col-md-4 col-sm-12 col-xs-12">
+                        <div class="col-md-6 col-sm-12 col-xs-12">
                             <div class="alert-box">
                                 <div class="alert dark alert-danger style-alert danger-border-color">
                                     <button class="close" type="button" data-dismiss="alert">
                                     <span>×</span>
                                     </button>
-                                    <p>Are you sure you want to delete {{ object.code }}?</p>
+                                    <p>
+                                        Are you sure you want to delete <b>{{ object.year }}-{{ object.department.code }}-{{ object.unit.code }}-{{ object.chartofaccount.accountcode }}</b> ?</p>
                                 </div>
                             </div>
                                 <div class="col-md-4 col-sm-2 col-xs-6">
