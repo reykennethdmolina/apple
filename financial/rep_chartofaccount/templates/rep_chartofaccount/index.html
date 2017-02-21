@@ -13,40 +13,43 @@
                 <div class="page-wrap">
                     <!-- Start Basic Table Section -->
                     <h4><p>Report List</p></h4>
-                    <div class="text-left">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <span>Date</span>
-                                <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
-                            </div>
-                            <div class="col-md-2" style="margin-left:5px">
-                                <br>
-                                <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
-                            </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Table headers</span>
+                            <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header">
+                                {% for data in list_header %}
+                                    <option value="{{ data }}">{{ data | title }}</option>
+                                {% endfor %}
+                            </select><br>
                         </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <span>Order by</span>
-                                <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
-                                    {% for data in tableheader %}
-                                        <option value="{{ data }}">{{ data }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-2" style="margin-left:5px">
-                                <br>
-                                <select name="orderasc" class="form-control orderasc">
-                                    <option value="a">Ascending</option>
-                                    <option value="d">Descending</option>
-                                </select>
-                            </div>
+                        <div class="col-md-2">
+                            <span>Date</span>
+                            <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
                         </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <button id="generate" class="btn btn-info">Generate</button>
-                            </div>
+                        <div class="col-md-2">
+                            <br>
+                            <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
+                        </div>
+                        <div class="col-md-6">
+                            <span>Order by</span>
+                            <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
+                                {% for data in list_header %}
+                                    <option value="{{ data }}">{{ data | title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <br>
+                            <select name="orderasc" class="form-control orderasc">
+                                <option value="a">Ascending</option>
+                                <option value="d">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="generate" class="btn btn-info btn-sm">Preview</button>
                             <a href="{% url 'rep_chartofaccount:pdf' %}?from=none&to=none" target="_blank" id="generate_pdf"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
                                 <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
                             </button></a>
@@ -56,21 +59,22 @@
                         </div>
                     </div>
 
-                    <div class="row col-md-12"><br></div>
-
-                    <div class="table-responsive row col-md-12" style="position: relative">
-                        <div id="shade"><div class="loader two-color"></div></div>
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    {% for data in tableheader %}
-                                        <th><span>{{ data | title }}</span></th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                    <div class="row"><br></div>
+                    <div class="row">
+                        <div class="table-responsive col-md-12" style="position: relative">
+                            <div id="shade"><div class="loader two-color"></div></div>
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        {% for data in list_header %}
+                                            <th><span>{{ data | title }}</span></th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -88,6 +92,8 @@ $(function(){
     var from, to, regEx, newurl;
     var pdf_link, xls_link;
     var tableList = $('table tbody');
+    var thead = $('table thead tr');
+    thead.css({'textTransform': 'capitalize', 'font-weight': 'bold'});
 
     $('select').select2();
 
@@ -105,6 +111,7 @@ $(function(){
     });
 
     function generateReport(){
+        list_header = $('.list_header').val();
         from = $('.datepickerfrom').val();
         to = $('.datepickerto').val();
         orderby = $('.ordeyby').val();
@@ -115,19 +122,24 @@ $(function(){
         $.ajax({
             url: "{% url 'rep_chartofaccount:report' %}",
             type: "post",
-            data: {'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc},
+            data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc},
             success: function(response) {
 
-                if(response.list_chartofaccount != "[]"){
-                    var list_chartofaccount = jQuery.parseJSON(response.list_chartofaccount);
-                    console.debug(list_chartofaccount);
+                if(response.list_table != "[]"){
+                    var list_table = jQuery.parseJSON(response.list_table);
+                    var list_header = response.list_header;
 
-                    for (var i = 0; i < list_chartofaccount.length; i++) {
-                        console.log(1)
-                        tableList.append("<tr><td>" + list_chartofaccount[i].fields['accountcode'] + "</td></tr>");
+                    thead.html("<td>" + list_header[0] + "</td>");
+                    for (var i = 1; i < list_header.length; i++) {
+                        thead.last('td').append("<td>" + list_header[i] + "</td>");
+                    }
 
-                        tableList.find('tr').eq(i).last('td').append("<td>" + list_chartofaccount[i].fields['title'] + "</td>");
-                        tableList.find('tr').eq(i).last('td').append("<td>" + list_chartofaccount[i].fields['description'] + "</td>");
+                    for (var i = 0; i < list_table.length; i++) {
+                        tableList.append("<tr><td>" + list_table[i].fields[list_header[0]] + "</td></tr>");
+
+                        for (var j = 1; j < list_header.length; j++) {
+                            tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i].fields[list_header[j]] + "</td>");
+                        }
 
                         $('#shade').fadeOut();
                     }

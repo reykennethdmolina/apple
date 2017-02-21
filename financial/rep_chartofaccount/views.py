@@ -4,10 +4,14 @@ from django.utils.decorators import method_decorator
 from chartofaccount.models import Chartofaccount
 from easy_pdf.views import PDFTemplateView
 from django.core import serializers
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 import xlwt
+
+
+defaultheader = ['accountcode', 'title', 'description']
 
 
 @method_decorator(login_required, name='dispatch')
@@ -18,9 +22,8 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
-        # display options
         # insert aliases
-        context['tableheader'] = ['accountcode', 'title', 'description']
+        context['list_header'] = defaultheader
         return context
 
 
@@ -28,32 +31,43 @@ class IndexView(ListView):
 def report(request):
     if request.method == 'POST':
 
-        # blank date handler
-        date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())
-        date_to = datetime.combine(datetime.strptime(request.POST['to'], '%Y-%m-%d'), datetime.max.time())
+        list_table = Chartofaccount.objects
+        list_header = defaultheader
 
-        # simplify more
-        # apply to pdf,xls
+        if request.POST.getlist('list_header[]'):
+            list_header = request.POST.getlist('list_header[]')
+
+        if request.POST['from']:
+            date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())
+            list_table = list_table.filter(Q(enterdate__gt=date_from))
+
+        if request.POST['to']:
+            date_to = datetime.combine(datetime.strptime(request.POST['to'], '%Y-%m-%d'), datetime.max.time())
+            list_table = list_table.filter(Q(enterdate__lt=date_to))
+
         if request.POST.getlist('orderby[]') and request.POST['orderasc']:
             orderby = request.POST.getlist('orderby[]')
             orderasc = request.POST['orderasc']
 
-            if orderasc == 'd':
-                list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by(*orderby).reverse()[0:10]
-            else:
-                list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by(*orderby)[0:10]
+            list_table.order_by(*orderby)
 
-        else:
-            list_chartofaccount = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
+            if orderasc == 'a':
+                list_table = list_table.reverse()
+
+        list_table = list_table.only(*list_header).filter(isdeleted=0)[0:10]
 
         data = {
             'status': 'success',
-            'list_chartofaccount': serializers.serialize('json', list_chartofaccount),
+            'list_table': serializers.serialize('json', list_table),
+            'list_header': list_header,
         }
     else:
         data = {
             'status': 'error',
         }
+
+    # apply universal name for js response
+    # apply to pdf,xls
     return JsonResponse(data)
 
 
