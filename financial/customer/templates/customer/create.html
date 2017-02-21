@@ -1,6 +1,8 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Customer {% endblock page-title %}
+{% load static %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
         /* Style the list */
         ul.tab {
@@ -378,6 +380,13 @@
 </div>
 {% endblock page-content %}
 {% block extra_js %}
+    <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+
 <script type="text/javascript">
 function openTab(evt, tabName) {
     // Declare all variables
