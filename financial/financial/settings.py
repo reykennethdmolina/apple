@@ -98,8 +98,9 @@ INSTALLED_APPS = [
     'journalvoucher',
     'jvtype',
     'employee',
-    'rep_chartofaccount',
+    #'rep_chartofaccount',
     'debitcreditmemosubtype',
+    'acctentry',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^product/', include('product.urls', namespace='product')),
     url(r'^adtype/', include('adtype.urls', namespace='adtype')),
     url(r'^journalvoucher/', include('journalvoucher.urls', namespace='journalvoucher')),
+    url(r'^acctentry/', include('acctentry.urls', namespace='acctentry')),
 
     # Apps Grace
     url(r'^vat/', include('vat.urls', namespace='vat')),
@@ -95,7 +96,7 @@ urlpatterns = [
     url(r'^department/', include('department.urls', namespace='department')),
     url(r'^departmentbudget/', include('departmentbudget.urls', namespace='departmentbudget')),
     url(r'^jvtype/', include('jvtype.urls', namespace='jvtype')),
-    url(r'^rep_chartofaccount/', include('rep_chartofaccount.urls', namespace='rep_chartofaccount')),
+    #url(r'^rep_chartofaccount/', include('rep_chartofaccount.urls', namespace='rep_chartofaccount')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
