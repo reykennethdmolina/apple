@@ -85,6 +85,9 @@
 .text-right {
     text-align: right;
 }
+.text-left {
+    text-align: left;
+}
 /*select.input-sm {
     padding-top: 0;
     padding-bottom: 0;
