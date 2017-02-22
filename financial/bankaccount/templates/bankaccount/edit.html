@@ -129,7 +129,7 @@
                                     <td width="400px">
                                         <div class="form-group {{ form.beg_amount.errors|yesno:'has-error,' }}">
                                             <label for="id_beg_amount" class="control-label">Beginning Amount</label>
-                                            <input type="text" class="form-control amount" id="id_beg_amount" name="beg_amount" maxlength="26" value="{{ form.beg_amount.value|default:'' }}">
+                                            <input type="text" class="form-control amount text-right" id="id_beg_amount" name="beg_amount" placeholder="0.00" maxlength="26" value="{{ form.beg_amount.value|default:'' }}">
                                             <span class="help-block form-error">{{ form.beg_amount.errors.as_text }}</span>
                                         </div>
                                     </td>
@@ -137,7 +137,7 @@
                                     <td width="400px">
                                         <div class="form-group {{ form.run_amount.errors|yesno:'has-error,' }}">
                                             <label for="id_run_amount" class="control-label">Run Amount</label>
-                                            <input type="text" class="form-control amount" id="id_run_amount" name="run_amount" maxlength="26" value="{{ form.run_amount.value|default:'' }}">
+                                            <input type="text" class="form-control amount text-right" id="id_run_amount" name="run_amount" placeholder="0.00" maxlength="26" value="{{ form.run_amount.value|default:'' }}">
                                             <span class="help-block form-error">{{ form.run_amount.errors.as_text }}</span>
                                         </div>
                                     </td>
