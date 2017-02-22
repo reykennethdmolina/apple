@@ -1,27 +1,170 @@
-<div class="row">
-    <div class="col-lg-12 form-group">
-        <select class="form-control input-sm select2modal" style="width:100%;" id="detail_chartofaccount">
-        <option value="">-- Select --</option>
-        {% for chartofaccount in chartofaccount%}
-            <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
-        {% endfor %}
-        </select>
+<form class="form-horizontal">
+    <div class="row">
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label" for="id_detail_chartofaccount">Chart of Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <option value="">-- Select Chart of Account --</option>
+                {% for chartofaccount in chartofaccount %}
+                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_bankaccount">
+            <label class="col-sm-3 control-label" for="id_detail_bankaccount">Bank Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_bankaccount" name="detail_bankaccount">
+                <option value="">-- Select Bank Account --</option>
+                {% for bankaccount in bankaccount %}
+                    <option value="{{ bankaccount.id }}">{{ bankaccount.accountnumber }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_department">
+            <label class="col-sm-3 control-label" for="id_detail_department">Department</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" style="width: 100%" id="detail_department" name="detail_department">
+                <option value="">-- Select Department --</option>
+                {% for department in department %}
+                    <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_employee">
+            <label class="col-sm-3 control-label" for="id_detail_employee">Employee</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_employee" name="detail_employee">
+                <option value="">-- Select Employee --</option>
+                {% for employee in employee %}
+                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_supplier">
+            <label class="col-sm-3 control-label" for="id_detail_supplier">Supplier</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_supplier" name="detail_supplier">
+                <option value="">-- Select Supplier --</option>
+                {% for supplier in supplier%}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_customer">
+            <label class="col-sm-3 control-label" for="id_detail_customer">Customer</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_customer" name="detail_customer">
+                <option value="">-- Select Customer --</option>
+                {% for customer in customer%}
+                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_unit">
+            <label class="col-sm-3 control-label" for="id_detail_unit">Unit</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_unit" name="detail_unit">
+                <option value="">-- Select Unit --</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_branch">
+            <label class="col-sm-3 control-label" for="id_detail_branch">Branch</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_branch" name="detail_branch">
+                <option value="">-- Select Branch --</option>
+                {% for branch in branch %}
+                    <option value="{{ branch.id }}">{{ branch.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_product">
+            <label class="col-sm-3 control-label" for="id_detail_product">Product</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_product" name="detail_product">
+                <option value="">-- Select Product --</option>
+                {% for product in product %}
+                    <option value="{{ product.id }}">{{ product.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_inputvat">
+            <label class="col-sm-3 control-label" for="id_detail_inputvat">Input VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_inputvat" name="detail_inputvat">
+                <option value="">-- Select Input VAT --</option>
+                {% for inputvat in inputvat %}
+                    <option value="{{ inputvat.id }}">{{ inputvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_outputvat">
+            <label class="col-sm-3 control-label" for="id_detail_outputvat">Output VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_outputvat" name="detail_outputvat">
+                <option value="">-- Select Output VAT --</option>
+                {% for outputvat in outputvat %}
+                    <option value="{{ outputvat.id }}">{{ inputoutputvatvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_vat">
+            <label class="col-sm-3 control-label" for="id_detail_vat">VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_vat" name="detail_vat">
+                <option value="">-- Select VAT --</option>
+                {% for vat in vat %}
+                    <option value="{{ vat.id }}">{{ vat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_wtax">
+            <label class="col-sm-3 control-label" for="id_detail_wtax">WTAX</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_wtax" name="detail_wtax">
+                <option value="">-- Select WTAX --</option>
+                {% for wtax in wtax %}
+                    <option value="{{ wtax.id }}">{{ wtax.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_ataxcode">
+            <label class="col-sm-3 control-label" for="id_detail_ataxcode">ATAX Code</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_ataxcode" name="detail_ataxcode">
+                <option value="">-- Select ATAX Code --</option>
+                {% for ataxcode in ataxcode %}
+                    <option value="{{ ataxcode.id }}">{{ ataxcode.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group">
+            <div class="col-lg-6">
+                <input type="text" class="form-control input-sm text-right" name="lastName" placeholder="Credit Amount" value="0.00">
+            </div>
+            <div class="col-lg-6">
+                <input type="text" class="form-control input-sm text-right" name="lastName" placeholder="Debit Amount" value="0.00">
+            </div>
+        </div>
+        <div class="col-sm-12 pull-right margin-bottom-10">
+            <button type="button" class="btn btn-round btn-success waves-effect waves-light">Add Accounting Entry</button>
+{#            <button type="button" class="btn btn-round btn-success waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>#}
+        </div>
     </div>
-    <div class="col-lg-12 form-group">
-        <input type="email" class="form-control input-sm" name="lastName" placeholder="Last Name">
-    </div>
-    <div class="col-lg-12 form-group">
-        <input type="email" class="form-control" name="email" placeholder="Your Email">
-    </div>
-    <div class="col-lg-12 form-group">
-        <textarea class="form-control" rows="5" placeholder="Type your message"></textarea>
-    </div>
-    <div class="col-sm-12 pull-right">
-        <button type="button" class="btn btn-info waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>
-    </div>
-<div id="test">ken molina</div>
 </div>
-
 {% block extra_js %}
     <script type="text/javascript">
     $('.select2modal').select2({
@@ -29,6 +172,32 @@
     });
 
     $('#detail_chartofaccount').change(function() {
+        $("#v_detail_bankaccount").addClass('hide')
+        $("#detail_bankaccount").removeAttr('data-validation');
+        $("#v_detail_department").addClass('hide').removeAttr('data-validation');
+        $("#detail_department").removeAttr('data-validation');
+        $("#v_detail_employee").addClass('hide').removeAttr('data-validation');
+        $("#detail_employee").removeAttr('data-validation');
+        $("#v_detail_supplier").addClass('hide').removeAttr('data-validation');
+        $("#detail_supplier").removeAttr('data-validation');
+        $("#v_detail_customer").addClass('hide').removeAttr('data-validation');
+        $("#detail_customer").removeAttr('data-validation');
+        $("#v_detail_unit").addClass('hide').removeAttr('data-validation');
+        $("#detail_unit").removeAttr('data-validation');
+        $("#v_detail_branch").addClass('hide').removeAttr('data-validation');
+        $("#detail_branch").removeAttr('data-validation');
+        $("#v_detail_product").addClass('hide').removeAttr('data-validation');
+        $("#detail_product").removeAttr('data-validation');
+        $("#v_detail_inputvat").addClass('hide').removeAttr('data-validation');
+        $("#detail_inputvat").removeAttr('data-validation');
+        $("#v_detail_outputvat").addClass('hide').removeAttr('data-validation');
+        $("#detail_outputvat").removeAttr('data-validation');
+        $("#v_detail_vat").addClass('hide').removeAttr('data-validation');
+        $("#detail_vat").removeAttr('data-validation');
+        $("#v_detail_wtax").addClass('hide').removeAttr('data-validation');
+        $("#detail_wtax").removeAttr('data-validation');
+        $("#v_detail_ataxcode").addClass('hide').removeAttr('data-validation');
+        $("#detail_ataxcode").removeAttr('data-validation');
         $.ajax({
             url: "{% url 'acctentry:checkchartvalidatetion' %}",
             type: "post",
@@ -38,18 +207,118 @@
                 'chartid':  $('#detail_chartofaccount').val(),
             },
             success: function(response){
+                chart = response.chart;
+                chartdata = $.parseJSON(chart);
+                //console.log(chartdata[0].fields['bankaccount_enable']);
+                if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
+                    $("#v_detail_bankaccount").removeClass('hide');
+                    $("#detail_bankaccount").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['department_enable']);
+                if (chartdata[0].fields['department_enable'] == 'Y') {
+                    $("#v_detail_department").removeClass('hide');
+                    $("#detail_department").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['employee_enable']);
+                if (chartdata[0].fields['employee_enable'] == 'Y') {
+                    $("#v_detail_employee").removeClass('hide');
+                    $("#detail_employee").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['supplier_enable']);
+                if (chartdata[0].fields['supplier_enable'] == 'Y') {
+                    $("#v_detail_supplier").removeClass('hide');
+                    $("#detail_supplier").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['customer_enable']);
+                if (chartdata[0].fields['customer_enable'] == 'Y') {
+                    $("#v_detail_customer").removeClass('hide');
+                    $("#detail_customer").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['unit_enable']);
+                if (chartdata[0].fields['unit_enable'] == 'Y') {
+                    $("#v_detail_unit").removeClass('hide');
+                    $("#detail_unit").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['branch_enable']);
+                if (chartdata[0].fields['branch_enable'] == 'Y') {
+                    $("#v_detail_branch").removeClass('hide');
+                    $("#detail_branch").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['product_enable']);
+                if (chartdata[0].fields['product_enable'] == 'Y') {
+                    $("#v_detail_product").removeClass('hide');
+                    $("#detail_product").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['inputvat_enable']);
+                if (chartdata[0].fields['inputvat_enable'] == 'Y') {
+                    $("#v_detail_inputvat").removeClass('hide');
+                    $("#detail_inputvat").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['outputvat_enable']);
+                if (chartdata[0].fields['outputvat_enable'] == 'Y') {
+                    $("#v_detail_outputvat").removeClass('hide');
+                    $("#detail_outputvat").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['vat_enable']);
+                if (chartdata[0].fields['vat_enable'] == 'Y') {
+                    $("#v_detail_vat").removeClass('hide');
+                    $("#detail_vat").attr('data-validation', 'required');;
+                }
+                //console.log(chartdata[0].fields['wtax_enable']);
+                if (chartdata[0].fields['wtax_enable'] == 'Y') {
+                    $("#v_detail_wtax").removeClass('hide');
+                    $("#detail_wtax").attr('data-validation', 'required');;
+                }
+                console.log(chartdata[0].fields['ataxcode_enable']);
+                if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
+                    $("#v_detail_ataxcode").removeClass('hide');
+                    $("#detail_ataxcode").attr('data-validation', 'required');;
+                }
 
-                bank = response.bank;
-                console.log(bank);
-                banklist = $.parseJSON(bank);
-                console.log(banklist);
+                unit = response.unit;
+                unitlist = $.parseJSON(unit);
 
-                $.each(banklist, function(k, v){
-                    console.log(v.fields.code);
-                    console.log(v.pk);
-                    console.log(v.fields.description);
+                //console.log(unitlist);
+                var unitoptions = '<option value="">-- Select Unit --</option>';
+                $.each(unitlist, function (k, v) {
+                    //console.log(v.fields.code);
+                    unitoptions += '<option value="' + v.fields.pk + '">' + v.fields.description + '</option>';
                 });
+                $("#detail_unit").html(unitoptions);
+                $("#detail_unit option:first").attr('selected', 'selected');
+                $("#detail_unit").attr('disabled', false);
 
+
+{#                console.debug(chartdata[0].fields.accountcode);#}
+
+
+{#                bank = response.bank;#}
+{#                console.log(bank);#}
+{#                banklist = $.parseJSON(bank);#}
+{#                console.log(banklist);#}
+{##}
+{#                $.each(banklist, function(k, v){#}
+{#                    console.log(v.fields.code);#}
+{#                    console.log(v.pk);#}
+{#                    console.log(v.fields.description);#}
+{#                });#}
+{#bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_jvdetail_id', null=True, blank=True)#}
+{#department = models.ForeignKey('department.Department', related_name='department_jvdetail_id', null=True, blank=True)#}
+{#employee = models.ForeignKey('employee.Employee', related_name='employee_jvdetail_id', null=True, blank=True)#}
+{#supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_jvdetail_id', null=True, blank=True)#}
+{#customer = models.ForeignKey('customer.Customer', related_name='customer_jvdetail_id', null=True, blank=True)#}
+{#unit = models.ForeignKey('unit.Unit', related_name='unit_jvdetail_id', null=True, blank=True)#}
+{#branch = models.ForeignKey('branch.Branch', related_name='branch_jvdetail_id', null=True, blank=True)#}
+{#product = models.ForeignKey('product.Product', related_name='product_jvdetail_id', null=True, blank=True)#}
+{#inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_jvdetail_id', null=True, blank=True)#}
+{#outputvat = models.ForeignKey('outputvat.Outputvat', related_name='outputvat_jvdetail_id', null=True, blank=True)#}
+{#vat = models.ForeignKey('vat.Vat', related_name='vat_jvdetail_id', null=True, blank=True)#}
+{#wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_jvdetail_id', null=True, blank=True)#}
+{#ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_jvdetail_id', null=True, blank=True)#}
+{#debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)#}
+{#creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)#}
+{#balancecode = models.CharField(max_length=1, blank=True, null=True)#}
+{#amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)#}
 
             }, error: function(response) {
                 console.debug(reponse);
