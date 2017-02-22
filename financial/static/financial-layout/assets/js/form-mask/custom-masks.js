@@ -69,5 +69,17 @@
         'pattern': '{{999}}-{{999}}-{{999}}-{{999999}}',
         'persistent': true
     });
+    $('.zipCode').formatter({
+        'pattern': '{{9999}}',
+        'persistent': true
+    });
+    $('.sssNumber').formatter({
+        'pattern': '{{99}}-{{9999999}}-{{9}}-{{999}}',
+        'persistent': true
+    });
+    $('.resCertNumber').formatter({
+        'pattern': 'CCI{{9999}} {{99999999}}',
+        'persistent': true
+    });
 
 }(window, document, jQuery);

@@ -10,6 +10,5 @@ urlpatterns = [
     url(r'^create/$', views.CreateView.as_view(), name='create'),
     url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
-    url(r'^create/(?P<bank>[0-9]+)/all_branches/$', views.all_json_branches, name='get_branches'),
-    url(r'^[0-9]+/update/(?P<bank>[0-9]+)/all_branches/$', views.all_json_branches, name='get_branches'),
+    url(r'^get_branch/$', views.get_branch, name='get_branch'),
 ]

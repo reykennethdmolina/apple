@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report - Chart of Account</title>
+    <style>
+        .col {
+            padding: 5px;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<table border="1">
+    <thead>
+        <tr>
+            {% for data in list_header %}
+                <th><div class="col">{{ data }}</div></th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in data_list %}
+            <tr>
+                <td><div class="col">{{ data.0 }}</div></td>
+                <td><div class="col">{{ data.1 }}</div></td>
+                <td><div class="col">{{ data.2 }}</div></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

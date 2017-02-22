@@ -1,15 +1,17 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404, HttpResponse
 from chartofaccount.models import Chartofaccount
 from product.models import Product
 from typeofexpense.models import Typeofexpense
 from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
+import datetime
+
+#pagination
 from django.core import serializers
 from django.db.models import Q
-import datetime
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -145,6 +147,8 @@ class UpdateView(UpdateView):
         except ValueError:
             request.POST['sub'] = ''
 
+        return super(UpdateView, self).post(request, **kwargs)
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
@@ -152,10 +156,10 @@ class UpdateView(UpdateView):
         self.object.save(update_fields=['title', 'description', 'balancecode', 'charttype', 'accounttype', 'ctax',
                                         'taxstatus', 'wtaxstatus', 'mainposting', 'fixedasset', 'taxespayable',
                                         'kindofexpense', 'product', 'typeofexpense', 'mainunit', 'bankaccount_enable',
-                                        'department_enable', 'employee_enable', 'supplier_enable',
-                                        'customer_enable', 'branch_enable', 'product_enable',
-                                        'unit_enable', 'inputvat_enable', 'outputvat_enable',
-                                        'vat_enable', 'wtax_enable', 'ataxcode_enable', 'modifyby', 'modifydate'])
+                                        'department_enable', 'employee_enable', 'supplier_enable', 'customer_enable',
+                                        'branch_enable', 'product_enable', 'unit_enable', 'inputvat_enable',
+                                        'outputvat_enable', 'vat_enable', 'wtax_enable', 'ataxcode_enable', 'modifyby',
+                                        'modifydate'])
         return HttpResponseRedirect('/chartofaccount')
 
 

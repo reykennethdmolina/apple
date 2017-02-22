@@ -25,17 +25,17 @@
                         </div>
                         <div class="form-group">
                             <label for="id_address1" class="control-label">Address #1</label>
-                            <input type="text" class="form-control" id="id_address1" maxlength="20" placeholder="Address #1" name="address1" value="{{ form.address1.value|default:'' }}">
+                            <input type="text" class="form-control" id="id_address1" maxlength="250" placeholder="Address #1" name="address1" value="{{ form.address1.value|default:'' }}">
                             <span class="help-block form-error">{{ form.address1.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
                             <label for="id_address2" class="control-label">Address #2</label>
-                            <input type="text" class="form-control" id="id_address2" maxlength="20" placeholder="Address #2" name="address2" value="{{ form.address2.value|default:'' }}">
+                            <input type="text" class="form-control" id="id_address2" maxlength="250" placeholder="Address #2" name="address2" value="{{ form.address2.value|default:'' }}">
                             <span class="help-block form-error">{{ form.address2.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
                             <label for="id_address3" class="control-label">Address #3</label>
-                            <input type="text" class="form-control" id="id_address3" maxlength="20" placeholder="Address #3" name="address3" value="{{ form.address3.value|default:'' }}">
+                            <input type="text" class="form-control" id="id_address3" maxlength="250" placeholder="Address #3" name="address3" value="{{ form.address3.value|default:'' }}">
                             <span class="help-block form-error">{{ form.address3.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
@@ -44,8 +44,8 @@
                             <span class="help-block form-error">{{ form.telno.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
-                            <label for="id_tin" class="control-label">Tin</label>
-                            <input type="text" class="form-control tinNumber" id="id_tin" maxlength="15" placeholder="Tin" name="tin" value="{{ form.tin.value|default:'' }}">
+                            <label for="id_tin" class="control-label">TIN</label>
+                            <input type="text" class="form-control tinNumber" id="id_tin" maxlength="15" placeholder="TIN" name="tin" value="{{ form.tin.value|default:'' }}">
                             <span class="help-block form-error">{{ form.tin.errors.as_text }}</span>
                         </div>
                         <div class="form-group margin-bottom-0">
@@ -60,3 +60,8 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
+  <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+{% endblock extra_js %}

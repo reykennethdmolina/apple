@@ -65,7 +65,9 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save()
+        self.object.save(update_fields=['description', 'group', 'applicationstatus', 'particular',
+                                        'credit1chartofaccount', 'credit2chartofaccount', 'debit1chartofaccount',
+                                        'debit2chartofaccount', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/debitcreditmemosubtype')
 
     def get_context_data(self, **kwargs):

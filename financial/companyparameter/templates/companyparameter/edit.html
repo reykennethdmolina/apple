@@ -1,6 +1,8 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Company Parameter {% endblock page-title %}
 {% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
         /* Style the list */
         ul.tab {
@@ -60,6 +62,7 @@
                 </div>
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
+                        <div id="error-list"></div>
                         {% csrf_token %}
                         <ul class="tab">
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'maindetails')">Main Details</a></li>
@@ -68,11 +71,23 @@
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'wtaxsign')">Withholding Tax Signatory</a></li>
                         </ul>
                         <div id="maindetails" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 form-material {{ form.company.errors|yesno:'has-error,' }}">
+                                <label for="id_company" class="col-sm-3 control-label">Company</label>
+                                <div class="col-sm-7">
+                                    <select id="id_company" name="company" class="form-control" data-validation="required">
+                                        <option value="">-- Select --</option>
+                                        {% for company in company %}
+                                            <option value="{{ company.id }}" {% if form.company.value|add:0 == company.id %} selected="selected" {% endif %}>{{ company.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.company.errors.as_text }}</span>
+                                </div>
+                            </div>
                             <div class="form-group form-group-0 col-md-6
                              {{ form.code.errors|yesno:'has-error,' }}">
                                 <label for="id_code" class="col-sm-3 control-label">Code</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                    <input type="text" class="form-control" id="id_code" maxlength="10" readonly="readonly" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                                 </div>
                             </div>
@@ -91,14 +106,6 @@
                                     <span class="help-block form-error">{{ form.address.errors.as_text }}</span>
                                 </div>
                             </div>
-                            <div class="form-group form-group-0 col-md-6
-                             {{ form.tin.errors|yesno:'has-error,' }}">
-                                <label for="id_zipcode" class="col-sm-3 control-label">Zip Code</label>
-                                <div class="col-sm-7">
-                                    <input type="text" class="form-control zipCode" id="id_zipcode" placeholder="Zip Code" name="zipcode" value={{ form.zipcode.value|default:"" }}>
-                                    <span class="help-block form-error">{{ form.zipcode.errors.as_text }}</span>
-                                </div>
-                            </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.telno1.errors|yesno:'has-error,' }}">
                                 <label for="id_telno1" class="col-sm-3 control-label">Tel. No. 1</label>
                                 <div class="col-sm-7">
@@ -115,19 +122,27 @@
                                     <span class="help-block form-error">{{ form.telno2.errors.as_text }}</span>
                                 </div>
                             </div>
+                            <div class="form-group form-group-0 col-md-6
+                             {{ form.tin.errors|yesno:'has-error,' }}">
+                                <label for="id_zipcode" class="col-sm-3 control-label">Zip Code</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control zipCode" id="id_zipcode" placeholder="Zip Code" name="zipcode" value={{ form.zipcode.value|default:"" }}>
+                                    <span class="help-block form-error">{{ form.zipcode.errors.as_text }}</span>
+                                </div>
+                            </div>
                         </div>
                         <div id="contactpersons" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 {{ form.contactperson_acctg1.errors|yesno:'has-error,' }}">
                                 <label for="id_contactperson_acctg1" class="col-sm-5 control-label">Accounting</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_contactperson_acctg1" maxlength="75" placeholder="Contact Person 1"
+                                    <input type="text" class="form-control" id="id_contactperson_acctg1" maxlength="75" placeholder="Acctg Contact Person 1"
                                            name="contactperson_acctg1" data-validation="required" value="{{ form.contactperson_acctg1.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.contactperson_acctg1.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.contactperson_acctg2.errors|yesno:'has-error,' }}">
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_contactperson_acctg2" maxlength="75" placeholder="Contact Person 2"
+                                    <input type="text" class="form-control" id="id_contactperson_acctg2" maxlength="75" placeholder="Acctg Contact Person 2"
                                            name="contactperson_acctg2" value="{{ form.contactperson_acctg2.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.contactperson_acctg2.errors.as_text }}</span>
                                 </div>
@@ -135,14 +150,14 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.contactperson_it1.errors|yesno:'has-error,' }}">
                                 <label for="id_contactperson_it1" class="col-sm-5 control-label">Information Technology</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_contactperson_it1" maxlength="75" placeholder="Contact Person 1"
+                                    <input type="text" class="form-control" id="id_contactperson_it1" maxlength="75" placeholder="IT Contact Person 1"
                                            name="contactperson_it1" data-validation="required" value="{{ form.contactperson_it1.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.contactperson_it1.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.contactperson_it2.errors|yesno:'has-error,' }}">
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_contactperson_it2" maxlength="75" placeholder="Contact Person 2"
+                                    <input type="text" class="form-control" id="id_contactperson_it2" maxlength="75" placeholder="IT Contact Person 2"
                                            name="contactperson_it2" value="{{ form.contactperson_it2.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.contactperson_it2.errors.as_text }}</span>
                                 </div>
@@ -244,6 +259,10 @@
 </div>
 {% endblock page-content %}
 {% block extra_js %}
+    <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
 <script type="text/javascript">
 function openTab(evt, tabName) {
     // Declare all variables

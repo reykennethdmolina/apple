@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from . models import Companyparameter
+from company.models import Company
 import datetime
 
 
@@ -30,12 +31,17 @@ class CreateView(CreateView):
     fields = ['code', 'description', 'address', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
               'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2', 'contactperson_other1',
               'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum', 'issued_at', 'issued_date',
-              'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position']
+              'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position', 'company']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.add_companyparameter'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateView, self).get_context_data(**kwargs)
+        context['company'] = Company.objects.filter(isdeleted=0).order_by('description')
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -52,12 +58,17 @@ class UpdateView(UpdateView):
     fields = ['code', 'description', 'address', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
               'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2', 'contactperson_other1',
               'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum', 'issued_at', 'issued_date',
-              'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position']
+              'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position', 'company']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('companyparameter.change_companyparameter'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['company'] = Company.objects.filter(isdeleted=0).order_by('description')
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -67,7 +78,7 @@ class UpdateView(UpdateView):
                                         'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2',
                                         'contactperson_other1', 'contactperson_other2', 'sssnum', 'tinnum',
                                         'rescertnum', 'issued_at', 'issued_date', 'wtaxsign_name', 'wtaxsign_tin',
-                                        'wtaxsign_position', 'modifyby', 'modifydate'])
+                                        'wtaxsign_position', 'modifyby', 'modifydate', 'company'])
         return HttpResponseRedirect('/companyparameter')
 
 

@@ -1,0 +1,194 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Report - Chart of Account {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Report List</p></h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
+                                <li role="presentation"><a href="#advanced" aria-controls="advanced" role="tab" data-toggle="tab">Advanced</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade in active" id="basic">
+                                    <div class="col-md-12">
+                                        <span>Table headers</span>
+                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
+                                            {% for data in list_header %}
+                                                <option value="{{ data }}">{{ data | title }}</option>
+                                            {% endfor %}
+                                        </select><br>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>Date</span>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From" form="report">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To" form="report">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span>Order by</span>
+                                        <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby" form="report">
+                                            {% for data in list_header %}
+                                                <option value="{{ data }}">{{ data | title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <select name="orderasc" class="form-control orderasc" form="report">
+                                            <option value="a">Ascending</option>
+                                            <option value="d">Descending</option>
+                                        </select>
+                                        <br>
+                                    </div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="advanced">Coming soon...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="generate" class="btn btn-info btn-sm">Preview</button>
+                            <form action="{% url 'rep_chartofaccount:index' %}" method="get" id="report" target="_blank">
+                                <button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                                </button>
+                                <button type="button" id="get_xls" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row"><br><br><br></div>
+                    <div class="row">
+                        <div class="table-responsive col-md-12" style="position: relative">
+                            <div id="shade"><div class="loader two-color"></div></div>
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        {% for data in list_header %}
+                                            <th><span>{{ data | title }}</span></th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script type="text/javascript">
+$(function(){
+    var from, to, regEx, newurl;
+    var pdf_link, xls_link;
+    var tableList = $('table tbody');
+    var thead = $('table thead tr');
+    var reportUrl = $('#report').attr('action');
+
+    $('select').select2();
+
+    $('select').on('select2:select', function(event) {
+        var element = event.params.data.element;
+        var $element = $(element);
+
+        $element.detach();
+        $(this).append($element);
+        $(this).trigger('change');
+    });
+
+    $(document).on('click', '#generate', function() {
+        generateReport();
+    });
+
+    $('.get_report').on('click', function(){
+        var id = $(this).attr('id');
+        if(id == 'get_pdf'){
+            $('#report').attr('action', reportUrl + 'pdf').submit();
+        }
+        else{
+            $('#report').attr('action', reportUrl + 'xls').submit();
+        }
+    });
+
+    function generateReport(){
+        list_header = $('.list_header').val();
+        from = $('.datepickerfrom').val();
+        to = $('.datepickerto').val();
+        orderby = $('.ordeyby').val();
+        orderasc = $('.orderasc').val();
+
+        tableList.html('');
+        $('#shade').fadeIn();
+        $.ajax({
+            url: "{% url 'rep_chartofaccount:report' %}",
+            type: "post",
+            data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc},
+            success: function(response) {
+
+                if(response.list_table != "[]"){
+                    var list_table = jQuery.parseJSON(response.list_table);
+                    var list_header = response.list_header;
+
+                    thead.html("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[0] + "' form='report'></th>");
+                    for (var i = 1; i < list_header.length; i++) {
+                        thead.last('th').append("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[i] + "' form='report'></th>");
+                    }
+
+                    for (var i = 0; i < list_table.length; i++) {
+                        tableList.append("<tr><td>" + list_table[i].fields[list_header[0]] + "</td></tr>");
+
+                        for (var j = 1; j < list_header.length; j++) {
+                            tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i].fields[list_header[j]] + "</td>");
+                        }
+
+                        $('#shade').fadeOut();
+                    }
+                }
+                else{
+                    tableList.append("<tr><td colspan='3'> No result found </td></tr>");
+                    $('#shade').fadeOut();
+                }
+            }
+            ,error: function(response) {
+                console.debug(response);
+                tableList.html('');
+                tableList.append("<tr><td colspan='3> No result found </td></tr>");
+                $('#shade').fadeOut();
+            }
+        });
+
+        changeLink(from, to)
+    }
+});
+</script>
+{% endblock extra_js %}

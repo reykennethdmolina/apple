@@ -94,3 +94,27 @@ select.input-sm {
     line-height: 30px;
     font-size: 12px;
 }*/
+
+
+/*error list start*/
+#error-list{
+    background-color: #f2dede;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: #b94a48 1px solid;
+    border-radius: 4px;
+    color: #b94a48;
+    margin-top: 5px;
+    line-height: 140%;
+    display: none;
+}
+#error-list ul li {
+    line-height: 140%;
+    color: #b94a48;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    display: block;
+    margin: 0;
+    padding: 0 0 10px;
+}
+/*error list end*/

@@ -80,10 +80,10 @@ class Chartofaccount(models.Model):
         return reverse('chartofaccount:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.accountcode
+        return self.code
 
     def __unicode__(self):
-        return self.accountcode
+        return self.code
 
     def status_verbose(self):
         return dict(Chartofaccount.STATUS_CHOICES)[self.status]
