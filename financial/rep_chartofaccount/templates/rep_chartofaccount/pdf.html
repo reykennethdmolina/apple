@@ -14,19 +14,17 @@
 <table border="1">
     <thead>
         <tr>
-            <th><div class="col"><span>Account Code</span></div></th>
-            <th><div class="col"><span>Title</span></div></th>
-            <th><div class="col"><span>Description</span></div></th>
-            <th><div class="col"><span>Description</span></div></th>
+            {% for data in list_header %}
+                <th><div class="col">{{ data }}</div></th>
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for data in data_list %}
             <tr>
-                <td><div class="col">{{ data.accountcode }}</div></td>
-                <td><div class="col">{{ data.title }}</div></td>
-                <td><div class="col">{{ data.description }}</div></td>
-                <td><div class="col">{{ data.enterdate }}</div></td>
+                <td><div class="col">{{ data.0 }}</div></td>
+                <td><div class="col">{{ data.1 }}</div></td>
+                <td><div class="col">{{ data.2 }}</div></td>
             </tr>
         {% endfor %}
     </tbody>

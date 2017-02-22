@@ -4,6 +4,12 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
 {% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
@@ -23,7 +29,7 @@
                                 <div role="tabpanel" class="tab-pane fade in active" id="basic">
                                     <div class="col-md-12">
                                         <span>Table headers</span>
-                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header">
+                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
                                             {% for data in list_header %}
                                                 <option value="{{ data }}">{{ data | title }}</option>
                                             {% endfor %}
@@ -31,15 +37,15 @@
                                     </div>
                                     <div class="col-md-2">
                                         <span>Date</span>
-                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From">
+                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From" form="report">
                                     </div>
                                     <div class="col-md-2">
                                         <br>
-                                        <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To">
+                                        <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To" form="report">
                                     </div>
                                     <div class="col-md-6">
                                         <span>Order by</span>
-                                        <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby">
+                                        <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby" form="report">
                                             {% for data in list_header %}
                                                 <option value="{{ data }}">{{ data | title }}</option>
                                             {% endfor %}
@@ -47,7 +53,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <br>
-                                        <select name="orderasc" class="form-control orderasc">
+                                        <select name="orderasc" class="form-control orderasc" form="report">
                                             <option value="a">Ascending</option>
                                             <option value="d">Descending</option>
                                         </select>
@@ -62,12 +68,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <button id="generate" class="btn btn-info btn-sm">Preview</button>
-                            <a href="{% url 'rep_chartofaccount:pdf' %}?from=none&to=none" target="_blank" id="generate_pdf"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
-                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
-                            </button></a>
-                            <a href="{% url 'rep_chartofaccount:xls' %}?from=none&to=none" target="_blank" id="generate_xls"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">
-                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
-                            </button></a>
+                            <form action="{% url 'rep_chartofaccount:index' %}" method="get" id="report" target="_blank">
+                                <button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                                </button>
+                                <button type="button" id="get_xls" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
+                                </button>
+                            </form>
                         </div>
                     </div>
 
@@ -105,12 +113,12 @@ $(function(){
     var pdf_link, xls_link;
     var tableList = $('table tbody');
     var thead = $('table thead tr');
-    thead.css('textTransform', 'capitalize');
+    var reportUrl = $('#report').attr('action');
 
     $('select').select2();
 
-    $('select').on('select2:select', function (evt) {
-        var element = evt.params.data.element;
+    $('select').on('select2:select', function(event) {
+        var element = event.params.data.element;
         var $element = $(element);
 
         $element.detach();
@@ -120,6 +128,16 @@ $(function(){
 
     $(document).on('click', '#generate', function() {
         generateReport();
+    });
+
+    $('.get_report').on('click', function(){
+        var id = $(this).attr('id');
+        if(id == 'get_pdf'){
+            $('#report').attr('action', reportUrl + 'pdf').submit();
+        }
+        else{
+            $('#report').attr('action', reportUrl + 'xls').submit();
+        }
     });
 
     function generateReport(){
@@ -141,9 +159,9 @@ $(function(){
                     var list_table = jQuery.parseJSON(response.list_table);
                     var list_header = response.list_header;
 
-                    thead.html("<th>" + list_header[0] + "</th>");
+                    thead.html("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[0] + "' form='report'></th>");
                     for (var i = 1; i < list_header.length; i++) {
-                        thead.last('th').append("<th>" + list_header[i] + "</th>");
+                        thead.last('th').append("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[i] + "' form='report'></th>");
                     }
 
                     for (var i = 0; i < list_table.length; i++) {
@@ -170,28 +188,6 @@ $(function(){
         });
 
         changeLink(from, to)
-    }
-
-    function changeLink(from, to){
-        pdf_link = $('#generate_pdf').attr('href');
-        regEx = /([?&]from)=([^#&]*)/g;
-        newurl = pdf_link.replace(regEx, '$1='+from);
-        $('#generate_pdf').attr('href', newurl);
-
-        pdf_link = $('#generate_pdf').attr('href');
-        regEx = /([?&]to)=([^#&]*)/g;
-        newurl = pdf_link.replace(regEx, '$1='+to);
-        $('#generate_pdf').attr('href', newurl);
-
-        xls_link = $('#generate_xls').attr('href');
-        regEx = /([?&]from)=([^#&]*)/g;
-        newurl = xls_link.replace(regEx, '$1='+from);
-        $('#generate_xls').attr('href', newurl);
-
-        xls_link = $('#generate_xls').attr('href');
-        regEx = /([?&]to)=([^#&]*)/g;
-        newurl = xls_link.replace(regEx, '$1='+to);
-        $('#generate_xls').attr('href', newurl);
     }
 });
 </script>

@@ -77,17 +77,46 @@ class Pdf(PDFTemplateView):
     template_name = 'rep_chartofaccount/pdf.html'
 
     def get_context_data(self, **kwargs):
+
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['list_header'] = default_header
+
         try:
-            context = super(Pdf, self).get_context_data(**kwargs)
-            date_from = datetime.combine(datetime.strptime(self.request.GET.get('from'), '%Y-%m-%d'), datetime.min.time())
-            date_to = datetime.combine(datetime.strptime(self.request.GET.get('to'), '%Y-%m-%d'), datetime.max.time())
+
+            list_table = Chartofaccount.objects
+            list_header = default_header
+
             date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
-            # invalid dates
-            if date_from > datetime.now() or date_from < date_limit or date_to > datetime.now() or date_to < date_limit:
-                context['data_list'] = Chartofaccount.objects.all()[0:0]
-            else:
-                context['data_list'] = Chartofaccount.objects.all().filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).order_by('-pk')[0:10]
+            if self.request.method == 'GET':
+
+                if self.request.GET.getlist('list_header[]'):
+                    list_header = self.request.GET.getlist('list_header[]')
+
+                if self.request.GET['date_from']:
+                    date_from = datetime.combine(datetime.strptime(self.request.GET['date_from'], '%Y-%m-%d'), datetime.min.time())
+
+                    if date_from < datetime.now() and date_from > date_limit:
+                        list_table = list_table.filter(Q(enterdate__gt=date_from))
+
+                if self.request.GET['date_to']:
+                    date_to = datetime.combine(datetime.strptime(self.request.GET['date_to'], '%Y-%m-%d'), datetime.max.time())
+
+                    if date_to < datetime.now() and date_to > date_limit:
+                        list_table = list_table.filter(Q(enterdate__lt=date_to))
+
+                if self.request.GET.getlist('orderby[]') and self.request.GET['orderasc']:
+                    orderby = self.request.GET.getlist('orderby[]')
+                    orderasc = self.request.GET['orderasc']
+
+                    list_table.order_by(*orderby)
+
+                    if orderasc == 'a':
+                        list_table = list_table.reverse()
+
+                list_table = list_table.only(*list_header).filter(isdeleted=0)[0:10]
+
+            context['data_list'] = list_table
 
         except ValueError:
             context['data_list'] = Chartofaccount.objects.all()[0:0]
@@ -117,8 +146,8 @@ def xls(request):
     font_style = xlwt.XFStyle()
 
     try:
-        date_from = datetime.combine(datetime.strptime(request.GET.get('from'), '%Y-%m-%d'), datetime.min.time())
-        date_to = datetime.combine(datetime.strptime(request.GET.get('to'), '%Y-%m-%d'), datetime.max.time())
+        date_from = datetime.combine(datetime.strptime(request.GET.get('date_from'), '%Y-%m-%d'), datetime.min.time())
+        date_to = datetime.combine(datetime.strptime(request.GET.get('date_to'), '%Y-%m-%d'), datetime.max.time())
         date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
         if date_from > datetime.now() or date_from < date_limit or date_to > datetime.now() or date_to < date_limit:
