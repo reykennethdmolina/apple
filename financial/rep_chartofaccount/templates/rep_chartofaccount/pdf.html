@@ -11,20 +11,21 @@
     </style>
 </head>
 <body>
+{% load lookup %}
 <table border="1">
     <thead>
         <tr>
-            {% for data in list_header %}
+            {% for data in custom_header %}
                 <th><div class="col">{{ data }}</div></th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for data in data_list %}
+            {% for data in data_list %}
             <tr>
-                <td><div class="col">{{ data.0 }}</div></td>
-                <td><div class="col">{{ data.1 }}</div></td>
-                <td><div class="col">{{ data.2 }}</div></td>
+                {% for header in list_header %}
+                    <td><div class="col">{% lookup data header %}</div></td>
+                {% endfor %}
             </tr>
         {% endfor %}
     </tbody>

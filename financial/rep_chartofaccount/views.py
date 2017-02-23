@@ -22,7 +22,6 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
-        # insert aliases
         context['list_header'] = default_header
         return context
 
@@ -66,8 +65,7 @@ def report(request):
             'status': 'error',
         }
 
-    # apply universal name for js response
-    # apply to pdf,xls
+    # apply to xls
     return JsonResponse(data)
 
 
@@ -83,15 +81,23 @@ class Pdf(PDFTemplateView):
 
         try:
 
+            # show details in pdf
             list_table = Chartofaccount.objects
             list_header = default_header
+            context['custom_header'] = default_header
 
             date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
             if self.request.method == 'GET':
 
-                if self.request.GET.getlist('list_header[]'):
-                    list_header = self.request.GET.getlist('list_header[]')
+                if self.request.GET.getlist('list_header_modified'):
+                    context['custom_header'] = self.request.GET.getlist('list_header_modified')
+                elif self.request.GET.getlist('list_header'):
+                    context['custom_header'] = list_header
+
+                if self.request.GET.getlist('list_header'):
+                    list_header = self.request.GET.getlist('list_header')
+                    context['list_header'] = list_header
 
                 if self.request.GET['date_from']:
                     date_from = datetime.combine(datetime.strptime(self.request.GET['date_from'], '%Y-%m-%d'), datetime.min.time())
@@ -105,8 +111,8 @@ class Pdf(PDFTemplateView):
                     if date_to < datetime.now() and date_to > date_limit:
                         list_table = list_table.filter(Q(enterdate__lt=date_to))
 
-                if self.request.GET.getlist('orderby[]') and self.request.GET['orderasc']:
-                    orderby = self.request.GET.getlist('orderby[]')
+                if self.request.GET.getlist('orderby') and self.request.GET['orderasc']:
+                    orderby = self.request.GET.getlist('orderby')
                     orderasc = self.request.GET['orderasc']
 
                     list_table.order_by(*orderby)

@@ -45,7 +45,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <span>Order by</span>
-                                        <select class="form-control select2 ordeyby" multiple="multiple" name="ordeyby" form="report">
+                                        <select class="form-control select2 orderby" multiple="multiple" name="orderby" form="report">
                                             {% for data in list_header %}
                                                 <option value="{{ data }}">{{ data | title }}</option>
                                             {% endfor %}
@@ -68,7 +68,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <button id="generate" class="btn btn-info btn-sm">Preview</button>
-                            <form action="{% url 'rep_chartofaccount:index' %}" method="get" id="report" target="_blank">
+                            <form action="{% url 'rep_chartofaccount:index' %}" method="get" id="report" target="_blank" style="display: inline-block">
                                 <button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
                                     <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
                                 </button>
@@ -87,7 +87,7 @@
                                 <thead>
                                     <tr>
                                         {% for data in list_header %}
-                                            <th><span>{{ data | title }}</span></th>
+                                            <th><input type="text" name="list_header_modified" class="list_header_modified" value="{{ data }}" form="report"></th>
                                         {% endfor %}
                                     </tr>
                                 </thead>
@@ -144,7 +144,7 @@ $(function(){
         list_header = $('.list_header').val();
         from = $('.datepickerfrom').val();
         to = $('.datepickerto').val();
-        orderby = $('.ordeyby').val();
+        orderby = $('.orderby').val();
         orderasc = $('.orderasc').val();
 
         tableList.html('');
@@ -159,9 +159,9 @@ $(function(){
                     var list_table = jQuery.parseJSON(response.list_table);
                     var list_header = response.list_header;
 
-                    thead.html("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[0] + "' form='report'></th>");
+                    thead.html("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header[0] + "' form='report'></th>");
                     for (var i = 1; i < list_header.length; i++) {
-                        thead.last('th').append("<th><input type='text' name='list_header_modified[]' class='list_header_modified' value='" + list_header[i] + "' form='report'></th>");
+                        thead.last('th').append("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header[i] + "' form='report'></th>");
                     }
 
                     for (var i = 0; i < list_table.length; i++) {
