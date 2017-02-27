@@ -78,7 +78,7 @@
         'persistent': true
     });
     $('.resCertNumber').formatter({
-        'pattern': 'CCI{{9999}} {{99999999}}',
+        'pattern': 'CCI{{999999999999}}',
         'persistent': true
     });
 
