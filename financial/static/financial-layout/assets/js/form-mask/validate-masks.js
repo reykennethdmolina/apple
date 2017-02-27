@@ -3,11 +3,11 @@
  */
 
 $( "#validateButton" ).click(function() {
-    if($('.tinNumber').length){
-        $('.tinNumber').each(function(){
-            if($('.tinNumber').val().indexOf(' ') >= 0 || $('.tinNumber').val().indexOf('t') >= 0 ||
-                $('.tinNumber').val().length > 18){
-                $('.tinNumber').val("");
+    if($('.validateIntFormMask').length){
+        $('.validateIntFormMask').each(function(){
+            if($('.validateIntFormMask').val().length > 0 &&($('.validateIntFormMask').val().indexOf(' ') >= 0 ||
+                $('.validateIntFormMask').val().indexOf('t') >= 0)){
+                $('.validateIntFormMask').val("");
             }
         });
     }
