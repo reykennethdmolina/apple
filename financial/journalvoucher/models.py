@@ -90,7 +90,7 @@ class Jvdetail(models.Model):
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'jv'
+        db_table = 'jvdetail'
         ordering = ['-pk']
         #permissions = (("view_jvmain", "Can view jvmain"),)
 
