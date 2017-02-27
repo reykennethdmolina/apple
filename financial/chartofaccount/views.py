@@ -69,7 +69,7 @@ class CreateView(CreateView):
 
         # manual validation of sub
         try:
-            request.POST['sub'] = int(request.POST['sub'])
+            request.POST['sub'] = str(request.POST['sub'])
 
             # mask sub with leading zeros
             zero_addon = 6 - len(str(request.POST['sub']))
@@ -130,7 +130,7 @@ class UpdateView(UpdateView):
 
         # manual validation of sub
         try:
-            request.POST['sub'] = int(request.POST['sub'])
+            request.POST['sub'] = str(request.POST['sub'])
 
             # mask sub with leading zeros
             zero_addon = 6 - len(str(request.POST['sub']))
