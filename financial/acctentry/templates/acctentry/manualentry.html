@@ -1,16 +1,17 @@
-<form class="form-horizontal" id="form-b" method="post" action="">
+<form class="form-horizontal" id="detailform" method="get" action="">
 {% csrf_token %}
     <div class="row">
         <div class="col-lg-12 form-group">
-            <label class="col-sm-3 control-label" for="id_detail_chartofaccount" id="id_detail_chartofaccount">Chart of Account</label>
+            <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm select2modal" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <select class="form-control input-sm select2modal" data-validation="required" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
                 <option value="">-- Select Chart of Account --</option>
                 {% for chartofaccount in chartofaccount %}
                     <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
                 {% endfor %}
                 </select>
             </div>
+            <span class="help-block form-error"></span>
         </div>
         <div class="col-lg-12 form-group hide" id="v_detail_bankaccount">
             <label class="col-sm-3 control-label" for="id_detail_bankaccount">Bank Account</label>
@@ -166,156 +167,175 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 pull-right margin-bottom-10">
-{#            <button type="button" class="btn btn-round btn-success waves-effect waves-light" data-dismiss="modal">Add Accounting Entry</button>#}
-            <button type="submit" class="btn btn-round btn-success waves-effect waves-light" id="btn_detailsubmit">Add Accounting Entry</button>
+        <div class="col-sm-12 pull-left margin-bottom-10">
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Accounting Entry</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
         </div>
     </div>
 </form>
-{% block extra_js %}
-    {% load static %}
-    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
-    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
-    <script src="{% static 'financial-layout/assets/plugin/jQuery-Form-Validator/js/jquery.form-validator.min.js' %}"></script>
-    <script type="text/javascript">
-    $('.select2modal').select2({
-        dropdownParent: $('.modal')
-    });
-
-    $('#detail_chartofaccount').change(function() {
-        $("#v_detail_bankaccount").addClass('hide');
-        $("#detail_bankaccount").removeAttr('required');
-        $("#v_detail_department").addClass('hide');
-        $("#detail_department").removeAttr('required');
-        $("#v_detail_employee").addClass('hide');
-        $("#detail_employee").removeAttr('required');
-        $("#v_detail_supplier").addClass('hide');
-        $("#detail_supplier").removeAttr('required');
-        $("#v_detail_customer").addClass('hide');
-        $("#detail_customer").removeAttr('required');
-        $("#v_detail_unit").addClass('hide');
-        $("#detail_unit").removeAttr('required');
-        $("#v_detail_branch").addClass('hide');
-        $("#detail_branch").removeAttr('required');
-        $("#v_detail_product").addClass('hide');
-        $("#detail_product").removeAttr('required');
-        $("#v_detail_inputvat").addClass('hide');
-        $("#detail_inputvat").removeAttr('required');
-        $("#v_detail_outputvat").addClass('hide');
-        $("#detail_outputvat").removeAttr('required');
-        $("#v_detail_vat").addClass('hide');
-        $("#detail_vat").removeAttr('required');
-        $("#v_detail_wtax").addClass('hide');
-        $("#detail_wtax").removeAttr('requiredn');
-        $("#v_detail_ataxcode").addClass('hide');
-        $("#detail_ataxcode").removeAttr('required');
-        $.ajax({
-            url: "{% url 'acctentry:checkchartvalidatetion' %}",
-            type: "post",
-            dataType: "json",
-            data: {
-                'csrfmiddlewaretoken': "{{csrf_token}}",
-                'chartid':  $('#detail_chartofaccount').val(),
-            },
-            success: function(response){
-                chart = response.chart;
-                chartdata = $.parseJSON(chart);
-                //console.log(chartdata[0].fields['bankaccount_enable']);
-                if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
-                    $("#v_detail_bankaccount").removeClass('hide');
-                    $("#detail_bankaccount").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['department_enable']);
-                if (chartdata[0].fields['department_enable'] == 'Y') {
-                    $("#v_detail_department").removeClass('hide');
-                    $("#detail_department").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['employee_enable']);
-                if (chartdata[0].fields['employee_enable'] == 'Y') {
-                    $("#v_detail_employee").removeClass('hide');
-                    $("#detail_employee").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['supplier_enable']);
-                if (chartdata[0].fields['supplier_enable'] == 'Y') {
-                    $("#v_detail_supplier").removeClass('hide');
-                    $("#detail_supplier").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['customer_enable']);
-                if (chartdata[0].fields['customer_enable'] == 'Y') {
-                    $("#v_detail_customer").removeClass('hide');
-                    $("#detail_customer").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['unit_enable']);
-                if (chartdata[0].fields['unit_enable'] == 'Y') {
-                    $("#v_detail_unit").removeClass('hide');
-                    $("#detail_unit").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['branch_enable']);
-                if (chartdata[0].fields['branch_enable'] == 'Y') {
-                    $("#v_detail_branch").removeClass('hide');
-                    $("#detail_branch").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['product_enable']);
-                if (chartdata[0].fields['product_enable'] == 'Y') {
-                    $("#v_detail_product").removeClass('hide');
-                    $("#detail_product").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['inputvat_enable']);
-                if (chartdata[0].fields['inputvat_enable'] == 'Y') {
-                    $("#v_detail_inputvat").removeClass('hide');
-                    $("#detail_inputvat").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['outputvat_enable']);
-                if (chartdata[0].fields['outputvat_enable'] == 'Y') {
-                    $("#v_detail_outputvat").removeClass('hide');
-                    $("#detail_outputvat").attr('data-validation', 'required');;
-                }
-                //console.log(chartdata[0].fields['vat_enable']);
-                if (chartdata[0].fields['vat_enable'] == 'Y') {
-                    $("#v_detail_vat").removeClass('hide');
-                    $("#detail_vat").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['wtax_enable']);
-                if (chartdata[0].fields['wtax_enable'] == 'Y') {
-                    $("#v_detail_wtax").removeClass('hide');
-                    $("#detail_wtax").attr('required', 'required');;
-                }
-                //console.log(chartdata[0].fields['ataxcode_enable']);
-                if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
-                    $("#v_detail_ataxcode").removeClass('hide');
-                    $("#detail_ataxcode").attr('required', 'required');;
-                }
-
-                unit = response.unit;
-                unitlist = $.parseJSON(unit);
-
-                //console.log(unitlist);
-                var unitoptions = '<option value="">-- Select Unit --</option>';
-                $.each(unitlist, function (k, v) {
-                    //console.log(v.fields.code);
-                    unitoptions += '<option value="' + v.fields.pk + '">' + v.fields.description + '</option>';
-                });
-                $("#detail_unit").html(unitoptions);
-                $("#detail_unit option:first").attr('selected', 'selected');
-                $("#detail_unit").attr('disabled', false);
-
-
-            }, error: function(response) {
-                console.debug(reponse);
-            }
-        })
-    });
-    </script>
-    <script>
+<script type="text/javascript">
     $(document).ready(function() {
-{#        $( "#detailform" ).validate({#}
-{#            highlight: function(element) {#}
-{#                $(element).closest('.form-control').addClass('has-error');#}
-{#            },#}
-{#            unhighlight: function(element) {#}
-{#                $(element).closest('.form-group').removeClass('has-error');#}
-{#            }#}
-{#        });#}
+        $('.select2modal').select2({});
+        $("#manualbutton").click(function(){
+            $("#entryview").show();
+        });
+        $("#btn_detailclose").click(function(){
+            $("#entryview").hide();
+        });
+        $("#detailform").validate({
+            errorPlacement: function(error, element) {
+            $( element )
+				.closest( "form" )
+					.find( "span[for='" + element.attr( "id" ) + "']" )
+						.append( error );
+            },
+            errorElement: "span",
+        });
+
+        $("#btn_detailsubmit").click(function() {
+            var m_debitamount = $('#detail_debitamount').val();
+	        var m_creditamount = $('#detail_creditamount').val();
+            if ($("#detailform").valid()) {
+
+                if ((m_debitamount == 0 || m_debitamount == "" ) && (m_creditamount == 0 || m_creditamount == "")) {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+
+                if ((m_debitamount != "" && m_creditamount == 0) || (m_debitamount == 0  && m_creditamount != "")) {
+                    alert('Accounting Entry Submitted');
+                } else if ((m_debitamount != "" && m_creditamount != "")) {
+                    alert('Choose only one Debit and Credit amount');
+                    return false;
+                }
+                return false;
+
+            } else {
+                alert('Please fill in the fields.')
+            }
+        });
+        $("#detail_chartofaccount").change(function() {
+            $("#v_detail_bankaccount").addClass('hide');
+            $("#detail_bankaccount").removeAttr('required');
+            $("#v_detail_department").addClass('hide');
+            $("#detail_department").removeAttr('required');
+            $("#v_detail_employee").addClass('hide');
+            $("#detail_employee").removeAttr('required');
+            $("#v_detail_supplier").addClass('hide');
+            $("#detail_supplier").removeAttr('required');
+            $("#v_detail_customer").addClass('hide');
+            $("#detail_customer").removeAttr('required');
+            $("#v_detail_unit").addClass('hide');
+            $("#detail_unit").removeAttr('required');
+            $("#v_detail_branch").addClass('hide');
+            $("#detail_branch").removeAttr('required');
+            $("#v_detail_product").addClass('hide');
+            $("#detail_product").removeAttr('required');
+            $("#v_detail_inputvat").addClass('hide');
+            $("#detail_inputvat").removeAttr('required');
+            $("#v_detail_outputvat").addClass('hide');
+            $("#detail_outputvat").removeAttr('required');
+            $("#v_detail_vat").addClass('hide');
+            $("#detail_vat").removeAttr('required');
+            $("#v_detail_wtax").addClass('hide');
+            $("#detail_wtax").removeAttr('requiredn');
+            $("#v_detail_ataxcode").addClass('hide');
+            $("#detail_ataxcode").removeAttr('required');
+            $.ajax({
+                url: "{% url 'acctentry:checkchartvalidatetion' %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'chartid':  $('#detail_chartofaccount').val(),
+                },
+                success: function(response){
+                    chart = response.chart;
+                    chartdata = $.parseJSON(chart);
+                    //console.log(chartdata[0].fields['bankaccount_enable']);
+                    if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
+                        $("#v_detail_bankaccount").removeClass('hide');
+                        $("#detail_bankaccount").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['department_enable']);
+                    if (chartdata[0].fields['department_enable'] == 'Y') {
+                        $("#v_detail_department").removeClass('hide');
+                        $("#detail_department").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['employee_enable']);
+                    if (chartdata[0].fields['employee_enable'] == 'Y') {
+                        $("#v_detail_employee").removeClass('hide');
+                        $("#detail_employee").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['supplier_enable']);
+                    if (chartdata[0].fields['supplier_enable'] == 'Y') {
+                        $("#v_detail_supplier").removeClass('hide');
+                        $("#detail_supplier").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['customer_enable']);
+                    if (chartdata[0].fields['customer_enable'] == 'Y') {
+                        $("#v_detail_customer").removeClass('hide');
+                        $("#detail_customer").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['unit_enable']);
+                    if (chartdata[0].fields['unit_enable'] == 'Y') {
+                        $("#v_detail_unit").removeClass('hide');
+                        $("#detail_unit").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['branch_enable']);
+                    if (chartdata[0].fields['branch_enable'] == 'Y') {
+                        $("#v_detail_branch").removeClass('hide');
+                        $("#detail_branch").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['product_enable']);
+                    if (chartdata[0].fields['product_enable'] == 'Y') {
+                        $("#v_detail_product").removeClass('hide');
+                        $("#detail_product").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['inputvat_enable']);
+                    if (chartdata[0].fields['inputvat_enable'] == 'Y') {
+                        $("#v_detail_inputvat").removeClass('hide');
+                        $("#detail_inputvat").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['outputvat_enable']);
+                    if (chartdata[0].fields['outputvat_enable'] == 'Y') {
+                        $("#v_detail_outputvat").removeClass('hide');
+                        $("#detail_outputvat").attr('data-validation', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['vat_enable']);
+                    if (chartdata[0].fields['vat_enable'] == 'Y') {
+                        $("#v_detail_vat").removeClass('hide');
+                        $("#detail_vat").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['wtax_enable']);
+                    if (chartdata[0].fields['wtax_enable'] == 'Y') {
+                        $("#v_detail_wtax").removeClass('hide');
+                        $("#detail_wtax").attr('required', 'required');;
+                    }
+                    //console.log(chartdata[0].fields['ataxcode_enable']);
+                    if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
+                        $("#v_detail_ataxcode").removeClass('hide');
+                        $("#detail_ataxcode").attr('required', 'required');;
+                    }
+
+                    unit = response.unit;
+                    unitlist = $.parseJSON(unit);
+
+                    //console.log(unitlist);
+                    var unitoptions = '<option value="">-- Select Unit --</option>';
+                    $.each(unitlist, function (k, v) {
+                        //console.log(v.fields.code);
+                        unitoptions += '<option value="' + v.fields.pk + '">' + v.fields.description + '</option>';
+                    });
+                    $("#detail_unit").html(unitoptions);
+                    $("#detail_unit option:first").attr('selected', 'selected');
+                    $("#detail_unit").attr('disabled', false);
+
+
+                }, error: function(response) {
+                    console.debug(reponse);
+                }
+            })
+        });
     });
-    </script>
-{% endblock extra_js %}
+</script>

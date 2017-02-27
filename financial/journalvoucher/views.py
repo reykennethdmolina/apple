@@ -7,6 +7,7 @@ from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
 from journalvoucher.models import Jvmain
+from chartofaccount.models import Chartofaccount
 from potype.models import Potype
 import datetime
 from random import randint
@@ -21,7 +22,7 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['test'] = Jvmain.objects.values()[1]
+        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
