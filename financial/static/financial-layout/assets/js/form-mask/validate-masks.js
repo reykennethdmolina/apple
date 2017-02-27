@@ -11,5 +11,4 @@ $( "#validateButton" ).click(function() {
             }
         });
     }
-
 });
