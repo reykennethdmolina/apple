@@ -4,14 +4,55 @@
     <meta charset="UTF-8">
     <title>Report - Chart of Account</title>
     <style>
+        body{
+            font-size: {{ fontsize }};
+        }
         .col {
             padding: 5px;
             padding-top: 8px;
+        }
+        .align-right {
+            width: 100%;
+            text-align:right;
+        }
+        .align-left {
+            width: 100%;
+            text-align: left;
+        }
+        #logo{
+            width: 150px;
+            display: inline-block;
+        }
+        @page {
+            size: {{ pagesize }};
+            margin: 1cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 0cm;
+                margin-left: -2.5cm;
+                margin-right: 0cm;
+                height: 1cm;
+            }
         }
     </style>
 </head>
 <body>
 {% load lookup %}
+{% load static %}
+{% load pdf_filters %}
+
+{{ request.get_host }}
+<div class="align-left">
+    <img id="logo" src="{{ logo | get64 }}"/><br>
+</div>
+
+<div class="align-right">
+    <b>Date requested:</b> {% now "m-d-Y H:m:s" %}<br>
+    <b>Requested by:</b> {{ user }}
+</div>
+
+<br><br>
+
 <table border="1">
     <thead>
         <tr>
@@ -30,5 +71,11 @@
         {% endfor %}
     </tbody>
 </table>
+
+<div id="footerContent">
+    {%block page_foot%}
+        Page <pdf:pagenumber /> of <pdf:pagecount />
+    {%endblock%}
+</div>
 </body>
 </html>

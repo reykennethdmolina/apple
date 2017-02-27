@@ -7,6 +7,7 @@ from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from datetime import datetime
 import xlwt
 
@@ -75,9 +76,13 @@ class Pdf(PDFTemplateView):
     template_name = 'rep_chartofaccount/pdf.html'
 
     def get_context_data(self, **kwargs):
-
         context = super(Pdf, self).get_context_data(**kwargs)
         context['list_header'] = default_header
+        context['user'] = self.request.user
+        context['pagesize'] = "a4"
+        context['fontsize'] = "10"
+        context['logo'] = "http://127.0.0.1:8000" + static("images/my-inquirer-logo.png")
+        # context['logo'] = "http://" + self.request.META['HTTP_HOST'] + static('financial-layout/assets/images/global/img_470x160.png')
 
         try:
 
@@ -121,6 +126,12 @@ class Pdf(PDFTemplateView):
                         list_table = list_table.reverse()
 
                 list_table = list_table.only(*list_header).filter(isdeleted=0)[0:10]
+
+                if self.request.GET['orientation'] and self.request.GET['size']:
+                    context['pagesize'] = self.request.GET['size'] + " " + self.request.GET['orientation']
+
+                if self.request.GET['fontsize']:
+                    context['fontsize'] = self.request.GET['fontsize'] + "px"
 
             context['data_list'] = list_table
 
