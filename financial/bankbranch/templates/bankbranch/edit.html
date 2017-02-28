@@ -18,7 +18,7 @@
                                 <select id="id_bank" name="bank" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
                                     {% for bank in bank %}
-                                        <option value="{{ bank.id }}" {% if form.bank.value|add:0 == bank.id %} selected="selected" {% endif %}>{{ bank.description }}</option>
+                                        <option value="{{ bank.id }}" {% if form.bank.value|add:0 == bank.id %} selected="selected" {% endif %}>{{ bank.code }} - {{ bank.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.bank.errors.as_text }}</span>
@@ -28,11 +28,11 @@
                                 <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                             </div>
-                            <div class="form-group">
-                                <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
-                                <div>
-                                    <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
-                                </div>
+                            <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
+                                <label for="id_description" class="control-label">Description</label>
+                                <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Description" name="description"
+                                       data-validation="required" value="{{ form.description.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
                             </div>
                         </div>
 
