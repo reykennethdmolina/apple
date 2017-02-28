@@ -208,7 +208,37 @@
                     alert('Choose only one Debit and Credit amount');
                     return false;
                 }
-                return false;
+
+                $.ajax({
+                    url: "{% url 'acctentry:savemaccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'secretkey': $("#secretkey").val(),
+                           'chartofaccount': $("#detail_chartofaccount").val(),
+                           'bankaccount': $("#detail_bankaccount").val(),
+                           'department': $("#detail_department").val(),
+                           'employee': $("#detail_employee").val(),
+                           'supplier': $("#detail_supplier").val(),
+                           'customer': $("#detail_customer").val(),
+                           'unit': $("#detail_unit").val(),
+                           'branch': $("#detail_branch").val(),
+                           'product': $("#detail_product").val(),
+                           'inputvat': $("#detail_inputvat").val(),
+                           'outputvat': $("#detail_outputvat").val(),
+                           'vat': $("#detail_vat").val(),
+                           'wtax': $("#detail_wtax").val(),
+                           'outputvat': $("#detail_outputvat").val(),
+                           'ataxcode': $("#detail_ataxcode").val(),
+                           'creditamount': $("#detail_creditamount").val(),
+                           'debitamount': $("#detail_debitamount").val(),
+                    },
+                    success: function(response) {
+
+                    },
+                    error: function(response) {
+                        console.log(response)
+                    }
+                })
 
             } else {
                 alert('Please fill in the fields.')

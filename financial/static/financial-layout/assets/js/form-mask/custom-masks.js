@@ -81,5 +81,9 @@
         'pattern': 'CCI{{999999999999}}',
         'persistent': true
     });
+    $('.amount').formatter({
+        'pattern': '{{99}}.{{99}}',
+        'persistent': true
+    });
 
 }(window, document, jQuery);

@@ -7,6 +7,7 @@ urlpatterns = [
     #url(r'^$', views.accountingentry, name='accountingentry'),
     url(r'^maccountingentry/$', views.maccountingentry, name='maccountingentry'),
     url(r'^checkchartvalidatetion/$', views.checkchartvalidatetion, name='checkchartvalidatetion'),
+    url(r'^savemaccountingentry/$', views.savemaccountingentry, name='savemaccountingentry'),
     # url(r'^(?P<pk>[0-9]+)/$', views.DetailView.as_view(), name='detail'),
     # url(r'^create/$', views.CreateView.as_view(), name='create'),
     # url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),

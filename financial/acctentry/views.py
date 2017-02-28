@@ -17,6 +17,8 @@ from outputvat.models import Outputvat
 from vat.models import Vat
 from wtax.models import Wtax
 from ataxcode.models import Ataxcode
+from journalvoucher.models import Jvdetailtemp
+import datetime, random
 
 import json
 
@@ -80,3 +82,34 @@ def checkchartvalidatetion(request):
     return JsonResponse(data)
     #return HttpResponse(data, content_type='application/json')
     #return HttpResponse(data, content_type="application/json")
+
+@csrf_exempt
+def savemaccountingentry(request):
+
+    if request.method == 'POST':
+        # Save Data To JVDetail
+        detailtemp = Jvdetailtemp()
+        detailtemp.item_counter = 1
+        detailtemp.balancecode = 'D'
+        detailtemp.chartofaccount = request.POST['chartofaccount']
+        detailtemp.secretkey = request.POST['secretkey']
+        detailtemp.jv_date = datetime.datetime.now()
+        detailtemp.enterby = request.user
+        detailtemp.enterdate = datetime.datetime.now()
+        detailtemp.modifyby = request.user
+        detailtemp.modifydate = datetime.datetime.now()
+        detailtemp.save()
+
+        data = {
+            'status': 'success',
+        }
+    else :
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+def generatekey(request):
+    SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+    return SECREY_KEY

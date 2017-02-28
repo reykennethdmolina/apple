@@ -49,7 +49,6 @@ class Jvmain(models.Model):
         return dict(Jvmain.STATUS_CHOICES)[self.status]
 
 class Jvdetail(models.Model):
-    id = models.BigIntegerField(primary_key=True)
     item_counter = models.IntegerField()
     jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='jvmain_jvdetail_id', null=True, blank=True)
     jv_num = models.CharField(max_length=10)
@@ -94,22 +93,75 @@ class Jvdetail(models.Model):
         ordering = ['-pk']
         #permissions = (("view_jvmain", "Can view jvmain"),)
 
-
     def get_absolute_url(self):
         return reverse('jvdetail:detail', kwargs={'pk': self.pk})
-
 
     def __str__(self):
         return self.jvnum
 
-
     def __unicode__(self):
         return self.jvnum
-
 
     def status_verbose(self):
         return dict(Jvdetail.STATUS_CHOICES)[self.status]
 
+class Jvdetailtemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    jvmain = models.CharField(max_length=10, null=True, blank=True)
+    jv_num = models.CharField(max_length=10)
+    jv_date = models.DateTimeField()
+    chartofaccount = models.IntegerField(default=0, null=True, blank=True)
+    bankaccount = models.IntegerField(default=0, null=True, blank=True)
+    department = models.IntegerField(default=0, null=True, blank=True)
+    employee = models.IntegerField(default=0, null=True, blank=True)
+    supplier = models.IntegerField(default=0, null=True, blank=True)
+    customer = models.IntegerField(default=0, null=True, blank=True)
+    unit = models.IntegerField(default=0, null=True, blank=True)
+    branch = models.IntegerField(default=0, null=True, blank=True)
+    product = models.IntegerField(default=0, null=True, blank=True)
+    inputvat = models.IntegerField(default=0, null=True, blank=True)
+    outputvat = models.IntegerField(default=0, null=True, blank=True)
+    vat = models.IntegerField(default=0, null=True, blank=True)
+    wtax = models.IntegerField(default=0, null=True, blank=True)
+    ataxcode = models.IntegerField(default=0, null=True, blank=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='jvdetailtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='jvdetailtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='jvdetailtemp_post')
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'jvdetailtemp'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('jvdetailtemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return self.pk
+
+    def status_verbose(self):
+        return dict(Jvdetailtemp.STATUS_CHOICES)[self.status]
 
 # # Create your models here.
 #

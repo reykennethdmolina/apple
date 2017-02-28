@@ -12,6 +12,7 @@
             <div class="panel margin-bottom-20">
                     <form method="post" id="form-b">
                         {% csrf_token %}
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-12">
                             <div class="row row-lg">
                                 <div class="form-group  col-sm-2">
