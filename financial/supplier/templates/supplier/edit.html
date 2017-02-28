@@ -39,7 +39,7 @@
                          {{ form.tin.errors|yesno:'has-error,' }}">
                             <br><label for="id_tin" class="col-sm-3 control-label">TIN</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control tinNumber" id="id_tin" placeholder="TIN" name="tin" data-validation="required" value={{ form.tin.value|default:"" }}>
+                                <input type="text" class="form-control validateIntFormMask tinNumber" id="id_tin" maxlength="18" placeholder="TIN" name="tin" data-validation="required" value={{ form.tin.value|default:"" }}>
                                 <span class="help-block form-error help-block-sm">{{ form.tin.errors.as_text }}</span>
                             </div>
                         </div>

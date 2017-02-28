@@ -4,10 +4,16 @@
 
 $( "#validateButton" ).click(function() {
     if($('.validateIntFormMask').length){
-        $('.validateIntFormMask').each(function(){
-            if($('.validateIntFormMask').val().length > 0 &&($('.validateIntFormMask').val().indexOf(' ') >= 0 ||
-                $('.validateIntFormMask').val().indexOf('t') >= 0)){
-                $('.validateIntFormMask').val("");
+        $('.validateIntFormMask').each(function(i, obj){
+            if($(this).val().length > 0 &&($(this).val().indexOf(' ') >= 0 || $(this).val().indexOf('t') >= 0)){
+
+                invalidInput = $(this).val();
+                invalidForm = $(this);
+                $(this).val("");
+
+                window.setTimeout(function () {
+                    invalidForm.val(invalidInput);
+                }, 100);
             }
         });
     }
