@@ -190,7 +190,7 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.sssnum.errors|yesno:'has-error,' }}">
                                 <label for="id_sssnum" class="col-sm-3 control-label">SSS No.</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control sssNumber validateIntFormMask" id="id_sssnum" maxlength="20" placeholder="SSS No." name="sssnum"
+                                    <input type="text" class="form-control sssNumber validateIntFormMask" id="id_sssnum" maxlength="16" placeholder="SSS No." name="sssnum"
                                            value="{{ form.sssnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.sssnum.errors.as_text }}</span>
                                 </div>
@@ -206,7 +206,7 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.tinnum.errors|yesno:'has-error,' }}">
                                 <label for="id_tinnum" class="col-sm-3 control-label">TIN</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control tinNumber validateIntFormMask" id="id_tinnum" maxlength="20" placeholder="TIN No." name="tinnum"
+                                    <input type="text" class="form-control tinNumber validateIntFormMask" id="id_tinnum" maxlength="18" placeholder="TIN No." name="tinnum"
                                            value="{{ form.tinnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.tinnum.errors.as_text }}</span>
                                 </div>
@@ -231,7 +231,7 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.wtaxsign_tin.errors|yesno:'has-error,' }}">
                                 <label for="id_wtaxsign_tin" class="col-sm-3 control-label">TIN</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control tinNumber validateIntFormMask" id="id_wtaxsign_tin" maxlength="20" name="wtaxsign_tin"
+                                    <input type="text" class="form-control tinNumber validateIntFormMask" id="id_wtaxsign_tin" maxlength="18" name="wtaxsign_tin"
                                            value="{{ form.wtaxsign_tin.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.wtaxsign_tin.errors.as_text }}</span>
                                 </div>
