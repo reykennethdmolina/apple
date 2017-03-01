@@ -23,6 +23,34 @@
                                 <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
                             </div>
                         </div>
+                        <div class="form-group {{ form.chartofaccount_arcode.errors|yesno:'has-error,' }} form-material">
+                            <label class="control-label" for="id_chartofaccount_arcode">Chart of Account AR Code</label>
+                            <div>
+                                <select id="id_chartofaccount_arcode" class="form-control" name="chartofaccount_arcode"
+                                        data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount_arcode in chartofaccount_arcode %}
+                                        <option value="{{ chartofaccount_arcode.id }}" {% if form.chartofaccount_arcode.value|add:0 == chartofaccount_arcode.id %}
+                                                selected="selected" {% endif %}>[{{ chartofaccount_arcode.accountcode }}] - {{ chartofaccount_arcode.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartofaccount_arcode.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group {{ form.chartofaccount_revcode.errors|yesno:'has-error,' }} form-material">
+                            <label class="control-label" for="id_chartofaccount_revcode">Chart of Account Revenue Code</label>
+                            <div>
+                                <select id="id_chartofaccount_revcode" class="form-control" name="chartofaccount_revcode"
+                                        data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount_revcode in chartofaccount_revcode %}
+                                        <option value="{{ chartofaccount_revcode.id }}" {% if form.chartofaccount_revcode.value|add:0 == chartofaccount_revcode.id %}
+                                                selected="selected" {% endif %}>[{{ chartofaccount_revcode.accountcode }}] - {{ chartofaccount_revcode.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartofaccount_revcode.errors.as_text }}</span>
+                            </div>
+                        </div>
                         <div class="form-group margin-bottom-0">
                             <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                         </div>

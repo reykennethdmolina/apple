@@ -8,6 +8,10 @@ import datetime
 class Adtype(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
+    chartofaccount_arcode = models.ForeignKey('chartofaccount.Chartofaccount', default=1,
+                                              related_name='chartofaccount_arcode_id')
+    chartofaccount_revcode = models.ForeignKey('chartofaccount.Chartofaccount', default=1,
+                                               related_name='chartofaccount_revcode_id')
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

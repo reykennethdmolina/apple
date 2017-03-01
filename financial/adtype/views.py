@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from adtype.models import Adtype
+from chartofaccount.models import Chartofaccount
 import datetime
 
 
@@ -26,12 +27,18 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Adtype
     template_name = 'adtype/create.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'chartofaccount_arcode', 'chartofaccount_revcode']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('adtype.add_adtype'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateView, self).get_context_data(**kwargs)
+        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('description')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('description')
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -45,18 +52,25 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Adtype
     template_name = 'adtype/edit.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'chartofaccount_arcode', 'chartofaccount_revcode']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('adtype.change_adtype'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('description')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('description')
+        return context
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'chartofaccount_arcode', 'chartofaccount_revcode', 'modifyby',
+                                        'modifydate'])
         return HttpResponseRedirect('/adtype')
 
 
