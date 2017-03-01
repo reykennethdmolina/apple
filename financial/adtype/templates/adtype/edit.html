@@ -1,6 +1,10 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Advertising Type {% endblock page-title %}
 {% block page-content %}
+{% block extra_css %}
+{% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
@@ -26,7 +30,7 @@
                         <div class="form-group {{ form.chartofaccount_arcode.errors|yesno:'has-error,' }} form-material">
                             <label class="control-label" for="id_chartofaccount_arcode">Chart of Account AR Code</label>
                             <div>
-                                <select id="id_chartofaccount_arcode" class="form-control" name="chartofaccount_arcode"
+                                <select id="id_chartofaccount_arcode" class="form-control select2" name="chartofaccount_arcode"
                                         data-validation="required">
                                     <option value="">-- Select --</option>
                                     {% for chartofaccount_arcode in chartofaccount_arcode %}
@@ -40,7 +44,7 @@
                         <div class="form-group {{ form.chartofaccount_revcode.errors|yesno:'has-error,' }} form-material">
                             <label class="control-label" for="id_chartofaccount_revcode">Chart of Account Revenue Code</label>
                             <div>
-                                <select id="id_chartofaccount_revcode" class="form-control" name="chartofaccount_revcode"
+                                <select id="id_chartofaccount_revcode" class="form-control select2" name="chartofaccount_revcode"
                                         data-validation="required">
                                     <option value="">-- Select --</option>
                                     {% for chartofaccount_revcode in chartofaccount_revcode %}
@@ -63,3 +67,14 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script type="text/javascript">
+    /* Hack tools for selecting first option default foreign data value */
+    $(document).ready(function() {
+        $("#id_chartofaccount_arcode option:first").attr('selected', 'selected');
+        $('.select2').select2({});
+    });
+
+</script>
+{% endblock extra_js %}

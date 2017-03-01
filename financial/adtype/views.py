@@ -36,8 +36,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('description')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('description')
+        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('accountcode')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('accountcode')
         return context
 
     def form_valid(self, form):
@@ -61,8 +61,8 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('description')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('description')
+        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('accountcode')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('accountcode')
         return context
 
     def form_valid(self, form):
