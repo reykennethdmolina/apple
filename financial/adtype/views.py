@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from adtype.models import Adtype
 from chartofaccount.models import Chartofaccount
+from django.db.models import Q
 import datetime
 
 
@@ -37,7 +38,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('accountcode')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('accountcode')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main__in=[2, 4]).order_by('accountcode')
         return context
 
     def form_valid(self, form):
@@ -62,7 +63,7 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=1).order_by('accountcode')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main=4).order_by('accountcode')
+        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).filter(main__in=[2, 4]).order_by('accountcode')
         return context
 
     def form_valid(self, form):
