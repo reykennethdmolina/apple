@@ -34,7 +34,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Employee
     template_name = 'employee/create.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus']
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.add_employee'):
@@ -43,6 +43,7 @@ class CreateView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -58,7 +59,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus']
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.change_employee'):
@@ -67,9 +68,10 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus',
+        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email',
                                         'modifyby', 'modifydate'])
         return HttpResponseRedirect('/employee')
 

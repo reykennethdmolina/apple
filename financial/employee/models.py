@@ -24,7 +24,7 @@ class Employee(models.Model):
     middlename = models.CharField(max_length=75, blank=True, null=True)
     lastname = models.CharField(max_length=75)
     email = models.CharField(max_length=100, blank=True, null=True)
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='employee_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
