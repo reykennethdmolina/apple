@@ -41,7 +41,7 @@ class CreateView(CreateView):
     template_name = 'customer/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'telno1', 'telno2', 'telno3', 'faxno1', 'faxno2',
               'tin', 'pagerno', 'payterms', 'creditlimit', 'creditstatus', 'creditrating', 'contactperson',
-              'contactposition', 'contactemail', 'remarks', 'multiplestatus', 'beg_amount', 'beg_code', 'beg_date',
+              'contactposition', 'contactemail', 'remarks', 'beg_amount', 'beg_code', 'beg_date',
               'end_amount', 'end_code', 'end_date', 'bankaccount', 'creditterm', 'currency', 'customertype', 'industry']
 
     def dispatch(self, request, *args, **kwargs):
@@ -51,6 +51,7 @@ class CreateView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -72,7 +73,7 @@ class UpdateView(UpdateView):
     template_name = 'customer/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'telno1', 'telno2', 'telno3', 'faxno1', 'faxno2',
               'tin', 'pagerno', 'payterms', 'creditlimit', 'creditstatus', 'creditrating', 'contactperson',
-              'contactposition', 'contactemail', 'remarks', 'multiplestatus', 'beg_amount', 'beg_code', 'beg_date',
+              'contactposition', 'contactemail', 'remarks', 'beg_amount', 'beg_code', 'beg_date',
               'end_amount', 'end_code', 'end_date', 'bankaccount', 'creditterm', 'currency', 'customertype', 'industry']
 
     def dispatch(self, request, *args, **kwargs):
@@ -82,6 +83,7 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'telno1', 'telno2', 'telno3',

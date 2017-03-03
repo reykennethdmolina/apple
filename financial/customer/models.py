@@ -52,7 +52,7 @@ class Customer(models.Model):
     currency = models.ForeignKey('currency.Currency', related_name='customer_currency_id', null=True, blank=True)
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_id', null=True, blank=True)
     industry = models.ForeignKey('industry.Industry', related_name='industry_id', null=True, blank=True)
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
     beg_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     beg_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, null=True, blank=True)
     beg_date = models.DateField(null=True, blank=True)

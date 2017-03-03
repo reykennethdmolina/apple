@@ -71,7 +71,7 @@ class UpdateView(UpdateView):
         self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email',
+        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate'])
         return HttpResponseRedirect('/employee')
 
