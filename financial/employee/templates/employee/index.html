@@ -11,7 +11,7 @@
                 {% endif %}
             </div>
             <div class="col-md-12">
-                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="code,name">
+                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="code,firstname,middlename,lastname">
                     <!-- Start Basic Table Section -->
                     <h4><p>Data List</p></h4>
                     <div class="table-responsive">
@@ -20,7 +20,9 @@
                                 <tr>
                                     <th><span>Id</span></th>
                                     <th><span>Code</span></th>
-                                    <th><span>Name</span></th>
+                                    <th><span>First Name</span></th>
+                                    <th><span>Middle Name</span></th>
+                                    <th><span>Last Name</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
@@ -29,7 +31,9 @@
                                 <tr>
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.code }}</td>
-                                    <td>{{ data.firstname }} {{ data.lastname }}</td>
+                                    <td>{{ data.firstname }}</td>
+                                    <td>{{ data.middlename }}</td>
+                                    <td>{{ data.lastname }}</td>
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">

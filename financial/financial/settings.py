@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     #'rep_chartofaccount',
     'debitcreditmemosubtype',
     'acctentry',
+    'purchaseorder',
 ]
 
 MIDDLEWARE_CLASSES = [
