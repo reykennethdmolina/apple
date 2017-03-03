@@ -7,12 +7,17 @@ from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from datetime import datetime
 import xlwt
 
 
 default_header = ['accountcode', 'title', 'description']
+all_header = ['accountcode', 'title', 'description']
+# all_header = ['accountcode', 'title', 'description', 'kindofexpense', 'mainunit', 'product', 'typeofexpense',
+#               'balancecode', 'charttype', 'accounttype', 'ctax', 'taxstatus', 'wtaxstatus', 'mainposting', 'fixedasset',
+#               'taxespayable', 'bankaccount_enable', 'department_enable', 'employee_enable', 'supplier_enable',
+#               'customer_enable', 'branch_enable', 'product_enable', 'unit_enable', 'inputvat_enable',
+#               'outputvat_enable', 'vat_enable', 'wtax_enable', 'ataxcode_enable', 'status', 'enterby']
 
 
 @method_decorator(login_required, name='dispatch')
@@ -24,6 +29,7 @@ class IndexView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
         context['list_header'] = default_header
+        context['all_header'] = all_header
         return context
 
 
@@ -54,6 +60,22 @@ def report(request):
             if orderasc == 'a':
                 list_table = list_table.reverse()
 
+        if request.POST.getlist('advanced_filter[]') and request.POST.getlist('advanced_keyword[]'):
+            advanced_filter = request.POST.getlist('advanced_filter[]')
+            advanced_keyword = request.POST.getlist('advanced_keyword[]')
+
+            arg = {}
+            q_objects = Q()
+
+            for index, data in enumerate(advanced_filter):
+                if data and advanced_keyword[index]:
+                    arg['{0}__{1}'.format(data, 'contains')] = advanced_keyword[index]
+                    for data in arg.iteritems():
+                        # fix bloated for loop
+                        q_objects.add(Q(data), Q.OR)
+
+            list_table = list_table.filter(q_objects)
+
         list_table = list_table.only(*list_header).filter(isdeleted=0)[0:10]
 
         data = {
@@ -66,7 +88,6 @@ def report(request):
             'status': 'error',
         }
 
-    # apply to xls
     return JsonResponse(data)
 
 
@@ -81,12 +102,9 @@ class Pdf(PDFTemplateView):
         context['user'] = self.request.user
         context['pagesize'] = "a4"
         context['fontsize'] = "10"
-        context['logo'] = "http://127.0.0.1:8000" + static("images/my-inquirer-logo.png")
-        # context['logo'] = "http://" + self.request.META['HTTP_HOST'] + static('financial-layout/assets/images/global/img_470x160.png')
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/my-inquirer-logo.png"
 
         try:
-
-            # show details in pdf
             list_table = Chartofaccount.objects
             list_header = default_header
             context['custom_header'] = default_header
@@ -125,6 +143,21 @@ class Pdf(PDFTemplateView):
                     if orderasc == 'a':
                         list_table = list_table.reverse()
 
+                if self.request.GET.getlist('advanced_filter') and self.request.GET.getlist('advanced_keyword'):
+                    advanced_filter = self.request.GET.getlist('advanced_filter')
+                    advanced_keyword = self.request.GET.getlist('advanced_keyword')
+
+                    arg = {}
+                    q_objects = Q()
+
+                    for index, data in enumerate(advanced_filter):
+                        if data and advanced_keyword[index]:
+                            arg['{0}__{1}'.format(data, 'contains')] = advanced_keyword[index].replace("+", " ")
+                            for data in arg.iteritems():
+                                q_objects.add(Q(data), Q.OR)
+
+                    list_table = list_table.filter(q_objects)
+
                 list_table = list_table.only(*list_header).filter(isdeleted=0)[0:10]
 
                 if self.request.GET['orientation'] and self.request.GET['size']:
@@ -148,32 +181,71 @@ def xls(request):
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Chart of Account')
 
-    # Sheet header, first row
     row_num = 0
 
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['Account Code', 'Title', 'Description', ]
-
-    for col_num in range(len(columns)):
-        ws.write(row_num, col_num, columns[col_num], font_style)
-
-    # Sheet body, remaining rows
-    font_style = xlwt.XFStyle()
+    columns = default_header
+    list_table = Chartofaccount.objects
+    rows = list_table
+    date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
     try:
-        date_from = datetime.combine(datetime.strptime(request.GET.get('date_from'), '%Y-%m-%d'), datetime.min.time())
-        date_to = datetime.combine(datetime.strptime(request.GET.get('date_to'), '%Y-%m-%d'), datetime.max.time())
-        date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
+        if request.method == 'GET':
 
-        if date_from > datetime.now() or date_from < date_limit or date_to > datetime.now() or date_to < date_limit:
-            rows = Chartofaccount.objects.values_list('accountcode', 'title', 'description')[0:0]
-        else:
-            rows = Chartofaccount.objects.filter(enterdate__range=(date_from, date_to)).filter(isdeleted=0).values_list('accountcode', 'title', 'description')[0:10]
+            if request.GET.getlist('list_header_modified'):
+                custom_header = request.GET.getlist('list_header_modified')
+            elif request.GET.getlist('list_header'):
+                custom_header = columns
+            for col_num in range(len(custom_header)):
+                ws.write(row_num, col_num, custom_header[col_num], font_style)
+            font_style = xlwt.XFStyle()
+
+            if request.GET.getlist('list_header'):
+                columns = request.GET.getlist('list_header')
+
+            if request.GET['date_from']:
+                date_from = datetime.combine(datetime.strptime(request.GET['date_from'], '%Y-%m-%d'), datetime.min.time())
+
+                if date_from < datetime.now() and date_from > date_limit:
+                    list_table = list_table.filter(Q(enterdate__gt=date_from))
+
+            if request.GET['date_to']:
+                date_to = datetime.combine(datetime.strptime(request.GET['date_to'], '%Y-%m-%d'), datetime.max.time())
+
+                if date_to < datetime.now() and date_to > date_limit:
+                    list_table = list_table.filter(Q(enterdate__lt=date_to))
+
+            if request.GET.getlist('orderby') and request.GET['orderasc']:
+                orderby = request.GET.getlist('orderby')
+                orderasc = request.GET['orderasc']
+
+                list_table.order_by(*orderby)
+
+                if orderasc == 'a':
+                    list_table = list_table.reverse()
+
+            if request.GET.getlist('advanced_filter') and request.GET.getlist('advanced_keyword'):
+                advanced_filter = request.GET.getlist('advanced_filter')
+                advanced_keyword = request.GET.getlist('advanced_keyword')
+
+                arg = {}
+                q_objects = Q()
+
+                for index, data in enumerate(advanced_filter):
+                    if data and advanced_keyword[index]:
+                        arg['{0}__{1}'.format(data, 'contains')] = advanced_keyword[index].replace("+", " ")
+                        for data in arg.iteritems():
+                            q_objects.add(Q(data), Q.OR)
+
+                list_table = list_table.filter(q_objects)
+
+            list_table = list_table.values_list(*columns).filter(isdeleted=0)[0:10]
+            rows = list_table
 
     except ValueError:
-            rows = Chartofaccount.objects.values_list('accountcode', 'title', 'description')[0:0]
+            rows = Chartofaccount.objects.all()[0:0]
 
     for row in rows:
         row_num += 1

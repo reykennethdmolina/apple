@@ -84,15 +84,15 @@
                         </div>
                         <div class="master-degree">
                             <div class="iconlist">
-                            {% if perms.function.change_function %}
-                            <a href="{% url 'function:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            {% if perms.department.change_department %}
+                            <a href="{% url 'department:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_pencil" aria-hidden="true"></i>
                                 </button>
                             </a>
                             {% endif %}
-                            {% if perms.function.delete_function %}
-                            <a href="{% url 'function:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                            {% if perms.department.delete_department %}
+                            <a href="{% url 'department:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
                                 </button>

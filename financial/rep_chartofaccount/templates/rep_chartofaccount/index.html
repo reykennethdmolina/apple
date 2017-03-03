@@ -31,7 +31,7 @@
                                     <div class="col-md-12">
                                         <span>Table headers</span>
                                         <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
-                                            {% for data in list_header %}
+                                            {% for data in all_header %}
                                                 <option value="{{ data }}">{{ data | title }}</option>
                                             {% endfor %}
                                         </select><br>
@@ -85,7 +85,28 @@
                                     </div>
                                     <div class="col-md-12"><br></div>
                                 </div>
-                                <div role="tabpanel" class="tab-pane fade" id="advanced">Coming soon...</div>
+                                <div role="tabpanel" class="tab-pane fade" id="advanced">
+                                    <div class="advanced_search row col-md-10">
+                                        <div class="col-md-3">
+                                            <span>Filter</span>
+                                            <select name="advanced_filter" class="form-control advanced_filter" form="report">
+                                                {% for data in list_header %}
+                                                    <option value="{{ data }}">{{ data | title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <span>Keyword</span>
+                                            <input type="text" name="advanced_keyword" class="form-control advanced_keyword" form="report">
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <button class="btn advanced_add"><i class="icon fa-plus" aria-hidden="true"></i></button>
+                                        <button class="btn advanced_remove"><i class="icon fa-minus" aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -134,11 +155,23 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
 <script type="text/javascript">
 $(function(){
-    var from, to, regEx, newurl;
-    var pdf_link, xls_link;
+    var from, to;
     var tableList = $('table tbody');
     var thead = $('table thead tr');
     var reportUrl = $('#report').attr('action');
+
+    $(document).ready(function(){
+        $('.advanced_filter').select2('destroy');
+    })
+
+    $(document).on('click', '.advanced_add', function(){
+        $('.advanced_search').last().clone().appendTo('#advanced');
+        $('.advanced_search .advanced_keyword').last().val('')
+    });
+
+    $(document).on('click', '.advanced_remove', function(){
+        $('.advanced_search').not('.advanced_search:eq(0)').last().remove();
+    });
 
     $('select').select2();
 
@@ -175,13 +208,24 @@ $(function(){
         orientation = $('.orientation').val();
         size = $('.size').val();
 
+        advanced_filter = [];
+        $('.advanced_filter').each(function(){
+            advanced_filter.push($(this).val());
+        });
+
+        advanced_keyword = [];
+        $('.advanced_keyword').each(function(){
+            advanced_keyword.push($(this).val());
+        });
+
         tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
             url: "{% url 'rep_chartofaccount:report' %}",
             type: "post",
             data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc,
-                   'fontsize': fontsize, 'orientation': orientation, 'size': size},
+                   'fontsize': fontsize, 'orientation': orientation, 'size': size, 'advanced_filter': advanced_filter,
+                   'advanced_keyword': advanced_keyword},
             success: function(response) {
 
                 if(response.list_table != "[]"){

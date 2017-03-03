@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load lookup %}
+    {% load static %}
+    {% load pdf_filters %}
     <meta charset="UTF-8">
     <title>Report - Chart of Account</title>
     <style>
@@ -24,6 +27,8 @@
             display: inline-block;
         }
         @page {
+{#            background-color: red;#}
+{#            background-image: url({{ logo | get64 }});#}
             size: {{ pagesize }};
             margin: 1cm;
             @frame footer {
@@ -37,18 +42,14 @@
     </style>
 </head>
 <body>
-{% load lookup %}
-{% load static %}
-{% load pdf_filters %}
-
-{{ request.get_host }}
-<div class="align-left">
-    <img id="logo" src="{{ logo | get64 }}"/><br>
-</div>
 
 <div class="align-right">
     <b>Date requested:</b> {% now "m-d-Y H:m:s" %}<br>
     <b>Requested by:</b> {{ user }}
+</div>
+
+<div class="align-left">
+    <img id="logo" src="{{ logo | get64 }}"/><br>
 </div>
 
 <br><br>
@@ -62,7 +63,7 @@
         </tr>
     </thead>
     <tbody>
-            {% for data in data_list %}
+        {% for data in data_list %}
             <tr>
                 {% for header in list_header %}
                     <td><div class="col">{% lookup data header %}</div></td>
