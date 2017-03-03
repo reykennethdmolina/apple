@@ -31,7 +31,7 @@ class Supplier(models.Model):
     vat = models.ForeignKey('vat.Vat', related_name='vat_id', validators=[MinValueValidator(1)])
     inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_id', validators=[MinValueValidator(1)])
     inputvatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='supplier_enter')
     enterdate = models.DateTimeField(auto_now_add=True)

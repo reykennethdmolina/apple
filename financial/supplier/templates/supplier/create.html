@@ -28,6 +28,14 @@
                                 <span class="help-block form-error help-block-sm">{{ form.name.errors.as_text }}</span>
                             </div>
                         </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 col-md-offset-6
+                         {{ form.tin.errors|yesno:'has-error,' }}">
+                            <label for="id_tin" class="col-sm-3 control-label">TIN</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validateIntFormMask tinNumber" id="id_tin" maxlength="18" placeholder="TIN" name="tin" data-validation="required" value={{ form.tin.value|default:"" }}>
+                                <span class="help-block form-error help-block-sm">{{ form.tin.errors.as_text }}</span>
+                            </div>
+                        </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address1.errors|yesno:'has-error,' }}">
                             <br><label for="id_address1" class="col-sm-3 control-label">Address 1</label>
                             <div class="col-sm-9">
@@ -35,12 +43,11 @@
                                 <span class="help-block form-error help-block-sm">{{ form.address1.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 col-md-6
-                         {{ form.tin.errors|yesno:'has-error,' }}">
-                            <br><label for="id_tin" class="col-sm-3 control-label">TIN</label>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.zipcode.errors|yesno:'has-error,' }}">
+                            <br><label for="id_zipcode" class="col-sm-3 control-label">Zip Code</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control validateIntFormMask tinNumber" id="id_tin" maxlength="18" placeholder="TIN" name="tin" data-validation="required" value={{ form.tin.value|default:"" }}>
-                                <span class="help-block form-error help-block-sm">{{ form.tin.errors.as_text }}</span>
+                                <input type="text" class="form-control validateIntFormMask zipCode" id="id_zipcode" maxlength="4" placeholder="Zip Code" name="zipcode" value="{{ form.zipcode.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.zipcode.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address2.errors|yesno:'has-error,' }}">
@@ -71,16 +78,9 @@
                                 <span class="help-block form-error help-block-sm">{{ form.faxno.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 col-md-4 {{ form.zipcode.errors|yesno:'has-error,' }}">
-                            <br><label for="id_zipcode" class="col-sm-4 control-label">Zip Code</label>
-                            <div class="col-sm-7">
-                                <input type="text" class="form-control zipCode" id="id_zipcode" maxlength="10" placeholder="Zip Code" name="zipcode" value="{{ form.zipcode.value|default:'' }}">
-                                <span class="help-block form-error help-block-sm">{{ form.zipcode.errors.as_text }}</span>
-                            </div>
-                        </div>
-                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-6
                          {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                            <br><label for="id_ataxcode" class="col-sm-4 control-label">ATax Code</label>
+                            <br><label for="id_ataxcode" class="col-sm-3 control-label">ATax Code</label>
                             <div class="col-sm-7">
                                 <select id="id_ataxcode" class="form-control" name="ataxcode" data-validation="required">
                                     <option value="">-- Select --</option>
@@ -91,9 +91,9 @@
                                 <span class="help-block form-error help-block-sm">{{ form.ataxcode.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-6
                          {{ form.inputvat.errors|yesno:'has-error,' }}">
-                            <br><label for="id_inputvat" class="col-sm-4 control-label">Input VAT</label>
+                            <br><label for="id_inputvat" class="col-sm-3 control-label">Input VAT</label>
                             <div class="col-sm-7">
                                 <select id="id_inputvat" class="form-control" name="inputvat" data-validation="required">
                                     <option value="">-- Select --</option>
@@ -104,20 +104,9 @@
                                 <span class="help-block form-error help-block-sm">{{ form.inputvat.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 col-md-4 form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">
-                            <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>
-                            <div class="col-sm-7">
-                                <select id="id_multiplestatus" name="multiplestatus" class="form-control">
-                                    {% for id,name in form.fields.multiplestatus.choices %}
-                                        <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error help-block-sm">{{ form.multiplestatus.errors.as_text }}</span>
-                            </div>
-                        </div>
-                        <div class="form-group form-group-sm form-group-0 form-material col-md-4
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-6
                          {{ form.vat.errors|yesno:'has-error,' }}">
-                            <label for="id_vat" class="col-sm-4 control-label">VAT</label>
+                            <label for="id_vat" class="col-sm-3 control-label">VAT</label>
                             <div class="col-sm-7">
                                 <select id="id_vat" class="form-control" name="vat" data-validation="required">
                                     <option value="">-- Select --</option>
@@ -128,8 +117,19 @@
                                 <span class="help-block form-error help-block-sm">{{ form.vat.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 col-md-4 {{ form.inputvatrate.errors|yesno:'has-error,' }}">
-                            <label for="id_inputvatrate" class="col-sm-4 control-label">Input VAT Rate</label>
+{#                        <div class="form-group form-group-sm form-group-0 col-md-4 form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
+{#                            <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
+{#                            <div class="col-sm-7">#}
+{#                                <select id="id_multiplestatus" name="multiplestatus" class="form-control">#}
+{#                                    {% for id,name in form.fields.multiplestatus.choices %}#}
+{#                                        <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                    {% endfor %}#}
+{#                                </select>#}
+{#                                <span class="help-block form-error help-block-sm">{{ form.multiplestatus.errors.as_text }}</span>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.inputvatrate.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvatrate" class="col-sm-3 control-label">Input VAT Rate</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control rate" id="id_inputvatrate" name="inputvatrate" placeholder="Rate" data-validation="required" value="{{ form.inputvatrate.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.inputvatrate.errors.as_text }}</span>

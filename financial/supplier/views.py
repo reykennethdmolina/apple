@@ -38,7 +38,7 @@ class CreateView(CreateView):
     model = Supplier
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'multiplestatus', 'ataxcode', 'vat', 'inputvat', 'inputvatrate']
+              'ataxcode', 'vat', 'inputvat', 'inputvatrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -47,6 +47,7 @@ class CreateView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -65,7 +66,7 @@ class UpdateView(UpdateView):
     model = Supplier
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'multiplestatus', 'ataxcode', 'vat', 'inputvat', 'inputvatrate']
+              'ataxcode', 'vat', 'inputvat', 'inputvatrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -74,6 +75,7 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
