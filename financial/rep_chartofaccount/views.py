@@ -11,19 +11,23 @@ from datetime import datetime
 import xlwt
 
 
+# initial setup
+model_initial = Chartofaccount
+template_initial = 'rep_chartofaccount/'
+
 default_header = ['accountcode', 'title', 'description']
 all_header = ['accountcode', 'title', 'description']
-# all_header = ['accountcode', 'title', 'description', 'kindofexpense', 'mainunit', 'product', 'typeofexpense',
-#               'balancecode', 'charttype', 'accounttype', 'ctax', 'taxstatus', 'wtaxstatus', 'mainposting', 'fixedasset',
-#               'taxespayable', 'bankaccount_enable', 'department_enable', 'employee_enable', 'supplier_enable',
-#               'customer_enable', 'branch_enable', 'product_enable', 'unit_enable', 'inputvat_enable',
-#               'outputvat_enable', 'vat_enable', 'wtax_enable', 'ataxcode_enable', 'status', 'enterby']
+
+pdf_title_initial = 'Report - Chart of Account'
+
+xls_filename_initial = 'chartofaccount'
+xls_sheetname_initial = 'Chart of account'
 
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
-    model = Chartofaccount
-    template_name = 'rep_chartofaccount/index.html'
+    model = model_initial
+    template_name = template_initial + 'index.html'
     context_object_name = 'data_list'
 
     def get_context_data(self, **kwargs):
@@ -37,7 +41,7 @@ class IndexView(ListView):
 def report(request):
     if request.method == 'POST':
 
-        list_table = Chartofaccount.objects
+        list_table = model_initial.objects
         list_header = default_header
 
         if request.POST.getlist('list_header[]'):
@@ -93,8 +97,8 @@ def report(request):
 
 @method_decorator(login_required, name='dispatch')
 class Pdf(PDFTemplateView):
-    model = Chartofaccount
-    template_name = 'rep_chartofaccount/pdf.html'
+    model = model_initial
+    template_name = template_initial + 'pdf.html'
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
@@ -103,9 +107,10 @@ class Pdf(PDFTemplateView):
         context['pagesize'] = "a4"
         context['fontsize'] = "10"
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/my-inquirer-logo.png"
+        context['title'] = pdf_title_initial
 
         try:
-            list_table = Chartofaccount.objects
+            list_table = model_initial.objects
             list_header = default_header
             context['custom_header'] = default_header
 
@@ -169,17 +174,17 @@ class Pdf(PDFTemplateView):
             context['data_list'] = list_table
 
         except ValueError:
-            context['data_list'] = Chartofaccount.objects.all()[0:0]
+            context['data_list'] = model_initial.objects.all()[0:0]
 
         return context
 
 
 def xls(request):
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="chartofaccount.xls"'
+    response['Content-Disposition'] = 'attachment; filename="' + xls_filename_initial + '.xls"'
 
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Chart of Account')
+    ws = wb.add_sheet(xls_sheetname_initial)
 
     row_num = 0
 
@@ -187,7 +192,7 @@ def xls(request):
     font_style.font.bold = True
 
     columns = default_header
-    list_table = Chartofaccount.objects
+    list_table = model_initial.objects
     rows = list_table
     date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
@@ -245,7 +250,7 @@ def xls(request):
             rows = list_table
 
     except ValueError:
-            rows = Chartofaccount.objects.all()[0:0]
+            rows = model_initial.objects.all()[0:0]
 
     for row in rows:
         row_num += 1

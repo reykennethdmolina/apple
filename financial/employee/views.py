@@ -107,11 +107,15 @@ def paginate(request, command, current, limit, search):
     if command == "search" and search != "null":
         search_not_slug = search.replace('-', ' ')
         employee = Employee.objects.all().filter(Q(id__icontains=search) |
-                                                             Q(code__icontains=search) |
-                                                             Q(name__icontains=search) |
-                                                             Q(code__icontains=search_not_slug) |
-                                                             Q(name__icontains=search_not_slug))\
-                                                            .filter(isdeleted=0).order_by('-pk')
+                                                 Q(code__icontains=search) |
+                                                 Q(firstname__icontains=search) |
+                                                 Q(middlename__icontains=search) |
+                                                 Q(lastname__icontains=search) |
+                                                 Q(code__icontains=search_not_slug) |
+                                                 Q(firstname__icontains=search_not_slug) |
+                                                 Q(middlename__icontains=search_not_slug) |
+                                                 Q(lastname__icontains=search_not_slug))\
+                                                .filter(isdeleted=0).order_by('-pk')
     else:
         employee = Employee.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
 

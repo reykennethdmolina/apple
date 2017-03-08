@@ -1,0 +1,250 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Purchase Order {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                    <form method="post" id="form-b">
+                        {% csrf_token %}
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
+                        <div class="col-sm-9">
+                            <div class="row row-lg">
+                                <div class="form-group  col-sm-3">
+                                    <label class="control-label" for="id_ponum">Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_ponum" name="ponum" placeholder="POxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.ponum.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_podate">Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_podate" name="podate" placeholder="YYYY-MM-DD" data-validation="required">
+                                    <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.potype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_potype">Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_potype" name="potype">
+                                        <option value="">-- Select --</option>
+                                        {% for potype in potype %}
+                                            <option value="{{ potype.id }}" {% if form.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ potype.code }} - {{ potype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.potype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_refnumber">Reference #</label>
+                                    <input type="text" class="form-control input-sm" id="id_refnumber" name="refnumber" placeholder="Reference #">
+                                    <span class="help-block form-error">{{ form.refnumber.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-6 {{ form.supplier.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_supplier">Supplier</label>
+                                    <select class="form-control input-sm select2" id="id_supplier" name="supplier">
+                                        <option value="">-- Select --</option>
+                                        {% for supplier in supplier %}
+                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}>{{ supplier.code }} - {{ supplier.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_apnum">Reference AP</label>
+                                    <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" readonly="readonly">
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_apdate">AP Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_apdate" name="apdate"
+                                           placeholder="YYYY-MM-DD" data-validation="required" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.ataxcode.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_ataxcode">ATax Code</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
+                                        <option value="">-- Select --</option>
+                                        {% for ataxcode in ataxcode %}
+                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.inputvat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_inputvat">Input VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
+                                        <option value="">-- Select --</option>
+                                        {% for inputvat in inputvat %}
+                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }} - {{ inputvat.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_vat">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                        <option value="">-- Select --</option>
+                                        {% for vat in vat %}
+                                            <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.creditterm.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_creditterm">Credit Term</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
+                                        <option value="">-- Select --</option>
+                                        {% for creditterm in creditterm %}
+                                            <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label" for="id_particular">Particular</label>
+                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particular" name="particular" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="control-label"><strong>PURCHASE:</strong></span>
+                            <div class="col-sm-12 margin-top-10">
+{#                                <div class="form-group form-group-sm form-group-0">#}
+{#                                    <label for="id_quantity" class="control-label col-sm-4"><small>Quantity</small></label>#}
+{#                                    <div class="col-sm-8">#}
+{#                                        <input type="number" class="form-control text-right" id="id_quantity" placeholder="0" name="quantity"#}
+{#                                               data-validation="required" value="{{ form.quantity.value|default:'' }}" readonly="readonly">#}
+{#                                    </div>#}
+{#                                    <span class="help-block form-error help-block-sm">{{ form.quantity.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group form-group-sm form-group-0">#}
+{#                                    <label for="id_quantity" class="control-label col-sm-4"><small>Quantity</small></label>#}
+{#                                    <div class="col-sm-8">#}
+{#                                        <div class="input-group input-group-icon" data-toggle="tooltip" data-placement="right" data-original-title="Assets">#}
+{#                                            <input type="number" class="form-control text-right" id="id_quantity" placeholder="0" name="quantity"#}
+{#                                               data-validation="required" value="{{ form.quantity.value|default:'' }}" readonly="readonly">#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                    <span class="help-block form-error help-block-sm">{{ form.quantity.errors.as_text }}</span>#}
+{#                                </div>#}
+                            </div>
+                        </div>
+                        <div class="col-sm-12 margin-bottom-10">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                            </div>
+                        </div>
+                        </form>
+                        <div class="col-sm-12" id="entryview" style="display: none">
+                            <div class="panel panel-bordered">
+                                <div class="panel-body">
+                                    <h4>Manual Accounting Entry</h4>
+                                    <div id="manualentryview">
+{#                                        {% include "acctentry/manualentry.html" %}#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="panel">
+                                <div class="panel-body">
+                                    <!-- Start Editable Section -->
+                                    <table class="table table-striped margin-bottom-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Chart of Account</th>
+                                                <th>Particular</th>
+                                                <th>Debit</th>
+                                                <th>Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>430</td>
+                                                <td>540</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    <strong>Total</strong>
+                                                </th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#manualbutton").click(function (){
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
+                    success: function(response){
+                        $("#manualentryview").html(response['viewhtml']);
+                        $("#entryview").show();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+{#        $('.select2modal').select2({#}
+{#            dropdownParent: $('.modal')#}
+{#        });#}
+
+    </script>
+{#    {% include "acctentry/manualentry.js" %}#}
+{% endblock extra_js %}

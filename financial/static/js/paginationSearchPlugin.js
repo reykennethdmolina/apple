@@ -128,7 +128,7 @@ $(document).ready(function() {
                 }
             }
             else{
-                tableList.append("<tr><td colspan='4'> No result found </td>" + "</tr>");
+                tableList.append("<tr><td colspan='100%'> No result found </td>" + "</tr>");
                 $('#shade').fadeOut();
                 $('#pagination-container').hide();
             }
@@ -136,7 +136,7 @@ $(document).ready(function() {
             console.log("error");
 
             tableList.html('');
-            tableList.append("<tr><td colspan='4'> No result found </td>" + "</tr>");
+            tableList.append("<tr><td colspan='100%'> No result found </td>" + "</tr>");
             $('#shade').fadeOut();
         });
     }

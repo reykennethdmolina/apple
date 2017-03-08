@@ -61,6 +61,7 @@ urlpatterns = [
     url(r'^companyparameter/', include('companyparameter.urls', namespace='companyparameter')),
     url(r'^employee/', include('employee.urls', namespace='employee')),
     url(r'^debitcreditmemosubtype/', include('debitcreditmemosubtype.urls', namespace='debitcreditmemosubtype')),
+    url(r'^purchaseorder/', include('purchaseorder.urls', namespace='purchaseorder')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', namespace='ataxcode')),
