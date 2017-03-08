@@ -1,3 +1,5 @@
 Django==1.9.10
 MySQL-python==1.2.5
 Pillow==3.4.2
+
+django-easy-pdfxhtml2pdf>=0.0.6reportlab>=2.7xlwt
