@@ -50,7 +50,7 @@
                         </div>
                         <div class="form-group {{ form.segment.errors|yesno:'has-error,' }}">
                             <label for="id_segment" class="control-label">Segment</label>
-                            <input type="text" class="form-control" id="id_segment" maxlength="10" placeholder="Segment" name="segment" data-validation="required" value="{{ form.segment.value|default:'' }}">
+                            <input type="text" class="form-control" id="id_segment" maxlength="50" placeholder="Segment" name="segment" data-validation="required" value="{{ form.segment.value|default:'' }}">
                             <span class="help-block form-error">{{ form.segment.errors.as_text }}</span>
                         </div>
                         <div class="form-group margin-bottom-0">
