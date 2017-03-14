@@ -100,11 +100,11 @@
                                     <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
                                 </div>
                             </div>
-                            <div class="form-group form-group-0 col-md-6 {{ form.address.errors|yesno:'has-error,' }}">
-                                <label for="id_address" class="col-sm-3 control-label">Address</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="id_address" maxlength="250" placeholder="Address" name="address" data-validation="required" value="{{ form.address.value|default:'' }}">
-                                    <span class="help-block form-error">{{ form.address.errors.as_text }}</span>
+                            <div class="form-group form-group-0 col-md-6 {{ form.address1.errors|yesno:'has-error,' }}">
+                                <label for="id_address1" class="col-sm-3 control-label">Address</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_address1" maxlength="250" name="address1" data-validation="required" value="{{ form.address1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.address1.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.telno1.errors|yesno:'has-error,' }}">
@@ -113,6 +113,13 @@
                                     <input type="text" class="form-control" id="id_telno1" maxlength="20" placeholder="Tel. No." name="telno1"
                                            data-validation="required" value="{{ form.telno1.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.telno1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.address2.errors|yesno:'has-error,' }}">
+                                <label for="id_address2" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_address2" maxlength="250" name="address2" data-validation="required" value="{{ form.address2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.address2.errors.as_text }}</span>
                                 </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.telno2.errors|yesno:'has-error,' }}">

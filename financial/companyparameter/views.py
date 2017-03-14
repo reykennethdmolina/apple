@@ -28,7 +28,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Companyparameter
     template_name = 'companyparameter/create.html'
-    fields = ['code', 'description', 'address', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
+    fields = ['code', 'description', 'address1', 'address2', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
               'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2', 'contactperson_other1',
               'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum', 'issued_at', 'issued_date',
               'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position', 'company']

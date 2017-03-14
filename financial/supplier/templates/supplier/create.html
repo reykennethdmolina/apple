@@ -131,7 +131,7 @@
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.inputvatrate.errors|yesno:'has-error,' }}">
                             <label for="id_inputvatrate" class="col-sm-3 control-label">Input VAT Rate</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control rate" id="id_inputvatrate" name="inputvatrate" placeholder="Rate" data-validation="required" value="{{ form.inputvatrate.value|default:'' }}">
+                                <input type="text" class="form-control rate" id="id_inputvatrate" name="inputvatrate" maxlength="2" placeholder="Rate" data-validation="required" value="{{ form.inputvatrate.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.inputvatrate.errors.as_text }}</span>
                             </div>
                         </div>
