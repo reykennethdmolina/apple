@@ -89,11 +89,11 @@
 							        		<label for="id_balancecode" class="col-sm-4 col-shrink control-label">Balance Code: </label>
 							        		<div class="col-sm-8">
 							        			<div class="radio-custom radio-default radio-inline padding-top-0">
-							        				<input type="radio" id="id_balancecode" name="balancecode" value="D" {% if form.balancecode.value == 'D' %} checked="checked" {% endif %}>
+							        				<input type="radio" id="id_balancecode" name="balancecode" value="D" {% if form.balancecode.value == 'D' %} checked="checked" {% endif %} required>
 							        				<label for="id_balancecode">Debit</label>
 							        			</div>
 							        			<div class="radio-custom radio-default radio-inline padding-top-0">
-							        				<input type="radio" id="id_balancecode" name="balancecode" value="C" {% if form.balancecode.value == 'c' %} checked="checked" {% endif %}>
+							        				<input type="radio" id="id_balancecode" name="balancecode" value="C" {% if form.balancecode.value == 'C' %} checked="checked" {% endif %} required>
 							        				<label for="id_balancecode">Credit</label>
 							        			</div>
 							        		</div>
@@ -115,11 +115,11 @@
 							        		<label for="id_accounttype" class="col-sm-4 col-shrink control-label">Account Type: </label>
 							        		<div class="col-sm-8">
 							        			<div class="radio-custom radio-default radio-inline padding-top-0">
-							        				<input type="radio" id="id_accounttype" name="accounttype" value="P" {% if form.accounttype.value == 'P' %} checked="checked" {% endif %}>
+							        				<input type="radio" id="id_accounttype" name="accounttype" value="P" {% if form.accounttype.value == 'P' %} checked="checked" {% endif %} required>
 							        				<label for="id_accounttype">Posting</label>
 							        			</div>
 							        			<div class="radio-custom radio-default radio-inline padding-top-0">
-							        				<input type="radio" id="id_accounttype" name="accounttype" value="T" {% if form.accounttype.value == 'T' %} checked="checked" {% endif %}>
+							        				<input type="radio" id="id_accounttype" name="accounttype" value="T" {% if form.accounttype.value == 'T' %} checked="checked" {% endif %} required>
 							        				<label for="id_accounttype">Title</label>
 							        			</div>
 							        		</div>
@@ -458,19 +458,25 @@
 {% endblock page-content %}
 {% block extra_js %}
     <script>
+        $('#id_balancecode').prop('checked', false);
+        $('#id_accounttype').prop('checked', false);
         $(function(){
-        $('.accountcode-code').on('click keyup', getaccountcode)
-        $( window ).load(getaccountcode)
+        $('.accountcode-code').on('click keyup', getaccountcode);
+        $( window ).load(getaccountcode);
 
         function getaccountcode(){
-            accountcode = $('#id_main').val() + $('#id_clas').val() + $('#id_item').val() + $('#id_cont').val()
-            sub = $('#id_sub').val()
+            accountcode = $('#id_main').val() + $('#id_clas').val() + $('#id_item').val() + $('#id_cont').val();
+            sub = $('#id_sub').val();
             for (i = $('#id_sub').val().length; i < 6; i++) {
                 sub = '0' + sub
             }
-            accountcode = accountcode + sub
+            accountcode = accountcode + sub;
             $('#id_accountcode').text(accountcode)
         }
+
+        $('#id_title').on('click keyup', function(){
+            $('#id_description').val($('#id_title').val());
+        });
     })
     </script>
 {% endblock extra_js %}

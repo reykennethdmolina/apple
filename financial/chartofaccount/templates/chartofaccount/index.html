@@ -35,16 +35,16 @@
                                     <td class="text-center" id="commandList">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">
-                                            <a href="{% url 'chartofaccount:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'chartofaccount:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% if perms.chartofaccount.change_chartofaccount %}
-                                            <a href="{% url 'chartofaccount:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'chartofaccount:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}
                                             {% if perms.chartofaccount.delete_chartofaccount %}
-                                            <a href="{% url 'chartofaccount:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'chartofaccount:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}

@@ -21,7 +21,7 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Chartofaccount.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
+        return Chartofaccount.objects.all().filter(isdeleted=0).order_by('accountcode')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -196,9 +196,9 @@ def paginate(request, command, current, limit, search):
                                                              Q(accountcode__icontains=search_not_slug) |
                                                              Q(description__icontains=search_not_slug) |
                                                              Q(title__icontains=search_not_slug))\
-                                                            .filter(isdeleted=0).order_by('-pk')
+                                                            .filter(isdeleted=0).order_by('accountcode')
     else:
-        chartofaccount = Chartofaccount.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
+        chartofaccount = Chartofaccount.objects.all().filter(isdeleted=0).order_by('accountcode')[current:current+limit]
 
     json_models = serializers.serialize("json", chartofaccount)
     print json_models
