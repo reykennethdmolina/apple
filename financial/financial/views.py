@@ -11,6 +11,7 @@ def index(request):
     #return render(request, 'base-form.html', context_dict)
     #return HttpResponse("Welcome to Inquirer Enterprise Solutions - Financial System")
 
+@login_required
 def index2(request):
     context_dict = {}
     return render(request, 'base-form.html', context_dict)
