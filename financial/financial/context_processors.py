@@ -22,17 +22,32 @@ def usermodule(request):
                        "GROUP BY mm.code, dct.model "
                        "ORDER BY mm.sortnumber, m.name")
     else:
-        cursor.execute("SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, "
-                       "m.description AS moduledescp, m.segment AS modulesegment,mm.code AS mainmodulecode, "
-                       "mm.description AS mainmoduledescp, mm.iconfile AS mainiconfile "
-                       "FROM auth_user_user_permissions AS auup "
-                       "LEFT OUTER JOIN auth_permission AS ap ON ap.id = auup.permission_id "
-                       "LEFT OUTER JOIN django_content_type AS dct ON dct.id = ap.content_type_id "
-                       "INNER JOIN module AS m ON m.django_content_type_id = dct.id "
-                       "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
-                       "WHERE auup.user_id = "+ str(userid) +" "
-                                                             "GROUP BY mm.code, dct.model "
-                                                             "ORDER BY mm.sortnumber, m.name")
+
+        cursor.execute("SELECT * FROM ("
+                           "SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, m.description AS moduledescp, "
+                           "m.segment AS modulesegment,mm.code AS mainmodulecode, "
+                           "mm.description AS mainmoduledescp, mm.iconfile AS mainiconfile, mm.sortnumber, m.name "
+                           "FROM auth_user_user_permissions AS auup "
+                           "LEFT OUTER JOIN auth_permission AS ap ON ap.id = auup.permission_id "
+                           "LEFT OUTER JOIN django_content_type AS dct ON dct.id = ap.content_type_id "
+                           "INNER JOIN module AS m ON m.django_content_type_id = dct.id "
+                           "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
+                           "WHERE auup.user_id = "+str(userid)+" "
+                           "GROUP BY mm.code, dct.model "
+                           "UNION "
+                           "SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, m.description AS moduledescp, "
+                           "m.segment AS modulesegment,mm.code AS mainmodulecode, mm.description AS mainmoduledescp,"
+                           " mm.iconfile AS mainiconfile , mm.sortnumber, m.name	"
+                           "FROM auth_user_groups AS aug "
+                           "LEFT OUTER JOIN auth_group_permissions AS agp ON agp.group_id = aug.group_id "
+                           "LEFT OUTER JOIN auth_permission AS ap ON ap.id = agp.permission_id "
+                           "LEFT OUTER JOIN django_content_type AS dct ON dct.id = ap.content_type_id "
+                           "INNER JOIN module AS m ON m.django_content_type_id = dct.id "
+                           "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
+                           "WHERE aug.user_id = "+str(userid)+" "
+                            "GROUP BY mm.code, dct.model "
+                       ") AS mm "
+                       "ORDER BY mm.sortnumber, mm.name")
     #userpermission = cursor.fetchall()
     result = namedtuplefetchall(cursor)
 
