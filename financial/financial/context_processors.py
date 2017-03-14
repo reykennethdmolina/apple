@@ -11,23 +11,24 @@ def usermodule(request):
 
     cursor = connection.cursor()
     if request.user.is_superuser:
-        cursor.execute("SELECT IF (dct.app_label = 'auth', CONCAT('admin/',dct.app_label, '/', dct.model), dct.app_label) AS app_label, m.code AS modulecode, m.name AS modulename, "
+        #SELECT IF (dct.app_label = 'auth', CONCAT('admin/',dct.app_label, '/', dct.model), dct.app_label) AS app_label, m.code AS modulecode, m.name AS modulename, "
+        cursor.execute("SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, "
                        "m.description AS moduledescp, m.segment AS modulesegment,mm.code AS mainmodulecode, "
                        "mm.description AS mainmoduledescp, mm.iconfile AS mainiconfile "
                        "FROM django_content_type AS dct "
-                       "LEFT OUTER JOIN module AS m ON m.django_content_type_id = dct.id "
+                       "INNER JOIN module AS m ON m.django_content_type_id = dct.id "
                        "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
                        "WHERE dct.id NOT IN(1,2,5,6) AND dct.app_label != ''"
                        "GROUP BY mm.code, dct.model "
                        "ORDER BY mm.sortnumber, m.name")
     else:
-        cursor.execute("SELECT IF (dct.app_label = 'auth', CONCAT('admin/',dct.app_label, '/', dct.model), dct.app_label) AS app_label, m.code AS modulecode, m.name AS modulename, "
+        cursor.execute("SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, "
                        "m.description AS moduledescp, m.segment AS modulesegment,mm.code AS mainmodulecode, "
                        "mm.description AS mainmoduledescp, mm.iconfile AS mainiconfile "
                        "FROM auth_user_user_permissions AS auup "
                        "LEFT OUTER JOIN auth_permission AS ap ON ap.id = auup.permission_id "
                        "LEFT OUTER JOIN django_content_type AS dct ON dct.id = ap.content_type_id "
-                       "LEFT OUTER JOIN module AS m ON m.django_content_type_id = dct.id "
+                       "INNER JOIN module AS m ON m.django_content_type_id = dct.id "
                        "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
                        "WHERE auup.user_id = "+ str(userid) +" "
                                                              "GROUP BY mm.code, dct.model "
