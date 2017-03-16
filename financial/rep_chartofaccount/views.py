@@ -2,6 +2,7 @@ from django.views.generic import ListView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from chartofaccount.models import Chartofaccount
+from companyparameter.models import Companyparameter
 from easy_pdf.views import PDFTemplateView
 from django.core import serializers
 from django.db.models import Q
@@ -14,13 +15,12 @@ import xlwt
 # initial setup
 model_initial = Chartofaccount
 template_initial = 'rep_chartofaccount/'
+title_initial = 'Report - Chart of Account'
+system_version = 'IES Financial System (ver 0.1)'
 
-default_header = ['accountcode', 'title', 'description']
-all_header = ['accountcode', 'title', 'description']
+all_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"]]
+default_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"]]
 
-pdf_title_initial = 'Report - Chart of Account'
-
-xls_filename_initial = 'chartofaccount'
 xls_sheetname_initial = 'Chart of account'
 
 
@@ -32,20 +32,35 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
+        context['title_initial'] = title_initial
         context['list_header'] = default_header
         context['all_header'] = all_header
+
         return context
 
 
 @csrf_exempt
 def report(request):
+
     if request.method == 'POST':
 
         list_table = model_initial.objects
-        list_header = default_header
+
+        list_header = []
+        list_header_modified = []
+        for i in default_header:
+            list_header.append(i[0])
+            list_header_modified.append(i[1])
 
         if request.POST.getlist('list_header[]'):
             list_header = request.POST.getlist('list_header[]')
+
+            list_header_modified = []
+            for i in list_header:
+                for j in default_header:
+                    if j[0] == i:
+                        list_header_modified.append(j[1])
+                        print list_header_modified
 
         if request.POST['from']:
             date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())
@@ -86,6 +101,7 @@ def report(request):
             'status': 'success',
             'list_table': serializers.serialize('json', list_table),
             'list_header': list_header,
+            'list_header_modified': list_header_modified,
         }
     else:
         data = {
@@ -102,21 +118,35 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['list_header'] = default_header
+        context['companyparameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0)
+
+        context['list_header'] = []
+        context['custom_header'] = []
+        list_header = []
+        for i in default_header:
+            context['list_header'].append(i[0])
+            list_header.append(i[0])
+            context['custom_header'].append(i[1])
+
         context['user'] = self.request.user
         context['pagesize'] = "a4"
         context['fontsize'] = "10"
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/my-inquirer-logo.png"
-        context['title'] = pdf_title_initial
+        context['title'] = title_initial
+        context['date_from'] = datetime.strptime('1990-01-01', '%Y-%m-%d').strftime("%B %d, %Y")
+        context['date_to'] = datetime.now().strftime("%B %d, %Y")
+        context['system_version'] = system_version
 
         try:
             list_table = model_initial.objects
-            list_header = default_header
             context['custom_header'] = default_header
 
             date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
             if self.request.method == 'GET':
+
+                if self.request.GET['title_initial']:
+                    context['title'] = self.request.GET['title_initial']
 
                 if self.request.GET.getlist('list_header_modified'):
                     context['custom_header'] = self.request.GET.getlist('list_header_modified')
@@ -132,12 +162,14 @@ class Pdf(PDFTemplateView):
 
                     if date_from < datetime.now() and date_from > date_limit:
                         list_table = list_table.filter(Q(enterdate__gt=date_from))
+                        context['date_from'] = datetime.strptime(self.request.GET['date_from'], '%Y-%m-%d').strftime("%B %d, %Y")
 
                 if self.request.GET['date_to']:
                     date_to = datetime.combine(datetime.strptime(self.request.GET['date_to'], '%Y-%m-%d'), datetime.max.time())
 
                     if date_to < datetime.now() and date_to > date_limit:
                         list_table = list_table.filter(Q(enterdate__lt=date_to))
+                        context['date_to'] = datetime.strptime(self.request.GET['date_to'], '%Y-%m-%d').strftime("%B %d, %Y")
 
                 if self.request.GET.getlist('orderby') and self.request.GET['orderasc']:
                     orderby = self.request.GET.getlist('orderby')
@@ -181,7 +213,7 @@ class Pdf(PDFTemplateView):
 
 def xls(request):
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="' + xls_filename_initial + '.xls"'
+    response['Content-Disposition'] = 'attachment; filename="' + title_initial + '.xls"'
 
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet(xls_sheetname_initial)
@@ -191,13 +223,20 @@ def xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = default_header
+    columns = []
+    for i in default_header:
+        columns.append(i[0])
+
     list_table = model_initial.objects
     rows = list_table
     date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
 
     try:
+
         if request.method == 'GET':
+
+            if request.GET['title_initial']:
+                response['Content-Disposition'] = 'attachment; filename="' + request.GET['title_initial'] + '.xls"'
 
             if request.GET.getlist('list_header_modified'):
                 custom_header = request.GET.getlist('list_header_modified')
