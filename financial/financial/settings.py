@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     'debitcreditmemosubtype',
     'acctentry',
     'purchaseorder',
+    'inventoryitemtype',
 ]
 
 MIDDLEWARE_CLASSES = [
