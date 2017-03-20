@@ -1,0 +1,202 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Journal Voucher {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                    <form method="post" id="form-b">
+                        {% csrf_token %}
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group  col-sm-2">
+                                    <label class="control-label" for="id_jvnum">Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_jvnum" name="jvnum" placeholder="JVxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_jvdate">Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required">
+                                    <span class="help-block form-error">{{ form.jvdate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.jvtype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_jvtype">Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
+                                        <option value="">-- Select --</option>
+                                        {% for jvtype in jvtype %}
+                                            <option value="{{ jvtype.id }}" {% if form.jvtype.value|add:0 == jvtype.id %} selected="selected" {% endif %}>{{ jvtype.code }} - {{ jvtype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.jvtype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_currency">Currency</label>
+                                    <select class="form-control input-sm" id="id_currency" name="currency" data-validation="required">
+                                        {% for currency in currency %}
+                                            <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}] - {{ currency.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_refnum">Reference#</label>
+                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="xxxxx">
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm" id="id_branch" name="branch" data-validation="required">
+                                        {% for branch in branch %}
+                                            <option value="{{ branch.id }}" {% if form.branch.value|default_if_none:5 == branch.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_department">Department</label>
+                                    <select class="form-control input-sm select2" id="id_department" name="department">
+                                        <option value="">-- Select --</option>
+                                        {% for department in department %}
+                                            <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row row-lg">
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label" for="id_particular">Particular</label>
+                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particular" name="particular" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 margin-bottom-10">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                            </div>
+                        </div>
+                        </form>
+                        <div class="col-sm-12" id="entryview" style="display: none">
+                            <div class="panel panel-bordered">
+                                <div class="panel-body">
+                                    <h4>Manual Accounting Entry</h4>
+                                    <div id="manualentryview">
+{#                                        {% include "acctentry/manualentry.html" %}#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="panel">
+                                <div class="panel-body">
+                                    <!-- Start Editable Section -->
+                                    <table class="table table-striped margin-bottom-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Chart of Account</th>
+                                                <th>Particular</th>
+                                                <th>Debit</th>
+                                                <th>Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>430</td>
+                                                <td>540</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>100</td>
+                                                <td>200</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% lorem 4 w random %}</td>
+                                                <td></td>
+                                                <td>330</td>
+                                                <td>240</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    <strong>Total</strong>
+                                                </th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#manualbutton").click(function (){
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
+                    success: function(response){
+                        $("#manualentryview").html(response['viewhtml']);
+                        $("#entryview").show();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+{#        $('.select2modal').select2({#}
+{#            dropdownParent: $('.modal')#}
+{#        });#}
+
+    </script>
+{#    {% include "acctentry/manualentry.js" %}#}
+{% endblock extra_js %}

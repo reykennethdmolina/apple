@@ -11,7 +11,7 @@
             font-size: {{ fontsize }};
         }
         .col {
-            padding: 5px;
+            padding: 3px;
             padding-top: 8px;
         }
         .align-right {
@@ -27,29 +27,37 @@
             display: inline-block;
         }
         @page {
-{#            background-color: red;#}
 {#            background-image: url({{ logo | get64 }});#}
             size: {{ pagesize }};
             margin: 1cm;
             @frame footer {
                 -pdf-frame-content: footerContent;
-                bottom: 0cm;
-                margin-left: -2.5cm;
+                bottom: 1cm;
+                margin-left: -6cm;
                 margin-right: 0cm;
                 height: 1cm;
             }
+        }
+        .title{
+            font-size: 12px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="align-right">
-    <b>Date requested:</b> {% now "m-d-Y H:m:s" %}<br>
-    <b>Requested by:</b> {{ user }}
+    <b>run date:</b> {% now "m/d/Y H:m:s" %}
 </div>
 
 <div class="align-left">
-    <img id="logo" src="{{ logo | get64 }}"/><br>
+    {#<img id="logo" src="{{ logo | get64 }}"/><br>#}
+    <span class="title">{{ companyparameter.description }}</span><br>
+    {{ companyparameter.address1 }}<br>
+    {{ companyparameter.address2 }}<br>
+    VAT REG TIN: {{ companyparameter.tinnum }}<br>
+    <span class="title">{{ title }}</span><br>
+    <span class="title">for the period {{ date_from }} to {{ date_to }}</span>
 </div>
 
 <br><br>
@@ -75,6 +83,7 @@
 
 <div id="footerContent">
     {%block page_foot%}
+        {{ system_version }} / {{ user }}<br>
         Page <pdf:pagenumber /> of <pdf:pagecount />
     {%endblock%}
 </div>

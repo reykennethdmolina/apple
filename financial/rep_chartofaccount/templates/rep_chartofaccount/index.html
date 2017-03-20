@@ -28,13 +28,10 @@
                             </ul>
                             <div class="tab-content">
                                 <div role="tabpanel" class="tab-pane fade in active" id="basic">
-                                    <div class="col-md-12">
-                                        <span>Table headers</span>
-                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
-                                            {% for data in all_header %}
-                                                <option value="{{ data }}">{{ data | title }}</option>
-                                            {% endfor %}
-                                        </select><br>
+                                    <div class="col-md-8">
+                                        <span>Report Title</span>
+                                        <input type="text" name="title_initial" class="form-control title_initial" value="{{ title_initial }}" form="report">
+                                        <br>
                                     </div>
                                     <div class="col-md-2">
                                         <span>Date</span>
@@ -44,11 +41,19 @@
                                         <br>
                                         <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To" form="report">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
+                                        <span>Table headers</span>
+                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
+                                            {% for data in all_header %}
+                                                <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                            {% endfor %}
+                                        </select><br>
+                                    </div>
+                                    <div class="col-md-3">
                                         <span>Order by</span>
                                         <select class="form-control select2 orderby" multiple="multiple" name="orderby" form="report">
-                                            {% for data in list_header %}
-                                                <option value="{{ data }}">{{ data | title }}</option>
+                                            {% for data in all_header %}
+                                                <option value="{{ data.0 }}">{{ data.1 }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -129,17 +134,19 @@
                     <div class="row">
                         <div class="table-responsive col-md-12" style="position: relative">
                             <div id="shade"><div class="loader two-color"></div></div>
-                            <table class="table table-hover table-bordered">
-                                <thead>
-                                    <tr>
-                                        {% for data in list_header %}
-                                            <th><input type="text" name="list_header_modified" class="list_header_modified" value="{{ data }}" form="report"></th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                            <small>
+                                <table class="table table-hover table-bordered table-condensed">
+                                    <thead>
+                                        <tr>
+                                            {% for data in list_header %}
+                                                <th><input type="text" name="list_header_modified" class="list_header_modified" value="{{ data.1 }}" form="report"></th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -221,7 +228,7 @@ $(function(){
         tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
-            url: "{% url 'rep_chartofaccount:report' %}",
+            url: "{% url 'rep_chartofaccount:ireports' %}",
             type: "post",
             data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc,
                    'fontsize': fontsize, 'orientation': orientation, 'size': size, 'advanced_filter': advanced_filter,
@@ -231,10 +238,11 @@ $(function(){
                 if(response.list_table != "[]"){
                     var list_table = jQuery.parseJSON(response.list_table);
                     var list_header = response.list_header;
+                    var list_header_modified = response.list_header_modified;
 
-                    thead.html("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header[0] + "' form='report'></th>");
+                    thead.html("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header_modified[0] + "' form='report'></th>");
                     for (var i = 1; i < list_header.length; i++) {
-                        thead.last('th').append("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header[i] + "' form='report'></th>");
+                        thead.last('th').append("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header_modified[i] + "' form='report'></th>");
                     }
 
                     for (var i = 0; i < list_table.length; i++) {
@@ -259,8 +267,6 @@ $(function(){
                 $('#shade').fadeOut();
             }
         });
-
-        changeLink(from, to)
     }
 });
 </script>

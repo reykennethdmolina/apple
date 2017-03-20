@@ -80,10 +80,59 @@ class Chartofaccount(models.Model):
         return reverse('chartofaccount:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.code
+        return self.accountcode
 
     def __unicode__(self):
-        return self.code
+        return self.accountcode
 
     def status_verbose(self):
         return dict(Chartofaccount.STATUS_CHOICES)[self.status]
+
+    def serialize(self):
+        return {
+            'accountcode': self.accountcode,
+            'title': self.title,
+            'description': self.description,
+            'balancecode': self.balancecode,
+            'charttype': self.charttype,
+            'accounttype': self.accounttype,
+            'ctax': self.ctax,
+            'taxstatus': self.taxstatus,
+            'wtaxstatus': self.wtaxstatus,
+            'mainposting': self.mainposting,
+            'fixedasset': self.fixedasset,
+            'taxespayable': self.taxespayable,
+            'bankaccount_enable': self.bankaccount_enable,
+            'department_enable': self.department_enable,
+            'employee_enable': self.employee_enable,
+            'supplier_enable': self.supplier_enable,
+            'customer_enable': self.customer_enable,
+            'branch_enable': self.branch_enable,
+            'product_enable': self.product_enable,
+            'unit_enable': self.unit_enable,
+            'inputvat_enable': self.inputvat_enable,
+            'outputvat_enable': self.outputvat_enable,
+            'vat_enable': self.vat_enable,
+            'wtax_enable': self.wtax_enable,
+            'ataxcode_enable': self.ataxcode_enable,
+            'status': self.status,
+            'enterdate': self.enterdate,
+            'modifydate': self.modifydate,
+            'enterby': self.enterby.username,
+            'modifyby': self.modifyby.username,
+            'kindofexpense': self.kindofexpense,
+            # 'mainunit': self.mainunit.code,
+            # 'product': self.product.code,
+            # 'typeofexpense': self.typeofexpense,
+
+        }
+
+    # @classmethod
+    # def deserialize(klass, data):
+    #     kindofexpense = data.get('kindofexpense', None)
+    #     if kindofexpense:
+    #         try:
+    #             return klass.objects.get(kindofexpense=kindofexpense)
+    #         except klass.DoesNotExist:
+    #             pass
+    #     return klass(**data)

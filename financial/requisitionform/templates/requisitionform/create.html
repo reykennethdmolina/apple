@@ -1,6 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
-{% block page-title %} Purchase Order {% endblock page-title %}
+{% block page-title %} Requisition Form {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
@@ -12,26 +12,27 @@
             <div class="panel margin-bottom-20">
                     <form method="post" id="form-b">
                         {% csrf_token %}
-                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
+                        <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-8">
                             <div class="row row-lg">
                                 <div class="form-group  col-sm-3">
-                                    <label class="control-label" for="id_ponum">Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_ponum" name="ponum" placeholder="POxxxxxxx" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.ponum.errors.as_text }}</span>
+                                    <label class="control-label" for="id_rfnum">Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_rfnum" name="rfnum" placeholder="RFxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.rfnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_podate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_podate" name="podate" placeholder="YYYY-MM-DD" data-validation="required">
-                                    <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
+                                    <label class="control-label" for="id_rfdate">Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required">
+                                    <span class="help-block form-error">{{ form.rfdate.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.potype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_potype">Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_potype" name="potype">
-                                        <option value="">-- Select --</option>
-                                        {% for potype in potype %}
-                                            <option value="{{ potype.id }}" {% if form.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ potype.code }} - {{ potype.description }}</option>
-                                        {% endfor %}
+                                <div class="form-group col-sm-3 {{ form.inventory_item_type.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_inventory_item_type">Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inventory_item_type" name="inventory_item_type">
+                                        <option value="1">Supplies</option>
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for potype in potype %}#}
+{#                                            <option value="{{ potype.id }}" {% if form.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ potype.code }} - {{ potype.description }}</option>#}
+{#                                        {% endfor %}#}
                                     </select>
                                     <span class="help-block form-error">{{ form.potype.errors.as_text }}</span>
                                 </div>
