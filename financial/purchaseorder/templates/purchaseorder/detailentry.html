@@ -1,0 +1,188 @@
+<form class="form-horizontal" id="detailform" method="get" action="">
+{% csrf_token %}
+    <div class="row">
+        <div class="col-md-5 form-group">
+            <label class="col-sm-3 control-label">Item No.</label>
+            <label class="col-sm-3 control-label">1</label>
+            <span class="help-block form-error"></span>
+        </div>
+        <div class="col-md-7 form-group">
+            <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <option value="">-- Select Chart of Account --</option>
+                {% for chartofaccount in chartofaccount %}
+                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <span class="help-block form-error"></span>
+        </div>
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <option value="">-- Select Chart of Account --</option>
+                {% for chartofaccount in chartofaccount %}
+                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <span class="help-block form-error"></span>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_department">
+            <label class="col-sm-3 control-label" for="id_detail_department">Department</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" style="width: 100%" id="detail_department" name="detail_department">
+                <option value="">-- Select Department --</option>
+                {% for department in department %}
+                    <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_employee">
+            <label class="col-sm-3 control-label" for="id_detail_employee">Employee</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_employee" name="detail_employee">
+                <option value="">-- Select Employee --</option>
+                {% for employee in employee %}
+                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_supplier">
+            <label class="col-sm-3 control-label" for="id_detail_supplier">Supplier</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_supplier" name="detail_supplier">
+                <option value="">-- Select Supplier --</option>
+                {% for supplier in supplier%}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_customer">
+            <label class="col-sm-3 control-label" for="id_detail_customer">Customer</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_customer" name="detail_customer">
+                <option value="">-- Select Customer --</option>
+                {% for customer in customer%}
+                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_unit">
+            <label class="col-sm-3 control-label" for="id_detail_unit">Unit</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_unit" name="detail_unit">
+                <option value="">-- Select Unit --</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_branch">
+            <label class="col-sm-3 control-label" for="id_detail_branch">Branch</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_branch" name="detail_branch">
+                <option value="">-- Select Branch --</option>
+                {% for branch in branch %}
+                    <option value="{{ branch.id }}">{{ branch.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_product">
+            <label class="col-sm-3 control-label" for="id_detail_product">Product</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_product" name="detail_product">
+                <option value="">-- Select Product --</option>
+                {% for product in product %}
+                    <option value="{{ product.id }}">{{ product.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_inputvat">
+            <label class="col-sm-3 control-label" for="id_detail_inputvat">Input VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_inputvat" name="detail_inputvat">
+                <option value="">-- Select Input VAT --</option>
+                {% for inputvat in inputvat %}
+                    <option value="{{ inputvat.id }}">{{ inputvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_outputvat">
+            <label class="col-sm-3 control-label" for="id_detail_outputvat">Output VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_outputvat" name="detail_outputvat">
+                <option value="">-- Select Output VAT --</option>
+                {% for outputvat in outputvat %}
+                    <option value="{{ outputvat.id }}">{{ inputoutputvatvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_vat">
+            <label class="col-sm-3 control-label" for="id_detail_vat">VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_vat" name="detail_vat">
+                <option value="">-- Select VAT --</option>
+                {% for vat in vat %}
+                    <option value="{{ vat.id }}">{{ vat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_wtax">
+            <label class="col-sm-3 control-label" for="id_detail_wtax">WTAX</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_wtax" name="detail_wtax">
+                <option value="">-- Select WTAX --</option>
+                {% for wtax in wtax %}
+                    <option value="{{ wtax.id }}">{{ wtax.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_ataxcode">
+            <label class="col-sm-3 control-label" for="id_detail_ataxcode">ATAX Code</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detail_ataxcode" name="detail_ataxcode">
+                <option value="">-- Select ATAX Code --</option>
+                {% for ataxcode in ataxcode %}
+                    <option value="{{ ataxcode.id }}">{{ ataxcode.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group">
+            <div class="col-lg-6">
+                <label class="col-sm-6 control-label" for="detail_creditamount">Credit Amount</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control input-sm text-right amount" name="detail_creditamount" id="detail_creditamount" placeholder="0.00" value="0.00">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label class="col-sm-6 control-label" for="detail_debitamount">Debit Amount</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control input-sm text-right amount" name="detail_debitamount" id="detail_debitamount" placeholder="0.00" value="0.00">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 pull-left margin-bottom-10">
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Accounting Entry</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#btn_detailclose").click(function(){
+            $("#detailentry").hide();
+        });
+    });
+</script>

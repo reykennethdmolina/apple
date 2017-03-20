@@ -1,6 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
-{% block page-title %} Purchase Order {% endblock page-title %}
+{% block page-title %} Requisition Form {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
@@ -16,9 +16,9 @@
                         <div class="col-sm-8">
                             <div class="row row-lg">
                                 <div class="form-group  col-sm-3">
-                                    <label class="control-label" for="id_ponum">Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_ponum" name="ponum" placeholder="POxxxxxxx" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.ponum.errors.as_text }}</span>
+                                    <label class="control-label" for="id_rfnum">Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_rfnum" name="rfnum" placeholder="RFxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.rfnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_podate">Date</label>
