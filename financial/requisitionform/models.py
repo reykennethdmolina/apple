@@ -18,6 +18,8 @@ class Rfmain(models.Model):
     )
     urgencytype = models.CharField(max_length=1, choices=URGENCY_CHOICES, default='N')
     dateneeded = models.DateField()
+    branch = models.ForeignKey('branch.Branch', related_name='rfbranch_id')
+    department = models.ForeignKey('department.Department', related_name='rfdepartment_id')
     particulars = models.TextField()
     RF_STATUS_CHOICES = (
         ('F', 'For Approval'),
@@ -66,6 +68,7 @@ class Rfmain(models.Model):
 
 
 class Rfdetail(models.Model):
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_id', null=True, blank=True)
     item_counter = models.IntegerField()
     # Add 'item_id' when inventory models are completed.
     item_name = models.CharField(max_length=250)
@@ -97,7 +100,46 @@ class Rfdetail(models.Model):
         return reverse('requisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum
+        return self.rfnum + ' ' + self.item_counter
 
     def __unicode__(self):
-        return self.rfnum
+        return self.rfnum + ' ' + self.item_counter
+
+
+class Rfdetailtemp(models.Model):
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='temp_rfmain_id', null=True, blank=True)
+    item_counter = models.IntegerField()
+    # Add 'item_id' when inventory models are completed.
+    item_name = models.CharField(max_length=250)
+    unitofmeasure = models.CharField(max_length=15)
+    quantity = models.IntegerField()
+    remarks = models.CharField(max_length=250, null=True, blank=True)
+    secretkey = models.CharField(max_length=255)
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_post')
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'rfdetailtemp'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('requisitionform:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.rfnum + ' ' + self.item_counter
+
+    def __unicode__(self):
+        return self.rfnum + ' ' + self.item_counter
