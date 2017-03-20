@@ -1,14 +1,16 @@
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from chartofaccount.models import Chartofaccount
 from companyparameter.models import Companyparameter
+from currency.models import Currency
 from easy_pdf.views import PDFTemplateView
 from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
+from json_views.views import JSONDataView
 import xlwt
 
 
@@ -18,7 +20,7 @@ template_initial = 'rep_chartofaccount/'
 title_initial = 'Report - Chart of Account'
 system_version = 'IES Financial System (ver 0.1)'
 
-all_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"]]
+all_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"], ["enterby", "Entered By"], ["status", "Status"]]
 default_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"]]
 
 xls_sheetname_initial = 'Chart of account'
@@ -36,6 +38,15 @@ class IndexView(ListView):
         context['list_header'] = default_header
         context['all_header'] = all_header
 
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class Ireports(JSONDataView):
+
+    def get_context_data(self, **kwargs):
+        context = super(Ireports, self).get_context_data(**kwargs)
+        context['chartofaccount'] = model_initial.objects.all()[0:5]
         return context
 
 
@@ -60,7 +71,6 @@ def report(request):
                 for j in default_header:
                     if j[0] == i:
                         list_header_modified.append(j[1])
-                        print list_header_modified
 
         if request.POST['from']:
             date_from = datetime.combine(datetime.strptime(request.POST['from'], '%Y-%m-%d'), datetime.min.time())

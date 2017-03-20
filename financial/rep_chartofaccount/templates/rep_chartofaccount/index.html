@@ -13,12 +13,6 @@
 {% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
-    <select name="" id="" multiple>
-        <option value="">1</option>
-        <option value="">2</option>
-        <option value="">3</option>
-        <option value="">4</option>
-    </select>
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -234,7 +228,7 @@ $(function(){
         tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
-            url: "{% url 'rep_chartofaccount:report' %}",
+            url: "{% url 'rep_chartofaccount:ireports' %}",
             type: "post",
             data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc,
                    'fontsize': fontsize, 'orientation': orientation, 'size': size, 'advanced_filter': advanced_filter,
