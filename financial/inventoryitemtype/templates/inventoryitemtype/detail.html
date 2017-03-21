@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} FX Type {% endblock page-title %}
+{% block page-title %} Inventory Item Type {% endblock page-title %}
 
 {% block page-content %}
 <div class="page-content container-fluid page">
@@ -59,15 +59,15 @@
                         </div>
                         <div class="master-degree">
                             <div class="iconlist">
-                            {% if perms.fxtype.change_fxtype %}
-                            <a href="{% url 'fxtype:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            {% if perms.inventoryitemtype.change_inventoryitemtype %}
+                            <a href="{% url 'inventoryitemtype:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_pencil" aria-hidden="true"></i>
                                 </button>
                             </a>
                             {% endif %}
-                            {% if perms.fxtype.delete_fxtype %}
-                            <a href="{% url 'fxtype:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                            {% if perms.inventoryitemtype.delete_inventoryitemtype %}
+                            <a href="{% url 'inventoryitemtype:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
                                 </button>

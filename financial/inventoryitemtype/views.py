@@ -9,7 +9,7 @@ import datetime
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
     model = Inventoryitemtype
-    template_name = 'fxtype/index.html'
+    template_name = 'inventoryitemtype/index.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
@@ -19,17 +19,17 @@ class IndexView(ListView):
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
     model = Inventoryitemtype
-    template_name = 'fxtype/detail.html'
+    template_name = 'inventoryitemtype/detail.html'
 
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Inventoryitemtype
-    template_name = 'fxtype/create.html'
+    template_name = 'inventoryitemtype/create.html'
     fields = ['code', 'description']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('fxtype.add_fxtype'):
+        if not request.user.has_perm('inventoryitemtype.add_inventoryitemtype'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
@@ -38,17 +38,17 @@ class CreateView(CreateView):
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
-        return HttpResponseRedirect('/fxtype')
+        return HttpResponseRedirect('/inventoryitemtype')
 
 
 @method_decorator(login_required, name='dispatch')
 class UpdateView(UpdateView):
     model = Inventoryitemtype
-    template_name = 'fxtype/edit.html'
+    template_name = 'inventoryitemtype/edit.html'
     fields = ['code', 'description']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('fxtype.change_fxtype'):
+        if not request.user.has_perm('inventoryitemtype.change_inventoryitemtype'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -57,16 +57,16 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
-        return HttpResponseRedirect('/fxtype')
+        return HttpResponseRedirect('/inventoryitemtype')
 
 
 @method_decorator(login_required, name='dispatch')
 class DeleteView(DeleteView):
     model = Inventoryitemtype
-    template_name = 'fxtype/delete.html'
+    template_name = 'inventoryitemtype/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('fxtype.delete_fxtype'):
+        if not request.user.has_perm('inventoryitemtype.delete_inventoryitemtype'):
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -77,4 +77,4 @@ class DeleteView(DeleteView):
         self.object.isdeleted = 1
         self.object.status = 'I'
         self.object.save()
-        return HttpResponseRedirect('/fxtype')
+        return HttpResponseRedirect('/inventoryitemtype')
