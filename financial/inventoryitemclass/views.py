@@ -31,7 +31,7 @@ class CreateView(CreateView):
     fields = ['code', 'description', 'inventoryitemtype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('fxtype.add_fxtype'):
+        if not request.user.has_perm('inventoryitemclass.add_inventoryitemclass'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
