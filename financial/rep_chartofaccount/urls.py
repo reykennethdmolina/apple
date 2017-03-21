@@ -5,8 +5,8 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^report', views.report, name='report'),
     url(r'^pdf$', views.Pdf.as_view(), name='pdf'),
-    url(r'^ireports$', views.Ireports.as_view(), name='ireports'),
+    url(r'^report/$', views.Report.as_view(), name='report'),
+    url(r'^ireport', views.ireport, name='ireport'),
     url(r'^xls$', views.xls, name='xls'),
 ]

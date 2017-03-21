@@ -96,7 +96,7 @@
                                             <span>Filter</span>
                                             <select name="advanced_filter" class="form-control advanced_filter" form="report">
                                                 {% for data in list_header %}
-                                                    <option value="{{ data }}">{{ data | title }}</option>
+                                                    <option value="{{ data.0 }}">{{ data.1 }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -228,15 +228,24 @@ $(function(){
         tableList.html('');
         $('#shade').fadeIn();
         $.ajax({
-            url: "{% url 'rep_chartofaccount:ireports' %}",
-            type: "post",
-            data: {'list_header': list_header, 'from': from, 'to': to, 'orderby': orderby, 'orderasc': orderasc,
-                   'fontsize': fontsize, 'orientation': orientation, 'size': size, 'advanced_filter': advanced_filter,
-                   'advanced_keyword': advanced_keyword},
+            url: "{% url 'rep_chartofaccount:report' %}",
+            type: "get",
+            data: {
+                'list_header': list_header,
+                'from': from,
+                'to': to,
+                'orderby': orderby,
+                'orderasc': orderasc,
+                'fontsize': fontsize,
+                'orientation': orientation,
+                'size': size,
+                'advanced_filter': advanced_filter,
+                'advanced_keyword': advanced_keyword,
+                'csrfmiddlewaretoken': "{{csrf_token}}"
+            },
             success: function(response) {
-
                 if(response.list_table != "[]"){
-                    var list_table = jQuery.parseJSON(response.list_table);
+                    var list_table = response.list_table;
                     var list_header = response.list_header;
                     var list_header_modified = response.list_header_modified;
 
@@ -246,10 +255,30 @@ $(function(){
                     }
 
                     for (var i = 0; i < list_table.length; i++) {
-                        tableList.append("<tr><td>" + list_table[i].fields[list_header[0]] + "</td></tr>");
+                        if (jQuery.type(list_table[i][list_header[0]]) === "object") {
+                            tableList.append("<tr><td>" + list_table[i][list_header[0]]['code'] + "</td></tr>");
+                        }
+                        else{
+                            if (list_table[i][list_header[0]] == null){
+                                tableList.append("<tr><td> - </td></tr>");
+                            }
+                            else{
+                                tableList.append("<tr><td>" + list_table[i][list_header[0]] + "</td></tr>");
+                            }
+                        }
 
                         for (var j = 1; j < list_header.length; j++) {
-                            tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i].fields[list_header[j]] + "</td>");
+                            if (jQuery.type(list_table[i][list_header[j]]) === "object") {
+                                tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i][list_header[j]]['code'] + "</td>");
+                            }
+                            else{
+                                if (list_table[i][list_header[j]] == null){
+                                    tableList.find('tr').eq(i).last('td').append("<td> - </td>");
+                                }
+                                else{
+                                    tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i][list_header[j]] + "</td>");
+                                }
+                            }
                         }
 
                         $('#shade').fadeOut();

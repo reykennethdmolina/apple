@@ -20,8 +20,41 @@ template_initial = 'rep_chartofaccount/'
 title_initial = 'Report - Chart of Account'
 system_version = 'IES Financial System (ver 0.1)'
 
-all_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"], ["enterby", "Entered By"], ["status", "Status"]]
-default_header = [["accountcode", "Account Code"], ["title", "Title"], ["description", "Description"]]
+all_header = [["accountcode", "Account Code"],
+              ["title", "Title"],
+              ["description", "Description"],
+              ["kindofexpense", "Kind of Expense"],
+              ["mainunit", "Main Unit"],
+              ["product", "Product"],
+              ["typeofexpense", "Type of Expense"],
+              ["balancecode", "Balance Code"],
+              ["charttype", "Chart Type"],
+              ["ctax", "CTax"],
+              ["taxstatus", "Tax Status"],
+              ["wtaxstatus", "WTax Status"],
+              ["mainposting", "Main Posting"],
+              ["fixedasset", "Fixed Asset"],
+              ["taxespayable", "Taxes Payable"],
+              ["bankaccount_enable", "Bank Account enabled"],
+              ["department_enable", "Department enabled"],
+              ["employee_enable", "Employee enabled"],
+              ["supplier_enable", "Supplier enabled"],
+              ["customer_enable", "Customer enabled"],
+              ["branch_enable", "Branch enabled"],
+              ["product_enable", "Product enabled"],
+              ["unit_enable", "Unit enabled"],
+              ["inputvat_enable", "Input VAT enabled"],
+              ["outputvat_enable", "Output VAT enabled"],
+              ["vat_enable", "VAT enabled"],
+              ["wtax_enable", "WTax enabled"],
+              ["ataxcode_enable", "ATax Code enabled"],
+              ["enterdate", "Date entered"],
+              ["modifydate", "Date modified"],
+              ["enterby", "Entered By"],
+              ["status", "Status"]]
+default_header = [["accountcode", "Account Code"],
+                  ["title", "Title"],
+                  ["description", "Description"]]
 
 xls_sheetname_initial = 'Chart of account'
 
@@ -42,16 +75,71 @@ class IndexView(ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class Ireports(JSONDataView):
+class Report(JSONDataView):
+
+    # pdf, xls for  foreign keys
 
     def get_context_data(self, **kwargs):
-        context = super(Ireports, self).get_context_data(**kwargs)
-        context['chartofaccount'] = model_initial.objects.all()[0:5]
+        context = super(Report, self).get_context_data(**kwargs)
+
+        list_table = model_initial.objects
+        list_header = []
+        list_header_modified = []
+        for i in default_header:
+            list_header.append(i[0])
+            list_header_modified.append(i[1])
+
+        if self.request.GET.getlist('list_header[]'):
+            list_header = self.request.GET.getlist('list_header[]')
+
+            list_header_modified = []
+            for i in list_header:
+                for j in all_header:
+                    if j[0] == i:
+                        list_header_modified.append(j[1])
+
+        if self.request.GET['from']:
+            date_from = datetime.combine(datetime.strptime(self.request.GET['from'], '%Y-%m-%d'), datetime.min.time())
+            list_table = list_table.filter(Q(enterdate__gt=date_from))
+
+        if self.request.GET['to']:
+            date_to = datetime.combine(datetime.strptime(self.request.GET['to'], '%Y-%m-%d'), datetime.max.time())
+            list_table = list_table.filter(Q(enterdate__lt=date_to))
+
+        if self.request.GET.getlist('orderby[]') and self.request.GET['orderasc']:
+            orderby = self.request.GET.getlist('orderby[]')
+            orderasc = self.request.GET['orderasc']
+
+            list_table.order_by(*orderby)
+
+            if orderasc == 'a':
+                list_table = list_table.reverse()
+
+        if self.request.GET.getlist('advanced_filter[]') and self.request.GET.getlist('advanced_keyword[]'):
+            advanced_filter = self.request.GET.getlist('advanced_filter[]')
+            advanced_keyword = self.request.GET.getlist('advanced_keyword[]')
+
+            arg = {}
+            q_objects = Q()
+
+            for index, data in enumerate(advanced_filter):
+                if data and advanced_keyword[index]:
+                    arg['{0}__{1}'.format(data, 'contains')] = advanced_keyword[index]
+                    for data in arg.iteritems():
+                        q_objects.add(Q(data), Q.OR)
+
+            list_table = list_table.filter(q_objects)
+
+        context['status'] = 'success'
+        context['list_table'] = list_table.only(*list_header).filter(isdeleted=0)[0:10]
+        context['list_header'] = list_header
+        context['list_header_modified'] = list_header_modified
+
         return context
 
 
 @csrf_exempt
-def report(request):
+def ireport(request):
 
     if request.method == 'POST':
 
@@ -68,7 +156,7 @@ def report(request):
 
             list_header_modified = []
             for i in list_header:
-                for j in default_header:
+                for j in all_header:
                     if j[0] == i:
                         list_header_modified.append(j[1])
 
