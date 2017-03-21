@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^journalvoucher/', include('journalvoucher.urls', namespace='journalvoucher')),
     url(r'^acctentry/', include('acctentry.urls', namespace='acctentry')),
     url(r'^inventoryitemtype/', include('inventoryitemtype.urls', namespace='inventoryitemtype')),
+    url(r'^inventoryitemclass/', include('inventoryitemclass.urls', namespace='inventoryitemclass')),
 
     # Apps Grace
     url(r'^vat/', include('vat.urls', namespace='vat')),
