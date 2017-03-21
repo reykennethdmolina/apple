@@ -8,7 +8,7 @@ import datetime
 class Rfmain(models.Model):
     rfnum = models.CharField(max_length=10, unique=True)
     rfdate = models.DateField()
-    # Add 'inventory_item_type' when inventory models are completed.
+    inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype', related_name='inventoryitemtype_id')
     refnum = models.CharField(max_length=150, null=True, blank=True)
     jonum = models.CharField(max_length=150, null=True, blank=True)
     sonum = models.CharField(max_length=150, null=True, blank=True)

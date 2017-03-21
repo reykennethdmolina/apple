@@ -9,167 +9,103 @@
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
-            <div class="panel margin-bottom-20">
+            <div class="margin-bottom-20">
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
-                        <div class="col-sm-8">
-                            <div class="row row-lg">
-                                <div class="form-group  col-sm-3">
-                                    <label class="control-label" for="id_rfnum">Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_rfnum" name="rfnum" placeholder="RFxxxxxxx" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.rfnum.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_rfdate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required">
-                                    <span class="help-block form-error">{{ form.rfdate.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.inventory_item_type.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_inventory_item_type">Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_inventory_item_type" name="inventory_item_type">
-                                        <option value="1">Supplies</option>
+                        <div class="row row-lg margin-left-10">
+                            <div class="form-group  col-sm-2">
+                                <label class="control-label" for="id_rfnum">Number</label>
+                                <input type="text" class="form-control input-sm" id="id_rfnum" name="rfnum" placeholder="RFxxxxxxx" readonly="readonly">
+                                <span class="help-block form-error">{{ form.rfnum.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label" for="id_rfdate">Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required">
+                                <span class="help-block form-error">{{ form.rfdate.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-2 {{ form.inventory_item_type.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_inventory_item_type">Type</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_inventory_item_type" name="inventory_item_type">
+{#                                    <option value="">-- Select --</option>#}
+                                    {% for inventoryitemtype in inventoryitemtype %}
+                                        <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.inventory_item_type.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label" for="id_refnum">Reference #</label>
+                                <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #">
+                                <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label" for="id_rfstatus">RF Status</label>
+                                <input type="text" class="form-control input-sm" id="id_rfstatus" name="rfstatus" value="FOR APPROVAL" readonly="readonly">
+                                <span class="help-block form-error">{{ form.rfstatus.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row row-lg margin-left-10">
+                            <div class="form-group  col-sm-2">
+                                <label class="control-label" for="id_jonum">JO Number</label>
+                                <input type="text" class="form-control input-sm" id="id_jonum" name="jonum" placeholder="JOxxxxxxx">
+                                <span class="help-block form-error">{{ form.jonum.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group  col-sm-2">
+                                <label class="control-label" for="id_sonum">SO Number</label>
+                                <input type="text" class="form-control input-sm" id="id_sonum" name="sonum" placeholder="SOxxxxxxx">
+                                <span class="help-block form-error">{{ form.sonum.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-2 {{ form.urgencytype.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_urgencytype">Urgency</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
+                                    {% for id,name in form.fields.urgencytype.choices %}
+                                        <option value="{{ id }}"{% if form.urgencytype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label" for="id_dateneeded">Date Needed</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required">
+                                <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row row-lg margin-left-10">
+                            <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_branch">Branch</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+{#                                    <option value="">-- Select --</option>#}
+                                    {% for branch in branch %}
+                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_department">Department</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
+{#                                    <option value="">-- Select --</option>#}
+                                    {% for department in department %}
+                                        <option value="{{ department.id }}" {% if department.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_designatedapprover">Approver</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                    <option value="1">Rey Kenneth Molina</option>
 {#                                        <option value="">-- Select --</option>#}
 {#                                        {% for potype in potype %}#}
 {#                                            <option value="{{ potype.id }}" {% if form.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ potype.code }} - {{ potype.description }}</option>#}
 {#                                        {% endfor %}#}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.potype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_refnumber">Reference #</label>
-                                    <input type="text" class="form-control input-sm" id="id_refnumber" name="refnumber" placeholder="Reference #">
-                                    <span class="help-block form-error">{{ form.refnumber.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-6 {{ form.supplier.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_supplier">Supplier</label>
-                                    <select class="form-control input-sm select2" id="id_supplier" name="supplier">
-                                        <option value="">-- Select --</option>
-                                        {% for supplier in supplier %}
-                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}>{{ supplier.code }} - {{ supplier.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_apnum">Reference AP</label>
-                                    <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" readonly="readonly">
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_apdate">AP Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd" id="id_apdate" name="apdate"
-                                           placeholder="YYYY-MM-DD" data-validation="required" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_ataxcode">ATax Code</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.inputvat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_inputvat">Input VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
-                                        <option value="">-- Select --</option>
-                                        {% for inputvat in inputvat %}
-                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }} - {{ inputvat.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
-                                        <option value="">-- Select --</option>
-                                        {% for vat in vat %}
-                                            <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.creditterm.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_creditterm">Credit Term</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
-                                        <option value="">-- Select --</option>
-                                        {% for creditterm in creditterm %}
-                                            <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label class="control-label" for="id_particular">Particular</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particular" name="particular" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
-                                </div>
+                                </select>
+                                <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                             </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <span class="control-label"><strong>PURCHASE:</strong></span>
-                            <div class="col-sm-12 margin-top-10">
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_quantity" class="control-label col-sm-6"><small>Quantity</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_quantity"
-                                                   name="quantity" placeholder="0" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.quantity.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <br><br><label for="id_baseamount" class="control-label col-sm-6"><small>Amount</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_baseamount"
-                                                   name="baseamount" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.baseamount.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_discount" class="control-label col-sm-6"><small>Discount</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_discount"
-                                                   name="discount" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.discount.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_purchaseamount" class="control-label col-sm-6"><small>Total Gross</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_purchaseamount"
-                                                   name="purchaseamount" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.purchaseamount.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_addedvat" class="control-label col-sm-6"><small>Add VAT</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_addedvat"
-                                                   name="addedvat" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.addedvat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <br><br><br><br><br><label for="id_totalamount" class="control-label col-sm-6"><small>Total Amount</small></label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_totalamount"
-                                                   name="totalamount" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.totalamount.errors.as_text }}</span>
-                                </div>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label" for="id_particulars">Particulars</label>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
                             </div>
                         </div>
                         <div class="col-sm-12 margin-bottom-10">
@@ -177,7 +113,7 @@
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> PO Details</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>
 {#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
                             </div>
                         </div>
