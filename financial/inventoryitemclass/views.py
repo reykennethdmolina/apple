@@ -2,29 +2,29 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from inventoryitemtype.models import Inventoryitemtype
+from inventoryitemclass.models import Inventoryitemclass
 import datetime
 
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
-    model = Inventoryitemtype
+    model = Inventoryitemclass
     template_name = 'fxtype/index.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Inventoryitemtype.objects.all().filter(isdeleted=0).order_by('-pk')
+        return Inventoryitemclass.objects.all().filter(isdeleted=0).order_by('-pk')
 
 
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
-    model = Inventoryitemtype
+    model = Inventoryitemclass
     template_name = 'fxtype/detail.html'
 
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
-    model = Inventoryitemtype
+    model = Inventoryitemclass
     template_name = 'fxtype/create.html'
     fields = ['code', 'description']
 
@@ -43,7 +43,7 @@ class CreateView(CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class UpdateView(UpdateView):
-    model = Inventoryitemtype
+    model = Inventoryitemclass
     template_name = 'fxtype/edit.html'
     fields = ['code', 'description']
 
@@ -57,12 +57,12 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
-        return HttpResponseRedirect('/fxtype')
+        return HttpResponseRedirect('/inventoryitemclass')
 
 
 @method_decorator(login_required, name='dispatch')
 class DeleteView(DeleteView):
-    model = Inventoryitemtype
+    model = Inventoryitemclass
     template_name = 'fxtype/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
