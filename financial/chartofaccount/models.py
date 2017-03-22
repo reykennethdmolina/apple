@@ -124,7 +124,6 @@ class Chartofaccount(models.Model):
             'mainunit': self.mainunit,
             'product': self.product,
             'typeofexpense': self.typeofexpense,
-
         }
 
     # @classmethod

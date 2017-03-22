@@ -11,7 +11,7 @@ class Department(models.Model):
     departmentname = models.CharField(max_length=250)
     sectionname = models.CharField(max_length=250)
     groupname = models.CharField(max_length=250)
-    expchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_department')
+    expchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', null=True, blank=True, related_name='chartofaccount_department')
     productgroup = models.ForeignKey('productgroup.Productgroup', related_name='productgroup_id', null=True, blank=True, validators=[MinValueValidator(0)])
     YESNO_CHOICES = (
         ('Y', 'Yes'),
@@ -37,3 +37,18 @@ class Department(models.Model):
 
     def __unicode__(self):
         return self.code
+
+    def serialize(self):
+        return {
+            'code': self.code,
+            'departmentname': self.departmentname,
+            'sectionname': self.sectionname,
+            'groupname': self.groupname,
+            'branchstatus': dict(Department.YESNO_CHOICES)[self.branchstatus],
+            'enterdate': self.enterdate,
+            'modifydate': self.modifydate,
+            'enterby': self.enterby.username,
+            'modifyby': self.modifyby.username,
+            'expchartofaccount': self.expchartofaccount,
+            'productgroup': self.productgroup,
+        }
