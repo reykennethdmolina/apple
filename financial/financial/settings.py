@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'requisitionform',
     'inventoryitemtype',
     'inventoryitemclass',
+    'inventoryitem',
 ]
 
 MIDDLEWARE_CLASSES = [
