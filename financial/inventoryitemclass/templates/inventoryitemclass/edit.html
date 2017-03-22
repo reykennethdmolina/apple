@@ -15,7 +15,6 @@
                         <div class="page-wrap">
                             <div class="form-group form-material {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
                                 <label for="id_inventoryitemtype" class="control-label">Inventory Item Type</label>
-                            {{ form.inventoryitemtype.value }}
                                 <select id="id_inventoryitemtype" name="inventoryitemtype" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
                                     {% for inventoryitemtype in inventoryitemtype %}
@@ -35,12 +34,22 @@
                                        data-validation="required" value="{{ form.description.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
                             </div>
+                            <div class="form-group form-material {{ form.chartofaccountinventory.errors|yesno:'has-error,' }}">
+                                <label for="id_chartofaccountinventory" class="control-label">Chart of Account for Inventory</label>
+                                <select id="id_chartofaccountinventory" name="chartofaccountinventory" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount_asset in chartofaccount_asset %}
+                                        <option value="{{ chartofaccount_asset.id }}" {% if form.chartofaccountinventory.value|add:0 == chartofaccount_asset.id %} selected="selected" {% endif %}>{{ chartofaccount_asset.accountcode }} | {{ chartofaccount_asset.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartofaccountinventory.errors.as_text }}</span>
+                            </div>
                             <div class="form-group form-material {{ form.chartexpcostofsale.errors|yesno:'has-error,' }}">
                                 <label for="id_chartexpcostofsale" class="control-label">Chart of Account for Cost of Sale</label>
                                 <select id="id_chartexpcostofsale" name="chartexpcostofsale" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpcostofsale.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% for chartofaccount_exp in chartofaccount_exp %}
+                                        <option value="{{ chartofaccount_exp.id }}" {% if form.chartexpcostofsale.value|add:0 == chartofaccount_exp.id %} selected="selected" {% endif %}>{{ chartofaccount_exp.accountcode }} | {{ chartofaccount_exp.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartexpcostofsale.errors.as_text }}</span>
@@ -49,8 +58,8 @@
                                 <label for="id_chartexpgenandadmin" class="control-label">Chart of Account for General Admin</label>
                                 <select id="id_chartexpgenandadmin" name="chartexpgenandadmin" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpgenandadmin.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% for chartofaccount_exp in chartofaccount_exp %}
+                                        <option value="{{ chartofaccount_exp.id }}" {% if form.chartexpgenandadmin.value|add:0 == chartofaccount_exp.id %} selected="selected" {% endif %}>{{ chartofaccount_exp.accountcode }} | {{ chartofaccount_exp.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartexpgenandadmin.errors.as_text }}</span>
@@ -59,8 +68,8 @@
                                 <label for="id_chartexpsellexp" class="control-label">Chart of Account for Selling Expenses</label>
                                 <select id="id_chartexpsellexp" name="chartexpsellexp" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpsellexp.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% for chartofaccount_exp in chartofaccount_exp %}
+                                        <option value="{{ chartofaccount_exp.id }}" {% if form.chartexpsellexp.value|add:0 == chartofaccount_exp.id %} selected="selected" {% endif %}>{{ chartofaccount_exp.accountcode }} | {{ chartofaccount_exp.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartexpsellexp.errors.as_text }}</span>

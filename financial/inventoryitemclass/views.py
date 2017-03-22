@@ -28,7 +28,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Inventoryitemclass
     template_name = 'inventoryitemclass/create.html'
-    fields = ['code', 'description', 'inventoryitemtype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+    fields = ['code', 'description', 'inventoryitemtype',  'chartofaccountinventory', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitemclass.add_inventoryitemclass'):
@@ -45,7 +45,8 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['chartofaccount_exp'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['chartofaccount_asset'] = Chartofaccount.objects.filter(isdeleted=0, main=1).order_by('accountcode')
         return context
 
 
@@ -53,7 +54,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Inventoryitemclass
     template_name = 'inventoryitemclass/edit.html'
-    fields = ['code', 'description', 'inventoryitemtype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+    fields = ['code', 'description', 'inventoryitemtype', 'chartofaccountinventory', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitemclass.change_inventoryitemclass'):
@@ -63,7 +64,8 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['chartofaccount_exp'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['chartofaccount_asset'] = Chartofaccount.objects.filter(isdeleted=0, main=1).order_by('accountcode')
         return context
 
     def form_valid(self, form):
