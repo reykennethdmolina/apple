@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from inventoryitem.models import Inventoryitem
+from inventoryitemclass.models import Inventoryitemclass
 from chartofaccount.models import Chartofaccount
 import datetime
 
@@ -27,7 +28,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Inventoryitem
     template_name = 'inventoryitem/create.html'
-    fields = ['code', 'description', 'inventoryitemtype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitem.add_inventoryitem'):
@@ -43,7 +44,7 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        #context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+        context['inventoryitemclass'] = Inventoryitemclass.objects.filter(isdeleted=0).order_by('description')
         #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
         return context
 
@@ -52,7 +53,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Inventoryitem
     template_name = 'inventoryitem/edit.html'
-    fields = ['code', 'description', 'inventoryitemtype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitem.change_inventoryitem'):
