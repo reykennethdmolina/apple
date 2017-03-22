@@ -50,3 +50,6 @@ class Inventoryitem(models.Model):
 
     def status_verbose(self):
         return dict(Inventoryitem.STATUS_CHOICES)[self.status]
+
+    def expensestatus_verbose(self):
+        return dict(Inventoryitem.YESNO_CHOICES)[self.expensestatus]

@@ -72,7 +72,7 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'inventoryitemtype', 'chartofaccountinventory', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/inventoryitemclass')
 
 

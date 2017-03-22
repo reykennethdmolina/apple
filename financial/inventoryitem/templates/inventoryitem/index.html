@@ -22,7 +22,6 @@
                                     <th><span>Code</span></th>
                                     <th><span>Description</span></th>
                                     <th><span>Inventory Class</span></th>
-                                    <th><span>Unit of Cost</span></th>
                                     <th><span>Unit of Measure</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
@@ -33,7 +32,7 @@
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.code }}</td>
                                     <td>{{ data.description }}</td>
-                                    <td>{{ data.unitcost }}</td>
+                                    <td>{{ data.inventoryitemclass.code }} - {{ data.inventoryitemclass.description }}</td>
                                     <td>{{ data.unitofmeasure.code }} - {{ data.unitofmeasure.description }}</td>
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">

@@ -4,7 +4,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from inventoryitem.models import Inventoryitem
 from inventoryitemclass.models import Inventoryitemclass
-from chartofaccount.models import Chartofaccount
+from unitofmeasure.models import Unitofmeasure
 import datetime
 
 
@@ -45,7 +45,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['inventoryitemclass'] = Inventoryitemclass.objects.filter(isdeleted=0).order_by('description')
-        #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -62,15 +62,15 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        #context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
-        #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
+        context['inventoryitemclass'] = Inventoryitemclass.objects.filter(isdeleted=0).order_by('description')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/inventoryitem')
 
 

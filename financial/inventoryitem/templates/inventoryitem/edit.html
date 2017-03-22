@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Inventory Item Class {% endblock page-title %}
+{% block page-title %} Inventory Item {% endblock page-title %}
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -13,20 +13,19 @@
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
                         <div class="page-wrap">
-                            <div class="form-group form-material {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
-                                <label for="id_inventoryitemtype" class="control-label">Inventory Item Type</label>
-                            {{ form.inventoryitemtype.value }}
-                                <select id="id_inventoryitemtype" name="inventoryitemtype" class="form-control" data-validation="required">
+                            <div class="form-group form-material {{ form.inventoryitemclass.errors|yesno:'has-error,' }}">
+                                <label for="id_inventoryitemclass" class="control-label">Inventory Item Class</label>
+                                <select id="id_inventoryitemclass" name="inventoryitemclass" class="form-control" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for inventoryitemtype in inventoryitemtype %}
-                                        <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.code }} - {{ inventoryitemtype.description }}</option>
+                                    {% for inventoryitemclass in inventoryitemclass %}
+                                        <option value="{{ inventoryitemclass.id }}" {% if form.inventoryitemclass.value|add:0 == inventoryitemclass.id %} selected="selected" {% endif %}>{{ inventoryitemclass.code }} - {{ inventoryitemclass.description }}</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.inventoryitemclass.errors.as_text }}</span>
                             </div>
                             <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
                                 <label for="id_code" class="control-label">Code</label>
-                                <input type="text" class="form-control" id="id_code" maxlength="10" readonly="readonly"  placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                             </div>
                             <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
@@ -35,37 +34,70 @@
                                        data-validation="required" value="{{ form.description.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
                             </div>
-                            <div class="form-group form-material {{ form.chartexpcostofsale.errors|yesno:'has-error,' }}">
-                                <label for="id_chartexpcostofsale" class="control-label">Chart of Account for Cost of Sale</label>
-                                <select id="id_chartexpcostofsale" name="chartexpcostofsale" class="form-control" data-validation="required">
-                                    <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpcostofsale.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.chartexpcostofsale.errors.as_text }}</span>
+                            <div class="form-group col-md-6">
+                                <label for="id_stocklevel" class="col-sm-4 control-label">Stock Level</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control text-right" id="id_stocklevel" maxlength="10" placeholder="XX" data-validation="required"  name="stocklevel" value="{{ form.stocklevel.value|default:1 }}">
+                                    <span class="help-block form-error">{{ form.stocklevel.errors.as_text }}</span>
+                                </div>
                             </div>
-                             <div class="form-group form-material {{ form.chartexpgenandadmin.errors|yesno:'has-error,' }}">
-                                <label for="id_chartexpgenandadmin" class="control-label">Chart of Account for General Admin</label>
-                                <select id="id_chartexpgenandadmin" name="chartexpgenandadmin" class="form-control" data-validation="required">
-                                    <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpgenandadmin.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.chartexpgenandadmin.errors.as_text }}</span>
+                            <div class="form-group col-md-6">
+                                <label for="id_quantity" class="col-sm-4 control-label">Quantity</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control text-right" id="id_quantity" maxlength="10" placeholder="XX" data-validation="required"  name="quantity" value="{{ form.quantity.value|default:1 }}">
+                                    <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
+                                </div>
                             </div>
-                             <div class="form-group form-material {{ form.chartexpsellexp.errors|yesno:'has-error,' }}">
-                                <label for="id_chartexpsellexp" class="control-label">Chart of Account for Selling Expenses</label>
-                                <select id="id_chartexpsellexp" name="chartexpsellexp" class="form-control" data-validation="required">
-                                    <option value="">-- Select --</option>
-                                    {% for chartofaccount in chartofaccount %}
-                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpsellexp.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.chartexpsellexp.errors.as_text }}</span>
+                            <div class="form-group col-md-6 form-material {{ form.unitofmeasure.errors|yesno:'has-error,' }}">
+                                <label for="id_unitofmeasure" class="col-sm-4 control-label">Unit of Measure</label>
+                                <div class="col-sm-4">
+                                    <select id="id_unitofmeasure" name="unitofmeasure" class="form-control" data-validation="required">
+                                        <option value="">-- Select --</option>
+                                        {% for unitofmeasure in unitofmeasure %}
+                                            <option value="{{ unitofmeasure.id }}" {% if form.unitofmeasure.value|add:0 == unitofmeasure.id %} selected="selected" {% endif %}>{{ unitofmeasure.code }} - {{ unitofmeasure.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            <span class="help-block form-error">{{ form.unitofmeasure.errors.as_text }}</span>
                             </div>
-                            <div class="form-group margin-bottom-0">
+                            <div class="form-group col-md-6">
+                                <label for="id_unitcost" class="col-sm-4 control-label">Unit Cost</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control text-right amount" id="id_unitcost" maxlength="10" placeholder="XX" data-validation="required"  name="unitcost" value="{{ form.unitcost.value|default:1.00 }}">
+                                    <span class="help-block form-error">{{ form.unitcost.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6 form-material">
+                                <label for="id_expensestatus" class="col-sm-4 control-label">Expense Status</label>
+                                <div class="col-sm-4">
+                                    <div class="radio-custom radio-default radio-inline padding-top-0">
+                                        <div class="col-sm-6">
+                                        <input type="radio" id="id_expensestatus" name="expensestatus" value="Y" {% if form.expensestatus.value == 'Y' %} checked="checked" {% endif %}>
+                                        <label for="id_branch_enable" class="col-sm-4">Yes</label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <input type="radio" id="id_expensestatus" name="expensestatus" value="N" {% if form.expensestatus.value == 'N' %} checked="checked" {% endif %}>
+                                        <label for="id_branch_enable" class="col-sm-4">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="id_specialstatus" class="col-sm-4 control-label">Special Status</label>
+                                <div class="col-sm-4">
+                                    <div class="radio-custom radio-default radio-inline padding-top-0">
+                                        <div class="col-sm-6">
+                                        <input type="radio" id="id_specialstatus" name="specialstatus" value="Y" {% if form.specialstatus.value == 'Y' %} checked="checked" {% endif %}>
+                                        <label for="id_branch_enable" class="col-sm-4">Yes</label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <input type="radio" id="id_specialstatus" name="specialstatus" value="N" {% if form.specialstatus.value == 'N' %} checked="checked" {% endif %}>
+                                        <label for="id_branch_enable" class="col-sm-4">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12 margin-bottom-0">
                                 <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                             </div>
                         </div>
@@ -78,3 +110,14 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    {% load static %}
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script>
+        $(function(){
+            $('#id_unitcost').focus();
+            $('#id_description').focus();
+        })
+    </script>
+{% endblock extra_js %}
