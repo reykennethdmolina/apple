@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load lookup %}
+    {% load static %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body{
+            font-size: {{ fontsize }};
+        }
+        .col {
+            padding: 3px;
+            padding-top: 8px;
+        }
+        .align-right {
+            width: 100%;
+            text-align:right;
+        }
+        .align-left {
+            width: 100%;
+            text-align: left;
+        }
+        #logo{
+            width: 150px;
+            display: inline-block;
+        }
+        @page {
+{#            background-image: url({{ logo | get64 }});#}
+            size: {{ pagesize }};
+            margin: 1cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: -6cm;
+                margin-right: 0cm;
+                height: 1cm;
+            }
+        }
+        .title{
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="align-right">
+    <b>run date:</b> {% now "m/d/Y H:m:s" %}
+</div>
+
+<div class="align-left">
+    {#<img id="logo" src="{{ logo | get64 }}"/><br>#}
+    <span class="title">{{ companyparameter.description }}</span><br>
+    {{ companyparameter.address1 }}<br>
+    {{ companyparameter.address2 }}<br>
+    VAT REG TIN: {{ companyparameter.tinnum }}<br>
+    <span class="title">{{ title }}</span><br>
+    <span class="title">for the period {{ date_from }} to {{ date_to }}</span>
+</div>
+
+<br><br>
+
+<table border="1">
+    <thead>
+        <tr>
+            {% for data in custom_header %}
+                <th><div class="col">{{ data }}</div></th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in data_list %}
+            <tr>
+                {% for header in list_header %}
+                    <td><div class="col">{% lookup data header %}</div></td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="footerContent">
+    {%block page_foot%}
+        {{ system_version }} / {{ user }}<br>
+        Page <pdf:pagenumber /> of <pdf:pagecount />
+    {%endblock%}
+</div>
+</body>
+</html>
