@@ -41,7 +41,7 @@ class Customer(models.Model):
     tin = models.CharField(max_length=20, blank=True, null=True)
     pagerno = models.CharField(max_length=20, blank=True, null=True)
     payterms = models.CharField(max_length=20)
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='creditterm_id', default=2)
+    creditterm = models.ForeignKey('creditterm.Creditterm', null=True, blank=True, related_name='creditterm_id', default=2)
     creditlimit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     creditstatus = models.CharField(max_length=1, choices=CREDITSTATUS_CHOICES, null=True, blank=True)
     creditrating = models.CharField(max_length=5, null=True, blank=True)
@@ -52,7 +52,7 @@ class Customer(models.Model):
     currency = models.ForeignKey('currency.Currency', related_name='customer_currency_id', null=True, blank=True)
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_id', null=True, blank=True)
     industry = models.ForeignKey('industry.Industry', related_name='industry_id', null=True, blank=True)
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y')
     beg_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     beg_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, null=True, blank=True)
     beg_date = models.DateField(null=True, blank=True)
@@ -83,3 +83,43 @@ class Customer(models.Model):
     def status_verbose(self):
         return dict(Customer.STATUS_CHOICES)[self.status]
 
+    def serialize(self):
+        return {
+            'code': self.code,
+            'name': self.name,
+            'address1': self.address1,
+            'address2': self.address2,
+            'address3': self.address3,
+            'telno1': self.telno1,
+            'telno2': self.telno2,
+            'telno3': self.telno3,
+            'faxno1': self.faxno1,
+            'faxno2': self.faxno2,
+            'tin': self.tin,
+            'pagerno': self.pagerno,
+            'payterms': self.payterms,
+            'creditlimit': self.creditlimit,
+            # 'creditstatus': dict(Customer.CREDITSTATUS_CHOICES)[self.creditstatus],
+            'creditrating': self.creditrating,
+            'contactperson': self.contactperson,
+            'contactposition': self.contactposition,
+            'contactemail': self.contactemail,
+            'remarks': self.remarks,
+            'bankaccount': self.bankaccount,
+            'creditterm': self.creditterm,
+            'currency': self.currency,
+            'customertype': self.customertype,
+            'industry': self.industry,
+            'multiplestatus': dict(Customer.YESNO_CHOICES)[self.multiplestatus],
+            'beg_amount': self.beg_amount,
+            'beg_code': self.beg_code,
+            'beg_date': self.beg_date,
+            'end_amount': self.end_amount,
+            'end_code': self.end_code,
+            'end_date': self.end_date,
+            'status': dict(Customer.STATUS_CHOICES)[self.status],
+            'enterdate': self.enterdate,
+            'modifydate': self.modifydate,
+            'enterby': self.enterby.username,
+            'modifyby': self.modifyby.username,
+        }

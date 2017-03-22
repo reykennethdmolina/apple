@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from supplier.models import Supplier
+from customer.models import Customer
 from companyparameter.models import Companyparameter
 from easy_pdf.views import PDFTemplateView
 from django.db.models import Q
@@ -12,25 +12,43 @@ import xlwt
 
 
 # initial setup
-model_initial = Supplier
-template_initial = 'rep_supplier/'
-title_initial = 'Report - Supplier'
+model_initial = Customer
+template_initial = 'rep_customer/'
+title_initial = 'Report - Customer'
 system_version = 'IES Financial System (ver 0.1)'
 
 all_header = [["code", "Code"],
               ["name", "Name"],
-              ["ataxcode", "ATax Code"],
-              ["inputvat", "Input VAT"],
-              ["vat", "VAT"],
               ["address1", "Address No.1"],
               ["address2", "Address No.2"],
               ["address3", "Address No.3"],
+              ["telno1", "Tel No.1"],
+              ["telno2", "Tel No.2"],
+              ["telno3", "Tel No.3"],
+              ["faxno1", "Fax No.1"],
+              ["faxno2", "Fax No.2"],
               ["tin", "TIN"],
-              ["telno", "Tel No."],
-              ["faxno", "Fax No."],
-              ["zipcode", "Zip Code"],
-              ["inputvatrate", "Input VAT Rate"],
+              ["pagerno", "Pager No."],
+              ["payterms", "Pay Terms"],
+              ["creditlimit", "Credit Limit"],
+              # ["creditstatus", "Credit Status"],
+              ["creditrating", "Credit Rating"],
+              ["contactperson", "Contact Person"],
+              ["contactposition", "Contact Position"],
+              ["contactemail", "Contact Email"],
+              ["remarks", "Remarks"],
+              ["bankaccount", "Bank Account"],
+              ["creditterm", "Credit Term"],
+              ["currency", "Currency"],
+              ["customertype", "Customer Type"],
+              ["industry", "Industry"],
               ["multiplestatus", "Multiple Status"],
+              ["beg_amount", "Beg Amount"],
+              ["beg_code", "Beg Code"],
+              ["beg_date", "Beg Date"],
+              ["end_amount", "End Amount"],
+              ["end_code", "End Code"],
+              ["end_date", "End Date"],
               ["status", "Status"],
               ["enterdate", "Date entered"],
               ["modifydate", "Date modified"],
@@ -39,7 +57,7 @@ all_header = [["code", "Code"],
 default_header = [["code", "Code"],
                   ["name", "Name"]]
 
-xls_sheetname_initial = 'Supplier'
+xls_sheetname_initial = 'Customer'
 
 
 @method_decorator(login_required, name='dispatch')
