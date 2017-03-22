@@ -1,7 +1,7 @@
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from chartofaccount.models import Chartofaccount
+from supplier.models import Supplier
 from companyparameter.models import Companyparameter
 from easy_pdf.views import PDFTemplateView
 from django.db.models import Q
@@ -12,49 +12,34 @@ import xlwt
 
 
 # initial setup
-model_initial = Chartofaccount
-template_initial = 'rep_chartofaccount/'
-title_initial = 'Report - Chart of Account'
+model_initial = Supplier
+template_initial = 'rep_supplier/'
+title_initial = 'Report - Supplier'
 system_version = 'IES Financial System (ver 0.1)'
 
-all_header = [["accountcode", "Account Code"],
-              ["title", "Title"],
-              ["description", "Description"],
-              ["kindofexpense", "Kind of Expense"],
-              ["mainunit", "Main Unit"],
-              ["product", "Product"],
-              ["typeofexpense", "Type of Expense"],
-              ["balancecode", "Balance Code"],
-              ["charttype", "Chart Type"],
-              ["ctax", "CTax"],
-              ["taxstatus", "Tax Status"],
-              ["wtaxstatus", "WTax Status"],
-              ["mainposting", "Main Posting"],
-              ["fixedasset", "Fixed Asset"],
-              ["taxespayable", "Taxes Payable"],
-              ["bankaccount_enable", "Bank Account enabled"],
-              ["department_enable", "Department enabled"],
-              ["employee_enable", "Employee enabled"],
-              ["supplier_enable", "Supplier enabled"],
-              ["customer_enable", "Customer enabled"],
-              ["branch_enable", "Branch enabled"],
-              ["product_enable", "Product enabled"],
-              ["unit_enable", "Unit enabled"],
-              ["inputvat_enable", "Input VAT enabled"],
-              ["outputvat_enable", "Output VAT enabled"],
-              ["vat_enable", "VAT enabled"],
-              ["wtax_enable", "WTax enabled"],
-              ["ataxcode_enable", "ATax Code enabled"],
+all_header = [["code", "Code"],
+              ["name", "Name"],
+              ["ataxcode", "ATax Code"],
+              ["inputvat", "Input VAT"],
+              ["vat", "VAT"],
+              ["address1", "Address No.1"],
+              ["address2", "Address No.2"],
+              ["address3", "Address No.3"],
+              ["tin", "Tin"],
+              ["telno", "Tel No."],
+              ["faxno", "Fax No."],
+              ["zipcode", "Zip Code"],
+              ["inputvatrate", "Input VAT Rate"],
+              ["multiplestatus", "Multiple Status"],
               ["status", "Status"],
               ["enterdate", "Date entered"],
               ["modifydate", "Date modified"],
               ["enterby", "Entered By"],
               ["modifyby", "Modify By"]]
-default_header = [["accountcode", "Account Code"],
-                  ["title", "Title"],
-                  ["description", "Description"]]
+default_header = [["code", "Code"],
+                  ["name", "Name"]]
 
-xls_sheetname_initial = 'Chart of account'
+xls_sheetname_initial = 'Supplier'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -74,8 +59,6 @@ class IndexView(ListView):
 
 @method_decorator(login_required, name='dispatch')
 class Report(JSONDataView):
-
-    # pdf, xls for  foreign keys
 
     def get_context_data(self, **kwargs):
         context = super(Report, self).get_context_data(**kwargs)
@@ -325,101 +308,3 @@ def xls(request):
 
     wb.save(response)
     return response
-
-
-@method_decorator(login_required, name='dispatch')
-class Xlsi(JSONDataView):
-
-    def get_context_data(self, **kwargs):
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename="' + title_initial + '.xls"'
-
-        wb = xlwt.Workbook(encoding='utf-8')
-        ws = wb.add_sheet(xls_sheetname_initial)
-
-        row_num = 0
-
-        font_style = xlwt.XFStyle()
-        font_style.font.bold = True
-
-        columns = []
-        for i in default_header:
-            columns.append(i[0])
-
-        context = super(Report, self).get_context_data(**kwargs)
-
-        list_table = model_initial.objects
-        rows = list_table
-        date_limit = datetime.combine(datetime.strptime('1990-01-01', '%Y-%m-%d'), datetime.min.time())
-
-        if self.request.GET['title_initial']:
-            self.response['Content-Disposition'] = 'attachment; filename="' + self.request.GET['title_initial'] + '.xls"'
-
-        list_header = []
-        list_header_modified = []
-        for i in default_header:
-            list_header.append(i[0])
-            list_header_modified.append(i[1])
-
-        if self.request.GET.getlist('list_header[]'):
-            list_header = self.request.GET.getlist('list_header[]')
-
-            list_header_modified = []
-            for i in list_header:
-                for j in all_header:
-                    if j[0] == i:
-                        list_header_modified.append(j[1])
-
-        custom_header = list_header_modified
-        for col_num in range(len(custom_header)):
-            ws.write(row_num, col_num, custom_header[col_num], font_style)
-        font_style = xlwt.XFStyle()
-
-        if self.request.GET['from']:
-            date_from = datetime.combine(datetime.strptime(self.request.GET['from'], '%Y-%m-%d'), datetime.min.time())
-            list_table = list_table.filter(Q(enterdate__gt=date_from))
-
-        if self.request.GET['to']:
-            date_to = datetime.combine(datetime.strptime(self.request.GET['to'], '%Y-%m-%d'), datetime.max.time())
-            list_table = list_table.filter(Q(enterdate__lt=date_to))
-
-        if self.request.GET.getlist('orderby[]') and self.request.GET['orderasc']:
-            orderby = self.request.GET.getlist('orderby[]')
-            orderasc = self.request.GET['orderasc']
-
-            list_table.order_by(*orderby)
-
-            if orderasc == 'a':
-                list_table = list_table.reverse()
-
-        if self.request.GET.getlist('advanced_filter[]') and self.request.GET.getlist('advanced_keyword[]'):
-            advanced_filter = self.request.GET.getlist('advanced_filter[]')
-            advanced_keyword = self.request.GET.getlist('advanced_keyword[]')
-
-            arg = {}
-            q_objects = Q()
-
-            for index, data in enumerate(advanced_filter):
-                if data and advanced_keyword[index]:
-                    arg['{0}__{1}'.format(data, 'contains')] = advanced_keyword[index]
-                    for data in arg.iteritems():
-                        q_objects.add(Q(data), Q.OR)
-
-            list_table = list_table.filter(q_objects)
-
-        context['status'] = 'success'
-        context['list_table'] = list_table.only(*list_header).filter(isdeleted=0)[0:10]
-        context['list_header'] = list_header
-        context['list_header_modified'] = list_header_modified
-
-        list_table = list_table.values_list(*columns).filter(isdeleted=0)[0:10]
-        rows = list_table
-
-        for row in rows:
-            row_num += 1
-            for col_num in range(len(row)):
-                ws.write(row_num, col_num, row[col_num], font_style)
-
-        wb.save(response)
-
-        return context

@@ -56,3 +56,25 @@ class Supplier(models.Model):
     def status_verbose(self):
         return dict(Supplier.STATUS_CHOICES)[self.status]
 
+    def serialize(self):
+        return {
+            'code': self.code,
+            'name': self.name,
+            'address1': self.address1,
+            'address2': self.address2,
+            'address3': self.address3,
+            'tin': self.tin,
+            'telno': self.telno,
+            'faxno': self.faxno,
+            'zipcode': self.zipcode,
+            'inputvatrate': self.inputvatrate,
+            'multiplestatus': dict(Supplier.YESNO_CHOICES)[self.multiplestatus],
+            'status': dict(Supplier.STATUS_CHOICES)[self.status],
+            'enterdate': self.enterdate,
+            'modifydate': self.modifydate,
+            'enterby': self.enterby.username,
+            'modifyby': self.modifyby.username,
+            'ataxcode': self.ataxcode,
+            'inputvat': self.inputvat,
+            'vat': self.vat,
+        }
