@@ -1,0 +1,80 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Inventory Item Class {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">EDIT</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="page-wrap">
+                            <div class="form-group form-material {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
+                                <label for="id_inventoryitemtype" class="control-label">Inventory Item Type</label>
+                            {{ form.inventoryitemtype.value }}
+                                <select id="id_inventoryitemtype" name="inventoryitemtype" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for inventoryitemtype in inventoryitemtype %}
+                                        <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.code }} - {{ inventoryitemtype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                                <label for="id_code" class="control-label">Code</label>
+                                <input type="text" class="form-control" id="id_code" maxlength="10" readonly="readonly"  placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
+                                <label for="id_description" class="control-label">Description</label>
+                                <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Description" name="description"
+                                       data-validation="required" value="{{ form.description.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group form-material {{ form.chartexpcostofsale.errors|yesno:'has-error,' }}">
+                                <label for="id_chartexpcostofsale" class="control-label">Chart of Account for Cost of Sale</label>
+                                <select id="id_chartexpcostofsale" name="chartexpcostofsale" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount in chartofaccount %}
+                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpcostofsale.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartexpcostofsale.errors.as_text }}</span>
+                            </div>
+                             <div class="form-group form-material {{ form.chartexpgenandadmin.errors|yesno:'has-error,' }}">
+                                <label for="id_chartexpgenandadmin" class="control-label">Chart of Account for General Admin</label>
+                                <select id="id_chartexpgenandadmin" name="chartexpgenandadmin" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount in chartofaccount %}
+                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpgenandadmin.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartexpgenandadmin.errors.as_text }}</span>
+                            </div>
+                             <div class="form-group form-material {{ form.chartexpsellexp.errors|yesno:'has-error,' }}">
+                                <label for="id_chartexpsellexp" class="control-label">Chart of Account for Selling Expenses</label>
+                                <select id="id_chartexpsellexp" name="chartexpsellexp" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for chartofaccount in chartofaccount %}
+                                        <option value="{{ chartofaccount.id }}" {% if form.chartexpsellexp.value|add:0 == chartofaccount.id %} selected="selected" {% endif %}>{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.chartexpsellexp.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group margin-bottom-0">
+                                <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

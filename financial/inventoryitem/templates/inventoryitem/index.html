@@ -6,7 +6,7 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
-                {% if perms.inventoryitemclass.add_inventoryitemclass %}
+                {% if perms.bankbranch.add_bankbranch %}
                 <div class="text-right"><a href="{% url 'inventoryitemclass:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a></div>
                 {% endif  %}
             </div>
@@ -21,7 +21,8 @@
                                     <th><span>Id</span></th>
                                     <th><span>Code</span></th>
                                     <th><span>Description</span></th>
-                                    <th><span>Inventory Type</span></th>
+                                    <th><span>Inventory Class</span></th>
+                                    <th><span>Unit of Measure</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
@@ -31,7 +32,7 @@
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.code }}</td>
                                     <td>{{ data.description }}</td>
-                                    <td>{{ data.inventoryitemtype.code }} - {{ data.inventoryitemtype.description }}</td>
+                                    <td>{{ data.inventoryitemclass.code }} - {{ data.inventoryitemclass.description }}</td>
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">
