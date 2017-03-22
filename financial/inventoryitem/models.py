@@ -17,6 +17,7 @@ class Inventoryitem(models.Model):
         ('O', 'Posted'),
         ('P', 'Printed'),
     )
+    unitcost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='inventoryitem_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
