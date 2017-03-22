@@ -8,6 +8,7 @@ import datetime
 
 class Inventoryitemclass(models.Model):
     inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype', related_name='invclass_inventoryitemtype_id', default='1')
+    chartofaccountinventory = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartofaccountinv_id', default='1')
     chartexpcostofsale = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpcostofsale_id', default='1')
     chartexpgenandadmin = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpgenandadmin_id', default='1')
     chartexpsellexp = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpsellexp_id', default='1')
