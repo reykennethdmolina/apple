@@ -85,11 +85,11 @@ class Rfdetail(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='rfdetail_enter')
-    enterdate = models.DateTimeField(auto_now_add=True)
+    enterdate = models.DateTimeField(default=datetime.datetime.now())
     modifyby = models.ForeignKey(User, default=1, related_name='rfdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='rfdetail_post')
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='rfdetail_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
 
@@ -101,10 +101,10 @@ class Rfdetail(models.Model):
         return reverse('requisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
 
 class Rfdetailtemp(models.Model):
@@ -129,8 +129,8 @@ class Rfdetailtemp(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_post')
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='rfdetailtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
 
@@ -142,7 +142,8 @@ class Rfdetailtemp(models.Model):
         return reverse('requisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
+
