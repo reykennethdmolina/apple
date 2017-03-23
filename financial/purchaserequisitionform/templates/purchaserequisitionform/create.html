@@ -1,0 +1,158 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Purchase Requisition Form {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        .select2-container--default .select2-results__option[aria-disabled=true] {
+            display: none;
+        }
+    </style>
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="margin-bottom-20">
+                <form method="post" id="form-b">
+                    {% csrf_token %}
+                    <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
+                    <div class="row col-md-6 row-lg margin-left-10">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label" for="id_prfnum">Number</label>
+                            <input type="text" class="form-control input-sm" id="id_prfnum" name="prfnum" placeholder="PRFxxxxxxx" value="{{ form.prfnum.value|default:'' }}" readonly="readonly">
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label" for="id_prfdate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label" for="id_prfstatus">PRF Status</label>
+                            <input type="text" class="form-control input-sm" id="id_prfstatus" name="prfstatus" value="{{ form.get_prfstatus_display|default:'FOR APPROVAL'}}" readonly="readonly">
+                            <span class="help-block form-error">{{ form.prfstatus.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.prftype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_prftype">PRF Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype">
+                                {% for id,name in form.fields.prftype.choices %}
+                                    <option value="{{ id }}"{% if form.prftype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.prftype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.department.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_department">Department</label>
+                            <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
+                                <option value="">-- Select --</option>
+                                {% for department in department %}
+                                    <option value="{{ department.id }}" {% if form.department.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.branch.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_branch">Branch</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                                {% for branch in branch %}
+                                    <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                        </div>
+                    </div>
+                    <div class="row col-md-6 row-lg margin-left-10">
+                        <div class="form-group col-sm-6 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_inventoryitemtype">Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype">
+                                {% for inventoryitemtype in inventoryitemtype %}
+                                    <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_designatedapprover">Approver</label>
+                            <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                <option value="">-- Select --</option>
+                                {% for designatedapprover in designatedapprover %}
+                                    <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 margin-bottom-10">
+                        <div class="col-sm-6">
+                            <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import RF</button>
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="col-sm-12" id="detailentry" style="display: none">
+                    <div class="panel panel-bordered">
+                        <div class="panel-body">
+                            <h4>Add Items</h4>
+                            <div id="detailsentryview">
+                                {% include "purchaserequisitionform/createdetails.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <!-- Start Editable Section -->
+                            <table class="table table-striped margin-bottom-0" id="summary">
+                                <thead>
+                                    <tr>
+                                        <th>Item No.</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Unit of Measure</th>
+                                        <th>RF No.</th>
+                                        <th>Remarks</th>
+                                        <th>Quantity</th>
+                                        <th>CS Cost</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#detailsbutton").click(function (){
+                $("#detailentry").show();
+            });
+        });
+    </script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+    </script>
+{% endblock extra_js %}

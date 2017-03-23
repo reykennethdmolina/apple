@@ -102,7 +102,7 @@ class UpdateView(UpdateView):
             filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
-        context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk)
+        context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('item_counter')
         return context
 
     def form_valid(self, form):
