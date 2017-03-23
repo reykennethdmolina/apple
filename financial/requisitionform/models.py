@@ -9,18 +9,18 @@ class Rfmain(models.Model):
     rfnum = models.CharField(max_length=10, unique=True)
     rfdate = models.DateField()
     inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype',
-                                          related_name='rfmaininventoryitemtype_id')
+                                          related_name='rfmain_inventoryitemtype_id')
     refnum = models.CharField(max_length=150, null=True, blank=True)
-    jonum = models.CharField(max_length=150, null=True, blank=True)
-    sonum = models.CharField(max_length=150, null=True, blank=True)
+    rftype = models.CharField(max_length=150, default='REGULAR')
+    unit = models.ForeignKey('unit.Unit', related_name='rfmain_unit_id', null=True, blank=True)
     URGENCY_CHOICES = (
         ('N', 'Normal'),
         ('R', 'Rush'),
     )
     urgencytype = models.CharField(max_length=1, choices=URGENCY_CHOICES, default='N')
     dateneeded = models.DateField()
-    branch = models.ForeignKey('branch.Branch', related_name='rfbranch_id')
-    department = models.ForeignKey('department.Department', related_name='rfdepartment_id')
+    branch = models.ForeignKey('branch.Branch', related_name='rfmain_branch_id')
+    department = models.ForeignKey('department.Department', related_name='rfmain_department_id')
     particulars = models.TextField()
     RF_STATUS_CHOICES = (
         ('F', 'For Approval'),
@@ -28,8 +28,8 @@ class Rfmain(models.Model):
         ('D', 'Disapproved'),
     )
     rfstatus = models.CharField(max_length=1, choices=RF_STATUS_CHOICES, default='F')
-    designatedapprover = models.ForeignKey(User, default=1, related_name='designated_approver')
-    actualapprover = models.ForeignKey(User, default=1, related_name='actual_approver', null=True, blank=True)
+    designatedapprover = models.ForeignKey(User, default=2, related_name='designated_approver')
+    actualapprover = models.ForeignKey(User, related_name='actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
         ('D', 'Disapproved'),
@@ -49,8 +49,8 @@ class Rfmain(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='rfmain_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='rfmain_post')
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='rfmain_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
@@ -69,11 +69,11 @@ class Rfmain(models.Model):
 
 
 class Rfdetail(models.Model):
-    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfdetail_rfmain_id', null=True, blank=True)
     item_counter = models.IntegerField()
-    # Add 'item_id' when inventory models are completed.
-    item_name = models.CharField(max_length=250)
-    unitofmeasure = models.CharField(max_length=15)
+    # invitem_id = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetail_invitem_id')
+    invitem_code = models.CharField(max_length=25)
+    invitem_name = models.CharField(max_length=250)
     quantity = models.IntegerField()
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
@@ -108,14 +108,13 @@ class Rfdetail(models.Model):
 
 
 class Rfdetailtemp(models.Model):
-    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='temp_rfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfdetailtemp_rfmain_id', null=True, blank=True)
     item_counter = models.IntegerField()
-    # Add 'item_id' when inventory models are completed.
-    item_name = models.CharField(max_length=250)
-    unitofmeasure = models.CharField(max_length=15)
+    # invitem_id = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetailtemp_invitem_id')
+    invitem_code = models.CharField(max_length=25)
+    invitem_name = models.CharField(max_length=250)
     quantity = models.IntegerField()
     remarks = models.CharField(max_length=250, null=True, blank=True)
-    secretkey = models.CharField(max_length=255)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -131,6 +130,7 @@ class Rfdetailtemp(models.Model):
     postby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_post')
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
+    secretkey = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'rfdetailtemp'
