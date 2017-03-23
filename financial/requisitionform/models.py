@@ -71,7 +71,7 @@ class Rfmain(models.Model):
 class Rfdetail(models.Model):
     rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfdetail_rfmain_id', null=True, blank=True)
     item_counter = models.IntegerField()
-    # invitem_id = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetail_invitem_id')
+    invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetail_invitem_id')
     invitem_code = models.CharField(max_length=25)
     invitem_name = models.CharField(max_length=250)
     quantity = models.IntegerField()
@@ -109,8 +109,10 @@ class Rfdetail(models.Model):
 
 class Rfdetailtemp(models.Model):
     rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfdetailtemp_rfmain_id', null=True, blank=True)
+    rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='rfdetailtemp_rfdetail_id', null=True,
+                                 blank=True)
     item_counter = models.IntegerField()
-    # invitem_id = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetailtemp_invitem_id')
+    invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetailtemp_invitem_id')
     invitem_code = models.CharField(max_length=25)
     invitem_name = models.CharField(max_length=250)
     quantity = models.IntegerField()
