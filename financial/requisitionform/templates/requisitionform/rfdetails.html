@@ -1,0 +1,98 @@
+<form class="form-horizontal" id="detailform" method="get" action="">
+{% csrf_token %}
+    <div class="row">
+        <div class="col-md-12 form-group">
+            <label class="col-sm-3 control-label">Item No.</label>
+            <label class="col-sm-3 control-label" style="text-align: left" id="itemno">1</label>
+            <span class="help-block form-error"></span>
+        </div>
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label" for="item_name">Item</label>
+            <div class="col-sm-7">
+                <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
+                    <option value="">-- Select Item --</option>
+                    <option value="1">Paper, Letter (box)</option>
+                    <option value="2">Paper, A4 (ream)</option>
+                    <option value="3">Paper, Legal (pc)</option>
+{#                {% for chartofaccount in chartofaccount %}#}
+{#                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>#}
+{#                {% endfor %}#}
+                </select>
+                <span class="help-block form-error"></span>
+            </div>
+            <label class="col-sm-3 control-label" for="quantity">Quantity</label>
+            <div class="col-sm-3">
+                <input type="number" class="form-control input-sm" id="id_quantity" name="quantity">
+                <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label">Remarks</label>
+            <div class="col-sm-5">
+                <textarea class="form-control input-sm" id="id_remarks" name="remarks"></textarea>
+                <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
+            </div>
+        </div>
+        <div class="col-sm-12 pull-left margin-bottom-10">
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Item</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {
+        summary = $("#summary tbody")
+
+        $("#btn_detailclose").click(function(){
+            $("#detailentry").hide();
+        });
+
+        $("#btn_detailsubmit").click(function(){
+            $.ajax({
+                url: "{% url 'requisitionform:saverfdetailtemp' %}",
+                type: "post",
+                data: {'itemno': $("#itemno").text(),
+                        'id_item_name': $("#id_item_name").val(),
+                        'id_quantity': $("#id_quantity").val(),
+                        'id_remarks': $("#id_remarks").val(),
+                        'secretkey': $("#id_secretkey").val()},
+
+                success: function(response) {
+                    $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
+                    summary.append("<tr><td>" + response.itemno + "</td>" +
+                            "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
+                            "<td> kg </td>" +
+                            "<td>" + response.quantity + "</td>" +
+                            "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                            "</tr>");
+
+                    $("#id_item_name").val('').trigger('change.select2');
+                    $("#id_quantity").val('');
+                    $("#id_remarks").val('');
+                }
+                , error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
+
+        $(document).on('click', '.remove_item', function(){
+            var elem = $(this);
+
+            $.ajax({
+                url: "{% url 'requisitionform:deleterfdetailtemp' %}",
+                type: "post",
+                data: {'itemno': $(this).data('itemno'),
+                        'secretkey': $("#id_secretkey").val()},
+
+                success: function(response) {
+                    elem.parent().parent().remove()
+                }
+                , error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
+    });
+</script>
