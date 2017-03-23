@@ -15,10 +15,12 @@
                         <div class="page-wrap">
                             <div class="form-group {{ form.inventoryitemclass.errors|yesno:'has-error,' }}">
                                 <label for="id_inventoryitemclass" class="control-label">Inventory Item Class</label>
-                                <select id="id_inventoryitemclass" name="inventoryitemclass" class="form-control" disabled="disabled">
-                                    <option value="">-- Select --</option>
+                                <select id="id_inventoryitemclass" name="inventoryitemclass" class="form-control" readonly="readonly">
+{#                                    <option value="">-- Select --</option>#}
                                     {% for inventoryitemclass in inventoryitemclass %}
-                                        <option value="{{ inventoryitemclass.id }}" {% if form.inventoryitemclass.value|add:0 == inventoryitemclass.id %} selected="selected" {% endif %}>{{ inventoryitemclass.code }} - {{ inventoryitemclass.description }}</option>
+                                        {% if form.inventoryitemclass.value|add:0 == inventoryitemclass.id %}
+                                        <option value="{{ inventoryitemclass.id }}"  selected="selected">{{ inventoryitemclass.code }} - {{ inventoryitemclass.description }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.inventoryitemclass.errors.as_text }}</span>
