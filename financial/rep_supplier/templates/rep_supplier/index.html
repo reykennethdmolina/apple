@@ -95,7 +95,7 @@
                                         <div class="col-md-3">
                                             <span>Filter</span>
                                             <select name="advanced_filter" class="form-control advanced_filter" form="report">
-                                                {% for data in list_header %}
+                                                {% for data in all_header %}
                                                     <option value="{{ data.0 }}">{{ data.1 }}</option>
                                                 {% endfor %}
                                             </select>
