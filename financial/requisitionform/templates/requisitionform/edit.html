@@ -98,7 +98,10 @@
                             </div>
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required"></textarea>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">
+                                    {{ form.particulars.value }}
+                                </textarea>
+                                <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="row row-lg margin-left-10">
@@ -131,16 +134,23 @@
                             <div class="panel">
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
-                                    <table class="table table-striped margin-bottom-0" id="summary">
+                                    <table class="table margin-bottom-0" id="summary">
                                         <thead>
                                             <tr>
-                                                <th>Item No.</th>
-                                                <th>Name</th>
-                                                <th>Unit of Measure</th>
+                                                <th>No.</th>
+                                                <th>Item Name (UM)</th>
                                                 <th>Quantity</th>
                                                 <th>Remarks</th>
                                             </tr>
-                                            {% for  %}
+                                            {% for rfdetail in rfdetail %}
+                                                <tr>
+                                                    <td>{{ rfdetail.item_counter }}</td>
+                                                    <td>{{ rfdetail.invitem_name }} ({{ rfdetail.invitem.unitofmeasure.code }})</td>
+                                                    <td>{{ rfdetail.quantity }}</td>
+                                                    <td>{{ rfdetail.remarks }}</td>
+                                                    <td><button class='btn remove_item' data-itemno='"{{ rfdetail.item_counter }}"'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
+                                                </tr>
+                                            {% endfor %}
                                         </thead>
                                         <tbody>
                                         </tbody>
