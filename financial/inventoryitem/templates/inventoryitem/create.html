@@ -25,7 +25,7 @@
                             </div>
                             <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
                                 <label for="id_code" class="control-label">Code</label>
-                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <input type="text" class="form-control col-sm-4" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                             </div>
                             <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
@@ -117,6 +117,24 @@
     <script>
         $(function(){
             $('#id_unitofmeasure option:first').attr('selected', 'selected');
+
+            $('#id_inventoryitemclass').change(function(){
+                $.ajax({
+                    url: "{% url 'inventoryitem:getclasstypecode' %}",
+                    type: "post",
+                    dataType: "json",
+                    data: {inventoryclassid: $('#id_inventoryitemclass').val()},
+                    success: function(response) {
+                        $inventoryclassdata = $.parseJSON(response['inventoryclassdata'])
+                        console.log($inventoryclassdata);
+                        console.log($inventoryclassdata[0].fields['testlang']);
+
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
         });
     </script>
 {% endblock extra_js %}

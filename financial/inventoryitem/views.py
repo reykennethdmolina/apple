@@ -1,10 +1,13 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from inventoryitem.models import Inventoryitem
 from inventoryitemclass.models import Inventoryitemclass
 from unitofmeasure.models import Unitofmeasure
+from inventoryitemtype.models import Inventoryitemtype
+from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
 import datetime
 
 
@@ -70,7 +73,7 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/inventoryitem')
 
 
@@ -92,3 +95,25 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/inventoryitem')
+
+@csrf_exempt
+def getclasstypecode(request):
+
+    if request.method == 'POST':
+        classid = request.POST['inventoryclassid']
+        inventoryclassdata = Inventoryitemclass.objects.all()
+        # inventoryclassdata = Inventoryitemclass.objects.raw("SELECT class.*, itype.code AS testlang "
+        #                                                     "FROM inventoryitemclass AS class "
+        #                                                     "INNER JOIN inventoryitemtype AS itype ON class.inventoryitemtype_id = itype.id "
+        #                                                     "WHERE class.id = %s", str(classid))
+
+        print(inventoryclassdata)
+        data = {
+            'status': 'success',
+            'inventoryclassdata': serializers.serialize("json", inventoryclassdata),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
