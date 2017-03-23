@@ -23,17 +23,23 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.inventoryitemclass.errors.as_text }}</span>
                             </div>
-                            <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-md-2 {{ form.code.errors|yesno:'has-error,' }}">
+                                <label for="id_prefixcode" class="control-label">Prefix</label>
+                                <input type="text" class="form-control col-sm-4" id="id_prefixcode" maxlength="10" placeholder="XXXX" data-validation="required" name="prefixcode" readonly="readonly">
+                                <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-md-2 {{ form.code.errors|yesno:'has-error,' }}">
                                 <label for="id_code" class="control-label">Code</label>
                                 <input type="text" class="form-control col-sm-4" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                             </div>
-                            <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-md-8 {{ form.description.errors|yesno:'has-error,' }}">
                                 <label for="id_description" class="control-label">Description</label>
                                 <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Description" name="description"
                                        data-validation="required" value="{{ form.description.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.description.errors.as_text }}</span>
                             </div>
+                            <div class="form-group col-md-12"></div>
                             <div class="form-group col-md-6">
                                 <label for="id_stocklevel" class="col-sm-4 control-label">Stock Level</label>
                                 <div class="col-sm-4">
@@ -113,21 +119,35 @@
 {% block extra_js %}
     {% load static %}
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
-    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/cust om-maskMoney.js' %}" type="text/javascript"></script>
     <script>
         $(function(){
-            $('#id_unitofmeasure option:first').attr('selected', 'selected');
+            {% if form.errors %}
+                var codevalue = $('#id_code').val();
+                var value = codevalue.split('-',3);
+
+                $('#id_prefixcode').val(value[0]+'-'+value[1]+'-');
+                $('#id_code').val(value[2]);
+            {% endif %}
+
+            {% if not form.errors %}
+                $('#id_unitofmeasure option:first').attr('selected', 'selected');
+            {% endif %}
 
             $('#id_inventoryitemclass').change(function(){
                 $.ajax({
                     url: "{% url 'inventoryitem:getclasstypecode' %}",
-                    type: "post",
+                    type: "get",
                     dataType: "json",
-                    data: {inventoryclassid: $('#id_inventoryitemclass').val()},
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           inventoryclassid: $('#id_inventoryitemclass').val()},
                     success: function(response) {
-                        $inventoryclassdata = $.parseJSON(response['inventoryclassdata'])
-                        console.log($inventoryclassdata);
-                        console.log($inventoryclassdata[0].fields['testlang']);
+                        $inventoryclassdata = response['inventoryclassdata'];
+                        //$inventoryclassdata = $.parseJSON(response['inventoryclassdata'])
+                        $("#id_prefixcode").val($inventoryclassdata[0].inventoryitemtype.code+'-'+$inventoryclassdata[0].code+'-');
+                        //console.log($inventoryclassdata[0].code);
+                        //console.log($inventoryclassdata[0].inventoryitemtype.code);
+                        //console.log($inventoryclassdata[0].fields['testlang']);
 
                     },
                     error: function(response) {

@@ -8,6 +8,8 @@ from unitofmeasure.models import Unitofmeasure
 from inventoryitemtype.models import Inventoryitemtype
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
+from inventoryitem.forms import CreateViewForm
+from json_views.views import JSONDataView
 import datetime
 
 
@@ -30,6 +32,7 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Inventoryitem
+    #form_class= CreateViewForm
     template_name = 'inventoryitem/create.html'
     fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
 
@@ -37,6 +40,17 @@ class CreateView(CreateView):
         if not request.user.has_perm('inventoryitem.add_inventoryitem'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, **kwargs):
+        request.POST = request.POST.copy()
+        request.POST['code'] = request.POST['prefixcode'] + request.POST['code']
+        return super(CreateView, self).post(request, **kwargs)
+
+    # def get_initial(self):
+    #     return {'code': 'hoyken'}
+    # def form_invalid(self, form, **kwargs):
+    #     form= self.get_context_data(**kwargs)
+    #     return self.render_to_response(self.get_context_data(form=form))
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -96,24 +110,34 @@ class DeleteView(DeleteView):
         self.object.save()
         return HttpResponseRedirect('/inventoryitem')
 
-@csrf_exempt
-def getclasstypecode(request):
+@method_decorator(login_required, name='dispatch')
+class Getclasstypecode(JSONDataView):
 
-    if request.method == 'POST':
-        classid = request.POST['inventoryclassid']
-        inventoryclassdata = Inventoryitemclass.objects.all()
-        # inventoryclassdata = Inventoryitemclass.objects.raw("SELECT class.*, itype.code AS testlang "
-        #                                                     "FROM inventoryitemclass AS class "
-        #                                                     "INNER JOIN inventoryitemtype AS itype ON class.inventoryitemtype_id = itype.id "
-        #                                                     "WHERE class.id = %s", str(classid))
 
-        print(inventoryclassdata)
-        data = {
-            'status': 'success',
-            'inventoryclassdata': serializers.serialize("json", inventoryclassdata),
-        }
-    else:
-        data = {
-            'status': 'error',
-        }
-    return JsonResponse(data)
+    def get_context_data(self, **kwargs):
+        context = super(Getclasstypecode, self).get_context_data(**kwargs)
+        inventoryclassid = self.request.GET.get('inventoryclassid')
+        context['inventoryclassdata'] = Inventoryitemclass.objects.filter(pk=inventoryclassid)
+        return context
+
+#@csrf_exempt
+# def getclasstypecode(request):
+#
+#     if request.method == 'POST':
+#         classid = request.POST['inventoryclassid']
+#         inventoryclassdata = Inventoryitemclass.objects.all()
+#         # inventoryclassdata = Inventoryitemclass.objects.raw("SELECT class.*, itype.code AS testlang "
+#         #                                                     "FROM inventoryitemclass AS class "
+#         #                                                     "INNER JOIN inventoryitemtype AS itype ON class.inventoryitemtype_id = itype.id "
+#         #                                                     "WHERE class.id = %s", str(classid))
+#
+#         print(inventoryclassdata)
+#         data = {
+#             'status': 'success',
+#             'inventoryclassdata': serializers.serialize("json", inventoryclassdata),
+#         }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#     return JsonResponse(data)

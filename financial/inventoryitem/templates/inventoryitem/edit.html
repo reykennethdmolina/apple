@@ -13,9 +13,9 @@
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
                         <div class="page-wrap">
-                            <div class="form-group form-material {{ form.inventoryitemclass.errors|yesno:'has-error,' }}">
+                            <div class="form-group {{ form.inventoryitemclass.errors|yesno:'has-error,' }}">
                                 <label for="id_inventoryitemclass" class="control-label">Inventory Item Class</label>
-                                <select id="id_inventoryitemclass" name="inventoryitemclass" class="form-control" disabled="disabled">
+                                <select id="id_inventoryitemclass" name="inventoryitemclass" class="form-control" readonly="readonly">
                                     <option value="">-- Select --</option>
                                     {% for inventoryitemclass in inventoryitemclass %}
                                         <option value="{{ inventoryitemclass.id }}" {% if form.inventoryitemclass.value|add:0 == inventoryitemclass.id %} selected="selected" {% endif %}>{{ inventoryitemclass.code }} - {{ inventoryitemclass.description }}</option>
@@ -23,12 +23,12 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.inventoryitemclass.errors.as_text }}</span>
                             </div>
-                            <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-md-4 {{ form.code.errors|yesno:'has-error,' }}">
                                 <label for="id_code" class="control-label">Code</label>
-                                <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                <input type="text" class="form-control col-sm-4" id="id_code" readonly="readonly" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                             </div>
-                            <div class="form-group {{ form.description.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-md-8 {{ form.description.errors|yesno:'has-error,' }}">
                                 <label for="id_description" class="control-label">Description</label>
                                 <input type="text" class="form-control" id="id_description" maxlength="250" placeholder="Description" name="description"
                                        data-validation="required" value="{{ form.description.value|default:'' }}">
