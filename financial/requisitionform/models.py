@@ -11,8 +11,8 @@ class Rfmain(models.Model):
     inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype',
                                           related_name='rfmain_inventoryitemtype_id')
     refnum = models.CharField(max_length=150, null=True, blank=True)
-    jonum = models.CharField(max_length=150, null=True, blank=True)
-    sonum = models.CharField(max_length=150, null=True, blank=True)
+    rftype = models.CharField(max_length=150, null=True, blank=True)
+    unit = models.CharField(max_length=150, null=True, blank=True)
     URGENCY_CHOICES = (
         ('N', 'Normal'),
         ('R', 'Rush'),

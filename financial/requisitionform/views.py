@@ -18,7 +18,7 @@ import datetime
 class CreateView(CreateView):
     model = Rfmain
     template_name = 'requisitionform/create.html'
-    fields = ['rfdate', 'inventoryitemtype', 'refnum', 'jonum', 'sonum', 'urgencytype', 'dateneeded',
+    fields = ['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
               'branch', 'department', 'particulars', 'designatedapprover']
 
     def get_context_data(self, **kwargs):
