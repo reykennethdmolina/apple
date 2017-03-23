@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from . models import Rfmain, Rfdetailtemp
+from . models import Rfmain, Rfdetail, Rfdetailtemp
 from inventoryitemtype.models import Inventoryitemtype
 from branch.models import Branch
 from department.models import Department
@@ -56,13 +56,16 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
 
-
+        # save data to rfdetail
+        # detail = Rfdetailtemp.objects.filter(ideleted=0, secretkey=self.request.POST['secretkey'])
+        # for d in detail:
+        #
 
         return HttpResponseRedirect('/requisitionform/create')
 
 
 @csrf_exempt
-def saverfdetailtemp(request):
+def savedetailtemp(request):
 
     if request.method == 'POST':
         detailtemp = Rfdetailtemp()
@@ -93,7 +96,7 @@ def saverfdetailtemp(request):
 
 
 @csrf_exempt
-def deleterfdetailtemp(request):
+def deletedetailtemp(request):
 
     if request.method == 'POST':
         detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'], secretkey=request.POST['secretkey'])

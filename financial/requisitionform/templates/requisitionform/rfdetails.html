@@ -49,7 +49,7 @@
 
         $("#btn_detailsubmit").click(function(){
             $.ajax({
-                url: "{% url 'requisitionform:saverfdetailtemp' %}",
+                url: "{% url 'requisitionform:savedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $("#itemno").text(),
                         'id_item_name': $("#id_item_name").val(),
@@ -81,7 +81,7 @@
             var elem = $(this);
 
             $.ajax({
-                url: "{% url 'requisitionform:deleterfdetailtemp' %}",
+                url: "{% url 'requisitionform:deletedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $(this).data('itemno'),
                         'secretkey': $("#id_secretkey").val()},
