@@ -88,8 +88,8 @@ class Rfdetail(models.Model):
     enterdate = models.DateTimeField(default=datetime.datetime.now())
     modifyby = models.ForeignKey(User, default=1, related_name='rfdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='rfmain_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='rfdetail_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
 
@@ -129,8 +129,8 @@ class Rfdetailtemp(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_post')
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='rfdetailtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
 
