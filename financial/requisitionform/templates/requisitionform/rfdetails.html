@@ -1,22 +1,15 @@
 <form class="form-horizontal" id="detailform" method="get" action="">
 {% csrf_token %}
     <div class="row">
-        <div class="col-md-12 form-group">
-            <label class="col-sm-3 control-label">Item No.</label>
-            <label class="col-sm-3 control-label" style="text-align: left" id="itemno">1</label>
-            <span class="help-block form-error"></span>
-        </div>
+        <label style="display: none;" id="itemno">1</label>
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label" for="item_name">Item</label>
             <div class="col-sm-7">
                 <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                     <option value="">-- Select Item --</option>
-                    <option value="1">Paper, Letter (box)</option>
-                    <option value="2">Paper, A4 (ream)</option>
-                    <option value="3">Paper, Legal (pc)</option>
-{#                {% for chartofaccount in chartofaccount %}#}
-{#                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>#}
-{#                {% endfor %}#}
+                    {% for invitem in invitem %}
+                        <option value="{{ invitem.id }}">{{ invitem.description }} ({{ invitem.unitofmeasure.code }})</option>
+                    {% endfor %}
                 </select>
                 <span class="help-block form-error"></span>
             </div>
@@ -52,7 +45,7 @@
                 url: "{% url 'requisitionform:savedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $("#itemno").text(),
-                        'id_item_name': $("#id_item_name").val(),
+                        'id_item': $("#id_item_name").val(),
                         'id_quantity': $("#id_quantity").val(),
                         'id_remarks': $("#id_remarks").val(),
                         'secretkey': $("#id_secretkey").val()},
@@ -60,7 +53,7 @@
                 success: function(response) {
                     $("#itemno").text(parseInt($("#itemno").text()) + 1);
 
-                    summary.append("<tr><td>" + response.itemno + "</td>" +
+                    summary.append("<tr><td></td>" +
                             "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
                             "<td> kg </td>" +
                             "<td>" + response.quantity + "</td>" +
@@ -70,6 +63,7 @@
                     $("#id_item_name").val('').trigger('change.select2');
                     $("#id_quantity").val('');
                     $("#id_remarks").val('');
+                    reorderItems();
                 }
                 , error: function(response) {
                     console.debug(response);
@@ -87,12 +81,20 @@
                         'secretkey': $("#id_secretkey").val()},
 
                 success: function(response) {
-                    elem.parent().parent().remove()
+                    elem.parent().parent().remove();
+                    reorderItems();
                 }
                 , error: function(response) {
                     console.debug(response);
                 }
             });
         });
+
+        function reorderItems(){
+            len = summary.find('tr').find('td:eq(0)').length;
+            for(i=0;i<len;i++){
+                summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
+            }
+        }
     });
 </script>

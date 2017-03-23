@@ -82,7 +82,7 @@
                                 <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                     <option value="">-- Select --</option>
                                     {% for department in department %}
-                                        <option value="{{ department.id }}" {% if department.potype.value|add:0 == potype.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
+                                        <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
