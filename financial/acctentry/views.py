@@ -120,15 +120,16 @@ def savemaccountingentry(request):
         if request.POST['ataxcode']:
             detailtemp.ataxcode = request.POST['ataxcode']
 
-        detailtemp.secretkey = request.POST['secretkey']
-        if request.POST['creditamount'] != float(0) or request.POST['creditamount'] != 0:
-            detailtemp.balancecode = 'C'
         detailtemp.balancecode = 'D'
         if request.POST['creditamount']:
-            detailtemp.creditamount = request.POST['creditamount']
-        if request.POST['debitamount']:
-            detailtemp.debitamount = request.POST['debitamount']
+            detailtemp.balancecode = 'C'
 
+        if request.POST['creditamount']:
+            detailtemp.creditamount = request.POST['creditamount'].replace(',','')
+        if request.POST['debitamount']:
+            detailtemp.debitamount = request.POST['debitamount'].replace(',','')
+
+        detailtemp.secretkey = request.POST['secretkey']
         detailtemp.jv_date = datetime.datetime.now()
         detailtemp.enterby = request.user
         detailtemp.enterdate = datetime.datetime.now()
