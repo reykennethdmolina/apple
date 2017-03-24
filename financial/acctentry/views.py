@@ -19,6 +19,7 @@ from wtax.models import Wtax
 from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvdetailtemp
 import datetime, random
+from collections import namedtuple, defaultdict, OrderedDict
 
 import json
 
@@ -90,7 +91,7 @@ def savemaccountingentry(request):
     if request.method == 'POST':
         # Save Data To JVDetail
         detailtemp = Jvdetailtemp()
-        detailtemp.item_counter = 1
+        detailtemp.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
         detailtemp.chartofaccount = request.POST['chartofaccount']
 
         if request.POST['bankaccount']:
@@ -137,7 +138,28 @@ def savemaccountingentry(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.save()
 
+        test = Jvdetailtemp.objects.raw("SELECT id, item_counter, chartofaccount FROM jvdetailtemp ")
+        #test = namedtuplefetchall(test)
+
+        print test
+        #print json.dumps({'howdy': test})
+        #print(serializers.serialize("json", test))
+
+        # test = Jvdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+        #                                    ).order_by('item_counter',
+        #                                               ).values('pk','item_counter','chartofaccount',
+        #                                                        'chartofaccount__accountcode')
+
+        #test = Bankaccount.objects.values('accountnumber', 'bank__description')
+
+        context = {
+            #'datatemp': serializers.serialize("json", test),#Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
+            #Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
+            'datatemp': test,
+        }
+
         data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
             'status': 'success',
         }
     else :
@@ -150,3 +172,10 @@ def savemaccountingentry(request):
 def generatekey(request):
     SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
     return SECREY_KEY
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]

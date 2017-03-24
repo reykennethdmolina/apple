@@ -97,10 +97,10 @@ class Jvdetail(models.Model):
         return reverse('jvdetail:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.jvnum
+        return self.jvmain
 
     def __unicode__(self):
-        return self.jvnum
+        return unicode(self.jvmain)
 
     def status_verbose(self):
         return dict(Jvdetail.STATUS_CHOICES)[self.status]
@@ -112,7 +112,7 @@ class Jvdetailtemp(models.Model):
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField()
     chartofaccount = models.IntegerField(default=0, null=True, blank=True)
-    bankaccount = models.IntegerField(default=0, null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_jvdetailtemp_id', null=True,blank=True)
     department = models.IntegerField(default=0, null=True, blank=True)
     employee = models.IntegerField(default=0, null=True, blank=True)
     supplier = models.IntegerField(default=0, null=True, blank=True)
@@ -158,7 +158,7 @@ class Jvdetailtemp(models.Model):
         return self.pk
 
     def __unicode__(self):
-        return self.pk
+        return unicode(self.pk)
 
     def status_verbose(self):
         return dict(Jvdetailtemp.STATUS_CHOICES)[self.status]
