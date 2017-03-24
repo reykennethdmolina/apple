@@ -21,7 +21,7 @@
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_rfdate">Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.rfdate.value|default:'' }}">
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.rfdate.value %}{{ form.rfdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.rfdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-4 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
