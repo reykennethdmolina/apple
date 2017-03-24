@@ -126,7 +126,7 @@ class Rfdetailtemp(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_enter')
-    enterdate = models.DateTimeField(auto_now_add=True)
+    enterdate = models.DateTimeField(default=datetime.datetime.now())
     modifyby = models.ForeignKey(User, default=1, related_name='rfdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='rfdetailtemp_post', null=True, blank=True)

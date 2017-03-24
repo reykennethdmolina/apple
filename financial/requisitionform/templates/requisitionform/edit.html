@@ -98,9 +98,7 @@
                             </div>
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">
-                                    {{ form.particulars.value }}
-                                </textarea>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value }}</textarea>
                                 <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                             </div>
                         </div>
@@ -134,7 +132,7 @@
                             <div class="panel">
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
-                                    <table class="table margin-bottom-0" id="summary">
+                                    <table class="table table-striped margin-bottom-0" id="summary">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
@@ -142,17 +140,17 @@
                                                 <th>Quantity</th>
                                                 <th>Remarks</th>
                                             </tr>
-                                            {% for rfdetail in rfdetail %}
-                                                <tr>
-                                                    <td>{{ rfdetail.item_counter }}</td>
-                                                    <td>{{ rfdetail.invitem_name }} ({{ rfdetail.invitem.unitofmeasure.code }})</td>
-                                                    <td>{{ rfdetail.quantity }}</td>
-                                                    <td>{{ rfdetail.remarks }}</td>
-                                                    <td><button class='btn remove_item' data-itemno='"{{ rfdetail.item_counter }}"'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
-                                                </tr>
-                                            {% endfor %}
                                         </thead>
                                         <tbody>
+                                            {% for rfdetailtemp in rfdetailtemp %}
+                                                <tr>
+                                                    <td>{{ rfdetailtemp.item_counter }}</td>
+                                                    <td>{{ rfdetailtemp.invitem_name }} ({{ rfdetailtemp.invitem.unitofmeasure.code }})</td>
+                                                    <td>{{ rfdetailtemp.quantity }}</td>
+                                                    <td>{{ rfdetailtemp.remarks }}</td>
+                                                    <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
+                                                </tr>
+                                            {% endfor %}
                                         </tbody>
                                     </table>
                                 </div>
@@ -170,9 +168,20 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            reorderItems();
+
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
+
+            summary = $("#summary tbody");
+
+            function reorderItems(){
+                len = summary.find('tr').find('td:eq(0)').length;
+                for(i=0;i<len;i++){
+                    summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
+                }
+            }
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>

@@ -78,7 +78,9 @@
                 url: "{% url 'requisitionform:deletedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $(this).data('itemno'),
-                        'secretkey': $("#id_secretkey").val()},
+                        'secretkey': $("#id_secretkey").val(),
+                        'rfnum': $("#id_rfnum").val()
+                },
 
                 success: function(response) {
                     elem.parent().parent().remove();
