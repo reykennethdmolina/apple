@@ -24,7 +24,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
+        #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0,status='A').order_by('accountcode')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')

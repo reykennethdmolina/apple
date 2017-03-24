@@ -29,7 +29,7 @@ def maccountingentry(request):
 
         #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
         context = {
-            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode'),
+            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A').order_by('accountcode'),
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
             'department':  Department.objects.filter(isdeleted=0).order_by('departmentname'),
             'employee':  Employee.objects.filter(isdeleted=0).order_by('firstname', 'lastname'),
@@ -65,7 +65,7 @@ def checkchartvalidatetion(request):
         unit = []
         if chartdata[0].unit_enable == 'Y':
             mainunit = Chartofaccount.objects.values('mainunit').filter(pk=chartid)
-            unit = Unit.objects.filter(mainunit=mainunit)
+            unit = Unit.objects.filter(mainunit=mainunit,isdeleted=0)
 
         #bank = Bank.objects.filter(isdeleted=0)
         #print unit
@@ -78,6 +78,7 @@ def checkchartvalidatetion(request):
     else:
         data = {
             'status': 'error',
+            'chart': [],
         }
     return JsonResponse(data)
     #return HttpResponse(data, content_type='application/json')
@@ -90,9 +91,44 @@ def savemaccountingentry(request):
         # Save Data To JVDetail
         detailtemp = Jvdetailtemp()
         detailtemp.item_counter = 1
-        detailtemp.balancecode = 'D'
         detailtemp.chartofaccount = request.POST['chartofaccount']
+
+        if request.POST['bankaccount']:
+            detailtemp.bankaccount = request.POST['bankaccount']
+        if request.POST['department']:
+            detailtemp.department = request.POST['department']
+        if request.POST['employee']:
+            detailtemp.employee = request.POST['employee']
+        if request.POST['supplier']:
+            detailtemp.supplier = request.POST['supplier']
+        if request.POST['customer']:
+            detailtemp.customer = request.POST['customer']
+        if request.POST['unit']:
+            detailtemp.unit = request.POST['unit']
+        if request.POST['branch']:
+            detailtemp.branch = request.POST['branch']
+        if request.POST['product']:
+            detailtemp.product = request.POST['product']
+        if request.POST['inputvat']:
+            detailtemp.inputvat = request.POST['inputvat']
+        if request.POST['outputvat']:
+            detailtemp.outputvat = request.POST['outputvat']
+        if request.POST['vat']:
+            detailtemp.vat = request.POST['vat']
+        if request.POST['wtax']:
+            detailtemp.wtax = request.POST['wtax']
+        if request.POST['ataxcode']:
+            detailtemp.ataxcode = request.POST['ataxcode']
+
         detailtemp.secretkey = request.POST['secretkey']
+        if request.POST['creditamount'] != float(0) or request.POST['creditamount'] != 0:
+            detailtemp.balancecode = 'C'
+        detailtemp.balancecode = 'D'
+        if request.POST['creditamount']:
+            detailtemp.creditamount = request.POST['creditamount']
+        if request.POST['debitamount']:
+            detailtemp.debitamount = request.POST['debitamount']
+
         detailtemp.jv_date = datetime.datetime.now()
         detailtemp.enterby = request.user
         detailtemp.enterdate = datetime.datetime.now()

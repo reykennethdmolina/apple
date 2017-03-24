@@ -95,6 +95,9 @@
                             <div class="panel panel-bordered">
                                 <div class="panel-body">
                                     <h4>Manual Accounting Entry</h4>
+                                    <div id="waitingbar" class="animatebar-bar progress-bar-success" style="width: 95%;">
+                                        <div class="animatebar-bar-percent">95%</div>
+                                    </div>
                                     <div id="manualentryview">
 {#                                        {% include "acctentry/manualentry.html" %}#}
                                     </div>
@@ -115,37 +118,7 @@
                                                 <th>Credit</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>100</td>
-                                                <td>200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>330</td>
-                                                <td>240</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>430</td>
-                                                <td>540</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>100</td>
-                                                <td>200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>330</td>
-                                                <td>240</td>
-                                            </tr>
+                                        <tbody id="datatable">
                                         </tbody>
                                         <tfoot>
                                             <tr>
@@ -174,13 +147,14 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $("#manualbutton").click(function (){
+                $("#entryview").show();
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
                     success: function(response){
                         $("#manualentryview").html(response['viewhtml']);
-                        $("#entryview").show();
+                        $("#waitingbar").hide();
                     }, error: function(response) {
                         console.debug(response);
                     }
