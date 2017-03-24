@@ -138,10 +138,10 @@ def savemaccountingentry(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.save()
 
-        test = Jvdetailtemp.objects.raw("SELECT id, item_counter, chartofaccount FROM jvdetailtemp ")
+        #test = Jvdetailtemp.objects.raw("SELECT id, item_counter, chartofaccount FROM jvdetailtemp ")
         #test = namedtuplefetchall(test)
 
-        print test
+        #print test
         #print json.dumps({'howdy': test})
         #print(serializers.serialize("json", test))
 
@@ -150,7 +150,7 @@ def savemaccountingentry(request):
         #                                               ).values('pk','item_counter','chartofaccount',
         #                                                        'chartofaccount__accountcode')
 
-        #test = Bankaccount.objects.values('accountnumber', 'bank__description')
+        test = Jvdetailtemp.objects.values('id', 'item_counter', 'bankaccount__accountnumber')
 
         context = {
             #'datatemp': serializers.serialize("json", test),#Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
