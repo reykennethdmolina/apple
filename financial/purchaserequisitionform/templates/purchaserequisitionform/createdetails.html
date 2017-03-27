@@ -1,6 +1,7 @@
 <form class="form-horizontal" id="detailform" method="get" action="">
 {% csrf_token %}
     <div class="row">
+        <label style="display: none;" id="itemno">1</label>
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label" for="item_name">Item</label>
             <div class="col-sm-7">
@@ -35,6 +36,7 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
         filterItems();
+        inventorytypeimportDisable();
 
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
@@ -57,20 +59,75 @@
             $("#id_quantity").val('');
             $("#id_remarks").val('');
             reorderItems();
+            inventorytypeimportDisable();
         });
 
         $(document).on('click', '.remove_item', function(){
             var elem = $(this);
+            elem.parent().parent().remove();
+        });
 
+        $('#id_inventoryitemtype').on('change', function(){
+            filterItems();
+            inventorytypeimportDisable();
+        });
+
+        $("#detailsbutton").click(function (){
+            $("#detailentry").show();
+        });
+
+        $(document).ready(function() {
+            $("#importrfselect2").select2({
+                dropdownParent: $("#myModal")
+            });
+        });
+
+        $("#importrfselect2").change(function(){
+            if($(this).val() != ''){
+                importrfpreview = $("#importrfpreview tbody tr td");
+                importrfpreview.eq(0).text($(this).children('option:selected').data('refnum'));
+                importrfpreview.eq(1).text($(this).children('option:selected').data('urgency'));
+                importrfpreview.eq(2).text($(this).children('option:selected').data('approver'));
+                importrfpreview.eq(3).text($(this).children('option:selected').data('dateneeded'));
+
+                $("#importconfirm").prop('disabled', false);
+            }
+            else{
+                $("#importconfirm").prop('disabled', true);
+            }
+        });
+
+        $("#importconfirm").click(function(){
             $.ajax({
-                url: "{% url 'requisitionform:deletedetailtemp' %}",
+                url: "{% url 'purchaserequisitionform:importitems' %}",
                 type: "post",
-                data: {'itemno': $(this).data('itemno'),
-                        'secretkey': $("#id_secretkey").val()},
+                data: {'itemno': $("#itemno").text(),
+                        'rfnum': $("#importrfselect2").val(),
+                        'secretkey': $("#id_secretkey").val()
+                },
 
                 success: function(response) {
-                    elem.parent().parent().remove();
+                    if(response.rfdata != "[]"){
+
+                        for (var i = 0; i < response.rfdata.length; i++) {
+                            $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
+                            summary.append("<tr><td></td>" +
+                                        "<td>" + response.rfdata[i][0] + "</td>" +
+                                        "<td>" + response.rfdata[i][1] + "</td>" +
+                                        "<td>" + response.rfdata[i][2] + "</td>" +
+                                        "<td>" + response.rfdata[i][3] + "</td>" +
+                                        "<td></td>" +
+                                        "<td>" + response.rfdata[i][4] + "</td>" +
+                                        "<td>" + response.rfdata[i][5] + "</td>" +
+                                        "<td>" + (parseFloat(response.rfdata[i][4]) * parseFloat(response.rfdata[i][5])) + "</td>" +
+                                        "<td><button class='btn remove_item' data-itemno='" + response.rfdata[i][6] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                                        "</tr>");
+                        }
+                    }
+
                     reorderItems();
+                    inventorytypeimportDisable();
                 }
                 , error: function(response) {
                     console.debug(response);
@@ -85,10 +142,6 @@
             }
         }
 
-        $('#id_inventoryitemtype').on('change', function(){
-            filterItems();
-        });
-
         function filterItems(){
             item_id = $('#id_inventoryitemtype').val();
             $('#id_item_name').find('option').prop( "disabled", false );
@@ -98,12 +151,19 @@
             $('#id_item_name').val('').trigger('change');
         }
 
-        function inventorytypeDisable(){
+        function inventorytypeimportDisable(){
             if(summary.find('tr').length > 0){
-                $('#id_inventoryitemtype').attr( "readonly", true );
+                $('#id_inventoryitemtype option:not(:selected)').prop('disabled', true);
             }
             else{
-                $('#id_inventoryitemtype').attr( "readonly", false );
+                $('#id_inventoryitemtype option:not(:selected)').prop('disabled', false);
+            }
+
+            if($('#id_inventoryitemtype').val() != 2){
+                $('#importbutton').prop('disabled', true);
+            }
+            else{
+                $('#importbutton').prop('disabled', false);
             }
         }
     });

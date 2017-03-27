@@ -1,4 +1,4 @@
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
@@ -13,6 +13,22 @@ from acctentry.views import generatekey
 import datetime
 
 # Create your views here.
+
+
+@method_decorator(login_required, name='dispatch')
+class IndexView(ListView):
+    model = Rfmain
+    template_name = 'requisitionform/index.html'
+    context_object_name = 'data_list'
+
+    def get_queryset(self):
+        return Rfmain.objects.all().filter(isdeleted=0).order_by('-pk')
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Rfmain
+    template_name = 'requisitionform/detail.html'
 
 
 @method_decorator(login_required, name='dispatch')
