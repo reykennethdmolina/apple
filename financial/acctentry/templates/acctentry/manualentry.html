@@ -19,7 +19,7 @@
                 <select class="form-control input-sm" id="detail_bankaccount" name="detail_bankaccount">
                 <option value="">-- Select Bank Account --</option>
                 {% for bankaccount in bankaccount %}
-                    <option value="{{ bankaccount.id }}">{{ bankaccount.accountnumber }}</option>
+                    <option value="{{ bankaccount.id }}">{{ bankaccount.accountnumber }} - {{ bankaccount.code }}</option>
                 {% endfor %}
                 </select>
             </div>

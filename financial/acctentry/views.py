@@ -20,6 +20,7 @@ from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvdetailtemp
 import datetime, random
 from collections import namedtuple, defaultdict, OrderedDict
+from django.db import connection
 
 import json
 
@@ -138,24 +139,50 @@ def savemaccountingentry(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.save()
 
-        #test = Jvdetailtemp.objects.raw("SELECT id, item_counter, chartofaccount FROM jvdetailtemp ")
-        #test = namedtuplefetchall(test)
+        querystmt = "SELECT  jdt.item_counter, jdt.jvmain, jdt.jv_num, DATE(jdt.jv_date) AS jvdate, " \
+                "c.accountcode, c.description AS chartofaccountdesc, " \
+                "b.code AS bankaccountcode, b.accountnumber, " \
+                "d.code AS departmentcode, d.departmentname, " \
+                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, " \
+                "s.code AS suppliercode, s.name AS suppliername, " \
+                "cu.code AS customercode, cu.name AS customername, " \
+                "u.code AS unitcode, u.description AS unitname, " \
+                "br.code AS branchcode, br.description AS branchname, " \
+                "p.code AS productcode, p.description AS productname, " \
+                "i.code AS inputvatcode, i.description AS inputvatname, " \
+                "o.code AS outputvatcode, o.description AS outputvatname, " \
+                "v.code AS vatcode, v.description AS vatname, " \
+                "w.code AS wtaxcode, w.description AS wtaxname, " \
+                "a.code AS ataxcode, a.description AS ataxname, " \
+                "FORMAT(jdt.creditamount, 2) AS creditamount, FORMAT(jdt.debitamount, 2) AS debitamount " \
+                "FROM jvdetailtemp AS jdt " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = jdt.chartofaccount " \
+                "LEFT OUTER JOIN bankaccount AS b ON b.id = jdt.bankaccount " \
+                "LEFT OUTER JOIN department AS d ON d.id = jdt.department " \
+                "LEFT OUTER JOIN employee AS e ON e.id = jdt.employee " \
+                "LEFT OUTER JOIN supplier AS s ON s.id = jdt.supplier " \
+                "LEFT OUTER JOIN customer AS cu ON cu.id = jdt.customer " \
+                "LEFT OUTER JOIN unit AS u ON u.id = jdt.unit " \
+                "LEFT OUTER JOIN branch AS br ON br.id = jdt.branch " \
+                "LEFT OUTER JOIN product AS p ON p.id = jdt.product " \
+                "LEFT OUTER JOIN inputvat AS i ON i.id = jdt.product " \
+                "LEFT OUTER JOIN outputvat AS o ON o.id = jdt.outputvat " \
+                "LEFT OUTER JOIN vat AS v ON v.id = jdt.vat " \
+                "LEFT OUTER JOIN wtax AS w ON w.id = jdt.wtax " \
+                "LEFT OUTER JOIN ataxcode AS a ON a.id = jdt.ataxcode " \
+                "WHERE jdt.secretkey = '"+request.POST['secretkey']+ "' AND jdt.isdeleted != 1"
 
-        #print test
-        #print json.dumps({'howdy': test})
-        #print(serializers.serialize("json", test))
-
-        # test = Jvdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
-        #                                    ).order_by('item_counter',
-        #                                               ).values('pk','item_counter','chartofaccount',
-        #                                                        'chartofaccount__accountcode')
-
-        test = Jvdetailtemp.objects.values('id', 'item_counter', 'bankaccount__accountnumber')
+        querytotal = "SELECT FORMAT(SUM(IFNULL(jdt.creditamount,0)), 2) AS totalcreditamount, " \
+                     "FORMAT(SUM(IFNULL(jdt.debitamount,0)), 2) AS totaldebitamount " \
+                     "FROM jvdetailtemp AS jdt " \
+                     "WHERE jdt.secretkey = '"+request.POST['secretkey']+ "' AND jdt.isdeleted != 1"
 
         context = {
             #'datatemp': serializers.serialize("json", test),#Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
             #Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
-            'datatemp': test,
+            'datatemp': executestmt(querystmt),
+            #'datatemptotal': serializers.serialize("python", executestmt(querytotal)),
+            'datatemptotal': executestmt(querytotal),
         }
 
         data = {
@@ -179,3 +206,10 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+def executestmt(query):
+    cursor = connection.cursor()
+
+    cursor.execute(query)
+
+    return namedtuplefetchall(cursor)
