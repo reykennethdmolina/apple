@@ -43,7 +43,7 @@ class CreateView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.multiplestatus = 'Y'
+        self.object.multiplestatus = 'N'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
