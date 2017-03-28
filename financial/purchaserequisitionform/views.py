@@ -20,7 +20,9 @@ import datetime
 class CreateView(CreateView):
     model = Prfmain
     template_name = 'purchaserequisitionform/create.html'
-    fields = ['prftype', 'prfstatus']
+    fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch']
+
+    # add delete all temp unused every fresh reload
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -33,50 +35,70 @@ class CreateView(CreateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         return context
 
-    # def form_valid(self, form):
-    #     self.object = form.save(commit=False)
-    #
-    #     try:
-    #         rfnumlast = Rfmain.objects.latest('rfnum')
-    #         latestrfnum = str(rfnumlast)
-    #         if latestrfnum[0:4] == str(datetime.datetime.now().year):
-    #             rfnum = str(datetime.datetime.now().year)
-    #             last = str(int(latestrfnum[4:])+1)
-    #             zero_addon = 6 - len(last)
-    #             for x in range(0, zero_addon):
-    #                 rfnum += '0'
-    #             rfnum += last
-    #         else:
-    #             rfnum = str(datetime.datetime.now().year) + '000001'
-    #     except Rfmain.DoesNotExist:
-    #         rfnum = str(datetime.datetime.now().year) + '000001'
-    #
-    #     print 'rfnum: ' + rfnum
-    #     self.object.rfnum = rfnum
-    #
-    #     self.object.enterby = self.request.user
-    #     self.object.modifyby = self.request.user
-    #     self.object.save()
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
 
+        try:
+            prfnumlast = Prfmain.objects.latest('prfnum')
+            latestprfnum = str(prfnumlast)
+            if latestprfnum[0:4] == str(datetime.datetime.now().year):
+                prfnum = str(datetime.datetime.now().year)
+                last = str(int(latestprfnum[4:])+1)
+                zero_addon = 6 - len(last)
+                for x in range(0, zero_addon):
+                    prfnum += '0'
+                prfnum += last
+            else:
+                prfnum = str(datetime.datetime.now().year) + '000001'
+        except Prfmain.DoesNotExist:
+            prfnum = str(datetime.datetime.now().year) + '000001'
 
+        self.object.prfnum = prfnum
 
-        # return HttpResponseRedirect('/purchaserequisitionform/create')
+        self.object.enterby = self.request.user
+        self.object.modifyby = self.request.user
+        self.object.save()
 
+        detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+            order_by('enterdate')
+        i = 1
+        for dt in detailtemp:
+            detail = Prfdetail()
+            detail.item_counter = i
+            detail.prfmain = Prfmain.objects.get(prfnum=prfnum)
+            detail.invitem_code = dt.invitem_code
+            detail.invitem_name = dt.invitem_name
+            detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            detail.status = dt.status
+            detail.enterby = dt.enterby
+            detail.enterdate = dt.enterdate
+            detail.modifyby = dt.modifyby
+            detail.modifydate = dt.modifydate
+            detail.postby = dt.postby
+            detail.postdate = dt.postdate
+            detail.isdeleted = dt.isdeleted
+            detail.invitem = dt.invitem
+            detail.rfdetail = dt.rfdetail
+            detail.save()
+            dt.delete()
+            i += 1
+
+        return HttpResponseRedirect('/purchaserequisitionform/create')
 
 @csrf_exempt
 def importItems(request):
-
-    # insert saving to temp
-    # update newly imported items
     # validation on save
+    # item no / counter validation..
 
     if request.method == 'POST':
         rfdetail = Rfdetail.objects\
                         .raw('SELECT inv.unitcost, '
-                                    'rfm.refnum, '
+                                    'inv.id AS inv_id, '
+                                    'rfm.rfnum, '
                                     'rfd.invitem_code, '
                                     'rfd.invitem_name, '
                                     'rfd.quantity, '
+                                    'rfd.remarks, '
                                     'rfd.id, '
                                     'um.code '
                             'FROM rfmain rfm '
@@ -96,89 +118,119 @@ def importItems(request):
                                 'inv.status = "A"'
                             'ORDER BY rfd.item_counter')
 
-        rfdata = []
+        prfdata = []
+
+        item_counter = int(request.POST['itemno'])
 
         for data in rfdetail:
-            rfdata.append([data.invitem_code, data.invitem_name, data.code, data.refnum, data.quantity, data.unitcost,  data.id])
+            prfdata.append([data.invitem_code,
+                            data.invitem_name,
+                            data.code,
+                            data.rfnum,
+                            data.remarks,
+                            data.quantity,
+                            data.unitcost,
+                            data.id,
+                            item_counter])
 
-        detailtemp = Prfdetailtemp()
-        detailtemp.invitem_code = request.POST['id_item_name']
-        detailtemp.invitem_name = request.POST['id_item_name']
-        detailtemp.item_counter = request.POST['itemno']
-        detailtemp.quantity = request.POST['quantity']
-        detailtemp.status = 'A'
-        detailtemp.enterdate = datetime.datetime.now()
-        detailtemp.modifydate = datetime.datetime.now()
-        detailtemp.enterby = request.user
-        detailtemp.modifyby = request.user
-        detailtemp.secretkey = request.POST['secretkey']
-        detailtemp.invitem = request.POST['id_item_name']
-        detailtemp.rfdetail = request.POST['id_item_name']
+            detailtemp = Prfdetailtemp()
+            detailtemp.invitem_code = data.invitem_code
+            detailtemp.invitem_name = data.invitem_name
+            detailtemp.item_counter = item_counter
+            detailtemp.quantity = data.quantity
+            detailtemp.status = 'A'
+            detailtemp.enterdate = datetime.datetime.now()
+            detailtemp.modifydate = datetime.datetime.now()
+            detailtemp.enterby = request.user
+            detailtemp.modifyby = request.user
+            detailtemp.secretkey = request.POST['secretkey']
+            detailtemp.invitem = Inventoryitem.objects.get(pk=data.inv_id)
+            detailtemp.rfdetail = Rfdetail.objects.get(pk=data.id)
+            detailtemp.save()
 
-        # detailtemp.unitofmeasure = 'kg'
-        # detailtemp.quantity = request.POST['id_quantity']
-        # detailtemp.remarks = request.POST['id_remarks']
-        # detailtemp.save()
+            item_counter += 1
 
         data = {
             'status': 'success',
-            'rfdata': rfdata,
+            'prfdata': prfdata,
         }
     else:
         data = {
             'status': 'error',
-            # 'rfdetail': serializers.serialize('json', rfdetail),
         }
 
     return JsonResponse(data)
 
 
-# @csrf_exempt
-# def savedetailtemp(request):
-#
-#     if request.method == 'POST':
-#         detailtemp = Rfdetailtemp()
-#         detailtemp.item_counter = request.POST['itemno']
-#         detailtemp.item_name = request.POST['id_item_name']
-#         detailtemp.unitofmeasure = 'kg'
-#         detailtemp.quantity = request.POST['id_quantity']
-#         detailtemp.remarks = request.POST['id_remarks']
-#         detailtemp.secretkey = request.POST['secretkey']
-#         detailtemp.status = 'A'
-#         detailtemp.enterdate = datetime.datetime.now()
-#         detailtemp.modifydate = datetime.datetime.now()
-#         detailtemp.enterby = request.user
-#         detailtemp.modifyby = request.user
-#         detailtemp.save()
-#
-#         data = {
-#             'status': 'success',
-#             'itemno': request.POST['itemno'],
-#             'quantity': request.POST['id_quantity'],
-#         }
-#     else:
-#         data = {
-#             'status': 'error',
-#         }
-#
-#     return JsonResponse(data)
-#
-#
-# @csrf_exempt
-# def deletedetailtemp(request):
-#
-#     if request.method == 'POST':
-#         detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'], secretkey=request.POST['secretkey'])
-#         detailtemp.isdeleted = 1
-#         detailtemp.save()
-#
-#         data = {
-#             'status': 'success',
-#         }
-#     else:
-#         data = {
-#             'status': 'error',
-#         }
-#
-#     return JsonResponse(data)
+@csrf_exempt
+def savedetailtemp(request):
+    if request.method == 'POST':
+        invdetail = Inventoryitem.objects\
+                        .raw('SELECT inv.unitcost, '
+                                    'inv.code, '
+                                    'inv.description, '
+                                    'inv.id, '
+                                    'um.code AS um_code '
+                            'FROM inventoryitem inv '
+                            'LEFT JOIN unitofmeasure um '
+                            'ON um.id = inv.unitofmeasure_id '
+                            'WHERE '
+                                'inv.status = "A" AND '
+                                'inv.id = ' + request.POST['inv_id'])
+
+
+        for data in invdetail:
+            prfdata = [data.code,
+                       data.description,
+                       data.um_code,
+                       data.unitcost,
+                       data.id]
+
+            detailtemp = Prfdetailtemp()
+            detailtemp.invitem_code = data.code
+            detailtemp.invitem_name = data.description
+            detailtemp.item_counter = request.POST['itemno']
+            detailtemp.quantity = request.POST['quantity']
+            detailtemp.status = 'A'
+            detailtemp.enterdate = datetime.datetime.now()
+            detailtemp.modifydate = datetime.datetime.now()
+            detailtemp.enterby = request.user
+            detailtemp.modifyby = request.user
+            detailtemp.secretkey = request.POST['secretkey']
+            detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['inv_id'])
+            detailtemp.save()
+
+        data = {
+            'status': 'success',
+            'prfdata': prfdata,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def deletedetailtemp(request):
+
+    if request.method == 'POST':
+        try:
+            detailtemp = Prfdetailtemp.objects.get(item_counter=request.POST['itemno'], secretkey=request.POST['secretkey'], prfmain=None)
+            detailtemp.delete()
+        except Prfdetailtemp.DoesNotExist:
+            detailtemp = Prfdetailtemp.objects.get(item_counter=request.POST['itemno'], prfmain__prfnum=request.POST['prfnum'])
+            detailtemp.isdeleted = 1
+            detailtemp.save()
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
 
