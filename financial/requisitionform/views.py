@@ -160,51 +160,42 @@ class UpdateView(UpdateView):
                                         'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
                                         'modifyby', 'modifydate'])
 
-        deletedtempdetail = Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk)
-        for dd in deletedtempdetail:
-            detailfordeletion = Rfdetail.objects.get(pk=dd.rfdetail.id)
-            detailfordeletion.delete()
-            dd.delete()
+        Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
 
-        newtempdetail = Rfdetailtemp.objects.filter(isdeleted=0, rfmain=None, rfdetail=None,
-                                                    secretkey=self.request.POST['secretkey'])
+        detailtagasdeleted = Rfdetail.objects.filter(rfmain=self.object.pk)
+        for dtd in detailtagasdeleted:
+            dtd.isdeleted = 1
+            dtd.save()
 
         alltempdetail = Rfdetailtemp.objects.filter(
             Q(isdeleted=0),
             Q(rfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
         ).order_by('enterdate')
 
-        for a in alltempdetail:
-            print a.remarks
-
-        for ntd in newtempdetail:
-            newdetail = Rfdetail()
-            newdetail.item_counter = ntd.item_counter
-            newdetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
-            newdetail.invitem = ntd.invitem
-            newdetail.invitem_code = ntd.invitem_code
-            newdetail.invitem_name = ntd.invitem_name
-            newdetail.quantity = ntd.quantity
-            newdetail.remarks = ntd.remarks
-            newdetail.status = ntd.status
-            newdetail.enterby = ntd.enterby
-            newdetail.enterdate = ntd.enterdate
-            newdetail.modifyby = ntd.modifyby
-            newdetail.modifydate = ntd.modifydate
-            newdetail.postby = ntd.postby
-            newdetail.postdate = ntd.postdate
-            newdetail.isdeleted = ntd.isdeleted
-            newdetail.save()
-            ntd.delete()
-
-        alldetail = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('enterdate')
         i = 1
-        for ad in alldetail:
-            ad.item_counter = i
-            ad.save()
+        for atd in alltempdetail:
+            alldetail = Rfdetail()
+            alldetail.item_counter = i
+            alldetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
+            alldetail.invitem = atd.invitem
+            alldetail.invitem_code = atd.invitem_code
+            alldetail.invitem_name = atd.invitem_name
+            alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
+            alldetail.status = atd.status
+            alldetail.enterby = atd.enterby
+            alldetail.enterdate = atd.enterdate
+            alldetail.modifyby = atd.modifyby
+            alldetail.modifydate = atd.modifydate
+            alldetail.postby = atd.postby
+            alldetail.postdate = atd.postdate
+            alldetail.isdeleted = atd.isdeleted
+            alldetail.save()
+            atd.delete()
             i += 1
 
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
+        Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
         return HttpResponseRedirect('/requisitionform/')
 
