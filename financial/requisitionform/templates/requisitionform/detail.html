@@ -84,7 +84,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Reference Number&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.refnum }}</span>
+                                            <span class="detail-profile">{{ object.refnum|default:' - ' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -102,7 +102,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Response&nbsp;Date&nbsp;: </span>
-                                            <span class="detail-profile">{% if object.responsedate == None %} - {% else %} {{ object.responsedate }} {% endif %}</span>
+                                            <span class="detail-profile">{{ object.responsedate|default:' - ' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
