@@ -11,6 +11,7 @@ from department.models import Department
 from inventoryitem.models import Inventoryitem
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
+from easy_pdf.views import PDFTemplateView
 import datetime
 
 # Create your views here.
@@ -106,7 +107,7 @@ class CreateView(CreateView):
             dt.delete()
             i += 1
 
-        return HttpResponseRedirect('/requisitionform/')
+        return HttpResponseRedirect('/requisitionform/' + str(self.object.id))
 
 
 class UpdateView(UpdateView):
@@ -218,6 +219,18 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/requisitionform')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Rfmain
+    template_name = 'requisitionform/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A', rfstatus='F')
+        context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+        return context
 
 
 @csrf_exempt

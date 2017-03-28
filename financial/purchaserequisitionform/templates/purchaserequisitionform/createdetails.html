@@ -36,6 +36,7 @@
         });
 
         $(document).on('click', '#btn_detailsubmit', function(){
+            $('.shade').fadeIn();
             $.ajax({
                 url: "{% url 'purchaserequisitionform:savedetailtemp' %}",
                 type: "post",
@@ -55,7 +56,7 @@
                                     "<td>" + response.prfdata[2] + "</td>" +
                                     "<td> - </td>" +
                                     "<td> - </td>" +
-                                    "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='" + $("#id_quantity").val() + "'></td>" +
+                                    "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" + response.prfdata[3] + "</td>" +
                                     "<td>" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "</td>" +
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
@@ -67,18 +68,17 @@
 
                     reorderItems();
                     inventorytypeimportDisable();
-
-                    // add item preloader
+                    $('.shade').fadeOut();
                 }
                 , error: function(response) {
                     console.debug(response);
+                    $('.shade').fadeOut();
                 }
             });
         });
 
         $(document).on('click', '#importconfirm', function(){
-            // this process takes time, add preloader here
-
+            $('.shade').fadeIn();
             $.ajax({
                 url: "{% url 'purchaserequisitionform:importitems' %}",
                 type: "post",
@@ -98,7 +98,7 @@
                                         "<td>" + response.prfdata[i][2] + "</td>" +
                                         "<td>" + response.prfdata[i][3] + "</td>" +
                                         "<td>" + response.prfdata[i][4] + "</td>" +
-                                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][5] + "'></td>" +
+                                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][5] + "'></td>" +
                                         "<td>" + response.prfdata[i][6] + "</td>" +
                                         "<td>" + (parseFloat(response.prfdata[i][5]) * parseFloat(response.prfdata[i][6])) + "</td>" +
                                         "<td><button class='btn remove_item' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
@@ -108,14 +108,17 @@
 
                     reorderItems();
                     inventorytypeimportDisable();
+                    $('.shade').fadeOut();
                 }
                 , error: function(response) {
                     console.debug(response);
+                    $('.shade').fadeOut();
                 }
             });
         });
 
         $(document).on('click', '.remove_item', function(){
+            $('.shade').fadeIn();
             var elem = $(this);
 
             $.ajax({
@@ -128,10 +131,12 @@
                 success: function(response) {
                     elem.parent().parent().remove();
                     reorderItems();
-                    inventorytypeimportDisable()
+                    inventorytypeimportDisable();
+                    $('.shade').fadeOut();
                 }
                 , error: function(response) {
                     console.debug(response);
+                    $('.shade').fadeOut();
                 }
             });
         });
@@ -150,6 +155,15 @@
                 dropdownParent: $("#myModal")
             });
         });
+
+        // change total amount
+{#        $(document).bind('keyup input', '.temp_quantity', function(e){#}
+{#        $(document).bind('keyup input', '.temp_quantity', function(){#}
+{#            tmp_quantity = parseFloat($(this).val())#}
+{#            tmp_cost = parseFloat($(this).parent().next().html())#}
+{#            console.log($('.temp_quantity').parent().next().length)#}
+{#            $(this).parent().next().next().html(tmp_quantity*tmp_cost);#}
+{#        });#}
 
         $("#importrfselect2").change(function(){
             if($(this).val() != ''){

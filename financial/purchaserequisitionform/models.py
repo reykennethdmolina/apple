@@ -29,6 +29,11 @@ class Prfmain(models.Model):
         ('MSRF', 'MSRF'),
     )
 
+    URGENCY_CHOICES = (
+        ('N', 'Normal'),
+        ('R', 'Rush'),
+    )
+
     prfnum = models.CharField(max_length=10, unique=True)
     prfdate = models.DateField()
     prftype = models.CharField(max_length=10, choices=PRF_TYPE_CHOICES, default='MSRF')
@@ -36,6 +41,8 @@ class Prfmain(models.Model):
     department = models.ForeignKey('department.Department', related_name='prfmain_department_id')
     particulars = models.TextField()
     prfstatus = models.CharField(max_length=1, choices=PRF_STATUS_CHOICES, default='F')
+    urgencytype = models.CharField(max_length=1, choices=URGENCY_CHOICES, default='N')
+    dateneeded = models.DateField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifydate = models.DateTimeField(default=datetime.datetime.now())

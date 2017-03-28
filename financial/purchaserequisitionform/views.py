@@ -1,4 +1,4 @@
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
@@ -12,17 +12,39 @@ from branch.models import Branch
 from department.models import Department
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
-from django.core import serializers
+from easy_pdf.views import PDFTemplateView
 import datetime
+
+
+@method_decorator(login_required, name='dispatch')
+class IndexView(ListView):
+    model = Prfmain
+    template_name = 'purchaserequisitionform/index.html'
+    context_object_name = 'data_list'
+
+    def get_queryset(self):
+        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Prfmain
+    template_name = 'purchaserequisitionform/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['prfdetail'] = Prfdetail.objects.filter(isdeleted=0).filter(prfmain=self.kwargs['pk']).\
+            order_by('item_counter')
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Prfmain
     template_name = 'purchaserequisitionform/create.html'
-    fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch']
+    fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
 
-    # add delete all temp unused every fresh reload
+    # add remarks field for approval
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -83,7 +105,38 @@ class CreateView(CreateView):
             dt.delete()
             i += 1
 
-        return HttpResponseRedirect('/purchaserequisitionform/create')
+        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id))
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Prfmain
+    template_name = 'purchaserequisitionform/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'I'
+        self.object.save()
+        return HttpResponseRedirect('/purchaserequisitionform')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Prfmain
+    template_name = 'purchaserequisitionform/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A', prfstatus='F')
+        context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+        return context
+
 
 @csrf_exempt
 def importItems(request):

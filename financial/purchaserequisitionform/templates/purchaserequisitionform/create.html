@@ -80,11 +80,27 @@
                                     <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
                                 {% endfor %}
                             </select>
-                            <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                            <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-6 {{ form.urgencytype.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_urgencytype">Urgency Type</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
+                                    {% for id,name in form.fields.urgencytype.choices %}
+                                        <option value="{{ id }}"{% if form.urgencytype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label class="control-label" for="id_dateneeded">Date Needed</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
+                            </div>
                         </div>
                         <div class="form-group col-sm-12">
                             <label class="control-label" for="id_particulars">Particulars</label>
-                            <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required"></textarea>
+                            <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required"></textarea>
                         </div>
                     </div>
                     <div class="col-sm-12 margin-bottom-10">
@@ -100,6 +116,7 @@
 
                 <div class="col-sm-12" id="detailentry" style="display: none">
                     <div class="panel panel-bordered">
+                        <div class="shade"><div class="loader two-color"></div></div>
                         <div class="panel-body">
                             <h4>Add Items</h4>
                             <div id="detailsentryview">
@@ -111,6 +128,7 @@
 
                 <div class="col-sm-12">
                     <div class="panel">
+                        <div class="shade"><div class="loader two-color"></div></div>
                         <div class="panel-body">
                             <!-- Start Editable Section -->
                             <table class="table table-striped margin-bottom-0" id="summary">
