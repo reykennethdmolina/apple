@@ -31,7 +31,7 @@ def maccountingentry(request):
 
         #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
         context = {
-            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A').order_by('accountcode'),
+            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P').order_by('accountcode'),
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
             'department':  Department.objects.filter(isdeleted=0).order_by('departmentname'),
             'employee':  Employee.objects.filter(isdeleted=0).order_by('firstname', 'lastname'),
@@ -57,7 +57,7 @@ def maccountingentry(request):
     return JsonResponse(data)
 
 @csrf_exempt
-def checkchartvalidatetion(request):
+def checkchartvalidation(request):
 
     if request.method == 'POST':
         chartid = request.POST['chartid']
@@ -139,13 +139,13 @@ def savemaccountingentry(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.save()
 
-        querystmt = "SELECT  jdt.item_counter, jdt.jvmain, jdt.jv_num, DATE(jdt.jv_date) AS jvdate, " \
+        querystmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
                 "c.accountcode, c.description AS chartofaccountdesc, " \
                 "b.code AS bankaccountcode, b.accountnumber, " \
                 "d.code AS departmentcode, d.departmentname, " \
-                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, " \
-                "s.code AS suppliercode, s.name AS suppliername, " \
-                "cu.code AS customercode, cu.name AS customername, " \
+                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, e.multiplestatus AS employeestatus, " \
+                "s.code AS suppliercode, s.name AS suppliername, s.multiplestatus AS supplierstatus, " \
+                "cu.code AS customercode, cu.name AS customername, cu.multiplestatus AS customerstatus, " \
                 "u.code AS unitcode, u.description AS unitname, " \
                 "br.code AS branchcode, br.description AS branchname, " \
                 "p.code AS productcode, p.description AS productname, " \
@@ -154,28 +154,28 @@ def savemaccountingentry(request):
                 "v.code AS vatcode, v.description AS vatname, " \
                 "w.code AS wtaxcode, w.description AS wtaxname, " \
                 "a.code AS ataxcode, a.description AS ataxname, " \
-                "FORMAT(jdt.creditamount, 2) AS creditamount, FORMAT(jdt.debitamount, 2) AS debitamount " \
-                "FROM jvdetailtemp AS jdt " \
-                "LEFT OUTER JOIN chartofaccount AS c ON c.id = jdt.chartofaccount " \
-                "LEFT OUTER JOIN bankaccount AS b ON b.id = jdt.bankaccount " \
-                "LEFT OUTER JOIN department AS d ON d.id = jdt.department " \
-                "LEFT OUTER JOIN employee AS e ON e.id = jdt.employee " \
-                "LEFT OUTER JOIN supplier AS s ON s.id = jdt.supplier " \
-                "LEFT OUTER JOIN customer AS cu ON cu.id = jdt.customer " \
-                "LEFT OUTER JOIN unit AS u ON u.id = jdt.unit " \
-                "LEFT OUTER JOIN branch AS br ON br.id = jdt.branch " \
-                "LEFT OUTER JOIN product AS p ON p.id = jdt.product " \
-                "LEFT OUTER JOIN inputvat AS i ON i.id = jdt.product " \
-                "LEFT OUTER JOIN outputvat AS o ON o.id = jdt.outputvat " \
-                "LEFT OUTER JOIN vat AS v ON v.id = jdt.vat " \
-                "LEFT OUTER JOIN wtax AS w ON w.id = jdt.wtax " \
-                "LEFT OUTER JOIN ataxcode AS a ON a.id = jdt.ataxcode " \
-                "WHERE jdt.secretkey = '"+request.POST['secretkey']+ "' AND jdt.isdeleted != 1"
+                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
+                "FROM jvdetailtemp AS temp " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
+                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
+                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
+                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
+                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
+                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
+                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
+                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
+                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
+                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
+                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
+                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
+                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
+                "WHERE temp.secretkey = '"+request.POST['secretkey']+ "' AND temp.isdeleted != 1"
 
-        querytotal = "SELECT FORMAT(SUM(IFNULL(jdt.creditamount,0)), 2) AS totalcreditamount, " \
-                     "FORMAT(SUM(IFNULL(jdt.debitamount,0)), 2) AS totaldebitamount " \
-                     "FROM jvdetailtemp AS jdt " \
-                     "WHERE jdt.secretkey = '"+request.POST['secretkey']+ "' AND jdt.isdeleted != 1"
+        querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
+                     "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
+                     "FROM jvdetailtemp AS temp " \
+                     "WHERE temp.secretkey = '"+request.POST['secretkey']+ "' AND temp.isdeleted != 1"
 
         context = {
             #'datatemp': serializers.serialize("json", test),#Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
@@ -195,6 +195,84 @@ def savemaccountingentry(request):
         }
 
     return JsonResponse(data)
+
+@csrf_exempt
+def breakdownentry(request):
+
+    if request.method == 'POST':
+
+        detailid = request.POST['detailid']
+        chartid = request.POST['chartid']
+        chartdata = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=chartid)
+        bankdata = []
+        if chartdata[0].bankaccount_enable == 'Y':
+            bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        departmentdata = []
+        if chartdata[0].department_enable == 'Y':
+            departmentdata = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        employeedata = []
+        if chartdata[0].employee_enable == 'Y':
+            employeedata = Employee.objects.filter(isdeleted=0, multiplestatus='N').order_by('firstname', 'lastname')
+        supplierdata = []
+        if chartdata[0].supplier_enable == 'Y':
+            supplierdata = Supplier.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')
+        customerdata = []
+        if chartdata[0].customer_enable == 'Y':
+            customerdata = Customer.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')
+        branchdata = []
+        if chartdata[0].branch_enable == 'Y':
+            branchdata = Branch.objects.filter(isdeleted=0).order_by('description')
+        productdata = []
+        if chartdata[0].product_enable == 'Y':
+            productdata = Product.objects.filter(isdeleted=0).order_by('description')
+        inputvatdata = []
+        if chartdata[0].inputvat_enable == 'Y':
+            inputvatdata = Inputvat.objects.filter(isdeleted=0).order_by('description')
+        outputvatdata = []
+        if chartdata[0].outputvat_enable == 'Y':
+            outputvatdata = Outputvat.objects.filter(isdeleted=0).order_by('description')
+        vatdata = []
+        if chartdata[0].vat_enable == 'Y':
+            vatdata = Vat.objects.filter(isdeleted=0).order_by('description')
+        wtaxdata = []
+        if chartdata[0].wtax_enable == 'Y':
+            wtaxdata = Wtax.objects.filter(isdeleted=0).order_by('description')
+        ataxcodedata = []
+        if chartdata[0].ataxcode_enable == 'Y':
+            ataxcodedata = Ataxcode.objects.filter(isdeleted=0).order_by('description'),
+
+        context = {
+            'chartofaccount': list(chartdata),
+            'bankaccount': list(bankdata),
+            'department': list(departmentdata),
+            'employee': list(employeedata),
+            'supplier': list(supplierdata),
+            'customer': list(customerdata),
+            'branch': list(branchdata),
+            'product': list(productdata),
+            'inputvat': list(inputvatdata),
+            'outputvat': list(outputvatdata),
+            'vat': list(vatdata),
+            'wtax': list(wtaxdata),
+            'ataxcode': list(ataxcodedata),
+        }
+
+        #print(context)
+        data = {
+            'breakdowndata': render_to_string('acctentry/breakdownentry.html', context),
+            'status': 'success',
+        }
+
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+def savemaccountingentrybreakdown(request):
+
+    return 'yest'
 
 def generatekey(request):
     SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])

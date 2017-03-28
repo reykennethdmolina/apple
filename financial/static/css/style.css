@@ -146,3 +146,8 @@ select2.valid {
 div.has-error ul.select2-choices {
   border-color: rgb(185, 74, 72) !important;
 }
+
+label.error {
+    color: red;
+    font-size: 8px;
+}

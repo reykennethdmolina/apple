@@ -19,13 +19,31 @@
                 <td>{{ temp.departmentname|default:'' }}</td>
                 {% endif %}
                 {% if temp.employeecode %}
-                <td><a href="#">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a></td>
+                <td>
+                    {% if temp.employeestatus == 'Y' %}
+                        <a href="#">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>
+                    {% else %}
+                        {{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}
+                    {% endif %}
+                </td>
                 {% endif %}
                 {% if temp.suppliercode %}
-                <td><a href="#">{{ temp.suppliername|default:'' }}</a></td>
+                <td>
+                    {% if temp.supplierstatus == 'Y' %}
+                        <a href="#">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>
+                    {% else %}
+                        {{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}
+                    {% endif %}
+                </td>
                 {% endif %}
                 {% if temp.customercode %}
-                <td><a href="#">{{ temp.customername|default:'' }}</a></td>
+                <td>
+                    {% if temp.customerstatus == 'Y' %}
+                        <a href="#" data-target="#modal-row" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}", data-chart="{{ temp.chartofaccount }}">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>
+                    {% else %}
+                        {{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}
+                    {% endif %}
+                </td>
                 {% endif %}
                 {% if temp.unitcode %}
                 <td>{{ temp.unitname|default:'' }}</td>
@@ -60,8 +78,26 @@
 
 <script>
     $(function () {
-        $('#total_debitamount').html("<strong>"+{{ datatemptotal.0.totaldebitamount }}+"</strong>")
-        $('#total_creditamount').html("<strong>"+{{ datatemptotal.0.totalcreditamount }}+"</strong>")
+        $('#total_debitamount').html("<strong>"+{{ datatemptotal.0.totaldebitamount }}+"</strong>");
+        $('#total_creditamount').html("<strong>"+{{ datatemptotal.0.totalcreditamount }}+"</strong>");
+    });
+
+    $(".breakdown").click(function(){
+        $("#breakdowndata").html('');
+        $.ajax({
+            url: "{% url 'acctentry:breakdownentry' %}",
+            type: "post",
+            data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                'detailid': $(this).data('id'),
+                'chartid': $(this).data('chart'),
+            },
+            success: function(response) {
+                $("#breakdowndata").html(response['breakdowndata']);
+            },
+            error: function(response) {
+                console.log(response);
+            }
+        });
     });
 </script>
 

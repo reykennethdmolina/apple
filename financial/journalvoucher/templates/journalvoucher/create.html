@@ -141,6 +141,21 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modal-row" aria-hidden="true" aria-labelledby="modal-row" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

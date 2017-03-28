@@ -51,7 +51,7 @@
             <div class="col-sm-9">
                 <select class="form-control input-sm" id="detail_supplier" name="detail_supplier">
                 <option value="">-- Select Supplier --</option>
-                {% for supplier in supplier%}
+                {% for supplier in supplier %}
                     <option value="{{ supplier.id }}">{{ supplier.name }}</option>
                 {% endfor %}
                 </select>
@@ -62,7 +62,7 @@
             <div class="col-sm-9">
                 <select class="form-control input-sm" id="detail_customer" name="detail_customer">
                 <option value="">-- Select Customer --</option>
-                {% for customer in customer%}
+                {% for customer in customer %}
                     <option value="{{ customer.id }}">{{ customer.name }}</option>
                 {% endfor %}
                 </select>
@@ -288,7 +288,7 @@
 
             if ($("#detail_chartofaccount").val() != "") {
                 $.ajax({
-                    url: "{% url 'acctentry:checkchartvalidatetion' %}",
+                    url: "{% url 'acctentry:checkchartvalidation' %}",
                     type: "post",
                     dataType: "json",
                     data: {
