@@ -205,8 +205,10 @@ def breakdownentry(request):
         chartid = request.POST['chartid']
         chartdata = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=chartid)
         bankdata = []
+        rules = ""
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+            rules += "detailb_ataxcode: {required: true}"
         departmentdata = []
         if chartdata[0].department_enable == 'Y':
             departmentdata = Department.objects.filter(isdeleted=0).order_by('departmentname')
@@ -260,6 +262,7 @@ def breakdownentry(request):
         #print(context)
         data = {
             'breakdowndata': render_to_string('acctentry/breakdownentry.html', context),
+            'rules': rules,
             'status': 'success',
         }
 
