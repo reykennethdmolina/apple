@@ -1,4 +1,4 @@
-from django.views.generic import CreateView, ListView, DetailView, DeleteView
+from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
@@ -11,6 +11,7 @@ from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from department.models import Department
 from django.contrib.auth.models import User
+from django.db.models import Q
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 import datetime
@@ -23,7 +24,7 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')
+        return Prfmain.objects.all().filter(isdeleted=0, prfstatus='F').order_by('enterdate')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -44,13 +45,11 @@ class CreateView(CreateView):
     template_name = 'purchaserequisitionform/create.html'
     fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
 
-    # add remarks field for approval
-
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0)
-        context['branch'] = Branch.objects.filter(isdeleted=0).filter(code='HO')
+        context['branch'] = Branch.objects.filter(isdeleted=0, code='HO')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
@@ -108,6 +107,106 @@ class CreateView(CreateView):
         return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id))
 
 
+class UpdateView(UpdateView):
+    model = Prfmain
+    template_name = 'purchaserequisitionform/edit.html'
+    fields = ['prfnum', 'prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['secretkey'] = generatekey(self)
+        context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0)
+        context['branch'] = Branch.objects.filter(isdeleted=0, code='HO')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
+        context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+
+        Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()        # clear all temp data
+
+        detail = Prfdetail.objects.filter(isdeleted=0, prfmain=self.object.pk).order_by('item_counter')
+        for d in detail:
+            detailtemp = Prfdetailtemp()
+            detailtemp.invitem_code = d.invitem_code
+            detailtemp.invitem_name = d.invitem_name
+            detailtemp.item_counter = d.item_counter
+            detailtemp.quantity = d.quantity
+            detailtemp.status = d.status
+            detailtemp.enterdate = d.enterdate
+            detailtemp.modifydate = d.modifydate
+            detailtemp.enterby = d.enterby
+            detailtemp.modifyby = d.modifyby
+            detailtemp.isdeleted = d.isdeleted
+            detailtemp.postby = d.postby
+            detailtemp.postdate = d.postdate
+            detailtemp.invitem = d.invitem
+            detailtemp.prfmain = d.prfmain
+            detailtemp.rfdetail = d.rfdetail
+            detailtemp.save()
+
+        context['prfdetailtemp'] = Prfdetailtemp.objects.filter(isdeleted=0, prfmain=self.object.pk).order_by('item_counter')
+        context['amount'] = []
+
+        for data in context['prfdetailtemp']:
+            amount = float(data.quantity) * float(data.invitem.unitcost)
+            context['amount'].append(amount)
+
+        context['data'] = zip(context['prfdetailtemp'], context['amount'])
+
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
+                                        'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
+                                        'modifyby', 'modifydate'])
+
+        Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
+
+        detailtagasdeleted = Prfdetail.objects.filter(prfmain=self.object.pk)
+        for dtd in detailtagasdeleted:
+            dtd.isdeleted = 1
+            dtd.save()
+
+        alltempdetail = Prfdetailtemp.objects.filter(
+            Q(isdeleted=0),
+            Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+        ).order_by('enterdate')
+
+        print "----------------------"
+        print alltempdetail
+        print "----------------------"
+
+        i = 1
+        for atd in alltempdetail:
+            alldetail = Prfdetail()
+            alldetail.item_counter = i
+            alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
+            alldetail.invitem = atd.invitem
+            alldetail.invitem_code = atd.invitem_code
+            alldetail.invitem_name = atd.invitem_name
+            alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            alldetail.status = atd.status
+            alldetail.enterby = atd.enterby
+            alldetail.enterdate = atd.enterdate
+            alldetail.modifyby = atd.modifyby
+            alldetail.modifydate = atd.modifydate
+            alldetail.postby = atd.postby
+            alldetail.postdate = atd.postdate
+            alldetail.isdeleted = atd.isdeleted
+            alldetail.rfdetail = atd.rfdetail
+            alldetail.save()
+            atd.delete()
+            i += 1
+
+        Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
+        Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
+
+        return HttpResponseRedirect('/purchaserequisitionform/')
+
+
 @method_decorator(login_required, name='dispatch')
 class DeleteView(DeleteView):
     model = Prfmain
@@ -142,6 +241,7 @@ class Pdf(PDFTemplateView):
 def importItems(request):
     # validation on save
     # item no / counter validation..
+    # quantity cost front end change
 
     if request.method == 'POST':
         rfdetail = Rfdetail.objects\
@@ -269,6 +369,7 @@ def savedetailtemp(request):
 def deletedetailtemp(request):
 
     if request.method == 'POST':
+        print request.POST
         try:
             detailtemp = Prfdetailtemp.objects.get(item_counter=request.POST['itemno'], secretkey=request.POST['secretkey'], prfmain=None)
             detailtemp.delete()

@@ -48,8 +48,6 @@
 
                 success: function(response) {
                     if(response.prfdata != "[]"){
-                        $("#itemno").text(parseInt($("#itemno").text()) + 1);
-
                         summary.append("<tr><td></td>" +
                                     "<td>" + response.prfdata[0] + "</td>" +
                                     "<td>" + response.prfdata[1] + "</td>" +
@@ -61,6 +59,8 @@
                                     "<td>" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "</td>" +
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
+
+                        $("#itemno").text(parseInt($("#itemno").text()) + 1);
                     }
 
                     $("#id_item_name").val('').trigger('change.select2');
@@ -125,7 +125,8 @@
                 url: "{% url 'purchaserequisitionform:deletedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $(this).data('itemno'),
-                        'secretkey': $("#id_secretkey").val()
+                        'secretkey': $("#id_secretkey").val(),
+                        'prfnum': $("#id_prfnum").val()
                 },
 
                 success: function(response) {

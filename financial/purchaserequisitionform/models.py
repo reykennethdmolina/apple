@@ -106,10 +106,10 @@ class Prfdetail(models.Model):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
 
 class Prfdetailtemp(models.Model):
@@ -147,7 +147,7 @@ class Prfdetailtemp(models.Model):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
