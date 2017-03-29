@@ -27,24 +27,22 @@ class IndexView(ListView):
         context['formapprover'] = 'ALL'
 
         if self.request.method == 'GET' and 'selecttype' in self.request.GET:
+            if 'selectapprover' in self.request.GET:
+                if self.request.GET['selectapprover'] == 'ME':
+                    context['rfforapproval'] = context['rfforapproval'].filter(
+                        designatedapprover=self.request.user.id).\
+                        order_by('enterdate')
+                    context['prfforapproval'] = context['prfforapproval'].filter(
+                        designatedapprover=self.request.user.id). \
+                        order_by('enterdate')
+                    context['formapprover'] = 'ME'
+
             if self.request.GET['selecttype'] == 'RF':
                 context['prfforapproval'] = context['prfforapproval'][0:0]
                 context['formtype'] = 'RF'
-                if 'selectapprover' in self.request.GET:
-                    if self.request.GET['selectapprover'] == 'ME':
-                        context['rfforapproval'] = context['rfforapproval'].filter(
-                            designatedapprover=self.request.user.id).\
-                            order_by('enterdate')
-                        context['formapprover'] = 'ME'
             elif self.request.GET['selecttype'] == 'PRF':
                 context['rfforapproval'] = context['rfforapproval'][0:0]
                 context['formtype'] = 'PRF'
-                if 'selectapprover' in self.request.GET:
-                    if self.request.GET['selectapprover'] == 'ME':
-                        context['prfforapproval'] = context['prfforapproval'].filter(
-                            designatedapprover=self.request.user.id). \
-                            order_by('enterdate')
-                        context['formapprover'] = 'ME'
 
         return context
 
