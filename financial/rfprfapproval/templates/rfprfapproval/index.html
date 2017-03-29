@@ -1,0 +1,162 @@
+{% extends 'base-form.html' %}
+{% block page-title %} RF and PRF Approval {% endblock page-title %}
+
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+{#                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="rfnum,rfdate,particulars,rfstatus">#}
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <div class="col-md-12 form-group form-material">
+                        <form method="get" id="filter">
+                            <div style="width: 400px" class="col-md-6">
+                                <label class="control-label" for="id_selecttype">Select Form Type:</label>
+                                <select class="form-control" id="id_selecttype" name="selecttype">
+                                    <option value="ALL" {% if formtype == "ALL" %} selected="selected" {% endif %}>All</option>
+                                    <option value="RF" {% if formtype == "RF" %} selected="selected" {% endif %}>Requisition Forms (RF)</option>
+                                    <option value="PRF" {% if formtype == "PRF" %} selected="selected" {% endif %}>Purchase Requisition Forms (PRF)</option>
+                                </select><br>
+                            </div>
+                            <div style="width: 300px" class="col-md-5">
+                                <label class="control-label" for="id_selectapprover">Select Forms Assigned To:</label>
+                                <select class="form-control" id="id_selectapprover" name="selectapprover">
+                                    <option value="ALL" {% if formapprover == "ALL" %} selected="selected" {% endif %}>All</option>
+                                    <option value="ME" {% if formapprover == "ME" %} selected="selected" {% endif %}>Me</option>
+                                </select>
+                                <br>
+                            </div>
+                            <div style="width: 300px; margin-top: 25px" class="col-md-1">
+                                <input type="submit" id="filterforms" value="GO" class="btn btn-info btn-sm waves-effect waves-light"/>
+                                <br>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table id="forapproval" class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><span>No.</span></th>
+                                        <th><span>Date</span></th>
+                                        <th><span>Particulars</span></th>
+                                        <th><span>Assigned Approver</span></th>
+                                        <th class="text-center"><span>Action</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rfforapproval in rfforapproval %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'requisitionform:detail' rfforapproval.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                RF-{{ rfforapproval.rfnum }}
+                                            </a>
+                                        </td>
+                                        <td>{{ rfforapproval.rfdate }}</td>
+                                        <td>{{ rfforapproval.particulars }}</td>
+                                        <td>{{ rfforapproval.designatedapprover.first_name }} {{ rfforapproval.designatedapprover.last_name }}</td>
+                                        <td>
+                                            <div class="text-center"><button type="button" class="btn btn-info btn-xs waves-effect waves-light approvebutton" data-toggle="modal" data-target="#myModal" data-id="{{ rfforapproval.id }}" data-num="{{ rfforapproval.rfnum }}" data-type="RF">Approve/Disapprove</button></div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% for prfforapproval in prfforapproval %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'purchaserequisitionform:detail' prfforapproval.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                PRF-{{ prfforapproval.prfnum }}
+                                            </a>
+                                        </td>
+                                        <td>{{ prfforapproval.prfdate }}</td>
+                                        <td>{{ prfforapproval.particulars }}</td>
+                                        <td>{{ prfforapproval.designatedapprover.first_name }} {{ prfforapproval.designatedapprover.last_name }}</td>
+                                        <td>
+                                            <div class="text-center"><button type="button" class="btn btn-info btn-xs waves-effect waves-light approvebutton" data-toggle="modal" data-target="#myModal" data-id="{{ prfforapproval.id }}" data-num="{{ prfforapproval.prfnum }}" data-type="PRF">Approve/Disapprove</button></div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- End Basic Table Section -->
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Approve/Disapprove <span id="num"></span></h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <label class="control-label" for="id_responseselect">Response:</label>
+                                <input type="hidden" id="id_main">
+                                <input type="hidden" id="id_type">
+                                <select name="responseselect" id="id_responseselect" class="form-control" style="width: 100%;">
+                                    <option value="A">Approve</option>
+                                    <option value="D">Disapprove</option>
+                                </select>
+                                <br>
+                                <label class="control-label" for="id_remarks">Remarks:</label>
+                                <textarea name="remarks" id="id_remarks" class="form-control" rows="3"></textarea>
+                                <br><br>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="approveconfirm">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{#    {% load static %}#}
+{#    <script src="{% static 'js/paginationSearchPlugin.js' %}" type="text/javascript"></script>#}
+    <script type="text/javascript">
+        $(function(){
+            var itemcount;
+            $(".approvebutton").click(function(){
+                $("#num").html($(this).data("type") + "-" + $(this).data("num"));
+                $("#id_main").val($(this).data("id"));
+                $("#id_type").val($(this).data("type"));
+                itemcount = $(this).index(".approvebutton");
+            });
+            $("#approveconfirm").click(function(e){
+                if($("#id_remarks").val() != ""){
+                    if (confirm('Are you sure?')) {
+                        $.ajax({
+                            url: "{% url 'rfprfapproval:approve' %}",
+                            type: "post",
+                            data: {'main_id': $("#id_main").val(),
+                                    'main_type': $("#id_type").val(),
+                                    'response': $("#id_responseselect").val(),
+                                    'remarks': $("#id_remarks").val()},
+
+                            success: function(response) {
+                                $('#myModal').modal('hide');
+                                $("#forapproval tr:eq("+(itemcount + 1)+")").remove()
+                            }
+                            , error: function(response) {
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+                else{
+                    alert("Remarks are required.");
+                }
+
+            })
+        })
+    </script>
+{% endblock extra_js %}
+
