@@ -98,7 +98,7 @@
                             </div>
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value }}</textarea>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                 <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                             </div>
                         </div>
@@ -137,8 +137,8 @@
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Item Name (UM)</th>
-                                                <th>Quantity</th>
-                                                <th>Remarks</th>
+                                                <th style="width:100px">Quantity</th>
+                                                <th style="width:350px">Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -146,8 +146,8 @@
                                                 <tr>
                                                     <td>{{ rfdetailtemp.item_counter }}</td>
                                                     <td>{{ rfdetailtemp.invitem_name }} ({{ rfdetailtemp.invitem.unitofmeasure.code }})</td>
-                                                    <td>{{ rfdetailtemp.quantity }}</td>
-                                                    <td>{{ rfdetailtemp.remarks }}</td>
+                                                    <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control' value='{{ rfdetailtemp.quantity }}'></td>
+                                                    <td><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control' value='{{ rfdetailtemp.remarks }}'></td>
                                                     <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
                                                 </tr>
                                             {% endfor %}

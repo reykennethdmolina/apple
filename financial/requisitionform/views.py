@@ -1,8 +1,9 @@
-from django.views.generic import CreateView, UpdateView, ListView, DetailView
+from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 from . models import Rfmain, Rfdetail, Rfdetailtemp
 from inventoryitemtype.models import Inventoryitemtype
 from branch.models import Branch
@@ -10,6 +11,7 @@ from department.models import Department
 from inventoryitem.models import Inventoryitem
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
+from easy_pdf.views import PDFTemplateView
 import datetime
 
 # Create your views here.
@@ -22,13 +24,19 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Rfmain.objects.all().filter(isdeleted=0).order_by('-pk')
+        return Rfmain.objects.all().filter(isdeleted=0, rfstatus='F').order_by('enterdate')
 
 
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
     model = Rfmain
     template_name = 'requisitionform/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0).filter(rfmain=self.kwargs['pk']).\
+            order_by('item_counter')
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -85,8 +93,8 @@ class CreateView(CreateView):
             detail.invitem = dt.invitem
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
-            detail.quantity = dt.quantity
-            detail.remarks = dt.remarks
+            detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             detail.status = dt.status
             detail.enterby = dt.enterby
             detail.enterdate = dt.enterdate
@@ -99,7 +107,7 @@ class CreateView(CreateView):
             dt.delete()
             i += 1
 
-        return HttpResponseRedirect('/requisitionform/create')
+        return HttpResponseRedirect('/requisitionform/' + str(self.object.id))
 
 
 class UpdateView(UpdateView):
@@ -153,44 +161,76 @@ class UpdateView(UpdateView):
                                         'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
                                         'modifyby', 'modifydate'])
 
-        deletedtempdetail = Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk)
-        for dd in deletedtempdetail:
-            detailfordeletion = Rfdetail.objects.get(pk=dd.rfdetail.id)
-            detailfordeletion.delete()
-            dd.delete()
+        Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
 
-        newtempdetail = Rfdetailtemp.objects.filter(isdeleted=0, rfmain=None, rfdetail=None,
-                                                    secretkey=self.request.POST['secretkey'])
-        for ntd in newtempdetail:
-            newdetail = Rfdetail()
-            newdetail.item_counter = ntd.item_counter
-            newdetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
-            newdetail.invitem = ntd.invitem
-            newdetail.invitem_code = ntd.invitem_code
-            newdetail.invitem_name = ntd.invitem_name
-            newdetail.quantity = ntd.quantity
-            newdetail.remarks = ntd.remarks
-            newdetail.status = ntd.status
-            newdetail.enterby = ntd.enterby
-            newdetail.enterdate = ntd.enterdate
-            newdetail.modifyby = ntd.modifyby
-            newdetail.modifydate = ntd.modifydate
-            newdetail.postby = ntd.postby
-            newdetail.postdate = ntd.postdate
-            newdetail.isdeleted = ntd.isdeleted
-            newdetail.save()
-            ntd.delete()
+        detailtagasdeleted = Rfdetail.objects.filter(rfmain=self.object.pk)
+        for dtd in detailtagasdeleted:
+            dtd.isdeleted = 1
+            dtd.save()
 
-        alldetail = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('enterdate')
+        alltempdetail = Rfdetailtemp.objects.filter(
+            Q(isdeleted=0),
+            Q(rfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+        ).order_by('enterdate')
+
         i = 1
-        for ad in alldetail:
-            ad.item_counter = i
-            ad.save()
+        for atd in alltempdetail:
+            alldetail = Rfdetail()
+            alldetail.item_counter = i
+            alldetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
+            alldetail.invitem = atd.invitem
+            alldetail.invitem_code = atd.invitem_code
+            alldetail.invitem_name = atd.invitem_name
+            alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
+            alldetail.status = atd.status
+            alldetail.enterby = atd.enterby
+            alldetail.enterdate = atd.enterdate
+            alldetail.modifyby = atd.modifyby
+            alldetail.modifydate = atd.modifydate
+            alldetail.postby = atd.postby
+            alldetail.postdate = atd.postdate
+            alldetail.isdeleted = atd.isdeleted
+            alldetail.save()
+            atd.delete()
             i += 1
 
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
+        Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/requisitionform/create')
+        return HttpResponseRedirect('/requisitionform/')
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Rfmain
+    template_name = 'requisitionform/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # if not request.user.has_perm('product.delete_product'):
+        #     raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'I'
+        self.object.save()
+        return HttpResponseRedirect('/requisitionform')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Rfmain
+    template_name = 'requisitionform/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A', rfstatus='F')
+        context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+        return context
 
 
 @csrf_exempt
@@ -208,8 +248,8 @@ def savedetailtemp(request):
         detailtemp.status = 'A'
         detailtemp.enterdate = datetime.datetime.now()
         detailtemp.modifydate = datetime.datetime.now()
-        detailtemp.enterby = request.user
-        detailtemp.modifyby = request.user
+        detailtemp.enterby = User.objects.get(pk=request.user.id)
+        detailtemp.modifyby = User.objects.get(pk=request.user.id)
         detailtemp.save()
 
         data = {

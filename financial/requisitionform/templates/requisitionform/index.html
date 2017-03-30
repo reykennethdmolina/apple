@@ -11,6 +11,7 @@
 {#                {% endif  %}#}
             </div>
             <div class="col-md-12">
+{#                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="rfnum,rfdate,particulars,rfstatus">#}
                 <div class="page-wrap">
                     <!-- Start Basic Table Section -->
                     <h4><p>Data List</p></h4>
@@ -38,16 +39,16 @@
                                             <a href="{% url 'requisitionform:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
-                                            {% if perms.productgroup.change_productgroup %}
-                                            <a href="{% url 'productgroup:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+{#                                            {% if perms.productgroup.change_productgroup %}#}
+                                            <a href="{% url 'requisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
-                                            {% endif %}
-                                            {% if perms.productgroup.delete_productgroup %}
-                                            <a href="{% url 'productgroup:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+{#                                            {% endif %}#}
+{#                                            {% if perms.productgroup.delete_productgroup %}#}
+                                            <a href="{% url 'requisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
-                                            {% endif %}
+{#                                            {% endif %}#}
                                             </div>
                                         </div>
                                     </td>
@@ -64,4 +65,8 @@
     </div>
 </div>
 {% endblock page-content %}
+{#{% block extra_js %}#}
+{#    {% load static %}#}
+{#    <script src="{% static 'js/paginationSearchPlugin.js' %}" type="text/javascript"></script>#}
+{#{% endblock extra_js %}#}
 

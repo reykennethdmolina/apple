@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Requisition Form {% endblock page-title %}
+{% block page-title %} Purchase Requisition Form {% endblock page-title %}
 {% block extra_css %}
     <style>
         .text-name-profile.text-info
@@ -19,7 +19,7 @@
             <!-- Start Profile Tab Section -->
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <div class="pull-right">
-                    <a href="{% url 'requisitionform:pdf' object.id %}" target="_blank"><button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                    <a href="{% url 'purchaserequisitionform:pdf' object.id %}" target="_blank"><button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
                         <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
                     </button></a>
                 </div>
@@ -35,19 +35,19 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Number&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.rfnum }}</span>
+                                            <span class="detail-profile">{{ object.prfnum }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Date&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.rfdate }}</span>
+                                            <span class="text-name-profile text-info">Date&nbsp;Requested&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.prfdate }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">RF&nbsp;Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.rftype }}</span>
+                                            <span class="text-name-profile text-info">PRF&nbsp;Type&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.prftype }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -88,10 +88,11 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Reference Number&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.refnum|default:' - ' }}</span>
+                                            <span class="text-name-profile text-info">Remarks&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.remarks|default:' - ' }}</span>
                                         </div>
                                     </div>
+
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <br><span class="text-name-profile text-info">Designated&nbsp;Approver&nbsp;: </span>
@@ -113,7 +114,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Status&nbsp;: </span>
-                                            <span class="detail-profile"><b>{{ object.get_rfstatus_display }}</b></span>
+                                            <span class="detail-profile"><b>{{ object.get_prfstatus_display }}</b></span>
                                         </div>
                                     </div>
                                 </div>
@@ -126,7 +127,7 @@
         <div class="col-md-9">
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
-                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">RF Items</a></li>
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">PRF Items</a></li>
                 </ul>
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
@@ -143,12 +144,12 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for rfdetail in rfdetail %}
+                                            {% for prfdetail in prfdetail %}
                                                 <tr>
-                                                    <td>{{ rfdetail.item_counter }}</td>
-                                                    <td>{{ rfdetail.invitem_name }} ({{ rfdetail.invitem.unitofmeasure.code }})</td>
-                                                    <td>{{ rfdetail.quantity }}</td>
-                                                    <td>{{ rfdetail.remarks }}</td>
+                                                    <td>{{ prfdetail.item_counter }}</td>
+                                                    <td>{{ prfdetail.invitem_name }} ({{ prfdetail.invitem.unitofmeasure.code }})</td>
+                                                    <td>{{ prfdetail.quantity }}</td>
+                                                    <td>{{ prfdetail.rfdetail.remarks|default:' - ' }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

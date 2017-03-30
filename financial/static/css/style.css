@@ -35,7 +35,7 @@
 #search-container{
     padding-right: 0px;
 }
-#shade{
+#shade, .shade{
     width: 100%;
     position: absolute;
     height: 100%;

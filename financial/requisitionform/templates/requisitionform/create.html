@@ -98,7 +98,8 @@
                             </div>
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required"></textarea>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="row row-lg margin-left-10">
@@ -118,6 +119,7 @@
                         </form>
                         <div class="col-sm-12" id="detailentry" style="display: none">
                             <div class="panel panel-bordered">
+                                <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <h4>Requisition Form Details</h4>
                                     <div id="detailsentryview">
@@ -129,6 +131,7 @@
 
                         <div class="col-sm-12">
                             <div class="panel">
+                                <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
                                     <table class="table table-striped margin-bottom-0" id="summary">
@@ -136,8 +139,8 @@
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Item Name (UM)</th>
-                                                <th>Quantity</th>
-                                                <th>Remarks</th>
+                                                <th style="width:100px">Quantity</th>
+                                                <th style="width:350px">Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>

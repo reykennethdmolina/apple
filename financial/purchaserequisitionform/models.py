@@ -29,6 +29,11 @@ class Prfmain(models.Model):
         ('MSRF', 'MSRF'),
     )
 
+    URGENCY_CHOICES = (
+        ('N', 'Normal'),
+        ('R', 'Rush'),
+    )
+
     prfnum = models.CharField(max_length=10, unique=True)
     prfdate = models.DateField()
     prftype = models.CharField(max_length=10, choices=PRF_TYPE_CHOICES, default='MSRF')
@@ -36,6 +41,8 @@ class Prfmain(models.Model):
     department = models.ForeignKey('department.Department', related_name='prfmain_department_id')
     particulars = models.TextField()
     prfstatus = models.CharField(max_length=1, choices=PRF_STATUS_CHOICES, default='F')
+    urgencytype = models.CharField(max_length=1, choices=URGENCY_CHOICES, default='N')
+    dateneeded = models.DateField()
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifydate = models.DateTimeField(default=datetime.datetime.now())
@@ -87,8 +94,8 @@ class Prfdetail(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='prfdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='prfdetail_post')
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='prfdetail_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
@@ -99,10 +106,10 @@ class Prfdetail(models.Model):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
 
 class Prfdetailtemp(models.Model):
@@ -140,7 +147,7 @@ class Prfdetailtemp(models.Model):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 
     def __unicode__(self):
-        return self.rfnum + ' ' + self.item_counter
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name

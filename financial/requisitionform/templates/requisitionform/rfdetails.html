@@ -41,6 +41,7 @@
         });
 
         $("#btn_detailsubmit").click(function(){
+            $('.shade').fadeIn();
             $.ajax({
                 url: "{% url 'requisitionform:savedetailtemp' %}",
                 type: "post",
@@ -55,8 +56,8 @@
 
                     summary.append("<tr><td></td>" +
                             "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
-                            "<td>" + response.quantity + "</td>" +
-                            "<td>" + response.remarks + "</td>" +
+                            "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control' value='" + response.quantity + "'></td>" +
+                            "<td><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control' value='" + response.remarks + "'></td>" +
                             "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                             "</tr>");
 
@@ -64,14 +65,17 @@
                     $("#id_quantity").val('');
                     $("#id_remarks").val('');
                     reorderItems();
+                    $('.shade').fadeOut();
                 }
                 , error: function(response) {
                     console.debug(response);
+                    $('.shade').fadeOut();
                 }
             });
         });
 
         $(document).on('click', '.remove_item', function(){
+            $('.shade').fadeIn();
             var elem = $(this);
 
             $.ajax({
@@ -85,9 +89,11 @@
                 success: function(response) {
                     elem.parent().parent().remove();
                     reorderItems();
+                    $('.shade').fadeOut();
                 }
                 , error: function(response) {
                     console.debug(response);
+                    $('.shade').fadeOut();
                 }
             });
         });
