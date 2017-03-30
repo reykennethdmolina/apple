@@ -205,10 +205,8 @@ def breakdownentry(request):
         chartid = request.POST['chartid']
         chartdata = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=chartid)
         bankdata = []
-        rules = ""
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-            rules += "detailb_ataxcode: {required: true}"
         departmentdata = []
         if chartdata[0].department_enable == 'Y':
             departmentdata = Department.objects.filter(isdeleted=0).order_by('departmentname')
@@ -262,7 +260,6 @@ def breakdownentry(request):
         #print(context)
         data = {
             'breakdowndata': render_to_string('acctentry/breakdownentry.html', context),
-            'rules': rules,
             'status': 'success',
         }
 
@@ -273,9 +270,67 @@ def breakdownentry(request):
 
     return JsonResponse(data)
 
+@csrf_exempt
 def savemaccountingentrybreakdown(request):
+    if request.method == 'POST':
+        # Save Data To JVDetail
+        detailtemp = Jvdetailtemp()
+        detailtemp.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
+        detailtemp.chartofaccount = request.POST['chartofaccount']
 
-    return 'yest'
+        if request.POST['bankaccount']:
+            detailtemp.bankaccount = request.POST['bankaccount']
+        if request.POST['department']:
+            detailtemp.department = request.POST['department']
+        if request.POST['employee']:
+            detailtemp.employee = request.POST['employee']
+        if request.POST['supplier']:
+            detailtemp.supplier = request.POST['supplier']
+        if request.POST['customer']:
+            detailtemp.customer = request.POST['customer']
+        if request.POST['unit']:
+            detailtemp.unit = request.POST['unit']
+        if request.POST['branch']:
+            detailtemp.branch = request.POST['branch']
+        if request.POST['product']:
+            detailtemp.product = request.POST['product']
+        if request.POST['inputvat']:
+            detailtemp.inputvat = request.POST['inputvat']
+        if request.POST['outputvat']:
+            detailtemp.outputvat = request.POST['outputvat']
+        if request.POST['vat']:
+            detailtemp.vat = request.POST['vat']
+        if request.POST['wtax']:
+            detailtemp.wtax = request.POST['wtax']
+        if request.POST['ataxcode']:
+            detailtemp.ataxcode = request.POST['ataxcode']
+
+        detailtemp.balancecode = 'D'
+        if request.POST['creditamount']:
+            detailtemp.balancecode = 'C'
+
+        if request.POST['creditamount']:
+            detailtemp.creditamount = request.POST['creditamount'].replace(',', '')
+        if request.POST['debitamount']:
+            detailtemp.debitamount = request.POST['debitamount'].replace(',', '')
+
+        detailtemp.secretkey = request.POST['secretkey']
+        detailtemp.jv_date = datetime.datetime.now()
+        detailtemp.enterby = request.user
+        detailtemp.enterdate = datetime.datetime.now()
+        detailtemp.modifyby = request.user
+        detailtemp.modifydate = datetime.datetime.now()
+        detailtemp.save()
+
+        data = {
+            'status': 'success'
+        }
+    else:
+        data = {
+            'status': 'error'
+        }
+
+    return JsonResponse(data)
 
 def generatekey(request):
     SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])

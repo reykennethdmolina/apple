@@ -39,7 +39,7 @@
                 {% if temp.customercode %}
                 <td>
                     {% if temp.customerstatus == 'Y' %}
-                        <a href="#" data-target="#modal-row" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}", data-chart="{{ temp.chartofaccount }}">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>
+                        <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}", data-chart="{{ temp.chartofaccount }}">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>
                     {% else %}
                         {{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}
                     {% endif %}
