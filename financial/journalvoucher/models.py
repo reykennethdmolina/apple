@@ -164,6 +164,69 @@ class Jvdetailtemp(models.Model):
     def status_verbose(self):
         return dict(Jvdetailtemp.STATUS_CHOICES)[self.status]
 
+class Jvdetailbreakdowntemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    jvdetailtemp = models.CharField(max_length=10, null=True, blank=True)
+    jvmain = models.CharField(max_length=10, null=True, blank=True)
+    jv_num = models.CharField(max_length=10)
+    jv_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    particular = models.TextField(null=True, blank=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='jvdetailbreakdowntemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='jvdetailbreakdowntemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='jvdetailbreakdowntemp_post')
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'jvdetailbreakdowntemp'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('jvdetailbreakdowntemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Jvdetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+
+
+
 # # Create your models here.
 #
 # class Jvdetailbreakdown(models.Model):

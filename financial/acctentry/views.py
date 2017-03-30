@@ -17,7 +17,7 @@ from outputvat.models import Outputvat
 from vat.models import Vat
 from wtax.models import Wtax
 from ataxcode.models import Ataxcode
-from journalvoucher.models import Jvdetailtemp
+from journalvoucher.models import Jvdetailtemp, Jvdetailbreakdowntemp
 import datetime, random
 from collections import namedtuple, defaultdict, OrderedDict
 from django.db import connection
@@ -184,7 +184,7 @@ def savemaccountingentry(request):
             #'datatemptotal': serializers.serialize("python", executestmt(querytotal)),
             'datatemptotal': executestmt(querytotal),
         }
-
+        print(context)
         data = {
             'datatable': render_to_string('acctentry/datatable.html', context),
             'status': 'success',
@@ -242,6 +242,7 @@ def breakdownentry(request):
             ataxcodedata = Ataxcode.objects.filter(isdeleted=0).order_by('description'),
 
         context = {
+            'detailid': detailid,
             'chartofaccount': list(chartdata),
             'bankaccount': list(bankdata),
             'department': list(departmentdata),
@@ -274,53 +275,55 @@ def breakdownentry(request):
 def savemaccountingentrybreakdown(request):
     if request.method == 'POST':
         # Save Data To JVDetail
-        detailtemp = Jvdetailtemp()
-        detailtemp.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
-        detailtemp.chartofaccount = request.POST['chartofaccount']
+        detailtempbreakdown = Jvdetailbreakdowntemp()
+        detailtempbreakdown.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
+        detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
+        detailtempbreakdown.jvdetailtemp = request.POST['detailid']
+        detailtempbreakdown.particular = request.POST['particular']
 
         if request.POST['bankaccount']:
-            detailtemp.bankaccount = request.POST['bankaccount']
+            detailtempbreakdown.bankaccount = request.POST['bankaccount']
         if request.POST['department']:
-            detailtemp.department = request.POST['department']
+            detailtempbreakdown.department = request.POST['department']
         if request.POST['employee']:
-            detailtemp.employee = request.POST['employee']
+            detailtempbreakdown.employee = request.POST['employee']
         if request.POST['supplier']:
-            detailtemp.supplier = request.POST['supplier']
+            detailtempbreakdown.supplier = request.POST['supplier']
         if request.POST['customer']:
-            detailtemp.customer = request.POST['customer']
+            detailtempbreakdown.customer = request.POST['customer']
         if request.POST['unit']:
-            detailtemp.unit = request.POST['unit']
+            detailtempbreakdown.unit = request.POST['unit']
         if request.POST['branch']:
-            detailtemp.branch = request.POST['branch']
+            detailtempbreakdown.branch = request.POST['branch']
         if request.POST['product']:
-            detailtemp.product = request.POST['product']
+            detailtempbreakdown.product = request.POST['product']
         if request.POST['inputvat']:
-            detailtemp.inputvat = request.POST['inputvat']
+            detailtempbreakdown.inputvat = request.POST['inputvat']
         if request.POST['outputvat']:
-            detailtemp.outputvat = request.POST['outputvat']
+            detailtempbreakdown.outputvat = request.POST['outputvat']
         if request.POST['vat']:
-            detailtemp.vat = request.POST['vat']
+            detailtempbreakdown.vat = request.POST['vat']
         if request.POST['wtax']:
-            detailtemp.wtax = request.POST['wtax']
+            detailtempbreakdown.wtax = request.POST['wtax']
         if request.POST['ataxcode']:
-            detailtemp.ataxcode = request.POST['ataxcode']
+            detailtempbreakdown.ataxcode = request.POST['ataxcode']
 
-        detailtemp.balancecode = 'D'
+        detailtempbreakdown.balancecode = 'D'
         if request.POST['creditamount']:
-            detailtemp.balancecode = 'C'
+            detailtempbreakdown.balancecode = 'C'
 
         if request.POST['creditamount']:
-            detailtemp.creditamount = request.POST['creditamount'].replace(',', '')
+            detailtempbreakdown.creditamount = request.POST['creditamount'].replace(',', '')
         if request.POST['debitamount']:
-            detailtemp.debitamount = request.POST['debitamount'].replace(',', '')
+            detailtempbreakdown.debitamount = request.POST['debitamount'].replace(',', '')
 
-        detailtemp.secretkey = request.POST['secretkey']
-        detailtemp.jv_date = datetime.datetime.now()
-        detailtemp.enterby = request.user
-        detailtemp.enterdate = datetime.datetime.now()
-        detailtemp.modifyby = request.user
-        detailtemp.modifydate = datetime.datetime.now()
-        detailtemp.save()
+        detailtempbreakdown.secretkey = request.POST['secretkey']
+        detailtempbreakdown.jv_date = datetime.datetime.now()
+        detailtempbreakdown.enterby = request.user
+        detailtempbreakdown.enterdate = datetime.datetime.now()
+        detailtempbreakdown.modifyby = request.user
+        detailtempbreakdown.modifydate = datetime.datetime.now()
+        detailtempbreakdown.save()
 
         data = {
             'status': 'success'

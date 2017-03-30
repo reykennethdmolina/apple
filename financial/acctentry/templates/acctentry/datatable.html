@@ -78,8 +78,8 @@
 
 <script>
     $(function () {
-        $('#total_debitamount').html("<strong>"+{{ datatemptotal.0.totaldebitamount }}+"</strong>");
-        $('#total_creditamount').html("<strong>"+{{ datatemptotal.0.totalcreditamount }}+"</strong>");
+        $('#total_debitamount').text("{{ datatemptotal.0.totaldebitamount }}");
+        $('#total_creditamount').text("{{ datatemptotal.0.totalcreditamount }}");
     });
 
     $(".breakdown").click(function(){
