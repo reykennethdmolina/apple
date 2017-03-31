@@ -83,8 +83,6 @@ def checkchartvalidation(request):
             'chart': [],
         }
     return JsonResponse(data)
-    #return HttpResponse(data, content_type='application/json')
-    #return HttpResponse(data, content_type="application/json")
 
 @csrf_exempt
 def savemaccountingentry(request):
@@ -139,52 +137,12 @@ def savemaccountingentry(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.save()
 
-        querystmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
-                "c.accountcode, c.description AS chartofaccountdesc, " \
-                "b.code AS bankaccountcode, b.accountnumber, " \
-                "d.code AS departmentcode, d.departmentname, " \
-                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, e.multiplestatus AS employeestatus, " \
-                "s.code AS suppliercode, s.name AS suppliername, s.multiplestatus AS supplierstatus, " \
-                "cu.code AS customercode, cu.name AS customername, cu.multiplestatus AS customerstatus, " \
-                "u.code AS unitcode, u.description AS unitname, " \
-                "br.code AS branchcode, br.description AS branchname, " \
-                "p.code AS productcode, p.description AS productname, " \
-                "i.code AS inputvatcode, i.description AS inputvatname, " \
-                "o.code AS outputvatcode, o.description AS outputvatname, " \
-                "v.code AS vatcode, v.description AS vatname, " \
-                "w.code AS wtaxcode, w.description AS wtaxname, " \
-                "a.code AS ataxcode, a.description AS ataxname, " \
-                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
-                "FROM jvdetailtemp AS temp " \
-                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
-                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
-                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
-                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
-                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
-                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
-                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
-                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
-                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
-                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
-                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
-                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
-                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
-                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '"+request.POST['secretkey']+ "' AND temp.isdeleted != 1"
-
-        querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
-                     "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
-                     "FROM jvdetailtemp AS temp " \
-                     "WHERE temp.secretkey = '"+request.POST['secretkey']+ "' AND temp.isdeleted != 1"
-
+        table = request.POST['table']
         context = {
-            #'datatemp': serializers.serialize("json", test),#Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
-            #Jvdetailtemp.objects.all().exclude(isdeleted=2).filter(secretkey=request.POST['secretkey']),
-            'datatemp': executestmt(querystmt),
-            #'datatemptotal': serializers.serialize("python", executestmt(querytotal)),
-            'datatemptotal': executestmt(querytotal),
+            'datatemp': querystmtdetail(table, request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
         }
-        print(context)
+        #print(context)
         data = {
             'datatable': render_to_string('acctentry/datatable.html', context),
             'status': 'success',
@@ -205,44 +163,67 @@ def breakdownentry(request):
         chartid = request.POST['chartid']
         chartdata = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=chartid)
         bankdata = []
+        colspan = 0
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+            colspan += 1
         departmentdata = []
         if chartdata[0].department_enable == 'Y':
             departmentdata = Department.objects.filter(isdeleted=0).order_by('departmentname')
+            colspan += 1
         employeedata = []
         if chartdata[0].employee_enable == 'Y':
             employeedata = Employee.objects.filter(isdeleted=0, multiplestatus='N').order_by('firstname', 'lastname')
+            colspan += 1
         supplierdata = []
         if chartdata[0].supplier_enable == 'Y':
             supplierdata = Supplier.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')
+            colspan += 1
         customerdata = []
         if chartdata[0].customer_enable == 'Y':
             customerdata = Customer.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')
+            colspan += 1
         branchdata = []
         if chartdata[0].branch_enable == 'Y':
             branchdata = Branch.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         productdata = []
         if chartdata[0].product_enable == 'Y':
             productdata = Product.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         inputvatdata = []
         if chartdata[0].inputvat_enable == 'Y':
             inputvatdata = Inputvat.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         outputvatdata = []
         if chartdata[0].outputvat_enable == 'Y':
             outputvatdata = Outputvat.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         vatdata = []
         if chartdata[0].vat_enable == 'Y':
             vatdata = Vat.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         wtaxdata = []
         if chartdata[0].wtax_enable == 'Y':
             wtaxdata = Wtax.objects.filter(isdeleted=0).order_by('description')
+            colspan += 1
         ataxcodedata = []
         if chartdata[0].ataxcode_enable == 'Y':
             ataxcodedata = Ataxcode.objects.filter(isdeleted=0).order_by('description'),
+            colspan += 1
+
+
+        table = request.POST['table']
+        contexttable = {
+            'detailid': detailid,
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+        }
 
         context = {
             'detailid': detailid,
+            'datatype': request.POST['datatype'],
+            'colspan': colspan,
             'chartofaccount': list(chartdata),
             'bankaccount': list(bankdata),
             'department': list(departmentdata),
@@ -256,9 +237,9 @@ def breakdownentry(request):
             'vat': list(vatdata),
             'wtax': list(wtaxdata),
             'ataxcode': list(ataxcodedata),
+            'datatablebreakdown': render_to_string('acctentry/datatablebreakdown.html', contexttable),
         }
 
-        #print(context)
         data = {
             'breakdowndata': render_to_string('acctentry/breakdownentry.html', context),
             'status': 'success',
@@ -276,7 +257,8 @@ def savemaccountingentrybreakdown(request):
     if request.method == 'POST':
         # Save Data To JVDetail
         detailtempbreakdown = Jvdetailbreakdowntemp()
-        detailtempbreakdown.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
+        detailid = request.POST['detailid']
+        detailtempbreakdown.item_counter = len(Jvdetailbreakdowntemp.objects.all().filter(secretkey=request.POST['secretkey'],jvdetailtemp=detailid)) + 1
         detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
         detailtempbreakdown.jvdetailtemp = request.POST['detailid']
         detailtempbreakdown.particular = request.POST['particular']
@@ -325,8 +307,21 @@ def savemaccountingentrybreakdown(request):
         detailtempbreakdown.modifydate = datetime.datetime.now()
         detailtempbreakdown.save()
 
+        """
+        Get Data from tempbreakdown
+        """
+
+        table = request.POST['table']
+        context = {
+            'detailid': detailid,
+            'datatype': request.POST['datatype'],
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+        }
+        #print(context)
         data = {
-            'status': 'success'
+            'datatablebreakdown': render_to_string('acctentry/datatablebreakdown.html', context),
+            'status': 'success',
         }
     else:
         data = {
@@ -334,6 +329,9 @@ def savemaccountingentrybreakdown(request):
         }
 
     return JsonResponse(data)
+
+def deletedetailbreakdown(request):
+    return 'as'
 
 def generatekey(request):
     SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
@@ -352,3 +350,92 @@ def executestmt(query):
     cursor.execute(query)
 
     return namedtuplefetchall(cursor)
+
+
+def querystmtbreakdown(temptable, secretkey, datatype):
+    stmt = "SELECT temp.id, temp.chartofaccount, temp.jvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
+                "c.accountcode, c.description AS chartofaccountdesc, " \
+                "b.code AS bankaccountcode, b.accountnumber, " \
+                "d.code AS departmentcode, d.departmentname, " \
+                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, e.multiplestatus AS employeestatus, " \
+                "s.code AS suppliercode, s.name AS suppliername, s.multiplestatus AS supplierstatus, " \
+                "cu.code AS customercode, cu.name AS customername, cu.multiplestatus AS customerstatus, " \
+                "u.code AS unitcode, u.description AS unitname, " \
+                "br.code AS branchcode, br.description AS branchname, " \
+                "p.code AS productcode, p.description AS productname, " \
+                "i.code AS inputvatcode, i.description AS inputvatname, " \
+                "o.code AS outputvatcode, o.description AS outputvatname, " \
+                "v.code AS vatcode, v.description AS vatname, " \
+                "w.code AS wtaxcode, w.description AS wtaxname, " \
+                "a.code AS ataxcode, a.description AS ataxname, " \
+                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
+                "FROM "+temptable+" AS temp " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
+                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
+                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
+                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
+                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
+                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
+                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
+                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
+                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
+                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
+                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
+                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
+                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
+                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+    data = executestmt(stmt)
+    return data
+
+def querytotalbreakdown(temptable, secretkey, datatype):
+    querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
+                 "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
+                 "FROM "+temptable+" AS temp " \
+                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+    data = executestmt(querytotal)
+    return data
+
+def querystmtdetail(temptable, secretkey):
+    stmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
+                "c.accountcode, c.description AS chartofaccountdesc, " \
+                "b.code AS bankaccountcode, b.accountnumber, " \
+                "d.code AS departmentcode, d.departmentname, " \
+                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, e.multiplestatus AS employeestatus, " \
+                "s.code AS suppliercode, s.name AS suppliername, s.multiplestatus AS supplierstatus, " \
+                "cu.code AS customercode, cu.name AS customername, cu.multiplestatus AS customerstatus, " \
+                "u.code AS unitcode, u.description AS unitname, " \
+                "br.code AS branchcode, br.description AS branchname, " \
+                "p.code AS productcode, p.description AS productname, " \
+                "i.code AS inputvatcode, i.description AS inputvatname, " \
+                "o.code AS outputvatcode, o.description AS outputvatname, " \
+                "v.code AS vatcode, v.description AS vatname, " \
+                "w.code AS wtaxcode, w.description AS wtaxname, " \
+                "a.code AS ataxcode, a.description AS ataxname, " \
+                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
+                "FROM "+temptable+" AS temp " \
+                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
+                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
+                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
+                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
+                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
+                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
+                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
+                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
+                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
+                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
+                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
+                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
+                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
+                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+    data = executestmt(stmt)
+    return data
+
+def querytotaldetail(temptable, secretkey):
+    querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
+                 "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
+                 "FROM "+temptable+" AS temp " \
+                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+    data = executestmt(querytotal)
+    return data

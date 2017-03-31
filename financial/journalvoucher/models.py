@@ -168,6 +168,7 @@ class Jvdetailbreakdowntemp(models.Model):
     item_counter = models.IntegerField()
     secretkey = models.CharField(max_length=255, null=True, blank=True)
     jvdetailtemp = models.CharField(max_length=10, null=True, blank=True)
+    datatype = models.CharField(max_length=1, null=True, blank=True)
     jvmain = models.CharField(max_length=10, null=True, blank=True)
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField(blank=True, null=True)
