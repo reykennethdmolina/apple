@@ -216,6 +216,7 @@ def breakdownentry(request):
         table = request.POST['table']
         contexttable = {
             'detailid': detailid,
+            'datatype': request.POST['datatype'],
             'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
             'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
         }
@@ -262,6 +263,7 @@ def savemaccountingentrybreakdown(request):
         detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
         detailtempbreakdown.jvdetailtemp = request.POST['detailid']
         detailtempbreakdown.particular = request.POST['particular']
+        detailtempbreakdown.datatype = request.POST['datatype']
 
         if request.POST['bankaccount']:
             detailtempbreakdown.bankaccount = request.POST['bankaccount']
@@ -330,8 +332,78 @@ def savemaccountingentrybreakdown(request):
 
     return JsonResponse(data)
 
+@csrf_exempt
 def deletedetailbreakdown(request):
-    return 'as'
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        secretkey = request.POST['secretkey']
+        table = request.POST['table']
+        detailid = request.POST['detailid']
+        datatype = request.POST['datatype']
+
+
+        breakdowndata = getdatainfo(table, id)
+
+        # Delete if not for updation
+        if not breakdowndata[0].jvmain:
+            deletequery(table,id)
+        else:
+            updatequery(table,id)
+
+        context = {
+            'detailid': detailid,
+            'datatype': request.POST['datatype'],
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+        }
+
+        data = {
+            'datatablebreakdown': render_to_string('acctentry/datatablebreakdown.html', context),
+            'status': 'success'
+        }
+    else:
+
+        data = {
+            'status': 'error'
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def deletedetail(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        secretkey = request.POST['secretkey']
+        table = request.POST['table']
+
+        detaildata = getdatainfo(table, id)
+
+        # Delete if not for updation
+        if not detaildata[0].jvmain:
+            deletequery(table,id)
+        else:
+            updatequery(table,id)
+
+        context = {
+            'datatemp': querystmtdetail(table, request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
+        }
+    else:
+
+        data = {
+            'status': 'error'
+        }
+
+    return JsonResponse(data)
 
 def generatekey(request):
     SECREY_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
@@ -351,6 +423,26 @@ def executestmt(query):
 
     return namedtuplefetchall(cursor)
 
+def updatequery(temptable, id):
+    cursor = connection.cursor()
+
+    stmt = "UPDATE " + temptable + " SET isdeleted=2 WHERE id='" + id + "'"
+
+    return cursor.execute(stmt)
+
+def deletequery(temptable, id):
+    cursor = connection.cursor()
+
+    stmt = "DELETE FROM "+temptable+" WHERE id='"+id+"'"
+
+    return cursor.execute(stmt)
+
+
+def getdatainfo(temptable, id):
+    stmt = "SELECT temp.* FROM "+temptable+" AS temp WHERE id='"+id+"'"
+
+    data = executestmt(stmt)
+    return list(data)
 
 def querystmtbreakdown(temptable, secretkey, datatype):
     stmt = "SELECT temp.id, temp.chartofaccount, temp.jvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
@@ -384,7 +476,7 @@ def querystmtbreakdown(temptable, secretkey, datatype):
                 "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
                 "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
                 "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+                "WHERE temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted NOT IN(1,2)"
     data = executestmt(stmt)
     return data
 
@@ -392,7 +484,7 @@ def querytotalbreakdown(temptable, secretkey, datatype):
     querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
                  "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
                  "FROM "+temptable+" AS temp " \
-                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted  NOT IN(1,2)"
     data = executestmt(querytotal)
     return data
 
@@ -428,7 +520,7 @@ def querystmtdetail(temptable, secretkey):
                 "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
                 "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
                 "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2)"
     data = executestmt(stmt)
     return data
 
@@ -436,6 +528,20 @@ def querytotaldetail(temptable, secretkey):
     querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
                  "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
                  "FROM "+temptable+" AS temp " \
-                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted != 1"
+                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2)"
     data = executestmt(querytotal)
+    return data
+
+@csrf_exempt
+def updatebreakentry(request):
+
+    if request.method == 'POST':
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
     return data
