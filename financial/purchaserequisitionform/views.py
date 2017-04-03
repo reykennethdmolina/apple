@@ -104,7 +104,7 @@ class CreateView(CreateView):
             dt.delete()
             i += 1
 
-        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id))
+        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
 
 class UpdateView(UpdateView):
@@ -175,10 +175,6 @@ class UpdateView(UpdateView):
             Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
         ).order_by('enterdate')
 
-        print "----------------------"
-        print alltempdetail
-        print "----------------------"
-
         i = 1
         for atd in alltempdetail:
             alldetail = Prfdetail()
@@ -204,7 +200,7 @@ class UpdateView(UpdateView):
         Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
         Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/purchaserequisitionform/')
+        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
 
 @method_decorator(login_required, name='dispatch')
