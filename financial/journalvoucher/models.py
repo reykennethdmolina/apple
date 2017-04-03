@@ -217,16 +217,13 @@ class Jvdetailbreakdowntemp(models.Model):
         return reverse('jvdetailbreakdowntemp:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.pk
+        return str(self.pk)
 
     def __unicode__(self):
         return unicode(self.pk)
 
     def status_verbose(self):
         return dict(Jvdetailbreakdowntemp.STATUS_CHOICES)[self.status]
-
-
-
 
 # # Create your models here.
 #

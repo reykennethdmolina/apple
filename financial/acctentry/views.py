@@ -163,7 +163,7 @@ def breakdownentry(request):
         chartid = request.POST['chartid']
         chartdata = Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P', pk=chartid)
         bankdata = []
-        colspan = 0
+        colspan = 1
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
             colspan += 1
@@ -439,7 +439,8 @@ def deletequery(temptable, id):
 
 
 def getdatainfo(temptable, id):
-    stmt = "SELECT temp.* FROM "+temptable+" AS temp WHERE id='"+id+"'"
+    stmt = "SELECT temp.*, FORMAT(temp.creditamount, 2) AS creditamountformatted, FORMAT(temp.debitamount, 2) AS debitamountformatted " \
+           "FROM "+temptable+" AS temp WHERE id='"+id+"'"
 
     data = executestmt(stmt)
     return list(data)
@@ -536,7 +537,27 @@ def querytotaldetail(temptable, secretkey):
 def updatebreakentry(request):
 
     if request.method == 'POST':
+
+        id = request.POST['id']
+        table = request.POST['table']
+
+        info = getdatainfo(table,id)
+
+        list = []  # create list
+        for row in info:  # populate list
+            list.append({'id': row.id, 'item_counter': row.item_counter,
+                         'jvmain': row.jvmain, 'jv_num': row.jv_num, 'jv_date': str(row.jv_date),
+                         'chartofaccount': row.chartofaccount, 'particular': row.particular, 'bankaccount': row.bankaccount,
+                         'department': row.department, 'employee': row.employee, 'supplier': row.supplier,
+                         'customer': row.customer, 'unit': row.unit, 'branch': row.branch,
+                         'product': row.product, 'inputvat': row.inputvat, 'outputvat': row.outputvat,
+                         'vat': row.vat, 'wtax': row.wtax, 'ataxcode': row.ataxcode,
+                         'debitamount': str(row.debitamount), 'creditamount': str(row.creditamount), 'amount': str(row.amount),
+                         'creditamountformatted': str(row.creditamountformatted), 'debitamountformatted': str(row.debitamountformatted)
+                         })
+        infodata = json.dumps(list)
         data = {
+            'info': infodata,
             'status': 'success',
         }
     else:
@@ -544,4 +565,7 @@ def updatebreakentry(request):
             'status': 'error',
         }
 
-    return data
+    return JsonResponse(data)
+
+def ValuesQuerySetToDict(vqs):
+    return [item for item in vqs]
