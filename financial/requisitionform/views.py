@@ -93,6 +93,7 @@ class CreateView(CreateView):
             detail.invitem = dt.invitem
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
+            detail.invitem_unitofmeasure = dt.invitem_unitofmeasure
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             detail.status = dt.status
@@ -107,7 +108,7 @@ class CreateView(CreateView):
             dt.delete()
             i += 1
 
-        return HttpResponseRedirect('/requisitionform/' + str(self.object.id))
+        return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
 
 
 class UpdateView(UpdateView):
@@ -138,6 +139,7 @@ class UpdateView(UpdateView):
             detailtemp.invitem = d.invitem
             detailtemp.invitem_code = d.invitem_code
             detailtemp.invitem_name = d.invitem_name
+            detailtemp.invitem_unitofmeasure = d.invitem_unitofmeasure
             detailtemp.quantity = d.quantity
             detailtemp.remarks = d.remarks
             detailtemp.status = d.status
@@ -181,6 +183,7 @@ class UpdateView(UpdateView):
             alldetail.invitem = atd.invitem
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
+            alldetail.invitem_unitofmeasure = atd.invitem_unitofmeasure
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             alldetail.status = atd.status
@@ -198,7 +201,7 @@ class UpdateView(UpdateView):
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
         Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/requisitionform/')
+        HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -242,6 +245,7 @@ def savedetailtemp(request):
         detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'])
         detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item']).code
         detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item']).description
+        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure.code
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.remarks = request.POST['id_remarks']
         detailtemp.secretkey = request.POST['secretkey']
