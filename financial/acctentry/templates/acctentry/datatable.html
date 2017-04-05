@@ -40,7 +40,7 @@
                 </td>
                 {% endif %}
                 {% if temp.customercode %}
-                <td>
+                <td id="tdtarget_C{{ temp.id }}">
                     {% if temp.customerstatus == 'Y' %}
                         <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>
                     {% else %}
@@ -79,7 +79,6 @@
 </tr>
 {% endfor %}
 
-
 <script>
     $(function () {
         $('#total_debitamount').text("{{ datatemptotal.0.totaldebitamount }}");
@@ -97,6 +96,7 @@
                 'datatype': $(this).data('type'),
                 'secretkey': $("#secretkey").val(),
                 'table': 'jvdetailbreakdowntemp',
+                'tablemain': 'jvdetailtemp',
             },
             success: function(response) {
                 $("#breakdowndata").html(response['breakdowndata']);
@@ -109,7 +109,6 @@
 
     $('.detaildelete').click(function(){
         var id = $(this).data('id');
-        alert(id);
         var ans = confirm('Are you sure you want to delete this data?');
 
         if(ans){

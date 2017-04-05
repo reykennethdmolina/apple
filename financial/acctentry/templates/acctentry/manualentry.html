@@ -385,6 +385,43 @@
                 });
             }
         });
+
+        $("#btnclosebreakdown").click(function() {
+
+            var detailamount = $('#detailb_amount').val();
+            var balancecode = $('#detailb_amount').data('balancecode');
+            var detailid = $('#detailb_amount').data('detailid');
+            var datatype = $('#detailb_amount').data('type');
+
+            var totalbreakdown_creditamount = $('#totalbreakdown_creditamount').text();
+            var totalbreakdown_debitamount = $('#totalbreakdown_debitamount').text();
+
+            var amout = 0;
+            var amountdetail = 0;
+            var creditamount = totalbreakdown_creditamount.replace(',', '');
+            var debitamount = totalbreakdown_debitamount.replace(',', '');
+
+            amount = parseFloat(debitamount) - parseFloat(creditamount);
+
+            //console.log(amount);
+            if (balancecode == 'D') {
+                amountdetail = parseFloat(detailamount)*1;
+            } else {
+                amountdetail = parseFloat(detailamount)*-1;
+            }
+
+            if (parseFloat(amountdetail) != parseFloat(amount)) {
+                var amount = parseFloat(amountdetail) - parseFloat(amount);
+                //console.log('#tdtarget_'+datatype+''+detailid);
+                alert('Account does not tally with total balance!. Amount differ by '+abs(amount));
+                $('#tdtarget_'+datatype+''+detailid).addClass('unbalancebreakdown').css('background-color', '#fa9b74');
+            } else {
+                console.log('equal');
+                $('#tdtarget_'+datatype+''+detailid).removeClass('unbalancebreakdown').css('background-color', '');
+            }
+
+            $('#modal-row').modal('toggle');
+        });
     });
 </script>
 

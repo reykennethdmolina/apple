@@ -31,12 +31,12 @@ def maccountingentry(request):
 
         #context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
         context = {
-            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P').order_by('accountcode'),
+            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A', accounttype='P').order_by('accountcode')[0:100],
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
             'department':  Department.objects.filter(isdeleted=0).order_by('departmentname'),
             'employee':  Employee.objects.filter(isdeleted=0).order_by('firstname', 'lastname'),
             'supplier':  Supplier.objects.filter(isdeleted=0).order_by('name'),
-            'customer':  Customer.objects.filter(isdeleted=0).order_by('name'),
+            'customer':  Customer.objects.filter(isdeleted=0).order_by('name')[0:100],
             'branch':  Branch.objects.filter(isdeleted=0).order_by('description'),
             'product':  Product.objects.filter(isdeleted=0).order_by('description'),
             'inputvat':  Inputvat.objects.filter(isdeleted=0).order_by('description'),
@@ -181,7 +181,7 @@ def breakdownentry(request):
             colspan += 1
         customerdata = []
         if chartdata[0].customer_enable == 'Y':
-            customerdata = Customer.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')
+            customerdata = Customer.objects.filter(isdeleted=0, multiplestatus='N').order_by('name')[0:10]
             colspan += 1
         branchdata = []
         if chartdata[0].branch_enable == 'Y':
@@ -209,20 +209,23 @@ def breakdownentry(request):
             colspan += 1
         ataxcodedata = []
         if chartdata[0].ataxcode_enable == 'Y':
-            ataxcodedata = Ataxcode.objects.filter(isdeleted=0).order_by('description'),
+            ataxcodedata = Ataxcode.objects.filter(isdeleted=0).order_by('description')
             colspan += 1
-
 
         table = request.POST['table']
         contexttable = {
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
         }
+
+        tablemain = request.POST['tablemain']
+        datainfo = getdatainfo(tablemain, detailid)
 
         context = {
             'detailid': detailid,
+            'datainfo': datainfo,
             'datatype': request.POST['datatype'],
             'colspan': colspan,
             'chartofaccount': list(chartdata),
@@ -317,8 +320,8 @@ def savemaccountingentrybreakdown(request):
         context = {
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
         }
         #print(context)
         data = {
@@ -355,8 +358,8 @@ def deletedetailbreakdown(request):
         context = {
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], request.POST['datatype']),
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
         }
 
         data = {
@@ -445,7 +448,7 @@ def getdatainfo(temptable, id):
     data = executestmt(stmt)
     return list(data)
 
-def querystmtbreakdown(temptable, secretkey, datatype):
+def querystmtbreakdown(temptable, secretkey, detailid, datatype):
     stmt = "SELECT temp.id, temp.chartofaccount, temp.jvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
                 "c.accountcode, c.description AS chartofaccountdesc, " \
                 "b.code AS bankaccountcode, b.accountnumber, " \
@@ -461,7 +464,8 @@ def querystmtbreakdown(temptable, secretkey, datatype):
                 "v.code AS vatcode, v.description AS vatname, " \
                 "w.code AS wtaxcode, w.description AS wtaxname, " \
                 "a.code AS ataxcode, a.description AS ataxname, " \
-                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
+                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount," \
+                "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
                 "FROM "+temptable+" AS temp " \
                 "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
                 "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
@@ -477,15 +481,15 @@ def querystmtbreakdown(temptable, secretkey, datatype):
                 "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
                 "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
                 "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted NOT IN(1,2)"
+                "WHERE temp.jvdetailtemp ='" + detailid + "' AND temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted NOT IN(1,2) ORDER BY temp.item_counter"
     data = executestmt(stmt)
     return data
 
-def querytotalbreakdown(temptable, secretkey, datatype):
+def querytotalbreakdown(temptable, secretkey, detailid, datatype):
     querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
                  "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
                  "FROM "+temptable+" AS temp " \
-                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted  NOT IN(1,2)"
+                 "WHERE temp.jvdetailtemp ='" + detailid + "' AND temp.secretkey = '" + secretkey + "' AND temp.datatype='" + datatype + "' AND temp.isdeleted  NOT IN(1,2)"
     data = executestmt(querytotal)
     return data
 
@@ -505,7 +509,8 @@ def querystmtdetail(temptable, secretkey):
                 "v.code AS vatcode, v.description AS vatname, " \
                 "w.code AS wtaxcode, w.description AS wtaxname, " \
                 "a.code AS ataxcode, a.description AS ataxname, " \
-                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount " \
+                "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount, " \
+                "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
                 "FROM "+temptable+" AS temp " \
                 "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
                 "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
@@ -521,7 +526,7 @@ def querystmtdetail(temptable, secretkey):
                 "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
                 "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
                 "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2)"
+                "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2) ORDER BY temp.item_counter"
     data = executestmt(stmt)
     return data
 
@@ -567,5 +572,80 @@ def updatebreakentry(request):
 
     return JsonResponse(data)
 
-def ValuesQuerySetToDict(vqs):
-    return [item for item in vqs]
+@csrf_exempt
+def saveupdatedetailbreakdown(request):
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        detailid = request.POST['detailid']
+        secretkey = request.POST['secretkey']
+        table = request.POST['table']
+
+        datastring = ""
+
+        if request.POST['bankaccount']:
+            datastring += "bankaccount='" + request.POST['bankaccount'] + "',"
+        if request.POST['department']:
+            datastring += "department='" + request.POST['department'] + "',"
+        if request.POST['employee']:
+            datastring += "employee='" + request.POST['employee'] + "',"
+        if request.POST['supplier']:
+            datastring += "supplier='" + request.POST['supplier'] + "',"
+        if request.POST['customer']:
+            datastring += "customer='" + request.POST['customer'] + "',"
+        if request.POST['unit']:
+            datastring += "unit='" + request.POST['unit'] + "',"
+        if request.POST['branch']:
+            datastring += "branch='" + request.POST['branch'] + "',"
+        if request.POST['product']:
+            datastring += "product='" + request.POST['product'] + "',"
+        if request.POST['inputvat']:
+            datastring += "inputvat='" + request.POST['inputvat'] + "',"
+        if request.POST['outputvat']:
+            datastring += "outputvat='" + request.POST['outputvat'] + "',"
+        if request.POST['vat']:
+            datastring += "vat='" + request.POST['vat'] + "',"
+        if request.POST['wtax']:
+            datastring += "wtax='" + request.POST['wtax'] + "',"
+        if request.POST['ataxcode']:
+            datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
+
+        datastring += "balancecode='D',"
+        if request.POST['creditamount']:
+            datastring += "balancecode='C',"
+
+        if request.POST['creditamount']:
+            datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
+        if request.POST['debitamount']:
+            datastring += "debitamount='" + request.POST['debitamount'].replace(',', '') + "',"
+
+        datastring += "particular='" + request.POST['particular'] + "'"
+
+        updatedetaildatabreakdown(table, id, datastring)
+
+        context = {
+            'detailid': detailid,
+            'datatype': request.POST['datatype'],
+            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
+            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], detailid, request.POST['datatype']),
+        }
+
+        data = {
+            'datatablebreakdown': render_to_string('acctentry/datatablebreakdown.html', context),
+            'status': 'success'
+        }
+    else:
+
+        data = {
+            'status': 'error'
+        }
+
+    return JsonResponse(data)
+
+def updatedetaildatabreakdown(table, id, datastring):
+    cursor = connection.cursor()
+
+    stmt = "UPDATE " + table + " SET "+datastring+"  WHERE id='" + id + "'"
+
+    return cursor.execute(stmt)
+
