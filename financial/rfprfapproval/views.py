@@ -21,11 +21,19 @@ class IndexView(ListView):
         context = super(IndexView, self).get_context_data(**kwargs)
 
         rfdata = Rfmain.objects.all().filter(isdeleted=0, status='A')
+
+        if not self.request.user.has_perm('requisitionform.view_allassignrf'):
+            rfdata = rfdata.filter(designatedapprover=self.request.user.id)
+
         context['rfpending'] = rfdata.filter(rfstatus='F').order_by('enterdate')
         context['rfapproved'] = rfdata.filter(rfstatus='A').order_by('enterdate')
         context['rfdisapproved'] = rfdata.filter(rfstatus='D').order_by('enterdate')
 
         prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A')
+
+        if not self.request.user.has_perm('purchaserequisitionform.view_allassignprf'):
+            prfdata = prfdata.filter(designatedapprover=self.request.user.id)
+
         context['prfpending'] = prfdata.filter(prfstatus='F').order_by('enterdate')
         context['prfapproved'] = prfdata.filter(prfstatus='A').order_by('enterdate')
         context['prfdisapproved'] = prfdata.filter(prfstatus='D').order_by('enterdate')
@@ -65,6 +73,18 @@ class IndexView(ListView):
                     context['rfdisapproved'] = context['rfdisapproved'][0:0]
                     context['formtype'] = 'PRF'
 
+        if not self.request.user.has_perm('requisitionform.view_assignrf') and not self.request.user.has_perm(
+                'requisitionform.view_allassignrf'):
+            context['rfpending'] = context['rfpending'][0:0]
+            context['rfapproved'] = context['rfapproved'][0:0]
+            context['rfdisapproved'] = context['rfdisapproved'][0:0]
+
+        if not self.request.user.has_perm('purchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
+                'purchaserequisitionform.view_allassignprf'):
+            context['prfpending'] = context['prfpending'][0:0]
+            context['prfapproved'] = context['prfapproved'][0:0]
+            context['prfdisapproved'] = context['prfdisapproved'][0:0]
+
         return context
 
 
@@ -77,14 +97,32 @@ def approve(request):
         print request.POST['main_type']
         print request.POST['remarks']
 
-        if request.POST['main_type'] == 'RF':
-            approve = Rfmain.objects.get(pk=request.POST['main_id'])
-            approve.rfstatus = request.POST['response']
-        elif request.POST['main_type'] == 'PRF':
-            approve = Prfmain.objects.get(pk=request.POST['main_id'])
-            approve.prfstatus = request.POST['response']
+        valid = True
 
-        if request.POST['main_type'] == 'RF' or request.POST['main_type'] == 'PRF':
+        if request.POST['main_type'] == 'RF':
+            if request.POST['response'] == 'A' and request.user.has_perm('requisitionform.can_approverf'):
+                approve = Rfmain.objects.get(pk=request.POST['main_id'])
+                approve.rfstatus = request.POST['response']
+            elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
+                approve = Rfmain.objects.get(pk=request.POST['main_id'])
+                approve.rfstatus = request.POST['response']
+            else:
+                valid = False
+
+        elif request.POST['main_type'] == 'PRF':
+            if request.POST['response'] == 'A' and request.user.has_perm('purchaserequisitionform.can_approveprf'):
+                approve = Prfmain.objects.get(pk=request.POST['main_id'])
+                approve.prfstatus = request.POST['response']
+            elif request.POST['response'] == 'D' and request.user.has_perm('purchaserequisitionform.can_disapproveprf'):
+                approve = Prfmain.objects.get(pk=request.POST['main_id'])
+                approve.prfstatus = request.POST['response']
+            else:
+                valid = False
+
+        else:
+            valid = False
+
+        if valid:
             approve.approverresponse = request.POST['response']
             approve.responsedate = datetime.datetime.now()
             approve.remarks = request.POST['remarks']
@@ -93,6 +131,7 @@ def approve(request):
 
         data = {
             'status': 'success',
+            'valid': valid,
         }
     else:
         data = {
