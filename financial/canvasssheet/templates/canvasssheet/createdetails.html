@@ -1,0 +1,191 @@
+<form class="form-horizontal" id="detailform" method="get" action="">
+{% csrf_token %}
+    <div class="row">
+        <label style="display: none;" id="itemno">1</label>
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label" for="item_name">Item</label>
+            <div class="col-sm-7">
+                <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
+                    <option value="">-- Select Item --</option>
+                    {% for invitem in invitem %}
+                        <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}">{{ invitem.description }} ({{ invitem.unitofmeasure.code }})</option>
+                    {% endfor %}
+                </select>
+                <span class="help-block form-error">{{ form.item_name.errors.as_text }}</span>
+            </div>
+            <label class="col-sm-3 control-label" for="quantity">Quantity</label>
+            <div class="col-sm-3">
+                <input type="number" class="form-control input-sm" id="id_quantity" name="quantity">
+                <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
+            </div>
+        </div>
+        <div class="col-sm-12 pull-left margin-bottom-10">
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Item</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {
+        summary = $("#summary tbody");
+
+        $(document).on('click', '#importconfirm', function(){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'canvasssheet:importitems' %}",
+                type: "post",
+                data: {'prfnum': $("#importrfselect2").val(),
+                        'secretkey': $("#id_secretkey").val()
+                },
+
+                success: function(response) {
+                    if(response.prfdata != "[]"){
+                        $("#prfcontainer").append("<div class='widgett widgett-article widgett-shadow'>" +
+                                                    "<div class='widgett-header cover padding-0 bg-grey-600'>" +
+                                                    "<div class='background-cover padding-10'>PRF - " +
+                                                        response.prfdata[0] +
+                                                    "<button type='button' class='close removeprf' data-prf='" + response.prfdata[0] + "'>" +
+                                                        "<i class='icon fa-close' aria-hidden='true'></i>" +
+                                                    "</button>" +
+                                                    "</div></div></div>");
+
+                        for (var i = 0; i < response.prfdetail.length; i++) {
+
+                            if($("tr#" + response.prfdetail[i][4]).length > 0){
+                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").html()) + parseInt(response.prfdetail[i][3]);
+                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").html(item_total);
+
+                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);
+                                $("tr#" + response.prfdetail[i][4] + " .item_amount").each(function(index) {
+                                    $(this).html((item_total * parseFloat($(this).prev().find('.item_cost').val())).toFixed(2));
+                                });
+                            }
+                            else{
+                                $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
+                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);
+                                temp_supplier_length = temp_supplier.length;
+
+                                summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +
+                                            "<td rowspan='" + temp_supplier_length + "'></td>" +
+                                            "<td rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][0] + "</td>" +
+                                            "<td rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +
+                                            "<td rowspan='" + temp_supplier_length + "' class='item_quantity'>" + response.prfdetail[i][3] + "</td>" +
+                                            "</tr>");
+
+                                for(var j = 0; j < temp_supplier_length; j++) {
+                                    // border
+                                    // on removal of prf
+                                    // delete form temp on delete
+                                    // align right
+                                    // on edit nego amount
+                                    // on edit quantity
+                                    // on delete item
+                                    // hover view more details about supplier
+                                    // orderby items
+                                    if(j==0){
+                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom' form='" + i + "'></td>" +
+                                                "<td class='small'>" + temp_supplier[j][5] + "</td> " +
+                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
+                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
+                                                "<td class='small item_amount text-right'>" + (parseFloat(response.prfdetail[i][3]) * parseFloat(temp_supplier[j][2])).toFixed(2) + "</td>");
+                                    }
+                                    else{
+                                        summary.append("<tr>" +
+                                                "<td><input type='radio' name='supplier' class='radio radio-custom' form='" + i + "'></td> " +
+                                                "<td class='small'>" + temp_supplier[j][5] + "</td> " +
+                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
+                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
+                                                "<td class='small item_amount text-right'>" + (parseFloat(response.prfdetail[i][3]) * parseFloat(temp_supplier[j][2])).toFixed(2) + "</td>" +
+                                                "</tr>")
+                                    }
+                                }
+
+                                $("#tempForm").append("<form action'#' id='" + i + "'>");
+                            }
+                        }
+                    }
+
+                    reorderItems();
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
+        $(document).on('click', '.removeprf', function(){
+            $('.shade').fadeIn();
+            var e = $(this);
+
+            $.ajax({
+                url: "{% url 'canvasssheet:removeprf' %}",
+                type: "post",
+                data: {'prfnum': $(this).data('prf'),
+                        'secretkey': $("#id_secretkey").val()
+                },
+
+                success: function(response) {
+
+                    if(response.prfdata != "[]"){
+                        for (var i = 0; i < response.prfdetail.length; i++) {
+                            if($("tr#" + response.prfdetail[i][4]).length > 0){
+                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").html()) - parseInt(response.prfdetail[i][3]);
+                                if(item_total > 0){
+                                    $("tr#" + response.prfdetail[i][4] + " .item_quantity").html(item_total);
+                                }
+                                else{
+                                    $("tr#" + response.prfdetail[i][4] + " .item_quantity").parent().remove();
+                                }
+                            }
+                        }
+                    }
+
+                    reorderItems();
+                    e.parent().remove();
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $("#importrfselect2").select2({
+                dropdownParent: $("#myModal")
+            });
+        });
+
+        $("#importrfselect2").change(function(){
+            if($(this).val() != ''){
+                importrfpreview = $("#importrfpreview tbody tr td");
+                importrfpreview.eq(0).text($(this).children('option:selected').data('refnum'));
+                importrfpreview.eq(1).text($(this).children('option:selected').data('urgency'));
+                importrfpreview.eq(2).text($(this).children('option:selected').data('approver'));
+                importrfpreview.eq(3).text($(this).children('option:selected').data('dateneeded'));
+
+                $("#importconfirm").prop('disabled', false);
+            }
+            else{
+                $("#importconfirm").prop('disabled', true);
+            }
+        });
+
+        function reorderItems(){
+            len = summary.find('tr.item_container').find('td:eq(0)').length;
+            for(i=0;i<len;i++){
+                summary.find('tr.item_container:eq('+i+')').find('td:eq(0)').html(i+1);
+            }
+        }
+
+        function filterSupplier(item, supplier){
+            return $.grep(supplier, function(data){
+                return data[0] == item;
+            });
+        }
+    });
+</script>

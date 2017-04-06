@@ -74,6 +74,7 @@ class Rfdetail(models.Model):
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetail_invitem_id')
     invitem_code = models.CharField(max_length=25)
     invitem_name = models.CharField(max_length=250)
+    invitem_unitofmeasure = models.CharField(max_length=50)
     quantity = models.IntegerField()
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
@@ -115,6 +116,7 @@ class Rfdetailtemp(models.Model):
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='rfdetailtemp_invitem_id')
     invitem_code = models.CharField(max_length=25)
     invitem_name = models.CharField(max_length=250)
+    invitem_unitofmeasure = models.CharField(max_length=50)
     quantity = models.IntegerField()
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
