@@ -154,8 +154,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_financial',
         'HOST': '128.1.44.2',
+        #'HOST': '127.0.0.1',
         'PORT': '3306',
         'USER': 'root',
+        #'PASSWORD': '',
         'PASSWORD': 'mysqld3vserver',
         'OPTIONS': {
             'init_command': 'SET storage_engine=INNODB',
