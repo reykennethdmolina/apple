@@ -103,9 +103,11 @@ INSTALLED_APPS = [
     'acctentry',
     'purchaseorder',
     'requisitionform',
+    'purchaserequisitionform',
     'inventoryitemtype',
     'inventoryitemclass',
     'inventoryitem',
+    'rfprfapproval',
 ]
 
 MIDDLEWARE_CLASSES = [
