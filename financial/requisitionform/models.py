@@ -57,8 +57,10 @@ class Rfmain(models.Model):
         db_table = 'rfmain'
         ordering = ['-pk']
         permissions = (("view_requisitionform", "Can view requisitionform"),
-                       ("view_assignrf", "Can view assignrf"),              # view assigned rfs to user
-                       ("view_allassignrf", "Can view allsasignrf"),)       # view all rfs
+                       ("view_assignrf", "Can view only assigned rf"),              # view assigned rfs to user
+                       ("view_allassignrf", "Can view all rf"),                     # view all rfs
+                       ("can_approverf", "Can approve rf"),
+                       ("can_disapproverf", "Can disapprove rf"),)
 
     def get_absolute_url(self):
         return reverse('requisitionform:detail', kwargs={'pk': self.pk})

@@ -19,12 +19,30 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        context['rfforapproval'] = Rfmain.objects.all().filter(isdeleted=0, rfstatus='F', status='A').\
-            order_by('enterdate')
+
+        rfdata = Rfmain.objects.all().filter(isdeleted=0, status='A').order_by('enterdate')
+        context['rfpending'] = rfdata.filter(rfstatus='F')
+        context['rfapproved'] = rfdata.filter(rfstatus='A')
+        context['rfdisapproved'] = rfdata.filter(rfstatus='D')
+
+        prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A').order_by('enterdate')
+        context['prfpending'] = prfdata.filter(prfstatus='F')
+        context['prfapproved'] = prfdata.filter(prfstatus='A')
+        context['prfdisapproved'] = prfdata.filter(prfstatus='D')
+
+
+
+
         context['prfforapproval'] = Prfmain.objects.all().filter(isdeleted=0, prfstatus='F', status='A').\
             order_by('enterdate')
+
+
+
+
+
         context['formtype'] = 'ALL'
-        context['formapprover'] = 'ALL'
+        context['formrfapprover'] = 'ALL'
+        context['formprfapprover'] = 'ALL'
 
         if self.request.method == 'GET' and 'selecttype' in self.request.GET:
             if 'selectapprover' in self.request.GET:
