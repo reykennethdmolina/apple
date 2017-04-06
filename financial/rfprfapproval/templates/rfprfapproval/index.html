@@ -275,16 +275,17 @@
     <script type="text/javascript">
         $(function(){
             var itemcount, tab, appendResponse;
-            $(".approvebutton").click(function(){
+            $(document).on("click", ".approvebutton", function(){
                 $("#num").html($(this).data("type") + "-" + $(this).data("num"));
                 $("#id_main").val($(this).data("id"));
                 $("#id_type").val($(this).data("type"));
 
-                if($(this).data("response") == 'A'){
+                console.log($(this).parent().parent().parent().parent().parent().parent().parent().attr('id'))
+                if($(this).parent().parent().parent().parent().parent().parent().parent().attr('id') == 'tabDisapproved' || $(this).data("response") == 'A'){
                     $("#modal-header-title").html("Approve ");
                     $("#id_responseselect").val('A');
                 }
-                else if($(this).data("response") == 'D'){
+                else if($(this).parent().parent().parent().parent().parent().parent().parent().attr('id') == 'tabApproved' || $(this).data("response") == 'D'){
                     $("#modal-header-title").html("Disapprove ");
                     $("#id_responseselect").val('D');
                 }
@@ -292,7 +293,7 @@
                 tab = $(this).parent().parent().parent().parent().parent().parent().parent().attr('id');
                 itemcount = $(this).parent().index("#" + tab + " .buttonHolder");
             });
-            $("#approveconfirm").click(function(e){
+            $(document).on("click", "#approveconfirm", function(e){
                 if($("#id_remarks").val() != ""){
                     if (confirm('Are you sure?')) {
                         $.ajax({
