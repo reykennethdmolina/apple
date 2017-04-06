@@ -65,6 +65,7 @@ urlpatterns = [
     url(r'^debitcreditmemosubtype/', include('debitcreditmemosubtype.urls', namespace='debitcreditmemosubtype')),
     url(r'^purchaseorder/', include('purchaseorder.urls', namespace='purchaseorder')),
     url(r'^requisitionform/', include('requisitionform.urls', namespace='requisitionform')),
+    url(r'^rfprfapproval/', include('rfprfapproval.urls', namespace='rfprfapproval')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', namespace='ataxcode')),
@@ -101,6 +102,7 @@ urlpatterns = [
     url(r'^departmentbudget/', include('departmentbudget.urls', namespace='departmentbudget')),
     url(r'^jvtype/', include('jvtype.urls', namespace='jvtype')),
     url(r'^rep_chartofaccount/', include('rep_chartofaccount.urls', namespace='rep_chartofaccount')),
+    url(r'^purchaserequisitionform/', include('purchaserequisitionform.urls', namespace='purchaserequisitionform')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
