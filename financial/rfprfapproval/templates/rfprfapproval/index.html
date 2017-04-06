@@ -95,6 +95,7 @@
                                         <th><span>Date</span></th>
                                         <th><span>Particulars</span></th>
                                         <th><span>Assigned Approver</span></th>
+                                        <th><span>Actual Approver</span></th>
                                         <th><span>Remarks</span></th>
                                         <th class="text-center" style="width: 210px;"><span>Action</span></th>
                                     </tr>
@@ -110,6 +111,7 @@
                                         <td>{{ data.rfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td> - </td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -135,6 +137,7 @@
                                         <td>{{ data.prfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td> - </td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -163,6 +166,7 @@
                                         <th><span>Date</span></th>
                                         <th><span>Particulars</span></th>
                                         <th><span>Assigned Approver</span></th>
+                                        <th><span>Actual Approver</span></th>
                                         <th><span>Remarks</span></th>
                                         <th class="text-center" style="width: 210px;"><span>Action</span></th>
                                     </tr>
@@ -178,6 +182,7 @@
                                         <td>{{ data.rfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -199,6 +204,7 @@
                                         <td>{{ data.prfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -223,6 +229,7 @@
                                         <th><span>Date</span></th>
                                         <th><span>Particulars</span></th>
                                         <th><span>Assigned Approver</span></th>
+                                        <th><span>Actual Approver</span></th>
                                         <th><span>Remarks</span></th>
                                         <th class="text-center" style="width: 210px;"><span>Action</span></th>
                                     </tr>
@@ -238,6 +245,7 @@
                                         <td>{{ data.rfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -259,6 +267,7 @@
                                         <td>{{ data.prfdate }}</td>
                                         <td>{{ data.particulars }}</td>
                                         <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
                                         <td>{{ data.remarks|default:' - ' }}</td>
                                         <td>
                                             <div class="text-center buttonHolder">
@@ -357,6 +366,7 @@
 
                                     $("#"+tab+" tr:eq("+(itemcount + 1)+")").appendTo("#" + appendResponse + " tbody");
                                     $("#"+appendResponse+" tr").last().find("td").last().prev().html($("#id_remarks").val());
+                                    $("#"+appendResponse+" tr").last().find("td").last().prev().prev().html("{{ request.user.first_name }} {{ request.user.last_name }}");
 
                                     form_type = $("#"+appendResponse+" tr").last().find("td").last().find('button').data('type')
                                     if(appendResponse == "tabApproved"){
