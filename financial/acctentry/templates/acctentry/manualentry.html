@@ -246,146 +246,312 @@
                 alert('Please fill in the fields.')
             }
         });
+
         $("#detail_chartofaccount").change(function() {
-            $("#v_detail_bankaccount").addClass('hide');
-            $("#detail_bankaccount").removeAttr('required');
-            $("#detail_bankaccount").prop("selectedIndex", 0);
-            $("#v_detail_department").addClass('hide');
-            $("#detail_department").removeAttr('required');
-            $("#detail_department").select2("val",0);
-            $("#v_detail_employee").addClass('hide');
-            $("#detail_employee").removeAttr('required');
-            $("#detail_employee").prop("selectedIndex", 0);
-            $("#v_detail_supplier").addClass('hide');
-            $("#detail_supplier").removeAttr('required');
-            $("#detail_supplier").prop("selectedIndex", 0);
-            $("#v_detail_customer").addClass('hide');
-            $("#detail_customer").removeAttr('required');
-            $("#detail_customer").prop("selectedIndex", 0);
-            $("#v_detail_unit").addClass('hide');
-            $("#detail_unit").removeAttr('required');
-            $("#detail_unit").prop("selectedIndex", 0);
-            $("#v_detail_branch").addClass('hide');
-            $("#detail_branch").removeAttr('required');
-            $("#detail_branch").prop("selectedIndex", 0);
-            $("#v_detail_product").addClass('hide');
-            $("#detail_product").removeAttr('required');
-            $("#detail_product").prop("selectedIndex", 0);
-            $("#v_detail_inputvat").addClass('hide');
-            $("#detail_inputvat").removeAttr('required');
-            $("#detail_inputvat").prop("selectedIndex", 0);
-            $("#v_detail_outputvat").addClass('hide');
-            $("#detail_outputvat").removeAttr('required');
-            $("#detail_outputvat").prop("selectedIndex", 0);
-            $("#v_detail_vat").addClass('hide');
-            $("#detail_vat").removeAttr('required');
-            $("#detail_vat").prop("selectedIndex", 0);
-            $("#v_detail_wtax").addClass('hide');
-            $("#detail_wtax").removeAttr('required');
-            $("#detail_wtax").prop("selectedIndex", 0);
-            $("#v_detail_ataxcode").addClass('hide');
-            $("#detail_ataxcode").removeAttr('required');
-            $("#detail_ataxcode").prop("selectedIndex", 0);
+            id = $("#detail_chartofaccount").val();
+            chartofaccount.validate(id);
+        });
+
+        $('#btn_updatedetailsubmit').click(function() {
+            var m_debitamount = $('#detail_debitamount').val();
+	        var m_creditamount = $('#detail_creditamount').val();
+            if ($("#detailform").valid()) {
+
+                if ((m_debitamount == 0 || m_debitamount == "" ) && (m_creditamount == 0 || m_creditamount == "")) {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+
+                if ((m_debitamount != "" && m_creditamount == 0) || (m_debitamount == 0  && m_creditamount != "")) {
+                    alert('Accounting Entry Submitted');
+                } else if ((m_debitamount != "" && m_creditamount != "")) {
+                    alert('Choose only one Debit and Credit amount');
+                    return false;
+                }
+
+                var id = $(this).data('id');
+                $.ajax({
+                    url: "{% url 'acctentry:saveupdatemaccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'id': id,
+                           'secretkey': $("#secretkey").val(),
+                           'table': 'jvdetailtemp',
+                           'chartofaccount': $("#detail_chartofaccount").val(),
+                           'bankaccount': $("#detail_bankaccount").val(),
+                           'department': $("#detail_department").val(),
+                           'employee': $("#detail_employee").val(),
+                           'supplier': $("#detail_supplier").val(),
+                           'customer': $("#detail_customer").val(),
+                           'unit': $("#detail_unit").val(),
+                           'branch': $("#detail_branch").val(),
+                           'product': $("#detail_product").val(),
+                           'inputvat': $("#detail_inputvat").val(),
+                           'outputvat': $("#detail_outputvat").val(),
+                           'vat': $("#detail_vat").val(),
+                           'wtax': $("#detail_wtax").val(),
+                           'ataxcode': $("#detail_ataxcode").val(),
+                           'creditamount': $("#detail_creditamount").val(),
+                           'debitamount': $("#detail_debitamount").val(),
+                    },
+                    success: function(response) {
+                        $("#datatable").html(response['datatable']);
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    }
+                })
+
+            } else {
+                alert('Please fill in the fields.')
+            }
+        });
+
+        $('#datatable').on('click', '.detailedit', function () {
+            var id = $(this).data('id');
+            $("#btn_updatedetailsubmit").attr('data-id', id);
+
+            var chartid = $(this).data('chartid');
+            chartofaccount.validate(chartid);
+
+            $('.trd_data').css("background-color","");
+            $("#trd_data_"+id).css('background-color', '#fa9b74');
+            $("#btn_updatedetailbsubmit").attr('data-id', id);
+            $("#entryview").show();
+            $('.btndadd').hide();
+            $('.btndupdate').show();
+
+            $("#detail_unit").val(2);
+
+            $.ajax({
+                url: "{% url 'acctentry:updateentry' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'secretkey': $("#secretkey").val(),
+                       'table': 'jvdetailtemp',
+                       'id': id,
+                },
+                success: function(response) {
+                    var info = $.parseJSON(response.info);
+                    console.log(info[0].unit);
+                    $("#detail_chartofaccount").val(info[0].chartofaccount).attr('disabled','disabled');
+                    $("#detail_bankaccount").val(info[0].bankaccount);
+                    $("#detail_department").val(info[0].department).trigger('change');
+                    $("#detail_employee").val(info[0].employee);
+                    $("#detail_supplier").val(info[0].supplier);
+                    $("#detail_customer").val(info[0].customer);
+
+{#                    var unitoptions = '<option value="">-- Select Unit --</option>';#}
+{#                    $.each(unitlist, function (k, v) {#}
+{#                        //console.log(v);#}
+{#                        unitoptions += '<option value="' + v.pk + '">' + v.fields.description + '</option>';#}
+{#                    });#}
+{#                    $("#detail_unit").html(unitoptions);#}
+{#                    $("#detail_unit option:first").attr('selected', 'selected');#}
+{#                    $("#detail_unit").attr('disabled', false);#}
+{#                    var defaultVal = info[0].unit;#}
+{#                    var unitoptions = '<option value="">-- Select Unit --</option>';#}
+{#                    $("#detail_unit").find("option").each(function () {#}
+{##}
+{#                        if ($(this).val() == defaultVal) {#}
+{#                            unitoptions += '<option value="' + $(this).val() + '" selected="selected">' + $(this).text() + '</option>';#}
+{#                        } else {#}
+{#                            unitoptions += '<option value="' + $(this).val() + '">' + $(this).text() + '</option>';#}
+{#                        }#}
+{#                    });#}
+{##}
+{#                    $("#detail_unit").empty();#}
+                    //$("#detail_unit").append(unitoptions);
+{#                    $("#detail_unit option:second").prop("selected", "selected");#}
+                    $("#detail_branch").val(info[0].branch);
+                    $("#detail_product").val(info[0].product);
+                    $("#detail_inputvat").val(info[0].inputvat);
+                    $("#detail_outputvat").val(info[0].outputvat);
+                    $("#detail_vat").val(info[0].vat);
+                    $("#detail_wtax").val(info[0].wtax);
+                    $("#detail_ataxcode").val(info[0].ataxcode);
+                    $("#detail_creditamount").val(info[0].creditamountformatted);
+                    $("#detail_debitamount").val(info[0].debitamountformatted);
+                    $("#detail_chartofaccount").focus();
+                },
+                error: function(response) {
+                    console.log(response);;
+                }
+            });
+        });
+
+        /* Chart of Account functions */
+        var chartofaccount = (function() {
+            // your module code goes here
+            return {
+                validate:function(id) {
+                    $("#v_detail_bankaccount").addClass('hide');
+                    $("#detail_bankaccount").removeAttr('required');
+                    $("#detail_bankaccount").prop("selectedIndex", 0);
+                    $("#v_detail_department").addClass('hide');
+                    $("#detail_department").removeAttr('required');
+                    $("#detail_department").select2("val",0);
+                    $("#v_detail_employee").addClass('hide');
+                    $("#detail_employee").removeAttr('required');
+                    $("#detail_employee").prop("selectedIndex", 0);
+                    $("#v_detail_supplier").addClass('hide');
+                    $("#detail_supplier").removeAttr('required');
+                    $("#detail_supplier").prop("selectedIndex", 0);
+                    $("#v_detail_customer").addClass('hide');
+                    $("#detail_customer").removeAttr('required');
+                    $("#detail_customer").prop("selectedIndex", 0);
+                    $("#v_detail_unit").addClass('hide');
+                    $("#detail_unit").removeAttr('required');
+                    $("#detail_unit").prop("selectedIndex", 0);
+                    $("#v_detail_branch").addClass('hide');
+                    $("#detail_branch").removeAttr('required');
+                    $("#detail_branch").prop("selectedIndex", 0);
+                    $("#v_detail_product").addClass('hide');
+                    $("#detail_product").removeAttr('required');
+                    $("#detail_product").prop("selectedIndex", 0);
+                    $("#v_detail_inputvat").addClass('hide');
+                    $("#detail_inputvat").removeAttr('required');
+                    $("#detail_inputvat").prop("selectedIndex", 0);
+                    $("#v_detail_outputvat").addClass('hide');
+                    $("#detail_outputvat").removeAttr('required');
+                    $("#detail_outputvat").prop("selectedIndex", 0);
+                    $("#v_detail_vat").addClass('hide');
+                    $("#detail_vat").removeAttr('required');
+                    $("#detail_vat").prop("selectedIndex", 0);
+                    $("#v_detail_wtax").addClass('hide');
+                    $("#detail_wtax").removeAttr('required');
+                    $("#detail_wtax").prop("selectedIndex", 0);
+                    $("#v_detail_ataxcode").addClass('hide');
+                    $("#detail_ataxcode").removeAttr('required');
+                    $("#detail_ataxcode").prop("selectedIndex", 0);
+                    $("#detail_creditamount").val("0.00");
+                    $("#detail_debitamount").val("0.00");
+
+                    if (id != "") {
+                        $.ajax({
+                            url: "{% url 'acctentry:checkchartvalidation' %}",
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                'csrfmiddlewaretoken': "{{csrf_token}}",
+                                'chartid':  id,
+                            },
+                            success: function(response){
+                                chart = response.chart;
+                                chartdata = $.parseJSON(chart);
+                                //console.log(chartdata[0].fields['bankaccount_enable']);
+                                if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
+                                    $("#v_detail_bankaccount").removeClass('hide');
+                                    $("#detail_bankaccount").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['department_enable']);
+                                if (chartdata[0].fields['department_enable'] == 'Y') {
+                                    $("#v_detail_department").removeClass('hide');
+                                    $("#detail_department").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['employee_enable']);
+                                if (chartdata[0].fields['employee_enable'] == 'Y') {
+                                    $("#v_detail_employee").removeClass('hide');
+                                    $("#detail_employee").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['supplier_enable']);
+                                if (chartdata[0].fields['supplier_enable'] == 'Y') {
+                                    $("#v_detail_supplier").removeClass('hide');
+                                    $("#detail_supplier").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['customer_enable']);
+                                if (chartdata[0].fields['customer_enable'] == 'Y') {
+                                    $("#v_detail_customer").removeClass('hide');
+                                    $("#detail_customer").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['unit_enable']);
+                                if (chartdata[0].fields['unit_enable'] == 'Y') {
+                                    $("#v_detail_unit").removeClass('hide');
+                                    $("#detail_unit").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['branch_enable']);
+                                if (chartdata[0].fields['branch_enable'] == 'Y') {
+                                    $("#v_detail_branch").removeClass('hide');
+                                    $("#detail_branch").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['product_enable']);
+                                if (chartdata[0].fields['product_enable'] == 'Y') {
+                                    $("#v_detail_product").removeClass('hide');
+                                    $("#detail_product").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['inputvat_enable']);
+                                if (chartdata[0].fields['inputvat_enable'] == 'Y') {
+                                    $("#v_detail_inputvat").removeClass('hide');
+                                    $("#detail_inputvat").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['outputvat_enable']);
+                                if (chartdata[0].fields['outputvat_enable'] == 'Y') {
+                                    $("#v_detail_outputvat").removeClass('hide');
+                                    $("#detail_outputvat").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['vat_enable']);
+                                if (chartdata[0].fields['vat_enable'] == 'Y') {
+                                    $("#v_detail_vat").removeClass('hide');
+                                    $("#detail_vat").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['wtax_enable']);
+                                if (chartdata[0].fields['wtax_enable'] == 'Y') {
+                                    $("#v_detail_wtax").removeClass('hide');
+                                    $("#detail_wtax").attr('required', 'required');
+                                }
+                                //console.log(chartdata[0].fields['ataxcode_enable']);
+                                if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
+                                    $("#v_detail_ataxcode").removeClass('hide');
+                                    $("#detail_ataxcode").attr('required', 'required');
+                                }
+
+                                unit = response.unit;
+                                unitlist = $.parseJSON(unit);
+
+                                //console.log(unitlist);
+                                var unitoptions = '<option value="">-- Select Unit --</option>';
+                                $.each(unitlist, function (k, v) {
+                                    //console.log(v);
+                                    unitoptions += '<option value="' + v.pk + '">' + v.fields.description + '</option>';
+                                });
+                                $("#detail_unit").html(unitoptions);
+                                $("#detail_unit option:first").attr('selected', 'selected');
+                                $("#detail_unit").attr('disabled', false);
+
+
+                            }, error: function(response) {
+                                console.debug(reponse);
+                            }
+                        });
+                    }
+                }
+            }
+        }());
+
+        $('#btn_detailcancel').click(function(){
+            $('.trd_data').css("background-color","");
+            $('.btndadd').show();
+            $('.btndupdate').hide();
+
+            $("#btn_updatedetailbsubmit").attr('data-id', 0);
+
+            $("#detail_chartofaccount").val("").trigger('change');
+            $("#detail_chartofaccount").removeAttr('disabled');
+            $("#detail_bankaccount").val("");
+            $("#detail_department").val("");
+            $("#detail_employee").val("");
+            $("#detail_supplier").val("");
+            $("#detail_customer").val("");
+            $("#detail_unit").val("");
+            $("#detail_branch").val("");
+            $("#detail_productt").val("");
+            $("#detail_inputvat").val("");
+            $("#detail_outputvat").val("");
+            $("#detail_vat").val("");
+            $("#detail_wtax").val("");
+            $("#detail_ataxcode").val("");
             $("#detail_creditamount").val("0.00");
             $("#detail_debitamount").val("0.00");
-
-            if ($("#detail_chartofaccount").val() != "") {
-                $.ajax({
-                    url: "{% url 'acctentry:checkchartvalidation' %}",
-                    type: "post",
-                    dataType: "json",
-                    data: {
-                        'csrfmiddlewaretoken': "{{csrf_token}}",
-                        'chartid':  $('#detail_chartofaccount').val(),
-                    },
-                    success: function(response){
-                        chart = response.chart;
-                        chartdata = $.parseJSON(chart);
-                        //console.log(chartdata[0].fields['bankaccount_enable']);
-                        if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
-                            $("#v_detail_bankaccount").removeClass('hide');
-                            $("#detail_bankaccount").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['department_enable']);
-                        if (chartdata[0].fields['department_enable'] == 'Y') {
-                            $("#v_detail_department").removeClass('hide');
-                            $("#detail_department").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['employee_enable']);
-                        if (chartdata[0].fields['employee_enable'] == 'Y') {
-                            $("#v_detail_employee").removeClass('hide');
-                            $("#detail_employee").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['supplier_enable']);
-                        if (chartdata[0].fields['supplier_enable'] == 'Y') {
-                            $("#v_detail_supplier").removeClass('hide');
-                            $("#detail_supplier").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['customer_enable']);
-                        if (chartdata[0].fields['customer_enable'] == 'Y') {
-                            $("#v_detail_customer").removeClass('hide');
-                            $("#detail_customer").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['unit_enable']);
-                        if (chartdata[0].fields['unit_enable'] == 'Y') {
-                            $("#v_detail_unit").removeClass('hide');
-                            $("#detail_unit").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['branch_enable']);
-                        if (chartdata[0].fields['branch_enable'] == 'Y') {
-                            $("#v_detail_branch").removeClass('hide');
-                            $("#detail_branch").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['product_enable']);
-                        if (chartdata[0].fields['product_enable'] == 'Y') {
-                            $("#v_detail_product").removeClass('hide');
-                            $("#detail_product").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['inputvat_enable']);
-                        if (chartdata[0].fields['inputvat_enable'] == 'Y') {
-                            $("#v_detail_inputvat").removeClass('hide');
-                            $("#detail_inputvat").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['outputvat_enable']);
-                        if (chartdata[0].fields['outputvat_enable'] == 'Y') {
-                            $("#v_detail_outputvat").removeClass('hide');
-                            $("#detail_outputvat").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['vat_enable']);
-                        if (chartdata[0].fields['vat_enable'] == 'Y') {
-                            $("#v_detail_vat").removeClass('hide');
-                            $("#detail_vat").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['wtax_enable']);
-                        if (chartdata[0].fields['wtax_enable'] == 'Y') {
-                            $("#v_detail_wtax").removeClass('hide');
-                            $("#detail_wtax").attr('required', 'required');
-                        }
-                        //console.log(chartdata[0].fields['ataxcode_enable']);
-                        if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
-                            $("#v_detail_ataxcode").removeClass('hide');
-                            $("#detail_ataxcode").attr('required', 'required');
-                        }
-
-                        unit = response.unit;
-                        unitlist = $.parseJSON(unit);
-
-                        //console.log(unitlist);
-                        var unitoptions = '<option value="">-- Select Unit --</option>';
-                        $.each(unitlist, function (k, v) {
-                            //console.log(v);
-                            unitoptions += '<option value="' + v.pk + '">' + v.fields.description + '</option>';
-                        });
-                        $("#detail_unit").html(unitoptions);
-                        $("#detail_unit option:first").attr('selected', 'selected');
-                        $("#detail_unit").attr('disabled', false);
-
-
-                    }, error: function(response) {
-                        console.debug(reponse);
-                    }
-                });
-            }
         });
 
         $("#btnclosebreakdown").click(function() {

@@ -89,8 +89,10 @@ def savemaccountingentry(request):
 
     if request.method == 'POST':
         # Save Data To JVDetail
-        detailtemp = Jvdetailtemp()
-        detailtemp.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
+        if request.POST['table'] == 'jvdetailtemp':
+            detailtemp = Jvdetailtemp()
+            detailtemp.item_counter = len(Jvdetailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1
+
         detailtemp.chartofaccount = request.POST['chartofaccount']
 
         if request.POST['bankaccount']:
@@ -99,10 +101,19 @@ def savemaccountingentry(request):
             detailtemp.department = request.POST['department']
         if request.POST['employee']:
             detailtemp.employee = request.POST['employee']
+            employee = Employee.objects.get(pk=request.POST['employee'])
+            if employee.multiplestatus == 'Y':
+                detailtemp.employeebreakstatus = 1
         if request.POST['supplier']:
             detailtemp.supplier = request.POST['supplier']
+            supplier = Supplier.objects.get(pk=request.POST['supplier'])
+            if supplier.multiplestatus == 'Y':
+                detailtemp.supplierbreakstatus = 1
         if request.POST['customer']:
             detailtemp.customer = request.POST['customer']
+            customer = Customer.objects.get(pk=request.POST['customer'])
+            if customer.multiplestatus == 'Y':
+                detailtemp.customerbreakstatus = 1
         if request.POST['unit']:
             detailtemp.unit = request.POST['unit']
         if request.POST['branch']:
@@ -142,7 +153,6 @@ def savemaccountingentry(request):
             'datatemp': querystmtdetail(table, request.POST['secretkey']),
             'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
         }
-        #print(context)
         data = {
             'datatable': render_to_string('acctentry/datatable.html', context),
             'status': 'success',
@@ -508,7 +518,8 @@ def querystmtdetail(temptable, secretkey):
                 "o.code AS outputvatcode, o.description AS outputvatname, " \
                 "v.code AS vatcode, v.description AS vatname, " \
                 "w.code AS wtaxcode, w.description AS wtaxname, " \
-                "a.code AS ataxcode, a.description AS ataxname, " \
+                "a.code AS ataxcode, a.description AS ataxname," \
+                "temp.customerbreakstatus, temp.supplierbreakstatus, temp.employeebreakstatus, " \
                 "FORMAT(temp.creditamount, 2) AS creditamount, FORMAT(temp.debitamount, 2) AS debitamount, " \
                 "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
                 "FROM "+temptable+" AS temp " \
@@ -540,6 +551,40 @@ def querytotaldetail(temptable, secretkey):
     return data
 
 @csrf_exempt
+def updateentry(request):
+
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        table = request.POST['table']
+
+        info = getdatainfo(table,id)
+
+        list = []  # create list
+        for row in info:  # populate list
+            list.append({'id': row.id, 'item_counter': row.item_counter,
+                         'jvmain': row.jvmain, 'jv_num': row.jv_num, 'jv_date': str(row.jv_date),
+                         'chartofaccount': row.chartofaccount, 'bankaccount': row.bankaccount,
+                         'department': row.department, 'employee': row.employee, 'supplier': row.supplier,
+                         'customer': row.customer, 'unit': row.unit, 'branch': row.branch,
+                         'product': row.product, 'inputvat': row.inputvat, 'outputvat': row.outputvat,
+                         'vat': row.vat, 'wtax': row.wtax, 'ataxcode': row.ataxcode,
+                         'debitamount': str(row.debitamount), 'creditamount': str(row.creditamount), 'amount': str(row.amount),
+                         'creditamountformatted': str(row.creditamountformatted), 'debitamountformatted': str(row.debitamountformatted)
+                         })
+        infodata = json.dumps(list)
+        data = {
+            'info': infodata,
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
 def updatebreakentry(request):
 
     if request.method == 'POST':
@@ -569,6 +614,103 @@ def updatebreakentry(request):
     else:
         data = {
             'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def saveupdatemaccountingentry(request):
+    if request.method == 'POST':
+
+        id = request.POST['id']
+        secretkey = request.POST['secretkey']
+        table = request.POST['table']
+
+        datastring = ""
+
+        if request.POST['bankaccount']:
+            datastring += "bankaccount='" + request.POST['bankaccount'] + "',"
+        else:
+            datastring += "bankaccount='0',"
+        if request.POST['department']:
+            datastring += "department='" + request.POST['department'] + "',"
+        else:
+            datastring += "department='0',"
+        if request.POST['employee']:
+            datastring += "employee='" + request.POST['employee'] + "',"
+        else:
+            datastring += "employee='0',"
+        if request.POST['supplier']:
+            datastring += "supplier='" + request.POST['supplier'] + "',"
+        else:
+            datastring += "supplier='0',"
+        if request.POST['customer']:
+            datastring += "customer='" + request.POST['customer'] + "',"
+        else:
+            datastring += "customer='0',"
+        if request.POST['unit']:
+            datastring += "unit='" + request.POST['unit'] + "',"
+        else:
+            datastring += "unit='0',"
+        if request.POST['branch']:
+            datastring += "branch='" + request.POST['branch'] + "',"
+        else:
+            datastring += "branch='0',"
+        if request.POST['product']:
+            datastring += "product='" + request.POST['product'] + "',"
+        else:
+            datastring += "product='0',"
+        if request.POST['inputvat']:
+            datastring += "inputvat='" + request.POST['inputvat'] + "',"
+        else:
+            datastring += "inputvat='0',"
+        if request.POST['outputvat']:
+            datastring += "outputvat='" + request.POST['outputvat'] + "',"
+        else:
+            datastring += "outputvat='0',"
+        if request.POST['vat']:
+            datastring += "vat='" + request.POST['vat'] + "',"
+        else:
+            datastring += "vat='0',"
+        if request.POST['wtax']:
+            datastring += "wtax='" + request.POST['wtax'] + "',"
+        else:
+            datastring += "wtax='0',"
+        if request.POST['ataxcode']:
+            datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
+        else:
+            datastring += "ataxcode='0',"
+
+        datastring += "balancecode='D',"
+        if request.POST['creditamount']:
+            datastring += "balancecode='C',"
+
+        if request.POST['creditamount']:
+            datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
+        else:
+            datastring += "creditamount='0.00',"
+        if request.POST['debitamount']:
+            datastring += "debitamount='" + request.POST['debitamount'].replace(',', '') + "',"
+        else:
+            datastring += "debitamount='0.00',"
+
+        datastring += "isdeleted='0'"
+
+
+        updatedetailtemp(table, id, datastring)
+
+        context = {
+            'datatemp': querystmtdetail(table, request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
+        }
+    else:
+        data = {
+            'status': 'error'
         }
 
     return JsonResponse(data)
@@ -622,7 +764,7 @@ def saveupdatedetailbreakdown(request):
 
         datastring += "particular='" + request.POST['particular'] + "'"
 
-        updatedetaildatabreakdown(table, id, datastring)
+        updatedetailtemp(table, id, datastring)
 
         context = {
             'detailid': detailid,
@@ -643,10 +785,13 @@ def saveupdatedetailbreakdown(request):
 
     return JsonResponse(data)
 
-def updatedetaildatabreakdown(table, id, datastring):
+def updatedetailtemp(table, id, datastring):
     cursor = connection.cursor()
 
     stmt = "UPDATE " + table + " SET "+datastring+"  WHERE id='" + id + "'"
 
+    print stmt
     return cursor.execute(stmt)
+
+
 
