@@ -1,0 +1,237 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Canvass Sheet {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        .select2-container--default .select2-results__option[aria-disabled=true] {
+            display: none;
+        }
+        .widgett.widgett-article.widgett-shadow {
+            margin-bottom: 5px;
+            color: white;
+        }
+        #prfcontainer {
+            height: 215px;
+            padding: 10px;
+            background-color: #e6e6e6;
+            overflow: scroll;
+        }
+        .item_container{
+            border-top: 4px solid #dff0d8;
+        }
+        #tempForm{
+            display: none;
+        }
+    </style>
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="margin-bottom-20">
+                <form method="post" id="form-b">
+                    {% csrf_token %}
+                    <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
+                    <div class="row col-md-8 row-lg margin-left-10">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label" for="id_csnum">Number</label>
+                            <input type="text" class="form-control input-sm" id="id_csnum" placeholder="csxxxxxxx" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label" for="id_csdate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_csdate" name="csdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.csdate.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.csdate.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_designatedapprover">Approver</label>
+                            <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                <option value="">-- Select --</option>
+                                {% for designatedapprover in designatedapprover %}
+                                    <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label" for="id_csstatus">CS Status</label>
+                            <input type="text" class="form-control input-sm" id="id_csstatus" value="FOR APPROVAL" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-3 {{ form.cstype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_cstype">CS Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_cstype" name="cstype">
+                                {% for id,name in form.fields.cstype.choices %}
+                                    <option value="{{ id }}"{% if form.cstype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.cstype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row col-md-4 row-lg margin-left-10">
+                        <label class="control-label" for="id_cstype">PRF(s) Imported</label><br>
+                        <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
+                            <div class="shade"><div class="loader two-color"></div></div>
+{#                            <div class="widgett widgett-article widgett-shadow">#}
+{#                                <div class="widgett-header cover padding-0 bg-grey-600">#}
+{#                                    <div class="background-cover padding-10">#}
+{#                                        PRF-2017000001#}
+{#                                        <button type="button" class="close"><i class="icon fa-close" aria-hidden="true"></i></button>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+                        </div>
+                    </div>
+                    <div class="col-sm-12 margin-bottom-10">
+                        <div class="col-sm-6">
+                            <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="col-sm-12" id="detailentry" style="display: none">
+                    <div class="panel panel-bordered">
+                        <div class="shade"><div class="loader two-color"></div></div>
+                        <div class="panel-body">
+                            <h4>Add Items</h4>
+                            <div id="detailsentryview">
+                                {% include "canvasssheet/createdetails.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="panel">
+                        <div class="shade"><div class="loader two-color"></div></div>
+                        <div class="panel-body">
+                            <table class="col-sm-6 table margin-bottom-0" id="summary" style="border: 1px solid #e0e0e0;">
+                                <thead>
+                                    <tr class="success">
+                                        <th style="width: 40px">#</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th style="width:90px">Quantity</th>
+                                        <th colspan="2" style="text-align: center">Supplier</th>
+                                        <th class="text-right" style="padding-right: 30px">CS Cost</th>
+                                        <th class="text-center" style="width: 130px;">Nego Cost</th>
+                                        <th class="text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+{#                                    <tr id="14" class="item_container">#}
+{#                                        <td rowspan="3">1</td>#}
+{#                                        <td rowspan="3">SI-CLASS-asda</td>#}
+{#                                        <td rowspan="3">asda</td>#}
+{#                                        <td rowspan="3" class="item_quantity">13</td>#}
+{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
+{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
+{#                                        <td class="small">100.00</td>#}
+{#                                        <td class="small">95.00</td>#}
+{#                                        <td class="small">1,235.00</td>#}
+{#                                    </tr>#}
+{#                                    <tr>#}
+{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
+{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
+{#                                        <td class="small">100.00</td>#}
+{#                                        <td class="small">95.00</td>#}
+{#                                        <td class="small">1,235.00</td>#}
+{#                                    </tr>#}
+{#                                    <tr>#}
+{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
+{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
+{#                                        <td class="small">100.00</td>#}
+{#                                        <td class="small">95.00</td>#}
+{#                                        <td class="small">1,235.00</td>#}
+{#                                    </tr>#}
+{#                                    <tr id="6" class="item_container">#}
+{#                                        <td>2</td>#}
+{#                                        <td>asda</td>#}
+{#                                        <td>xasx</td>#}
+{#                                        <td class="item_quantity">2</td>#}
+{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="2"></td>#}
+{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
+{#                                        <td class="small">100.00</td>#}
+{#                                        <td class="small">95.00</td>#}
+{#                                        <td class="small">1,235.00</td>#}
+{#                                    </tr>#}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tempForm"></div>
+
+            <div class="clearfix"></div>
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Select Purchase Requisition Form</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <select name="" id="importrfselect2" class="form-control input-sm select2" style="width: 100%;">
+                                    <option value="">-- Select --</option>
+                                    {% for prfmain in prfmain %}
+                                        <option value="{{ prfmain.prfnum }}"
+                                                data-refnum="{{ prfmain.prfnum }}"
+                                                data-urgency="{{ prfmain.get_urgencytype_display }}"
+                                                data-dateneeded="{{ prfmain.dateneeded }}"
+                                                data-approver="{{ prfmain.actualapprover }}">{{ prfmain.prfnum }}</option>
+                                    {% endfor %}
+                                </select>
+                                <br><br>
+                                <table class="col-md-12 table-bordered" id="importrfpreview">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center"><small><b>PRF No.</b></small></th>
+                                            <th style="text-align: center"><small><b>Urgency Type</b></small></th>
+                                            <th style="text-align: center"><small><b>Actual Approver</b></small></th>
+                                            <th style="text-align: center"><small><b>Date Needed</b></small></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br><br>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="importconfirm" data-dismiss="modal" disabled="disabled">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+    </script>
+{% endblock extra_js %}
