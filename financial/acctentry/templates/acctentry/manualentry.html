@@ -168,8 +168,10 @@
             </div>
         </div>
         <div class="col-sm-12 pull-left margin-bottom-10">
-            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Accounting Entry</button>
-            <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light btndadd" id="btn_detailsubmit">Add Accounting Entry</button>
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light btndadd" id="btn_detailclose">Close</button>
+            <button type="button" class="btn btn-round btn-success waves-effect waves-light btndupdate" style="display: none" id="btn_updatedetailsubmit">Update Entry</button>
+            <button type="button" class="btn btn-round btn-danger waves-effect waves-light btndupdate" style="display: none" id="btn_detailcancel">Close Entry</button>
         </div>
     </div>
 </form>
@@ -413,7 +415,7 @@
             if (parseFloat(amountdetail) != parseFloat(amount)) {
                 var amount = parseFloat(amountdetail) - parseFloat(amount);
                 //console.log('#tdtarget_'+datatype+''+detailid);
-                alert('Account does not tally with total balance!. Amount differ by '+abs(amount));
+                alert('Account does not tally with total balance!. Amount differ by '+amount);
                 $('#tdtarget_'+datatype+''+detailid).addClass('unbalancebreakdown').css('background-color', '#fa9b74');
             } else {
                 console.log('equal');

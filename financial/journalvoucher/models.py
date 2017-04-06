@@ -130,6 +130,9 @@ class Jvdetailtemp(models.Model):
     creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
     amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
 
     STATUS_CHOICES = (
         ('A', 'Active'),

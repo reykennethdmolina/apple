@@ -527,6 +527,7 @@ def querystmtdetail(temptable, secretkey):
                 "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
                 "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
                 "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2) ORDER BY temp.item_counter"
+
     data = executestmt(stmt)
     return data
 

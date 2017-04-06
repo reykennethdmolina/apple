@@ -107,6 +107,52 @@
         });
     });
 
+    $('.detailedit').click(function(){
+        var id = $(this).data('id');
+
+        alert(id);
+{#        $('.tr_data').css("background-color","");#}
+{#        $("#tr_data_"+id).css('background-color', '#fa9b74');#}
+{#        $("#btn_updatedetailbsubmit").attr('data-id', id);#}
+
+        $('.btndadd').hide();
+        $('.btndupdate').show();
+
+{#        $.ajax({#}
+{#            url: "{% url 'acctentry:updatebreakentry' %}",#}
+{#            type: "post",#}
+{#            data: {'csrfmiddlewaretoken': "{{csrf_token}}",#}
+{#                   'secretkey': $("#secretkey").val(),#}
+{#                   'table': 'jvdetailbreakdowntemp',#}
+{#                   'id': id,#}
+{#            },#}
+{#            success: function(response) {#}
+{#                var info = $.parseJSON(response.info)#}
+{#                $("#detailb_particular").val(info[0].particular);#}
+{#                $("#detailb_chartofaccount").val(info[0].chartofaccount);#}
+{#                $("#detailb_bankaccount").val(info[0].bankaccount);#}
+{#                $("#detailb_department").val(info[0].department);#}
+{#                $("#detailb_employee").val(info[0].employee);#}
+{#                $("#detailb_supplier").val(info[0].supplier);#}
+{#                $("#detailb_customer").val(info[0].customer);#}
+{#                $("#detailb_unit").val(info[0].unit);#}
+{#                $("#detailb_branch").val(info[0].branch);#}
+{#                $("#detailb_product").val(info[0].product);#}
+{#                $("#detailb_inputvat").val(info[0].inputvat);#}
+{#                $("#detailb_outputvat").val(info[0].outputvat);#}
+{#                $("#detailb_vat").val(info[0].vat);#}
+{#                $("#detailb_wtax").val(info[0].wtax);#}
+{#                $("#detailb_ataxcode").val(info[0].ataxcode);#}
+{#                $("#detailb_creditamount").val(info[0].creditamountformatted);#}
+{#                $("#detailb_debitamount").val(info[0].debitamountformatted);#}
+{#                $("#detailb_chartofaccount").focus();#}
+{#            },#}
+{#            error: function(response) {#}
+{#                console.log(response);;#}
+{#            }#}
+{#        });#}
+    });
+
     $('.detaildelete').click(function(){
         var id = $(this).data('id');
         var ans = confirm('Are you sure you want to delete this data?');
