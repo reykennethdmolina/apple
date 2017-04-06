@@ -61,7 +61,11 @@ class Prfmain(models.Model):
     class Meta:
         db_table = 'prfmain'
         ordering = ['-pk']
-        # permissions = (("view_purchaserequisitionform", "Can view purchaserequisitionform"),)
+        permissions = (("view_purchaserequisitionform", "Can view purchaserequisitionform"),
+                       ("view_assignprf", "Can view only assigned prf"),
+                       ("view_allassignprf", "Can view all prf"),
+                       ("can_approveprf", "Can approve prf"),
+                       ("can_disapproveprf", "Can disapprove prf"),)
 
     def get_absolute_url(self):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
