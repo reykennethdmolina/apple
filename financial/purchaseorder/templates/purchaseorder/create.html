@@ -67,67 +67,43 @@
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <span class="control-label"><strong>PURCHASE:</strong></span>
+                            <span class="control-label"><strong>PURCHASE:</strong></span><br>
                             <div class="col-sm-12 margin-top-10">
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_quantity" class="control-label col-sm-6"><small>Quantity</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_quantity" class="control-label col-sm-6">Quantity</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_quantity"
-                                                   name="quantity" placeholder="0" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.quantity.errors.as_text }}</span>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_quantity">0</div>
+                                    </div><br><br>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <br><br><label for="id_baseamount" class="control-label col-sm-6"><small>Amount</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_amount" class="control-label col-sm-6">Amount</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_baseamount"
-                                                   name="baseamount" placeholder="0.00" readonly="readonly">
-                                        </div>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_amount">0.00</div>
                                     </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.baseamount.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_discount" class="control-label col-sm-6"><small>Discount</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_discount" class="control-label col-sm-6">Discount</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_discount"
-                                                   name="discount" placeholder="0.00" readonly="readonly">
-                                        </div>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_discount">0.00</div>
                                     </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.discount.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_purchaseamount" class="control-label col-sm-6"><small>Total Gross</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_totalgross" class="control-label col-sm-6">Total Gross</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_purchaseamount"
-                                                   name="purchaseamount" placeholder="0.00" readonly="readonly">
-                                        </div>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_totalgross">0.00</div>
                                     </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.purchaseamount.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <label for="id_addedvat" class="control-label col-sm-6"><small>Add VAT</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_addedvat" class="control-label col-sm-6">Add VAT</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_addedvat"
-                                                   name="addedvat" placeholder="0.00" readonly="readonly">
-                                        </div>
-                                    </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.addedvat.errors.as_text }}</span>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_addedvat">0.00</div>
+                                    </div><br><br>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0">
-                                    <br><br><br><br><br><label for="id_totalamount" class="control-label col-sm-6"><small>Total Amount</small></label>
+                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
+                                    <label for="lbl_totalamount" class="control-label col-sm-6">Total Amount</label>
                                     <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right">
-                                            <input type="text" class="form-control input-sm text-right" id="id_totalamount"
-                                                   name="totalamount" placeholder="0.00" readonly="readonly">
-                                        </div>
+                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_totalamount">0.00</div>
                                     </div>
-                                    <span class="help-block form-error help-block-sm">{{ form.totalamount.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
@@ -168,7 +144,7 @@
                                 <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
                                     <option value="">-- Select --</option>
                                     {% for vat in vat %}
-                                        <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
+                                        <option data-rate="{{ vat.rate }}" value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
@@ -209,19 +185,22 @@
                         <div class="col-sm-12">
                             <div class="panel">
                                 <div class="shade"><div class="loader two-color"></div></div>
-                                <div class="panel-body">
+                                <div class="panel-body" style="overflow: auto; width: 100%">
                                     <!-- Start Editable Section -->
                                     <table class="table table-striped margin-bottom-0" id="summary">
                                         <thead>
-                                            <tr>
+                                            <tr class="small">
                                                 <th>No.</th>
-                                                <th style="width:300px">Item Name (UM)</th>
-                                                <th style="width:100px">Quantity</th>
-                                                <th style="width:150px">Unit Cost</th>
-                                                <th style="width:150px">Net Amount</th>
-                                                <th style="width:100px">Department</th>
-                                                <th style="width:100px">% Disc</th>
-                                                <th style="width:200px">Remarks</th>
+                                                <th style="min-width: 200px; text-align: center">Item Name (UM)</th>
+                                                <th style="min-width: 90px; text-align: center">Quantity</th>
+                                                <th style="min-width: 150px; text-align: center">Unit Cost</th>
+                                                <th style="min-width: 150px; text-align: center">Net Amount</th>
+                                                <th style="min-width: 90px; text-align: center">Department</th>
+                                                <th style="min-width: 90px; text-align: center">% Disc</th>
+                                                <th style="min-width: 150px; text-align: center">Unit Cost (VAT-exclusive)</th>
+                                                <th style="min-width: 150px; text-align: center">Gross Amount</th>
+                                                <th style="min-width: 150px; text-align: center">Discount Amount</th>
+                                                <th style="min-width: 250px; text-align: center">Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>

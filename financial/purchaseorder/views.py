@@ -32,7 +32,7 @@ class CreateView(CreateView):
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
         context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
@@ -87,9 +87,38 @@ def savedetailtemp(request):
 
         data = {
             'status': 'success',
-            # 'itemno': request.POST['itemno'],
-            # 'quantity': request.POST['id_quantity'],
-            # 'remarks': request.POST['id_remarks'],
+            'itemno': request.POST['itemno'],
+            'quantity': request.POST['id_quantity'],
+            'unitcost': request.POST['id_unitcost'],
+            'department': Department.objects.get(pk=request.POST['id_department']).code,
+            'discountrate': request.POST['id_discountrate'],
+            'remarks': request.POST['id_remarks'],
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def deletedetailtemp(request):
+
+    if request.method == 'POST':
+        try:
+            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'],
+                                                  secretkey=request.POST['secretkey'],
+                                                  pomain=None)
+            detailtemp.delete()
+        except Podetailtemp.DoesNotExist:
+            print "temp detail has pomain"
+            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'], pomain__ponum=request.POST['ponum'])
+            detailtemp.isdeleted = 1
+            detailtemp.save()
+
+        data = {
+            'status': 'success',
         }
     else:
         data = {

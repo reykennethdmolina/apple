@@ -24,7 +24,7 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Rfmain.objects.all().filter(isdeleted=0, rfstatus='F').order_by('enterdate')
+        return Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -201,7 +201,7 @@ class UpdateView(UpdateView):
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
         Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
-        HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
+        return HttpResponseRedirect('/requisitionform/')
 
 
 @method_decorator(login_required, name='dispatch')

@@ -36,7 +36,6 @@
                     <input type="number" class="form-control input-sm" id="id_unitcost" name="unitcost">
                     <span class="help-block form-error">{{ form.unitcost.errors.as_text }}</span>
                 </div>
-{#                PUT MASKING IN DISCOUNT RATE#}
                 <label class="col-sm-1 control-label" for="id_discountrate">Disc. (%)</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control rate input-sm" id="id_discountrate" name="discountrate" maxlength="2">
@@ -60,7 +59,7 @@
 <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        summary = $("#summary tbody")
+        summary = $("#summary tbody");
 
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
@@ -75,26 +74,45 @@
                         'id_item': $("#id_item_name").val(),
                         'id_quantity': $("#id_qty").val(),
                         'id_unitcost': $("#id_unitcost").val(),
-                        'id_discountrate': parseInt($.trim($("#id_discountrate").val())),
+                        'id_discountrate': $.trim($("#id_discountrate").val()) == ''
+                                ? 0 : parseInt($.trim($("#id_discountrate").val())),
                         'id_remarks': $("#id_remarks").val(),
                         'id_department': $("#id_department").val(),
                         'secretkey': $("#secretkey").val()},
 
                 success: function(response) {
-                    console.log('success');
-{#                    $("#itemno").text(parseInt($("#itemno").text()) + 1);#}
-{##}
-{#                    summary.append("<tr><td></td>" +#}
-{#                            "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +#}
-{#                            "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control' value='" + response.quantity + "'></td>" +#}
-{#                            "<td><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control' value='" + response.remarks + "'></td>" +#}
-{#                            "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +#}
-{#                            "</tr>");#}
-{##}
-{#                    $("#id_item_name").val('').trigger('change.select2');#}
-{#                    $("#id_quantity").val('');#}
-{#                    $("#id_remarks").val('');#}
-{#                    reorderItems();#}
+                    $("#itemno").text(parseInt($("#itemno").text()) + 1);
+                    parsedQuantity = response.quantity == '' ? 0 : parseFloat(response.quantity);
+                    parsedUnitCost = response.unitcost == '' ? 0 : parseFloat(response.unitcost);
+                    parsedDiscountRate = response.discountrate == '' ? 0 : (parseFloat(response.discountrate)/100);
+                    parsedVATRate = $('#id_vat').find(":selected").data('rate') == undefined ? 0 :
+                                    parseFloat($('#id_vat').find(":selected").data('rate'))/100;
+
+                    tableValues = computeTableValues(parsedQuantity, parsedUnitCost, parsedDiscountRate, parsedVATRate);
+
+                    summary.append("<tr class='small'><td></td>" +
+                        "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
+                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control tblQuantity input-sm' value='" + response.quantity + "'></td>" +
+                        "<td><input type='number' name='temp_unitcost' form='form-b' step='any' class='form-control tblUnitCost input-sm' value='" + response.unitcost + "'></td>" +
+                        "<td>" + tableValues.netAmount + "</td>" +
+                        "<td>" + response.department + "</td>" +
+                        "<td><input type='number' name='temp_discountrate' form='form-b' step='any' class='form-control tblDiscountRate input-sm' value='" + response.discountrate + "'></td>" +
+                        "<td>" + tableValues.unitCostVATExclusive + "</td>" +
+                        "<td>" + tableValues.grossAmount + "</td>" +
+                        "<td>" + tableValues.discountAmount + "</td>" +
+                        "<td><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control input-sm' value='" + response.remarks + "'></td>" +
+                        "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                        "</tr>");
+
+                    $("#id_item_name").val('').trigger('change.select2');
+                    $("#id_department").val('').trigger('change.select2');
+                    $("#id_qty").val('');
+                    $("#id_unitcost").val('');
+                    $("#id_discountrate").val('');
+                    $("#id_remarks").val('');
+                    reorderItems();
+                    computeTotalAmounts();
+
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -109,11 +127,11 @@
             var elem = $(this);
 
             $.ajax({
-                url: "{% url 'requisitionform:deletedetailtemp' %}",
+                url: "{% url 'purchaseorder:deletedetailtemp' %}",
                 type: "post",
                 data: {'itemno': $(this).data('itemno'),
-                        'secretkey': $("#id_secretkey").val(),
-                        'rfnum': $("#id_rfnum").val()
+                        'secretkey': $("#secretkey").val(),
+                        'ponum': $("#id_ponum").val()
                 },
 
                 success: function(response) {
@@ -132,7 +150,41 @@
             len = summary.find('tr').find('td:eq(0)').length;
             for(i=0;i<len;i++){
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
+                console.log(summary.find('tr:eq('+i+')').find('td:eq(0)').length)
             }
+        }
+
+        function computeTotalAmounts(){
+            var totalQty = 0;
+            var totalVAT = 0;
+            var totalGross = 0;
+            var totalDiscount = 0;
+            var totalBaseAmount = 0;
+            var totalAmount = 0;
+            $('.tblQuantity').each(function(index) {
+                totalQty += parseFloat($(this).val());
+                totalDiscount += parseFloat($(this).parent().next().next().next().next().next().next().next().text());
+                totalAmount += parseFloat($(this).parent().next().next().text());
+                totalGross += parseFloat($(this).parent().next().next().next().next().next().next().text());
+                totalBaseAmount = totalGross + totalDiscount;
+                totalVAT = totalAmount - totalGross;
+
+                $('#lbl_quantity').html(totalQty);
+                $('#lbl_amount').html(totalBaseAmount.toFixed(2));
+                $('#lbl_discount').html(totalDiscount.toFixed(2));
+                $('#lbl_totalgross').html(totalGross.toFixed(2));
+                $('#lbl_addedvat').html(totalVAT.toFixed(2));
+                $('#lbl_totalamount').html(totalAmount.toFixed(2));
+            });
+        }
+
+        function computeTableValues(tblQty, tblUnitCost, tblDiscount, tblVATRate){
+            netAmount = tblQty * tblUnitCost;
+            unitCostVATExclusive = tblUnitCost / (1 + tblVATRate);
+            grossAmount = unitCostVATExclusive * tblQty;
+            discountAmount = grossAmount * tblDiscount;
+            return {netAmount: netAmount.toFixed(2), unitCostVATExclusive: unitCostVATExclusive.toFixed(2),
+                grossAmount: grossAmount.toFixed(2), discountAmount: discountAmount.toFixed(2)};
         }
     });
 </script>

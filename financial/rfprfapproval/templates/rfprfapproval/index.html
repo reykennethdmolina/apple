@@ -144,6 +144,8 @@
                             success: function(response) {
                                 $('#myModal').modal('hide');
                                 $("#forapproval tr:eq("+(itemcount + 1)+")").remove()
+                                $("#id_responseselect").val('A')
+                                $("#id_remarks").val('')
                             }
                             , error: function(response) {
                                 console.debug(response);

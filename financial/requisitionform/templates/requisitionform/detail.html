@@ -138,8 +138,8 @@
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Item Name (UM)</th>
-                                                <th>Quantity</th>
                                                 <th>Remarks</th>
+                                                <th>Quantity</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -147,8 +147,8 @@
                                                 <tr>
                                                     <td>{{ rfdetail.item_counter }}</td>
                                                     <td>{{ rfdetail.invitem_name }} ({{ rfdetail.invitem.unitofmeasure.code }})</td>
-                                                    <td>{{ rfdetail.quantity }}</td>
                                                     <td>{{ rfdetail.remarks }}</td>
+                                                    <td>{{ rfdetail.quantity }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
