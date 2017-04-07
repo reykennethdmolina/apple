@@ -1,0 +1,513 @@
+<form class="form-horizontal" id="detailbreakdownform" method="get" action="">
+<div class="page-grid">
+    <div class="row">
+        <div class="col-lg-12 form-group">
+            <label class="col-sm-3 control-label" for="detailb_chartofaccount">Chart of Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm select2modal" required style="width: 100%" id="detailb_chartofaccount" name="detailb_chartofaccount">
+                {% for chartofaccount in chartofaccount %}
+                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <span class="help-block form-error"></span>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_bankaccount">
+            <label class="col-sm-3 control-label" for="id_detailb_bankaccount">Bank Account</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_bankaccount" name="detailb_bankaccount">
+                <option value="">-- Select Bank Account --</option>
+                {% for bankaccount in bankaccount %}
+                    <option value="{{ bankaccount.id }}">{{ bankaccount.accountnumber }} - {{ bankaccount.code }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_department">
+            <label class="col-sm-3 control-label" for="id_detailb_department">Department</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" style="width: 100%" id="detailb_department" name="detailb_department">
+                <option value="">-- Select Department --</option>
+                {% for department in department %}
+                    <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_employee">
+            <label class="col-sm-3 control-label" for="id_detailb_employee">Employee</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_employee" name="detailb_employee">
+                <option value="">-- Select Employee --</option>
+                {% for employee in employee %}
+                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_supplier">
+            <label class="col-sm-3 control-label" for="id_detailb_supplier">Supplier</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_supplier" name="detailb_supplier">
+                <option value="">-- Select Supplier --</option>
+                {% for supplier in supplier %}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_customer">
+            <label class="col-sm-3 control-label" for="id_detailb_customer">Customer</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_customer" name="detailb_customer">
+                <option value="">-- Select Customer --</option>
+                {% for customer in customer %}
+                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_unit">
+            <label class="col-sm-3 control-label" for="id_detailb_unit">Unit</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_unit" name="detailb_unit">
+                <option value="">-- Select Unit --</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_branch">
+            <label class="col-sm-3 control-label" for="id_detailb_branch">Branch</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_branch" name="detailb_branch">
+                <option value="">-- Select Branch --</option>
+                {% for branch in branch %}
+                    <option value="{{ branch.id }}">{{ branch.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_product">
+            <label class="col-sm-3 control-label" for="id_detailb_product">Product</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_product" name="detailb_product">
+                <option value="">-- Select Product --</option>
+                {% for product in product %}
+                    <option value="{{ product.id }}">{{ product.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_inputvat">
+            <label class="col-sm-3 control-label" for="id_detailb_inputvat">Input VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_inputvat" name="detailb_inputvat">
+                <option value="">-- Select Input VAT --</option>
+                {% for inputvat in inputvat %}
+                    <option value="{{ inputvat.id }}">{{ inputvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_outputvat">
+            <label class="col-sm-3 control-label" for="id_detailb_outputvat">Output VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_outputvat" name="detailb_outputvat">
+                <option value="">-- Select Output VAT --</option>
+                {% for outputvat in outputvat %}
+                    <option value="{{ outputvat.id }}">{{ outputvat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_vat">
+            <label class="col-sm-3 control-label" for="id_detailb_vat">VAT</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_vat" name="detailb_vat">
+                <option value="">-- Select VAT --</option>
+                {% for vat in vat %}
+                    <option value="{{ vat.id }}">{{ vat.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_wtax">
+            <label class="col-sm-3 control-label" for="id_detailb_wtax">WTAX</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_wtax" name="detailb_wtax">
+                <option value="">-- Select WTAX --</option>
+                {% for wtax in wtax %}
+                    <option value="{{ wtax.id }}">{{ wtax.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detailb_ataxcode">
+            <label class="col-sm-3 control-label" for="id_detailb_ataxcode">ATAX Code</label>
+            <div class="col-sm-9">
+                <select class="form-control input-sm" id="detailb_ataxcode" name="detailb_ataxcode">
+                <option value="">-- Select ATAX Code --</option>
+                {% for ataxcode in ataxcode %}
+                    <option value="{{ ataxcode.id }}">{{ ataxcode.code }} - {{ ataxcode.description }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group" id="v_detailb_particular">
+            <label class="col-sm-3 control-label" for="v_detailb_particular">Particular</label>
+            <div class="col-sm-9">
+                <textarea id="detailb_particular" class="form-control text-area" name="detailb_particular" rows="5" data-validation="required"></textarea>
+            </div>
+        </div>
+        <div class="col-lg-12 form-group">
+            <div class="col-lg-6">
+                <label class="col-sm-6 control-label" for="detailb_creditamount">Credit Amount</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control input-sm text-right amount" name="detailb_creditamount" id="detailb_creditamount" placeholder="0.00" value="0.00">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label class="col-sm-6 control-label" for="detailb_debitamount">Debit Amount</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control input-sm text-right amount" name="detailb_debitamount" id="detailb_debitamount" placeholder="0.00" value="0.00">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 pull-left margin-bottom-10">
+            <div class="col-lg-6">
+            <button type="button" class="btn btn-round btn-dark waves-effect waves-light btnadd" id="btn_detailbsubmit">Add Breakdown Entry</button>
+            <button type="button" class="btn btn-round btn-success waves-effect waves-light btnupdate" style="display: none" id="btn_updatedetailbsubmit">Update Breakdown Entry</button>
+            <button type="button" class="btn btn-round btn-danger waves-effect waves-light btnupdate" style="display: none" id="btn_bcancel">Close Breakdown Entry</button>
+            </div>
+            <div class="col-lg-6">
+                <button type="button" class="btn min-width btn-icon skew btn-success waves-effect waves-light">
+                    {% if datainfo.0.balancecode == 'D' %}
+                        DEBIT: {{ datainfo.0.debitamountformatted }}
+                        <input type="hidden" name="detailb_amount" id="detailb_amount" data-balancecode="D" data-type="{{ datatype }}" data-detailid="{{ datainfo.0.id }}" value={{ datainfo.0.debitamount }}>
+                    {% endif %}
+                    {% if datainfo.0.balancecode == 'C' %}
+                        CREDIT: {{ datainfo.0.creditamountformatted }}
+                        <input type="hidden" name="detailb_amount" id="detailb_amount" data-balancecode="C" data-type="{{ datatype }}" data-detailid="{{ datainfo.0.id }}" value={{ datainfo.0.creditamount }}>
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="scrollab-page pre-scrollable margin-10">
+            <div class="is-enabled scrollable-horizontal" data-plugin="scrollable" data-direction="horizontal" style="height: 300px;">
+                <table class="table table-striped margin-bottom-0">
+                        <thead>
+                            <tr>
+                                <th width="5%">Counter</th>
+                                {% if chartofaccount.0.bankaccount_enable == 'Y' %}
+                                    <th width="25%">Bank Account</th>
+                                {% endif %}
+                                {% if chartofaccount.0.department_enable == 'Y' %}
+                                    <th width="25%">Department</th>
+                                {% endif %}
+                                {% if chartofaccount.0.employee_enable == 'Y' %}
+                                    <th width="25%">Employee</th>
+                                {% endif %}
+                                {% if chartofaccount.0.supplier_enable == 'Y' %}
+                                    <th width="25%">Employee</th>
+                                {% endif %}
+                                {% if chartofaccount.0.customer_enable == 'Y' %}
+                                    <th width="25%">Customer</th>
+                                {% endif %}
+                                {% if chartofaccount.0.branch_enable == 'Y' %}
+                                    <th width="25%">Branch</th>
+                                {% endif %}
+                                {% if chartofaccount.0.product_enable == 'Y' %}
+                                    <th width="25%">Product</th>
+                                {% endif %}
+                                {% if chartofaccount.0.inputvat_enable == 'Y' %}
+                                    <th width="25%">Input VAT</th>
+                                {% endif %}
+                                {% if chartofaccount.0.outputvat_enable == 'Y' %}
+                                    <th width="25%">Output VAT</th>
+                                {% endif %}
+                                {% if chartofaccount.0.vat_enable == 'Y' %}
+                                    <th width="25%">VAT</th>
+                                {% endif %}
+                                {% if chartofaccount.0.wtax_enable == 'Y' %}
+                                    <th width="25%">WTX</th>
+                                {% endif %}
+                                {% if chartofaccount.0.ataxcode_enable == 'Y' %}
+                                    <th width="25%">ATAX Code</th>
+                                {% endif %}
+                                <th width="50%">Particulars</th>
+                                <th width="10%">Credit</th>
+                                <th width="10%">Debit</th>
+                                <th width="10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="datatablebreakdown">
+                        {{ datatablebreakdown }}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>
+                                    <strong>Total</strong>
+                                </th>
+                                <th colspan="{{ colspan }}"></th>
+                                <th id="totalbreakdown_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                <th id="totalbreakdown_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+{% block extra_js %}
+    {% load static %}
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+{% endblock extra_js %}
+<script>
+    var rules_array = "detailb_particular: {required: true},";
+    var message_array = [];
+    var rules = {
+{#        detailb_bankaccount: {#}
+{#            required: true#}
+{#        },#}
+{#        detailb_customer: {#}
+{#            required: true#}
+{#        },#}
+    };
+    var messages = {
+{#        detailb_bankaccount: {#}
+{#            required: "(required)"#}
+{#        },#}
+    };
+    $(function(){
+        $.ajax({
+            url: "{% url 'acctentry:checkchartvalidation' %}",
+            type: "post",
+            dataType: "json",
+            data: {
+                'csrfmiddlewaretoken': "{{csrf_token}}",
+                'chartid':  $('#detailb_chartofaccount').val(),
+            },
+            success: function(response){
+                chart = response.chart;
+                chartdata = $.parseJSON(chart);
+
+
+                //console.log(chartdata[0].fields['bankaccount_enable']);
+                if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
+                    $("#v_detailb_bankaccount").removeClass('hide');
+                    rules_array += "detailb_bankaccount: {required: true},";
+                }
+                //console.log(chartdata[0].fields['department_enable']);
+                if (chartdata[0].fields['department_enable'] == 'Y') {
+                    $("#v_detailb_department").removeClass('hide');
+                    rules_array += "detailb_department: {required: true},";
+                }
+                //console.log(chartdata[0].fields['employee_enable']);
+                if (chartdata[0].fields['employee_enable'] == 'Y') {
+                    $("#v_detailb_employee").removeClass('hide');
+                    rules_array += "detailb_employee: {required: true},";
+                }
+                //console.log(chartdata[0].fields['supplier_enable']);
+                if (chartdata[0].fields['supplier_enable'] == 'Y') {
+                    $("#v_detailb_supplier").removeClass('hide');
+                    rules_array += "detailb_supplier: {required: true},";
+                }
+                //console.log(chartdata[0].fields['customer_enable']);
+                if (chartdata[0].fields['customer_enable'] == 'Y') {
+                    $("#v_detailb_customer").removeClass('hide');
+                    rules_array += "detailb_customer: {required: true},";
+                }
+                //console.log(chartdata[0].fields['unit_enable']);
+                if (chartdata[0].fields['unit_enable'] == 'Y') {
+                    $("#v_detailb_unit").removeClass('hide');
+                    rules_array += "detailb_unit: {required: true},";
+                }
+                //console.log(chartdata[0].fields['branch_enable']);
+                if (chartdata[0].fields['branch_enable'] == 'Y') {
+                    $("#v_detailb_branch").removeClass('hide');
+                    rules_array += "detailb_branch: {required: true},";
+                }
+                //console.log(chartdata[0].fields['product_enable']);
+                if (chartdata[0].fields['product_enable'] == 'Y') {
+                    $("#v_detailb_product").removeClass('hide');
+                    rules_array += "detailb_product: {required: true},";
+                }
+                //console.log(chartdata[0].fields['inputvat_enable']);
+                if (chartdata[0].fields['inputvat_enable'] == 'Y') {
+                    $("#v_detailb_inputvat").removeClass('hide');
+                    rules_array += "detailb_inputvat: {required: true},";
+                }
+                //console.log(chartdata[0].fields['outputvat_enable']);
+                if (chartdata[0].fields['outputvat_enable'] == 'Y') {
+                    $("#v_detailb_outputvat").removeClass('hide');
+                    rules_array += "detailb_outputvat: {required: true},";
+                }
+                //console.log(chartdata[0].fields['vat_enable']);
+                if (chartdata[0].fields['vat_enable'] == 'Y') {
+                    $("#v_detailb_vat").removeClass('hide');
+                    rules_array += "detailb_vat: {required: true},";
+                }
+                //console.log(chartdata[0].fields['wtax_enable']);
+                if (chartdata[0].fields['wtax_enable'] == 'Y') {
+                    $("#v_detailb_wtax").removeClass('hide');
+                    rules_array += "detailb_wtax: {required: true},";
+                }
+                //console.log(chartdata[0].fields['ataxcode_enable']);
+                if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
+                    $("#v_detailb_ataxcode").removeClass('hide');
+                    rules_array += "detailb_ataxcode: {required: true},";
+                }
+
+                unit = response.unit;
+                unitlist = $.parseJSON(unit);
+
+                //console.log(unitlist);
+                var unitoptions = '<option value="">-- Select Unit --</option>';
+                $.each(unitlist, function (k, v) {
+                    //console.log(v);
+                    unitoptions += '<option value="' + v.pk + '">' + v.fields.description + '</option>';
+                });
+                $("#detailb_unit").html(unitoptions);
+                $("#detailb_unit option:first").attr('selected', 'selected');
+                $("#detailb_unit").attr('disabled', false);
+
+                var rules_string = "{"+rules_array+"}";
+                rules=eval("("+rules_string+")");
+                //console.log(rules_array);
+                $.validator.messages.required = ''; // Remove JqueryValidation error messages
+                $("#detailbreakdownform").validate({
+                    rules: rules,
+                    messages: messages,
+                    errorPlacement: function(error, element) { } // Remove error label placement
+                });
+
+
+            }, error: function(response) {
+                console.debug(reponse);
+            }
+        });
+
+    });
+
+    $('#btn_updatedetailbsubmit').click(function(){
+        var m_debitamount = $('#detailb_debitamount').val();
+        var m_creditamount = $('#detailb_creditamount').val();
+        if ($("#detailbreakdownform").valid()) {
+
+            if ((m_debitamount == 0 || m_debitamount == "" ) && (m_creditamount == 0 || m_creditamount == "")) {
+                alert('Debit and Credit amount must not be zero');
+                return false;
+            }
+
+            if ((m_debitamount != "" && m_creditamount == 0) || (m_debitamount == 0  && m_creditamount != "")) {
+                alert('Accounting Entry Submitted');
+            } else if ((m_debitamount != "" && m_creditamount != "")) {
+                alert('Choose only one Debit and Credit amount');
+                return false;
+            }
+            var id = $(this).data('id');
+
+
+            $.ajax({
+                url: "{% url 'acctentry:saveupdatedetailbreakdown' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'id': id,
+                    'secretkey': $("#secretkey").val(),
+                    'table': 'jvdetailbreakdowntemp',
+                    'detailid': {{ detailid }},
+                    'datatype': "{{ datatype }}",
+                    'particular': $("#detailb_particular").val(),
+                    'chartofaccount': $("#detailb_chartofaccount").val(),
+                    'bankaccount': $("#detailb_bankaccount").val(),
+                    'department': $("#detailb_department").val(),
+                    'employee': $("#detailb_employee").val(),
+                    'supplier': $("#detailb_supplier").val(),
+                    'customer': $("#detailb_customer").val(),
+                    'unit': $("#detailb_unit").val(),
+                    'branch': $("#detailb_branch").val(),
+                    'product': $("#detailb_product").val(),
+                    'inputvat': $("#detailb_inputvat").val(),
+                    'outputvat': $("#detailb_outputvat").val(),
+                    'vat': $("#detailb_vat").val(),
+                    'wtax': $("#detailb_wtax").val(),
+                    'ataxcode': $("#detailb_ataxcode").val(),
+                    'creditamount': $("#detailb_creditamount").val(),
+                    'debitamount': $("#detailb_debitamount").val(),
+
+                },
+                success: function(response){
+                    $("#datatablebreakdown").html(response['datatablebreakdown']);
+                },
+                error: function(response){
+                    console.log(response);
+                }
+
+            });
+
+        } else {
+            alert('Please fill in the fields.')
+        }
+    });
+
+    $("#btn_detailbsubmit").click(function() {
+
+        var m_debitamount = $('#detailb_debitamount').val();
+        var m_creditamount = $('#detailb_creditamount').val();
+        if ($("#detailbreakdownform").valid()) {
+
+            if ((m_debitamount == 0 || m_debitamount == "" ) && (m_creditamount == 0 || m_creditamount == "")) {
+                alert('Debit and Credit amount must not be zero');
+                return false;
+            }
+
+            if ((m_debitamount != "" && m_creditamount == 0) || (m_debitamount == 0  && m_creditamount != "")) {
+                alert('Accounting Entry Submitted');
+            } else if ((m_debitamount != "" && m_creditamount != "")) {
+                alert('Choose only one Debit and Credit amount');
+                return false;
+            }
+
+            $.ajax({
+                url: "{% url 'acctentry:savemaccountingentrybreakdown' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'secretkey': $("#secretkey").val(),
+                       'detailid': {{ detailid }},
+                       'datatype': "{{ datatype }}",
+                       'table': 'jvdetailbreakdowntemp',
+                       'particular': $("#detailb_particular").val(),
+                       'chartofaccount': $("#detailb_chartofaccount").val(),
+                       'bankaccount': $("#detailb_bankaccount").val(),
+                       'department': $("#detailb_department").val(),
+                       'employee': $("#detailb_employee").val(),
+                       'supplier': $("#detailb_supplier").val(),
+                       'customer': $("#detailb_customer").val(),
+                       'unit': $("#detailb_unit").val(),
+                       'branch': $("#detailb_branch").val(),
+                       'product': $("#detailb_product").val(),
+                       'inputvat': $("#detailb_inputvat").val(),
+                       'outputvat': $("#detailb_outputvat").val(),
+                       'vat': $("#detailb_vat").val(),
+                       'wtax': $("#detailb_wtax").val(),
+                       'ataxcode': $("#detailb_ataxcode").val(),
+                       'creditamount': $("#detailb_creditamount").val(),
+                       'debitamount': $("#detailb_debitamount").val(),
+                },
+                success: function(response) {
+                    $("#datatablebreakdown").html(response['datatablebreakdown']);
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+
+        } else {
+            alert('Please fill in the fields.')
+        }
+    });
+
+</script>

@@ -558,6 +558,14 @@ def updateentry(request):
         id = request.POST['id']
         table = request.POST['table']
 
+        chartid = request.POST['chartid']
+        chartdata = Chartofaccount.objects.filter(pk=chartid)
+
+        mainunit = 0
+        unit = []
+        if chartdata[0].unit_enable == 'Y':
+            mainunit = Chartofaccount.objects.values('mainunit').filter(pk=chartid)
+            unit = Unit.objects.filter(mainunit=mainunit, isdeleted=0)
         info = getdatainfo(table,id)
 
         list = []  # create list
@@ -576,6 +584,7 @@ def updateentry(request):
         data = {
             'info': infodata,
             'status': 'success',
+            'unit': serializers.serialize("json", unit),
         }
     else:
         data = {
