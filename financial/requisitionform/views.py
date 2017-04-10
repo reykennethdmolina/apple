@@ -9,6 +9,7 @@ from inventoryitemtype.models import Inventoryitemtype
 from branch.models import Branch
 from department.models import Department
 from inventoryitem.models import Inventoryitem
+from unitofmeasure.models import Unitofmeasure
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
@@ -54,6 +55,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).\
             filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
         return context
