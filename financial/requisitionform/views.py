@@ -63,20 +63,23 @@ class CreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        try:
-            rfnumlast = Rfmain.objects.latest('rfnum')
+        year = str(form.cleaned_data['rfdate'].year)
+        yearQS = Rfmain.objects.filter(rfnum__startswith=year)
+
+        if yearQS:
+            rfnumlast = yearQS.latest('rfnum')
             latestrfnum = str(rfnumlast)
-            if latestrfnum[0:4] == str(datetime.datetime.now().year):
-                rfnum = str(datetime.datetime.now().year)
-                last = str(int(latestrfnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    rfnum += '0'
-                rfnum += last
-            else:
-                rfnum = str(datetime.datetime.now().year) + '000001'
-        except Rfmain.DoesNotExist:
-            rfnum = str(datetime.datetime.now().year) + '000001'
+            print "latest: " + latestrfnum
+
+            rfnum = year
+            last = str(int(latestrfnum[4:])+1)
+            zero_addon = 6 - len(last)
+            for x in range(0, zero_addon):
+                rfnum += '0'
+            rfnum += last
+
+        else:
+            rfnum = year + '000001'
 
         print 'rfnum: ' + rfnum
         self.object.rfnum = rfnum
@@ -95,7 +98,9 @@ class CreateView(CreateView):
             detail.invitem = dt.invitem
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
-            detail.invitem_unitofmeasure = self.request.POST.getlist('temp_item_um')[i-1]
+            detail.invitem_unitofmeasure = Unitofmeasure.objects\
+                                                        .get(code=self.request.POST.getlist('temp_item_um')[i-1])
+            detail.invitem_unitofmeasure_code = self.request.POST.getlist('temp_item_um')[i-1]
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             detail.status = dt.status
@@ -143,6 +148,7 @@ class UpdateView(UpdateView):
             detailtemp.invitem_code = d.invitem_code
             detailtemp.invitem_name = d.invitem_name
             detailtemp.invitem_unitofmeasure = d.invitem_unitofmeasure
+            detailtemp.invitem_unitofmeasure_code = d.invitem_unitofmeasure_code
             detailtemp.quantity = d.quantity
             detailtemp.remarks = d.remarks
             detailtemp.status = d.status
@@ -186,7 +192,9 @@ class UpdateView(UpdateView):
             alldetail.invitem = atd.invitem
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
-            alldetail.invitem_unitofmeasure = self.request.POST.getlist('temp_item_um')[i-1]
+            alldetail.invitem_unitofmeasure = Unitofmeasure.objects\
+                .get(code=self.request.POST.getlist('temp_item_um')[i - 1])
+            alldetail.invitem_unitofmeasure_code = self.request.POST.getlist('temp_item_um')[i - 1]
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             alldetail.status = atd.status
@@ -248,7 +256,8 @@ def savedetailtemp(request):
         detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'])
         detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item']).code
         detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item']).description
-        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure.code
+        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure
+        detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure.code
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.remarks = request.POST['id_remarks']
         detailtemp.secretkey = request.POST['secretkey']

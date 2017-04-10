@@ -153,7 +153,7 @@
                                                     <td><input type='text' name='temp_remarks' form='form-b' class='form-control' value='{{ rfdetailtemp.remarks }}'></td>
                                                     <td><select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
                                                         {% for unitofmeasure in unitofmeasure %}
-                                                            <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure %} selected="selected"
+                                                            <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
                                                             {% endif %}>{{ unitofmeasure.description }}</option>
                                                         {% endfor %}</select></td>
                                                     <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control' value='{{ rfdetailtemp.quantity }}'></td>
