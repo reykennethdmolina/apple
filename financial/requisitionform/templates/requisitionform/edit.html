@@ -112,6 +112,9 @@
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
+                                <a href="{% url 'requisitionform:pdf' object.id %}" target="_blank" class="floatright"><button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                                </button></a>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>
 {#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
                             </div>
