@@ -95,7 +95,7 @@ class CreateView(CreateView):
             detail.invitem = dt.invitem
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
-            detail.invitem_unitofmeasure = dt.invitem_unitofmeasure
+            detail.invitem_unitofmeasure = self.request.POST.getlist('temp_item_um')[i-1]
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             detail.status = dt.status
@@ -127,6 +127,7 @@ class UpdateView(UpdateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).\
             filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
 
@@ -185,7 +186,7 @@ class UpdateView(UpdateView):
             alldetail.invitem = atd.invitem
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
-            alldetail.invitem_unitofmeasure = atd.invitem_unitofmeasure
+            alldetail.invitem_unitofmeasure = self.request.POST.getlist('temp_item_um')[i-1]
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             alldetail.status = atd.status
