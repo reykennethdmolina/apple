@@ -17,7 +17,6 @@
             <div class="margin-bottom-20">
                 <form method="post" id="form-b">
                     {% csrf_token %}
-                {{ form.errors }}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-6 row-lg margin-left-10">
                         <div class="form-group col-sm-6">
@@ -109,6 +108,9 @@
                             <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                         </div>
                         <div class="col-sm-6">
+                            <a href="{% url 'purchaserequisitionform:pdf' object.id %}" target="_blank" class="floatright"><button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect waves-light get_report">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                            </button></a>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import RF</button>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                         </div>
