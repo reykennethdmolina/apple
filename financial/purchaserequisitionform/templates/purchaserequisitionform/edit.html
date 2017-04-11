@@ -18,6 +18,28 @@
                 <form method="post" id="form-b">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
+                    <div class="row col-md-12 row-lg margin-bottom-20">
+                        {% if perms.purchaserequisitionform.delete_prfmain %}
+                            <a href="{% url 'purchaserequisitionform:delete' object.id %}" class="floatright">
+                                <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Delete
+                                </button>
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'purchaserequisitionform:pdf' object.id %}" target="_blank" class="floatright">
+                            <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                            </button>
+                        </a>
+                        <a href="{% url 'purchaserequisitionform:detail' object.id %}" class="floatright">
+                            <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                            </button>
+                        </a>
+                    </div>
                     <div class="row col-md-6 row-lg margin-left-10">
                         <div class="form-group col-sm-6">
                             <label class="control-label" for="id_prfnum">Number</label>
@@ -30,8 +52,7 @@
                         </div>
                         <div class="form-group col-sm-6">
                             <label class="control-label" for="id_prfstatus">PRF Status</label>
-                            <input type="text" class="form-control input-sm" id="id_prfstatus" value="FOR APPROVAL" disabled="disabled">
-                            <span class="help-block form-error">{{ form.prfstatus.errors.as_text }}</span>
+                            <input type="text" class="form-control input-sm" id="id_prfstatus" value="{{ prfstatus }}" readonly="readonly">
                         </div>
                         <div class="form-group col-sm-6 {{ form.prftype.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prftype">PRF Type</label>
@@ -108,9 +129,6 @@
                             <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                         </div>
                         <div class="col-sm-6">
-                            <a href="{% url 'purchaserequisitionform:pdf' object.id %}" target="_blank" class="floatright"><button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect waves-light get_report">
-                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
-                            </button></a>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import RF</button>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                         </div>
@@ -134,17 +152,17 @@
                         <div class="shade"><div class="loader two-color"></div></div>
                         <div class="panel-body">
                             <!-- Start Editable Section -->
-                            <table class="table table-striped margin-bottom-0" id="summary">
+                            <table class="table table-striped margin-bottom-0 small" id="summary">
                                 <thead>
                                     <tr>
                                         <th>Item No.</th>
                                         <th>Name</th>
                                         <th>Description</th>
-                                        <th>Unit of Measure</th>
-                                        <th>RF No.</th>
                                         <th>Remarks</th>
-                                        <th>Currency</th>
+                                        <th>RF No.</th>
                                         <th style="width:90px">Quantity</th>
+                                        <th>Unit of Measure</th>
+                                        <th>Currency</th>
                                         <th>CS Cost</th>
                                         <th>Amount</th>
                                     </tr>
@@ -155,14 +173,20 @@
                                             <td>{{ prfdetailtemp.item_counter }}</td>
                                             <td>{{ prfdetailtemp.invitem_code }}</td>
                                             <td>{{ prfdetailtemp.invitem_name }}</td>
-                                            <td>{{ prfdetailtemp.invitem.unitofmeasure.code }}</td>
-                                            <td>{{ prfdetailtemp.rfdetail.rfmain.rfnum }}</td>
                                             <td>{{ prfdetailtemp.remarks }}</td>
-                                            <td>{{ prfdetailtemp.currency.symbol }}</td>
+                                            <td>{{ prfdetailtemp.rfdetail.rfmain.rfnum }}</td>
                                             <td><input type="number" name="temp_quantity" form="form-b" step="any" class="form-control input-sm temp_quantity" value="{{ prfdetailtemp.quantity }}"></td>
+                                            <td>
+                                                <select class="form-control input-sm" required style="width: 100%" id="id_temp_item_um" name="temp_item_um" form="form-b">
+                                                    {% for unitofmeasure in unitofmeasure %}
+                                                        <option value="{{ unitofmeasure.code }}" {% if unitofmeasure.code == prfdetailtemp.invitem_unitofmeasure_code %} selected="selected" {% endif %}>{{ unitofmeasure.description }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>{{ prfdetailtemp.currency.symbol }}</td>
                                             <td>{{ prfdetailtemp.invitem.unitcost }}</td>
 {#                                            <td>{{ amount }}</td>#}
-                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_quantity" value="{{ prfdetailtemp.amount }}"></td>
+                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_quantity amount" value="{{ prfdetailtemp.amount }}"></td>
                                             <td><button class="btn remove_item" data-itemno="{{ prfdetailtemp.item_counter }}"><i class="icon fa-remove" aria-hidden="true"></i></button></td>
                                         </tr>
                                     {% endfor %}

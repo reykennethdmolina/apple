@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from . models import Prfmain
 from requisitionform.models import Rfmain, Rfdetail
@@ -10,9 +10,11 @@ from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from department.models import Department
+from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.core import serializers
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 import datetime
@@ -25,7 +27,13 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Prfmain.objects.all().filter(isdeleted=0, prfstatus='F').order_by('enterdate')
+        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['listcount'] = Prfmain.objects.filter(isdeleted=0).count()
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -46,6 +54,11 @@ class CreateView(CreateView):
     template_name = 'purchaserequisitionform/create.html'
     fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('purchaserequisitionform.add_prfmain'):
+            raise Http404
+        return super(CreateView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
@@ -55,29 +68,32 @@ class CreateView(CreateView):
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        try:
-            prfnumlast = Prfmain.objects.latest('prfnum')
+        year = str(form.cleaned_data['prfdate'].year)
+        yearQS = Prfmain.objects.filter(prfnum__startswith=year)
+
+        if yearQS:
+            prfnumlast = yearQS.latest('prfnum')
             latestprfnum = str(prfnumlast)
-            if latestprfnum[0:4] == str(datetime.datetime.now().year):
-                prfnum = str(datetime.datetime.now().year)
-                last = str(int(latestprfnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    prfnum += '0'
-                prfnum += last
-            else:
-                prfnum = str(datetime.datetime.now().year) + '000001'
-        except Prfmain.DoesNotExist:
-            prfnum = str(datetime.datetime.now().year) + '000001'
+
+            prfnum = year
+            last = str(int(latestprfnum[4:])+1)
+            zero_addon = 6 - len(last)
+            for x in range(0, zero_addon):
+                prfnum += '0'
+            prfnum += last
+
+        else:
+            prfnum = year + '000001'
 
         self.object.prfnum = prfnum
-
+        self.object.branch = Branch.objects.get(pk=5)  # head office
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -91,6 +107,8 @@ class CreateView(CreateView):
             detail.prfmain = Prfmain.objects.get(prfnum=prfnum)
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
+            detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
+            detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             detail.amount = self.request.POST.getlist('temp_amount')[i-1]
             detail.remarks = dt.remarks
@@ -117,6 +135,11 @@ class UpdateView(UpdateView):
     template_name = 'purchaserequisitionform/edit.html'
     fields = ['prfnum', 'prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('purchaserequisitionform.change_prfmain'):
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
@@ -126,6 +149,8 @@ class UpdateView(UpdateView):
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
+        context['prfstatus'] = Prfmain.objects.get(pk=self.object.pk).get_prfstatus_display()
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
 
         Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()        # clear all temp data
@@ -135,6 +160,8 @@ class UpdateView(UpdateView):
             detailtemp = Prfdetailtemp()
             detailtemp.invitem_code = d.invitem_code
             detailtemp.invitem_name = d.invitem_name
+            detailtemp.invitem_unitofmeasure = d.invitem_unitofmeasure
+            detailtemp.invitem_unitofmeasure_code = d.invitem_unitofmeasure_code
             detailtemp.item_counter = d.item_counter
             detailtemp.quantity = d.quantity
             detailtemp.amount = d.amount
@@ -166,6 +193,8 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.branch = Branch.objects.get(pk=5)  # head office
+
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
@@ -192,6 +221,8 @@ class UpdateView(UpdateView):
             alldetail.invitem = atd.invitem
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
+            alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
+            alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
             alldetail.remarks = atd.remarks
@@ -221,6 +252,8 @@ class DeleteView(DeleteView):
     template_name = 'purchaserequisitionform/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('purchaserequisitionform.delete_prfmain'):
+            raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -260,6 +293,8 @@ def importItems(request):
                                     'rfd.invitem_name, '
                                     'rfd.quantity, '
                                     'rfd.remarks, '
+                                    'rfd.invitem_unitofmeasure_id AS um_id, '
+                                    'rfd.invitem_unitofmeasure_code AS um_code, '
                                     'rfd.id, '
                                     'um.code '
                             'FROM rfmain rfm '
@@ -292,11 +327,14 @@ def importItems(request):
                             data.quantity,
                             data.unitcost,
                             data.id,
-                            item_counter])
+                            item_counter,
+                            data.um_code])
 
             detailtemp = Prfdetailtemp()
             detailtemp.invitem_code = data.invitem_code
             detailtemp.invitem_name = data.invitem_name
+            detailtemp.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=data.um_id)
+            detailtemp.invitem_unitofmeasure_code = data.um_code
             detailtemp.item_counter = item_counter
             detailtemp.quantity = data.quantity
             detailtemp.remarks = data.remarks
@@ -354,14 +392,16 @@ def savedetailtemp(request):
             detailtemp.item_counter = request.POST['itemno']
             detailtemp.quantity = request.POST['quantity']
             detailtemp.remarks = request.POST['remarks']
-            detailtemp.currency = Currency.objects.get(pk=request.POST['currency'])
+            detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure
+            detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure.code
+            detailtemp.currency = Currency.objects.get(pk=request.POST['currency'], isdeleted=0, status='A')
             detailtemp.status = 'A'
             detailtemp.enterdate = datetime.datetime.now()
             detailtemp.modifydate = datetime.datetime.now()
             detailtemp.enterby = request.user
             detailtemp.modifyby = request.user
             detailtemp.secretkey = request.POST['secretkey']
-            detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['inv_id'])
+            detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['inv_id'], status='A')
             detailtemp.save()
 
         data = {
@@ -401,3 +441,25 @@ def deletedetailtemp(request):
 
     return JsonResponse(data)
 
+
+def paginate(request, command, current, limit, search):
+    current = int(current)
+    limit = int(limit)
+
+    if command == "search" and search != "null":
+        search_not_slug = search.replace('-', ' ')
+        prfmain = Prfmain.objects.all().filter(Q(prfnum__icontains=search) |
+                                             Q(prfdate__icontains=search) |
+                                             Q(particulars__icontains=search) |
+                                             Q(prfstatus__icontains=search) |
+                                             Q(prfnum__icontains=search_not_slug) |
+                                             Q(prfdate__icontains=search_not_slug) |
+                                             Q(particulars__icontains=search_not_slug) |
+                                             Q(prfstatus__icontains=search_not_slug))\
+                                            .filter(isdeleted=0).order_by('-enterdate')
+    else:
+        prfmain = Prfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
+
+    json_models = serializers.serialize("json", prfmain)
+    print json_models
+    return HttpResponse(json_models, content_type="application/javascript")

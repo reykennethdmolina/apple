@@ -29,7 +29,7 @@
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
-                            <div class="panel-body">
+                            <div class="panel-body small">
                                 <!-- <h4 class="list-title">Personal Information</h4> -->
                                 <div class="row">
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -134,22 +134,34 @@
                         <div class="panel top-profile skill-profile margin-bottom-25">
                             <div class="panel-body">
                                 <!-- <h4 class="list-title">Personal Information</h4> -->
-                                <table class="table table-striped margin-bottom-0" id="summary">
+                                <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
-                                                <th>No.</th>
-                                                <th>Item Name (UM)</th>
-                                                <th>Quantity</th>
+                                                <th>Item No.</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
                                                 <th>Remarks</th>
+                                                <th>RF No.</th>
+                                                <th>Unit of Measure</th>
+                                                <th>Currency</th>
+                                                <th style="width:90px">Quantity</th>
+                                                <th>CS Cost</th>
+                                                <th>Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for prfdetail in prfdetail %}
                                                 <tr>
                                                     <td>{{ prfdetail.item_counter }}</td>
-                                                    <td>{{ prfdetail.invitem_name }} ({{ prfdetail.invitem.unitofmeasure.code }})</td>
+                                                    <td>{{ prfdetail.invitem_code }}</td>
+                                                    <td>{{ prfdetail.invitem_name }}</td>
+                                                    <td>{{ prfdetail.remarks }}</td>
+                                                    <td>{{ prfdetail.rfdetail.rfmain.rfnum }}</td>
+                                                    <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
+                                                    <td>{{ prfdetail.currency.symbol }}</td>
                                                     <td>{{ prfdetail.quantity }}</td>
-                                                    <td>{{ prfdetail.rfdetail.remarks|default:' - ' }}</td>
+                                                    <td>{{ prfdetail.invitem.unitcost }}</td>
+                                                    <td>{{ prfdetail.amount }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -165,7 +177,7 @@
             <div class="right-box-profile">
                 <h4 class="skill-title">Activity Logs</h4>
                 <div class="panel">
-                    <div class="panel-body">
+                    <div class="panel-body small">
                         <div class="master-degree">
                             <span class="degree-name text-info">Created&nbsp;By:</span>
                             <div class="univer-profile">{{ object.enterby }}</div>
@@ -178,20 +190,20 @@
                         </div>
                         <div class="master-degree">
                             <div class="iconlist">
-{#                            {% if perms.product.change_product %}#}
+                            {% if perms.purchaserequisitionform.change_prfmain %}
                             <a href="{% url 'purchaserequisitionform:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_pencil" aria-hidden="true"></i>
                                 </button>
                             </a>
-{#                            {% endif %}#}
-{#                            {% if perms.product.delete_product %}#}
+                            {% endif %}
+                            {% if perms.purchaserequisitionform.delete_prfmain %}
                             <a href="{% url 'purchaserequisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
                                 </button>
                             </a>
-{#                            {% endif %}#}
+                            {% endif %}
                             </div>
                         </div>
                     </div>
