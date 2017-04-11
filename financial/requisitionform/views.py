@@ -95,7 +95,8 @@ class CreateView(CreateView):
 
         print 'rfnum: ' + rfnum
         self.object.rfnum = rfnum
-
+        self.object.branch = Branch.objects.get(pk=5)
+        self.object.rftype = 'REGULAR'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -111,8 +112,11 @@ class CreateView(CreateView):
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
             detail.invitem_unitofmeasure = Unitofmeasure.objects\
-                                                        .get(code=self.request.POST.getlist('temp_item_um')[i-1])
-            detail.invitem_unitofmeasure_code = self.request.POST.getlist('temp_item_um')[i-1]
+                                                        .get(code=self.request.POST.getlist('temp_item_um')[i-1],
+                                                             isdeleted=0, status='A')
+            detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                          getlist('temp_item_um')[i - 1], isdeleted=0,
+                                                                          status='A').code
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             detail.status = dt.status
@@ -133,7 +137,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Rfmain
     template_name = 'requisitionform/edit.html'
-    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'rfstatus', 'unit', 'urgencytype', 'dateneeded',
+    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
               'branch', 'department', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
@@ -147,6 +151,7 @@ class UpdateView(UpdateView):
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0, code='SI')
         context['branch'] = Branch.objects.filter(isdeleted=0, code='HO')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['rfstatus'] = Rfmain.objects.get(pk=self.object.pk).get_rfstatus_display()
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).\
             filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
@@ -185,6 +190,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
+        self.object.branch = Branch.objects.get(pk=5)
+        self.object.rftype = 'REGULAR'
         self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
                                         'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
                                         'modifyby', 'modifydate'])
@@ -209,9 +216,12 @@ class UpdateView(UpdateView):
             alldetail.invitem = atd.invitem
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
-            alldetail.invitem_unitofmeasure = Unitofmeasure.objects\
-                .get(code=self.request.POST.getlist('temp_item_um')[i - 1])
-            alldetail.invitem_unitofmeasure_code = self.request.POST.getlist('temp_item_um')[i - 1]
+            alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                        getlist('temp_item_um')[i - 1],
+                                                                        isdeleted=0, status='A')
+            alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                             getlist('temp_item_um')[i - 1], 
+                                                                             isdeleted=0, status='A').code
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
             alldetail.status = atd.status
@@ -270,11 +280,13 @@ def savedetailtemp(request):
     if request.method == 'POST':
         detailtemp = Rfdetailtemp()
         detailtemp.item_counter = request.POST['itemno']
-        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'])
-        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item']).code
-        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item']).description
-        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure
-        detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure.code
+        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A')
+        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').code
+        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').description
+        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').\
+            unitofmeasure
+        detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').\
+            unitofmeasure.code
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.remarks = request.POST['id_remarks']
         detailtemp.secretkey = request.POST['secretkey']

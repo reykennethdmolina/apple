@@ -58,10 +58,10 @@
 
                     summary.append("<tr><td></td>" +
                             "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
-                            "<td><input type='text' name='temp_remarks' form='form-b' class='form-control' value='" + response.remarks + "'></td>" +
-                            "<td><select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
+                            "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
+                            "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                             "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }}</option>{% endfor %}</select></td>" +
-                            "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control' value='" + response.quantity + "'></td>" +
+                            "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='" + response.quantity + "'></td>" +
                             "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                             "</tr>");
 

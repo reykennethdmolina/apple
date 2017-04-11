@@ -93,7 +93,7 @@
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_rfstatus">RF Status</label>
-                                <input type="text" class="form-control input-sm" id="id_rfstatus" name="rfstatus" value="{{ form.get_rfstatus_display|default:'FOR APPROVAL'}}" readonly="readonly">
+                                <input type="text" class="form-control input-sm" id="id_rfstatus" name="rfstatus" value="For Approval" readonly="readonly">
                                 <span class="help-block form-error">{{ form.rfstatus.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-12">
@@ -134,7 +134,7 @@
                                 <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
-                                    <table class="table table-striped margin-bottom-0" id="summary">
+                                    <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
@@ -142,6 +142,7 @@
                                                 <th style="width:350px">Remarks</th>
                                                 <th style="width:170px">Unit of Measure</th>
                                                 <th style="width:120px">Requested Qty</th>
+                                                <th style="width:50px"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
