@@ -10,6 +10,7 @@ from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from department.models import Department
+from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q
 from acctentry.views import generatekey
@@ -53,6 +54,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
+        context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         return context
 
@@ -90,6 +92,9 @@ class CreateView(CreateView):
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
             detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            detail.amount = self.request.POST.getlist('temp_amount')[i-1]
+            detail.remarks = dt.remarks
+            detail.currency = dt.currency
             detail.status = dt.status
             detail.enterby = dt.enterby
             detail.enterdate = dt.enterdate
@@ -120,6 +125,7 @@ class UpdateView(UpdateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
+        context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
 
         Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()        # clear all temp data
@@ -131,6 +137,9 @@ class UpdateView(UpdateView):
             detailtemp.invitem_name = d.invitem_name
             detailtemp.item_counter = d.item_counter
             detailtemp.quantity = d.quantity
+            detailtemp.amount = d.amount
+            detailtemp.remarks = d.remarks
+            detailtemp.currency = d.currency
             detailtemp.status = d.status
             detailtemp.enterdate = d.enterdate
             detailtemp.modifydate = d.modifydate
@@ -184,6 +193,9 @@ class UpdateView(UpdateView):
             alldetail.invitem_code = atd.invitem_code
             alldetail.invitem_name = atd.invitem_name
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+            alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
+            alldetail.remarks = atd.remarks
+            alldetail.currency = atd.currency
             alldetail.status = atd.status
             alldetail.enterby = atd.enterby
             alldetail.enterdate = atd.enterdate
@@ -228,7 +240,7 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A', prfstatus='F')
+        context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
         return context
 
@@ -287,6 +299,8 @@ def importItems(request):
             detailtemp.invitem_name = data.invitem_name
             detailtemp.item_counter = item_counter
             detailtemp.quantity = data.quantity
+            detailtemp.remarks = data.remarks
+            detailtemp.currency = Currency.objects.get(pk=1)
             detailtemp.status = 'A'
             detailtemp.enterdate = datetime.datetime.now()
             detailtemp.modifydate = datetime.datetime.now()
@@ -327,7 +341,6 @@ def savedetailtemp(request):
                                 'inv.status = "A" AND '
                                 'inv.id = ' + request.POST['inv_id'])
 
-
         for data in invdetail:
             prfdata = [data.code,
                        data.description,
@@ -340,6 +353,8 @@ def savedetailtemp(request):
             detailtemp.invitem_name = data.description
             detailtemp.item_counter = request.POST['itemno']
             detailtemp.quantity = request.POST['quantity']
+            detailtemp.remarks = request.POST['remarks']
+            detailtemp.currency = Currency.objects.get(pk=request.POST['currency'])
             detailtemp.status = 'A'
             detailtemp.enterdate = datetime.datetime.now()
             detailtemp.modifydate = datetime.datetime.now()
@@ -352,6 +367,8 @@ def savedetailtemp(request):
         data = {
             'status': 'success',
             'prfdata': prfdata,
+            'remarks': request.POST['remarks'],
+            'currency': Currency.objects.get(pk=request.POST['currency']).symbol,
         }
     else:
         data = {
