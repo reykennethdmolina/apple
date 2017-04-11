@@ -1,9 +1,10 @@
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from django.core import serializers
 from . models import Rfmain, Rfdetail, Rfdetailtemp
 from inventoryitemtype.models import Inventoryitemtype
 from branch.models import Branch
@@ -25,7 +26,13 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')
+        return Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[0:10]
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['listcount'] = Rfmain.objects.filter(isdeleted=0).count()
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -46,6 +53,11 @@ class CreateView(CreateView):
     template_name = 'requisitionform/create.html'
     fields = ['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
               'branch', 'department', 'particulars', 'designatedapprover']
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('requisitionform.add_rfmain'):
+            raise Http404
+        return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -121,8 +133,13 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Rfmain
     template_name = 'requisitionform/edit.html'
-    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
+    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'rfstatus', 'unit', 'urgencytype', 'dateneeded',
               'branch', 'department', 'particulars', 'designatedapprover']
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('requisitionform.change_rfmain'):
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
@@ -212,7 +229,7 @@ class UpdateView(UpdateView):
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
         Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/requisitionform/')
+        return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -221,8 +238,8 @@ class DeleteView(DeleteView):
     template_name = 'requisitionform/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
-        # if not request.user.has_perm('product.delete_product'):
-        #     raise Http404
+        if not request.user.has_perm('requisitionform.delete_rfmain'):
+            raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -242,7 +259,7 @@ class Pdf(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
-        context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A', rfstatus='F')
+        context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
         return context
 
@@ -306,4 +323,27 @@ def deletedetailtemp(request):
         }
 
     return JsonResponse(data)
+
+
+def paginate(request, command, current, limit, search):
+    current = int(current)
+    limit = int(limit)
+
+    if command == "search" and search != "null":
+        search_not_slug = search.replace('-', ' ')
+        rfmain = Rfmain.objects.all().filter(Q(rfnum__icontains=search) |
+                                             Q(rfdate__icontains=search) |
+                                             Q(particulars__icontains=search) |
+                                             Q(rfstatus__icontains=search) |
+                                             Q(rfnum__icontains=search_not_slug) |
+                                             Q(rfdate__icontains=search_not_slug) |
+                                             Q(particulars__icontains=search_not_slug) |
+                                             Q(rfstatus__icontains=search_not_slug))\
+                                            .filter(isdeleted=0).order_by('-enterdate')
+    else:
+        rfmain = Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
+
+    json_models = serializers.serialize("json", rfmain)
+    print json_models
+    return HttpResponse(json_models, content_type="application/javascript")
 

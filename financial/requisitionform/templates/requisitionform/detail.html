@@ -177,20 +177,20 @@
                         </div>
                         <div class="master-degree">
                             <div class="iconlist">
-{#                            {% if perms.product.change_product %}#}
+                            {% if perms.requisitionform.change_rfmain %}
                             <a href="{% url 'requisitionform:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_pencil" aria-hidden="true"></i>
                                 </button>
                             </a>
-{#                            {% endif %}#}
-{#                            {% if perms.product.delete_product %}#}
+                            {% endif %}
+                            {% if perms.requisitionform.delete_rfmain %}
                             <a href="{% url 'requisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
                                 </button>
                             </a>
-{#                            {% endif %}#}
+                            {% endif %}
                             </div>
                         </div>
                     </div>
