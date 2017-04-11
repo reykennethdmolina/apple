@@ -59,7 +59,8 @@
             var id = $(this).data('id');
             $('.tr_data').css("background-color","");
             $("#tr_data_"+id).css('background-color', '#fa9b74');
-            $("#btn_updatedetailbsubmit").attr('data-id', id);
+
+            $("#updatedetailbsubmit").val(id);
 
             $('.btnadd').hide();
             $('.btnupdate').show();
@@ -140,6 +141,7 @@
                     },
                     success: function(response){
                         $("#datatablebreakdown").html(response['datatablebreakdown']);
+                        $('#btn_bcancel').trigger('click');
                     },
                     error: function(response){
                         console.log(response);

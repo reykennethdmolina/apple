@@ -270,9 +270,11 @@ def breakdownentry(request):
 def savemaccountingentrybreakdown(request):
     if request.method == 'POST':
         # Save Data To JVDetail
-        detailtempbreakdown = Jvdetailbreakdowntemp()
+        if request.POST['table'] == 'jvdetailbreakdowntemp':
+            detailtempbreakdown = Jvdetailbreakdowntemp()
+            detailtempbreakdown.item_counter = len(Jvdetailbreakdowntemp.objects.all().filter(secretkey=request.POST['secretkey'],jvdetailtemp=detailid)) + 1
+
         detailid = request.POST['detailid']
-        detailtempbreakdown.item_counter = len(Jvdetailbreakdowntemp.objects.all().filter(secretkey=request.POST['secretkey'],jvdetailtemp=detailid)) + 1
         detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
         detailtempbreakdown.jvdetailtemp = request.POST['detailid']
         detailtempbreakdown.particular = request.POST['particular']
@@ -543,10 +545,11 @@ def querystmtdetail(temptable, secretkey):
     return data
 
 def querytotaldetail(temptable, secretkey):
-    querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
-                 "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
+    querytotal = "SELECT IFNULL(FORMAT(SUM(IFNULL(temp.creditamount,0)), 2), 0.00) AS totalcreditamount, " \
+                 "IFNULL(FORMAT(SUM(IFNULL(temp.debitamount,0)), 2), 0.00) AS totaldebitamount " \
                  "FROM "+temptable+" AS temp " \
                  "WHERE temp.secretkey = '" + secretkey + "' AND temp.isdeleted  NOT IN(1,2)"
+
     data = executestmt(querytotal)
     return data
 
@@ -577,10 +580,12 @@ def updateentry(request):
                          'customer': row.customer, 'unit': row.unit, 'branch': row.branch,
                          'product': row.product, 'inputvat': row.inputvat, 'outputvat': row.outputvat,
                          'vat': row.vat, 'wtax': row.wtax, 'ataxcode': row.ataxcode,
+                         'customerbreakstatus': row.customerbreakstatus, 'supplierbreakstatus': row.supplierbreakstatus, 'employeebreakstatus': row.employeebreakstatus,
                          'debitamount': str(row.debitamount), 'creditamount': str(row.creditamount), 'amount': str(row.amount),
                          'creditamountformatted': str(row.creditamountformatted), 'debitamountformatted': str(row.debitamountformatted)
                          })
         infodata = json.dumps(list)
+
         data = {
             'info': infodata,
             'status': 'success',
@@ -647,16 +652,25 @@ def saveupdatemaccountingentry(request):
             datastring += "department='0',"
         if request.POST['employee']:
             datastring += "employee='" + request.POST['employee'] + "',"
+            if request.POST['employeetype'] == 'Y':
+                datastring += "employeebreakstatus='1',"
         else:
             datastring += "employee='0',"
+            datastring += "employeebreakstatus='0',"
         if request.POST['supplier']:
             datastring += "supplier='" + request.POST['supplier'] + "',"
+            if request.POST['suppliertype'] == 'Y':
+                datastring += "supplierbreakstatus='1',"
         else:
             datastring += "supplier='0',"
+            datastring += "supplierbreakstatus='0',"
         if request.POST['customer']:
             datastring += "customer='" + request.POST['customer'] + "',"
+            if request.POST['customertype'] == 'Y':
+                datastring += "customerbreakstatus='1',"
         else:
             datastring += "customer='0',"
+            datastring += "customerbreakstatus='0',"
         if request.POST['unit']:
             datastring += "unit='" + request.POST['unit'] + "',"
         else:
@@ -794,12 +808,42 @@ def saveupdatedetailbreakdown(request):
 
     return JsonResponse(data)
 
+@csrf_exempt
+def updatebreakdownstatus(request):
+
+    if request.method == 'POST':
+        table = request.POST['table']
+        datatype = request.POST['datatype']
+        id = request.POST['detailid']
+        stat = request.POST['stat']
+        datastring = ""
+        if datatype == 'C':
+            datastring = "customerbreakstatus ='" + stat + "'"
+        if datatype == 'S':
+            datastring = "supplierbreakstatus ='" + stat + "'"
+        if datatype == 'E':
+            datastring = "employeebreakstatus ='" + stat + "'"
+        cursor = connection.cursor()
+
+        stmt = "UPDATE " + table + " SET " + datastring + "  WHERE id='" + id + "'"
+
+        cursor.execute(stmt)
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error'
+        }
+
+    return JsonResponse(data)
+
 def updatedetailtemp(table, id, datastring):
     cursor = connection.cursor()
 
     stmt = "UPDATE " + table + " SET "+datastring+"  WHERE id='" + id + "'"
 
-    print stmt
     return cursor.execute(stmt)
 
 

@@ -179,6 +179,36 @@
                     }
                 });
             });
+
+            $("#validateButton").on('click', function() {
+
+{#                var validate = ('#form-b').valid();#}
+{##}
+{#                alert(validate);#}
+{##}
+{#                return false;#}
+{##}
+{#                var total_creditamount = $("#total_creditamount").text().replace(',','');#}
+{#                var total_debitamount = $("#total_debitamount").text().replace(',','');#}
+{##}
+{#                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {#}
+{#                    alert('Debit and Credit amount must not be zero');#}
+{#                    return false;#}
+{#                }#}
+{##}
+{#                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {#}
+{#                    alert('Debit and Credit amount be equal');#}
+{#                    return false;#}
+{#                }#}
+{##}
+{#                var checkbreakdownstatus = $('.datatable').hasClass('unbalancebreakdown');#}
+{##}
+{#                alert(checkbreakdownstatus);#}
+
+
+{#                console.log(total_creditamount);#}
+{#                console.log(total_debitamount);#}
+            });
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>

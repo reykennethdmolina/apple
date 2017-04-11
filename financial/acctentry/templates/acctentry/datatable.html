@@ -7,7 +7,7 @@
     <td class="text-align-right">{{ temp.debitamount }}</td>
     <td>
         <a href="#" class="detailedit" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
-        <a href="#" class="detaildelete" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}><i class="icon fa-remove" aria-hidden="true"></i></a>
+        <a href="#" class="detaildelete" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-remove" aria-hidden="true"></i></a>
     </td>
 </tr>
 <tr>
@@ -81,8 +81,8 @@
 
 <script>
     $(function () {
-        $('#total_debitamount').text("{{ datatemptotal.0.totaldebitamount }}");
-        $('#total_creditamount').text("{{ datatemptotal.0.totalcreditamount }}");
+        $('#total_debitamount').text("{{ datatemptotal.0.totaldebitamount|default_if_none:'0.00' }}");
+        $('#total_creditamount').text("{{ datatemptotal.0.totalcreditamount|default_if_none:'0.00' }}");
     });
 
     $(".breakdown").click(function(){
@@ -123,6 +123,8 @@
                 },
                 success: function(response){
                     $("#datatable").html(response['datatable']);
+
+                    $('#btn_detailcancel').trigger('click');
                 },
                 error: function(response){
                     console.log(response);

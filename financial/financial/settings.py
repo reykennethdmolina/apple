@@ -108,6 +108,7 @@ INSTALLED_APPS = [
     'inventoryitemclass',
     'inventoryitem',
     'rfprfapproval',
+    'annoying',
 ]
 
 MIDDLEWARE_CLASSES = [
