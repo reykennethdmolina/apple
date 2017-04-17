@@ -3,11 +3,28 @@
 {% block page-title %} Purchase Requisition Form {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
         .select2-container--default .select2-results__option[aria-disabled=true] {
             display: none;
+        }
+        .vattable td {
+            text-align: right;
+
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding-right: 15px;
+            padding-left: 45px;
         }
     </style>
 {% endblock extra_css %}
@@ -40,88 +57,137 @@
                             </button>
                         </a>
                     </div>
-                    <div class="row col-md-6 row-lg margin-left-10">
-                        <div class="form-group col-sm-6">
-                            <label class="control-label" for="id_prfnum">Number</label>
-                            <input type="text" class="form-control input-sm" id="id_prfnum" name="prfnum" placeholder="PRFxxxxxxx" value="{{ form.prfnum.value|default:'' }}" readonly="readonly">
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label class="control-label" for="id_prfdate">Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|date:'Y-m-d'|default:'' }}">
-                            <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label class="control-label" for="id_prfstatus">PRF Status</label>
-                            <input type="text" class="form-control input-sm" id="id_prfstatus" value="{{ prfstatus }}" readonly="readonly">
-                        </div>
-                        <div class="form-group col-sm-6 {{ form.prftype.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_prftype">PRF Type</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype">
-                                {% for id,name in form.fields.prftype.choices %}
-                                    <option value="{{ id }}"{% if form.prftype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.prftype.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-6 {{ form.department.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_department">Department</label>
-                            <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
-                                <option value="">-- Select --</option>
-                                {% for department in department %}
-                                    <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-6 {{ form.branch.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_branch">Branch</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
-                                {% for branch in branch %}
-                                    <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
-                        </div>
-                    </div>
-                    <div class="row col-md-6 row-lg margin-left-10">
-                        <div class="form-group col-sm-6 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_inventoryitemtype">Type</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype" data-toggle="tooltip" data-placement="left" data-original-title="To select a new type, remove all items below.">
-                                {% for inventoryitemtype in inventoryitemtype %}
-                                    <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_designatedapprover">Approver</label>
-                            <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-                                <option value="">-- Select --</option>
-                                {% for designatedapprover in designatedapprover %}
-                                    <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                    <div class="col-md-8">
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_prfnum">Number</label>
+                                <input type="text" class="form-control input-sm" id="id_prfnum" name="prfnum" placeholder="PRFxxxxxxx" value="{{ form.prfnum.value|default:'' }}" readonly="readonly">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_prfdate">Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|date:'Y-m-d'|default:'' }}">
+                                <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_designatedapprover">Approver</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                    <option value="">-- Select --</option>
+                                    {% for designatedapprover in designatedapprover %}
+                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                            </div>
                         </div>
                         <div class="row col-md-12">
-                            <div class="form-group col-sm-6 {{ form.urgencytype.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_prfstatus">PRF Status</label>
+                                <input type="text" class="form-control input-sm" id="id_prfstatus" value="{{ prfstatus }}" readonly="readonly">
+                            </div>
+                            <div class="form-group col-sm-4 {{ form.prftype.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_prftype">PRF Type</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype">
+                                    {% for id,name in form.fields.prftype.choices %}
+                                        <option value="{{ id }}"{% if form.prftype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.prftype.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_inventoryitemtype">Type</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype" data-toggle="tooltip" data-placement="left" data-original-title="To select a new type, remove all items below.">
+                                    {% for inventoryitemtype in inventoryitemtype %}
+                                        <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-4 {{ form.urgencytype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_urgencytype">Urgency Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
                                     {% for id,name in form.fields.urgencytype.choices %}
                                         <option value="{{ id }}"{% if form.urgencytype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-6">
+                            <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_dateneeded">Date Needed</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|date:'Y-m-d'|default:'' }}">
                                 <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                             </div>
+                            <div class="form-group col-sm-4 {{ form.branch.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_branch">Branch</label>
+                                <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                                    {% for branch in branch %}
+                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                            </div>
                         </div>
-                        <div class="form-group col-sm-12">
-                            <label class="control-label" for="id_particulars">Particulars</label>
-                            <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value }}</textarea>
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_department">Department</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
+                                    <option value="">-- Select --</option>
+                                    {% for department in department %}
+                                        <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.departmentname }} ({{ department.code }})</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-8">
+                                <label class="control-label" for="id_particulars">Particulars</label>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="widgett widgett-article widgett-shadow">
+                            <div class="heading-top-index-2">
+                                <table class="vattable">
+                                    <tr>
+                                        <td><small><b>Quantity:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Amount:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="heading-top-index-2">
+                                <table class="vattable">
+                                    <tr>
+                                        <td><small>VATable&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr><td colspan="0"><br></td></tr>
+                                    <tr>
+                                        <td><small><b>Total&nbsp;Purchase:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Total&nbsp;Amount:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-12 margin-bottom-10">
@@ -150,21 +216,27 @@
                 <div class="col-sm-12">
                     <div class="panel">
                         <div class="shade"><div class="loader two-color"></div></div>
-                        <div class="panel-body">
+                        <div class="panel-body" style="overflow: auto; width: 100%">
                             <!-- Start Editable Section -->
                             <table class="table table-striped margin-bottom-0 small" id="summary">
                                 <thead>
                                     <tr>
-                                        <th>Item No.</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Remarks</th>
-                                        <th>RF No.</th>
-                                        <th style="width:90px">Quantity</th>
-                                        <th>Unit of Measure</th>
-                                        <th>Currency</th>
-                                        <th>CS Cost</th>
-                                        <th>Amount</th>
+                                        <th style="min-width: 10px; text-align: center" class="info">No.</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">Name</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">Description</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">Remarks</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">RF&nbsp;No.</th>
+                                        <th style="min-width: 100px; text-align: center; width: 90px" class="info">Quantity</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">Unit&nbsp;of&nbsp;Measure</th>
+                                        <th style="min-width: 10px; text-align: center" class="info">Currency</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">CS&nbsp;Cost</th>
+                                        <th style="min-width: 100px; text-align: center" class="info">Amount</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">VATable</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">VAT&nbsp;-&nbsp;Exempt</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">Total&nbsp;Purchase</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">Add&nbsp;VAT</th>
+                                        <th style="min-width: 100px; text-align: center" class="danger">Total&nbsp;Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -185,8 +257,13 @@
                                             </td>
                                             <td>{{ prfdetailtemp.currency.symbol }}</td>
                                             <td>{{ prfdetailtemp.invitem.unitcost }}</td>
-{#                                            <td>{{ amount }}</td>#}
                                             <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_quantity amount" value="{{ prfdetailtemp.amount }}"></td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
                                             <td><button class="btn remove_item" data-itemno="{{ prfdetailtemp.item_counter }}"><i class="icon fa-remove" aria-hidden="true"></i></button></td>
                                         </tr>
                                     {% endfor %}

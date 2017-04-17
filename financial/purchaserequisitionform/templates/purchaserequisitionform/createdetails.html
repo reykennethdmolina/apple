@@ -53,6 +53,10 @@
         filterItems();
         inventorytypeimportDisable();
 
+        $('.amount').each(function(){
+            $(this).val(parseFloat($(this).val()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        });
+
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
         });
@@ -88,6 +92,12 @@
                                     "<td>" + response.currency + "</td>" +
                                     "<td>" + response.prfdata[3] + "</td>" +
                                     "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "'></td>" +
+                                    "<td>0.00</td>" +
+                                    "<td>0.00</td>" +
+                                    "<td>0.00</td>" +
+                                    "<td>0.00</td>" +
+                                    "<td>0.00</td>" +
+                                    "<td>0.00</td>" +
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
 
@@ -100,6 +110,7 @@
                     $("#id_remarks").val('');
 
                     reorderItems();
+                    totalQuantity();
                     inventorytypeimportDisable();
                     $('.shade').fadeOut();
                 }
@@ -141,6 +152,12 @@
                                         "<td> PHP </td>" +
                                         "<td>" + response.prfdata[i][6] + "</td>" +
                                         "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat(response.prfdata[i][5]) * parseFloat(response.prfdata[i][6])) + "'></td>" +
+                                        "<td>0.00</td>" +
+                                        "<td>0.00</td>" +
+                                        "<td>0.00</td>" +
+                                        "<td>0.00</td>" +
+                                        "<td>0.00</td>" +
+                                        "<td>0.00</td>" +
                                         "<td><button class='btn remove_item' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                         "</tr>");
 
@@ -149,6 +166,7 @@
                     }
 
                     reorderItems();
+                    totalQuantity();
                     inventorytypeimportDisable();
                     $('.shade').fadeOut();
                 }
@@ -175,6 +193,7 @@
                     elem.parent().parent().remove();
                     reorderItems();
                     inventorytypeimportDisable();
+                    totalQuantity();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -228,6 +247,15 @@
             for(i=0;i<len;i++){
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
             }
+        }
+
+        function totalQuantity(){
+            totalQty = 0;
+
+            $('.temp_quantity').each(function(){
+                totalQty += parseFloat($(this).val());
+                $('#totalQty').val(totalQty);
+            });
         }
 
         function filterItems(){

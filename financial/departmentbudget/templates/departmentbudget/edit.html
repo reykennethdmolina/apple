@@ -197,22 +197,22 @@
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script>
         $(function(){
-            $( window ).load(showSelected).load(showTotal)
-            $('#id_department, #id_chartofaccount, #id_unit').on('change', showSelected)
-            $('.amount').on('click keyup', showTotal)
+            $( window ).load(showSelected).load(showTotal);
+            $('#id_department, #id_chartofaccount, #id_unit').on('change', showSelected);
+            $('.amount').on('click keyup', showTotal);
             function showSelected(){
-                $('#department_description').text($('#id_department').find(':selected').data('departmentname'))
-                $('#account_description').text($('#id_chartofaccount').find(':selected').data('description'))
+                $('#department_description').text($('#id_department').find(':selected').data('departmentname'));
+                $('#account_description').text($('#id_chartofaccount').find(':selected').data('description'));
                 $('#unit_description').text($('#id_unit').find(':selected').data('description'))
             }
             function showTotal(){
-                var total = 0
+                var total = 0;
                 $('.amount').each(function(){
-                    var s = $(this).val().toString()
-                    var t = s.replace( /,/g, "")
+                    var s = $(this).val().toString();
+                    var t = s.replace( /,/g, "");
                     total += parseFloat(t) || 0
-                })
-                $('#budgetTotal').text(total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+                });
+                $('#budgetTotal').text(total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             }
         })
     </script>

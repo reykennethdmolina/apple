@@ -58,6 +58,17 @@ class Prfmain(models.Model):
     responsedate = models.DateTimeField(null=True, blank=True)
     remarks = models.CharField(max_length=250, null=True, blank=True)
 
+    # vat
+    quantity = models.IntegerField()
+    amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+
     class Meta:
         db_table = 'prfmain'
         ordering = ['-pk']
@@ -107,6 +118,14 @@ class Prfdetail(models.Model):
     postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
+    # vat
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
     class Meta:
         db_table = 'prfdetail'
         ordering = ['-pk']
@@ -152,6 +171,14 @@ class Prfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+
+    # vat
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'prfdetailtemp'
