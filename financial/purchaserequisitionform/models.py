@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
 
 
@@ -126,6 +127,16 @@ class Prfdetail(models.Model):
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
+    # CS
+    cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    csnum = models.CharField(max_length=10, null=True, blank=True,)
+    csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
+    cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssupplier_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
+    cssuppliercode = models.CharField(max_length=10, null=True, blank=True,)
+    cssuppliername = models.CharField(max_length=250, null=True, blank=True,)
+    csvat = models.ForeignKey('vat.Vat', related_name='csvat_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
+    csvatrate = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'prfdetail'
         ordering = ['-pk']
@@ -179,6 +190,16 @@ class Prfdetailtemp(models.Model):
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # CS
+    cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    csnum = models.CharField(max_length=10, null=True, blank=True,)
+    csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
+    cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssuppliertemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
+    cssuppliercode = models.CharField(max_length=10, null=True, blank=True,)
+    cssuppliername = models.CharField(max_length=250, null=True, blank=True,)
+    csvat = models.ForeignKey('vat.Vat', related_name='csvattemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
+    csvatrate = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'prfdetailtemp'
