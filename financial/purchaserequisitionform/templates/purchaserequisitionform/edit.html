@@ -219,26 +219,7 @@
                         <div class="panel-body" style="overflow: auto; width: 100%">
                             <!-- Start Editable Section -->
                             <table class="table table-striped margin-bottom-0 small" id="summary">
-                                <thead>
-                                    <tr>
-                                        <th style="min-width: 10px; text-align: center" class="info">No.</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">Name</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">Description</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">Remarks</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">RF&nbsp;No.</th>
-                                        <th style="min-width: 100px; text-align: center; width: 90px" class="info">Quantity</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">Unit&nbsp;of&nbsp;Measure</th>
-                                        <th style="min-width: 10px; text-align: center" class="info">Currency</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">CS&nbsp;Cost</th>
-                                        <th style="min-width: 100px; text-align: center" class="info">Amount</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">VATable</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">VAT&nbsp;-&nbsp;Exempt</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">Total&nbsp;Purchase</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">Add&nbsp;VAT</th>
-                                        <th style="min-width: 100px; text-align: center" class="danger">Total&nbsp;Amount</th>
-                                    </tr>
-                                </thead>
+                                {% include "purchaserequisitionform/createthead.html" %}
                                 <tbody>
                                     {% for prfdetailtemp, amount in data %}
                                         <tr>
@@ -256,8 +237,15 @@
                                                 </select>
                                             </td>
                                             <td>{{ prfdetailtemp.currency.symbol }}</td>
-                                            <td>{{ prfdetailtemp.invitem.unitcost }}</td>
                                             <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_quantity amount" value="{{ prfdetailtemp.amount }}"></td>
+                                            <td>{{ prfdetailtemp.invitem.unitcost }}</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
+                                            <td>0.00</td>
                                             <td>0.00</td>
                                             <td>0.00</td>
                                             <td>0.00</td>
