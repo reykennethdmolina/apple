@@ -131,15 +131,17 @@ def savemaccountingentry(request):
         if request.POST['ataxcode']:
             detailtemp.ataxcode = request.POST['ataxcode']
 
-        detailtemp.balancecode = 'D'
-        if request.POST['creditamount']:
-            detailtemp.balancecode = 'C'
+        if (request.POST['creditamount'] <> ""):
+            balancecode = 'C'
+        else:
+            balancecode = 'D'
 
         if request.POST['creditamount']:
             detailtemp.creditamount = request.POST['creditamount'].replace(',','')
         if request.POST['debitamount']:
             detailtemp.debitamount = request.POST['debitamount'].replace(',','')
 
+        detailtemp.balancecode = balancecode
         detailtemp.secretkey = request.POST['secretkey']
         detailtemp.jv_date = datetime.datetime.now()
         detailtemp.enterby = request.user
@@ -270,11 +272,11 @@ def breakdownentry(request):
 def savemaccountingentrybreakdown(request):
     if request.method == 'POST':
         # Save Data To JVDetail
+        detailid = request.POST['detailid']
         if request.POST['table'] == 'jvdetailbreakdowntemp':
             detailtempbreakdown = Jvdetailbreakdowntemp()
             detailtempbreakdown.item_counter = len(Jvdetailbreakdowntemp.objects.all().filter(secretkey=request.POST['secretkey'],jvdetailtemp=detailid)) + 1
 
-        detailid = request.POST['detailid']
         detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
         detailtempbreakdown.jvdetailtemp = request.POST['detailid']
         detailtempbreakdown.particular = request.POST['particular']
@@ -307,15 +309,17 @@ def savemaccountingentrybreakdown(request):
         if request.POST['ataxcode']:
             detailtempbreakdown.ataxcode = request.POST['ataxcode']
 
-        detailtempbreakdown.balancecode = 'D'
-        if request.POST['creditamount']:
-            detailtempbreakdown.balancecode = 'C'
+        if (request.POST['creditamount'] <> ""):
+            balancecode = 'C'
+        else:
+            balancecode = 'D'
 
         if request.POST['creditamount']:
             detailtempbreakdown.creditamount = request.POST['creditamount'].replace(',', '')
         if request.POST['debitamount']:
             detailtempbreakdown.debitamount = request.POST['debitamount'].replace(',', '')
 
+        detailtempbreakdown.balancecode = balancecode
         detailtempbreakdown.secretkey = request.POST['secretkey']
         detailtempbreakdown.jv_date = datetime.datetime.now()
         detailtempbreakdown.enterby = request.user
@@ -704,21 +708,16 @@ def saveupdatemaccountingentry(request):
         else:
             datastring += "ataxcode='0',"
 
-        datastring += "balancecode='D',"
-        if request.POST['creditamount']:
+        if (request.POST['creditamount'] <> ""):
             datastring += "balancecode='C',"
-
-        if request.POST['creditamount']:
             datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
-        else:
-            datastring += "creditamount='0.00',"
-        if request.POST['debitamount']:
-            datastring += "debitamount='" + request.POST['debitamount'].replace(',', '') + "',"
-        else:
             datastring += "debitamount='0.00',"
+        else:
+            datastring += "balancecode='D',"
+            datastring += "debitamount='" + request.POST['debitamount'].replace(',', '') + "',"
+            datastring += "creditamount='0.00',"
 
         datastring += "isdeleted='0'"
-
 
         updatedetailtemp(table, id, datastring)
 
@@ -776,13 +775,13 @@ def saveupdatedetailbreakdown(request):
         if request.POST['ataxcode']:
             datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
 
-        datastring += "balancecode='D',"
-        if request.POST['creditamount']:
+        if (request.POST['creditamount'] <> ""):
             datastring += "balancecode='C',"
-
-        if request.POST['creditamount']:
             datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
-        if request.POST['debitamount']:
+            datastring += "debitamount='0.00',"
+        else:
+            datastring += "balancecode='D',"
+            datastring += "creditamount='0.00',"
             datastring += "debitamount='" + request.POST['debitamount'].replace(',', '') + "',"
 
         datastring += "particular='" + request.POST['particular'] + "'"
@@ -843,7 +842,7 @@ def updatedetailtemp(table, id, datastring):
     cursor = connection.cursor()
 
     stmt = "UPDATE " + table + " SET "+datastring+"  WHERE id='" + id + "'"
-
+    print stmt
     return cursor.execute(stmt)
 
 

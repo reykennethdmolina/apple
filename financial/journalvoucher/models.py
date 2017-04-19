@@ -100,10 +100,10 @@ class Jvdetail(models.Model):
         return reverse('jvdetail:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.jvmain
+        return self.pk
 
     def __unicode__(self):
-        return unicode(self.jvmain)
+        return unicode(self.pk)
 
     def status_verbose(self):
         return dict(Jvdetail.STATUS_CHOICES)[self.status]

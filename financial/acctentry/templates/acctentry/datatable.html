@@ -12,7 +12,7 @@
 </tr>
 <tr>
     <td colspan="6">
-        <table class="table">
+        <table class="table" id="breaktabledata">
             <tr>
                 <td width="5%"></td>
                 {% if temp.accountnumber %}
@@ -24,7 +24,7 @@
                 {% if temp.employeecode %}
                 <td id="tdtarget_E{{ temp.id }}" {% if temp.employeebreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#fa9b74" {% endif %}>
                     {% if temp.employeestatus == 'Y' %}
-                        <a href="#">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>
+                        <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>
                     {% else %}
                         {{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}
                     {% endif %}
@@ -33,7 +33,7 @@
                 {% if temp.suppliercode %}
                 <td id="tdtarget_S{{ temp.id }}" {% if temp.supplierbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#fa9b74" {% endif %}>
                     {% if temp.supplierstatus == 'Y' %}
-                        <a href="#">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>
+                        <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>
                     {% else %}
                         {{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}
                     {% endif %}

@@ -283,9 +283,9 @@
                            'bankaccount': $("#detail_bankaccount").val(),
                            'department': $("#detail_department").val(),
                            'employee': $("#detail_employee").val(),
-                           'employeetype': $("#detail_customer option:selected").data('type'),
+                           'employeetype': $("#detail_employee option:selected").data('type'),
                            'supplier': $("#detail_supplier").val(),
-                           'suppliertype': $("#detail_customer option:selected").data('type'),
+                           'suppliertype': $("#detail_supplier option:selected").data('type'),
                            'customer': $("#detail_customer").val(),
                            'customertype': $("#detail_customer option:selected").data('type'),
                            'unit': $("#detail_unit").val(),
@@ -340,13 +340,13 @@
                 success: function(response) {
                     var info = $.parseJSON(response.info);
 
-                    $("#detail_chartofaccount").val(info[0].chartofaccount).attr('disabled','disabled');
+                    $("#detail_chartofaccount").val(info[0].chartofaccount).trigger('change').attr('disabled','disabled');
                     $("#detail_bankaccount").val(info[0].bankaccount);
                     $("#detail_department").val(info[0].department).trigger('change');
                     if (info[0].employeebreakstatus == 1 || info[0].employeebreakstatus == 2) {
                         $("#detail_employee").val(info[0].employee);
                         $("#detail_employee option").attr('disabled', 'disabled');
-                        $("#detail_employee option:selected").removeAttr('disabled');
+                        $("#detail_employee option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Employee cannot be edited because of breakdown entry!');
                     } else {
                         $("#detail_employee").val(info[0].employee);
@@ -354,7 +354,7 @@
                     if (info[0].supplierbreakstatus == 1 || info[0].supplierbreakstatus == 2) {
                         $("#detail_supplier").val(info[0].supplier);
                         $("#detail_supplier option").attr('disabled', 'disabled');
-                        $("#detail_supplier option:selected").removeAttr('disabled');
+                        $("#detail_supplier option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Supplier cannot be edited because of breakdown entry!');
                     } else {
                         $("#detail_supplier").val(info[0].supplier);
@@ -362,7 +362,7 @@
                     if (info[0].customerbreakstatus == 1 || info[0].customerbreakstatus == 2) {
                         $("#detail_customer").val(info[0].customer);
                         $("#detail_customer option").attr('disabled', 'disabled');
-                        $("#detail_customer option:selected").removeAttr('disabled');
+                        $("#detail_customer option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Customer cannot be edited because of breakdown entry!');
                     } else {
                         $("#detail_customer").val(info[0].customer);
