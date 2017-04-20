@@ -142,6 +142,63 @@ class Csdetail(models.Model):
 
     def __unicode__(self):
         return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
+
+
+class Csdetailtemp(models.Model):
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+
+    invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='csdetailtemp_invitem_id')
+    invitem_code = models.CharField(max_length=25) # get data from prf imported
+    invitem_name = models.CharField(max_length=250)
+    currency = models.ForeignKey('currency.Currency', related_name='csdetailtemp_currency')
+    item_counter = models.IntegerField()
+    supplier = models.ForeignKey('supplier.Supplier', related_name='csdetailtemp_supplier_id')
+    suppliercode = models.CharField(max_length=10, null=True, blank=True,)
+    suppliername = models.CharField(max_length=250, null=True, blank=True,)
+    vat = models.ForeignKey('vat.Vat', related_name='csdetailtemp_vat_id')
+    vatrate = models.IntegerField(default=0)
+    unitcost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
+    negocost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
+    secretkey = models.CharField(max_length=255)
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetailtemp_csmain_id')
+    csdetail = models.ForeignKey('canvasssheet.Csdetail', related_name='csdetailtemp_csdetail_id', null=True, blank=True)
+    csstatus = models.IntegerField(default=0)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='csdetailtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='csdetailtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, default=1, related_name='csdetailtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
+    isdeleted = models.IntegerField(default=0)
+    # remarks = models.CharField(max_length=250, null=True, blank=True)
+
+    # vat
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    class Meta:
+        db_table = 'csdetailtemp'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('canvasssheet:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
+
+    def __unicode__(self):
+        return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
 #
 #
 # class Prfdetailtemp(models.Model):
