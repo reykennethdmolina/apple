@@ -845,5 +845,3 @@ def updatedetailtemp(table, id, datastring):
     print stmt
     return cursor.execute(stmt)
 
-
-

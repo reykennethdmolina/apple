@@ -71,7 +71,7 @@ class CreateView(CreateView):
         jvnum = self.object.jvnum
 
         # # Save Data To JVDetail
-        secretkey = 'ken' #self.request.POST['secretkey']
+        secretkey = self.request.POST['secretkey']
         detailinfo = Jvdetailtemp.objects.all().filter(secretkey=secretkey).order_by('item_counter')
 
         counter = 1
@@ -171,9 +171,13 @@ class UpdateView(UpdateView):
     #         raise Http404
     #     return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
-    # def get_initial(self):
-    #     self.mysecretkey = generatekey(self)
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
 
+        detailinfo = Jvdetail.objects.filter(jvmain=self.object.pk)
+
+        for drow in detailinfo:
+            #detailinfo =
         # breakdown = Jvdetailbreakdowntemp()
         # breakdown.secretkey = self.mysecretkey
         # breakdown.jv_num = 0
@@ -201,9 +205,6 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        # self.object = form.save(commit=False)
-        # self.object.isdeleted = 1
-        # self.object.save()
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()

@@ -4,7 +4,7 @@
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm select2modal" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <select class="form-control input-sm select2modal" data-getunit="1" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
                 <option value="">-- Select Chart of Account --</option>
                 {% for chartofaccount in chartofaccount %}
                     <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
@@ -248,9 +248,10 @@
             }
         });
 
-        $("#detail_chartofaccount").change(function() {
+        $("#detail_chartofaccount").change(function(x) {
             id = $("#detail_chartofaccount").val();
-            chartofaccount.validate(id, 1);
+            unitid = $("#detail_chartofaccount").data('getunit');
+            chartofaccount.validate(id, unitid);
         });
 
         $('#btn_updatedetailsubmit').on('click', function() {
@@ -340,7 +341,7 @@
                 success: function(response) {
                     var info = $.parseJSON(response.info);
 
-                    $("#detail_chartofaccount").val(info[0].chartofaccount).trigger('change').attr('disabled','disabled');
+                    $("#detail_chartofaccount").val(info[0].chartofaccount).data('getunit', 2).trigger('change').attr('disabled','disabled');
                     $("#detail_bankaccount").val(info[0].bankaccount);
                     $("#detail_department").val(info[0].department).trigger('change');
                     if (info[0].employeebreakstatus == 1 || info[0].employeebreakstatus == 2) {
@@ -380,10 +381,12 @@
                     unit = response.unit;
                     unitlist = $.parseJSON(unit);
 
+                    console.log(info[0].unit);
+
                     var unitoptions = '<option value="">-- Select Unit --</option>';
                     $.each(unitlist, function (k, v) {
                         if (v.pk == info[0].unit){
-                        unitoptions += '<option value="' + v.pk + '" selected="selected">' + v.fields.description + '</option>';
+                        unitoptions += '<option selected="selected" value="' + v.pk + '">' + v.fields.description + '</option>';
                         } else {
                         unitoptions += '<option value="' + v.pk + '">' + v.fields.description + '</option>';
                         }
