@@ -3,8 +3,27 @@
 {% block page-title %} Purchase Order {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        .vattable td {
+            text-align: right;
+
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding-right: 15px;
+            padding-left: 45px;
+        }
+    </style>
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -15,27 +34,27 @@
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-8">
                             <div class="row row-lg">
-                                <div class="form-group  col-sm-3">
+                                <div class="form-group  col-sm-4">
                                     <label class="control-label" for="id_ponum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_ponum" name="ponum" placeholder="POxxxxxxx" value="{{ form.ponum.value|default:'' }}" readonly="readonly">
                                     <span class="help-block form-error">{{ form.ponum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_podate">Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.podate.value %}{{ form.podate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.potype.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.potype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_potype">PO Type</label>
                                     <input type="text" class="form-control input-sm" maxlength="150" id="id_potype" name="potype" placeholder="PO Type" value="{{ form.potype.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.potype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_refnum">Reference #</label>
                                     <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.urgencytype.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.urgencytype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_urgencytype">Urgency</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
                                         {% for id,name in form.fields.urgencytype.choices %}
@@ -44,12 +63,12 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_dateneeded">Date Needed</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" value="{{ form.dateneeded.value|default:'' }}" data-validation="required">
                                     <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-6 {{ form.supplier.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-9 {{ form.supplier.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_supplier">Supplier</label>
                                     <select class="form-control input-sm select2" id="id_supplier" name="supplier">
                                         <option value="">-- Select --</option>
@@ -59,105 +78,108 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-12">
+                                <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_vat">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                        <option value="">-- Select --</option>
+                                        {% for vat in vat %}
+                                            <option data-rate="{{ vat.rate }}" value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.apnum.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_apnum">Reference AP</label>
+                                    <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.apnum.errors.as_text }}</span>
+                                </div>
+                                 <div class="form-group col-sm-3 {{ form.apdate.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_apdate">AP Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd" id="id_apdate" name="apdate"
+                                           placeholder="YYYY-MM-DD" data-validation="required" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.ataxcode.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_ataxcode">ATax Code</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
+                                        <option value="">-- Select --</option>
+                                        {% for ataxcode in ataxcode %}
+                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.creditterm.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_creditterm">Credit Term</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
+                                        <option value="">-- Select --</option>
+                                        {% for creditterm in creditterm %}
+                                            <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.inputvat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_inputvat">Input VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
+                                        <option value="">-- Select --</option>
+                                        {% for inputvat in inputvat %}
+                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }} - {{ inputvat.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-9">
                                     <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="3" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4">
-                            <span class="control-label"><strong>PURCHASE:</strong></span><br>
-                            <div class="col-sm-12 margin-top-10">
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_quantity" class="control-label col-sm-6">Quantity</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_quantity">0</div>
-                                    </div><br><br>
+
+                        <div class="col-md-4">
+                            <div class="widgett widgett-article widgett-shadow">
+                                <div class="heading-top-index-2">
+                                    <table class="vattable">
+                                        <tr>
+                                            <td><small><b>Quantity:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm" id="totalQty" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Amount:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                    </table>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_amount" class="control-label col-sm-6">Amount</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_amount">0.00</div>
-                                    </div>
+                                <div class="heading-top-index-2">
+                                    <table class="vattable">
+                                        <tr>
+                                            <td><small>VATable&nbsp;Purchase:</small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr><td colspan="0"><br></td></tr>
+                                        <tr>
+                                            <td><small><b>Total&nbsp;Purchase:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Total&nbsp;Amount:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                    </table>
                                 </div>
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_discount" class="control-label col-sm-6">Discount</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_discount">0.00</div>
-                                    </div>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_totalgross" class="control-label col-sm-6">Total Gross</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_totalgross">0.00</div>
-                                    </div>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_addedvat" class="control-label col-sm-6">Add VAT</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_addedvat">0.00</div>
-                                    </div><br><br>
-                                </div>
-                                <div class="form-group form-group-sm form-group-0 col-sm-12 row">
-                                    <label for="lbl_totalamount" class="control-label col-sm-6">Total Amount</label>
-                                    <div class="col-sm-6">
-                                        <div data-toggle="tooltip" data-placement="right" class="pull-right" id="lbl_totalamount">0.00</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 row">
-                            <div class="form-group col-sm-2 {{ form.apnum.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_apnum">Reference AP</label>
-                                <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" readonly="readonly">
-                                <span class="help-block form-error">{{ form.apnum.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-2 {{ form.apdate.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_apdate">AP Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd" id="id_apdate" name="apdate"
-                                       placeholder="YYYY-MM-DD" data-validation="required" readonly="readonly">
-                                <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_ataxcode">ATax Code</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                    <option value="">-- Select --</option>
-                                    {% for ataxcode in ataxcode %}
-                                        <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-2 {{ form.inputvat.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_inputvat">Input VAT</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
-                                    <option value="">-- Select --</option>
-                                    {% for inputvat in inputvat %}
-                                        <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }} - {{ inputvat.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_vat">VAT</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
-                                    <option value="">-- Select --</option>
-                                    {% for vat in vat %}
-                                        <option data-rate="{{ vat.rate }}" value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-2 {{ form.creditterm.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_creditterm">Credit Term</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
-                                    <option value="">-- Select --</option>
-                                    {% for creditterm in creditterm %}
-                                        <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="col-sm-12 margin-bottom-10 row">
