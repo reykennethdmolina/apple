@@ -116,6 +116,7 @@ class Jvdetailbreakdown(models.Model):
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField()
     chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_jvdetailbreakdown_id')
+    particular = models.TextField(null=True, blank=True)
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_jvdetailbreakdown_id', null=True,
                                     blank=True)
     department = models.ForeignKey('department.Department', related_name='department_jvdetailbreakdown_id', null=True,
@@ -181,7 +182,6 @@ class Jvdetailtemp(models.Model):
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField(blank=True, null=True)
     chartofaccount = models.IntegerField(blank=True, null=True)
-    particular = models.TextField(null=True, blank=True)
     bankaccount = models.IntegerField(blank=True, null=True)
     department = models.IntegerField(blank=True, null=True)
     employee = models.IntegerField(blank=True, null=True)
