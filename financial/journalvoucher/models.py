@@ -181,6 +181,7 @@ class Jvdetailtemp(models.Model):
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField(blank=True, null=True)
     chartofaccount = models.IntegerField(blank=True, null=True)
+    particular = models.TextField(null=True, blank=True)
     bankaccount = models.IntegerField(blank=True, null=True)
     department = models.IntegerField(blank=True, null=True)
     employee = models.IntegerField(blank=True, null=True)

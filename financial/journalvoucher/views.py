@@ -130,6 +130,7 @@ def savebreakdownentry(user, jvnum, mainid, detailid, tempdetailid, type):
         breakdown.item_counter = counter
         breakdown.jv_date = row.jv_date
         breakdown.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
+        breakdown.particular = row.particular
         # Return None if object is empty
         breakdown.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
         breakdown.employee = get_object_or_None(Employee, pk=row.employee)
@@ -174,25 +175,76 @@ class UpdateView(UpdateView):
     def get_initial(self):
         self.mysecretkey = generatekey(self)
 
-        detailinfo = Jvdetail.objects.filter(jvmain=self.object.pk)
+        detailinfo = Jvdetail.objects.filter(jvmain=self.object.pk).order_by('item_counter')
 
-        #for drow in detailinfo:
-            #detailinfo =
-        # breakdown = Jvdetailbreakdowntemp()
-        # breakdown.secretkey = self.mysecretkey
-        # breakdown.jv_num = 0
-        # breakdown.jvmain = self.object.pk
-        # breakdown.jvdetail = 1
-        # breakdown.item_counter = 1
-        # breakdown.jv_date = '2017-04-20'
-        # breakdown.chartofaccount = 1
-        # #Return None if object is empty
-        #
-        # breakdown.modifydate = datetime.datetime.now()
-        # breakdown.save()
+        for drow in detailinfo:
+            detail = Jvdetailtemp()
+            detail.secretkey = self.mysecretkey
+            detail.jv_num = drow.jv_num
+            detail.jvmain = drow.jvmain_id
+            detail.item_counter = drow.item_counter
+            detail.jv_date = drow.jv_date
+            detail.chartofaccount = drow.chartofaccount_id
+            detail.bankaccount = drow.bankaccount_id
+            detail.employee = drow.employee_id
+            detail.supplier = drow.supplier_id
+            detail.customer = drow.customer_id
+            detail.department = drow.department_id
+            detail.unit = drow.unit_id
+            detail.branch = drow.branch_id
+            detail.product = drow.product_id
+            detail.inputvat = drow.inputvat_id
+            detail.outputvat = drow.outputvat_id
+            detail.vat = drow.vat_id
+            detail.wtax = drow.wtax_id
+            detail.ataxcode = drow.ataxcode_id
+            detail.debitamount = drow.debitamount
+            detail.creditamount = drow.creditamount
+            detail.balancecode = drow.balancecode
+            detail.customerbreakstatus = drow.customerbreakstatus
+            detail.supplierbreakstatus = drow.supplierbreakstatus
+            detail.employeebreakstatus = drow.employeebreakstatus
+            detail.modifyby = self.request.user
+            detail.enterby = self.request.user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
 
-        # print self.object.pk
-
+            breakinfo = Jvdetailbreakdown.objects.filter(jvdetail_id=drow.id).order_by('pk', 'datatype')
+            if breakinfo:
+                for brow in breakinfo:
+                    breakdown = Jvdetailbreakdowntemp()
+                    breakdown.jv_num = drow.jv_num
+                    breakdown.jvmain = drow.jvmain_id
+                    breakdown.jvdetail = drow.pk
+                    breakdown.item_counter = brow.item_counter
+                    breakdown.jv_date = brow.jv_date
+                    breakdown.chartofaccount = brow.chartofaccount_id
+                    breakdown.particular = brow.particular
+                    # Return None if object is empty
+                    breakdown.bankaccount = brow.bankaccount_id
+                    breakdown.employee = brow.employee_id
+                    breakdown.supplier = brow.supplier_id
+                    breakdown.customer = brow.customer_id
+                    breakdown.department = brow.department_id
+                    breakdown.unit = brow.unit_id
+                    breakdown.branch = brow.branch_id
+                    breakdown.product = brow.product_id
+                    breakdown.inputvat = brow.inputvat_id
+                    breakdown.outputvat = brow.outputvat_id
+                    breakdown.vat = brow.vat_id
+                    breakdown.wtax = brow.wtax_id
+                    breakdown.ataxcode = brow.ataxcode_id
+                    breakdown.debitamount = brow.debitamount
+                    breakdown.creditamount = brow.creditamount
+                    breakdown.balancecode = brow.balancecode
+                    breakdown.datatype = brow.datatype
+                    breakdown.customerbreakstatus = brow.customerbreakstatus
+                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                    breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.modifyby = self.request.user
+                    breakdown.enterby = self.request.user
+                    breakdown.modifydate = datetime.datetime.now()
+                    breakdown.save()
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
