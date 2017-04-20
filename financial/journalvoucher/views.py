@@ -176,7 +176,7 @@ class UpdateView(UpdateView):
 
         detailinfo = Jvdetail.objects.filter(jvmain=self.object.pk)
 
-        for drow in detailinfo:
+        #for drow in detailinfo:
             #detailinfo =
         # breakdown = Jvdetailbreakdowntemp()
         # breakdown.secretkey = self.mysecretkey
