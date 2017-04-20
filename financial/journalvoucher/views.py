@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from jvtype.models import Jvtype
 from currency.models import Currency
 from branch.models import Branch
@@ -158,3 +158,55 @@ def savebreakdownentry(user, jvnum, mainid, detailid, tempdetailid, type):
         counter += 1
 
     return True
+
+
+@method_decorator(login_required, name='dispatch')
+class UpdateView(UpdateView):
+    model = Jvmain
+    template_name = 'journalvoucher/edit.html'
+    fields = ['jvnum', 'jvdate', 'refnum', 'jvtype', 'particular', 'branch', 'currency', 'department']
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     if not request.user.has_perm('fxtype.change_fxtype'):
+    #         raise Http404
+    #     return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    # def get_initial(self):
+    #     self.mysecretkey = generatekey(self)
+
+        # breakdown = Jvdetailbreakdowntemp()
+        # breakdown.secretkey = self.mysecretkey
+        # breakdown.jv_num = 0
+        # breakdown.jvmain = self.object.pk
+        # breakdown.jvdetail = 1
+        # breakdown.item_counter = 1
+        # breakdown.jv_date = '2017-04-20'
+        # breakdown.chartofaccount = 1
+        # #Return None if object is empty
+        #
+        # breakdown.modifydate = datetime.datetime.now()
+        # breakdown.save()
+
+        # print self.object.pk
+
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['self'] = Jvmain.objects.get(pk=self.object.pk)
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
+        context['secretkey'] = 'ken'#self.mysecretkey
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+        return context
+
+    def form_valid(self, form):
+        # self.object = form.save(commit=False)
+        # self.object.isdeleted = 1
+        # self.object.save()
+        self.object = form.save(commit=False)
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.save(update_fields=['jvtype', 'refnum', 'modifyby', 'particular', 'branch', 'currency', 'department', 'modifydate'])
+        #self.object.save()
+        return HttpResponseRedirect('/journalvoucher/'+self.object.pk+'/update')
