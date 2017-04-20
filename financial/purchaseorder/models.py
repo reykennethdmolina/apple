@@ -83,6 +83,7 @@ class Podetail(models.Model):
     invitem_unitofmeasure = models.CharField(max_length=50)
     quantity = models.IntegerField(default=0)
     unitcost = models.FloatField(default=0.00)
+    currency = models.ForeignKey('currency.Currency', related_name='podetail_currency')
     branch = models.ForeignKey('branch.Branch', related_name='podetail_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetail_department_id', blank=True,
                                    null=True)
@@ -140,6 +141,7 @@ class Podetailtemp(models.Model):
     invitem_unitofmeasure = models.CharField(max_length=50)
     quantity = models.IntegerField(default=0)
     unitcost = models.FloatField(default=0.00)
+    currency = models.ForeignKey('currency.Currency', related_name='podetailtemp_currency')
     branch = models.ForeignKey('branch.Branch', related_name='podetailtemp_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetailtemp_department_id', blank=True,
                                    null=True)

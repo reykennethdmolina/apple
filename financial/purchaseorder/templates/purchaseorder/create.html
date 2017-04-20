@@ -33,7 +33,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-8">
-                            <div class="row row-lg">
+                            <div class="row-lg">
                                 <div class="form-group  col-sm-4">
                                     <label class="control-label" for="id_ponum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_ponum" name="ponum" placeholder="POxxxxxxx" value="{{ form.ponum.value|default:'' }}" readonly="readonly">
@@ -147,6 +147,10 @@
                                         </tr>
                                         <tr>
                                             <td><small><b>Amount:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Discount:</b></small></td>
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
                                         </tr>
                                     </table>
