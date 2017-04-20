@@ -31,7 +31,6 @@ class Pomain(models.Model):
     apdate = models.DateField(null=True, blank=True)
     ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='pomain_ataxcode_id', null=True, blank=True)
     inputvat = models.ForeignKey('inputvat.Inputvat', related_name='pomain_inputvat_id', null=True, blank=True)
-    vat = models.ForeignKey('vat.Vat', related_name='pomain_vat_id')
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='pomain_creditterm_id', null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -48,6 +47,17 @@ class Pomain(models.Model):
     postby = models.ForeignKey(User, related_name='pomain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    # Added/modified fields
+    vat = models.ForeignKey('vat.Vat', related_name='pomain_vat_id')
+    vatrate = models.IntegerField(default=0)
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    discountamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'pomain'
@@ -76,7 +86,6 @@ class Podetail(models.Model):
     branch = models.ForeignKey('branch.Branch', related_name='podetail_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetail_department_id', blank=True,
                                    null=True)
-    discountrate = models.IntegerField(default=0, null=True, blank=True)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -93,6 +102,18 @@ class Podetail(models.Model):
     postby = models.ForeignKey(User, related_name='podetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    # Added/modified fields
+    vat = models.ForeignKey('vat.Vat', related_name='podetail_vat_id')
+    vatrate = models.IntegerField(default=0)
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    discountrate = models.IntegerField(default=0, null=True, blank=True)
+    discountamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'podetail'
@@ -122,7 +143,6 @@ class Podetailtemp(models.Model):
     branch = models.ForeignKey('branch.Branch', related_name='podetailtemp_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetailtemp_department_id', blank=True,
                                    null=True)
-    discountrate = models.IntegerField(default=0, null=True, blank=True)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -140,6 +160,18 @@ class Podetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+
+    # Added/modified fields
+    vat = models.ForeignKey('vat.Vat', related_name='podetailtemp_vat_id')
+    vatrate = models.IntegerField(default=0)
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    discountrate = models.IntegerField(default=0, null=True, blank=True)
+    discountamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'podetailtemp'

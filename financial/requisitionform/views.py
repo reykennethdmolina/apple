@@ -44,6 +44,30 @@ class DetailView(DetailView):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0).filter(rfmain=self.kwargs['pk']).\
             order_by('item_counter')
+        prfs = Rfmain.objects.raw('SELECT DISTINCT '
+                                                 'rfm.rfnum, '
+                                                 'prfm.prfnum, '
+                                                 'prfm.id, '
+                                                 'prfm.prfstatus, '
+                                                 'prfm.modifydate '
+                                             'FROM prfdetail prfd '
+                                             'LEFT JOIN rfdetail rfd '
+                                             'ON prfd.rfdetail_id = rfd.id '
+                                             'LEFT JOIN rfmain rfm '
+                                             'ON rfd.rfmain_id = rfm.id '
+                                             'LEFT JOIN prfmain prfm '
+                                             'ON prfd.prfmain_id = prfm.id '
+                                             'WHERE '
+                                                'rfm.rfnum = ' + self.object.rfnum + ' AND '
+                                                'prfm.isdeleted = 0 '
+                                             'ORDER BY prfm.modifydate')
+        context['prfs'] = []
+        for data in prfs:
+            context['prfs'].append([data.prfnum,
+                                    data.prfstatus,
+                                    data.modifydate,
+                                    data.id])
+
         return context
 
 
@@ -157,6 +181,30 @@ class UpdateView(UpdateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
+        prfs = Rfmain.objects.raw('SELECT DISTINCT '
+                                      'rfm.rfnum, '
+                                      'prfm.prfnum, '
+                                      'prfm.id, '
+                                      'prfm.prfstatus, '
+                                      'prfm.modifydate '
+                                  'FROM prfdetail prfd '
+                                  'LEFT JOIN rfdetail rfd '
+                                  'ON prfd.rfdetail_id = rfd.id '
+                                  'LEFT JOIN rfmain rfm '
+                                  'ON rfd.rfmain_id = rfm.id '
+                                  'LEFT JOIN prfmain prfm '
+                                  'ON prfd.prfmain_id = prfm.id '
+                                  'WHERE '
+                                  'rfm.rfnum = ' + self.object.rfnum + ' AND '
+                                      'prfm.isdeleted = 0 '
+                                  'ORDER BY prfm.modifydate')
+
+        context['prfs'] = []
+        for data in prfs:
+            context['prfs'].append([data.prfnum,
+                                    data.prfstatus,
+                                    data.modifydate,
+                                    data.id])
 
         detail = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('item_counter')
 
@@ -220,7 +268,7 @@ class UpdateView(UpdateView):
                                                                         getlist('temp_item_um')[i - 1],
                                                                         isdeleted=0, status='A')
             alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                             getlist('temp_item_um')[i - 1], 
+                                                                             getlist('temp_item_um')[i - 1],
                                                                              isdeleted=0, status='A').code
             alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
             alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]

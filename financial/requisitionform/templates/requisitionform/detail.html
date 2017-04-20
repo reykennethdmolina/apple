@@ -22,6 +22,8 @@
                     <a href="{% url 'requisitionform:pdf' object.id %}" target="_blank"><button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
                         <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
                     </button></a>
+                    <button type="button" class="btn btn-info btn-sm waves-effect waves-light" data-toggle="modal"
+                            data-target="#myModal"><i class="icon fa-list-ul" aria-hidden="true"></i>&nbsp; PRF</button>
                 </div>
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
@@ -197,6 +199,53 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Dependent PRFs</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <table class="table table-striped margin-bottom-0 small">
+                        <thead>
+                            <tr>
+                                <th>PRF No.</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in prfs %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'purchaserequisitionform:detail' data.3 %}" target="_blank" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                            <i class="icon md-search" aria-hidden="true">&nbsp;&nbsp;</i> {{ data.0 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if data.1 == 'F' %}
+                                            For Approval
+                                        {% elif data.1 == 'A' %}
+                                            Approved
+                                        {% elif data.1 == 'D' %}
+                                            Disapproved
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ data.2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
