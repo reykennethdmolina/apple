@@ -2,6 +2,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
+from django.template.loader import render_to_string
 from jvtype.models import Jvtype
 from currency.models import Currency
 from branch.models import Branch
@@ -21,7 +22,7 @@ from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp
 from chartofaccount.models import Chartofaccount
 from potype.models import Potype
-from acctentry.views import generatekey
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail
 from annoying.functions import get_object_or_None
 import datetime
 from random import randint
@@ -182,6 +183,7 @@ class UpdateView(UpdateView):
             detail.secretkey = self.mysecretkey
             detail.jv_num = drow.jv_num
             detail.jvmain = drow.jvmain_id
+            detail.jvdetail = drow.pk
             detail.item_counter = drow.item_counter
             detail.jv_date = drow.jv_date
             detail.chartofaccount = drow.chartofaccount_id
@@ -204,18 +206,23 @@ class UpdateView(UpdateView):
             detail.customerbreakstatus = drow.customerbreakstatus
             detail.supplierbreakstatus = drow.supplierbreakstatus
             detail.employeebreakstatus = drow.employeebreakstatus
+            detail.isdeleted = 0
             detail.modifyby = self.request.user
             detail.enterby = self.request.user
             detail.modifydate = datetime.datetime.now()
             detail.save()
+
+            detailtempid = detail.id
 
             breakinfo = Jvdetailbreakdown.objects.filter(jvdetail_id=drow.id).order_by('pk', 'datatype')
             if breakinfo:
                 for brow in breakinfo:
                     breakdown = Jvdetailbreakdowntemp()
                     breakdown.jv_num = drow.jv_num
+                    breakdown.secretkey = self.mysecretkey
                     breakdown.jvmain = drow.jvmain_id
                     breakdown.jvdetail = drow.pk
+                    breakdown.jvdetailtemp = detailtempid
                     breakdown.item_counter = brow.item_counter
                     breakdown.jv_date = brow.jv_date
                     breakdown.chartofaccount = brow.chartofaccount_id
@@ -241,6 +248,7 @@ class UpdateView(UpdateView):
                     breakdown.customerbreakstatus = brow.customerbreakstatus
                     breakdown.supplierbreakstatus = brow.supplierbreakstatus
                     breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.isdeleted = 0
                     breakdown.modifyby = self.request.user
                     breakdown.enterby = self.request.user
                     breakdown.modifydate = datetime.datetime.now()
@@ -250,10 +258,15 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['self'] = Jvmain.objects.get(pk=self.object.pk)
         context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
-        context['secretkey'] = 'ken'#self.mysecretkey
+        context['secretkey'] = self.mysecretkey
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+        contextdatatable = {
+            'datatemp': querystmtdetail('jvdetailtemp', self.mysecretkey),
+            'datatemptotal': querytotaldetail('jvdetailtemp', self.mysecretkey),
+        }
+        context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
         return context
 
     def form_valid(self, form):
@@ -261,5 +274,175 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['jvtype', 'refnum', 'modifyby', 'particular', 'branch', 'currency', 'department', 'modifydate'])
-        #self.object.save()
-        return HttpResponseRedirect('/journalvoucher/'+self.object.pk+'/update')
+        mainid = self.object.id
+        jvnum = self.object.jvnum
+
+        secretkey = self.request.POST['secretkey']
+        detailinfo = Jvdetailtemp.objects.all().filter(secretkey=secretkey).order_by('item_counter')
+
+        counter = 1
+        for row in detailinfo:
+            if row.jvmain:
+                if row.isdeleted == 0:
+                    #update
+                    detail = Jvdetail.objects.get(pk=row.jvdetail)
+                    detail.item_counter = counter
+                    detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
+                    # Return None if object is empty
+                    detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
+                    detail.employee = get_object_or_None(Employee, pk=row.employee)
+                    detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
+                    detail.customer = get_object_or_None(Customer, pk=row.customer)
+                    detail.department = get_object_or_None(Department, pk=row.department)
+                    detail.unit = get_object_or_None(Unit, pk=row.unit)
+                    detail.branch = get_object_or_None(Branch, pk=row.branch)
+                    detail.product = get_object_or_None(Product, pk=row.product)
+                    detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
+                    detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
+                    detail.vat = get_object_or_None(Vat, pk=row.vat)
+                    detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
+                    detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
+                    detail.debitamount = row.debitamount
+                    detail.creditamount = row.creditamount
+                    detail.balancecode = row.balancecode
+                    detail.customerbreakstatus = row.customerbreakstatus
+                    detail.supplierbreakstatus = row.supplierbreakstatus
+                    detail.employeebreakstatus = row.employeebreakstatus
+                    detail.modifyby = self.request.user
+                    detail.modifydate = datetime.datetime.now()
+                    detail.save()
+
+                    if row.customerbreakstatus <> 0:
+                        datatype = 'C'
+                    if row.employeebreakstatus <> 0:
+                        datatype = 'E'
+                    if row.supplierbreakstatus <> 0:
+                        datatype = 'S'
+
+                    breakdowninfo = Jvdetailbreakdowntemp.objects.all().filter(jvdetailtemp=row.pk,datatype=datatype).order_by('item_counter')
+                    counterb = 1
+                    for brow in breakdowninfo:
+                        if brow.jvmain:
+                            if brow.isdeleted == 0:
+                                #update
+                                breakdown = Jvdetailbreakdown()
+                                breakdown.item_counter = counterb
+                                breakdown.chartofaccount = Chartofaccount.objects.get(pk=brow.chartofaccount)
+                                breakdown.particular = brow.particular
+                                # Return None if object is empty
+                                breakdown.bankaccount = get_object_or_None(Bankaccount, pk=brow.bankaccount)
+                                breakdown.employee = get_object_or_None(Employee, pk=brow.employee)
+                                breakdown.supplier = get_object_or_None(Supplier, pk=brow.supplier)
+                                breakdown.customer = get_object_or_None(Customer, pk=brow.customer)
+                                breakdown.department = get_object_or_None(Department, pk=brow.department)
+                                breakdown.unit = get_object_or_None(Unit, pk=brow.unit)
+                                breakdown.branch = get_object_or_None(Branch, pk=brow.branch)
+                                breakdown.product = get_object_or_None(Product, pk=brow.product)
+                                breakdown.inputvat = get_object_or_None(Inputvat, pk=brow.inputvat)
+                                breakdown.outputvat = get_object_or_None(Outputvat, pk=brow.outputvat)
+                                breakdown.vat = get_object_or_None(Vat, pk=brow.vat)
+                                breakdown.wtax = get_object_or_None(Wtax, pk=brow.wtax)
+                                breakdown.ataxcode = get_object_or_None(Ataxcode, pk=brow.ataxcode)
+                                breakdown.debitamount = brow.debitamount
+                                breakdown.creditamount = brow.creditamount
+                                breakdown.balancecode = brow.balancecode
+                                breakdown.datatype = datatype
+                                breakdown.customerbreakstatus = brow.customerbreakstatus
+                                breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                                breakdown.employeebreakstatus = brow.employeebreakstatus
+                                breakdown.modifyby = self.request.user
+                                breakdown.modifydate = datetime.datetime.now()
+                                breakdown.save()
+                                counterb = 1
+                            if brow.isdeleted == 2:
+                                #delete
+                                instance = Jvdetailbreakdown.objects.get(pk=brow.jvdetail)
+                                instance.delete()
+                        if not brow.jvmain:
+                            #add
+                            breakdown = Jvdetailbreakdown()
+                            breakdown.jv_num = jvnum
+                            breakdown.jvmain = Jvmain.objects.get(pk=mainid)
+                            breakdown.jvdetail = Jvdetail.objects.get(pk=detail.pk)
+                            breakdown.item_counter = counterb
+                            breakdown.jv_date = row.jv_date
+                            breakdown.chartofaccount = Chartofaccount.objects.get(pk=brow.chartofaccount)
+                            breakdown.particular = brow.particular
+                            # Return None if object is empty
+                            breakdown.bankaccount = get_object_or_None(Bankaccount, pk=brow.bankaccount)
+                            breakdown.employee = get_object_or_None(Employee, pk=brow.employee)
+                            breakdown.supplier = get_object_or_None(Supplier, pk=brow.supplier)
+                            breakdown.customer = get_object_or_None(Customer, pk=brow.customer)
+                            breakdown.department = get_object_or_None(Department, pk=brow.department)
+                            breakdown.unit = get_object_or_None(Unit, pk=brow.unit)
+                            breakdown.branch = get_object_or_None(Branch, pk=brow.branch)
+                            breakdown.product = get_object_or_None(Product, pk=brow.product)
+                            breakdown.inputvat = get_object_or_None(Inputvat, pk=brow.inputvat)
+                            breakdown.outputvat = get_object_or_None(Outputvat, pk=brow.outputvat)
+                            breakdown.vat = get_object_or_None(Vat, pk=brow.vat)
+                            breakdown.wtax = get_object_or_None(Wtax, pk=brow.wtax)
+                            breakdown.ataxcode = get_object_or_None(Ataxcode, pk=brow.ataxcode)
+                            breakdown.debitamount = brow.debitamount
+                            breakdown.creditamount = brow.creditamount
+                            breakdown.balancecode = brow.balancecode
+                            breakdown.datatype = datatype
+                            breakdown.customerbreakstatus = brow.customerbreakstatus
+                            breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                            breakdown.employeebreakstatus = brow.employeebreakstatus
+                            breakdown.modifyby = self.request.user
+                            breakdown.enterby = self.request.user
+                            breakdown.modifydate = datetime.datetime.now()
+                            breakdown.save()
+                            counterb = 1
+
+                    counter += 1
+                if row.isdeleted == 2:
+                    #delete
+                    instance = Jvdetail.objects.get(pk=row.jvdetail)
+                    instance.delete()
+                    instancebreakdown = Jvdetailbreakdown.objects.filter(jvdetail=row.jvdetail)
+                    instancebreakdown.delete()
+            if not row.jvmain:
+                #add
+                detail = Jvdetail()
+                detail.jv_num = jvnum
+                detail.jvmain = Jvmain.objects.get(pk=mainid)
+                detail.item_counter = counter
+                detail.jv_date = row.jv_date
+                detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
+                # Return None if object is empty
+                detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
+                detail.employee = get_object_or_None(Employee, pk=row.employee)
+                detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
+                detail.customer = get_object_or_None(Customer, pk=row.customer)
+                detail.department = get_object_or_None(Department, pk=row.department)
+                detail.unit = get_object_or_None(Unit, pk=row.unit)
+                detail.branch = get_object_or_None(Branch, pk=row.branch)
+                detail.product = get_object_or_None(Product, pk=row.product)
+                detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
+                detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
+                detail.vat = get_object_or_None(Vat, pk=row.vat)
+                detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
+                detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
+                detail.debitamount = row.debitamount
+                detail.creditamount = row.creditamount
+                detail.balancecode = row.balancecode
+                detail.customerbreakstatus = row.customerbreakstatus
+                detail.supplierbreakstatus = row.supplierbreakstatus
+                detail.employeebreakstatus = row.employeebreakstatus
+                detail.modifyby = self.request.user
+                detail.enterby = self.request.user
+                detail.modifydate = datetime.datetime.now()
+                detail.save()
+
+                # Saving breakdown entry
+                if row.customerbreakstatus <> 0:
+                    savebreakdownentry(self.request.user, jvnum, mainid, detail.pk, row.pk, 'C')
+                if row.employeebreakstatus <> 0:
+                    savebreakdownentry(self.request.user, jvnum, mainid, detail.pk, row.pk, 'E')
+                if row.supplierbreakstatus <> 0:
+                    savebreakdownentry(self.request.user, jvnum, mainid, detail.pk, row.pk, 'S')
+
+                counter += 1
+
+        return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')

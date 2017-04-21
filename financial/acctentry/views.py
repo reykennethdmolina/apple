@@ -23,7 +23,7 @@ from collections import namedtuple, defaultdict, OrderedDict
 from django.db import connection
 
 import json
-
+from decimal import Decimal
 # Create your views here.
 @csrf_exempt
 def maccountingentry(request):
@@ -708,6 +708,9 @@ def saveupdatemaccountingentry(request):
         else:
             datastring += "ataxcode='0',"
 
+        if (request.POST['creditamount'] == '0.00'):
+            request.POST['creditamount'] == ""
+
         if (request.POST['creditamount'] <> ""):
             datastring += "balancecode='C',"
             datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
@@ -774,6 +777,9 @@ def saveupdatedetailbreakdown(request):
             datastring += "wtax='" + request.POST['wtax'] + "',"
         if request.POST['ataxcode']:
             datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
+
+        if (request.POST['creditamount'] == '0.00'):
+            request.POST['creditamount'] == ""
 
         if (request.POST['creditamount'] <> ""):
             datastring += "balancecode='C',"
@@ -842,6 +848,9 @@ def updatedetailtemp(table, id, datastring):
     cursor = connection.cursor()
 
     stmt = "UPDATE " + table + " SET "+datastring+"  WHERE id='" + id + "'"
-    print stmt
+
     return cursor.execute(stmt)
+
+
+
 

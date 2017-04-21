@@ -381,8 +381,6 @@
                     unit = response.unit;
                     unitlist = $.parseJSON(unit);
 
-                    console.log(info[0].unit);
-
                     var unitoptions = '<option value="">-- Select Unit --</option>';
                     $.each(unitlist, function (k, v) {
                         if (v.pk == info[0].unit){
@@ -608,7 +606,7 @@
             if (parseFloat(amountdetail) != parseFloat(amount)) {
                 var amount = parseFloat(amountdetail) - parseFloat(amount);
                 //console.log('#tdtarget_'+datatype+''+detailid);
-                alert('Account does not tally with total balance!. Amount differ by '+amount);
+                alert('Account does not tally with total balance!. Amount differ by '+amount.toFixed(2));
                 stat = 1;
                 $('#tdtarget_'+datatype+''+detailid).addClass('unbalancebreakdown').css('background-color', '#fa9b74');
             } else {

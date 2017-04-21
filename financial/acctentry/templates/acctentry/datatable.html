@@ -78,7 +78,6 @@
     </td>
 </tr>
 {% endfor %}
-
 <script>
     $(function () {
         $('#total_debitamount').text("{{ datatemptotal.0.totaldebitamount|default_if_none:'0.00' }}");
