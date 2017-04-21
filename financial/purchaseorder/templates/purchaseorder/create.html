@@ -73,19 +73,15 @@
                                     <select class="form-control input-sm select2" id="id_supplier" name="supplier">
                                         <option value="">-- Select --</option>
                                         {% for supplier in supplier %}
-                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}>{{ supplier.code }} - {{ supplier.name }}</option>
+                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %} data-vat="{{ supplier.vat.id }}"
+                                                    data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%">{{ supplier.code }} - {{ supplier.name }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
-                                        <option value="">-- Select --</option>
-                                        {% for vat in vat %}
-                                            <option data-rate="{{ vat.rate }}" value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
+                                    <input type="text" class="form-control input-sm" id="id_vat" data-id="" data-code="" name="vat" placeholder="VAT" readonly="readonly">
                                     <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.apnum.errors|yesno:'has-error,' }}">
@@ -124,7 +120,7 @@
                                     <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
                                         <option value="">-- Select --</option>
                                         {% for inputvat in inputvat %}
-                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }} - {{ inputvat.description }}</option>
+                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
@@ -217,16 +213,25 @@
                                         <thead>
                                             <tr class="small">
                                                 <th>No.</th>
-                                                <th style="min-width: 200px; text-align: center">Item Name (UM)</th>
-                                                <th style="min-width: 90px; text-align: center">Quantity</th>
-                                                <th style="min-width: 150px; text-align: center">Unit Cost</th>
-                                                <th style="min-width: 150px; text-align: center">Net Amount</th>
-                                                <th style="min-width: 90px; text-align: center">Department</th>
-                                                <th style="min-width: 90px; text-align: center">% Disc</th>
-                                                <th style="min-width: 150px; text-align: center">Unit Cost (VAT-exclusive)</th>
-                                                <th style="min-width: 150px; text-align: center">Gross Amount</th>
-                                                <th style="min-width: 150px; text-align: center">Discount Amount</th>
-                                                <th style="min-width: 250px; text-align: center">Remarks</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Remarks</th>
+                                                <th>Unit&nbsp;of&nbsp;Measure</th>
+                                                <th>PRF&nbsp;No.</th>
+                                                <th>Department</th>
+                                                <th>Currency</th>
+                                                <th>Unit&nbsp;Cost</th>
+                                                <th>Unit&nbsp;Cost&nbsp;(VAT-exclusive)</th>
+                                                <th>Quantity</th>
+                                                <th>Gross&nbsp;Amount</th>
+                                                <th>Discount&nbsp;Rate</th>
+                                                <th>Discount&nbsp;Amount</th>
+                                                <th>VATable</th>
+                                                <th>VAT-Exempt</th>
+                                                <th>VAT&nbsp;Zero-Rated</th>
+                                                <th>Total&nbsp;Purchase</th>
+                                                <th>Add&nbsp;VAT</th>
+                                                <th>Total&nbsp;Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -250,6 +255,15 @@
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
+
+            $(window).load(showSelected);
+            $('#id_supplier').on('change', showSelected);
+
+            function showSelected(){
+                $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
+                $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
+                $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
+            }
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>

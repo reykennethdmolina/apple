@@ -11,6 +11,7 @@ from vat.models import Vat
 from creditterm.models import Creditterm
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
+from currency.models import Currency
 from department.models import Department
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
@@ -35,6 +36,7 @@ class CreateView(CreateView):
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         return context
 
@@ -67,32 +69,42 @@ def savedetailtemp(request):
         print request.POST
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
-        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'])
-        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item']).code
-        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item']).description
-        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item']).unitofmeasure.code
+        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_itemid']).code
+        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_itemid']).description
+        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_itemid']).unitofmeasure.code
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.unitcost = request.POST['id_unitcost']
-        detailtemp.discountrate = int(request.POST['id_discountrate'])
+        detailtemp.discountrate = request.POST['id_discountrate']
         detailtemp.remarks = request.POST['id_remarks']
-        detailtemp.branch = Branch.objects.get(pk=5)
-        detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
-        detailtemp.secretkey = request.POST['secretkey']
         detailtemp.status = 'A'
         detailtemp.enterdate = datetime.datetime.now()
         detailtemp.modifydate = datetime.datetime.now()
+        detailtemp.secretkey = request.POST['secretkey']
+        detailtemp.branch = Branch.objects.get(pk=5)
+        detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
         detailtemp.enterby = User.objects.get(pk=request.user.id)
+        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_itemid'])
         detailtemp.modifyby = User.objects.get(pk=request.user.id)
+        detailtemp.discountamount = request.POST['id_discountamount']
+        detailtemp.grossamount = request.POST['id_grossamount']
+        detailtemp.netamount = request.POST['id_totalamount']
+        detailtemp.vat = Vat.objects.get(pk=request.POST['id_vat'])
+        detailtemp.vatable = request.POST['id_vatable']
+        detailtemp.vatamount = request.POST['id_addvat']
+        detailtemp.vatexempt = request.POST['id_vatexempt']
+        detailtemp.vatrate = request.POST['id_vatrate']
+        detailtemp.vatzerorated = request.POST['id_vatzerorated']
+        detailtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
         detailtemp.save()
 
         data = {
             'status': 'success',
             'itemno': request.POST['itemno'],
-            'quantity': request.POST['id_quantity'],
-            'unitcost': request.POST['id_unitcost'],
-            'department': Department.objects.get(pk=request.POST['id_department']).code,
-            'discountrate': request.POST['id_discountrate'],
             'remarks': request.POST['id_remarks'],
+            # 'quantity': request.POST['id_quantity'],
+            # 'unitcost': request.POST['id_unitcost'],
+            # 'department': Department.objects.get(pk=request.POST['id_department']).code,
+            # 'discountrate': request.POST['id_discountrate'],
         }
     else:
         data = {
