@@ -313,7 +313,7 @@
             }
         });
 
-        $('#datatable').on('click', '.detailedit', function () {
+        $('#datatable').unbind().on('click', '.detailedit', function () {
 
             $("#detail_unit").empty();
 
@@ -578,8 +578,7 @@
             $("#detail_debitamount").val("0.00");
         });
 
-        $("#btnclosebreakdown").click(function() {
-
+        $('#btnclosebreakdown').unbind().on('click', function () {
             var detailamount = $('#detailb_amount').val();
             var balancecode = $('#detailb_amount').data('balancecode');
             var detailid = $('#detailb_amount').data('detailid');
@@ -629,6 +628,7 @@
 
             $('#modal-row').modal('toggle');
         });
+
     });
 </script>
 

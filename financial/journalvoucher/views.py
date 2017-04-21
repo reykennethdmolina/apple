@@ -122,6 +122,8 @@ class CreateView(CreateView):
 def savebreakdownentry(user, jvnum, mainid, detailid, tempdetailid, type):
 
     breakdowninfo = Jvdetailbreakdowntemp.objects.all().filter(jvdetailtemp=tempdetailid, datatype=type).order_by('item_counter')
+
+    print breakdowninfo
     counter = 1
     for row in breakdowninfo:
         breakdown = Jvdetailbreakdown()
@@ -223,6 +225,7 @@ class UpdateView(UpdateView):
                     breakdown.jvmain = drow.jvmain_id
                     breakdown.jvdetail = drow.pk
                     breakdown.jvdetailtemp = detailtempid
+                    breakdown.jvdetailbreakdown = brow.pk
                     breakdown.item_counter = brow.item_counter
                     breakdown.jv_date = brow.jv_date
                     breakdown.chartofaccount = brow.chartofaccount_id
@@ -312,6 +315,7 @@ class UpdateView(UpdateView):
                     detail.modifydate = datetime.datetime.now()
                     detail.save()
 
+                    datatype = 'X'
                     if row.customerbreakstatus <> 0:
                         datatype = 'C'
                     if row.employeebreakstatus <> 0:
@@ -325,7 +329,7 @@ class UpdateView(UpdateView):
                         if brow.jvmain:
                             if brow.isdeleted == 0:
                                 #update
-                                breakdown = Jvdetailbreakdown()
+                                breakdown =  Jvdetailbreakdown.objects.get(pk=brow.jvdetailbreakdown)
                                 breakdown.item_counter = counterb
                                 breakdown.chartofaccount = Chartofaccount.objects.get(pk=brow.chartofaccount)
                                 breakdown.particular = brow.particular
@@ -356,7 +360,7 @@ class UpdateView(UpdateView):
                                 counterb = 1
                             if brow.isdeleted == 2:
                                 #delete
-                                instance = Jvdetailbreakdown.objects.get(pk=brow.jvdetail)
+                                instance = Jvdetailbreakdown.objects.get(pk=brow.jvdetailbreakdown)
                                 instance.delete()
                         if not brow.jvmain:
                             #add
@@ -365,7 +369,7 @@ class UpdateView(UpdateView):
                             breakdown.jvmain = Jvmain.objects.get(pk=mainid)
                             breakdown.jvdetail = Jvdetail.objects.get(pk=detail.pk)
                             breakdown.item_counter = counterb
-                            breakdown.jv_date = row.jv_date
+                            breakdown.jv_date = brow.jv_date
                             breakdown.chartofaccount = Chartofaccount.objects.get(pk=brow.chartofaccount)
                             breakdown.particular = brow.particular
                             # Return None if object is empty

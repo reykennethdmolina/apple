@@ -708,10 +708,7 @@ def saveupdatemaccountingentry(request):
         else:
             datastring += "ataxcode='0',"
 
-        if (request.POST['creditamount'] == '0.00'):
-            request.POST['creditamount'] == ""
-
-        if (request.POST['creditamount'] <> ""):
+        if (request.POST['creditamount'] <> "" and request.POST['creditamount'] <> '0.00'):
             datastring += "balancecode='C',"
             datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
             datastring += "debitamount='0.00',"
@@ -778,10 +775,7 @@ def saveupdatedetailbreakdown(request):
         if request.POST['ataxcode']:
             datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
 
-        if (request.POST['creditamount'] == '0.00'):
-            request.POST['creditamount'] == ""
-
-        if (request.POST['creditamount'] <> ""):
+        if (request.POST['creditamount'] <> "" and request.POST['creditamount'] <> '0.00'):
             datastring += "balancecode='C',"
             datastring += "creditamount='" + request.POST['creditamount'].replace(',', '') + "',"
             datastring += "debitamount='0.00',"

@@ -244,6 +244,7 @@ class Jvdetailbreakdowntemp(models.Model):
     datatype = models.CharField(max_length=1, null=True, blank=True)
     jvmain = models.CharField(max_length=10, null=True, blank=True)
     jvdetail = models.CharField(max_length=10, null=True, blank=True)
+    jvdetailbreakdown = models.CharField(max_length=10, null=True, blank=True)
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField(blank=True, null=True)
     chartofaccount = models.IntegerField(blank=True, null=True)

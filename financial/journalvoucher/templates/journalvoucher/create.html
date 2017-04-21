@@ -165,7 +165,7 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#manualbutton").click(function (){
+            $("#manualbutton").unbind().click(function (){
                 $("#entryview").show();
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
