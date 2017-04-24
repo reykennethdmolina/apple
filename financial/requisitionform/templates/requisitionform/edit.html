@@ -10,13 +10,11 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
-                <div class="panel-heading">
-                    <h3 class="panel-title">UPDATE</h3>
-                </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                         <div class="row col-md-12 row-lg margin-bottom-20">
+                            <h3 class="panel-title" style="padding-bottom: 0px;">UPDATE</h3>
                             {% if perms.requisitionform.delete_rfmain %}
                             <a href="{% url 'requisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
@@ -265,6 +263,13 @@
                     summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
                 }
             }
+
+            $("#form-b").submit(function(event){
+                if($('.remove_item').length == 0) {
+                    alert("Please enlist at least one item.");
+                    event.preventDefault();
+                }
+            });
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>

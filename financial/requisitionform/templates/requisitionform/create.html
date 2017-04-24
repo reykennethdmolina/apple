@@ -169,6 +169,12 @@
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
+            $("#form-b").submit(function(event){
+                if($('.remove_item').length == 0) {
+                    alert("Please enlist at least one item.");
+                    event.preventDefault();
+                }
+            });
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>

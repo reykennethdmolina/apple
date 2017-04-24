@@ -13,6 +13,7 @@ from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from currency.models import Currency
 from department.models import Department
+from unitofmeasure.models import Unitofmeasure
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
 import datetime
@@ -38,6 +39,7 @@ class CreateView(CreateView):
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         return context
 
     def form_valid(self, form):
@@ -71,7 +73,8 @@ def savedetailtemp(request):
         detailtemp.item_counter = request.POST['itemno']
         detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_itemid']).code
         detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_itemid']).description
-        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_itemid']).unitofmeasure.code
+        detailtemp.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=request.POST['id_um']).code
+        detailtemp.unitofmeasure = Unitofmeasure.objects.get(pk=request.POST['id_um'])
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.unitcost = request.POST['id_unitcost']
         detailtemp.discountrate = request.POST['id_discountrate']
@@ -101,10 +104,8 @@ def savedetailtemp(request):
             'status': 'success',
             'itemno': request.POST['itemno'],
             'remarks': request.POST['id_remarks'],
-            # 'quantity': request.POST['id_quantity'],
-            # 'unitcost': request.POST['id_unitcost'],
-            # 'department': Department.objects.get(pk=request.POST['id_department']).code,
-            # 'discountrate': request.POST['id_discountrate'],
+            'department': Department.objects.get(pk=request.POST['id_department']).code,
+            'currency': Currency.objects.get(pk=request.POST['id_currency']).symbol,
         }
     else:
         data = {
@@ -125,7 +126,8 @@ def deletedetailtemp(request):
             detailtemp.delete()
         except Podetailtemp.DoesNotExist:
             print "temp detail has pomain"
-            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'], pomain__ponum=request.POST['ponum'])
+            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'],
+                                                  pomain__ponum=request.POST['ponum'])
             detailtemp.isdeleted = 1
             detailtemp.save()
 

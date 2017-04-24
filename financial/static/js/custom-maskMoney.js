@@ -17,6 +17,10 @@ $( "#validateButton" ).click(function() {
 
 });
 
+function initMaskMoney(className){
+	$('.' + className).maskMoney({thousands:',', decimal:'.', affixesStay: true});
+}
+
 /* Amount to words convertion */
 var th = ['','Thousand','Million', 'Billion','Trillion'];
 
