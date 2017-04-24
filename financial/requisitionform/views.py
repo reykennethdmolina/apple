@@ -97,65 +97,66 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        if Rfdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
+            self.object = form.save(commit=False)
 
-        year = str(form.cleaned_data['rfdate'].year)
-        yearQS = Rfmain.objects.filter(rfnum__startswith=year)
+            year = str(form.cleaned_data['rfdate'].year)
+            yearQS = Rfmain.objects.filter(rfnum__startswith=year)
 
-        if yearQS:
-            rfnumlast = yearQS.latest('rfnum')
-            latestrfnum = str(rfnumlast)
-            print "latest: " + latestrfnum
+            if yearQS:
+                rfnumlast = yearQS.latest('rfnum')
+                latestrfnum = str(rfnumlast)
+                print "latest: " + latestrfnum
 
-            rfnum = year
-            last = str(int(latestrfnum[4:])+1)
-            zero_addon = 6 - len(last)
-            for x in range(0, zero_addon):
-                rfnum += '0'
-            rfnum += last
+                rfnum = year
+                last = str(int(latestrfnum[4:])+1)
+                zero_addon = 6 - len(last)
+                for x in range(0, zero_addon):
+                    rfnum += '0'
+                rfnum += last
 
-        else:
-            rfnum = year + '000001'
+            else:
+                rfnum = year + '000001'
 
-        print 'rfnum: ' + rfnum
-        self.object.rfnum = rfnum
-        self.object.branch = Branch.objects.get(pk=5)
-        self.object.rftype = 'REGULAR'
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save()
+            print 'rfnum: ' + rfnum
+            self.object.rfnum = rfnum
+            self.object.branch = Branch.objects.get(pk=5)
+            self.object.rftype = 'REGULAR'
+            self.object.enterby = self.request.user
+            self.object.modifyby = self.request.user
+            self.object.save()
 
-        detailtemp = Rfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
-            order_by('enterdate')
-        i = 1
-        for dt in detailtemp:
-            detail = Rfdetail()
-            detail.item_counter = i
-            detail.rfmain = Rfmain.objects.get(rfnum=rfnum)
-            detail.invitem = dt.invitem
-            detail.invitem_code = dt.invitem_code
-            detail.invitem_name = dt.invitem_name
-            detail.invitem_unitofmeasure = Unitofmeasure.objects\
-                                                        .get(code=self.request.POST.getlist('temp_item_um')[i-1],
-                                                             isdeleted=0, status='A')
-            detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                          getlist('temp_item_um')[i - 1], isdeleted=0,
-                                                                          status='A').code
-            detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-            detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
-            detail.status = dt.status
-            detail.enterby = dt.enterby
-            detail.enterdate = dt.enterdate
-            detail.modifyby = dt.modifyby
-            detail.modifydate = dt.modifydate
-            detail.postby = dt.postby
-            detail.postdate = dt.postdate
-            detail.isdeleted = dt.isdeleted
-            detail.save()
-            dt.delete()
-            i += 1
+            detailtemp = Rfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+                order_by('enterdate')
+            i = 1
+            for dt in detailtemp:
+                detail = Rfdetail()
+                detail.item_counter = i
+                detail.rfmain = Rfmain.objects.get(rfnum=rfnum)
+                detail.invitem = dt.invitem
+                detail.invitem_code = dt.invitem_code
+                detail.invitem_name = dt.invitem_name
+                detail.invitem_unitofmeasure = Unitofmeasure.objects\
+                                                            .get(code=self.request.POST.getlist('temp_item_um')[i-1],
+                                                                 isdeleted=0, status='A')
+                detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                              getlist('temp_item_um')[i - 1], isdeleted=0,
+                                                                              status='A').code
+                detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
+                detail.status = dt.status
+                detail.enterby = dt.enterby
+                detail.enterdate = dt.enterdate
+                detail.modifyby = dt.modifyby
+                detail.modifydate = dt.modifydate
+                detail.postby = dt.postby
+                detail.postdate = dt.postdate
+                detail.isdeleted = dt.isdeleted
+                detail.save()
+                dt.delete()
+                i += 1
 
-        return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
+            return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
 
 
 class UpdateView(UpdateView):
@@ -235,59 +236,62 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.modifyby = self.request.user
-        self.object.modifydate = datetime.datetime.now()
-        self.object.branch = Branch.objects.get(pk=5)
-        self.object.rftype = 'REGULAR'
-        self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
-                                        'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
-                                        'modifyby', 'modifydate'])
+        if Rfdetailtemp.objects.filter(
+                Q(isdeleted=0),
+                Q(rfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])):
+            self.object = form.save(commit=False)
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.branch = Branch.objects.get(pk=5)
+            self.object.rftype = 'REGULAR'
+            self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
+                                            'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
+                                            'modifyby', 'modifydate'])
 
-        Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
+            Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
 
-        detailtagasdeleted = Rfdetail.objects.filter(rfmain=self.object.pk)
-        for dtd in detailtagasdeleted:
-            dtd.isdeleted = 1
-            dtd.save()
+            detailtagasdeleted = Rfdetail.objects.filter(rfmain=self.object.pk)
+            for dtd in detailtagasdeleted:
+                dtd.isdeleted = 1
+                dtd.save()
 
-        alltempdetail = Rfdetailtemp.objects.filter(
-            Q(isdeleted=0),
-            Q(rfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
-        ).order_by('enterdate')
+            alltempdetail = Rfdetailtemp.objects.filter(
+                Q(isdeleted=0),
+                Q(rfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+            ).order_by('enterdate')
 
-        i = 1
-        for atd in alltempdetail:
-            alldetail = Rfdetail()
-            alldetail.item_counter = i
-            alldetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
-            alldetail.invitem = atd.invitem
-            alldetail.invitem_code = atd.invitem_code
-            alldetail.invitem_name = atd.invitem_name
-            alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                        getlist('temp_item_um')[i - 1],
-                                                                        isdeleted=0, status='A')
-            alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                             getlist('temp_item_um')[i - 1],
-                                                                             isdeleted=0, status='A').code
-            alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-            alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
-            alldetail.status = atd.status
-            alldetail.enterby = atd.enterby
-            alldetail.enterdate = atd.enterdate
-            alldetail.modifyby = atd.modifyby
-            alldetail.modifydate = atd.modifydate
-            alldetail.postby = atd.postby
-            alldetail.postdate = atd.postdate
-            alldetail.isdeleted = atd.isdeleted
-            alldetail.save()
-            atd.delete()
-            i += 1
+            i = 1
+            for atd in alltempdetail:
+                alldetail = Rfdetail()
+                alldetail.item_counter = i
+                alldetail.rfmain = Rfmain.objects.get(rfnum=self.request.POST['rfnum'])
+                alldetail.invitem = atd.invitem
+                alldetail.invitem_code = atd.invitem_code
+                alldetail.invitem_name = atd.invitem_name
+                alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                            getlist('temp_item_um')[i - 1],
+                                                                            isdeleted=0, status='A')
+                alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                                 getlist('temp_item_um')[i - 1],
+                                                                                 isdeleted=0, status='A').code
+                alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
+                alldetail.status = atd.status
+                alldetail.enterby = atd.enterby
+                alldetail.enterdate = atd.enterdate
+                alldetail.modifyby = atd.modifyby
+                alldetail.modifydate = atd.modifydate
+                alldetail.postby = atd.postby
+                alldetail.postdate = atd.postdate
+                alldetail.isdeleted = atd.isdeleted
+                alldetail.save()
+                atd.delete()
+                i += 1
 
-        Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
-        Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
+            Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()  # clear all temp data
+            Rfdetail.objects.filter(rfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
+            return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
