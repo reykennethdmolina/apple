@@ -10,6 +10,9 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
