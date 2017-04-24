@@ -113,8 +113,8 @@ $(document).ready(function() {
                     commandLink = tableList.find('tr').eq(i).last('td');
                     oldPk = commandLink.find('a:eq(0)').attr("href").replace( /^\D+/g, '');
                     commandLink.find('a:eq(0)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
-                    commandLink.find('a:eq(1)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
-                    commandLink.find('a:eq(2)').attr("href", commandLink.find('a:eq(0)').attr("href").replace(oldPk, result[i].pk + "/"));
+                    commandLink.find('a:eq(1)').attr("href", commandLink.find('a:eq(1)').attr("href").replace(oldPk, result[i].pk + "/"));
+                    commandLink.find('a:eq(2)').attr("href", commandLink.find('a:eq(2)').attr("href").replace(oldPk, result[i].pk + "/"));
 
                     $('#shade').fadeOut();
                 }
