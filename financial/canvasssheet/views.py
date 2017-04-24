@@ -241,7 +241,6 @@ def importItems(request):
     # front end - prf can only be used once
     # front end - item remove button
     # front end - quantity cost front end change
-    # front end - item quantity editing
     # front end - item supplier manual add(manual add of extra supplier)
     # back - validation on save
     # back -item no / counter validation..
@@ -256,68 +255,111 @@ def importItems(request):
                                              status="A",
                                              isdeleted=0).order_by('item_counter')
 
-        # prfsupplier = Prfdetail.objects.filter(prfmain__prfnum=request.POST['prfnum'],
-        #                                        prfmain__prfstatus='A',
-        #                                        prfmain__status='A',
-        #                                        prfmain__isdeleted=0,
-        #                                        prfmain__approverresponse='A',
-        #                                        isdeleted__contains=0,
-        #                                        status__contains='A').order_by('invitem__description')
+        prfitems = Prfdetail.objects\
+                    .raw('SELECT DISTINCT pd.invitem_id AS id '
+                         'FROM prfdetail pd '
+                         'LEFT JOIN prfmain pm ON pd.prfmain_id = pm.id  '
+                         'WHERE pm.prfnum = "' + request.POST['prfnum'] + '" '
+                         'AND pm.prfstatus = "A" '
+                         'AND pm.status = "A" '
+                         'AND pm.isdeleted = 0 '
+                         'AND pm.approverresponse = "A" '
+                         'AND pd.isdeleted = 0 '
+                         'AND pd.status = "A"')
 
-        prfsupplier = Prfdetail.objects\
-                        .raw('SELECT d.id,'
-                                'i.code,'
-                                'i.description,'
-                                'h.price,'
-                                'h.processingdate,'
-                                'h.datetransaction,'
-                                's.name '
-                             'FROM prfmain m '
-                             'LEFT JOIN prfdetail d '
-                                'ON d.prfmain_id = m.id '
-                             'LEFT JOIN cshistory h '
-                                'ON h.invitem_id = d.invitem_id '
-                             'LEFT JOIN inventoryitem i '
-                                'ON i.id = h.invitem_id '
-                             'LEFT JOIN supplier s '
-                                'ON s.id = h.supplier_id '
-                             'WHERE m.prfnum = "' + request.POST['prfnum'] + '" '
-                                'AND m.prfstatus = "A" '
-                                'AND m.status = "A" '
-                                'AND m.isdeleted = 0 '
-                                'AND m.approverresponse = "A" '
-                                'AND d.isdeleted = 0 '
-                                'AND d.status = "A" '
-                             'ORDER BY i.description ASC,'
-                                'h.datetransaction DESC,'
-                                'h.price ASC,'
-                                'h.processingdate ASC,'
-                                's.name ASC')
+        prfitemsupplier_list = []
+
+        for data in prfitems:
+            prfitemsupplier = Prfdetail.objects\
+                .raw('SELECT b.id, i.id AS inv_id, i.code, i.description, b.price, b.processingdate, b.datetransaction, s.name, '
+                     'v.id AS vat_id, v.code AS vat_code, v.rate AS vat_rate '
+                     'FROM (SELECT IF(@prev != a.supplier_id, @rownum := 1, @rownum := @rownum + 1) AS rownumber, '
+                            '@prev := a.supplier_id, a.* '
+                            'FROM (SELECT * FROM cshistory ch, (SELECT @rownum := 0, @prev := "") sq '
+                            'WHERE invitem_id = ' + str(data.id) + ' '
+                            'ORDER BY supplier_id, datetransaction DESC, price) a) b '
+                     'LEFT JOIN inventoryitem i ON i.id = b.invitem_id '
+                     'LEFT JOIN supplier s ON s.id = b.supplier_id '
+                     'LEFT JOIN vat v ON v.id = s.vat_id '
+                     'WHERE rownumber = 1 '
+                     'ORDER BY price '
+                     'LIMIT 3')
+
+            for data2 in prfitemsupplier:
+                prfitemsupplier_list.append([data2.code,
+                                             data2.description,
+                                             data2.price,
+                                             data2.processingdate,
+                                             data2.datetransaction,
+                                             data2.name,
+                                             data2.vat_id,
+                                             data2.vat_rate,
+                                             data2.vat_code,
+                                             data2.inv_id,
+                                             ])
+
+        # prfsupplier = Prfdetail.objects\
+        #                 .raw('SELECT d.id,'
+        #                         'i.code,'
+        #                         'i.description,'
+        #                         'h.price,'
+        #                         'h.processingdate,'
+        #                         'h.datetransaction,'
+        #                         'v.id AS vat_id,'
+        #                         'v.code AS vat_code,'
+        #                         'v.rate AS vat_rate,'
+        #                         's.name '
+        #                      'FROM prfmain m '
+        #                      'LEFT JOIN prfdetail d '
+        #                         'ON d.prfmain_id = m.id '
+        #                      'LEFT JOIN cshistory h '
+        #                         'ON h.invitem_id = d.invitem_id '
+        #                      'LEFT JOIN inventoryitem i '
+        #                         'ON i.id = h.invitem_id '
+        #                      'LEFT JOIN supplier s '
+        #                         'ON s.id = h.supplier_id '
+        #                      'LEFT JOIN vat v '
+        #                         'ON v.id = s.vat_id '
+        #                      'WHERE m.prfnum = "' + request.POST['prfnum'] + '" '
+        #                         'AND m.prfstatus = "A" '
+        #                         'AND m.status = "A" '
+        #                         'AND m.isdeleted = 0 '
+        #                         'AND m.approverresponse = "A" '
+        #                         'AND d.isdeleted = 0 '
+        #                         'AND d.status = "A" '
+        #                      'ORDER BY i.description ASC,'
+        #                         'h.datetransaction DESC,'
+        #                         'h.price ASC,'
+        #                         'h.processingdate ASC,'
+        #                         's.name ASC')
 
         prfdata = [prfmain.prfnum]
         prfdetail_list = []
-        prfsupplier_list = []
+        # prfsupplier_list = []
 
-        temp_counter = 1
-        temp_item = ''
-        temp_supplier = ''
-        for data in prfsupplier:
-
-            if temp_item != data.code:
-                temp_counter = 1
-
-            if (temp_item != data.code or temp_supplier != data.name) and temp_counter <= 3:
-                prfsupplier_list.append([data.code,
-                                         data.description,
-                                         data.price,
-                                         data.processingdate,
-                                         data.datetransaction,
-                                         data.name
-                                         ])
-
-                temp_counter += 1
-                temp_item = data.code
-                temp_supplier = data.name
+        # temp_counter = 1
+        # temp_item = ''
+        # temp_supplier = ''
+        # for data in prfsupplier:
+        #
+        #     if temp_item != data.code:
+        #         temp_counter = 1
+        #
+        #     if (temp_item != data.code or temp_supplier != data.name) and temp_counter <= 3:
+        #         prfsupplier_list.append([data.code,
+        #                                  data.description,
+        #                                  data.price,
+        #                                  data.processingdate,
+        #                                  data.datetransaction,
+        #                                  data.name,
+        #                                  data.vat_id,
+        #                                  data.vat_rate,
+        #                                  data.vat_code,
+        #                                  ])
+        #
+        #         temp_counter += 1
+        #         temp_item = data.code
+        #         temp_supplier = data.name
 
         for data in prfdetail:
             prfdetail_list.append([data.invitem_code,
@@ -330,7 +372,7 @@ def importItems(request):
         data = {
             'status': 'success',
             'prfdata': prfdata,
-            'prfsupplier': prfsupplier_list,
+            'prfsupplier': prfitemsupplier_list,
             'prfdetail': prfdetail_list,
         }
     else:

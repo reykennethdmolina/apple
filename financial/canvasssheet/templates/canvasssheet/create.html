@@ -3,6 +3,7 @@
 {% block page-title %} Canvass Sheet {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
@@ -14,16 +15,38 @@
             color: white;
         }
         #prfcontainer {
-            height: 215px;
+            height: 300px;
             padding: 10px;
             background-color: #e6e6e6;
             overflow: scroll;
         }
         .item_container{
-            border-top: 4px solid #dff0d8;
+{#            border-top: 4px solid #dff0d8;#}
         }
         #tempForm{
             display: none;
+        }
+        .vattable td {
+            text-align: right;
+
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding-right: 15px;
+            padding-left: 45px;
+        }
+        #summary th{
+            min-width: 120px;
+        }
+        .item_cost{
+            text-align: right;
         }
     </style>
 {% endblock extra_css %}
@@ -34,7 +57,7 @@
                 <form method="post" id="form-b">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
-                    <div class="row col-md-8 row-lg margin-left-10">
+                    <div class="row col-md-5 row-lg margin-left-10">
                         <div class="form-group col-sm-6">
                             <label class="control-label" for="id_csnum">Number</label>
                             <input type="text" class="form-control input-sm" id="id_csnum" placeholder="csxxxxxxx" disabled="disabled">
@@ -44,7 +67,7 @@
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_csdate" name="csdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.csdate.value|default:'' }}">
                             <span class="help-block form-error">{{ form.csdate.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-12 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_designatedapprover">Approver</label>
                             <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                 <option value="">-- Select --</option>
@@ -54,11 +77,11 @@
                             </select>
                             <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-6">
                             <label class="control-label" for="id_csstatus">CS Status</label>
                             <input type="text" class="form-control input-sm" id="id_csstatus" value="FOR APPROVAL" disabled="disabled">
                         </div>
-                        <div class="form-group col-sm-3 {{ form.cstype.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-6 {{ form.cstype.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_cstype">CS Type</label>
                             <select class="form-control input-sm" data-validation="required" id="id_cstype" name="cstype">
                                 {% for id,name in form.fields.cstype.choices %}
@@ -72,18 +95,55 @@
                             <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                         </div>
                     </div>
-                    <div class="row col-md-4 row-lg margin-left-10">
+                    <div class="col-md-4">
+                        <div class="widgett widgett-article widgett-shadow">
+                            <div class="heading-top-index-2">
+                                <table class="vattable">
+                                    <tr>
+                                        <td><small><b>Quantity:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm" id="totalQty" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Amount:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="grossAmt" disabled="disabled" value="0"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="heading-top-index-2">
+                                <table class="vattable">
+                                    <tr>
+                                        <td><small>VATable&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="vatAble" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="vatExempt" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="vatZero" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr><td colspan="0"><br></td></tr>
+                                    <tr>
+                                        <td><small><b>Total&nbsp;Purchase:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="totalPurchase" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="addVat" disabled="disabled" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><small><b>Total&nbsp;Amount:</b></small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="totalAmt" disabled="disabled" value="0"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-md-3 row-lg margin-left-10">
                         <label class="control-label" for="id_cstype">PRF(s) Imported</label><br>
                         <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
                             <div class="shade"><div class="loader two-color"></div></div>
-{#                            <div class="widgett widgett-article widgett-shadow">#}
-{#                                <div class="widgett-header cover padding-0 bg-grey-600">#}
-{#                                    <div class="background-cover padding-10">#}
-{#                                        PRF-2017000001#}
-{#                                        <button type="button" class="close"><i class="icon fa-close" aria-hidden="true"></i></button>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
                         </div>
                     </div>
                     <div class="col-sm-12 margin-bottom-10">
@@ -112,57 +172,28 @@
                 <div class="col-sm-12">
                     <div class="panel">
                         <div class="shade"><div class="loader two-color"></div></div>
-                        <div class="panel-body">
+                        <div class="panel-body" style="overflow: auto; width: 100%">
                             <table class="col-sm-6 table margin-bottom-0" id="summary" style="border: 1px solid #e0e0e0;">
                                 <thead>
-                                    <tr class="success">
+                                    <tr class="small">
                                         <th style="width: 40px">#</th>
                                         <th>Name</th>
                                         <th>Description</th>
-                                        <th style="width:90px">Quantity</th>
-                                        <th colspan="2" style="text-align: center">Supplier</th>
-                                        <th class="text-right" style="padding-right: 30px">CS Cost</th>
-                                        <th class="text-center" style="width: 130px;">Nego Cost</th>
-                                        <th class="text-right">Amount</th>
+                                        <th class="text-center" style="width:90px">Quantity</th>
+                                        <th colspan="2" style="text-align: center; min-width: 250px;">Supplier</th>
+                                        <th class="text-right" style="padding-right: 30px">CS&nbsp;Cost</th>
+                                        <th class="text-center" style="width: 130px;">Nego&nbsp;Cost</th>
+                                        <th class="text-right">Gross Amount</th>
+                                        <th class="text-center">VAT&nbsp;Rate</th>
+                                        <th class="text-right">VATable</th>
+                                        <th class="text-right">VAT&nbsp;-&nbsp;Exempt</th>
+                                        <th class="text-right">VAT&nbsp;Zero&nbsp;-&nbsp;Exempt</th>
+                                        <th class="text-right">Total&nbsp;Purchase</th>
+                                        <th class="text-right">Add&nbsp;VAT</th>
+                                        <th class="text-right">Total&nbsp;Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-{#                                    <tr id="14" class="item_container">#}
-{#                                        <td rowspan="3">1</td>#}
-{#                                        <td rowspan="3">SI-CLASS-asda</td>#}
-{#                                        <td rowspan="3">asda</td>#}
-{#                                        <td rowspan="3" class="item_quantity">13</td>#}
-{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
-{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
-{#                                        <td class="small">100.00</td>#}
-{#                                        <td class="small">95.00</td>#}
-{#                                        <td class="small">1,235.00</td>#}
-{#                                    </tr>#}
-{#                                    <tr>#}
-{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
-{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
-{#                                        <td class="small">100.00</td>#}
-{#                                        <td class="small">95.00</td>#}
-{#                                        <td class="small">1,235.00</td>#}
-{#                                    </tr>#}
-{#                                    <tr>#}
-{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="1"></td>#}
-{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
-{#                                        <td class="small">100.00</td>#}
-{#                                        <td class="small">95.00</td>#}
-{#                                        <td class="small">1,235.00</td>#}
-{#                                    </tr>#}
-{#                                    <tr id="6" class="item_container">#}
-{#                                        <td>2</td>#}
-{#                                        <td>asda</td>#}
-{#                                        <td>xasx</td>#}
-{#                                        <td class="item_quantity">2</td>#}
-{#                                        <td><input type="radio" name="supplier" class="radio radio-custom" form="2"></td>#}
-{#                                        <td class="small">1618 Office Solutions Inc.</td>#}
-{#                                        <td class="small">100.00</td>#}
-{#                                        <td class="small">95.00</td>#}
-{#                                        <td class="small">1,235.00</td>#}
-{#                                    </tr>#}
                                 </tbody>
                             </table>
                         </div>

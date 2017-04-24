@@ -88,6 +88,27 @@ class Cshistory(models.Model):
         return self.id
 
 
+class Csdata(models.Model):
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdata_csmain_id')
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='csdata_prfmain_id')
+    secretkey = models.CharField(max_length=255)
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'csdata'
+        ordering = ['-pk']
+        # permissions = (("view_csdata", "Can view csdata"),)
+
+    def get_absolute_url(self):
+        return reverse('canvasssheet:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.id
+
+    def __unicode__(self):
+        return self.id
+
+
 class Csdetail(models.Model):
     STATUS_CHOICES = (
         ('A', 'Active'),
