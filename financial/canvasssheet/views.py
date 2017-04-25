@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from . models import Csmain
+from . models import Csmain, Csdata
 from requisitionform.models import Rfmain, Rfdetail
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from inventoryitemtype.models import Inventoryitemtype
@@ -235,10 +235,10 @@ class CreateView(CreateView):
 #         return context
 #
 #
+
 @csrf_exempt
 def importItems(request):
     # front end - hover imported prf to show details
-    # front end - prf can only be used once
     # front end - item remove button
     # front end - quantity cost front end change
     # front end - item supplier manual add(manual add of extra supplier)
@@ -246,15 +246,19 @@ def importItems(request):
     # back -item no / counter validation..
 
     if request.method == 'POST':
+        # get selected prfmain data
         prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
                                       prfstatus="A",
                                       status="A",
                                       isdeleted=0)
 
+        # get prfmain prfdetail data
         prfdetail = Prfdetail.objects.filter(prfmain=prfmain.id,
                                              status="A",
                                              isdeleted=0).order_by('item_counter')
 
+
+        # get prf items
         prfitems = Prfdetail.objects\
                     .raw('SELECT DISTINCT pd.invitem_id AS id '
                          'FROM prfdetail pd '
@@ -269,6 +273,7 @@ def importItems(request):
 
         prfitemsupplier_list = []
 
+        # get prf items suggested supplier
         for data in prfitems:
             prfitemsupplier = Prfdetail.objects\
                 .raw('SELECT b.id, i.id AS inv_id, i.code, i.description, b.price, b.processingdate, b.datetransaction, s.name, '
@@ -298,68 +303,8 @@ def importItems(request):
                                              data2.inv_id,
                                              ])
 
-        # prfsupplier = Prfdetail.objects\
-        #                 .raw('SELECT d.id,'
-        #                         'i.code,'
-        #                         'i.description,'
-        #                         'h.price,'
-        #                         'h.processingdate,'
-        #                         'h.datetransaction,'
-        #                         'v.id AS vat_id,'
-        #                         'v.code AS vat_code,'
-        #                         'v.rate AS vat_rate,'
-        #                         's.name '
-        #                      'FROM prfmain m '
-        #                      'LEFT JOIN prfdetail d '
-        #                         'ON d.prfmain_id = m.id '
-        #                      'LEFT JOIN cshistory h '
-        #                         'ON h.invitem_id = d.invitem_id '
-        #                      'LEFT JOIN inventoryitem i '
-        #                         'ON i.id = h.invitem_id '
-        #                      'LEFT JOIN supplier s '
-        #                         'ON s.id = h.supplier_id '
-        #                      'LEFT JOIN vat v '
-        #                         'ON v.id = s.vat_id '
-        #                      'WHERE m.prfnum = "' + request.POST['prfnum'] + '" '
-        #                         'AND m.prfstatus = "A" '
-        #                         'AND m.status = "A" '
-        #                         'AND m.isdeleted = 0 '
-        #                         'AND m.approverresponse = "A" '
-        #                         'AND d.isdeleted = 0 '
-        #                         'AND d.status = "A" '
-        #                      'ORDER BY i.description ASC,'
-        #                         'h.datetransaction DESC,'
-        #                         'h.price ASC,'
-        #                         'h.processingdate ASC,'
-        #                         's.name ASC')
-
         prfdata = [prfmain.prfnum]
         prfdetail_list = []
-        # prfsupplier_list = []
-
-        # temp_counter = 1
-        # temp_item = ''
-        # temp_supplier = ''
-        # for data in prfsupplier:
-        #
-        #     if temp_item != data.code:
-        #         temp_counter = 1
-        #
-        #     if (temp_item != data.code or temp_supplier != data.name) and temp_counter <= 3:
-        #         prfsupplier_list.append([data.code,
-        #                                  data.description,
-        #                                  data.price,
-        #                                  data.processingdate,
-        #                                  data.datetransaction,
-        #                                  data.name,
-        #                                  data.vat_id,
-        #                                  data.vat_rate,
-        #                                  data.vat_code,
-        #                                  ])
-        #
-        #         temp_counter += 1
-        #         temp_item = data.code
-        #         temp_supplier = data.name
 
         for data in prfdetail:
             prfdetail_list.append([data.invitem_code,
@@ -369,12 +314,23 @@ def importItems(request):
                                    data.invitem.id
                                    ])
 
-        data = {
-            'status': 'success',
-            'prfdata': prfdata,
-            'prfsupplier': prfitemsupplier_list,
-            'prfdetail': prfdetail_list,
-        }
+        # store temp csdata
+        if Csdata.objects.filter(secretkey=request.POST['secretkey'], prfmain=prfmain).exists():
+            data = {
+                'status': 'error',
+            }
+        else:
+            detail = Csdata()
+            detail.secretkey = request.POST['secretkey']
+            detail.prfmain = prfmain
+            detail.save()
+
+            data = {
+                'status': 'success',
+                'prfdata': prfdata,
+                'prfsupplier': prfitemsupplier_list,
+                'prfdetail': prfdetail_list,
+            }
     else:
         data = {
             'status': 'error',

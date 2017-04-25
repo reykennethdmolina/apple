@@ -89,10 +89,12 @@ class Cshistory(models.Model):
 
 
 class Csdata(models.Model):
-    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdata_csmain_id')
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdata_csmain_id', null=True, blank=True)
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='csdata_prfmain_id')
     secretkey = models.CharField(max_length=255)
     isdeleted = models.IntegerField(default=0)
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
 
     class Meta:
         db_table = 'csdata'

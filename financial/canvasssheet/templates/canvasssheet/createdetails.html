@@ -74,7 +74,6 @@
                                     // on removal of prf
                                     // delete form temp on delete
                                     // on edit nego amount
-                                    // on edit quantity
                                     // on delete item
                                     // hover view more details about supplier
 
@@ -193,6 +192,26 @@
         $(document).on('change', '.item_cost', function(){
             computeVatItem();
         });
+
+        $(document).on('click', '#importbutton', function(){
+            $('#importrfselect2').find('option').prop( "disabled", false );
+            $('.removeprf').each(function(index){
+                $('#importrfselect2').find('option[data-refnum=' + $(this).data('prf') + ']').prop( "disabled", true );
+                $('#importrfselect2').select2("destroy");
+                $('#importrfselect2').select2();
+
+            });
+            resetPrfOptions();
+        });
+
+        function resetPrfOptions(){
+            $('#importrfselect2').val('').trigger('change');
+            $('#importrfpreview td').html(" - ");
+
+            $("#importrfselect2").select2({
+                dropdownParent: $("#myModal")
+            });
+        }
 
         function reorderItems(){
             len = summary.find('tr.item_container').find('td:eq(0)').length;
