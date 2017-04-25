@@ -30,6 +30,20 @@ from random import randint
 # Create your views here.
 
 @method_decorator(login_required, name='dispatch')
+class IndexView(ListView):
+    model = Jvmain
+    template_name = 'journalvoucher/index.html'
+    context_object_name = 'data_list'
+
+    def get_queryset(self):
+        return Jvmain.objects.all().order_by('pk')
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Jvmain
+    template_name = 'journalvoucher/detail.html'
+
+@method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Jvmain
     template_name = 'journalvoucher/create.html'

@@ -41,8 +41,8 @@
         <td>{{ temp.ataxname|default:'' }}</td>
     {% endif %}
     <td>{{ temp.particular }}</td>
-    <td class="text-align-right">{{ temp.creditamount }}</td>
     <td class="text-align-right">{{ temp.debitamount }}</td>
+    <td class="text-align-right">{{ temp.creditamount }}</td>
     <td>
         <a href="#" class="breakdownedit" data-id="{{ temp.id }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
         <a href="#" class="breakdowndelete" data-id="{{ temp.id }}"><i class="icon fa-remove" aria-hidden="true"></i></a>

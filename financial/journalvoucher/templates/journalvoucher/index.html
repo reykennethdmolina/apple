@@ -1,0 +1,7 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Journal Voucher {% endblock page-title %}
+{% block page-content %}
+    {% for data in data_list %}
+        {{ data }}
+    {% endfor %}
+{% endblock page-content %}
