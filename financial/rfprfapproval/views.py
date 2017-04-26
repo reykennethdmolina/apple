@@ -22,8 +22,16 @@ class IndexView(ListView):
 
         rfdata = Rfmain.objects.all().filter(isdeleted=0, status='A')
 
+        context['rfapprovers'] = User.objects.filter(id__in=set(Rfmain.objects.values_list('designatedapprover',
+                                                                                           flat=True))).\
+            order_by('first_name')
+        context['prfapprovers'] = User.objects.filter(id__in=set(Prfmain.objects.values_list('designatedapprover',
+                                                                                             flat=True))).\
+            order_by('first_name')
+
         if not self.request.user.has_perm('requisitionform.view_allassignrf'):
             rfdata = rfdata.filter(designatedapprover=self.request.user.id)
+            context['rfapprovers'] = context['rfapprovers'].filter(id=self.request.user.id)
 
         context['rfpending'] = rfdata.filter(rfstatus='F').order_by('enterdate')
         context['rfapproved'] = rfdata.filter(rfstatus='A').order_by('enterdate')
@@ -33,6 +41,7 @@ class IndexView(ListView):
 
         if not self.request.user.has_perm('purchaserequisitionform.view_allassignprf'):
             prfdata = prfdata.filter(designatedapprover=self.request.user.id)
+            context['prfapprovers'] = context['prfapprovers'].filter(id=self.request.user.id)
 
         context['prfpending'] = prfdata.filter(prfstatus='F').order_by('enterdate')
         context['prfapproved'] = prfdata.filter(prfstatus='A').order_by('enterdate')
@@ -44,23 +53,23 @@ class IndexView(ListView):
 
         if self.request.method == 'GET':
             if 'selectrfapprover' in self.request.GET:
-                if self.request.GET['selectrfapprover'] == 'ME':
-                    context['rfpending'] = context['rfpending'].filter(designatedapprover=self.request.user.id).\
+                if self.request.GET['selectrfapprover'] != 'ALL':
+                    context['rfpending'] = context['rfpending'].filter(designatedapprover=self.request.GET['selectrfapprover']).\
                         order_by('enterdate')
-                    context['rfapproved'] = context['rfapproved'].filter(designatedapprover=self.request.user.id).\
+                    context['rfapproved'] = context['rfapproved'].filter(designatedapprover=self.request.GET['selectrfapprover']).\
                         order_by('enterdate')
-                    context['rfdisapproved'] = context['rfdisapproved'].filter(designatedapprover=self.request.user.id).\
+                    context['rfdisapproved'] = context['rfdisapproved'].filter(designatedapprover=self.request.GET['selectrfapprover']).\
                         order_by('enterdate')
-                    context['formrfapprover'] = 'ME'
+                    context['formrfapprover'] = self.request.GET['selectrfapprover']
             if 'selectprfapprover' in self.request.GET:
-                if self.request.GET['selectprfapprover'] == 'ME':
-                    context['prfpending'] = context['prfpending'].filter(designatedapprover=self.request.user.id). \
+                if self.request.GET['selectprfapprover'] != 'ALL':
+                    context['prfpending'] = context['prfpending'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
                         order_by('enterdate')
-                    context['prfapproved'] = context['prfapproved'].filter(designatedapprover=self.request.user.id). \
+                    context['prfapproved'] = context['prfapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
                         order_by('enterdate')
-                    context['prfdisapproved'] = context['prfdisapproved'].filter(designatedapprover=self.request.user.id). \
+                    context['prfdisapproved'] = context['prfdisapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
                         order_by('enterdate')
-                    context['formprfapprover'] = 'ME'
+                    context['formprfapprover'] = self.request.GET['selectprfapprover']
             if 'selecttype' in self.request.GET:
                 if self.request.GET['selecttype'] == 'RF':
                     context['prfpending'] = context['prfpending'][0:0]

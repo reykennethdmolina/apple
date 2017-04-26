@@ -41,43 +41,49 @@
         });
 
         $("#btn_detailsubmit").click(function(){
-            $('.shade').fadeIn();
-            $.ajax({
-                url: "{% url 'requisitionform:savedetailtemp' %}",
-                type: "post",
-                data: {'itemno': $("#itemno").text(),
-                        'id_item': $("#id_item_name").val(),
-                        'id_quantity': $("#id_quantity").val(),
-                        'id_remarks': $("#id_remarks").val(),
-                        'secretkey': $("#id_secretkey").val()},
+            if(($('#id_item_name').val() == "") || ($('#id_quantity').val() == "")){
+                if($('#id_item_name').val() == "")  alert("Please select an item.");
+                if($('#id_quantity').val() == "")  alert("Please indicate requested quantity.");
+            }
+            else {
+                $('.shade').fadeIn();
+                $.ajax({
+                    url: "{% url 'requisitionform:savedetailtemp' %}",
+                    type: "post",
+                    data: {'itemno': $("#itemno").text(),
+                            'id_item': $("#id_item_name").val(),
+                            'id_quantity': $("#id_quantity").val(),
+                            'id_remarks': $("#id_remarks").val(),
+                            'secretkey': $("#id_secretkey").val()},
 
-                success: function(response) {
-                    $("#itemno").text(parseInt($("#itemno").text()) + 1);
+                    success: function(response) {
+                        $("#itemno").text(parseInt($("#itemno").text()) + 1);
 
-                    um_selected = $("#id_item_name option:selected").data('um');
+                        um_selected = $("#id_item_name option:selected").data('um');
 
-                    summary.append("<tr><td></td>" +
-                            "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
-                            "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
-                            "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
-                            "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='" + response.quantity + "'></td>" +
-                            "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
-                            "</tr>");
+                        summary.append("<tr><td></td>" +
+                                "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
+                                "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
+                                "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
+                                "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
+                                "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='" + response.quantity + "'></td>" +
+                                "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                                "</tr>");
 
-                    summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
+                        summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
 
-                    $("#id_item_name").val('').trigger('change.select2');
-                    $("#id_quantity").val('');
-                    $("#id_remarks").val('');
-                    reorderItems();
-                    $('.shade').fadeOut();
-                }
-                , error: function(response) {
-                    console.debug(response);
-                    $('.shade').fadeOut();
-                }
-            });
+                        $("#id_item_name").val('').trigger('change.select2');
+                        $("#id_quantity").val('');
+                        $("#id_remarks").val('');
+                        reorderItems();
+                        $('.shade').fadeOut();
+                    }
+                    , error: function(response) {
+                        console.debug(response);
+                        $('.shade').fadeOut();
+                    }
+                });
+            }
         });
 
         $(document).on('click', '.remove_item', function(){

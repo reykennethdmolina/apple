@@ -87,7 +87,8 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0, code='SI')
-        context['branch'] = Branch.objects.filter(isdeleted=0, code='HO')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['headoffice'] = Branch.objects.get(code='HO').id
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).\
             filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
@@ -120,8 +121,6 @@ class CreateView(CreateView):
 
             print 'rfnum: ' + rfnum
             self.object.rfnum = rfnum
-            self.object.branch = Branch.objects.get(pk=5)
-            self.object.rftype = 'REGULAR'
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user
             self.object.save()
@@ -174,7 +173,8 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
         context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0, code='SI')
-        context['branch'] = Branch.objects.filter(isdeleted=0, code='HO')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['headoffice'] = Branch.objects.get(code='HO').id
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['rfstatus'] = Rfmain.objects.get(pk=self.object.pk).get_rfstatus_display()
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).\
@@ -242,8 +242,6 @@ class UpdateView(UpdateView):
             self.object = form.save(commit=False)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.branch = Branch.objects.get(pk=5)
-            self.object.rftype = 'REGULAR'
             self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
                                             'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
                                             'modifyby', 'modifydate'])

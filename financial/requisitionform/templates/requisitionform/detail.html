@@ -49,7 +49,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">RF&nbsp;Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.rftype }}</span>
+                                            <span class="detail-profile">{{ object.get_rftype_display }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -114,8 +114,14 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                            <span class="text-name-profile text-info">RF Status&nbsp;: </span>
                                             <span class="detail-profile"><b>{{ object.get_rfstatus_display }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                            <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
                                         </div>
                                     </div>
                                 </div>

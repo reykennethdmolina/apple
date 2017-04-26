@@ -41,12 +41,15 @@
                                     <div class="col-md-3 select_holder" id="selectrfapprover_holder">
                                         <label class="control-label" for="id_selectrfapprover">Filter RF Assigned To:</label>
                                         <select class="form-control" id="id_selectrfapprover" name="selectrfapprover">
+{#                                            {% if perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignrf %}#}
+{#                                                <option value="ME" {% if formrfapprover == "ME" %} selected="selected" {% endif %}>Me</option>#}
+{#                                            {% endif %}#}
                                             {% if perms.requisitionform.view_allassignrf %}
                                                 <option value="ALL" {% if formrfapprover == "ALL" %} selected="selected" {% endif %}>All</option>
                                             {% endif %}
-                                            {% if perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignrf %}
-                                                <option value="ME" {% if formrfapprover == "ME" %} selected="selected" {% endif %}>Me</option>
-                                            {% endif %}
+                                            {% for rfapprovers in rfapprovers %}
+                                                <option value="{{ rfapprovers.id }}" {% if formrfapprover == rfapprovers.id|slugify %} selected="selected" {% endif %}>{{ rfapprovers.first_name }} {{ rfapprovers.last_name }}</option>
+                                            {% endfor %}
                                         </select>
                                         <br>
                                     </div>
@@ -55,12 +58,15 @@
                                     <div class="col-md-3 select_holder" id="selectprfapprover_holder">
                                         <label class="control-label" for="id_selectprfapprover">Filter PRF Assigned To:</label>
                                         <select class="form-control" id="id_selectprfapprover" name="selectprfapprover">
+{#                                            {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}#}
+{#                                                <option value="ME" {% if formprfapprover == "ME" %} selected="selected" {% endif %}>Me</option>#}
+{#                                            {% endif %}#}
                                             {% if perms.purchaserequisitionform.view_allassignprf %}
                                                 <option value="ALL" {% if formprfapprover == "ALL" %} selected="selected" {% endif %}>All</option>
                                             {% endif %}
-                                            {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}
-                                                <option value="ME" {% if formprfapprover == "ME" %} selected="selected" {% endif %}>Me</option>
-                                            {% endif %}
+                                            {% for prfapprovers in prfapprovers %}
+                                                <option value="{{ prfapprovers.id }}" {% if formprfapprover == prfapprovers.id|slugify %} selected="selected" {% endif %}>{{ prfapprovers.first_name }} {{ prfapprovers.last_name }}</option>
+                                            {% endfor %}
                                         </select>
                                         <br>
                                     </div>
