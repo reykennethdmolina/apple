@@ -29,6 +29,9 @@
         .widgett {
             margin-bottom: 10px;
         }
+        td {
+            min-width: 150px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -120,49 +123,56 @@
                     </div>
                 </div>
             </div>
-
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
-                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Items</a></li>
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Item Supplier</a></li>
                     </ul>
                     <div class="tab-content padding-top-0">
                         <div class="tab-pane active" id="profiles" role="tabpanel">
                             <div class="panel top-profile skill-profile margin-bottom-25">
-                                <div class="panel-body">
+                                <div class="panel-body" style="overflow: auto; width: 100%">
                                     <!-- <h4 class="list-title">Personal Information</h4> -->
                                     <table class="table table-striped margin-bottom-0 small" id="summary">
-                                            <thead>
+                                        <thead>
+                                            <tr class="small">
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th class="text-center" style="width:70px">Quantity</th>
+                                                <th style="text-align: center; min-width: 250px;">Supplier</th>
+                                                <th class="text-right" style="padding-right: 30px">CS&nbsp;Cost</th>
+                                                <th class="text-center" style="width: 130px;">Nego&nbsp;Cost</th>
+                                                <th class="text-right">Gross&nbsp;Amount</th>
+                                                <th class="text-center">VAT&nbsp;Rate</th>
+                                                <th class="text-right">VATable</th>
+                                                <th class="text-right">VAT&nbsp;-&nbsp;Exempt</th>
+                                                <th class="text-right">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
+                                                <th class="text-right">Total&nbsp;Purchase</th>
+                                                <th class="text-right">Add&nbsp;VAT</th>
+                                                <th class="text-right">Total&nbsp;Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for data in csdetail %}
                                                 <tr>
-                                                    <th>Item No.</th>
-                                                    <th>Name</th>
-                                                    <th>Description</th>
-                                                    <th>Remarks</th>
-                                                    <th>RF No.</th>
-                                                    <th>Unit of Measure</th>
-                                                    <th>Currency</th>
-                                                    <th style="width:90px">Quantity</th>
-                                                    <th>CS Cost</th>
-                                                    <th>Amount</th>
+                                                    <td>{{ data.invitem_code }}</td>
+                                                    <td class="text-left">{{ data.invitem_name }}</td>
+                                                    <td class="text-center">{{ data.quantity }}</td>
+                                                    <td class="text-center">{{ data.supplier.name }}</td>
+                                                    <td class="text-right">{{ data.unitcost }}</td>
+                                                    <td class="text-right">{{ data.negocost }}</td>
+                                                    <td class="text-right">{{ data.grossamount }}</td>
+                                                    <td class="text-center">{{ data.vatrate }}</td>
+                                                    <td class="text-right">{{ data.vatable }}</td>
+                                                    <td class="text-right">{{ data.vatexempt }}</td>
+                                                    <td class="text-right">{{ data.vatzerorated }}</td>
+                                                    <td class="text-right">{{ data.grossamount }}</td>
+                                                    <td class="text-right">{{ data.vatamount }}</td>
+                                                    <td class="text-right">{{ data.netamount }}</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for prfdetail in prfdetail %}
-                                                    <tr>
-                                                        <td>{{ prfdetail.item_counter }}</td>
-                                                        <td>{{ prfdetail.invitem_code }}</td>
-                                                        <td>{{ prfdetail.invitem_name }}</td>
-                                                        <td>{{ prfdetail.remarks }}</td>
-                                                        <td>{{ prfdetail.rfdetail.rfmain.rfnum }}</td>
-                                                        <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
-                                                        <td>{{ prfdetail.currency.symbol }}</td>
-                                                        <td>{{ prfdetail.quantity }}</td>
-                                                        <td>{{ prfdetail.invitem.unitcost }}</td>
-                                                        <td>{{ prfdetail.amount }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -279,13 +289,13 @@
     {#                                </button>#}
     {#                            </a>#}
     {#                            {% endif %}#}
-    {#                            {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}#}
-    {#                            <a href="{% url 'purchaserequisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">#}
-    {#                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">#}
-    {#                                    <i class="icon_trash" aria-hidden="true"></i>#}
-    {#                                </button>#}
-    {#                            </a>#}
-    {#                            {% endif %}#}
+                                {% if perms.canvasssheet.delete_csmain and object.status != 'O' %}
+                                    <a href="{% url 'canvasssheet:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                        <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                            <i class="icon_trash" aria-hidden="true"></i>
+                                        </button>
+                                    </a>
+                                {% endif %}
                                 </div>
                             </div>
                         </div>

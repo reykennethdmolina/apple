@@ -53,6 +53,13 @@
         filterItems();
         inventorytypeimportDisable();
 
+        $("#form-b").submit(function(event){
+            if($('.remove_item').length == 0) {
+                alert("Please add at least one item.");
+                event.preventDefault();
+            }
+        });
+
         $('.amount').each(function(){
             $(this).val(parseFloat($(this).val()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         });

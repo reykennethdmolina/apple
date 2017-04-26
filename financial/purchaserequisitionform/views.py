@@ -27,7 +27,7 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')
+        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -43,8 +43,7 @@ class DetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
-        context['prfdetail'] = Prfdetail.objects.filter(isdeleted=0).filter(prfmain=self.kwargs['pk']).\
-            order_by('item_counter')
+        context['prfdetail'] = Prfdetail.objects.filter(isdeleted=0, prfmain=self.kwargs['pk']).order_by('item_counter')
         return context
 
 
@@ -73,68 +72,69 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        if Prfdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
+            self.object = form.save(commit=False)
 
-        year = str(form.cleaned_data['prfdate'].year)
-        yearQS = Prfmain.objects.filter(prfnum__startswith=year)
+            year = str(form.cleaned_data['prfdate'].year)
+            yearQS = Prfmain.objects.filter(prfnum__startswith=year)
 
-        if yearQS:
-            prfnumlast = yearQS.latest('prfnum')
-            latestprfnum = str(prfnumlast)
+            if yearQS:
+                prfnumlast = yearQS.latest('prfnum')
+                latestprfnum = str(prfnumlast)
 
-            prfnum = year
-            last = str(int(latestprfnum[4:])+1)
-            zero_addon = 6 - len(last)
-            for x in range(0, zero_addon):
-                prfnum += '0'
-            prfnum += last
+                prfnum = year
+                last = str(int(latestprfnum[4:])+1)
+                zero_addon = 6 - len(last)
+                for x in range(0, zero_addon):
+                    prfnum += '0'
+                prfnum += last
 
-        else:
-            prfnum = year + '000001'
+            else:
+                prfnum = year + '000001'
 
-        self.object.prfnum = prfnum
-        self.object.branch = Branch.objects.get(pk=5)  # head office
-        self.object.quantity = 0
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save()
+            self.object.prfnum = prfnum
+            self.object.branch = Branch.objects.get(pk=5)  # head office
+            self.object.quantity = 0
+            self.object.enterby = self.request.user
+            self.object.modifyby = self.request.user
+            self.object.save()
 
-        itemquantity = 0
-        detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).order_by('enterdate')
-        prfmain = Prfmain.objects.get(prfnum=prfnum)
-        i = 1
-        for dt in detailtemp:
-            detail = Prfdetail()
-            detail.item_counter = i
-            detail.prfmain = prfmain
-            detail.invitem_code = dt.invitem_code
-            detail.invitem_name = dt.invitem_name
-            detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
-            detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
-            detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-            detail.amount = self.request.POST.getlist('temp_amount')[i-1]
-            detail.remarks = dt.remarks
-            detail.currency = dt.currency
-            detail.status = dt.status
-            detail.enterby = dt.enterby
-            detail.enterdate = dt.enterdate
-            detail.modifyby = dt.modifyby
-            detail.modifydate = dt.modifydate
-            detail.postby = dt.postby
-            detail.postdate = dt.postdate
-            detail.isdeleted = dt.isdeleted
-            detail.invitem = dt.invitem
-            detail.rfdetail = dt.rfdetail
-            detail.save()
-            dt.delete()
+            itemquantity = 0
+            detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).order_by('enterdate')
+            prfmain = Prfmain.objects.get(prfnum=prfnum)
+            i = 1
+            for dt in detailtemp:
+                detail = Prfdetail()
+                detail.item_counter = i
+                detail.prfmain = prfmain
+                detail.invitem_code = dt.invitem_code
+                detail.invitem_name = dt.invitem_name
+                detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
+                detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
+                detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                detail.amount = self.request.POST.getlist('temp_amount')[i-1]
+                detail.remarks = dt.remarks
+                detail.currency = dt.currency
+                detail.status = dt.status
+                detail.enterby = dt.enterby
+                detail.enterdate = dt.enterdate
+                detail.modifyby = dt.modifyby
+                detail.modifydate = dt.modifydate
+                detail.postby = dt.postby
+                detail.postdate = dt.postdate
+                detail.isdeleted = dt.isdeleted
+                detail.invitem = dt.invitem
+                detail.rfdetail = dt.rfdetail
+                detail.save()
+                dt.delete()
 
-            itemquantity = int(itemquantity) + int(detail.quantity)
-            i += 1
+                itemquantity = int(itemquantity) + int(detail.quantity)
+                i += 1
 
-        prfmain.quantity = int(itemquantity)
-        prfmain.save()
+            prfmain.quantity = int(itemquantity)
+            prfmain.save()
 
-        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
+            return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
 
 class UpdateView(UpdateView):
@@ -199,58 +199,59 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.branch = Branch.objects.get(pk=5)  # head office
+        if Prfdetailtemp.objects.filter(Q(isdeleted=0), Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])):
+            self.object = form.save(commit=False)
+            self.object.branch = Branch.objects.get(pk=5)  # head office
 
-        self.object.modifyby = self.request.user
-        self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
-                                        'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
-                                        'modifyby', 'modifydate'])
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
+                                            'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
+                                            'modifyby', 'modifydate'])
 
-        Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
+            Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
 
-        detailtagasdeleted = Prfdetail.objects.filter(prfmain=self.object.pk)
-        for dtd in detailtagasdeleted:
-            dtd.isdeleted = 1
-            dtd.save()
+            detailtagasdeleted = Prfdetail.objects.filter(prfmain=self.object.pk)
+            for dtd in detailtagasdeleted:
+                dtd.isdeleted = 1
+                dtd.save()
 
-        alltempdetail = Prfdetailtemp.objects.filter(
-            Q(isdeleted=0),
-            Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
-        ).order_by('enterdate')
+            alltempdetail = Prfdetailtemp.objects.filter(
+                Q(isdeleted=0),
+                Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+            ).order_by('enterdate')
 
-        i = 1
-        for atd in alltempdetail:
-            alldetail = Prfdetail()
-            alldetail.item_counter = i
-            alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
-            alldetail.invitem = atd.invitem
-            alldetail.invitem_code = atd.invitem_code
-            alldetail.invitem_name = atd.invitem_name
-            alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
-            alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
-            alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-            alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
-            alldetail.remarks = atd.remarks
-            alldetail.currency = atd.currency
-            alldetail.status = atd.status
-            alldetail.enterby = atd.enterby
-            alldetail.enterdate = atd.enterdate
-            alldetail.modifyby = atd.modifyby
-            alldetail.modifydate = atd.modifydate
-            alldetail.postby = atd.postby
-            alldetail.postdate = atd.postdate
-            alldetail.isdeleted = atd.isdeleted
-            alldetail.rfdetail = atd.rfdetail
-            alldetail.save()
-            atd.delete()
-            i += 1
+            i = 1
+            for atd in alltempdetail:
+                alldetail = Prfdetail()
+                alldetail.item_counter = i
+                alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
+                alldetail.invitem = atd.invitem
+                alldetail.invitem_code = atd.invitem_code
+                alldetail.invitem_name = atd.invitem_name
+                alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
+                alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
+                alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
+                alldetail.remarks = atd.remarks
+                alldetail.currency = atd.currency
+                alldetail.status = atd.status
+                alldetail.enterby = atd.enterby
+                alldetail.enterdate = atd.enterdate
+                alldetail.modifyby = atd.modifyby
+                alldetail.modifydate = atd.modifydate
+                alldetail.postby = atd.postby
+                alldetail.postdate = atd.postdate
+                alldetail.isdeleted = atd.isdeleted
+                alldetail.rfdetail = atd.rfdetail
+                alldetail.save()
+                atd.delete()
+                i += 1
 
-        Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
-        Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
+            Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
+            Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
 
-        return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
+            return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -471,3 +472,4 @@ def paginate(request, command, current, limit, search):
     json_models = serializers.serialize("json", prfmain)
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
+

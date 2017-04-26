@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from . models import Csmain, Csdata, Csdetailtemp, Csdetail
 from purchaserequisitionform.models import Prfmain, Prfdetail
@@ -23,6 +23,15 @@ class IndexView(ListView):
     template_name = 'canvasssheet/index.html'
     context_object_name = 'data_list'
 
+    def get_queryset(self):
+        return Csmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['listcount'] = Csmain.objects.filter(isdeleted=0).count()
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
@@ -31,7 +40,7 @@ class DetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
-        context['csdetail'] = Csdetail.objects.filter(isdeleted=0, csmain=self.kwargs['pk']).order_by('item_counter')
+        context['csdetail'] = Csdetail.objects.filter(isdeleted=0, csmain=self.kwargs['pk'], csstatus=1).order_by('item_counter')
         context['csdata'] = Csdata.objects.filter(isdeleted=0, csmain=self.kwargs['pk'])
         return context
 
@@ -84,7 +93,29 @@ class CreateView(CreateView):
             importTemptodetail(self.request.POST['secretkey'], csmain)
             updateCsmainvat(csnum)
 
-            return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
+            # return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
+            return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/')
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Csmain
+    template_name = 'canvasssheet/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('canvasssheet.delete_csmain') or self.object.status == 'O':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'I'
+        self.object.save()
+        return HttpResponseRedirect('/canvasssheet')
 
 
 @csrf_exempt
@@ -412,4 +443,27 @@ def removeItem(request):
         }
 
     return JsonResponse(data)
+
+
+def paginate(request, command, current, limit, search):
+    current = int(current)
+    limit = int(limit)
+
+    if command == "search" and search != "null":
+        search_not_slug = search.replace('-', ' ')
+        csmain = Csmain.objects.all().filter(Q(csnum__icontains=search) |
+                                             Q(csdate__icontains=search) |
+                                             Q(particulars__icontains=search) |
+                                             Q(csstatus__icontains=search) |
+                                             Q(csnum__icontains=search_not_slug) |
+                                             Q(csdate__icontains=search_not_slug) |
+                                             Q(particulars__icontains=search_not_slug) |
+                                             Q(csstatus__icontains=search_not_slug))\
+                                            .filter(isdeleted=0).order_by('-enterdate')
+    else:
+        csmain = Csmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
+
+    json_models = serializers.serialize("json", csmain)
+    print json_models
+    return HttpResponse(json_models, content_type="application/javascript")
 

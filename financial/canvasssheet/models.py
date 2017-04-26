@@ -61,7 +61,7 @@ class Csmain(models.Model):
     class Meta:
         db_table = 'csmain'
         ordering = ['-pk']
-        # permissions = (("view_canvasssheet", "Can view canvasssheet"),)
+        permissions = (("view_canvasssheet", "Can view canvasssheet"),)
 
     def get_absolute_url(self):
         return reverse('canvasssheet:detail', kwargs={'pk': self.pk})
