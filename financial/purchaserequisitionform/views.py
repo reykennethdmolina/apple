@@ -94,17 +94,19 @@ class CreateView(CreateView):
 
         self.object.prfnum = prfnum
         self.object.branch = Branch.objects.get(pk=5)  # head office
+        self.object.quantity = 0
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
 
-        detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
-            order_by('enterdate')
+        itemquantity = 0
+        detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).order_by('enterdate')
+        prfmain = Prfmain.objects.get(prfnum=prfnum)
         i = 1
         for dt in detailtemp:
             detail = Prfdetail()
             detail.item_counter = i
-            detail.prfmain = Prfmain.objects.get(prfnum=prfnum)
+            detail.prfmain = prfmain
             detail.invitem_code = dt.invitem_code
             detail.invitem_name = dt.invitem_name
             detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
@@ -125,7 +127,12 @@ class CreateView(CreateView):
             detail.rfdetail = dt.rfdetail
             detail.save()
             dt.delete()
+
+            itemquantity = int(itemquantity) + int(detail.quantity)
             i += 1
+
+        prfmain.quantity = int(itemquantity)
+        prfmain.save()
 
         return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
@@ -252,7 +259,8 @@ class DeleteView(DeleteView):
     template_name = 'purchaserequisitionform/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('purchaserequisitionform.delete_prfmain'):
+        self.object = self.get_object()
+        if not request.user.has_perm('purchaserequisitionform.delete_prfmain') or self.object.status == 'O':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

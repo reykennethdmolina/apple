@@ -29,6 +29,9 @@
     </style>
 {% endblock extra_css %}
 <div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Update</h3>
+    </div>
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
@@ -36,7 +39,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-12 row-lg margin-bottom-20">
-                        {% if perms.purchaserequisitionform.delete_prfmain %}
+                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}
                             <a href="{% url 'purchaserequisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
@@ -241,9 +244,9 @@
                                             <td>{{ prfdetailtemp.invitem.unitcost }}</td>
                                             <td>0.00</td>
                                             <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
+                                            <td> - </td>
+                                            <td> - </td>
+                                            <td> - </td>
                                             <td>0.00</td>
                                             <td>0.00</td>
                                             <td>0.00</td>

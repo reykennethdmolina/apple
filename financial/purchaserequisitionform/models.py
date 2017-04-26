@@ -132,8 +132,8 @@ class Prfdetail(models.Model):
     csnum = models.CharField(max_length=10, null=True, blank=True,)
     csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssupplier_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    cssuppliercode = models.CharField(max_length=10, null=True, blank=True,)
-    cssuppliername = models.CharField(max_length=250, null=True, blank=True,)
+    cssuppliercode = models.CharField(max_length=10, null=True, blank=True)
+    cssuppliername = models.CharField(max_length=250, null=True, blank=True)
     csvat = models.ForeignKey('vat.Vat', related_name='csvat_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
     csvatrate = models.IntegerField(default=0)
 
@@ -196,8 +196,8 @@ class Prfdetailtemp(models.Model):
     csnum = models.CharField(max_length=10, null=True, blank=True,)
     csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssuppliertemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    cssuppliercode = models.CharField(max_length=10, null=True, blank=True,)
-    cssuppliername = models.CharField(max_length=250, null=True, blank=True,)
+    cssuppliercode = models.CharField(max_length=10, null=True, blank=True)
+    cssuppliername = models.CharField(max_length=250, null=True, blank=True)
     csvat = models.ForeignKey('vat.Vat', related_name='csvattemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
     csvatrate = models.IntegerField(default=0)
 

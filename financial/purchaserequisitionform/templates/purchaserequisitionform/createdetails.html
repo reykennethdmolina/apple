@@ -86,7 +86,7 @@
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
                                         "<select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }}</option>{% endfor %}" +
+                                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                         "</select>" +
                                     "</td>" +
                                     "<td>" + response.currency + "</td>" +
@@ -94,9 +94,9 @@
                                     "<td>" + response.prfdata[3] + "</td>" +
                                     "<td>0.00</td>" +
                                     "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
+                                    "<td> - </td>" +
+                                    "<td> - </td>" +
+                                    "<td> - </td>" +
                                     "<td>0.00</td>" +
                                     "<td>0.00</td>" +
                                     "<td>0.00</td>" +
@@ -153,7 +153,7 @@
                                         "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][5] + "'></td>" +
                                         "<td>" +
                                             "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                                "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }}</option>{% endfor %}" +
+                                                "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                             "</select>" +
                                         "</td>" +
                                         "<td> PHP </td>" +
@@ -161,9 +161,9 @@
                                         "<td>" + response.prfdata[i][6] + "</td>" +
                                         "<td>0.00</td>" +
                                         "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
+                                        "<td> - </td>" +
+                                        "<td> - </td>" +
+                                        "<td> - </td>" +
                                         "<td>0.00</td>" +
                                         "<td>0.00</td>" +
                                         "<td>0.00</td>" +

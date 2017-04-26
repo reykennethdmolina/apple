@@ -49,6 +49,14 @@ class Csmain(models.Model):
     designatedapprover = models.ForeignKey(User, default=2, related_name='csdesignated_approver')
     actualapprover = models.ForeignKey(User, related_name='csactual_approver', null=True, blank=True)
 
+    # vat
+    quantity = models.IntegerField(default=0)
+    vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'csmain'
@@ -123,6 +131,7 @@ class Csdetail(models.Model):
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='csdetail_invitem_id')
     invitem_code = models.CharField(max_length=25) # get data from prf imported
     invitem_name = models.CharField(max_length=250)
+    quantity = models.IntegerField()
     currency = models.ForeignKey('currency.Currency', related_name='csdetail_currency')
     item_counter = models.IntegerField()
     supplier = models.ForeignKey('supplier.Supplier', related_name='csdetail_supplier_id')
@@ -132,7 +141,7 @@ class Csdetail(models.Model):
     vatrate = models.IntegerField(default=0)
     unitcost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     negocost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
-    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetail_csmain_id')
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetail_csmain_id', null=True, blank=True)
     csstatus = models.IntegerField(default=0)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
@@ -179,6 +188,7 @@ class Csdetailtemp(models.Model):
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='csdetailtemp_invitem_id')
     invitem_code = models.CharField(max_length=25) # get data from prf imported
     invitem_name = models.CharField(max_length=250)
+    quantity = models.IntegerField()
     currency = models.ForeignKey('currency.Currency', related_name='csdetailtemp_currency')
     item_counter = models.IntegerField()
     supplier = models.ForeignKey('supplier.Supplier', related_name='csdetailtemp_supplier_id')
@@ -189,7 +199,7 @@ class Csdetailtemp(models.Model):
     unitcost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     negocost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     secretkey = models.CharField(max_length=255)
-    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetailtemp_csmain_id')
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetailtemp_csmain_id', null=True, blank=True)
     csdetail = models.ForeignKey('canvasssheet.Csdetail', related_name='csdetailtemp_csdetail_id', null=True, blank=True)
     csstatus = models.IntegerField(default=0)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
@@ -222,45 +232,3 @@ class Csdetailtemp(models.Model):
 
     def __unicode__(self):
         return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
-#
-#
-# class Prfdetailtemp(models.Model):
-#     STATUS_CHOICES = (
-#         ('A', 'Active'),
-#         ('I', 'Inactive'),
-#         ('C', 'Cancelled'),
-#         ('O', 'Posted'),
-#         ('P', 'Printed'),
-#     )
-#
-#     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='temp_prfmain_id', null=True, blank=True)
-#     rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='temp_rfdetail_id', null=True, blank=True)
-#     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='temp_prfdetail_id', null=True, blank=True)
-#     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='temp_prfdetail_invitem_id')
-#     invitem_code = models.CharField(max_length=25)
-#     invitem_name = models.CharField(max_length=250)
-#     item_counter = models.IntegerField()
-#     quantity = models.IntegerField()
-#     # remarks = models.CharField(max_length=250, null=True, blank=True)
-#     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
-#     enterby = models.ForeignKey(User, default=1, related_name='prfdetailtemp_enter')
-#     enterdate = models.DateTimeField(auto_now_add=True)
-#     modifyby = models.ForeignKey(User, default=1, related_name='prfdetailtemp_modify')
-#     modifydate = models.DateTimeField(default=datetime.datetime.now())
-#     postby = models.ForeignKey(User, related_name='prfdetailtemp_post', null=True, blank=True)
-#     postdate = models.DateTimeField(null=True, blank=True)
-#     isdeleted = models.IntegerField(default=0)
-#     secretkey = models.CharField(max_length=255)
-#
-#     class Meta:
-#         db_table = 'prfdetailtemp'
-#         ordering = ['-pk']
-#
-#     def get_absolute_url(self):
-#         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
-#
-#     def __str__(self):
-#         return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name
-#
-#     def __unicode__(self):
-#         return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name

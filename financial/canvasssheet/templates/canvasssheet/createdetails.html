@@ -53,8 +53,8 @@
                         for (var i = 0; i < response.prfdetail.length; i++) {
 
                             if($("tr#" + response.prfdetail[i][4]).length > 0){
-                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").html()) + parseInt(response.prfdetail[i][3]);
-                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").html(item_total);
+                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val()) + parseInt(response.prfdetail[i][3]);
+                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val(item_total);
                                 temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);
                             }
                             else{
@@ -65,20 +65,20 @@
 
                                 summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +
                                             "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
-                                            "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][0] + "</td>" +
+                                            "<td class='small' rowspan='" + temp_supplier_length + "'><a href='#'><i class='icon fa-trash' aria-hidden='true'></i></a> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +
                                             "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +
-                                            "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][3] + "</td>" +
+                                            "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                                "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
+                                            "</td>" +
                                             "</tr>");
 
                                 for(var j = 0; j < temp_supplier_length; j++) {
-                                    // on removal of prf
                                     // delete form temp on delete
-                                    // on edit nego amount
                                     // on delete item
                                     // hover view more details about supplier
 
                                     if(j==0){
-                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' form='" + i + "'></td>" +
+                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +
                                                 "<td class='small'>" + temp_supplier[j][5] + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
@@ -94,7 +94,7 @@
                                     }
                                     else{
                                         summary.append("<tr>" +
-                                                "<td><input type='radio' name='supplier' class='radio radio-custom supplier' form='" + i + "'></td> " +
+                                                "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
                                                 "<td class='small'>" + temp_supplier[j][5] + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
@@ -159,21 +159,6 @@
                 },
 
                 success: function(response) {
-
-                    if(response.prfdata != "[]"){
-                        for (var i = 0; i < response.prfdetail.length; i++) {
-                            if($("tr#" + response.prfdetail[i][4]).length > 0){
-                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").html()) - parseInt(response.prfdetail[i][3]);
-                                if(item_total > 0){
-                                    $("tr#" + response.prfdetail[i][4] + " .item_quantity").html(item_total);
-                                }
-                                else{
-                                    $("tr#" + response.prfdetail[i][4] + " .item_quantity").parent().remove();
-                                }
-                            }
-                        }
-                    }
-
                     reorderItems();
                     e.parent().remove();
                     $('.shade').fadeOut();
@@ -189,7 +174,7 @@
             computeVatSummary();
         });
 
-        $(document).on('change', '.item_cost', function(){
+        $(document).on('change', '.item_cost, .item_quantity_input', function(){
             computeVatItem();
         });
 
@@ -203,6 +188,71 @@
             });
             resetPrfOptions();
         });
+
+        $('#validateButton').click(function(){
+            $('.shade').fadeIn();
+            updateTempItems();
+        });
+
+        function updateTempItems(){
+            var arr_item_list = new Array();
+            var arr_quantity_item = new Array();
+            var arr_item_quantity_input = new Array();
+            var arr_checked_supplier = new Array();
+            var arr_checked_supplier_item = new Array();
+            var arr_item_cost_supplier = new Array();
+            var arr_item_cost_item = new Array();
+            var arr_item_cost = new Array();
+
+            // get item list
+            $('.item_container').each(function(){
+                arr_item_list.push($(this).attr('id'));
+            });
+
+            // get quantity input per item
+            $('.item_quantity_input').each(function(index){
+                arr_quantity_item.push($(this).data('item'));
+                arr_item_quantity_input.push($(this).val());
+            });
+
+            // get supplier selected per item
+            $('.supplier:checked').each(function(index){
+                arr_checked_supplier.push($(this).data('supplier'));
+                arr_checked_supplier_item.push($(this).data('item'));
+            });
+
+            // get nego cost per supplier
+            $('.item_cost').each(function(index){
+                arr_item_cost_supplier.push($(this).parent().parent().find('.supplier').data('supplier'));
+                arr_item_cost_item.push($(this).parent().parent().find('.supplier').data('item'));
+                arr_item_cost.push($(this).val());
+            });
+
+            $.ajax({
+                url: "{% url 'canvasssheet:updatecsdetailtemp' %}",
+                type: "post",
+                data: {'prfnum': $("#importrfselect2").val(),
+                        'arr_item_list[]': arr_item_list,
+                        'arr_quantity_item[]': arr_quantity_item,
+                        'arr_checked_supplier[]': arr_checked_supplier,
+                        'arr_checked_supplier_item[]': arr_checked_supplier_item,
+                        'arr_item_quantity_input[]': arr_item_quantity_input,
+                        'arr_item_cost_supplier[]': arr_item_cost_supplier,
+                        'arr_item_cost_item[]': arr_item_cost_item,
+                        'arr_item_cost[]': arr_item_cost,
+                        'secretkey': $("#id_secretkey").val()
+                },
+
+                success: function(response) {
+                    $('#form-b').submit();
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
 
         function resetPrfOptions(){
             $('#importrfselect2').val('').trigger('change');
@@ -229,10 +279,10 @@
         function computeVatItem(){
             $(".item_amount").each(function(index) {
                 if($(this).parent().attr('class') == "item_container"){
-                    item_total = parseInt($(this).siblings('.item_quantity').html());
+                    item_total = parseInt($(this).siblings('.item_quantity').find('.item_quantity_input').val());
                 }
                 else{
-                    item_total = $(this).parent().prevAll('.item_container:first').find('.item_quantity').html();
+                    item_total = $(this).parent().prevAll('.item_container:first').find('.item_quantity').find('.item_quantity_input').val();
                 }
 
                 item_total_amount = (item_total * parseFloat($(this).prev().find('.item_cost').val()));
@@ -256,9 +306,8 @@
                 }
                 item_totalpurchase = item_gross_amount;
                 item_addvat = item_total_amount - item_gross_amount;
-                item_addvat = item_total_amount - item_gross_amount;
 
-                // item gross amount
+                // item total amount
                 $(this).siblings('.item_total_amount').html(item_total_amount.toFixed(2));
                 // item vatable
                 $(this).siblings('.item_vatable').html(item_vatable.toFixed(2));
@@ -270,7 +319,7 @@
                 $(this).siblings('.item_totalpurchase').html(item_totalpurchase.toFixed(2));
                 // item addvat
                 $(this).siblings('.item_addvat').html(item_addvat.toFixed(2));
-                // item total amount
+                // item gross amount
                 $(this).html(item_gross_amount.toFixed(2));
             });
             computeVatSummary();
@@ -286,9 +335,9 @@
             addVat = 0;
             totalAmt = 0;
 
-            $('.item_quantity').each(function(){
+            $('.item_quantity_input').each(function(){
                 //compute
-                totalQty += parseFloat($(this).html());
+                totalQty += parseFloat($(this).val());
             });
 
             $('.supplier:checked').each(function(){

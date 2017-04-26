@@ -48,11 +48,15 @@
     </style>
 {% endblock extra_css %}
 <div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Create</h3>
+    </div>
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
                 <form method="post" id="form-b">
                     {% csrf_token %}
+                {{ form.errors }}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-5 row-lg margin-left-10">
                         <div class="form-group col-sm-6">
@@ -145,7 +149,7 @@
                     </div>
                     <div class="col-sm-12 margin-bottom-10">
                         <div class="col-sm-6">
-                            <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            <button type="button" class="btn btn-round btn-success" id="validateButton">Submit</button>
                         </div>
                         <div class="col-sm-6">
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
@@ -176,7 +180,7 @@
                                         <th style="min-width: 50px">#</th>
                                         <th>Name</th>
                                         <th>Description</th>
-                                        <th class="text-center" style="width:90px">Quantity</th>
+                                        <th class="text-center" style="width:70px">Quantity</th>
                                         <th colspan="2" style="text-align: center; min-width: 250px;">Supplier</th>
                                         <th class="text-right" style="padding-right: 30px">CS&nbsp;Cost</th>
                                         <th class="text-center" style="width: 130px;">Nego&nbsp;Cost</th>

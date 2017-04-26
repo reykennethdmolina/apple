@@ -113,8 +113,14 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                            <span class="text-name-profile text-info">PRF Status&nbsp;: </span>
                                             <span class="detail-profile"><b>{{ object.get_prfstatus_display }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                            <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
                                         </div>
                                     </div>
                                 </div>
@@ -197,7 +203,7 @@
                                 </button>
                             </a>
                             {% endif %}
-                            {% if perms.purchaserequisitionform.delete_prfmain %}
+                            {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}
                             <a href="{% url 'purchaserequisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
