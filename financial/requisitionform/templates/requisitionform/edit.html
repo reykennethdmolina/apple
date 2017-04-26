@@ -15,7 +15,7 @@
                         <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                         <div class="row col-md-12 row-lg margin-bottom-20">
                             <h3 class="panel-title" style="padding-bottom: 0px;">UPDATE</h3>
-                            {% if perms.requisitionform.delete_rfmain %}
+                            {% if perms.requisitionform.delete_rfmain and object.status != 'O' %}
                             <a href="{% url 'requisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
@@ -61,7 +61,11 @@
                             </div>
                             <div class="form-group  col-sm-4">
                                 <label class="control-label" for="id_rftype">RF Type</label>
-                                <input type="text" class="form-control input-sm" maxlength="150" id="id_rftype" name="rftype" placeholder="RF Type" value="{{ form.rftype.value|default:'' }}">
+                                <select class="form-control input-sm" data-validation="required" id="id_rftype" name="rftype">
+                                    {% for id,name in form.fields.rftype.choices %}
+                                        <option value="{{ id }}"{% if form.rftype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
                                 <span class="help-block form-error">{{ form.rftype.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-4 {{ form.urgencytype.errors|yesno:'has-error,' }}">
@@ -266,7 +270,7 @@
 
             $("#form-b").submit(function(event){
                 if($('.remove_item').length == 0) {
-                    alert("Please enlist at least one item.");
+                    alert("Please add at least one item.");
                     event.preventDefault();
                 }
             });

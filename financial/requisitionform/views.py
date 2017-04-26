@@ -300,7 +300,8 @@ class DeleteView(DeleteView):
     template_name = 'requisitionform/delete.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('requisitionform.delete_rfmain'):
+        self.object = self.get_object()
+        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status == 'O':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

@@ -11,7 +11,10 @@ class Rfmain(models.Model):
     inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype',
                                           related_name='rfmain_inventoryitemtype_id')
     refnum = models.CharField(max_length=150, null=True, blank=True)
-    rftype = models.CharField(max_length=150, default='REGULAR')
+    RF_TYPE_CHOICES = (
+        ('REG', 'Regular'),
+    )
+    rftype = models.CharField(max_length=10, choices=RF_TYPE_CHOICES, default='REG')
     unit = models.ForeignKey('unit.Unit', related_name='rfmain_unit_id', null=True, blank=True)
     URGENCY_CHOICES = (
         ('N', 'Normal'),

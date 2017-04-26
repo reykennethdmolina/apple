@@ -92,7 +92,7 @@
                                  <div class="form-group col-sm-3 {{ form.apdate.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_apdate">AP Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd" id="id_apdate" name="apdate"
-                                           placeholder="YYYY-MM-DD" data-validation="required" readonly="readonly">
+                                           placeholder="YYYY-MM-DD" readonly="readonly">
                                     <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.ataxcode.errors|yesno:'has-error,' }}">
@@ -259,13 +259,21 @@
             });
 
             $(window).load(showSelected);
-            $('#id_supplier').on('change', showSelected);
 
             function showSelected(){
                 $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
                 $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
+                $('#id_vat').removeData('id');
                 $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
+                $('#id_vat').removeData('code');
             }
+
+            $("#form-b").submit(function(event){
+                if($('.remove_item').length == 0) {
+                    alert("Please add at least one item.");
+                    event.preventDefault();
+                }
+            });
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
