@@ -4,14 +4,10 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from . models import Csmain, Csdata, Csdetailtemp, Csdetail
-from requisitionform.models import Rfmain, Rfdetail
 from purchaserequisitionform.models import Prfmain, Prfdetail
-from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from supplier.models import Supplier
 from vat.models import Vat
-from branch.models import Branch
-from department.models import Department
 from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q, Sum
@@ -29,6 +25,18 @@ class IndexView(ListView):
 
 
 @method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Csmain
+    template_name = 'canvasssheet/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['csdetail'] = Csdetail.objects.filter(isdeleted=0, csmain=self.kwargs['pk']).order_by('item_counter')
+        context['csdata'] = Csdata.objects.filter(isdeleted=0, csmain=self.kwargs['pk'])
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Csmain
     template_name = 'canvasssheet/create.html'
@@ -43,39 +51,40 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
+            self.object = form.save(commit=False)
 
-        try:
-            csnumlast = Csmain.objects.latest('csnum')
-            latestcsnum = str(csnumlast)
-            if latestcsnum[0:4] == str(datetime.datetime.now().year):
-                csnum = str(datetime.datetime.now().year)
-                last = str(int(latestcsnum[4:])+1)
-                zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
-                    csnum += '0'
-                csnum += last
-            else:
+            try:
+                csnumlast = Csmain.objects.latest('csnum')
+                latestcsnum = str(csnumlast)
+                if latestcsnum[0:4] == str(datetime.datetime.now().year):
+                    csnum = str(datetime.datetime.now().year)
+                    last = str(int(latestcsnum[4:])+1)
+                    zero_addon = 6 - len(last)
+                    for x in range(0, zero_addon):
+                        csnum += '0'
+                    csnum += last
+                else:
+                    csnum = str(datetime.datetime.now().year) + '000001'
+            except Csmain.DoesNotExist:
                 csnum = str(datetime.datetime.now().year) + '000001'
-        except Csmain.DoesNotExist:
-            csnum = str(datetime.datetime.now().year) + '000001'
 
-        self.object.csnum = csnum
+            self.object.csnum = csnum
 
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save()
+            self.object.enterby = self.request.user
+            self.object.modifyby = self.request.user
+            self.object.save()
 
-        csmain = Csmain.objects.get(csnum=csnum)
+            csmain = Csmain.objects.get(csnum=csnum)
 
-        # update csdata
-        Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
+            # update csdata
+            Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
 
 
-        importTemptodetail(self.request.POST['secretkey'], csmain)
-        updateCsmainvat(csnum)
+            importTemptodetail(self.request.POST['secretkey'], csmain)
+            updateCsmainvat(csnum)
 
-        return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
+            return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
 
 
 @csrf_exempt
@@ -228,7 +237,6 @@ def importTemptodetail(secretkey, csmain):
 @csrf_exempt
 def importItems(request):
     # front end - hover imported prf to show details
-    # front end - item remove button
     # front end - item supplier manual add(manual add of extra supplier)
 
     if request.method == 'POST':
@@ -376,6 +384,24 @@ def removePrf(request):
                                       isdeleted=0)
 
         Csdata.objects.filter(prfmain=prfmain.id, isdeleted=0, secretkey=request.POST['secretkey']).delete()
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def removeItem(request):
+
+    if request.method == 'POST':
+        item = Inventoryitem.objects.get(code=request.POST['item']).id
+        Csdetailtemp.objects.filter(invitem=item, secretkey=request.POST['secretkey']).delete()
 
         data = {
             'status': 'success',

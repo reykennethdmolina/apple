@@ -65,7 +65,7 @@
 
                                 summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +
                                             "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
-                                            "<td class='small' rowspan='" + temp_supplier_length + "'><a href='#'><i class='icon fa-trash' aria-hidden='true'></i></a> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +
+                                            "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +
                                             "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +
                                             "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
                                                 "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
@@ -73,13 +73,11 @@
                                             "</tr>");
 
                                 for(var j = 0; j < temp_supplier_length; j++) {
-                                    // delete form temp on delete
-                                    // on delete item
                                     // hover view more details about supplier
 
                                     if(j==0){
                                         summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +
-                                                "<td class='small'>" + temp_supplier[j][5] + "</td> " +
+                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                                 "<td class='small item_amount text-right'></td>" +
@@ -95,7 +93,7 @@
                                     else{
                                         summary.append("<tr>" +
                                                 "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
-                                                "<td class='small'>" + temp_supplier[j][5] + "</td> " +
+                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                                 "<td class='small item_amount text-right'></td>" +
@@ -194,6 +192,40 @@
             updateTempItems();
         });
 
+        $(document).on('click', '.removeitem', function(){
+            $('.shade').fadeIn();
+            var $t = $(this);
+
+            $.ajax({
+                url: "{% url 'canvasssheet:removeitem' %}",
+                type: "post",
+                data: {'item': $t.data('item'),
+                        'secretkey': $("#id_secretkey").val()
+                },
+
+                success: function(response) {
+
+                    currentElement = $t.parent().parent();
+
+                    while(currentElement.next().not('.item_container').length == 1){
+                        currentElement.next().remove();
+                    }
+
+                    currentElement.remove();
+
+                    reorderItems();
+                    separateRadio();
+                    computeVatItem();
+
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
         function updateTempItems(){
             var arr_item_list = new Array();
             var arr_quantity_item = new Array();
@@ -244,7 +276,14 @@
                 },
 
                 success: function(response) {
-                    $('#form-b').submit();
+
+                    if($('.removeitem').length == 0) {
+                        alert("Please add at least one item.");
+                    }
+                    else{
+                        $('#form-b').submit();
+                    }
+
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
