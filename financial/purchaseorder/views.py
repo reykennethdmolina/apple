@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
@@ -36,6 +36,18 @@ class IndexView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
         context['listcount'] = Pomain.objects.filter(isdeleted=0).count()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Pomain
+    template_name = 'purchaseorder/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['podetail'] = Podetail.objects.filter(isdeleted=0).filter(pomain=self.kwargs['pk']).\
+            order_by('item_counter')
         return context
 
 
@@ -95,6 +107,7 @@ class CreateView(CreateView):
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user
             self.object.vat = Vat.objects.get(pk=Supplier.objects.get(pk=self.request.POST['supplier']).vat.pk)
+            self.object.vatrate = Vat.objects.get(pk=Supplier.objects.get(pk=self.request.POST['supplier']).vat.pk).rate
             self.object.save()
 
             detailtemp = Podetailtemp.objects.filter(secretkey=self.request.POST['secretkey'],

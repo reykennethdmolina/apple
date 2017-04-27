@@ -1,0 +1,354 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Purchase Order {% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+    <style>
+        .text-name-profile.text-info {
+            width: 30%;
+        }
+        .detail-profile {
+            width: 50%;
+        }
+        .heading-top-index-2 {
+            padding-right: 20px;
+            padding-left: 20px;
+        }
+        .vattable td {
+            text-align: right;
+
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .widgett {
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="row col-md-8">
+            <div class="col-md-12">
+                <!-- Start Profile Tab Section -->
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <div class="pull-right">
+    {#                    <a href="{% url 'canvasssheet:pdf' object.id %}" target="_blank"><button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">#}
+    {#                        <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print#}
+    {#                    </button></a>#}
+                    </div>
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <!-- <h4 class="list-title">Personal Information</h4> -->
+                                    <div class="row">
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Number&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.ponum }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Date&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.podate }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">PO&nbsp;Type&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.potype }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Reference&nbsp;Number&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.refnum|default:' - ' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Urgency&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.get_urgencytype_display }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Date&nbsp;Needed&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.dateneeded }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12"><br></div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-60"><b>Supplier&nbsp;: </b></span>
+                                                <span>[{{ object.supplier_code }}]&nbsp;&nbsp;&nbsp;{{ object.supplier_name }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-60"><b>VAT&nbsp;: </b></span>
+                                                <span>{{ object.vat.description }}&nbsp;({{ object.vatrate }}%)</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12"><br></div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Reference&nbsp;AP&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.apnum|default:' - ' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">AP&nbsp;Date&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.apdate|default:' - ' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">ATax&nbsp;Code&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.ataxcode.description }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Credit&nbsp;Term&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.creditterm.description }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Input&nbsp;VAT&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.inputvat.description }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Particulars&nbsp;: </span>
+                                                <span class="detail-profile">{{ object.particulars }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12"></div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">PO Status&nbsp;: </span>
+                                                <span class="detail-profile"><b>{{ object.get_postatus_display }}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                                <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Items</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body" style="overflow: auto; width: 100%">
+                                    <!-- <h4 class="list-title">Personal Information</h4> -->
+                                    <table class="table table-striped table-bordered margin-bottom-0 small" id="summary">
+                                        <thead>
+                                            <tr class="small info">
+                                                <th style="text-align: center; vertical-align: middle;">No.</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Name</th>
+                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Description</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Remarks</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Unit&nbsp;of&nbsp;Measure</th>
+                                                <th style="text-align: center; vertical-align: middle;">Dept.</th>
+                                                <th style="text-align: center; vertical-align: middle;">Currency</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Unit&nbsp;Cost</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Quantity</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Gross&nbsp;Amount</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Discount</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VATable</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT-Exempt</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT&nbsp;Zero-Rated</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Add&nbsp;VAT</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for podetail in podetail %}
+                                                <tr class="small">
+                                                    <td>{{ podetail.item_counter }}</td>
+                                                    <td>{{ podetail.invitem_code }}</td>
+                                                    <td>{{ podetail.invitem_name }}</td>
+                                                    <td>{{ podetail.remarks }}</td>
+                                                    <td>{{ podetail.invitem_unitofmeasure }}</td>
+                                                    <td>{{ podetail.department.code }}</td>
+                                                    <td>{{ podetail.currency.symbol }}</td>
+                                                    <td>{{ podetail.unitcost }}</td>
+                                                    <td>{{ podetail.quantity }}</td>
+                                                    <td>{{ podetail.grossamount }}</td>
+                                                    <td>{{ podetail.discountamount }}{% if podetail.discountrate > 0 %} ({{ podetail.discountrate }}%) {% endif %}</td>
+                                                    <td>{{ podetail.vatable }}</td>
+                                                    <td>{{ podetail.vatexempt }}</td>
+                                                    <td>{{ podetail.vatzerorated }}</td>
+                                                    <td>{{ podetail.vatamount }}</td>
+                                                    <td>{{ podetail.netamount }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--  End Profile Tab Section -->
+            </div>
+        </div>
+        <div class="row col-md-4">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Canvass Summary</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body" style="padding:10px">
+                                    <div class="widgett widgett-article widgett-shadow">
+                                        <div class="heading-top-index-2">
+                                            <table class="vattable">
+                                                <tr>
+                                                    <td><small><b>Quantity:</b></small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm" id="totalQty" disabled="disabled" value="{{ object.quantity }}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><small><b>Amount:</b></small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="heading-top-index-2">
+                                            <table class="vattable">
+                                                <tr>
+                                                    <td><small>VATable&nbsp;Purchase:</small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatable }}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatexempt }}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatzerorated }}"></td>
+                                                </tr>
+                                                <tr><td colspan="0"><br></td></tr>
+                                                <tr>
+                                                    <td><small><b>Total&nbsp;Purchase:</b></small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatamount }}"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><small><b>Total&nbsp;Amount:</b></small></td>
+                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.netamount }}"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Imported PRF(s)</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body" style="padding:5px;padding-top:30px;padding-bottom:30px;">
+                                    <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
+                                        <div class="shade"><div class="loader two-color"></div></div>
+                                        {% for data in csdata %}
+                                            <div class="widgett widgett-article widgett-shadow">
+                                                <div class="widgett-header cover padding-0 bg-grey-600">
+                                                    <div class="background-cover padding-10" style="color:white">PRF - {{ data.prfmain.prfnum }}</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="right-box-profile">
+                    <h4 class="skill-title">Activity Logs</h4>
+                    <div class="panel">
+                        <div class="panel-body small">
+                            <div class="master-degree">
+                                <span class="degree-name text-info">Created&nbsp;By:</span>
+                                <div class="univer-profile">{{ object.enterby }}</div>
+                                <div class="univer-profile">{{ object.enterdate }}</div>
+                            </div>
+                            <div class="master-degree">
+                                <span class="degree-name text-info">Modified&nbsp;By:</span>
+                                <div class="univer-profile">{{ object.modifyby }}</div>
+                                <div class="univer-profile">{{ object.modifydate }}</div>
+                            </div>
+                            <div class="master-degree">
+                                <div class="iconlist">
+    {#                            {% if perms.purchaserequisitionform.change_prfmain %}#}
+    {#                            <a href="{% url 'purchaserequisitionform:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">#}
+    {#                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">#}
+    {#                                    <i class="icon_pencil" aria-hidden="true"></i>#}
+    {#                                </button>#}
+    {#                            </a>#}
+    {#                            {% endif %}#}
+    {#                            {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}#}
+    {#                            <a href="{% url 'purchaserequisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">#}
+    {#                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">#}
+    {#                                    <i class="icon_trash" aria-hidden="true"></i>#}
+    {#                                </button>#}
+    {#                            </a>#}
+    {#                            {% endif %}#}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+    </div>
+</div>
+{% endblock page-content %}
