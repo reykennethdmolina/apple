@@ -254,7 +254,10 @@
                                         {% for data in csdata %}
                                             <div class="widgett widgett-article widgett-shadow">
                                                 <div class="widgett-header cover padding-0 bg-grey-600">
-                                                    <div class="background-cover padding-10" style="color:white">PRF - {{ data.prfmain.prfnum }}</div>
+                                                    <div class="background-cover padding-10" style="color:white">
+                                                        PRF - {{ data.prfmain.prfnum }}
+                                                        <a href="{% url 'purchaserequisitionform:detail' data.prfmain.pk %}" target="_blank"><button type="button" class="close"><i class="icon fa-search" aria-hidden="true"></i></button></a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         {% endfor %}

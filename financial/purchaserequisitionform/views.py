@@ -292,6 +292,7 @@ def importItems(request):
     # validation on save
     # item no / counter validation..
     # quantity cost front end change
+    # delete item prompt
 
     if request.method == 'POST':
         rfdetail = Rfdetail.objects\

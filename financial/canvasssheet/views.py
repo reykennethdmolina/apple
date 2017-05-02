@@ -269,6 +269,7 @@ def importTemptodetail(secretkey, csmain):
 def importItems(request):
     # front end - hover imported prf to show details
     # front end - item supplier manual add(manual add of extra supplier)
+    # back - prf should only be cs once unless cancelled
 
     if request.method == 'POST':
         # get selected prfmain data
