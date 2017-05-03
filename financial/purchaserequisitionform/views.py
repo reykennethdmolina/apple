@@ -112,7 +112,8 @@ class CreateView(CreateView):
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                detail.amount = self.request.POST.getlist('temp_amount')[i-1]
+                # detail.amount = self.request.POST.getlist('temp_amount')[i-1]
+                detail.amount = 0
                 detail.remarks = dt.remarks
                 detail.currency = dt.currency
                 detail.status = dt.status
@@ -232,7 +233,7 @@ class UpdateView(UpdateView):
                 alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
+                # alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
                 alldetail.remarks = atd.remarks
                 alldetail.currency = atd.currency
                 alldetail.status = atd.status

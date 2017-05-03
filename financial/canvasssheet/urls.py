@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     # url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     url(r'^importitems/$', views.importItems, name='importitems'),
+    url(r'^importitemsmanual/$', views.importItemsManual, name='importitemsmanual'),
     url(r'^removeitem/$', views.removeItem, name='removeitem'),
     url(r'^updatecsdetailtemp/$', views.updateCsdetailtemp, name='updatecsdetailtemp'),
     url(r'^removeprf/$', views.removePrf, name='removeprf'),

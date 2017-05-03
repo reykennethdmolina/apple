@@ -154,13 +154,21 @@ class Csdetail(models.Model):
     isdeleted = models.IntegerField(default=0)
     # remarks = models.CharField(max_length=250, null=True, blank=True)
 
-    # vat
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'csdetail'
@@ -212,13 +220,21 @@ class Csdetailtemp(models.Model):
     isdeleted = models.IntegerField(default=0)
     # remarks = models.CharField(max_length=250, null=True, blank=True)
 
-    # vat
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'csdetailtemp'
