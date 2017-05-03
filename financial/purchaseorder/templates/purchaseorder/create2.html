@@ -12,8 +12,8 @@
 
         }
         .vattable td:first-child {
-            width: 170px;
-            padding-right: 20px;
+            width: 130px;
+            padding-right: 10px;
         }
         .vattable td input {
             width: 100px;
@@ -21,7 +21,20 @@
         }
         .heading-top-index-2 {
             padding-right: 15px;
-            padding-left: 45px;
+            padding-left: 15px;
+        }
+        #prfcontainer {
+            height: 300px;
+            padding: 10px;
+            background-color: #e6e6e6;
+            overflow: scroll;
+        }
+        .removeprf{
+            font-size: 15px;
+            margin-top: 2px;
+        }
+        .widgett{
+            margin-bottom: 5px;
         }
     </style>
 {% endblock extra_css %}
@@ -32,7 +45,7 @@
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
-                        <div class="col-sm-8">
+                        <div class="col-sm-7">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-4">
                                     <label class="control-label" for="id_ponum">Number</label>
@@ -127,13 +140,13 @@
                                 </div>
                                 <div class="form-group col-sm-9">
                                     <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="widgett widgett-article widgett-shadow">
                                 <div class="heading-top-index-2">
                                     <table class="vattable">
@@ -162,7 +175,7 @@
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblVATExempt" disabled="disabled" value="0"></td>
                                         </tr>
                                         <tr>
-                                            <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                            <td><small style="letter-spacing: -0.7px;">VAT&nbsp;Zero-Rated&nbsp;Purchase:</small></td>
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblVATZeroRated" disabled="disabled" value="0"></td>
                                         </tr>
                                         <tr><td colspan="0"><br></td></tr>
@@ -182,13 +195,22 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-2">
+                            <label class="control-label" for="id_cstype">PRF(s) Imported</label><br>
+                            <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
+                                <div class="shade"><div class="loader two-color"></div></div>
+                            </div>
+                        </div>
+
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
+                                <button type="button" style="display: none;" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton2" data-toggle="modal" data-target="#myModal2"></button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                             </div>
                         </div>
                         </form>
@@ -244,6 +266,68 @@
                         </div>
                 </div>
             <div class="clearfix"></div>
+            <div id="myModal2" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Select Supplier from Canvassed PRF</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="supplier-option"></div>
+                        </div>
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Select Purchase Requisition Form</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <select name="" id="importprfselect2" class="form-control input-sm select2" style="width: 100%;">
+                                    <option value="">-- Select --</option>
+                                    {% for prfmain in prfmain %}
+                                        <option value="{{ prfmain.prfnum }}"
+                                            data-refnum="{{ prfmain.prfnum }}"
+                                            data-urgency="{{ prfmain.get_urgencytype_display }}"
+                                            data-dateneeded="{{ prfmain.dateneeded }}"
+                                            data-approver="{{ prfmain.actualapprover }}">{{ prfmain.prfnum }}</option>
+                                    {% endfor %}
+                                </select>
+                                <br><br>
+                                <table class="col-md-12 table-bordered" id="importrfpreview">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center"><small><b>PRF No.</b></small></th>
+                                            <th style="text-align: center"><small><b>Urgency Type</b></small></th>
+                                            <th style="text-align: center"><small><b>Actual Approver</b></small></th>
+                                            <th style="text-align: center"><small><b>Date Needed</b></small></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                            <td align="middle"> - </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br><br>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="importconfirm" data-dismiss="modal" disabled="disabled">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -273,6 +357,12 @@
                     alert("Please add at least one item.");
                     event.preventDefault();
                 }
+            });
+
+            $(document).ready(function() {
+                $("#importprfselect2").select2({
+                    dropdownParent: $("#myModal")
+                });
             });
         });
     </script>

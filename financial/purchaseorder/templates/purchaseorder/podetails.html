@@ -83,9 +83,165 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
 
+        $(document).on('click', '#importconfirm', function(){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'purchaseorder:importsuppliers' %}",
+                type: "post",
+                data: {'prfnum': $("#importprfselect2").val(),
+                        'secretkey': $("#secretkey").val()
+                },
+
+                success: function(response) {
+                    var supplier_list = '';
+                    for (var i = 0; i < response.prfsuppliers.length; i++){
+                        supplier_list += "<li data-id='" + response.prfsuppliers[i][3] + "'>" + response.prfsuppliers[i][5] + "</li>";
+                    }
+
+                    if(response.prfdata != "[]"){
+                        $("#prfcontainer").append("<div class='widgett widgett-article widgett-shadow'>" +
+                                                    "<div class='widgett-header cover padding-0 bg-grey-600'>" +
+                                                    "<div class='background-cover padding-10' style='color:white'><small>PRF - " +
+                                                        response.prfdata[0] +
+                                                        "</small><ul style='display:none' class='supplier_list'>" +
+                                                        supplier_list +
+                                                    "</ul><button type='button' class='close removeprf' data-prf='" + response.prfdata[0] + "'>" +
+                                                        "<i class='icon fa-close' aria-hidden='true'></i>" +
+                                                    "</button>" +
+                                                    "</div></div></div>");
+                    }
+                    if($('#id_supplier').val() == ""){
+                        suppliers = $('.widgett.widgett-article.widgett-shadow').last().find('.supplier_list li');
+                        $('#supplier-option').html('');
+                        if(response.prfsuppliers.length == 0){
+                            //fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), 'PRFHasNoSuppliers');
+                            console.log('PRF has no suppliers.');
+                        }
+                        else {
+                            $.each(suppliers, function() {
+                            $('#supplier-option').append("<button type='button' class='btn btn-info btn-block waves-effect " +
+                                    "waves-light supplier-button' data-id='" + $(this).data('id') + "' style='margin: 5px;'>" +
+                                    $(this).text() + "</button>");
+                            });
+                            $("#importbutton2").trigger("click");
+                            $('.widgett.widgett-article.widgett-shadow').last().addClass('for-deletion');
+                        }
+                    }
+                    else {
+                        fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), $('#id_supplier').val());
+                    }
+{##}
+{#                        for (var i = 0; i < response.prfdetail.length; i++) {#}
+{##}
+{#                            if($("tr#" + response.prfdetail[i][4]).length > 0){#}
+{#                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val()) + parseInt(response.prfdetail[i][3]);#}
+{#                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val(item_total);#}
+{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
+{#                            }#}
+{#                            else{#}
+{#                                $("#itemno").text(parseInt($("#itemno").text()) + 1);#}
+{##}
+{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
+{#                                temp_supplier_length = temp_supplier.length;#}
+{##}
+{#                                summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +#}
+{#                                            "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +#}
+{#                                                "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +#}
+{#                                            "</td>" +#}
+{#                                            "</tr>");#}
+{##}
+{#                                for(var j = 0; j < temp_supplier_length; j++) {#}
+{#                                    // hover view more details about supplier#}
+{##}
+{#                                    if(j==0){#}
+{#                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +#}
+{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
+{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
+{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
+{#                                                "<td class='small item_amount text-right'></td>" +#}
+{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
+{#                                                "<td class='small item_vatable text-right'></td>" +#}
+{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
+{#                                                "<td class='small item_vatzero text-right'></td>" +#}
+{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
+{#                                                "<td class='small item_addvat text-right'></td>" +#}
+{#                                                "<td class='small item_total_amount text-right'></td>"#}
+{#                                                );#}
+{#                                    }#}
+{#                                    else{#}
+{#                                        summary.append("<tr>" +#}
+{#                                                "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +#}
+{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
+{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
+{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
+{#                                                "<td class='small item_amount text-right'></td>" +#}
+{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
+{#                                                "<td class='small item_vatable text-right'></td>" +#}
+{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
+{#                                                "<td class='small item_vatzero text-right'></td>" +#}
+{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
+{#                                                "<td class='small item_addvat text-right'></td>" +#}
+{#                                                "<td class='small item_total_amount text-right'</td>" +#}
+{#                                                "</tr>");#}
+{#                                    }#}
+{#                                }#}
+{##}
+{#                                $("#tempForm").append("<form action'#' id='" + i + "'>");#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+{#                    separateRadio();#}
+{#                    computeVatItem();#}
+{#                    reorderItems();#}
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
+        $(document).on('click', '#myModal2', function(e){
+            if(e.target !== e.currentTarget){
+                $('.widgett.widgett-article.widgett-shadow').last().removeClass('for-deletion');
+                $("#myModal2").trigger("click");
+                $('#id_supplier').val($(e.target).data('id')).trigger("change");
+                fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), $('#id_supplier').val());
+            }
+            else{
+                $(".for-deletion").remove();
+            }
+        });
+
+
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
         });
+
+        function fetchPRFItems(prfNum, secretKey, supplier){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'purchaseorder:importitems' %}",
+                type: "post",
+                data: {'prfnum': prfNum,
+                        'secretkey': secretKey,
+                        'supplier': supplier
+                },
+
+                success: function(response) {
+                    console.log("yey");
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
 
         $("#btn_detailsubmit").click(function(){
             $('.shade').fadeIn();
@@ -136,51 +292,51 @@
                     $("#itemno").text(parseInt($("#itemno").text()) + 1);
                     var um_selected = $("#id_item_name option:selected").data('um');
 
-                    summary.append("<tr class='small'><td class='text-center'></td>" +
-                        "<td>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
-                        "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
-                        "<td><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
-                            "input-sm' value='" + response.remarks + "'></td>" +
-                        "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' " +
+                    summary.append("<tr class='small tblItemCounter'><td class='text-center'></td>" +
+                        "<td class='tblItemCode'>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
+                        "<td class='tblItemName'>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
+                        "<td class='tblRemarks'><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
+                            "input-sm tblInputRemarks' value='" + response.remarks + "'></td>" +
+                        "<td class='tblUnitOfMeasure'><select class='form-control input-sm tblSelectUnitOfMeasure' required style='width: 100%' id='id_temp_item_um' " +
                             "name='temp_item_um' form='form-b'>" +
                             "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.id }}' " +
                             "data-code='{{ unitofmeasure.code }}'>" +
                             "{{ unitofmeasure.description }}</option>{% endfor %}</select></td>" +
-                        "<td class='text-center'> - </td>" +
-                        "<td class='text-center'>" + response.department + "</td>" +
-                        "<td class='text-center'>" + response.currency + "</td>" +
-                        "<td><input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
-                            "tblUnitCost input-sm amount text-right po_dynamic' maxlength='26' value='" +
+                        "<td class='text-center tblPRFNumber'> - </td>" +
+                        "<td class='text-center tblDepartment'>" + response.department + "</td>" +
+                        "<td class='text-center tblCurrency'>" + response.currency + "</td>" +
+                        "<td class='tblUnitCost'><input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
+                            "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' value='" +
                             unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'></td>" +
-                        "<td class='text-right'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control " +
-                            "text-right tblQuantity input-sm' value='" + qty + "'></td>" +
-                        "<td class='text-right'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='tblQuantity'><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control " +
+                            "text-right tblInputQuantity input-sm' value='" + qty + "'></td>" +
+                        "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='col_discount'>" +
-                            "<input class='temp_discount_rate form-control input-sm rate text-right' maxlength='2'>" +
-                            "<input class='temp_discount_amount form-control input-sm amount text-right po_dynamic' " +
-                            "maxlength='26'></td>" +
-                        "<td class='col_discount_type'><select class='temp_discount_type form-control input-sm'>" +
+                        "<td class='col_discount tblDiscount'>" +
+                            "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +
+                            "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' " +
+                            "maxlength='26' form='form-b'></td>" +
+                        "<td class='col_discount_type tblDiscountType'><select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +
                             "<option value='rate'>%</option>" +
                             "<option value='amount'>(amt)</option>" +
                         "</select></td>" +
-                        "<td class='text-right'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+                        "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
                             "</td>" +
-                        "<td class='text-right'><strong>" +
+                        "<td class='text-right tblTotalAmount'><strong>" +
                             computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
-                        "<td><button class='btn remove_item' style='margin: 0px;' data-itemno='" + response.itemno +
+                        "<td class='tblDeleteItem'><button class='btn remove_item' style='margin: 0px;' data-itemno='" + response.itemno +
                             "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                         "</tr>");
 
@@ -214,6 +370,7 @@
 
                     $('.shade').fadeOut();
                 }
+
                 , error: function(response) {
                     console.debug(response);
                     $('.shade').fadeOut();
@@ -221,8 +378,80 @@
             });
         });
 
+        $(document).on('change', '.tblInputUnitCost, .tblInputQuantity, .tblInputDiscountRate, .tblInputDiscountAmount', function(){
+            computeAllValues();
+        });
+
+        $('#id_supplier').on('change', function(){
+            showSelected();
+            if($('.remove_item').length > 0){
+                computeAllValues();
+            }
+        });
+
+        function showSelected(){
+            $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
+            $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
+            $('#id_vat').removeData('id');
+            $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
+            $('#id_vat').removeData('code');
+        }
+
+        function computeAllValues(){
+            var vat = $("#id_vat").val().replace(/%/g, "") == "" ? 0 :
+                    parseFloat($("#id_vat").val().replace(/%/g, ""));
+            var vatCode = $('#id_vat').data('code');
+
+            $('.tblInputUnitCost').each(function(){
+                var temp_unitCost = $(this).val().replace( /,/g, "") == "" ? 0 :
+                        parseFloat($(this).val().replace( /,/g, ""));
+                var temp_qty = $(this).parent().siblings('.tblQuantity').find('.tblInputQuantity').val() == "" ? 0 :
+                        parseFloat($(this).parent().siblings('.tblQuantity').find('.tblInputQuantity').val());
+                var temp_discountType = $(this).parent().siblings('.tblDiscountType').find('.tblSelectDiscountType').val();
+                var temp_discountRate = $.trim($(this).parent().siblings('.tblDiscount').find('.tblInputDiscountRate').val()) == "" ? 0 :
+                        parseFloat($.trim($(this).parent().siblings('.tblDiscount').find('.tblInputDiscountRate').val()));
+                var temp_discountAmount = $(this).parent().siblings('.tblDiscount').find('.tblInputDiscountAmount').val().replace( /,/g, "") == "" ? 0 :
+                        parseFloat($(this).parent().siblings('.tblDiscount').find('.tblInputDiscountAmount').val().replace( /,/g, ""));
+
+                var temp_grossUnitCost = 0;
+                var temp_grossAmount = 0;
+                var temp_discountAmt = 0;
+                var temp_discountedAmount = 0;
+                var temp_vatable = 0;
+                var temp_vatExempt = 0;
+                var temp_vatZeroRated = 0;
+                var temp_totalPurchase = 0;
+                var temp_addedVat = 0;
+                var temp_totalAmount = 0;
+
+                temp_grossUnitCost = temp_unitCost / ( 1 + ( vat / 100 ));
+                temp_grossAmount = temp_grossUnitCost * temp_qty;
+                temp_discountAmt = temp_discountType == "rate" ? temp_grossAmount * temp_discountRate / 100 : temp_discountAmount;
+                temp_discountedAmount = temp_grossAmount - temp_discountAmt;
+                console.log("vat code: " + vatCode);
+                (vat > 0) ? temp_vatable = temp_discountedAmount : (vatCode == 'VE') ? temp_vatExempt = temp_discountedAmount :
+                    (vatCode == 'ZE') ? temp_vatZeroRated = temp_discountedAmount : temp_discountedAmount;
+                temp_totalPurchase = temp_discountedAmount;
+                temp_addedVat = temp_totalPurchase * ( vat / 100 );
+                temp_totalAmount = temp_totalPurchase + temp_addedVat;
+
+                $(this).parent().siblings('.tblGrossUnitCost').html(temp_grossUnitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblGrossAmount').html(temp_grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblDiscountAmount').html(temp_discountAmt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblVatable').html(temp_vatable.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblVatExempt').html(temp_vatExempt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblZeroRated').html(temp_vatZeroRated.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblTotalPurchase').html(temp_totalPurchase.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblAddedVat').html(temp_addedVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $(this).parent().siblings('.tblTotalAmount').html("<strong>" + temp_totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong>");
+            });
+
+            computeTotalAmounts();
+        }
+
         $(document).on('change', '.temp_discount_type', function(){
             filterDiscount();
+            computeAllValues();
         });
 
         function filterDiscount(){
@@ -319,16 +548,16 @@
             var totalAddVAT = 0;
             var totalTotalAmount = 0;
 
-            $('.tblQuantity').each(function(index) {
+            $('.tblInputQuantity').each(function(index) {
                 totalQuantity += parseFloat($(this).val());
-                totalGrossAmount += parseFloat($(this).parent().next().text().replace( /,/g, ""));
-                totalDiscountAmount += parseFloat($(this).parent().next().next().next().next().text().replace( /,/g, ""));
-                totalVATable += parseFloat($(this).parent().next().next().next().next().next().text().replace( /,/g, ""));
-                totalVATExempt += parseFloat($(this).parent().next().next().next().next().next().next().text().replace( /,/g, ""));
-                totalVATZeroRated += parseFloat($(this).parent().next().next().next().next().next().next().next().text().replace( /,/g, ""));
-                totalTotalPurchase += parseFloat($(this).parent().next().next().next().next().next().next().next().next().text().replace( /,/g, ""));
-                totalAddVAT += parseFloat($(this).parent().next().next().next().next().next().next().next().next().next().text().replace( /,/g, ""));
-                totalTotalAmount += parseFloat($(this).parent().next().next().next().next().next().next().next().next().next().next().text().replace( /,/g, ""));
+                totalGrossAmount += parseFloat($(this).parent().siblings('.tblGrossAmount').text().replace( /,/g, ""));
+                totalDiscountAmount += parseFloat($(this).parent().siblings('.tblDiscountAmount').text().replace( /,/g, ""));
+                totalVATable += parseFloat($(this).parent().siblings('.tblVatable').text().replace( /,/g, ""));
+                totalVATExempt += parseFloat($(this).parent().siblings('.tblVatExempt').text().replace( /,/g, ""));
+                totalVATZeroRated += parseFloat($(this).parent().siblings('.tblZeroRated').text().replace( /,/g, ""));
+                totalTotalPurchase += parseFloat($(this).parent().siblings('.tblTotalPurchase').text().replace( /,/g, ""));
+                totalAddVAT += parseFloat($(this).parent().siblings('.tblAddedVat').text().replace( /,/g, ""));
+                totalTotalAmount += parseFloat($(this).parent().siblings('.tblTotalAmount').text().replace( /,/g, ""));
 
                 $('#lblQuantity').val(totalQuantity);
                 $('#lblGrossAmount').val(totalGrossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
@@ -341,5 +570,20 @@
                 $('#lblTotalAmount').val(totalTotalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
         }
+
+        $("#importprfselect2").change(function(){
+            if($(this).val() != ''){
+                importrfpreview = $("#importrfpreview tbody tr td");
+                importrfpreview.eq(0).text($(this).children('option:selected').data('refnum'));
+                importrfpreview.eq(1).text($(this).children('option:selected').data('urgency'));
+                importrfpreview.eq(2).text($(this).children('option:selected').data('approver'));
+                importrfpreview.eq(3).text($(this).children('option:selected').data('dateneeded'));
+
+                $("#importconfirm").prop('disabled', false);
+            }
+            else{
+                $("#importconfirm").prop('disabled', true);
+            }
+        });
     });
 </script>

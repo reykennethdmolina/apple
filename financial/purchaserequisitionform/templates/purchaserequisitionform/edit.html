@@ -29,6 +29,9 @@
     </style>
 {% endblock extra_css %}
 <div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Update</h3>
+    </div>
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
@@ -36,7 +39,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-12 row-lg margin-bottom-20">
-                        {% if perms.purchaserequisitionform.delete_prfmain %}
+                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}
                             <a href="{% url 'purchaserequisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
@@ -223,7 +226,7 @@
                                 <tbody>
                                     {% for prfdetailtemp, amount in data %}
                                         <tr>
-                                            <td>{{ prfdetailtemp.item_counter }}</td>
+                                            <td style="width: 10px;">{{ prfdetailtemp.item_counter }}</td>
                                             <td>{{ prfdetailtemp.invitem_code }}</td>
                                             <td>{{ prfdetailtemp.invitem_name }}</td>
                                             <td>{{ prfdetailtemp.remarks }}</td>
@@ -237,21 +240,21 @@
                                                 </select>
                                             </td>
                                             <td>{{ prfdetailtemp.currency.symbol }}</td>
+{#                                            <td>{{ prfdetailtemp.invitem.unitcost }}</td>#}
                                             <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_quantity amount" value="{{ prfdetailtemp.amount }}"></td>
-                                            <td>{{ prfdetailtemp.invitem.unitcost }}</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
-                                            <td>0.00</td>
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td> - </td>#}
+{#                                            <td> - </td>#}
+{#                                            <td> - </td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
+{#                                            <td>0.00</td>#}
                                             <td><button class="btn remove_item" data-itemno="{{ prfdetailtemp.item_counter }}"><i class="icon fa-remove" aria-hidden="true"></i></button></td>
                                         </tr>
                                     {% endfor %}

@@ -53,6 +53,13 @@
         filterItems();
         inventorytypeimportDisable();
 
+        $("#form-b").submit(function(event){
+            if($('.remove_item').length == 0) {
+                alert("Please add at least one item.");
+                event.preventDefault();
+            }
+        });
+
         $('.amount').each(function(){
             $(this).val(parseFloat($(this).val()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         });
@@ -78,7 +85,7 @@
                     if(response.prfdata != "[]"){
                         um_selected = $("#id_item_name option:selected").data('um');
 
-                        summary.append("<tr><td></td>" +
+                        summary.append("<tr><td style='width:10px'></td>" +
                                     "<td>" + response.prfdata[0] + "</td>" +
                                     "<td>" + response.prfdata[1] + "</td>" +
                                     "<td>" + response.remarks + "</td>" +
@@ -86,25 +93,26 @@
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
                                         "<select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }}</option>{% endfor %}" +
+                                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                         "</select>" +
                                     "</td>" +
                                     "<td>" + response.currency + "</td>" +
-                                    "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "'></td>" +
+{#                                    "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "'></td>" +#}
+                                    "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
                                     "<td>" + response.prfdata[3] + "</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
-                                    "<td>0.00</td>" +
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td> - </td>" +#}
+{#                                    "<td> - </td>" +#}
+{#                                    "<td> - </td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
+{#                                    "<td>0.00</td>" +#}
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
 
@@ -145,7 +153,7 @@
 
                             um_selected = response.prfdata[i][9];
 
-                            summary.append("<tr><td></td>" +
+                            summary.append("<tr><td style='max-width:10px'></td>" +
                                         "<td>" + response.prfdata[i][0] + "</td>" +
                                         "<td>" + response.prfdata[i][1] + "</td>" +
                                         "<td>" + response.prfdata[i][4] + "</td>" +
@@ -153,25 +161,25 @@
                                         "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][5] + "'></td>" +
                                         "<td>" +
                                             "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                                "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }}</option>{% endfor %}" +
+                                                "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                             "</select>" +
                                         "</td>" +
                                         "<td> PHP </td>" +
-                                        "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat(response.prfdata[i][5]) * parseFloat(response.prfdata[i][6])) + "'></td>" +
-                                        "<td>" + response.prfdata[i][6] + "</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
-                                        "<td>0.00</td>" +
+                                        "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
+{#                                        "<td>" + response.prfdata[i][6] + "</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td> - </td>" +#}
+{#                                        "<td> - </td>" +#}
+{#                                        "<td> - </td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
+{#                                        "<td>0.00</td>" +#}
                                         "<td><button class='btn remove_item' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                         "</tr>");
 
