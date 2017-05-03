@@ -163,6 +163,9 @@
                                 <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
+                                    <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
+                                    <span id="totalrequestedqty">0</span>
+                                    </label><br><br>
                                     <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
@@ -185,7 +188,7 @@
                                                             <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
                                                             {% endif %}>{{ unitofmeasure.description }}</option>
                                                         {% endfor %}</select></td>
-                                                    <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='{{ rfdetailtemp.quantity }}'></td>
+                                                    <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity' value='{{ rfdetailtemp.quantity }}'></td>
                                                     <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
                                                 </tr>
                                             {% endfor %}

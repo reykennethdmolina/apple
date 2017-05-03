@@ -83,9 +83,165 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
 
+        $(document).on('click', '#importconfirm', function(){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'purchaseorder:importsuppliers' %}",
+                type: "post",
+                data: {'prfnum': $("#importprfselect2").val(),
+                        'secretkey': $("#secretkey").val()
+                },
+
+                success: function(response) {
+                    var supplier_list = '';
+                    for (var i = 0; i < response.prfsuppliers.length; i++){
+                        supplier_list += "<li data-id='" + response.prfsuppliers[i][3] + "'>" + response.prfsuppliers[i][5] + "</li>";
+                    }
+
+                    if(response.prfdata != "[]"){
+                        $("#prfcontainer").append("<div class='widgett widgett-article widgett-shadow'>" +
+                                                    "<div class='widgett-header cover padding-0 bg-grey-600'>" +
+                                                    "<div class='background-cover padding-10' style='color:white'><small>PRF - " +
+                                                        response.prfdata[0] +
+                                                        "</small><ul style='display:none' class='supplier_list'>" +
+                                                        supplier_list +
+                                                    "</ul><button type='button' class='close removeprf' data-prf='" + response.prfdata[0] + "'>" +
+                                                        "<i class='icon fa-close' aria-hidden='true'></i>" +
+                                                    "</button>" +
+                                                    "</div></div></div>");
+                    }
+                    if($('#id_supplier').val() == ""){
+                        suppliers = $('.widgett.widgett-article.widgett-shadow').last().find('.supplier_list li');
+                        $('#supplier-option').html('');
+                        if(response.prfsuppliers.length == 0){
+                            //fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), 'PRFHasNoSuppliers');
+                            console.log('PRF has no suppliers.');
+                        }
+                        else {
+                            $.each(suppliers, function() {
+                            $('#supplier-option').append("<button type='button' class='btn btn-info btn-block waves-effect " +
+                                    "waves-light supplier-button' data-id='" + $(this).data('id') + "' style='margin: 5px;'>" +
+                                    $(this).text() + "</button>");
+                            });
+                            $("#importbutton2").trigger("click");
+                            $('.widgett.widgett-article.widgett-shadow').last().addClass('for-deletion');
+                        }
+                    }
+                    else {
+                        fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), $('#id_supplier').val());
+                    }
+{##}
+{#                        for (var i = 0; i < response.prfdetail.length; i++) {#}
+{##}
+{#                            if($("tr#" + response.prfdetail[i][4]).length > 0){#}
+{#                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val()) + parseInt(response.prfdetail[i][3]);#}
+{#                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val(item_total);#}
+{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
+{#                            }#}
+{#                            else{#}
+{#                                $("#itemno").text(parseInt($("#itemno").text()) + 1);#}
+{##}
+{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
+{#                                temp_supplier_length = temp_supplier.length;#}
+{##}
+{#                                summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +#}
+{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +#}
+{#                                            "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +#}
+{#                                                "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +#}
+{#                                            "</td>" +#}
+{#                                            "</tr>");#}
+{##}
+{#                                for(var j = 0; j < temp_supplier_length; j++) {#}
+{#                                    // hover view more details about supplier#}
+{##}
+{#                                    if(j==0){#}
+{#                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +#}
+{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
+{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
+{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
+{#                                                "<td class='small item_amount text-right'></td>" +#}
+{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
+{#                                                "<td class='small item_vatable text-right'></td>" +#}
+{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
+{#                                                "<td class='small item_vatzero text-right'></td>" +#}
+{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
+{#                                                "<td class='small item_addvat text-right'></td>" +#}
+{#                                                "<td class='small item_total_amount text-right'></td>"#}
+{#                                                );#}
+{#                                    }#}
+{#                                    else{#}
+{#                                        summary.append("<tr>" +#}
+{#                                                "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +#}
+{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
+{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
+{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
+{#                                                "<td class='small item_amount text-right'></td>" +#}
+{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
+{#                                                "<td class='small item_vatable text-right'></td>" +#}
+{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
+{#                                                "<td class='small item_vatzero text-right'></td>" +#}
+{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
+{#                                                "<td class='small item_addvat text-right'></td>" +#}
+{#                                                "<td class='small item_total_amount text-right'</td>" +#}
+{#                                                "</tr>");#}
+{#                                    }#}
+{#                                }#}
+{##}
+{#                                $("#tempForm").append("<form action'#' id='" + i + "'>");#}
+{#                            }#}
+{#                        }#}
+{#                    }#}
+{#                    separateRadio();#}
+{#                    computeVatItem();#}
+{#                    reorderItems();#}
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
+        $(document).on('click', '#myModal2', function(e){
+            if(e.target !== e.currentTarget){
+                $('.widgett.widgett-article.widgett-shadow').last().removeClass('for-deletion');
+                $("#myModal2").trigger("click");
+                $('#id_supplier').val($(e.target).data('id')).trigger("change");
+                fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), $('#id_supplier').val());
+            }
+            else{
+                $(".for-deletion").remove();
+            }
+        });
+
+
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
         });
+
+        function fetchPRFItems(prfNum, secretKey, supplier){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'purchaseorder:importitems' %}",
+                type: "post",
+                data: {'prfnum': prfNum,
+                        'secretkey': secretKey,
+                        'supplier': supplier
+                },
+
+                success: function(response) {
+                    console.log("yey");
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
 
         $("#btn_detailsubmit").click(function(){
             $('.shade').fadeIn();
@@ -414,5 +570,20 @@
                 $('#lblTotalAmount').val(totalTotalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
         }
+
+        $("#importprfselect2").change(function(){
+            if($(this).val() != ''){
+                importrfpreview = $("#importrfpreview tbody tr td");
+                importrfpreview.eq(0).text($(this).children('option:selected').data('refnum'));
+                importrfpreview.eq(1).text($(this).children('option:selected').data('urgency'));
+                importrfpreview.eq(2).text($(this).children('option:selected').data('approver'));
+                importrfpreview.eq(3).text($(this).children('option:selected').data('dateneeded'));
+
+                $("#importconfirm").prop('disabled', false);
+            }
+            else{
+                $("#importconfirm").prop('disabled', true);
+            }
+        });
     });
 </script>

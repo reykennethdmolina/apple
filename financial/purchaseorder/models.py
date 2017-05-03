@@ -189,3 +189,26 @@ class Podetailtemp(models.Model):
 
     def __unicode__(self):
         return str(self.pk) + ' ' + str(self.item_counter) + ' ' + self.invitem_name + ' temp'
+
+
+class Podata(models.Model):
+    pomain = models.ForeignKey('purchaseorder.Pomain', related_name='podata_pomain_id', null=True, blank=True)
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='podata_prfmain_id')
+    secretkey = models.CharField(max_length=255)
+    isdeleted = models.IntegerField(default=0)
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+
+    class Meta:
+        db_table = 'podata'
+        ordering = ['-pk']
+        # permissions = (("view_podata", "Can view podata"),)
+
+    def get_absolute_url(self):
+        return reverse('purchaseorder:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.id
+
+    def __unicode__(self):
+        return self.id

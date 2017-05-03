@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpRespons
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.core import serializers
-from .models import Pomain, Podetail, Podetailtemp
+from .models import Pomain, Podetail, Podetailtemp, Podata
+from purchaserequisitionform.models import Prfmain
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
 from inputvat.models import Inputvat
@@ -54,7 +55,7 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Pomain
-    template_name = 'purchaseorder/create.html'
+    template_name = 'purchaseorder/create2.html'
     fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'supplier', 'ataxcode', 'inputvat',
               'creditterm', 'particulars']
 
@@ -75,6 +76,7 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
+        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A')
         return context
 
     def form_valid(self, form):
@@ -310,3 +312,186 @@ def paginate(request, command, current, limit, search):
     json_models = serializers.serialize("json", pomain)
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
+
+
+@csrf_exempt
+def importsuppliers(request):
+    if request.method == 'POST':
+        # get selected prfmain data
+        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
+                                      prfstatus="A",
+                                      status="A",
+                                      isdeleted=0)
+        prfdata = [prfmain.prfnum]
+
+        itemsuppliers = Prfmain.objects.raw('SELECT a.id, a.prfnum, b.csmain_id, d.supplier_id, d.suppliercode, '
+                                            'd.suppliername FROM prfmain a JOIN csdata b ON b.prfmain_id = a.id '
+                                            'JOIN csmain c ON b.csmain_id = c.id JOIN csdetail d ON c.id = d.csmain_id '
+                                            'WHERE a.prfnum = "' + request.POST['prfnum'] + '" '
+                                            'AND b.csmain_id IS NOT NULL '
+                                            'AND d.csstatus = 1 AND a.isdeleted = 0 AND a.status = "A" '
+                                            'AND b.isdeleted = 0 AND c.isdeleted = 0 AND c.status = "A" '
+                                            'AND d.isdeleted = 0 AND d.status = "A"')
+        prfsupplier_list = []
+        if itemsuppliers:
+            for data in itemsuppliers:
+                prfsupplier_list.append([data.id,
+                                         data.prfnum,
+                                         data.csmain_id,
+                                         data.supplier_id,
+                                         data.suppliercode,
+                                         data.suppliername])
+
+        data = {
+            'status': 'success',
+            'prfdata': prfdata,
+            'prfsuppliers': prfsupplier_list,
+            # 'prfdetail': prfdetail_list,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def importitems(request):
+    if request.method == 'POST':
+        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
+                                      prfstatus="A",
+                                      status="A",
+                                      isdeleted=0)
+
+        if Podata.objects.filter(prfmain=prfmain).exists():
+            data = {
+                'status': 'error',
+            }
+        else:
+            canvassedprfitems = Prfmain.objects.raw('SELECT a.id AS prfmain, a.prfnum, a.branch_id, a.department_id, b.id AS prfdetail, b.item_counter, '
+                                                    'b.invitem_id, b.invitem_code, b.invitem_name, b.invitem_unitofmeasure_code, '
+                                                    'b.invitem_unitofmeasure_id, b.remarks, c.id, c.csmain_id, d.id, e.id, '
+                                                    'e.supplier_id, e.suppliername, b.quantity, e.negocost, '
+                                                    'e.csstatus, e.isdeleted, e.status, e.grossamount, e.netamount, e.vat_id, '
+                                                    'e.vatable, e.vatamount, e.vatexempt, e.vatrate, e.vatzerorated, b.currency_id '
+                                                    'FROM prfmain a '
+                                                    'LEFT JOIN prfdetail b ON a.id = b.prfmain_id '
+                                                    'LEFT JOIN csdata c ON a.id = c.prfmain_id '
+                                                    'LEFT JOIN csmain d ON c.csmain_id = d.id '
+                                                    'LEFT JOIN csdetail e '
+                                                    'ON d.id = e.csmain_id AND b.invitem_id = e.invitem_id '
+                                                    'WHERE a.prfnum = "' + request.POST[
+                                                        'prfnum']
+                                                    + '" AND a.prfstatus = "A" AND a.status = "A" AND a.isdeleted = 0 '
+                                                      'AND b.status = "A" AND b.isdeleted = 0 AND d.isdeleted = 0 '
+                                                      'AND d.status = "A" '
+                                                      'ORDER BY b.item_counter')
+
+            supplier_vat = Supplier.objects.get(pk=request.POST['supplier'], isdeleted=0, status='A').vat
+            prfitem_list = []
+            if canvassedprfitems:
+                for data in canvassedprfitems:
+                    if data.csstatus == 1 and data.isdeleted == 0 and data.status == 'A':
+                        if request.POST['supplier'] != '':
+                            if str(data.supplier_id) == request.POST['supplier']:
+                                prfitem_list.append([data.prfnum,
+                                                     data.prfdetail,
+                                                     data.item_counter,
+                                                     data.invitem_id,
+                                                     data.invitem_code,
+                                                     data.invitem_name,
+                                                     data.invitem_unitofmeasure_code,
+                                                     data.quantity,
+                                                     data.negocost,
+                                                     data.remarks,
+                                                     data.branch_id,
+                                                     data.department_id,
+                                                     data.grossamount,
+                                                     data.netamount,
+                                                     data.vat_id,
+                                                     data.vatable,
+                                                     data.vatamount,
+                                                     data.vatexempt,
+                                                     data.vatrate,
+                                                     data.vatzerorated,
+                                                     data.currency_id,
+                                                     data.invitem_unitofmeasure_id,
+                                                     data.suppliername])
+                    if data.suppliername is None:
+                        prfitem_list.append([data.prfnum,
+                                             data.prfdetail,
+                                             data.item_counter,
+                                             data.invitem_id,
+                                             data.invitem_code,
+                                             data.invitem_name,
+                                             data.invitem_unitofmeasure_code,
+                                             data.quantity,
+                                             data.negocost,
+                                             data.remarks,
+                                             data.branch_id,
+                                             data.department_id,
+                                             data.grossamount,
+                                             data.netamount,
+                                             data.vat_id,
+                                             data.vatable,
+                                             data.vatamount,
+                                             data.vatexempt,
+                                             data.vatrate,
+                                             data.vatzerorated,
+                                             data.currency_id,
+                                             data.invitem_unitofmeasure_id,
+                                             data.suppliername])
+
+            if prfitem_list:
+                # save in podata as temp data (secretkey and prfmain)
+                podatatemp = Podata()
+                podatatemp.secretkey = request.POST['secretkey']
+                podatatemp.prfmain = prfmain
+                podatatemp.save()
+
+            i = 1
+            # save in podetailtemp based on prfitem_list
+            for data in prfitem_list:
+                print i
+                podetailtemp = Podetailtemp()
+                podetailtemp.item_counter = data[2]
+                podetailtemp.invitem_code = data[4]
+                podetailtemp.invitem_name = data[5]
+                podetailtemp.invitem_unitofmeasure = data[6]
+                podetailtemp.quantity = data[7]                            # from prfdetail, won't change even if quantity is modified in CS
+                unitcost = data[8] if data[8] is not None else 0.00
+                podetailtemp.unitcost = unitcost                           # from csdetail
+                podetailtemp.remarks = data[9]
+                podetailtemp.secretkey = request.POST['secretkey']
+                podetailtemp.branch = Branch.objects.get(pk=data[10], isdeleted=0, status='A')
+                podetailtemp.department = Department.objects.get(pk=data[11], isdeleted=0)
+                podetailtemp.enterby = request.user
+                podetailtemp.invitem = Inventoryitem.objects.get(pk=data[3], isdeleted=0, status='A')
+                podetailtemp.modifyby = request.user
+                podetailtemp.vat = supplier_vat
+                podetailtemp.vatrate = supplier_vat.rate
+                grossamount = float(data[7]) * (float(unitcost) / (1 + (float(supplier_vat.rate)/100)))
+                podetailtemp.grossamount = grossamount
+                podetailtemp.vatable = grossamount if float(supplier_vat.rate) > 0 else 0.00
+                podetailtemp.vatexempt = grossamount if supplier_vat.code == 'VE' else 0.00
+                podetailtemp.vatzerorated = grossamount if supplier_vat.code == 'ZE' else 0.00
+                podetailtemp.vatamount = grossamount * (float(supplier_vat.rate)/100)
+                podetailtemp.netamount = grossamount + (grossamount * (float(supplier_vat.rate)/100))
+                podetailtemp.currency = Currency.objects.get(pk=data[20], isdeleted=0, status='A') if data[20] is not None else None
+                podetailtemp.unitofmeasure = Unitofmeasure.objects.get(pk=data[21], isdeleted=0, status='A')
+                podetailtemp.save()
+                i += 1
+
+            data = {
+                'status': 'success',
+                'prfitems': prfitem_list
+            }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+

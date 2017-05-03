@@ -34,7 +34,8 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function() {
-        summary = $("#summary tbody")
+        summary = $("#summary tbody");
+        computeTotalRequestedQty();
 
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
@@ -66,7 +67,7 @@
                                 "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
                                 "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                 "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
-                                "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm' value='" + response.quantity + "'></td>" +
+                                "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity' value='" + response.quantity + "'></td>" +
                                 "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                 "</tr>");
 
@@ -76,6 +77,7 @@
                         $("#id_quantity").val('');
                         $("#id_remarks").val('');
                         reorderItems();
+                        computeTotalRequestedQty();
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -101,6 +103,7 @@
                 success: function(response) {
                     elem.parent().parent().remove();
                     reorderItems();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -110,11 +113,24 @@
             });
         });
 
+        $(document).on('change', '.tblInputQuantity', function(){
+            computeTotalRequestedQty();
+        });
+
         function reorderItems(){
             len = summary.find('tr').find('td:eq(0)').length;
             for(i=0;i<len;i++){
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
             }
+        }
+
+        function computeTotalRequestedQty(){
+            var totalRequestedQty = 0;
+            $('.tblInputQuantity').each(function() {
+                totalRequestedQty += parseFloat($(this).val());
+            });
+
+            $("#totalrequestedqty").text(totalRequestedQty);
         }
     });
 </script>
