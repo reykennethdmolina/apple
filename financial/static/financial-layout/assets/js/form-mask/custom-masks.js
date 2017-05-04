@@ -81,6 +81,10 @@
         'pattern': 'CCI{{999999999999}}',
         'persistent': true
     });
+    $('.fxRate').formatter({
+        'pattern': '{{99}}.{{99999}}',
+        'persistent': true
+    });
     //$('.amount').formatter({
     //    'pattern': '{{99}}.{{99}}',
     //    'persistent': true

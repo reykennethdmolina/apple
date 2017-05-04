@@ -5,7 +5,7 @@
 $( "#validateButton" ).click(function() {
     if($('.validateIntFormMask').length){
         $('.validateIntFormMask').each(function(i, obj){
-            if($(this).val().length > 0 &&($(this).val().indexOf(' ') >= 0 || $(this).val().indexOf('t') >= 0)){
+            if($(this).val().length > 0 && ($(this).val().indexOf(' ') >= 0 || $(this).val().indexOf('t') >= 0)){
 
                 invalidInput = $(this).val();
                 invalidForm = $(this);
