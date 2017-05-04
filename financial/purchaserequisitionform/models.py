@@ -28,9 +28,9 @@ class Prfmain(models.Model):
 
     PRF_TYPE_CHOICES = (
         ('MSRF', 'MSRF'),
-        # ('REGULAR', 'REGULAR'),
+        # ('REGULAR', 'REGULAR'), fixed asset items only
         # ('IMPRF', 'IMPORT RF'), # with importing
-        # ('REPLENISHMENT', 'REPLENISHMENT'), # manual add of items
+        # ('REPLENISHMENT', 'REPLENISHMENT'), # manual add of items office supplies
     )
 
     URGENCY_CHOICES = (
@@ -106,7 +106,7 @@ class rfprftransaction(models.Model):
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_rfprftransaction')
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_rfprftransaction')
     prfquantity = models.IntegerField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    prfstatus = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
     class Meta:
         db_table = 'rfprftransaction'
