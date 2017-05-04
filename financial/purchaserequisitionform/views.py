@@ -27,7 +27,8 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
+        return Prfmain.objects.all().order_by('enterdate')[0:10]
+        # return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)

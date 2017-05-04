@@ -97,22 +97,7 @@
                                         "</select>" +
                                     "</td>" +
                                     "<td>" + response.currency + "</td>" +
-{#                                    "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + (parseFloat($("#id_quantity").val()) * parseFloat(response.prfdata[3])) + "'></td>" +#}
                                     "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
-                                    "<td>" + response.prfdata[3] + "</td>" +
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td> - </td>" +#}
-{#                                    "<td> - </td>" +#}
-{#                                    "<td> - </td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
-{#                                    "<td>0.00</td>" +#}
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
 
@@ -166,20 +151,6 @@
                                         "</td>" +
                                         "<td> PHP </td>" +
                                         "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
-{#                                        "<td>" + response.prfdata[i][6] + "</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td> - </td>" +#}
-{#                                        "<td> - </td>" +#}
-{#                                        "<td> - </td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
-{#                                        "<td>0.00</td>" +#}
                                         "<td><button class='btn remove_item' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                         "</tr>");
 
@@ -239,15 +210,6 @@
                 dropdownParent: $("#myModal")
             });
         });
-
-        // change total amount
-{#        $(document).bind('keyup input', '.temp_quantity', function(e){#}
-{#        $(document).bind('keyup input', '.temp_quantity', function(){#}
-{#            tmp_quantity = parseFloat($(this).val())#}
-{#            tmp_cost = parseFloat($(this).parent().next().html())#}
-{#            console.log($('.temp_quantity').parent().next().length)#}
-{#            $(this).parent().next().next().html(tmp_quantity*tmp_cost);#}
-{#        });#}
 
         $("#importrfselect2").change(function(){
             if($(this).val() != ''){

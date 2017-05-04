@@ -28,6 +28,9 @@ class Prfmain(models.Model):
 
     PRF_TYPE_CHOICES = (
         ('MSRF', 'MSRF'),
+        # ('REGULAR', 'REGULAR'),
+        # ('IMPRF', 'IMPORT RF'), # with importing
+        # ('REPLENISHMENT', 'REPLENISHMENT'), # manual add of items
     )
 
     URGENCY_CHOICES = (
@@ -78,6 +81,36 @@ class Prfmain(models.Model):
                        ("view_allassignprf", "Can view all prf"),
                        ("can_approveprf", "Can approve prf"),
                        ("can_disapproveprf", "Can disapprove prf"),)
+
+    def get_absolute_url(self):
+        return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.prfnum
+
+    def __unicode__(self):
+        return self.prfnum
+
+
+class rfprftransaction(models.Model):
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_rfprftransaction')
+    rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='rfdetail_rfprftransaction')
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_rfprftransaction')
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_rfprftransaction')
+    prfquantity = models.IntegerField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+
+    class Meta:
+        db_table = 'rfprftransaction'
+        ordering = ['-pk']
 
     def get_absolute_url(self):
         return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
@@ -183,6 +216,8 @@ class Prfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+    # print_ctr = models.IntegerField(default=0)
+    # fx_rate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -192,6 +227,7 @@ class Prfdetailtemp(models.Model):
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
 
     # CS
     # cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

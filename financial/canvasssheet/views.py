@@ -239,15 +239,54 @@ def updateCsdetailtemp(request):
             # update prfdetail
             csdata = Csdata.objects.filter(secretkey=request.POST['secretkey'], isdeleted=0)
 
-            for data in csdata:
-                prfdetail = Prfdetail.objects.filter(prfmain=data.prfmain,
-                                         status='A',
-                                         isdeleted=0,
-                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i])
+            detailget_checked = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+                                        invitem=request.POST.getlist('arr_item_cost_item[]')[i],
+                                        supplier=data,
+                                        csstatus=1,
+                                        isdeleted=0,
+                                        status='A')
 
-                for data2 in prfdetail:
-                    print data2.invitem_code
-                print prfdetail.invitem_code
+            if detailget_checked.exists():
+                for data in csdata:
+
+                    prfdetail = Prfdetail.objects.filter(prfmain=data.prfmain,
+                                             status='A',
+                                             isdeleted=0,
+                                             invitem=request.POST.getlist('arr_item_cost_item[]')[i])
+
+                    for data2 in prfdetail:
+                        prfdetail_specific = Prfdetail.objects.filter(pk=data2.id)
+                        prfdetail_get = Prfdetail.objects.get(pk=data2.id)
+                        item_total_amount = float(prfdetail_get.quantity) * float(detailget.negocost)
+                        item_vat_rate = detailget.vatrate
+                        item_gross_amount = item_total_amount
+                        item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
+                        item_vatable = 0
+                        item_vatexempt = 0
+                        item_vatzero = 0
+
+                        if item_vat_rate > 0:
+                            item_gross_amount = float(item_total_amount)/(1+(float(item_vat_rate)/100))
+                            item_vatable = item_gross_amount
+                        else:
+                            if item_vatcode == 'VE':
+                                item_vatexempt = item_gross_amount
+
+                            elif item_vatcode == 'ZE':
+                                item_vatzero = item_gross_amount
+
+                        uc_item_addvat = float(uc_item_total_amount) - float(uc_item_gross_amount)
+
+                        prfdetail_specific.update(cost=detailget.negocost,
+                                                  netamount=item_total_amount,
+                                                  vatable=item_vatable,
+                                                  vatexempt=item_vatexempt,
+                                                  vatzerorated=item_vatzero,
+                                                  vatamount=item_addvat,
+                                                  grossamount=item_gross_amount,
+                                                  amount=item_total_amount)
+
+
 
 
 
