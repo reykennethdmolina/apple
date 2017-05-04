@@ -11,6 +11,7 @@ class Currency(models.Model):
     symbol = models.CharField(max_length=10)
     description = models.CharField(max_length=250)
     country = models.CharField(max_length=250)
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
