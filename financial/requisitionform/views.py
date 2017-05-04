@@ -26,12 +26,12 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[0:10]
+        return Rfmain.objects.all().order_by('-enterdate')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
 
-        context['listcount'] = Rfmain.objects.filter(isdeleted=0).count()
+        context['listcount'] = Rfmain.objects.all().count()
         return context
 
 
@@ -76,7 +76,7 @@ class CreateView(CreateView):
     model = Rfmain
     template_name = 'requisitionform/create.html'
     fields = ['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
-              'branch', 'department', 'particulars', 'designatedapprover']
+              'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('requisitionform.add_rfmain'):
@@ -162,7 +162,7 @@ class UpdateView(UpdateView):
     model = Rfmain
     template_name = 'requisitionform/edit.html'
     fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
-              'branch', 'department', 'particulars', 'designatedapprover']
+              'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('requisitionform.change_rfmain'):
@@ -244,7 +244,7 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
                                             'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
-                                            'modifyby', 'modifydate'])
+                                            'totalquantity', 'modifyby', 'modifydate'])
 
             Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
 
@@ -299,7 +299,7 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status == 'O':
+        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status == 'O' or self.object.rfstatus == 'A':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -308,7 +308,7 @@ class DeleteView(DeleteView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.isdeleted = 1
-        self.object.status = 'I'
+        self.object.status = 'C'
         self.object.save()
         return HttpResponseRedirect('/requisitionform')
 

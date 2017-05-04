@@ -19,10 +19,10 @@
                             <thead>
                                 <tr>
                                     <th><span>ID</span></th>
-                                    <th><span>No.</span></th>
+                                    <th><span>Number</span></th>
                                     <th><span>Date</span></th>
                                     <th><span>Particulars</span></th>
-                                    <th><span>Status</span></th>
+                                    <th><span>RF Status</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
@@ -31,7 +31,7 @@
                                 <tr>
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.rfnum }}</td>
-                                    <td>{{ data.rfdate }}</td>
+                                    <td>{{ data.rfdate|date:"Y-m-d" }}</td>
                                     <td>{{ data.particulars }}</td>
                                     <td>{{ data.get_rfstatus_display }}</td>
                                     <td class="text-center">
@@ -46,7 +46,7 @@
                                             </a>
                                             {% endif %}
                                             {% if perms.requisitionform.delete_rfmain and data.status != 'O' %}
-                                            <a href="{% url 'requisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'requisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}
