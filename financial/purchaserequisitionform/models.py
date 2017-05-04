@@ -132,6 +132,7 @@ class Prfdetail(models.Model):
     )
 
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_prfdetail', null=True, blank=True)
     rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='rfdetail_prfdetail', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='prfdetail_invitem_id')
     currency = models.ForeignKey('currency.Currency', related_name='prfdetail_currency')
@@ -195,6 +196,7 @@ class Prfdetailtemp(models.Model):
     )
 
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='temp_prfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_prfdetailtemp', null=True, blank=True)
     rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='temp_rfdetail_id', null=True, blank=True)
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='temp_prfdetail_id', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='temp_prfdetail_invitem_id')
