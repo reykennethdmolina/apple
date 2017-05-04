@@ -32,7 +32,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="id_fxrate" class="control-label">FX Rate</label>
-                                <input type="number" class="form-control text-right" id="id_fxrate" placeholder="FX Rate" name="fxrate" data-validation="required" value="{{ form.fxrate.value|default:'' }}">
+                                <input type="text" class="form-control text-right fxRate" id="id_fxrate" placeholder="FX Rate" name="fxrate" data-validation="required" value="{{ form.fxrate.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                             </div>
                         </div>
@@ -56,3 +56,9 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    {% load static %}
+    <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/validate-masks.js' %}"></script>
+{% endblock extra_js %}
