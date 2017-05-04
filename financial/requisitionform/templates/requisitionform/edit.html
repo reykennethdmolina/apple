@@ -189,7 +189,7 @@
                                                     <td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
                                                         {% for unitofmeasure in unitofmeasure %}
                                                             <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
-                                                            {% endif %}>{{ unitofmeasure.description }}</option>
+                                                            {% endif %}>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>
                                                         {% endfor %}</select></td>
                                                     <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='{{ rfdetailtemp.quantity }}'></td>
                                                     <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>

@@ -57,6 +57,7 @@ class Rfmain(models.Model):
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
     totalquantity = models.IntegerField(default=0)
+    totalremainingquantity = models.IntegerField(default=0)     # upon creation, this is equal to totalquantity
 
     class Meta:
         db_table = 'rfmain'
@@ -102,6 +103,12 @@ class Rfdetail(models.Model):
     postby = models.ForeignKey(User, related_name='rfdetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    # additional columns for RF-PRF transactions
+    isfullyprf = models.IntegerField(default=0)
+    # rfprftransaction_id
+    prftotalquantity = models.IntegerField(default=0)
+    prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 
 
     class Meta:
