@@ -27,7 +27,8 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
+        return Prfmain.objects.all().order_by('enterdate')[0:10]
+        # return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -103,6 +104,8 @@ class CreateView(CreateView):
             detailtemp = Prfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).order_by('enterdate')
             prfmain = Prfmain.objects.get(prfnum=prfnum)
             i = 1
+
+            # delete and update of prfdetailtemp and prfdetail (respectively)
             for dt in detailtemp:
                 detail = Prfdetail()
                 detail.item_counter = i
@@ -112,7 +115,6 @@ class CreateView(CreateView):
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                # detail.amount = self.request.POST.getlist('temp_amount')[i-1]
                 detail.amount = 0
                 detail.remarks = dt.remarks
                 detail.currency = dt.currency
@@ -125,6 +127,7 @@ class CreateView(CreateView):
                 detail.postdate = dt.postdate
                 detail.isdeleted = dt.isdeleted
                 detail.invitem = dt.invitem
+                detail.rfmain = dt.rfmain
                 detail.rfdetail = dt.rfdetail
                 detail.save()
                 dt.delete()
@@ -136,6 +139,9 @@ class CreateView(CreateView):
             prfmain.save()
 
             return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
+
+
+# class Rfprftransaction()
 
 
 class UpdateView(UpdateView):
@@ -185,6 +191,7 @@ class UpdateView(UpdateView):
             detailtemp.postdate = d.postdate
             detailtemp.invitem = d.invitem
             detailtemp.prfmain = d.prfmain
+            detailtemp.rfmain = d.rfmain
             detailtemp.rfdetail = d.rfdetail
             detailtemp.save()
 
@@ -244,6 +251,7 @@ class UpdateView(UpdateView):
                 alldetail.postby = atd.postby
                 alldetail.postdate = atd.postdate
                 alldetail.isdeleted = atd.isdeleted
+                alldetail.rfmain = atd.rfmain
                 alldetail.rfdetail = atd.rfdetail
                 alldetail.save()
                 atd.delete()
@@ -300,6 +308,7 @@ def importItems(request):
                         .raw('SELECT inv.unitcost, '
                                     'inv.id AS inv_id, '
                                     'rfm.rfnum, '
+                                    'rfm.id AS rfm_id, '
                                     'rfd.invitem_code, '
                                     'rfd.invitem_name, '
                                     'rfd.quantity, '
@@ -357,6 +366,7 @@ def importItems(request):
             detailtemp.modifyby = request.user
             detailtemp.secretkey = request.POST['secretkey']
             detailtemp.invitem = Inventoryitem.objects.get(pk=data.inv_id)
+            detailtemp.rfmain = Rfmain.objects.get(pk=data.rfm_id)
             detailtemp.rfdetail = Rfdetail.objects.get(pk=data.id)
             detailtemp.save()
 
@@ -475,3 +485,9 @@ def paginate(request, command, current, limit, search):
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
 
+
+def comments():
+    print 123
+    # quantity should not be higher than rf quantity
+    # filter to be imported rf based on rfprftrans
+    # control approved disapproved prf for rfprftransaction referencing and update of prf

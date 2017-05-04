@@ -55,6 +55,9 @@ class Rfmain(models.Model):
     postby = models.ForeignKey(User, related_name='rfmain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+    print_ctr = models.IntegerField(default=0)
+    totalquantity = models.IntegerField(default=0)
+    totalremainingquantity = models.IntegerField(default=0)     # upon creation, this is equal to totalquantity
 
     class Meta:
         db_table = 'rfmain'
@@ -84,7 +87,7 @@ class Rfdetail(models.Model):
     invitem_unitofmeasure = models.ForeignKey('unitofmeasure.Unitofmeasure', related_name='rfdetail_unitofmeasure_id')
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -100,6 +103,13 @@ class Rfdetail(models.Model):
     postby = models.ForeignKey(User, related_name='rfdetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    # additional columns for RF-PRF transactions
+    isfullyprf = models.IntegerField(default=0)
+    rfprftransaction = models.ForeignKey('purchaserequisitionform.rfprftransaction', related_name='rfprftransaction_id',
+                                         null=True, blank=True)
+    prftotalquantity = models.IntegerField(default=0)
+    prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 
 
     class Meta:
@@ -128,7 +138,7 @@ class Rfdetailtemp(models.Model):
                                               related_name='rfdetailtemp_unitofmeasure_id')
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

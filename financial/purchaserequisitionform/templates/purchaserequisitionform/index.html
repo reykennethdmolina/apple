@@ -18,10 +18,10 @@
                             <thead>
                                 <tr>
                                     <th><span>ID</span></th>
-                                    <th><span>No.</span></th>
+                                    <th><span>Number</span></th>
                                     <th><span>Date requested</span></th>
                                     <th><span>Particulars</span></th>
-                                    <th><span>Status</span></th>
+                                    <th><span>PRF Status</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
@@ -30,7 +30,7 @@
                                 <tr>
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.prfnum }}</td>
-                                    <td>{{ data.prfdate }}</td>
+                                    <td>{{ data.prfdate|date:"Y-m-d" }}</td>
                                     <td>{{ data.particulars }}</td>
                                     <td>{{ data.get_prfstatus_display }}</td>
                                     <td class="text-center">

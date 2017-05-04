@@ -28,6 +28,9 @@ class Prfmain(models.Model):
 
     PRF_TYPE_CHOICES = (
         ('MSRF', 'MSRF'),
+        # ('REGULAR', 'REGULAR'), fixed asset items only
+        # ('IMPRF', 'IMPORT RF'), # with importing
+        # ('REPLENISHMENT', 'REPLENISHMENT'), # manual add of items office supplies
     )
 
     URGENCY_CHOICES = (
@@ -89,6 +92,36 @@ class Prfmain(models.Model):
         return self.prfnum
 
 
+class rfprftransaction(models.Model):
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_rfprftransaction')
+    rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='rfdetail_rfprftransaction')
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_rfprftransaction')
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_rfprftransaction')
+    prfquantity = models.IntegerField()
+    prfstatus = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+
+    class Meta:
+        db_table = 'rfprftransaction'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('purchaserequisitionform:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.prfnum
+
+    def __unicode__(self):
+        return self.prfnum
+
+
 class Prfdetail(models.Model):
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -99,6 +132,7 @@ class Prfdetail(models.Model):
     )
 
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_prfdetail', null=True, blank=True)
     rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='rfdetail_prfdetail', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='prfdetail_invitem_id')
     currency = models.ForeignKey('currency.Currency', related_name='prfdetail_currency')
@@ -162,6 +196,7 @@ class Prfdetailtemp(models.Model):
     )
 
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='temp_prfmain_id', null=True, blank=True)
+    rfmain = models.ForeignKey('requisitionform.Rfmain', related_name='rfmain_prfdetailtemp', null=True, blank=True)
     rfdetail = models.ForeignKey('requisitionform.Rfdetail', related_name='temp_rfdetail_id', null=True, blank=True)
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='temp_prfdetail_id', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='temp_prfdetail_invitem_id')
@@ -183,6 +218,8 @@ class Prfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+    # print_ctr = models.IntegerField(default=0)
+    # fx_rate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -192,6 +229,7 @@ class Prfdetailtemp(models.Model):
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
 
     # CS
     # cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

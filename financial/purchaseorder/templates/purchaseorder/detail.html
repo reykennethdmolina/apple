@@ -225,54 +225,54 @@
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
-                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Canvass Summary</a></li>
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Summary</a></li>
                     </ul>
                     <div class="tab-content padding-top-0">
                         <div class="tab-pane active" id="profiles" role="tabpanel">
                             <div class="panel top-profile skill-profile margin-bottom-25">
                                 <div class="panel-body" style="padding:10px">
                                     <div class="widgett widgett-article widgett-shadow">
-                                        <div class="heading-top-index-2">
-                                            <table class="vattable">
-                                                <tr>
-                                                    <td><small><b>Quantity:</b></small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm" id="totalQty" disabled="disabled" value="{{ object.quantity }}"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><small><b>Amount:</b></small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                        <div class="heading-top-index-2">
-                                            <table class="vattable">
-                                                <tr>
-                                                    <td><small>VATable&nbsp;Purchase:</small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatable }}"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatexempt }}"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatzerorated }}"></td>
-                                                </tr>
-                                                <tr><td colspan="0"><br></td></tr>
-                                                <tr>
-                                                    <td><small><b>Total&nbsp;Purchase:</b></small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><small><b>Add&nbsp;VAT:</b></small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatamount }}"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><small><b>Total&nbsp;Amount:</b></small></td>
-                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.netamount }}"></td>
-                                                </tr>
-                                            </table>
-                                        </div>
+{#                                        <div class="heading-top-index-2">#}
+{#                                            <table class="vattable">#}
+{#                                                <tr>#}
+{#                                                    <td><small><b>Quantity:</b></small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm" id="totalQty" disabled="disabled" value="{{ object.quantity }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small><b>Amount:</b></small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>#}
+{#                                                </tr>#}
+{#                                            </table>#}
+{#                                        </div>#}
+{#                                        <div class="heading-top-index-2">#}
+{#                                            <table class="vattable">#}
+{#                                                <tr>#}
+{#                                                    <td><small>VATable&nbsp;Purchase:</small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatable }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small>VAT-Exempt&nbsp;Purchase:</small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatexempt }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatzerorated }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr><td colspan="0"><br></td></tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small><b>Total&nbsp;Purchase:</b></small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small><b>Add&nbsp;VAT:</b></small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatamount }}"></td>#}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <td><small><b>Total&nbsp;Amount:</b></small></td>#}
+{#                                                    <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.netamount }}"></td>#}
+{#                                                </tr>#}
+{#                                            </table>#}
+{#                                        </div>#}
                                     </div>
                                 </div>
                             </div>

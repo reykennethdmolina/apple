@@ -55,7 +55,7 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Pomain
-    template_name = 'purchaseorder/create2.html'
+    template_name = 'purchaseorder/create.html'
     fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'supplier', 'ataxcode', 'inputvat',
               'creditterm', 'particulars']
 
@@ -324,7 +324,7 @@ def importsuppliers(request):
                                       isdeleted=0)
         prfdata = [prfmain.prfnum]
 
-        itemsuppliers = Prfmain.objects.raw('SELECT a.id, a.prfnum, b.csmain_id, d.supplier_id, d.suppliercode, '
+        itemsuppliers = Prfmain.objects.raw('SELECT DISTINCT a.id, a.prfnum, d.supplier_id, d.suppliercode, '
                                             'd.suppliername FROM prfmain a JOIN csdata b ON b.prfmain_id = a.id '
                                             'JOIN csmain c ON b.csmain_id = c.id JOIN csdetail d ON c.id = d.csmain_id '
                                             'WHERE a.prfnum = "' + request.POST['prfnum'] + '" '
@@ -337,7 +337,6 @@ def importsuppliers(request):
             for data in itemsuppliers:
                 prfsupplier_list.append([data.id,
                                          data.prfnum,
-                                         data.csmain_id,
                                          data.supplier_id,
                                          data.suppliercode,
                                          data.suppliername])

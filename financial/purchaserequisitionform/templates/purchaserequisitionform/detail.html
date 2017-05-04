@@ -151,7 +151,7 @@
                                                 <th>Unit of Measure</th>
                                                 <th>Currency</th>
                                                 <th style="width:90px">Quantity</th>
-                                                <th>CS Cost</th>
+                                                <th>Cost</th>
                                                 <th>Amount</th>
                                             </tr>
                                         </thead>
@@ -166,8 +166,8 @@
                                                     <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
                                                     <td>{{ prfdetail.currency.symbol }}</td>
                                                     <td>{{ prfdetail.quantity }}</td>
-                                                    <td>{{ prfdetail.invitem.unitcost }}</td>
-                                                    <td>{{ prfdetail.amount }}</td>
+                                                    <td>{{ prfdetail.cost }}</td>
+                                                    <td>{{ prfdetail.netamount }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

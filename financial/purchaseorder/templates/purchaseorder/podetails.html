@@ -95,7 +95,7 @@
                 success: function(response) {
                     var supplier_list = '';
                     for (var i = 0; i < response.prfsuppliers.length; i++){
-                        supplier_list += "<li data-id='" + response.prfsuppliers[i][3] + "'>" + response.prfsuppliers[i][5] + "</li>";
+                        supplier_list += "<li data-id='" + response.prfsuppliers[i][2] + "'>" + response.prfsuppliers[i][4] + "</li>";
                     }
 
                     if(response.prfdata != "[]"){
