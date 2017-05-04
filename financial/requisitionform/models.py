@@ -106,7 +106,8 @@ class Rfdetail(models.Model):
 
     # additional columns for RF-PRF transactions
     isfullyprf = models.IntegerField(default=0)
-    # rfprftransaction_id
+    rfprftransaction = models.ForeignKey('purchaserequisitionform.rfprftransaction', related_name='rfprftransaction_id',
+                                         null=True, blank=True)
     prftotalquantity = models.IntegerField(default=0)
     prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 

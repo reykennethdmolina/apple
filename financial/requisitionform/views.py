@@ -123,6 +123,7 @@ class CreateView(CreateView):
             self.object.rfnum = rfnum
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user
+            self.object.totalremainingquantity = self.request.POST['totalquantity']
             self.object.save()
 
             detailtemp = Rfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
@@ -151,6 +152,7 @@ class CreateView(CreateView):
                 detail.postby = dt.postby
                 detail.postdate = dt.postdate
                 detail.isdeleted = dt.isdeleted
+                detail.prfremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
                 detail.save()
                 dt.delete()
                 i += 1
