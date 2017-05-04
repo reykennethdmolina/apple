@@ -15,11 +15,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='rfdetail',
-            name='rfprftransaction',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='rfprftransaction_id', to='purchaserequisitionform.rfprftransaction'),
-        ),
         migrations.AlterField(
             model_name='rfdetail',
             name='enterdate',

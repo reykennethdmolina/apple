@@ -27,7 +27,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Currency
     template_name = 'currency/create.html'
-    fields = ['code', 'symbol', 'description', 'country']
+    fields = ['code', 'symbol', 'description', 'country', 'fxrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('currency.add_currency'):
@@ -46,7 +46,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Currency
     template_name = 'currency/edit.html'
-    fields = ['code', 'symbol', 'description', 'country']
+    fields = ['code', 'symbol', 'description', 'country', 'fxrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('currency.change_currency'):
@@ -57,7 +57,7 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['symbol', 'description', 'country', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['symbol', 'description', 'country', 'fxrate', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/currency')
 
 
