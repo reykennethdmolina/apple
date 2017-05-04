@@ -322,6 +322,11 @@ class Pdf(PDFTemplateView):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+
+        printedrf = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedrf.print_ctr += 1
+        printedrf.save()
+
         return context
 
 
