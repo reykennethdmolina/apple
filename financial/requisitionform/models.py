@@ -55,6 +55,7 @@ class Rfmain(models.Model):
     postby = models.ForeignKey(User, related_name='rfmain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+    print_ctr = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'rfmain'

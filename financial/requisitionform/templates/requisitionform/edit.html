@@ -170,9 +170,10 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                <th style="width:120px">Item Code</th>
                                                 <th>Item Name</th>
                                                 <th style="width:350px">Remarks</th>
-                                                <th style="width:170px">Unit of Measure</th>
+                                                <th style="width:150px">Unit of Measure</th>
                                                 <th style="width:120px">Requested Qty</th>
                                                 <th style="width:50px"></th>
                                             </tr>
@@ -181,6 +182,7 @@
                                             {% for rfdetailtemp in rfdetailtemp %}
                                                 <tr>
                                                     <td>{{ rfdetailtemp.item_counter }}</td>
+                                                    <td>{{ rfdetailtemp.invitem_code }}</td>
                                                     <td>{{ rfdetailtemp.invitem_name }}</td>
                                                     <td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='{{ rfdetailtemp.remarks }}'></td>
                                                     <td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
@@ -188,7 +190,7 @@
                                                             <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
                                                             {% endif %}>{{ unitofmeasure.description }}</option>
                                                         {% endfor %}</select></td>
-                                                    <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity' value='{{ rfdetailtemp.quantity }}'></td>
+                                                    <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='{{ rfdetailtemp.quantity }}'></td>
                                                     <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
                                                 </tr>
                                             {% endfor %}

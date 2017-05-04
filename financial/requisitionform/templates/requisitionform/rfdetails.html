@@ -8,14 +8,14 @@
                 <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                     <option value="">-- Select Item --</option>
                     {% for invitem in invitem %}
-                        <option value="{{ invitem.id }}" data-um="{{ invitem.unitofmeasure }}">{{ invitem.description }}</option>
+                        <option value="{{ invitem.id }}" data-code="{{ invitem.code }}" data-um="{{ invitem.unitofmeasure }}">{{ invitem.description }}</option>
                     {% endfor %}
                 </select>
                 <span class="help-block form-error"></span>
             </div>
             <label class="col-sm-3 control-label" for="quantity">Requested Quantity</label>
             <div class="col-sm-3">
-                <input type="number" max="100" class="form-control input-sm" id="id_quantity" name="quantity">
+                <input type="number" max="100" class="form-control input-sm text-right" id="id_quantity" name="quantity">
                 <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
             </div>
         </div>
@@ -63,11 +63,12 @@
                         um_selected = $("#id_item_name option:selected").data('um');
 
                         summary.append("<tr><td></td>" +
+                                "<td>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
                                 "<td>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
                                 "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
                                 "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                 "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
-                                "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity' value='" + response.quantity + "'></td>" +
+                                "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='" + response.quantity + "'></td>" +
                                 "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                 "</tr>");
 
