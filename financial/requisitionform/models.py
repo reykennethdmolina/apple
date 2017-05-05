@@ -154,6 +154,11 @@ class Rfdetailtemp(models.Model):
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
 
+    # additional columns for RF-PRF transactions
+    isfullyprf = models.IntegerField(default=0)
+    prftotalquantity = models.IntegerField(default=0)
+    prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
+
     class Meta:
         db_table = 'rfdetailtemp'
         ordering = ['-pk']

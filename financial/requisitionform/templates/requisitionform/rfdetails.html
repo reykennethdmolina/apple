@@ -133,8 +133,14 @@
                 totalRequestedQty += parseFloat($(this).val());
             });
 
+            var totalRemainingQuantity = 0;
+            totalRemainingQuantity = {{ totalremainingquantity }};
+            var totalPrfQuantity = totalRequestedQty - totalRemainingQuantity;
+
             $("#totalrequestedquantity").text(totalRequestedQty);
             $("#id_totalquantity").val(totalRequestedQty);
+            $("#totalremainingquantity").text(totalRemainingQuantity);
+            $("#totalprfquantity").text(totalPrfQuantity);
         }
     });
 </script>
