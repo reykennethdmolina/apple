@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='rfprftransaction',
-            old_name='prfstatus',
-            new_name='status',
-        ),
         migrations.AlterField(
             model_name='prfdetail',
             name='modifydate',
