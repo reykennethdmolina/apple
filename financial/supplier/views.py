@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from . models import Supplier
+from creditterm.models import Creditterm
+from currency.models import Currency
 from ataxcode.models import Ataxcode
 from vat.models import Vat
-from inputvat.models import Inputvat
+from inputvattype.models import Inputvattype
 from django.core import serializers
 from django.db.models import Q
 import datetime
@@ -38,7 +40,7 @@ class CreateView(CreateView):
     model = Supplier
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'ataxcode', 'vat', 'inputvat', 'inputvatrate']
+              'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat', 'atc', 'currency']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -48,6 +50,9 @@ class CreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.multiplestatus = 'N'
+        self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
+        self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+        self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -55,9 +60,11 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('description')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -66,7 +73,7 @@ class UpdateView(UpdateView):
     model = Supplier
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'ataxcode', 'vat', 'inputvat', 'inputvatrate']
+              'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat', 'atc', 'currency']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -75,17 +82,23 @@ class UpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.multiplestatus = 'Y'
-        self.object.enterby = self.request.user
+        self.object.multiplestatus = 'N'
+        self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
+        self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+        self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
         self.object.modifyby = self.request.user
-        self.object.save()
+        self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
+                                        'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat',
+                                        'atc', 'currency', 'fxrate', 'vatrate', 'atcrate', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('description')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -107,6 +120,7 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/supplier')
+
 
 def paginate(request, command, current, limit, search):
     current = int(current)

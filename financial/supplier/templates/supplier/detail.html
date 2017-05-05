@@ -19,8 +19,8 @@
                                 <div class="row">
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Code&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.code }}</span>
+                                            <span class="text-name-profile text-info" style="width: 35%;">Code&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.code }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -31,26 +31,32 @@
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <br><span class="text-name-profile text-info">Address 1&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.address1 }}</span>
+                                            <br><span class="text-name-profile text-info" style="width: 20%;">Address&nbsp;1&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left;">{{ object.address1 }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Address 2&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.address2 }}</span>
+                                            <span class="text-name-profile text-info" style="width: 20%;">Address&nbsp;2&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left;">{{ object.address2 }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Address 3&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.address3 }}</span>
+                                            <span class="text-name-profile text-info" style="width: 20%;">Address&nbsp;3&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left;">{{ object.address3 }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info" style="width: 20%;">Contact&nbsp;Person&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left;">{{ object.contactperson }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <br><span class="text-name-profile text-info">Tel. No&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.telno }}</span>
+                                            <br><span class="text-name-profile text-info" style="width: 35%;">Tel.&nbsp;No&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.telno }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -61,8 +67,8 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Fax No.&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.faxno }}</span>
+                                            <span class="text-name-profile text-info" style="width: 35%;">Fax No.&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.faxno }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -73,26 +79,50 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <br><span class="text-name-profile text-info">ATax&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.ataxcode.description }} ({{ object.ataxcode.rate }}%)</span>
+                                            <br><span class="text-name-profile text-info" style="width: 35%;">Credit&nbsp;Terms&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.creditterm.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <br><span class="text-name-profile text-info">VAT&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.vat.description }} ({{ object.vat.rate }}%)</span>
+                                            <br><span class="text-name-profile text-info">Currency&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.currency.description }} ({{ object.currency.symbol }}%)</span>
+                                            <br><span class="text-name-profile text-info"><small>FX Rate&nbsp;: </small></span>
+                                            <span class="detail-profile"><small>{{ object.fxrate }}</small></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Input VAT&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.inputvat }} ({{ object.inputvatrate }}%)</span>
+                                            <br><span class="text-name-profile text-info" style="width: 35%;">Input&nbsp;VAT&nbsp;Type&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.inputvattype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Multiple Status&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.get_multiplestatus_display }}</span>
+                                            <br><span class="text-name-profile text-info">Deferred&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.get_inputvattype_deferred_display }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br><span class="text-name-profile text-info" style="width: 35%;">VAT&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.vat.description }}</span>
+                                            <br><span class="text-name-profile text-info" style="width: 35%;"><small>VAT Rate&nbsp;: </small></span>
+                                            <span class="detail-profile" style="float: left; width: 65%;"><small>{{ object.vatrate }}%</small></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br><span class="text-name-profile text-info">ATC&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.atc.description }}</span>
+                                            <br><span class="text-name-profile text-info"><small>ATC Rate&nbsp;: </small></span>
+                                            <span class="detail-profile"><small>{{ object.atcrate }}%</small></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br><span class="text-name-profile text-info" style="width: 35%;">Multiple&nbsp;Status&nbsp;: </span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.get_multiplestatus_display }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">

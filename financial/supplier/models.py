@@ -27,10 +27,7 @@ class Supplier(models.Model):
     telno = models.CharField(max_length=20, blank=True, null=True)
     faxno = models.CharField(max_length=20, blank=True, null=True)
     zipcode = models.CharField(max_length=10, blank=True, null=True)
-    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_id', validators=[MinValueValidator(1)])
-    vat = models.ForeignKey('vat.Vat', related_name='vat_id', validators=[MinValueValidator(1)])
-    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_id', validators=[MinValueValidator(1)])
-    inputvatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+
     multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='supplier_enter')
@@ -38,6 +35,18 @@ class Supplier(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='supplier_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
+
+    # added/modified fields
+    contactperson = models.CharField(max_length=250)
+    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='supplier_creditterm_id')
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='supplier_inputvattype_id')
+    inputvattype_deferred = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id', validators=[MinValueValidator(1)])
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='supplier_atc_id', validators=[MinValueValidator(1)])
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    currency = models.ForeignKey('currency.Currency', related_name='supplier_currency_id', default=1)
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     class Meta:
         db_table = 'supplier'
