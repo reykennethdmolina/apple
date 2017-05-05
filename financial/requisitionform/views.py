@@ -167,7 +167,8 @@ class UpdateView(UpdateView):
               'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('requisitionform.change_rfmain'):
+        self.object = self.get_object()
+        if not request.user.has_perm('requisitionform.change_rfmain') or self.object.isdeleted == 1:
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -301,7 +302,8 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status == 'O' or self.object.rfstatus == 'A':
+        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status != 'A' or \
+                        self.object.rfstatus != 'F' or self.object.isdeleted == 1:
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -311,6 +313,7 @@ class DeleteView(DeleteView):
         self.object.modifydate = datetime.datetime.now()
         self.object.isdeleted = 1
         self.object.status = 'C'
+        self.object.rfstatus = 'D'
         self.object.save()
         return HttpResponseRedirect('/requisitionform')
 
@@ -409,7 +412,7 @@ def paginate(request, command, current, limit, search):
                                              Q(rfdate__icontains=search_not_slug) |
                                              Q(particulars__icontains=search_not_slug) |
                                              Q(rfstatus__icontains=search_not_slug))\
-                                            .filter(isdeleted=0).order_by('-enterdate')
+                                            .order_by('-enterdate')
     else:
         rfmain = Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
 
