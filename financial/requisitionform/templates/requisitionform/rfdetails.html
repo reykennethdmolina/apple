@@ -22,7 +22,7 @@
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label">Remarks</label>
             <div class="col-sm-5">
-                <textarea class="form-control input-sm" id="id_remarks" name="remarks" rows="5"></textarea>
+                <textarea class="form-control input-sm remarks-editor" id="id_remarks" name="remarks" rows="5"></textarea>
                 <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
             </div>
         </div>
@@ -36,6 +36,16 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
         computeTotalRequestedQty();
+        resetItems();
+        $('.remarks-editor').wysihtml5({
+            "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
+            "emphasis": false, //Italics, bold, etc. Default true
+            "lists": false, //(Un)ordered lists, e.g. Bullets, Numbers. Default true
+            "html": false, //Button which allows you to edit the generated HTML. Default false
+            "link": false, //Button to insert a link. Default true
+            "image": false, //Button to insert an image. Default true,
+            "color": false //Button to change color of font
+        });
 
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
@@ -63,24 +73,30 @@
                         um_selected = $("#id_item_name option:selected").data('um');
 
                         var invname = $("#id_item_name option:selected").text().split('|');
+                        var itemid = $("#id_item_name").val();
 
                         summary.append("<tr><td></td>" +
                                 "<td>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
                                 "<td>" +  invname[1] + "</td>" +
-                                "<td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='" + response.remarks + "'></td>" +
+                                "<td><div><div class='col-sm-11 row'><textarea class='form-control input-sm input-remarks' id='id_temp_remarks[" + response.itemno + "]' name='temp_remarks' form='form-b'>" + response.remarks + "</textarea></div>" +
+                                "<div class='col-sm-1'><button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.itemno + "'>...</button></div></div></td>" +
                                 "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                 "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
                                 "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='" + response.quantity + "'></td>" +
-                                "<td><button class='btn remove_item' data-itemno='" + response.itemno + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                                "<td><button class='btn remove_item' data-itemno='" + response.itemno + "' data-itemid='" + itemid + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                 "</tr>");
 
                         summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
 
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_quantity").val('');
-                        $("#id_remarks").val('');
+                        $('#id_remarks').data("wysihtml5").editor.setValue('');
+
                         reorderItems();
                         computeTotalRequestedQty();
+                        resetItems();
+                        callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
+
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -89,6 +105,24 @@
                     }
                 });
             }
+        });
+
+        function callEventHandler(i){
+            var editor = new wysihtml5.Editor("id_temp_remarks["+i+"]");
+        }
+
+        $(document).on("click", ".showRemarks", function(e){
+            $('#remarks_itemno').val($(this).data('itemno'));
+            $('#id_modal_remarks').data("wysihtml5").editor.setValue($(this).parent().siblings().find('.input-remarks').val());
+        });
+
+        $(document).on("click", "#save_remarks", function(e){
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').next().next().remove();
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').prev().remove();
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').css('display', 'block');
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').val($('#id_modal_remarks').val());
+            callEventHandler($('#remarks_itemno').val());
+            $('#remarksModal').modal('hide');
         });
 
         $(document).on('click', '.remove_item', function(){
@@ -107,6 +141,7 @@
                     elem.parent().parent().remove();
                     reorderItems();
                     computeTotalRequestedQty();
+                    resetItems();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -123,7 +158,19 @@
         function reorderItems(){
             len = summary.find('tr').find('td:eq(0)').length;
             for(i=0;i<len;i++){
-                summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
+                //change displayed item counter
+                summary.find('tr:eq(' + i + ')').find('td:eq(0)').html(i + 1);
+
+                //change data-itemno in .remove-item
+                $('.remove_item:eq(' + i + ')').attr('data-itemno', i + 1);
+                $('.remove_item:eq(' + i + ')').removeData('itemno');
+
+                //change data-itemno in .showRemarks
+                $('.showRemarks:eq(' + i + ')').attr('data-itemno', i + 1);
+                $('.showRemarks:eq(' + i + ')').removeData('itemno');
+
+                //change id index of id_temp_remarks[]
+                jQuery($('.input-remarks:eq(' + i + ')')).attr('id', 'id_temp_remarks[' + (i + 1) + ']');
             }
         }
 
@@ -133,8 +180,23 @@
                 totalRequestedQty += parseFloat($(this).val());
             });
 
+            var totalRemainingQuantity = 0;
+            totalRemainingQuantity = {{ totalremainingquantity }};
+            var totalPrfQuantity = totalRequestedQty - totalRemainingQuantity;
+
             $("#totalrequestedquantity").text(totalRequestedQty);
             $("#id_totalquantity").val(totalRequestedQty);
+            $("#totalremainingquantity").text(totalRemainingQuantity);
+            $("#totalprfquantity").text(totalPrfQuantity);
+        }
+
+        function resetItems(){
+            $('#id_item_name').find('option').prop("disabled",false);
+            $('.remove_item').each(function(){
+                $('#id_item_name').find('option[value=' + $(this).data('itemid') + ']').prop("disabled", true);
+                $('#id_item_name').select2("destroy");
+                $('#id_item_name').select2();
+            });
         }
     });
 </script>

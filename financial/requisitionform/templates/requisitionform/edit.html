@@ -5,6 +5,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -16,11 +17,11 @@
                         <input type="hidden" name="totalquantity" id="id_totalquantity" value="0"/>
                         <div class="row col-md-12 row-lg margin-bottom-20">
                             <h3 class="panel-title" style="padding-bottom: 0px;">UPDATE</h3>
-                            {% if perms.requisitionform.delete_rfmain and object.status != 'O' and object.rfstatus != 'A' %}
+                            {% if perms.requisitionform.delete_rfmain and object.rfstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                             <a href="{% url 'requisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
-                                    <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Delete
+                                    <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
                                 </button>
                             </a>
                             {% endif %}
@@ -30,8 +31,10 @@
                                     <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
                                 </button>
                             </a>
+                            {% if object.rfstatus == 'A' %}
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" data-toggle="modal"
                                 data-target="#myModal"><i class="icon fa-list-ul" aria-hidden="true"></i>&nbsp; PRF</button>
+                            {% endif %}
                             <a href="{% url 'requisitionform:detail' object.id %}" class="floatright">
                                 <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
@@ -124,7 +127,7 @@
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_rfstatus">RF Status</label>
                                 <input type="text" class="form-control input-sm" id="id_rfstatus" value="{{ rfstatus }}"
-                                       readonly="readonly">
+                                       readonly="readonly" {% if rfstatus == 'Approved' %} style="font-weight: bolder;" {% endif %}>
                             </div>
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
@@ -142,7 +145,9 @@
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
+                                {% if rfstatus != 'Approved' %}
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>
+                                {% endif %}
 {#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
                             </div>
                         </div>
@@ -164,9 +169,38 @@
                                 <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
-                                    <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
-                                    <span id="totalrequestedquantity">0</span>
-                                    </label><br><br>
+                                    <table class="floatright margin-bottom-10">
+                                        <tr>
+                                            <td width="200px">
+                                                <label class="control-label float-left">Total&nbsp;Requested&nbsp;Qty:</label>
+                                            </td>
+                                            <td class="text-align-right">
+                                                <label class="control-label">
+                                                    <span id="totalrequestedquantity" class="text-right">0</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        {% if rfstatus == 'Approved' %}<tr>
+                                            <td width="200px">
+                                                <label class="control-label float-left">Total&nbsp;PRF&nbsp;Qty:</label>
+                                            </td>
+                                            <td class="text-align-right">
+                                                <label class="control-label">
+                                                    <span id="totalprfquantity">0</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="control-label float-left">Total&nbsp;Remaining&nbsp;Qty:</label>
+                                            </td>
+                                            <td class="text-align-right">
+                                                <label class="control-label">
+                                                    <span id="totalremainingquantity">0</span>
+                                                </label>
+                                            </td>
+                                        </tr>{% endif %}
+                                    </table>
                                     <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
@@ -174,9 +208,13 @@
                                                 <th style="width:120px">Item Code</th>
                                                 <th>Item Name</th>
                                                 <th style="width:350px">Remarks</th>
-                                                <th style="width:150px">Unit of Measure</th>
-                                                <th style="width:120px">Requested Qty</th>
-                                                <th style="width:50px"></th>
+                                                <th style="width:150px; text-align: center">Unit of Measure</th>
+                                                <th style="width:120px; text-align: center">Requested Qty</th>
+                                                {% if rfstatus != 'Approved' %}<th style="width:50px"></th>{% endif %}
+                                                {% if rfstatus == 'Approved' %}
+                                                    <th style="width:100px; text-align: right">PRF Qty</th>
+                                                    <th style="width:100px; text-align: right">Remaining Qty</th>
+                                                {% endif %}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -185,14 +223,21 @@
                                                     <td>{{ rfdetailtemp.item_counter }}</td>
                                                     <td>{{ rfdetailtemp.invitem_code }}</td>
                                                     <td>{{ rfdetailtemp.invitem_name }}</td>
-                                                    <td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='{{ rfdetailtemp.remarks }}'></td>
-                                                    <td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
+                                                    <td><div><div class='col-sm-11 row'><textarea class='form-control input-sm input-remarks' id='id_temp_remarks[{{ rfdetailtemp.item_counter }}]' name='temp_remarks' form='form-b'>{{ rfdetailtemp.remarks }}</textarea></div>
+                                                        <div class='col-sm-1'><button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='{{ rfdetailtemp.item_counter }}'>...</button></div></div></td>
+                                                    <td><select class='form-control input-sm tbl-um' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
                                                         {% for unitofmeasure in unitofmeasure %}
                                                             <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
                                                             {% endif %}>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>
                                                         {% endfor %}</select></td>
                                                     <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='{{ rfdetailtemp.quantity }}'></td>
-                                                    <td><button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button></td>
+                                                    {% if rfstatus != 'Approved' %}<td>
+                                                        <button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}' data-itemid='{{ rfdetailtemp.invitem.id }}'><i class='icon fa-remove' aria-hidden='true'></i></button>
+                                                    </td>{% endif %}
+                                                    {% if rfstatus == 'Approved' %}
+                                                    <td style="width:100px; text-align: right"><strong>{{ rfdetailtemp.prftotalquantity }}</strong></td>
+                                                    <td style="width:100px; text-align: right"><strong>{{ rfdetailtemp.prfremainingquantity }}</strong></td>
+                                                    {% endif %}
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -252,14 +297,43 @@
         </div>
     </div>
 </div>
+<div id="remarksModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> <span id="modal-header-title">Remarks</span></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="hidden" id="remarks_itemno">
+                    <textarea name="remarks" id="id_modal_remarks" class="form-control remarks-editor" rows="10"></textarea>
+                    <br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="save_remarks">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             reorderItems();
+
+            var i = 1;
+            $.each($('.input-remarks'), function() {
+                var editor = new wysihtml5.Editor("id_temp_remarks[" + i + "]");
+                i += 1;
+            });
 
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
@@ -275,7 +349,7 @@
             }
 
             $("#form-b").submit(function(event){
-                if($('.remove_item').length == 0) {
+                if($('.tblInputQuantity').length == 0) {
                     alert("Please add at least one item.");
                     event.preventDefault();
                 }
@@ -287,5 +361,25 @@
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
+
+        $(document).ready(function() {
+            var rfstatus = "{{ rfstatus }}";
+
+            if(rfstatus == "Approved"){
+                $("#id_rfdate").prop("readonly", true);
+                $("#id_rfdate").datepicker("destroy");
+                $("#id_rfdate").removeClass("datepicker").removeAttr('id');
+                $("#id_refnum").prop("readonly", true);
+                $("#id_branch option:selected").siblings().attr('disabled','disabled');
+                $("#id_urgencytype option:selected").siblings().attr('disabled','disabled');
+                $("#id_dateneeded").prop("readonly", true);
+                $("#id_dateneeded").datepicker("destroy");
+                $("#id_dateneeded").removeClass("datepicker").removeAttr('id');
+                $("#id_department option:selected").siblings().attr('disabled','disabled');
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $(".tbl-um option:selected").siblings().attr('disabled','disabled');
+                $(".tblInputQuantity").prop("readonly", true);
+            }
+        });
     </script>
 {% endblock extra_js %}

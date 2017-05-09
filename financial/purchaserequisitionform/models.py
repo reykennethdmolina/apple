@@ -60,7 +60,8 @@ class Prfmain(models.Model):
     actualapprover = models.ForeignKey(User, related_name='prfactual_approver', null=True, blank=True)
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
+    print_ctr = models.IntegerField(default=0)
 
     # vat
     quantity = models.IntegerField()
@@ -92,7 +93,7 @@ class Prfmain(models.Model):
         return self.prfnum
 
 
-class rfprftransaction(models.Model):
+class Rfprftransaction(models.Model):
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -106,7 +107,7 @@ class rfprftransaction(models.Model):
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_rfprftransaction')
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_rfprftransaction')
     prfquantity = models.IntegerField()
-    prfstatus = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
     class Meta:
         db_table = 'rfprftransaction'
@@ -143,7 +144,7 @@ class Prfdetail(models.Model):
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     item_counter = models.IntegerField()
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='prfdetail_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
@@ -152,6 +153,8 @@ class Prfdetail(models.Model):
     postby = models.ForeignKey(User, default=1, related_name='prfdetail_post', null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -208,7 +211,7 @@ class Prfdetailtemp(models.Model):
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     item_counter = models.IntegerField()
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='prfdetailtemp_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
@@ -218,8 +221,8 @@ class Prfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
-    # print_ctr = models.IntegerField(default=0)
-    # fx_rate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
+
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

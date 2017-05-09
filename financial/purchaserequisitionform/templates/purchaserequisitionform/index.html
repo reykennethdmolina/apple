@@ -36,16 +36,16 @@
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">
-                                                <a href="{% url 'purchaserequisitionform:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                <a href="{% url 'purchaserequisitionform:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
                                                 {% if perms.purchaserequisitionform.change_prfmain %}
-                                                <a href="{% url 'purchaserequisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <a href="{% url 'purchaserequisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
                                                 {% endif %}
                                                 {% if perms.purchaserequisitionform.delete_prfmain and data.status != 'O' %}
-                                                <a href="{% url 'purchaserequisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                                <a href="{% url 'purchaserequisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
                                                 {% endif %}

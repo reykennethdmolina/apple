@@ -9,7 +9,7 @@
                     <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                         <option value="">-- Select Item --</option>
                         {% for invitem in invitem %}
-                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.description }} ({{ invitem.unitofmeasure.code }})</option>
+                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.code  }} - {{ invitem.description }}</option>
                         {% endfor %}
                     </select>
                     <span class="help-block form-error">{{ form.item_name.errors.as_text }}</span>
@@ -27,7 +27,7 @@
                 <div class="col-sm-4">
                     <select class="form-control input-sm" required style="width: 100%" id="id_currency" name="currency">
                         {% for currency in currency %}
-                            <option value="{{ currency.id }}" {% if form.currency.value == currency.id %} selected {% elif currency.symbol == "PHP" %} selected {% else %} disabled {% endif %}>{{ currency.symbol }} ({{ currency.description }})</option>
+                            <option value="{{ currency.id }}" {% if form.currency.value == currency.id %} selected {% elif currency.symbol == "PHP" %} selected {% endif %}>{{ currency.symbol }} ({{ currency.description }})</option>
                         {% endfor %}
                     </select>
                     <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
@@ -52,6 +52,7 @@
         summary = $("#summary tbody");
         filterItems();
         inventorytypeimportDisable();
+        computeTotalRequestedQty();
 
         $("#form-b").submit(function(event){
             if($('.remove_item').length == 0) {
@@ -92,11 +93,16 @@
                                     "<td> - </td>" +
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
-                                        "<select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
+                                        "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                             "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                         "</select>" +
                                     "</td>" +
-                                    "<td>" + response.currency + "</td>" +
+                                    "<td>" +
+                                        "<select class='form-control input-sm temp_item_currency' required style='width: 100%' name='temp_item_currency' form='form-b'>" +
+                                            "{% for currency in currency %} <option value='{{ currency.id }}' data-fxrate='{{ currency.fxrate }}'>{{ currency.symbol }}</option>{% endfor %}" +
+                                        "</select>" +
+                                    "</td>" +
+                                    "<td><input type='number' name='temp_fxrate' form='form-b' step='any' class='form-control input-sm temp_fxrate' value='0.00000'></td>" +
                                     "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
@@ -105,6 +111,8 @@
                         summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
                     }
 
+                    $(summary).find('tr').last().find('.temp_item_currency').val($('#id_currency').val());
+
                     $("#id_item_name").val('').trigger('change.select2');
                     $("#id_quantity").val('');
                     $("#id_remarks").val('');
@@ -112,6 +120,8 @@
                     reorderItems();
                     totalQuantity();
                     inventorytypeimportDisable();
+                    computeFxRateAll();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -143,15 +153,20 @@
                                         "<td>" + response.prfdata[i][1] + "</td>" +
                                         "<td>" + response.prfdata[i][4] + "</td>" +
                                         "<td>" + response.prfdata[i][3] + "</td>" +
-                                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][5] + "'></td>" +
+                                        "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][10] + "' min='1' max='" + response.prfdata[i][10] + "'></td>" +
                                         "<td>" +
                                             "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                                 "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                             "</select>" +
                                         "</td>" +
-                                        "<td> PHP </td>" +
+                                        "<td>" +
+                                            "<select class='form-control input-sm temp_item_currency' required style='width: 100%' name='temp_item_currency' form='form-b'>" +
+                                                "{% for currency in currency %} <option value='{{ currency.id }}' data-fxrate='{{ currency.fxrate }}'>{{ currency.symbol }}</option>{% endfor %}" +
+                                            "</select>" +
+                                        "</td>" +
+                                        "<td><input type='number' name='temp_fxrate' form='form-b' step='any' class='form-control input-sm temp_fxrate' value='0.00000'></td>" +
                                         "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
-                                        "<td><button class='btn remove_item' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                                        "<td><button class='btn remove_item' data-rf='" + response.prfdata[i][3] + "' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                         "</tr>");
 
                             summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
@@ -161,6 +176,8 @@
                     reorderItems();
                     totalQuantity();
                     inventorytypeimportDisable();
+                    computeFxRateAll();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -187,6 +204,7 @@
                     reorderItems();
                     inventorytypeimportDisable();
                     totalQuantity();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -225,6 +243,45 @@
                 $("#importconfirm").prop('disabled', true);
             }
         });
+
+        $(document).on('click', '#importbutton', function(){
+            $('#importrfselect2').find('option').prop( "disabled", false );
+            $('.remove_item').each(function(index){
+                $('#importrfselect2').find('option[data-rfnum=' + $(this).data('rf') + ']').prop( "disabled", true );
+                $('#importrfselect2').select2("destroy");
+                $('#importrfselect2').select2();
+            });
+            resetRfOptions();
+        });
+
+        $(document).on('change', '.temp_item_currency', function(){
+            computeFxrateSingle($(this));
+        });
+
+        $(document).on('change', '.temp_quantity', function(){
+            computeTotalRequestedQty();
+        });
+
+        function computeFxRateAll(){
+            $('.temp_item_currency').each(function(){
+                if(parseFloat($(this).parent().parent().find('.temp_fxrate').val()) == parseFloat(0.00000)){
+                    $(this).parent().parent().find('.temp_fxrate').val(parseFloat($(this).children('option:selected').data('fxrate')));
+                }
+            });
+        }
+
+        function computeFxrateSingle(e){
+            e.parent().parent().find('.temp_fxrate').val(parseFloat(e.children('option:selected').data('fxrate')));
+        }
+
+        function resetRfOptions(){
+            $('#importrfselect2').val('').trigger('change');
+            $('#importrfpreview td').html(" - ");
+
+            $("#importrfselect2").select2({
+                dropdownParent: $("#myModal")
+            });
+        }
 
         function reorderItems(){
             len = summary.find('tr').find('td:eq(0)').length;
@@ -265,6 +322,15 @@
             else{
                 $('#importbutton').prop('disabled', false);
             }
+        }
+
+        function computeTotalRequestedQty(){
+            var totalRequestedQty = 0;
+            $('.temp_quantity').each(function() {
+                totalRequestedQty += parseFloat($(this).val());
+            });
+
+            $("#totalrequestedquantity").text(totalRequestedQty);
         }
     });
 </script>

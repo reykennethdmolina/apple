@@ -5,6 +5,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -142,9 +143,18 @@
                                 <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
                                     <!-- Start Editable Section -->
-                                    <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
-                                    <span id="totalrequestedquantity">0</span>
-                                    </label><br><br>
+                                    <table class="floatright margin-bottom-10">
+                                        <tr>
+                                            <td width="200px">
+                                                <label class="control-label float-left">Total&nbsp;Requested&nbsp;Qty:</label>
+                                            </td>
+                                            <td class="text-align-right">
+                                                <label class="control-label">
+                                                    <span id="totalrequestedquantity" class="text-right">0</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </table>
                                     <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
@@ -152,8 +162,8 @@
                                                 <th style="width:120px">Item Code</th>
                                                 <th>Item Name</th>
                                                 <th style="width:350px">Remarks</th>
-                                                <th style="width:150px">Unit of Measure</th>
-                                                <th style="width:120px">Requested Qty</th>
+                                                <th style="width:150px; text-align: center">Unit of Measure</th>
+                                                <th style="width:120px; text-align: center">Requested Qty</th>
                                                 <th style="width:50px"></th>
                                             </tr>
                                         </thead>
@@ -168,19 +178,43 @@
         </div>
     </div>
 </div>
+<div id="remarksModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> <span id="modal-header-title">Remarks</span></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="hidden" id="remarks_itemno">
+                    <textarea name="remarks" id="id_modal_remarks" class="form-control remarks-editor" rows="10"></textarea>
+                    <br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="save_remarks">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $("#id_branch").val("{{ headoffice }}");
+
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
             $("#form-b").submit(function(event){
-                if($('.remove_item').length == 0) {
+                if($('.tblInputQuantity').length == 0) {
                     alert("Please add at least one item.");
                     event.preventDefault();
                 }

@@ -95,6 +95,7 @@ class CreateView(CreateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
+        context['totalremainingquantity'] = 0
         return context
 
     def form_valid(self, form):
@@ -167,7 +168,8 @@ class UpdateView(UpdateView):
               'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('requisitionform.change_rfmain'):
+        self.object = self.get_object()
+        if not request.user.has_perm('requisitionform.change_rfmain') or self.object.isdeleted == 1:
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -184,6 +186,7 @@ class UpdateView(UpdateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
+        context['totalremainingquantity'] = Rfmain.objects.get(pk=self.object.pk).totalremainingquantity
         prfs = Rfmain.objects.raw('SELECT DISTINCT '
                                       'rfm.rfnum, '
                                       'prfm.prfnum, '
@@ -232,6 +235,9 @@ class UpdateView(UpdateView):
             detailtemp.postby = d.postby
             detailtemp.postdate = d.postdate
             detailtemp.isdeleted = d.isdeleted
+            detailtemp.isfullyprf = d.isfullyprf
+            detailtemp.prftotalquantity = d.prftotalquantity
+            detailtemp.prfremainingquantity = d.prfremainingquantity
             detailtemp.save()
 
         context['rfdetailtemp'] = Rfdetailtemp.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('item_counter')
@@ -244,9 +250,16 @@ class UpdateView(UpdateView):
             self.object = form.save(commit=False)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
-                                            'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
-                                            'totalquantity', 'modifyby', 'modifydate'])
+            self.object.totalremainingquantity = self.request.POST['totalquantity']
+
+            # check rfstatus, if "Approved", certain fields should not be updated
+            if self.object.rfstatus == 'A':
+                self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
+            else:
+                self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit',
+                                                'urgencytype', 'dateneeded', 'branch', 'department', 'particulars',
+                                                'designatedapprover', 'totalquantity', 'modifyby', 'modifydate',
+                                                'totalremainingquantity'])
 
             Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
 
@@ -268,13 +281,22 @@ class UpdateView(UpdateView):
                 alldetail.invitem = atd.invitem
                 alldetail.invitem_code = atd.invitem_code
                 alldetail.invitem_name = atd.invitem_name
-                alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                            getlist('temp_item_um')[i - 1],
-                                                                            isdeleted=0, status='A')
-                alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                                 getlist('temp_item_um')[i - 1],
-                                                                                 isdeleted=0, status='A').code
-                alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+
+                # if rfstatus == "Approved", unitofmeasure, unitofmeasurecode and quantity will not be updated
+                if self.object.rfstatus == 'Approved':
+                    alldetail.invitem_unitofmeasure = atd.invitem_unitofmeasure
+                    alldetail.invitem_unitofmeasure_code = atd.invitem_unitofmeasure_code
+                    alldetail.quantity = atd.quantity
+                else:
+                    alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                                getlist('temp_item_um')[i - 1],
+                                                                                isdeleted=0, status='A')
+                    alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
+                                                                                     getlist('temp_item_um')[i - 1],
+                                                                                     isdeleted=0, status='A').code
+                    alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                    alldetail.prfremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
+
                 alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
                 alldetail.status = atd.status
                 alldetail.enterby = atd.enterby
@@ -301,7 +323,8 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status == 'O' or self.object.rfstatus == 'A':
+        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status != 'A' or \
+                        self.object.rfstatus != 'F' or self.object.isdeleted == 1:
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -311,6 +334,7 @@ class DeleteView(DeleteView):
         self.object.modifydate = datetime.datetime.now()
         self.object.isdeleted = 1
         self.object.status = 'C'
+        self.object.rfstatus = 'D'
         self.object.save()
         return HttpResponseRedirect('/requisitionform')
 
@@ -353,6 +377,7 @@ def savedetailtemp(request):
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.enterby = User.objects.get(pk=request.user.id)
         detailtemp.modifyby = User.objects.get(pk=request.user.id)
+        detailtemp.prfremainingquantity = request.POST['id_quantity']
         detailtemp.save()
 
         data = {
@@ -409,7 +434,7 @@ def paginate(request, command, current, limit, search):
                                              Q(rfdate__icontains=search_not_slug) |
                                              Q(particulars__icontains=search_not_slug) |
                                              Q(rfstatus__icontains=search_not_slug))\
-                                            .filter(isdeleted=0).order_by('-enterdate')
+                                            .order_by('-enterdate')
     else:
         rfmain = Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
 

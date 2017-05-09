@@ -106,8 +106,6 @@ class Rfdetail(models.Model):
 
     # additional columns for RF-PRF transactions
     isfullyprf = models.IntegerField(default=0)
-    rfprftransaction = models.ForeignKey('purchaserequisitionform.rfprftransaction', related_name='rfprftransaction_id',
-                                         null=True, blank=True)
     prftotalquantity = models.IntegerField(default=0)
     prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 
@@ -155,6 +153,11 @@ class Rfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+
+    # additional columns for RF-PRF transactions
+    isfullyprf = models.IntegerField(default=0)
+    prftotalquantity = models.IntegerField(default=0)
+    prfremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 
     class Meta:
         db_table = 'rfdetailtemp'

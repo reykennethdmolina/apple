@@ -44,23 +44,6 @@
                                 <label class="control-label" for="id_prfnum">Number</label>
                                 <input type="text" class="form-control input-sm" placeholder="PRFxxxxxxx" disabled="disabled">
                             </div>
-                            <div class="form-group col-sm-4">
-                                <label class="control-label" for="id_prfdate">Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|default:'' }}">
-                                <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
-                            </div>
-                            <div class="form-group col-sm-4">
-                                <label class="control-label" for="id_dateneeded">Date Needed</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|date:'Y-m-d'|default:'' }}">
-                                <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
-                            </div>
-                        </div>
-                        <div class="row col-md-12">
-                            <div class="form-group col-sm-4">
-                                <label class="control-label" for="id_prfstatus">PRF Status</label>
-                                <input type="text" class="form-control input-sm" value="FOR APPROVAL" disabled="disabled">
-                                <span class="help-block form-error">{{ form.prfstatus.errors.as_text }}</span>
-                            </div>
                             <div class="form-group col-sm-4 {{ form.prftype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_prftype">PRF Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype">
@@ -78,6 +61,23 @@
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_prfstatus">PRF Status</label>
+                                <input type="text" class="form-control input-sm" value="FOR APPROVAL" disabled="disabled">
+                                <span class="help-block form-error">{{ form.prfstatus.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_prfdate">Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|default:'' }}" readonly="readonly">
+                                <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_dateneeded">Date Needed</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
+                                <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="row col-md-12">
@@ -107,7 +107,7 @@
                                         <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="row col-md-12">
@@ -199,7 +199,9 @@
                     <div class="panel">
                         <div class="shade"><div class="loader two-color"></div></div>
                         <div class="panel-body" style="overflow: auto; width: 100%">
-                            <!-- Start Editable Section -->
+                            <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
+                                <span id="totalrequestedquantity">0</span>
+                            </label><br><br>
                             <table class="table table-striped margin-bottom-0 small" id="summary">
                                 {% include "purchaserequisitionform/createthead.html" %}
                                 <tbody>
@@ -222,11 +224,14 @@
                                 <select name="" id="importrfselect2" class="form-control input-sm select2" style="width: 100%;">
                                     <option value="">-- Select --</option>
                                     {% for rfmain in rfmain %}
-                                        <option value="{{ rfmain.id }}"
-                                                data-refnum="{{ rfmain.refnum }}"
-                                                data-urgency="{{ rfmain.get_urgencytype_display }}"
-                                                data-dateneeded="{{ rfmain.dateneeded }}"
-                                                data-approver="{{ rfmain.actualapprover }}">{{ rfmain.rfnum }} | {{ rfmain.rfdate|date:"Y-m-d" }} | {{ rfmain.department.departmentname }} | {{ rfmain.get_urgencytype_display }} | Date needed: {{ rfmain.dateneeded|date:"Y-m-d" }}</option>
+                                        {% if rfmain.totalremainingquantity > 0 %}
+                                            <option value="{{ rfmain.id }}"
+                                                    data-refnum="{{ rfmain.refnum }}"
+                                                    data-rfnum="{{ rfmain.rfnum }}"
+                                                    data-urgency="{{ rfmain.get_urgencytype_display }}"
+                                                    data-dateneeded="{{ rfmain.dateneeded }}"
+                                                    data-approver="{{ rfmain.actualapprover }}">{{ rfmain.rfnum }} | {{ rfmain.rfdate|date:"Y-m-d" }} | {{ rfmain.department.departmentname }} | {{ rfmain.get_urgencytype_display }} | Date needed: {{ rfmain.dateneeded|date:"Y-m-d" }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <br><br>

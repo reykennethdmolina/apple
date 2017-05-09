@@ -37,71 +37,104 @@
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address1.errors|yesno:'has-error,' }}">
-                            <br><label for="id_address1" class="col-sm-3 control-label">Address 1</label>
+                            <br><label for="id_address1" class="col-sm-3 control-label">Address&nbsp;1</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="id_address1" maxlength="250" placeholder="Address" name="address1" data-validation="required" value="{{ form.address1.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.address1.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.zipcode.errors|yesno:'has-error,' }}">
-                            <br><label for="id_zipcode" class="col-sm-3 control-label">Zip Code</label>
+                            <br><label for="id_zipcode" class="col-sm-3 control-label">Zip&nbsp;Code</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control validateIntFormMask zipCode" id="id_zipcode" maxlength="4" placeholder="Zip Code" name="zipcode" value="{{ form.zipcode.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.zipcode.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address2.errors|yesno:'has-error,' }}">
-                            <label for="id_address2" class="col-sm-3 control-label">Address 2</label>
+                            <label for="id_address2" class="col-sm-3 control-label">Address&nbsp;2</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="id_address2" maxlength="250" placeholder="Address" name="address2" value="{{ form.address2.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.address2.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.telno.errors|yesno:'has-error,' }}">
-                            <label for="id_telno" class="col-sm-3 control-label">Tel. No.</label>
+                            <label for="id_telno" class="col-sm-3 control-label">Tel.&nbsp;No.</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control" id="id_telno" maxlength="20" placeholder="Tel. No." name="telno" value="{{ form.telno.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.telno.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address3.errors|yesno:'has-error,' }}">
-                            <label for="id_address3" class="col-sm-3 control-label">Address 3</label>
+                            <label for="id_address3" class="col-sm-3 control-label">Address&nbsp;3</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="id_address3" maxlength="250" placeholder="Address" name="address3" value="{{ form.address3.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.address3.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.faxno.errors|yesno:'has-error,' }}">
-                            <label for="id_faxno" class="col-sm-3 control-label">Fax. No.</label>
+                            <label for="id_faxno" class="col-sm-3 control-label">Fax.&nbsp;No.</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control" id="id_faxno" maxlength="20" placeholder="Fax. No." name="faxno" value="{{ form.faxno.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.faxno.errors.as_text }}</span>
                             </div>
                         </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.contactperson.errors|yesno:'has-error,' }}">
+                            <label for="id_contactperson" class="col-sm-3 control-label">Contact&nbsp;Person</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="id_contactperson" maxlength="250" placeholder="Contact Person" name="contactperson" value="{{ form.contactperson.value|default:'' }}">
+                                <span class="help-block form-error help-block-sm">{{ form.contactperson.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-12"><br></div>
                         <div class="form-group form-group-sm form-group-0 form-material col-md-6
-                         {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                            <br><label for="id_ataxcode" class="col-sm-3 control-label">ATax Code</label>
+                         {{ form.creditterm.errors|yesno:'has-error,' }}">
+                            <br><label for="id_creditterm" class="col-sm-3 control-label">Credit&nbsp;Terms</label>
                             <div class="col-sm-7">
-                                <select id="id_ataxcode" class="form-control" name="ataxcode" data-validation="required">
+                                <select id="id_creditterm" class="form-control" name="creditterm" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for ataxcode in ataxcode %}
-                                        <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.description }} ({{ ataxcode.rate }}%)</option>
+                                    {% for creditterm in creditterm %}
+                                        <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error help-block-sm">{{ form.ataxcode.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 form-material col-md-6
-                         {{ form.inputvat.errors|yesno:'has-error,' }}">
-                            <br><label for="id_inputvat" class="col-sm-3 control-label">Input VAT</label>
+                         {{ form.currency.errors|yesno:'has-error,' }}">
+                            <br><label for="id_currency" class="col-sm-3 control-label">Currency</label>
                             <div class="col-sm-7">
-                                <select id="id_inputvat" class="form-control" name="inputvat" data-validation="required">
+                                <select id="id_currency" class="form-control" name="currency" data-validation="required">
                                     <option value="">-- Select --</option>
-                                    {% for inputvat in inputvat %}
-                                        <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.description }}</option>
+                                    {% for currency in currency %}
+                                        <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %} data-fxrate="{{ currency.fxrate }}">{{ currency.description }} ({{ currency.symbol }})</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error help-block-sm">{{ form.inputvat.errors.as_text }}</span>
+                                <span id="fxrate" class="text-success" style="margin-left: 150px;"></span>
+                                <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-6
+                         {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvattype" class="col-sm-3 control-label">Input&nbsp;VAT&nbsp;Type</label>
+                            <div class="col-sm-7">
+                                <select id="id_inputvattype" class="form-control" name="inputvattype" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for inputvattype in inputvattype %}
+                                        <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.inputvattype.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 form-material {{ form.inputvattype_deferred.errors|yesno:'has-error,' }}">
+                            <label for="id_inputvattype_deferred" class="col-sm-3 control-label">Deferred&nbsp;(Y/N)</label>
+                            <div class="col-sm-7">
+                                <select id="id_inputvattype_deferred" name="inputvattype_deferred" class="form-control" data-validation="required">
+                                    {% for id,name in form.fields.inputvattype_deferred.choices %}
+                                        <option value="{{ id }}"{% if form.inputvattype_deferred.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.inputvattype_deferred.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 form-material col-md-6
@@ -111,32 +144,27 @@
                                 <select id="id_vat" class="form-control" name="vat" data-validation="required">
                                     <option value="">-- Select --</option>
                                     {% for vat in vat %}
-                                        <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.description }} ({{ vat.rate }}%)</option>
+                                        <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} | {{ vat.description }} | {{ vat.rate }}%</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error help-block-sm">{{ form.vat.errors.as_text }}</span>
                             </div>
                         </div>
-{#                        <div class="form-group form-group-sm form-group-0 col-md-4 form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
-{#                            <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
-{#                            <div class="col-sm-7">#}
-{#                                <select id="id_multiplestatus" name="multiplestatus" class="form-control">#}
-{#                                    {% for id,name in form.fields.multiplestatus.choices %}#}
-{#                                        <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
-{#                                    {% endfor %}#}
-{#                                </select>#}
-{#                                <span class="help-block form-error help-block-sm">{{ form.multiplestatus.errors.as_text }}</span>#}
-{#                            </div>#}
-{#                        </div>#}
-                        <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.inputvatrate.errors|yesno:'has-error,' }}">
-                            <label for="id_inputvatrate" class="col-sm-3 control-label">Input VAT Rate</label>
+                         <div class="form-group form-group-sm form-group-0 form-material col-md-6
+                         {{ form.atc.errors|yesno:'has-error,' }}">
+                            <label for="id_atc" class="col-sm-3 control-label">ATC Code</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control rate" id="id_inputvatrate" name="inputvatrate" maxlength="2" placeholder="Rate" data-validation="required" value="{{ form.inputvatrate.value|default:'' }}">
-                                <span class="help-block form-error help-block-sm">{{ form.inputvatrate.errors.as_text }}</span>
+                                <select id="id_atc" class="form-control" name="atc" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for atc in atc %}
+                                        <option value="{{ atc.id }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }} | {{ atc.description }} | {{ atc.rate }}%</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.atc.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-info margin-top-25" id="validateButton">Submit</button>
+                        <div class="form-group col-md-6">
+                            <button type="submit" class="btn btn-info margin-top-25 margin-left-20" id="validateButton">Submit</button>
                         </div>
                     </form>
                 </div>
@@ -152,4 +180,17 @@
     <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
     <script src="{% static 'financial-layout/assets/js/form-mask/validate-masks.js' %}"></script>
+        <script>
+        $(document).ready(function() {
+            $('#fxrate').html('<small><strong>FX Rate:&nbsp;&nbsp;&nbsp;'
+                    + $('#id_currency').find(':selected').data('fxrate')
+                    + '</strong></small>');
+
+            $('#id_currency').change(function(){
+                $('#fxrate').html('<small><strong>FX Rate:&nbsp;&nbsp;&nbsp;'
+                    + $('#id_currency').find(':selected').data('fxrate')
+                    + '</strong></small>');
+            });
+        });
+    </script>
 {% endblock extra_js %}

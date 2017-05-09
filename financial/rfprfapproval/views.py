@@ -2,8 +2,10 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from requisitionform.models import Rfmain
+from django.db.models import F
 from django.contrib.auth.models import User
-from purchaserequisitionform.models import Prfmain
+from purchaserequisitionform.models import Prfmain, Prfdetail
+from purchaserequisitionform.views import deleteRfprftransactionitem
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
@@ -20,7 +22,7 @@ class IndexView(ListView):
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
 
-        rfdata = Rfmain.objects.all().filter(isdeleted=0, status='A')
+        rfdata = Rfmain.objects.all().filter(isdeleted=0)
 
         context['rfapprovers'] = User.objects.filter(id__in=set(Rfmain.objects.values_list('designatedapprover',
                                                                                            flat=True))).\
@@ -34,8 +36,10 @@ class IndexView(ListView):
             context['rfapprovers'] = context['rfapprovers'].filter(id=self.request.user.id)
 
         context['rfpending'] = rfdata.filter(rfstatus='F').order_by('enterdate')
-        context['rfapproved'] = rfdata.filter(rfstatus='A').order_by('enterdate')
-        context['rfdisapproved'] = rfdata.filter(rfstatus='D').order_by('enterdate')
+        context['rfapproved'] = rfdata.filter(rfstatus='A', totalremainingquantity=F('totalquantity')).\
+            order_by('enterdate')
+        # exclude approved RFs that already have dependent PRFs
+        context['rfdisapproved'] = rfdata.filter(rfstatus='D', status='C').order_by('enterdate')
 
         prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A')
 
@@ -115,6 +119,8 @@ def approve(request):
             elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
                 approve = Rfmain.objects.get(pk=request.POST['main_id'])
                 approve.rfstatus = request.POST['response']
+                approve.isdeleted = 0
+                approve.status = 'C'
             else:
                 valid = False
 
@@ -125,6 +131,11 @@ def approve(request):
             elif request.POST['response'] == 'D' and request.user.has_perm('purchaserequisitionform.can_disapproveprf'):
                 approve = Prfmain.objects.get(pk=request.POST['main_id'])
                 approve.prfstatus = request.POST['response']
+                approve.status = 'C'
+
+                prfdetail = Prfdetail.objects.filter(prfmain=request.POST['main_id'])
+                for data in prfdetail:
+                    deleteRfprftransactionitem(data)
             else:
                 valid = False
 

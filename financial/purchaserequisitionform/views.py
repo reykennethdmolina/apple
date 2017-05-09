@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpRespons
 from django.views.decorators.csrf import csrf_exempt
 from . models import Prfmain
 from requisitionform.models import Rfmain, Rfdetail
-from purchaserequisitionform.models import Prfmain, Prfdetail, Prfdetailtemp
+from purchaserequisitionform.models import Prfmain, Prfdetail, Prfdetailtemp, Rfprftransaction
 from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
@@ -13,7 +13,7 @@ from department.models import Department
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, F
 from django.core import serializers
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
@@ -28,7 +28,6 @@ class IndexView(ListView):
 
     def get_queryset(self):
         return Prfmain.objects.all().order_by('enterdate')[0:10]
-        # return Prfmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -67,7 +66,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
-        context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
+        context['currency'] = Currency.objects.filter(isdeleted=0, status='A').order_by('id')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         return context
@@ -117,7 +116,8 @@ class CreateView(CreateView):
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
                 detail.amount = 0
                 detail.remarks = dt.remarks
-                detail.currency = dt.currency
+                detail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
+                detail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
                 detail.status = dt.status
                 detail.enterby = dt.enterby
                 detail.enterdate = dt.enterdate
@@ -132,7 +132,15 @@ class CreateView(CreateView):
                 detail.save()
                 dt.delete()
 
-                itemquantity = int(itemquantity) + int(detail.quantity)
+                if dt.rfmain:
+                    if addRfprftransactionitem(detail.id):
+                        itemquantity = int(itemquantity) + int(detail.quantity)
+                    else:
+                        detail.delete()
+                else:
+                    itemquantity = int(itemquantity) + int(detail.quantity)
+
+
                 i += 1
 
             prfmain.quantity = int(itemquantity)
@@ -141,7 +149,64 @@ class CreateView(CreateView):
             return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
 
-# class Rfprftransaction()
+def addRfprftransactionitem(id):
+    prfdetail = Prfdetail.objects.get(pk=id)
+
+    # validate quantity
+    # print prfdetail.quantity
+    # print prfdetail.rfdetail.prfremainingquantity
+    # print prfdetail.rfdetail.isfullyprf
+    if prfdetail.quantity <= prfdetail.rfdetail.prfremainingquantity and prfdetail.rfdetail.isfullyprf == 0:
+        data = Rfprftransaction()
+        data.rfmain = prfdetail.rfmain
+        data.rfdetail = prfdetail.rfdetail
+        data.prfmain = Prfdetail.objects.get(pk=id).prfmain
+        data.prfdetail = Prfdetail.objects.get(pk=id)
+        data.prfquantity = Prfdetail.objects.get(pk=id).quantity
+        data.save()
+
+        # adjust rf detail
+        newprftotalquantity = prfdetail.rfdetail.prftotalquantity + data.prfquantity
+        newprfremainingquantity = prfdetail.rfdetail.prfremainingquantity - data.prfquantity
+        if newprfremainingquantity == 0:
+            isfullyprf = 1
+        else:
+            isfullyprf = 0
+
+        Rfdetail.objects.filter(pk=data.rfdetail.id).update(prftotalquantity=newprftotalquantity,
+                                                            prfremainingquantity=newprfremainingquantity,
+                                                            isfullyprf=isfullyprf)
+
+        # adjust rf main
+        rfmain_prfquantity = Rfmain.objects.get(pk=data.rfmain.id)
+        newtotalremainingquantity = rfmain_prfquantity.totalremainingquantity - data.prfquantity
+        Rfmain.objects.filter(pk=data.rfmain.id).update(totalremainingquantity=newtotalremainingquantity)
+
+        return True
+
+    else:
+        return False
+
+
+def deleteRfprftransactionitem(prfdetail):
+
+    data = Rfprftransaction.objects.get(prfdetail=prfdetail.id, status='A')
+    # update rfdetail
+    remainingquantity = prfdetail.rfdetail.prfremainingquantity + data.prfquantity
+    isfullyprf = 0 if remainingquantity != 0 else 1
+    Rfdetail.objects.filter(pk=data.rfdetail.id).update(prftotalquantity=F('prftotalquantity')-data.prfquantity,
+                                                        prfremainingquantity=F('prfremainingquantity')+data.prfquantity,
+                                                        isfullyprf=isfullyprf)
+
+    # update rfmain
+    Rfmain.objects.filter(pk=data.rfmain.id).update(totalremainingquantity=F('totalremainingquantity')+data.prfquantity)
+
+    # delete rfprftransaction, prfdetail
+    data.delete()
+    Prfdetail.objects.filter(pk=prfdetail.id).delete()
+    Prfmain.objects.filter(pk=prfdetail.prfmain.id).update(quantity=0, amount=0.00, grossamount=0.00,
+                                                           netamount=0.00, vatable=0.00, vatamount=0.00,
+                                                           vatexempt=0.00, vatzerorated=0.00)
 
 
 class UpdateView(UpdateView):
@@ -181,6 +246,7 @@ class UpdateView(UpdateView):
             detailtemp.amount = d.amount
             detailtemp.remarks = d.remarks
             detailtemp.currency = d.currency
+            detailtemp.fxrate = d.fxrate
             detailtemp.status = d.status
             detailtemp.enterdate = d.enterdate
             detailtemp.modifydate = d.modifydate
@@ -229,6 +295,15 @@ class UpdateView(UpdateView):
                 Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
             ).order_by('enterdate')
 
+            # remove old detail in rfquantities
+            prfdetail = Prfdetail.objects.filter(prfmain=self.object.id, isdeleted=1)
+            for data in prfdetail:
+                if Rfprftransaction.objects.filter(prfdetail=data.id):
+                    deleteRfprftransactionitem(data)
+            Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
+
+            itemquantity = 0
+            prfmain = Prfmain.objects.get(pk=self.object.pk)
             i = 1
             for atd in alltempdetail:
                 alldetail = Prfdetail()
@@ -240,9 +315,9 @@ class UpdateView(UpdateView):
                 alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                # alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
                 alldetail.remarks = atd.remarks
-                alldetail.currency = atd.currency
+                alldetail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
+                alldetail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
                 alldetail.status = atd.status
                 alldetail.enterby = atd.enterby
                 alldetail.enterdate = atd.enterdate
@@ -255,10 +330,22 @@ class UpdateView(UpdateView):
                 alldetail.rfdetail = atd.rfdetail
                 alldetail.save()
                 atd.delete()
+
+                if atd.rfmain:
+                    if addRfprftransactionitem(alldetail.id):
+                        itemquantity = int(itemquantity) + int(alldetail.quantity)
+                    else:
+                        alldetail.delete()
+                else:
+                    itemquantity = int(itemquantity) + int(alldetail.quantity)
+
+
                 i += 1
 
+            prfmain.quantity = int(itemquantity)
+            prfmain.save()
+
             Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
-            Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
 
             return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
 
@@ -279,8 +366,14 @@ class DeleteView(DeleteView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.isdeleted = 1
-        self.object.status = 'I'
+        self.object.status = 'C'
+        self.object.prfstatus = 'D'
         self.object.save()
+
+        prfdetail = Prfdetail.objects.filter(prfmain=self.object.id)
+        for data in prfdetail:
+            deleteRfprftransactionitem(data)
+
         return HttpResponseRedirect('/purchaserequisitionform')
 
 
@@ -293,16 +386,16 @@ class Pdf(PDFTemplateView):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+
+        printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedprf.print_ctr += 1
+        printedprf.save()
+
         return context
 
 
 @csrf_exempt
 def importItems(request):
-    # validation on save
-    # item no / counter validation..
-    # quantity cost front end change
-    # delete item prompt
-
     if request.method == 'POST':
         rfdetail = Rfdetail.objects\
                         .raw('SELECT inv.unitcost, '
@@ -316,6 +409,8 @@ def importItems(request):
                                     'rfd.invitem_unitofmeasure_id AS um_id, '
                                     'rfd.invitem_unitofmeasure_code AS um_code, '
                                     'rfd.id, '
+                                    'rfd.isfullyprf, '
+                                    'rfd.prfremainingquantity, '
                                     'um.code '
                             'FROM rfmain rfm '
                             'LEFT JOIN rfdetail rfd '
@@ -339,38 +434,40 @@ def importItems(request):
         item_counter = int(request.POST['itemno'])
 
         for data in rfdetail:
-            prfdata.append([data.invitem_code,
-                            data.invitem_name,
-                            data.code,
-                            data.rfnum,
-                            data.remarks,
-                            data.quantity,
-                            data.unitcost,
-                            data.id,
-                            item_counter,
-                            data.um_code])
+            if data.isfullyprf != 1 and data.prfremainingquantity > 0:
+                prfdata.append([data.invitem_code,
+                                data.invitem_name,
+                                data.code,
+                                data.rfnum,
+                                data.remarks,
+                                data.quantity,
+                                data.unitcost,
+                                data.id,
+                                item_counter,
+                                data.um_code,
+                                data.prfremainingquantity])
 
-            detailtemp = Prfdetailtemp()
-            detailtemp.invitem_code = data.invitem_code
-            detailtemp.invitem_name = data.invitem_name
-            detailtemp.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=data.um_id)
-            detailtemp.invitem_unitofmeasure_code = data.um_code
-            detailtemp.item_counter = item_counter
-            detailtemp.quantity = data.quantity
-            detailtemp.remarks = data.remarks
-            detailtemp.currency = Currency.objects.get(pk=1)
-            detailtemp.status = 'A'
-            detailtemp.enterdate = datetime.datetime.now()
-            detailtemp.modifydate = datetime.datetime.now()
-            detailtemp.enterby = request.user
-            detailtemp.modifyby = request.user
-            detailtemp.secretkey = request.POST['secretkey']
-            detailtemp.invitem = Inventoryitem.objects.get(pk=data.inv_id)
-            detailtemp.rfmain = Rfmain.objects.get(pk=data.rfm_id)
-            detailtemp.rfdetail = Rfdetail.objects.get(pk=data.id)
-            detailtemp.save()
+                detailtemp = Prfdetailtemp()
+                detailtemp.invitem_code = data.invitem_code
+                detailtemp.invitem_name = data.invitem_name
+                detailtemp.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=data.um_id)
+                detailtemp.invitem_unitofmeasure_code = data.um_code
+                detailtemp.item_counter = item_counter
+                detailtemp.quantity = data.quantity
+                detailtemp.remarks = data.remarks
+                detailtemp.currency = Currency.objects.get(pk=1)
+                detailtemp.status = 'A'
+                detailtemp.enterdate = datetime.datetime.now()
+                detailtemp.modifydate = datetime.datetime.now()
+                detailtemp.enterby = request.user
+                detailtemp.modifyby = request.user
+                detailtemp.secretkey = request.POST['secretkey']
+                detailtemp.invitem = Inventoryitem.objects.get(pk=data.inv_id)
+                detailtemp.rfmain = Rfmain.objects.get(pk=data.rfm_id)
+                detailtemp.rfdetail = Rfdetail.objects.get(pk=data.id)
+                detailtemp.save()
 
-            item_counter += 1
+                item_counter += 1
 
         data = {
             'status': 'success',
@@ -443,7 +540,6 @@ def savedetailtemp(request):
 def deletedetailtemp(request):
 
     if request.method == 'POST':
-        print request.POST
         try:
             detailtemp = Prfdetailtemp.objects.get(item_counter=request.POST['itemno'], secretkey=request.POST['secretkey'], prfmain=None)
             detailtemp.delete()
@@ -488,6 +584,8 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
-    # quantity should not be higher than rf quantity
-    # filter to be imported rf based on rfprftrans
-    # control approved disapproved prf for rfprftransaction referencing and update of prf
+    # update import select behind modal
+    # quantity cost front end change
+    # delete item prompt
+    # delete prfmain prompt
+    # handle bloating in prfdetailtemp
