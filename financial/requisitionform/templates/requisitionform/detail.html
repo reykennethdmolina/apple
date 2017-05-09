@@ -148,7 +148,11 @@
                                                 <th>Item Name</th>
                                                 <th>Remarks</th>
                                                 <th>Unit of Measure</th>
-                                                <th>Requested Qty</th>
+                                                <th width="100px">Requested Qty</th>
+                                                {% if object.get_rfstatus_display == 'Approved' %}
+                                                    <th style="width:100px; text-align: right">PRF Qty</th>
+                                                    <th style="width:100px; text-align: right">Remaining Qty</th>
+                                                {% endif %}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -158,7 +162,11 @@
                                                     <td>{{ rfdetail.invitem_name }}</td>
                                                     <td>{{ rfdetail.remarks }}</td>
                                                     <td>{{ rfdetail.invitem_unitofmeasure_code }}</td>
-                                                    <td>{{ rfdetail.quantity }}</td>
+                                                    <td class="text-align-right">{{ rfdetail.quantity }}</td>
+                                                    {% if object.get_rfstatus_display == 'Approved' %}
+                                                        <td style="width:100px; text-align: right">{{ rfdetail.prftotalquantity }}</td>
+                                                        <td style="width:100px; text-align: right"><strong>{{ rfdetail.prfremainingquantity }}</strong></td>
+                                                    {% endif %}
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

@@ -5,6 +5,7 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -207,7 +208,7 @@
                                                 <th style="width:120px">Item Code</th>
                                                 <th>Item Name</th>
                                                 <th style="width:350px">Remarks</th>
-                                                <th style="width:150px">Unit of Measure</th>
+                                                <th style="width:150px; text-align: center">Unit of Measure</th>
                                                 <th style="width:120px; text-align: center">Requested Qty</th>
                                                 {% if rfstatus != 'Approved' %}<th style="width:50px"></th>{% endif %}
                                                 {% if rfstatus == 'Approved' %}
@@ -222,7 +223,8 @@
                                                     <td>{{ rfdetailtemp.item_counter }}</td>
                                                     <td>{{ rfdetailtemp.invitem_code }}</td>
                                                     <td>{{ rfdetailtemp.invitem_name }}</td>
-                                                    <td><input type='text' name='temp_remarks' form='form-b' class='form-control input-sm' value='{{ rfdetailtemp.remarks }}'></td>
+                                                    <td><div><div class='col-sm-11 row'><textarea class='form-control input-sm input-remarks' id='id_temp_remarks[{{ rfdetailtemp.item_counter }}]' name='temp_remarks' form='form-b'>{{ rfdetailtemp.remarks }}</textarea></div>
+                                                        <div class='col-sm-1'><button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='{{ rfdetailtemp.item_counter }}'>...</button></div></div></td>
                                                     <td><select class='form-control input-sm tbl-um' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>
                                                         {% for unitofmeasure in unitofmeasure %}
                                                             <option value='{{ unitofmeasure.code }}' {% if unitofmeasure.code == rfdetailtemp.invitem_unitofmeasure_code %} selected="selected"
@@ -230,12 +232,12 @@
                                                         {% endfor %}</select></td>
                                                     <td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='{{ rfdetailtemp.quantity }}'></td>
                                                     {% if rfstatus != 'Approved' %}<td>
-                                                        <button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}'><i class='icon fa-remove' aria-hidden='true'></i></button>
+                                                        <button class='btn remove_item' data-itemno='{{ rfdetailtemp.item_counter }}' data-itemid='{{ rfdetailtemp.invitem.id }}'><i class='icon fa-remove' aria-hidden='true'></i></button>
                                                     </td>{% endif %}
                                                     {% if rfstatus == 'Approved' %}
-                                                    <td style="width:100px; text-align: right">PRF Qty</td>
-                                                    <td style="width:100px; text-align: right">Remaining Qty</td>
-                                                {% endif %}
+                                                    <td style="width:100px; text-align: right"><strong>{{ rfdetailtemp.prftotalquantity }}</strong></td>
+                                                    <td style="width:100px; text-align: right"><strong>{{ rfdetailtemp.prfremainingquantity }}</strong></td>
+                                                    {% endif %}
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -295,14 +297,43 @@
         </div>
     </div>
 </div>
+<div id="remarksModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> <span id="modal-header-title">Remarks</span></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="hidden" id="remarks_itemno">
+                    <textarea name="remarks" id="id_modal_remarks" class="form-control remarks-editor" rows="10"></textarea>
+                    <br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="save_remarks">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             reorderItems();
+
+            var i = 1;
+            $.each($('.input-remarks'), function() {
+                var editor = new wysihtml5.Editor("id_temp_remarks[" + i + "]");
+                i += 1;
+            });
 
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
