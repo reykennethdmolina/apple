@@ -92,7 +92,7 @@ class Prfmain(models.Model):
         return self.prfnum
 
 
-class rfprftransaction(models.Model):
+class Rfprftransaction(models.Model):
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -106,7 +106,7 @@ class rfprftransaction(models.Model):
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_rfprftransaction')
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_rfprftransaction')
     prfquantity = models.IntegerField()
-    prfstatus = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
     class Meta:
         db_table = 'rfprftransaction'
@@ -152,6 +152,8 @@ class Prfdetail(models.Model):
     postby = models.ForeignKey(User, default=1, related_name='prfdetail_post', null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -218,8 +220,8 @@ class Prfdetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
-    # print_ctr = models.IntegerField(default=0)
-    # fx_rate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
+
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # vat
     cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

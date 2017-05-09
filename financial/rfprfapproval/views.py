@@ -4,7 +4,8 @@ from django.utils.decorators import method_decorator
 from requisitionform.models import Rfmain
 from django.db.models import F
 from django.contrib.auth.models import User
-from purchaserequisitionform.models import Prfmain
+from purchaserequisitionform.models import Prfmain, Prfdetail
+from purchaserequisitionform.views import deleteRfprftransactionitem
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
@@ -130,6 +131,11 @@ def approve(request):
             elif request.POST['response'] == 'D' and request.user.has_perm('purchaserequisitionform.can_disapproveprf'):
                 approve = Prfmain.objects.get(pk=request.POST['main_id'])
                 approve.prfstatus = request.POST['response']
+                approve.status = 'C'
+
+                prfdetail = Prfdetail.objects.filter(prfmain=request.POST['main_id'])
+                for data in prfdetail:
+                    deleteRfprftransactionitem(data)
             else:
                 valid = False
 
