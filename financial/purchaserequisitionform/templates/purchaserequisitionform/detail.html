@@ -114,13 +114,22 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">PRF Status&nbsp;: </span>
-                                            <span class="detail-profile"><b>{{ object.get_prfstatus_display }}</b></span>
+                                            <span class="detail-profile
+                                                {% if object.prfstatus == 'F' %}
+                                                    text-primary
+                                                {% elif object.prfstatus == 'A' %}
+                                                    text-success
+                                                {% elif object.prfstatus == 'D' %}
+                                                    text-danger
+                                                {% endif %}"><b>
+                                                    {{ object.get_prfstatus_display }}
+                                            </b></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Status&nbsp;: </span>
-                                            <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
+                                            <span class="detail-profile"><b>{{ object.get_status_display }}</b></span>
                                         </div>
                                     </div>
                                 </div>
@@ -139,7 +148,9 @@
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
                             <div class="panel-body">
-                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
+                                    <span id="totalrequestedquantity">{{ object.quantity }}</span>
+                                </label><br><br>
                                 <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>

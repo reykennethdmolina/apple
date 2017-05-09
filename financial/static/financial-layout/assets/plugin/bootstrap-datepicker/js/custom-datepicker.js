@@ -26,5 +26,10 @@
           $('.datepickerfrom').datepicker('setEndDate', minDate);
       }
     });
+
+    // set 7 days before as minDate for class .datepicker.week
+    var d = new Date();
+    d.setDate(d.getDate()-7);
+    $('.datepicker.week').datepicker('setStartDate', d);
 }(window, document, jQuery);
 

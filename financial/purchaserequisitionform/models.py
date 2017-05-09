@@ -60,7 +60,8 @@ class Prfmain(models.Model):
     actualapprover = models.ForeignKey(User, related_name='prfactual_approver', null=True, blank=True)
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
+    print_ctr = models.IntegerField(default=0)
 
     # vat
     quantity = models.IntegerField()
@@ -143,7 +144,7 @@ class Prfdetail(models.Model):
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     item_counter = models.IntegerField()
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='prfdetail_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
@@ -210,7 +211,7 @@ class Prfdetailtemp(models.Model):
     invitem_unitofmeasure_code = models.CharField(max_length=50)
     item_counter = models.IntegerField()
     quantity = models.IntegerField()
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    remarks = models.TextField(max_length=250, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='prfdetailtemp_enter')
     enterdate = models.DateTimeField(auto_now_add=True)

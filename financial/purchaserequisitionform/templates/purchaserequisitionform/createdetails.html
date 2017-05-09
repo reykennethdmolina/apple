@@ -9,7 +9,7 @@
                     <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                         <option value="">-- Select Item --</option>
                         {% for invitem in invitem %}
-                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.description }} ({{ invitem.unitofmeasure.code }})</option>
+                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.code  }} - {{ invitem.description }}</option>
                         {% endfor %}
                     </select>
                     <span class="help-block form-error">{{ form.item_name.errors.as_text }}</span>
@@ -52,6 +52,7 @@
         summary = $("#summary tbody");
         filterItems();
         inventorytypeimportDisable();
+        computeTotalRequestedQty();
 
         $("#form-b").submit(function(event){
             if($('.remove_item').length == 0) {
@@ -92,7 +93,7 @@
                                     "<td> - </td>" +
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
-                                        "<select class='form-control' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
+                                        "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                             "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
                                         "</select>" +
                                     "</td>" +
@@ -120,6 +121,7 @@
                     totalQuantity();
                     inventorytypeimportDisable();
                     computeFxRateAll();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -175,6 +177,7 @@
                     totalQuantity();
                     inventorytypeimportDisable();
                     computeFxRateAll();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -201,6 +204,7 @@
                     reorderItems();
                     inventorytypeimportDisable();
                     totalQuantity();
+                    computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -252,6 +256,10 @@
 
         $(document).on('change', '.temp_item_currency', function(){
             computeFxrateSingle($(this));
+        });
+
+        $(document).on('change', '.temp_quantity', function(){
+            computeTotalRequestedQty();
         });
 
         function computeFxRateAll(){
@@ -314,6 +322,15 @@
             else{
                 $('#importbutton').prop('disabled', false);
             }
+        }
+
+        function computeTotalRequestedQty(){
+            var totalRequestedQty = 0;
+            $('.temp_quantity').each(function() {
+                totalRequestedQty += parseFloat($(this).val());
+            });
+
+            $("#totalrequestedquantity").text(totalRequestedQty);
         }
     });
 </script>

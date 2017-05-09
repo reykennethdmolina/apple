@@ -386,6 +386,11 @@ class Pdf(PDFTemplateView):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+
+        printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedprf.print_ctr += 1
+        printedprf.save()
+
         return context
 
 
@@ -579,8 +584,7 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
-    # fx_rate 18 5, peso = 1, separate value from canvas
-        # detail view
+    # update import select behind modal
     # quantity cost front end change
     # delete item prompt
     # delete prfmain prompt
