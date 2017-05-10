@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
+        .select2-results__option[aria-selected] {
+            font-size: 12px;
+        }
         .select2-container--default .select2-results__option[aria-disabled=true] {
             display: none;
         }
-        .vattable td {
+        .vattable td, .temp_quantity, .temp_fxrate, .temp_amount {
             text-align: right;
-
         }
         .vattable td:first-child {
             width: 170px;
