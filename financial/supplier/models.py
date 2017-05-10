@@ -40,7 +40,7 @@ class Supplier(models.Model):
     contactperson = models.CharField(max_length=250)
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='supplier_creditterm_id')
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='supplier_inputvattype_id')
-    inputvattype_deferred = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id', validators=[MinValueValidator(1)])
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     atc = models.ForeignKey('ataxcode.Ataxcode', related_name='supplier_atc_id', validators=[MinValueValidator(1)])
