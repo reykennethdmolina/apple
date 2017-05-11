@@ -36,15 +36,40 @@
                                 <span class="help-block form-error help-block-sm">{{ form.tin.errors.as_text }}</span>
                             </div>
                         </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-6
+                         {{ form.industry.errors|yesno:'has-error,' }}">
+                            <br><label for="id_inputvattype" class="col-sm-3 control-label">Industry</label>
+                            <div class="col-sm-7">
+                                <select id="id_industry" class="form-control" name="industry" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for industry in industry %}
+                                        <option value="{{ industry.id }}" {% if form.industry.value|add:0 == industry.id %} selected="selected" {% endif %}>{{ industry.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.industry.errors.as_text }}</span>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 col-md-6 form-material {{ form.suppliertype.errors|yesno:'has-error,' }}">
+                            <br><label for="id_suppliertype" class="col-sm-3 control-label">Type</label>
+                            <div class="col-sm-7">
+                                <select id="id_suppliertype" name="suppliertype" class="form-control" data-validation="required">
+                                    <option value="">-- Select --</option>
+                                    {% for suppliertype in suppliertype %}
+                                        <option value="{{ suppliertype.id }}" {% if form.suppliertype.value|add:0 == suppliertype.id %} selected="selected" {% endif %}>{{ suppliertype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error help-block-sm">{{ form.suppliertype.errors.as_text }}</span>
+                            </div>
+                        </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.address1.errors|yesno:'has-error,' }}">
-                            <br><label for="id_address1" class="col-sm-3 control-label">Address&nbsp;1</label>
+                            <label for="id_address1" class="col-sm-3 control-label">Address&nbsp;1</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="id_address1" maxlength="250" placeholder="Address" name="address1" data-validation="required" value="{{ form.address1.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.address1.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group form-group-sm form-group-0 col-md-6 {{ form.zipcode.errors|yesno:'has-error,' }}">
-                            <br><label for="id_zipcode" class="col-sm-3 control-label">Zip&nbsp;Code</label>
+                            <label for="id_zipcode" class="col-sm-3 control-label">Zip&nbsp;Code</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control validateIntFormMask zipCode" id="id_zipcode" maxlength="4" placeholder="Zip Code" name="zipcode" value="{{ form.zipcode.value|default:'' }}">
                                 <span class="help-block form-error help-block-sm">{{ form.zipcode.errors.as_text }}</span>

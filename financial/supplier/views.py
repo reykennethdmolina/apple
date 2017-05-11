@@ -6,6 +6,8 @@ from . models import Supplier
 from creditterm.models import Creditterm
 from currency.models import Currency
 from ataxcode.models import Ataxcode
+from industry.models import Industry
+from suppliertype.models import Suppliertype
 from vat.models import Vat
 from inputvattype.models import Inputvattype
 from django.core import serializers
@@ -40,7 +42,8 @@ class CreateView(CreateView):
     model = Supplier
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency']
+              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency',
+              'industry', 'suppliertype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -65,6 +68,8 @@ class CreateView(CreateView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
+        context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+        context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -73,7 +78,8 @@ class UpdateView(UpdateView):
     model = Supplier
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency']
+              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency',
+              'industry', 'suppliertype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -89,7 +95,8 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
                                         'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat',
-                                        'atc', 'currency', 'fxrate', 'vatrate', 'atcrate', 'modifyby', 'modifydate'])
+                                        'atc', 'currency', 'fxrate', 'vatrate', 'atcrate', 'industry', 'suppliertype',
+                                        'modifyby', 'modifydate'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):
@@ -99,6 +106,8 @@ class UpdateView(UpdateView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
+        context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+        context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
