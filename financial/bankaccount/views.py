@@ -1,16 +1,16 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from . models import Bankaccount
 from bank.models import Bank
 from bankbranch.models import Bankbranch
 from bankaccounttype.models import Bankaccounttype
 from currency.models import Currency
 from chartofaccount.models import Chartofaccount
-from django.views.decorators.csrf import csrf_exempt
-import datetime
+from . models import Bankaccount
 
 
 # Create your views here.
@@ -34,8 +34,10 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Bankaccount
     template_name = 'bankaccount/create.html'
-    fields = ['code', 'bank', 'bankbranch', 'bankaccounttype', 'currency', 'chartofaccount', 'accountnumber',
-              'remarks', 'beg_amount', 'beg_code', 'beg_date', 'run_amount', 'run_code', 'run_date']
+    fields = ['code', 'bank', 'bankbranch', 'bankaccounttype',
+              'currency', 'chartofaccount', 'accountnumber',
+              'remarks', 'beg_amount', 'beg_code', 'beg_date',
+              'run_amount', 'run_code', 'run_date']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('bankaccount.add_bankaccount'):
@@ -52,9 +54,11 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('description')
-        context['bankaccounttype'] = Bankaccounttype.objects.filter(isdeleted=0).order_by('id')
+        context['bankaccounttype'] = Bankaccounttype.objects.\
+            filter(isdeleted=0).order_by('id')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('id')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -62,8 +66,10 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Bankaccount
     template_name = 'bankaccount/edit.html'
-    fields = ['code', 'bank', 'bankbranch', 'bankaccounttype', 'currency', 'chartofaccount', 'accountnumber',
-              'remarks', 'beg_amount', 'beg_code', 'beg_date', 'run_amount', 'run_code', 'run_date']
+    fields = ['code', 'bank', 'bankbranch', 'bankaccounttype', 'currency',
+              'chartofaccount', 'accountnumber',
+              'remarks', 'beg_amount', 'beg_code', 'beg_date', 'run_amount',
+              'run_code', 'run_date']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('bankaccount.change_bankaccount'):
@@ -74,8 +80,9 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['bank', 'bankbranch', 'bankaccounttype', 'currency', 'chartofaccount',
-                                        'accountnumber', 'remarks', 'beg_amount', 'beg_code', 'beg_date', 'run_amount',
+        self.object.save(update_fields=['bank', 'bankbranch', 'bankaccounttype', 'currency',
+                                        'chartofaccount', 'accountnumber', 'remarks',
+                                        'beg_amount', 'beg_code', 'beg_date', 'run_amount',
                                         'run_code', 'run_date', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/bankaccount')
 
@@ -84,7 +91,8 @@ class UpdateView(UpdateView):
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('description')
         context['bankaccounttype'] = Bankaccounttype.objects.filter(isdeleted=0).order_by('id')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('id')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).\
+            order_by('description')
         context['bankbranch_id'] = self.object.bankbranch.id
         context['bankbranch_description'] = self.object.bankbranch.description
         return context
@@ -123,6 +131,4 @@ def get_branch(request):
         data = {
             'status': 'error',
         }
-    # print data
     return JsonResponse(data)
-

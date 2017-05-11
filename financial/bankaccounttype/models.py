@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
-
 
 # Create your models here.
 class Bankaccounttype(models.Model):
@@ -39,5 +38,3 @@ class Bankaccounttype(models.Model):
 
     def status_verbose(self):
         return dict(Bankaccounttype.STATUS_CHOICES)[self.status]
-
-

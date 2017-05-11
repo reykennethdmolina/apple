@@ -1,13 +1,13 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Bankbranch(models.Model):
-    bank = models.ForeignKey('bank.Bank', related_name='bank_bankbranch_id', validators=[MinValueValidator(1)])
+    bank = models.ForeignKey('bank.Bank', related_name='bank_bankbranch_id',
+                             validators=[MinValueValidator(1)])
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
     address = models.CharField(max_length=250, blank=True, null=True)

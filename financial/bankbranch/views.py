@@ -1,11 +1,10 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from bankbranch.models import Bankbranch
 from bank.models import Bank
-import datetime
-
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -73,8 +72,9 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['bank', 'description', 'address', 'contact_person', 'contact_position',
-                                        'telephone1', 'telephone2', 'remarks', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['bank', 'description', 'address', 'contact_person',
+                                        'contact_position','telephone1', 'telephone2',
+                                        'remarks', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/bankbranch')
 
 
