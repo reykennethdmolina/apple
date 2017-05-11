@@ -44,6 +44,8 @@ class DetailView(DetailView):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0).filter(rfmain=self.kwargs['pk']).\
             order_by('item_counter')
+        context['totalprfquantity'] = Rfmain.objects.get(pk=self.kwargs['pk']).totalquantity - \
+                                      Rfmain.objects.get(pk=self.kwargs['pk']).totalremainingquantity
         prfs = Rfmain.objects.raw('SELECT DISTINCT '
                                                  'rfm.rfnum, '
                                                  'prfm.prfnum, '

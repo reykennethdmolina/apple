@@ -40,7 +40,7 @@ class CreateView(CreateView):
     model = Supplier
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat', 'atc', 'currency']
+              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -73,7 +73,7 @@ class UpdateView(UpdateView):
     model = Supplier
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat', 'atc', 'currency']
+              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -88,7 +88,7 @@ class UpdateView(UpdateView):
         self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
         self.object.modifyby = self.request.user
         self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-                                        'contactperson', 'creditterm', 'inputvattype', 'inputvattype_deferred', 'vat',
+                                        'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat',
                                         'atc', 'currency', 'fxrate', 'vatrate', 'atcrate', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/supplier')
 
