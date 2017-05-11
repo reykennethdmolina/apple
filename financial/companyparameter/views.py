@@ -1,11 +1,10 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from . models import Companyparameter
 from company.models import Company
-import datetime
-
+from . models import Companyparameter
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -28,9 +27,12 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Companyparameter
     template_name = 'companyparameter/create.html'
-    fields = ['code', 'description', 'address1', 'address2', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
-              'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2', 'contactperson_other1',
-              'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum', 'issued_at', 'issued_date',
+    fields = ['code', 'description', 'address1', 'address2', 'telno1', 'telno2',
+              'zipcode', 'contactperson_acctg1',
+              'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2',
+              'contactperson_other1',
+              'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum',
+              'issued_at', 'issued_date',
               'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position', 'company']
 
     def dispatch(self, request, *args, **kwargs):
@@ -55,9 +57,12 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Companyparameter
     template_name = 'companyparameter/edit.html'
-    fields = ['code', 'description', 'address1', 'address2', 'telno1', 'telno2', 'zipcode', 'contactperson_acctg1',
-              'contactperson_acctg2', 'contactperson_it1', 'contactperson_it2', 'contactperson_other1',
-              'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum', 'issued_at', 'issued_date',
+    fields = ['code', 'description', 'address1', 'address2', 'telno1', 'telno2',
+              'zipcode', 'contactperson_acctg1',
+              'contactperson_acctg2', 'contactperson_it1',
+              'contactperson_it2', 'contactperson_other1',
+              'contactperson_other2', 'sssnum', 'tinnum', 'rescertnum',
+              'issued_at', 'issued_date',
               'wtaxsign_name', 'wtaxsign_tin', 'wtaxsign_position', 'company']
 
     def dispatch(self, request, *args, **kwargs):
@@ -74,11 +79,16 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['description', 'address1', 'address2', 'telno1', 'telno2', 'zipcode',
-                                        'contactperson_acctg1', 'contactperson_acctg2', 'contactperson_it1',
-                                        'contactperson_it2', 'contactperson_other1', 'contactperson_other2', 'sssnum',
-                                        'tinnum', 'rescertnum', 'issued_at', 'issued_date', 'wtaxsign_name',
-                                        'wtaxsign_tin', 'wtaxsign_position', 'modifyby', 'modifydate', 'company'])
+        self.object.save(update_fields=['description', 'address1', 'address2', 'telno1',
+                                        'telno2', 'zipcode',
+                                        'contactperson_acctg1', 'contactperson_acctg2',
+                                        'contactperson_it1',
+                                        'contactperson_it2', 'contactperson_other1',
+                                        'contactperson_other2', 'sssnum',
+                                        'tinnum', 'rescertnum', 'issued_at', 'issued_date',
+                                        'wtaxsign_name',
+                                        'wtaxsign_tin', 'wtaxsign_position', 'modifyby',
+                                        'modifydate', 'company'])
         return HttpResponseRedirect('/companyparameter')
 
 
@@ -100,4 +110,3 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/companyparameter')
-

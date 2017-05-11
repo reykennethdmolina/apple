@@ -1,18 +1,19 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Department(models.Model):
     code = models.CharField(max_length=10, unique=True)
     departmentname = models.CharField(max_length=250)
     sectionname = models.CharField(max_length=250)
     groupname = models.CharField(max_length=250)
-    expchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', null=True, blank=True, related_name='chartofaccount_department')
-    productgroup = models.ForeignKey('productgroup.Productgroup', related_name='productgroup_id', null=True, blank=True, validators=[MinValueValidator(0)])
+    expchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', \
+        null=True, blank=True, related_name='chartofaccount_department')
+    productgroup = models.ForeignKey('productgroup.Productgroup', \
+        related_name='productgroup_id', null=True, blank=True, validators=[MinValueValidator(0)])
     YESNO_CHOICES = (
         ('Y', 'Yes'),
         ('N', 'No'),

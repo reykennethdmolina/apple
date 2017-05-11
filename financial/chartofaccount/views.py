@@ -1,3 +1,4 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -6,7 +7,6 @@ from product.models import Product
 from typeofexpense.models import Typeofexpense
 from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
-import datetime
 
 #pagination
 from django.core import serializers
@@ -153,13 +153,16 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['title', 'description', 'balancecode', 'charttype', 'accounttype', 'ctax',
-                                        'taxstatus', 'wtaxstatus', 'mainposting', 'fixedasset', 'taxespayable',
-                                        'kindofexpense', 'product', 'typeofexpense', 'mainunit', 'bankaccount_enable',
-                                        'department_enable', 'employee_enable', 'supplier_enable', 'customer_enable',
-                                        'branch_enable', 'product_enable', 'unit_enable', 'inputvat_enable',
-                                        'outputvat_enable', 'vat_enable', 'wtax_enable', 'ataxcode_enable', 'modifyby',
-                                        'modifydate'])
+        self.object.save(update_fields=['title', 'description', 'balancecode', 'charttype',
+                                        'accounttype', 'ctax', 'taxstatus', 'wtaxstatus',
+                                        'mainposting', 'fixedasset', 'taxespayable',
+                                        'kindofexpense', 'product', 'typeofexpense',
+                                        'mainunit', 'bankaccount_enable',
+                                        'department_enable', 'employee_enable',
+                                        'supplier_enable', 'customer_enable',
+                                        'branch_enable', 'product_enable', 'unit_enable',
+                                        'inputvat_enable', 'outputvat_enable', 'vat_enable',
+                                        'wtax_enable', 'ataxcode_enable', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/chartofaccount')
 
 
@@ -181,7 +184,6 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/chartofaccount')
-
 
 def paginate(request, command, current, limit, search):
     current = int(current)

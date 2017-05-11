@@ -1,3 +1,4 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -5,8 +6,6 @@ from django.http import HttpResponseRedirect, Http404
 from department.models import Department
 from chartofaccount.models import Chartofaccount
 from productgroup.models import Productgroup
-import datetime
-
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -28,7 +27,8 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Department
     template_name = 'department/create.html'
-    fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname', 'groupname', 'productgroup', 'branchstatus']
+    fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname',
+              'groupname', 'productgroup', 'branchstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('department.add_department'):
@@ -37,8 +37,10 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['expchartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
-        context['productgroup'] = Productgroup.objects.filter(isdeleted=0).order_by('description')
+        context['expchartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0, main=5).order_by('accountcode')
+        context['productgroup'] = Productgroup.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):
@@ -53,7 +55,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Department
     template_name = 'department/edit.html'
-    fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname', 'groupname', 'productgroup', 'branchstatus']
+    fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname',
+              'groupname', 'productgroup', 'branchstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('department.change_department'):
@@ -62,15 +65,18 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['expchartofaccount'] = Chartofaccount.objects.filter(isdeleted=0, main=5).order_by('accountcode')
-        context['productgroup'] = Productgroup.objects.filter(isdeleted=0).order_by('description')
+        context['expchartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0, main=5).order_by('accountcode')
+        context['productgroup'] = Productgroup.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['departmentname', 'expchartofaccount', 'sectionname', 'groupname',
+        self.object.save(update_fields=['departmentname', 'expchartofaccount',
+                                        'sectionname', 'groupname',
                                         'productgroup', 'branchstatus', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/department')
 

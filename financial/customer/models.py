@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Customer(models.Model):
     CREDITSTATUS_CHOICES = (
@@ -27,7 +26,8 @@ class Customer(models.Model):
         ('O', 'Posted'),
         ('P', 'Printed'),
     )
-    customertype = models.ForeignKey('customertype.Customertype', related_name='customertype_id', validators=[MinValueValidator(1)])
+    customertype = models.ForeignKey('customertype.Customertype', \
+        related_name='customertype_id', validators=[MinValueValidator(1)])
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=250)
     address1 = models.CharField(max_length=250)
@@ -41,25 +41,37 @@ class Customer(models.Model):
     tin = models.CharField(max_length=20, blank=True, null=True)
     pagerno = models.CharField(max_length=20, blank=True, null=True)
     payterms = models.CharField(max_length=20)
-    creditterm = models.ForeignKey('creditterm.Creditterm', null=True, blank=True, related_name='creditterm_id', default=2)
-    creditlimit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    creditstatus = models.CharField(max_length=1, choices=CREDITSTATUS_CHOICES, null=True, blank=True)
+    creditterm = models.ForeignKey('creditterm.Creditterm', null=True, \
+        blank=True, related_name='creditterm_id', default=2)
+    creditlimit = models.DecimalField(max_digits=20, decimal_places=2, \
+        null=True, blank=True)
+    creditstatus = models.CharField(max_length=1, choices=CREDITSTATUS_CHOICES, \
+        null=True, blank=True)
     creditrating = models.CharField(max_length=5, null=True, blank=True)
     contactperson = models.CharField(max_length=250)
     contactposition = models.CharField(max_length=250)
     contactemail = models.CharField(max_length=250, blank=True, null=True)
     remarks = models.CharField(max_length=250, blank=True, null=True)
-    currency = models.ForeignKey('currency.Currency', related_name='customer_currency_id', null=True, blank=True)
-    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_id', null=True, blank=True)
-    industry = models.ForeignKey('industry.Industry', related_name='industry_id', null=True, blank=True)
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y')
-    beg_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    beg_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, null=True, blank=True)
+    currency = models.ForeignKey('currency.Currency', related_name='customer_currency_id', \
+        null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_id', \
+        null=True, blank=True)
+    industry = models.ForeignKey('industry.Industry', related_name='industry_id', \
+        null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, \
+        default='Y')
+    beg_amount = models.DecimalField(max_digits=20, decimal_places=2, \
+        null=True, blank=True)
+    beg_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, \
+        null=True, blank=True)
     beg_date = models.DateField(null=True, blank=True)
-    end_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    end_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, null=True, blank=True)
+    end_amount = models.DecimalField(max_digits=20, decimal_places=2, \
+        null=True, blank=True)
+    end_code = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, \
+        null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, \
+        default='A')
     enterby = models.ForeignKey(User, default=1, related_name='customer_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='customer_modify')

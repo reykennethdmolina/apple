@@ -1,11 +1,10 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from . models import Debitcreditmemosubtype
 from chartofaccount.models import Chartofaccount
-import datetime
-
+from . models import Debitcreditmemosubtype
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -28,7 +27,8 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Debitcreditmemosubtype
     template_name = 'debitcreditmemosubtype/create.html'
-    fields = ['code', 'description', 'group', 'applicationstatus', 'particular', 'credit1chartofaccount',
+    fields = ['code', 'description', 'group', 'applicationstatus',
+              'particular', 'credit1chartofaccount',
               'credit2chartofaccount', 'debit1chartofaccount', 'debit2chartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
@@ -45,7 +45,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('accountcode')
         return context
 
 
@@ -53,7 +54,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Debitcreditmemosubtype
     template_name = 'debitcreditmemosubtype/edit.html'
-    fields = ['code', 'description', 'group', 'applicationstatus', 'particular', 'credit1chartofaccount',
+    fields = ['code', 'description', 'group', 'applicationstatus',
+              'particular', 'credit1chartofaccount',
               'credit2chartofaccount', 'debit1chartofaccount', 'debit2chartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
@@ -65,14 +67,16 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['description', 'group', 'applicationstatus', 'particular',
-                                        'credit1chartofaccount', 'credit2chartofaccount', 'debit1chartofaccount',
+        self.object.save(update_fields=['description', 'group', 'applicationstatus',
+                                        'particular', 'credit1chartofaccount', 
+                                        'credit2chartofaccount', 'debit1chartofaccount',
                                         'debit2chartofaccount', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/debitcreditmemosubtype')
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('accountcode')
         return context
 
 
