@@ -1,11 +1,11 @@
+''' Adtype Maintenance '''
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from adtype.models import Adtype
 from chartofaccount.models import Chartofaccount
-from django.db.models import Q
-import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -22,7 +22,6 @@ class IndexView(ListView):
 class DetailView(DetailView):
     model = Adtype
     template_name = 'adtype/detail.html'
-
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
