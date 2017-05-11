@@ -13,6 +13,7 @@
     </style>
 {% endblock extra_css %}
 {% block page-content %}
+{% load humanize %}
 <div class="page-content container-fluid page">
     <div class="row">
         <div class="col-md-12">
@@ -114,21 +115,72 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for prfdetail in prfdetail %}
+                                            {% for detail in detail %}
                                                 <tr>
-                                                    <td>{{ prfdetail.item_counter }}</td>
-                                                    <td>{{ prfdetail.invitem_code }}</td>
-                                                    <td>{{ prfdetail.invitem_name }}</td>
-                                                    <td>{{ prfdetail.remarks }}</td>
-                                                    <td>{{ prfdetail.rfdetail.rfmain.rfnum }}</td>
-                                                    <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
-                                                    <td>{{ prfdetail.currency.symbol }}</td>
-                                                    <td>{{ prfdetail.quantity }}</td>
-                                                    <td>{{ prfdetail.invitem.unitcost }}</td>
-                                                    <td>{{ prfdetail.amount }}</td>
+                                                    <td>{{ detail.item_counter }}</td>
+                                                    <td>{{ detail.chartofaccount.accountcode }}</td>
+                                                    <td>{{ detail.chartofaccount.description }}</td>
+                                                    <td class="text-right">{{ detail.debitamount|intcomma }}</td>
+                                                    <td class="text-right">{{ detail.creditamount|intcomma }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6">
+                                                        <table class="table">
+                                                            <tr class="info">
+                                                                {% if detail.bankaccount %}
+                                                                <td>{{ detail.bankaccount.code }} - {{ detail.bankaccount.accountnumber }}</td>
+                                                                {% endif %}
+                                                                {% if detail.department %}
+                                                                <td>{{ detail.department.code }} - {{ detail.department.departmentname }}</td>
+                                                                {% endif %}
+                                                                {% if detail.employee %}
+                                                                <td>{{ detail.employee.code }} - {{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
+                                                                {% endif %}
+                                                                {% if detail.supplier %}
+                                                                <td>{{ detail.supplier.code }} - {{ detail.supplier.name }}</td>
+                                                                {% endif %}
+                                                                {% if detail.customer %}
+                                                                <td>{{ detail.customer.code }} - {{ detail.customer.name }}</td>
+                                                                {% endif %}
+                                                                {% if detail.unit %}
+                                                                <td>{{ detail.unit.code }} - {{ detail.unit.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.branch %}
+                                                                <td>{{ detail.branch.code }} - {{ detail.branch.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.product %}
+                                                                <td>{{ detail.product.code }} - {{ detail.product.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.inputvat %}
+                                                                <td>{{ detail.inputvat.code }} - {{ detail.inputvat.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.outputvat %}
+                                                                <td>{{ detail.outputvat.code }} - {{ detail.outputvat.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.vatcode %}
+                                                                <td>{{ detail.vatcode.code }} - {{ detail.vatcode.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.wtaxcode %}
+                                                                <td>{{ detail.wtaxcode.code }} - {{ detail.wtaxcode.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.ataxcode %}
+                                                                <td>{{ detail.ataxcode.code }} - {{ detail.ataxcode.description }}</td>
+                                                                {% endif %}
+                                                            </tr>
+                                                        </table>
+                                                    </td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Total</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th class="text-right">{{ totaldebitamount.debitamount__sum|intcomma }}</th>
+                                                <th class="text-right">{{ totalcreditamount.creditamount__sum|intcomma }}</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                             </div>
                         </div>

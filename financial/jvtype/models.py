@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
-
 
 class Jvtype(models.Model):
     YESNO_CHOICES = (
@@ -22,8 +21,10 @@ class Jvtype(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=255)
     taxstatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
-    department = models.ForeignKey('department.Department', related_name='department_jvtype_id', null=True, blank=True)
-    branch = models.ForeignKey('branch.Branch', related_name='branch_jvtype_id', null=True, blank=True)
+    department = models.ForeignKey('department.Department', related_name='department_jvtype_id', \
+        null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='branch_jvtype_id', \
+        null=True, blank=True)
     particulars = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='jvtype_enter')

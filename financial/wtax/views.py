@@ -1,11 +1,10 @@
+import datetime
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from . models import Wtax
 from chartofaccount.models import Chartofaccount
-import datetime
-
+from . models import Wtax
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -43,7 +42,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -67,7 +67,8 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
 

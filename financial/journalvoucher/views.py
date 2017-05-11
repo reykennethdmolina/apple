@@ -24,6 +24,7 @@ from chartofaccount.models import Chartofaccount
 from potype.models import Potype
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail
 from annoying.functions import get_object_or_None
+from django.db.models import Sum
 import datetime
 from random import randint
 
@@ -38,10 +39,28 @@ class IndexView(ListView):
     def get_queryset(self):
         return Jvmain.objects.all().order_by('pk')
 
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
+        context['date'] = datetime.datetime.now()
+        return context
+
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
     model = Jvmain
     template_name = 'journalvoucher/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.kwargs['pk']). \
+            order_by('item_counter')
+        context['totaldebitamount'] = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.kwargs['pk']). \
+            aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.kwargs['pk']). \
+            aggregate(Sum('creditamount'))
+
+        return context
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):

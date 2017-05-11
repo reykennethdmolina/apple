@@ -1,16 +1,16 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-import datetime
-
 
 # Create your models here.
 class Unit(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
-    mainunit = models.ForeignKey('mainunit.Mainunit', default=0, related_name='mainunit_id', validators=[MinValueValidator(1)])
+    mainunit = models.ForeignKey('mainunit.Mainunit', default=0, related_name='mainunit_id',\
+        validators=[MinValueValidator(1)])
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

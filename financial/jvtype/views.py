@@ -1,3 +1,4 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -5,8 +6,6 @@ from django.http import HttpResponseRedirect, Http404
 from jvtype.models import Jvtype
 from department.models import Department
 from branch.models import Branch
-import datetime
-
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -28,7 +27,8 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Jvtype
     template_name = 'jvtype/create.html'
-    fields = ['code', 'description', 'taxstatus', 'department', 'branch', 'particulars']
+    fields = ['code', 'description', 'taxstatus', 'department',
+              'branch', 'particulars']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('jvtype.add_jvtype'):
@@ -70,7 +70,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'taxstatus', 'department', 'branch', 'particulars', 'modifyby',
+        self.object.save(update_fields=['description', 'taxstatus', 'department',
+                                        'branch', 'particulars', 'modifyby',
                                         'modifydate'])
         return HttpResponseRedirect('/jvtype')
 

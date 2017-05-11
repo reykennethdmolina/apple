@@ -1,11 +1,10 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
-from . models import Unit
 from mainunit.models import Mainunit
-import datetime
-
+from . models import Unit
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')

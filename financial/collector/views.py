@@ -40,7 +40,6 @@ class CreateView(CreateView):
         self.object.save()
         return HttpResponseRedirect('/collector')
 
-
 @method_decorator(login_required, name='dispatch')
 class UpdateView(UpdateView):
     model = Collector
