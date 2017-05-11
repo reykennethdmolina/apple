@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Employee(models.Model):
     YESNO_CHOICES = (
@@ -18,13 +17,15 @@ class Employee(models.Model):
         ('O', 'Posted'),
         ('P', 'Printed'),
     )
-    department = models.ForeignKey('department.Department', related_name='department_id', validators=[MinValueValidator(1)])
+    department = models.ForeignKey('department.Department', \
+        related_name='department_id', validators=[MinValueValidator(1)])
     code = models.CharField(max_length=10, unique=True)
     firstname = models.CharField(max_length=75)
     middlename = models.CharField(max_length=75, blank=True, null=True)
     lastname = models.CharField(max_length=75)
     email = models.CharField(max_length=100, blank=True, null=True)
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, \
+        choices=YESNO_CHOICES, default='Y', null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='employee_enter')
     enterdate = models.DateTimeField(auto_now_add=True)

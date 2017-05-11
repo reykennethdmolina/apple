@@ -1,17 +1,22 @@
+import datetime
 from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
 
 
 class Inventoryitemclass(models.Model):
-    inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype', related_name='invclass_inventoryitemtype_id', default='1')
-    chartofaccountinventory = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartofaccountinv_id', default='1')
-    chartexpcostofsale = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpcostofsale_id', default='1')
-    chartexpgenandadmin = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpgenandadmin_id', default='1')
-    chartexpsellexp = models.ForeignKey('chartofaccount.Chartofaccount', related_name='invclass_chartexpsellexp_id', default='1')
+    inventoryitemtype = models.ForeignKey('inventoryitemtype.Inventoryitemtype', \
+        related_name='invclass_inventoryitemtype_id', default='1')
+    chartofaccountinventory = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='invclass_chartofaccountinv_id', default='1')
+    chartexpcostofsale = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='invclass_chartexpcostofsale_id', default='1')
+    chartexpgenandadmin = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='invclass_chartexpgenandadmin_id', default='1')
+    chartexpsellexp = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='invclass_chartexpsellexp_id', default='1')
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
     STATUS_CHOICES = (

@@ -1,3 +1,4 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -6,7 +7,6 @@ from departmentbudget.models import Departmentbudget
 from department.models import Department
 from unit.models import Unit
 from chartofaccount.models import Chartofaccount
-import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -43,9 +43,11 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['department'] = Department.objects.\
+            filter(isdeleted=0).order_by('departmentname')
         context['unit'] = Unit.objects.filter(isdeleted=0).order_by('description')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):
@@ -74,9 +76,11 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['department'] = Department.objects.\
+            filter(isdeleted=0).order_by('departmentname')
         context['unit'] = Unit.objects.filter(isdeleted=0).order_by('description')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).order_by('description')
+        context['chartofaccount'] = Chartofaccount.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):

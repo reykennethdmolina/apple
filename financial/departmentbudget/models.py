@@ -1,31 +1,45 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Departmentbudget(models.Model):
-    year = models.PositiveSmallIntegerField(validators=[MaxValueValidator(2100), MinValueValidator(1980)])
-    department = models.ForeignKey('department.Department', related_name='department_departmentbudget_id')
+    year = models.PositiveSmallIntegerField(validators=[MaxValueValidator(2100), \
+        MinValueValidator(1980)])
+    department = models.ForeignKey('department.Department', \
+        related_name='department_departmentbudget_id')
     unit = models.ForeignKey('unit.Unit', related_name='unit_departmentbudget_id')
-    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_departmentbudget_id')
+    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='chartofaccount_departmentbudget_id')
     remarks = models.CharField(max_length=255, blank=True, null=True)
     formula = models.CharField(max_length=255, blank=True, null=True)
     method = models.CharField(max_length=255, blank=True, null=True)
-    mjan = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mfeb = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mmar = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mapr = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mmay = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mjun = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mjul = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    maug = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    msep = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    moct = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mnov = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    mdec = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    mjan = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mfeb = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mmar = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mapr = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mmay = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mjun = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mjul = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    maug = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    msep = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    moct = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mnov = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
+    mdec = models.DecimalField(default=0.00, null=True, blank=True, \
+        decimal_places=2, max_digits=18)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

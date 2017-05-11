@@ -1,12 +1,12 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from . models import Employee
-from department.models import Department
 from django.core import serializers
 from django.db.models import Q
-import datetime
+from department.models import Department
+from . models import Employee
 
 
 @method_decorator(login_required, name='dispatch')
@@ -19,7 +19,7 @@ class IndexView(ListView):
         return Employee.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
 
     def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
+        context = super(IndexView, self).get_context_data(**kwargs)
         context['listcount'] = Employee.objects.filter(isdeleted=0).count()
         return context
 
@@ -51,7 +51,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['department'] = Department.objects.\
+            filter(isdeleted=0).order_by('departmentname')
         return context
 
 
@@ -71,13 +72,15 @@ class UpdateView(UpdateView):
         self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['department', 'firstname', 'middlename', 'lastname', 'email', 'multiplestatus',
+        self.object.save(update_fields=['department', 'firstname',
+                                        'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['department'] = Department.objects.\
+            filter(isdeleted=0).order_by('departmentname')
         return context
 
 
@@ -117,7 +120,8 @@ def paginate(request, command, current, limit, search):
                                                  Q(lastname__icontains=search_not_slug))\
                                                 .filter(isdeleted=0).order_by('-pk')
     else:
-        employee = Employee.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
+        employee = Employee.objects.all().filter(isdeleted=0).\
+            order_by('-pk')[current:current+limit]
 
     json_models = serializers.serialize("json", employee)
     print json_models

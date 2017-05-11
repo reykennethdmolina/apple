@@ -1,16 +1,16 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponseRedirect, Http404
+#JsonResponse
 from inventoryitem.models import Inventoryitem
 from inventoryitemclass.models import Inventoryitemclass
 from unitofmeasure.models import Unitofmeasure
-from inventoryitemtype.models import Inventoryitemtype
-from django.views.decorators.csrf import csrf_exempt
-from django.core import serializers
-from inventoryitem.forms import CreateViewForm
+#from inventoryitemtype.models import Inventoryitemtype
+#from django.views.decorators.csrf import csrf_exempt
+#from django.core import serializers
 from json_views.views import JSONDataView
-import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -32,9 +32,9 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Inventoryitem
-    #form_class= CreateViewForm
     template_name = 'inventoryitem/create.html'
-    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
+    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure',
+              'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitem.add_inventoryitem'):
@@ -61,8 +61,10 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['inventoryitemclass'] = Inventoryitemclass.objects.filter(isdeleted=0).order_by('description')
-        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
+        context['inventoryitemclass'] = Inventoryitemclass.objects.\
+            filter(isdeleted=0).order_by('description')
+        context['unitofmeasure'] = Unitofmeasure.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -70,7 +72,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Inventoryitem
     template_name = 'inventoryitem/edit.html'
-    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
+    fields = ['code', 'description', 'inventoryitemclass', 'unitofmeasure',
+              'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitem.change_inventoryitem'):
@@ -79,15 +82,19 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['inventoryitemclass'] = Inventoryitemclass.objects.filter(isdeleted=0).order_by('description')
-        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
+        context['inventoryitemclass'] = Inventoryitemclass.objects.\
+            filter(isdeleted=0).order_by('description')
+        context['unitofmeasure'] = Unitofmeasure.objects.\
+            filter(isdeleted=0).order_by('description')
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'unitofmeasure', 'unitcost', 'quantity', 'stocklevel', 'expensestatus', 'specialstatus', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'unitofmeasure',
+                                        'unitcost', 'quantity', 'stocklevel',
+                                        'expensestatus', 'specialstatus', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/inventoryitem')
 
 

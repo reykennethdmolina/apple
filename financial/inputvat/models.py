@@ -1,16 +1,17 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-import datetime
-
 
 class Inputvat(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
-    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='inputvattype_id', validators=[MinValueValidator(1)])
-    inputvatchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_inputvat_id', validators=[MinValueValidator(1)])
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', \
+        related_name='inputvattype_id', validators=[MinValueValidator(1)])
+    inputvatchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='chartofaccount_inputvat_id', validators=[MinValueValidator(1)])
     title = models.CharField(max_length=50, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
