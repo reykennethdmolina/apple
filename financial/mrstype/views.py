@@ -1,9 +1,9 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from mrstype.models import Mrstype
-import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -56,7 +56,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'transtype', 'lastno', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'transtype', 'lastno',
+                                        'modifyby', 'modifydate'])
         return HttpResponseRedirect('/mrstype')
 
 

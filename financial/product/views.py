@@ -1,10 +1,10 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from product.models import Product
 from mainproduct.models import Mainproduct
-import datetime
 
 # Create your views here.
 
@@ -66,8 +66,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'mainproduct', 'cmsgroup_id', 'pagecount', 'modifyby',
-                                        'modifydate'])
+        self.object.save(update_fields=['description', 'mainproduct', 'cmsgroup_id',
+                                        'pagecount', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/product')
 
     def get_context_data(self, **kwargs):
