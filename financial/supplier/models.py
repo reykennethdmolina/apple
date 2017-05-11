@@ -48,6 +48,11 @@ class Supplier(models.Model):
     currency = models.ForeignKey('currency.Currency', related_name='supplier_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
+    industry = models.ForeignKey('industry.Industry', related_name='supplier_industry_id',
+                                 validators=[MinValueValidator(1)])
+    suppliertype = models.ForeignKey('suppliertype.Suppliertype', related_name='supplier_suppliertype_id',
+                                     validators=[MinValueValidator(1)])
+
     class Meta:
         db_table = 'supplier'
         ordering = ['-pk']

@@ -59,6 +59,28 @@ class Pomain(models.Model):
     discountamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
+    # Approval fields
+    designatedapprover = models.ForeignKey(User, default=2, related_name='pomain_designated_approver')
+    actualapprover = models.ForeignKey(User, related_name='pomain_actual_approver', null=True, blank=True)
+    RESPONSE_CHOICES = (
+        ('A', 'Approved'),
+        ('D', 'Disapproved'),
+    )
+    approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
+    approverremarks = models.CharField(max_length=250, null=True, blank=True)
+    responsedate = models.DateTimeField(null=True, blank=True)
+
+    # Delivery-related fields
+    deliverydate = models.DateTimeField(null=True, blank=True)
+    DELIVERY_STATUS_CHOICES = (
+        ('O', 'Ordered'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    # deliverystatus
+
     class Meta:
         db_table = 'pomain'
         ordering = ['-pk']

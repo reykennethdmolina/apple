@@ -1,3 +1,6 @@
+"""This module handles the processing of requisition form transactions."""
+
+import datetime
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -5,22 +8,22 @@ from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http40
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.core import serializers
-from . models import Rfmain, Rfdetail, Rfdetailtemp
-from inventoryitemtype.models import Inventoryitemtype
 from branch.models import Branch
 from department.models import Department
 from inventoryitem.models import Inventoryitem
+from inventoryitemtype.models import Inventoryitemtype
 from unitofmeasure.models import Unitofmeasure
 from django.contrib.auth.models import User
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
-import datetime
+from . models import Rfmain, Rfdetail, Rfdetailtemp
 
 # Create your views here.
 
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
+    """This class enlists all requisition forms."""
     model = Rfmain
     template_name = 'requisitionform/index.html'
     context_object_name = 'data_list'
@@ -42,27 +45,25 @@ class DetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
-        context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0).filter(rfmain=self.kwargs['pk']).\
-            order_by('item_counter')
-        context['totalprfquantity'] = Rfmain.objects.get(pk=self.kwargs['pk']).totalquantity - \
-                                      Rfmain.objects.get(pk=self.kwargs['pk']).totalremainingquantity
+        context['rfdetail'] = Rfdetail.objects.filter(isdeleted=0).\
+            filter(rfmain=self.kwargs['pk']).order_by('item_counter')
+        context['totalprfquantity'] = Rfmain.objects.get(pk=self.kwargs['pk']).\
+                                          totalquantity - Rfmain.objects.\
+            get(pk=self.kwargs['pk']).totalremainingquantity
         prfs = Rfmain.objects.raw('SELECT DISTINCT '
-                                                 'rfm.rfnum, '
-                                                 'prfm.prfnum, '
-                                                 'prfm.id, '
-                                                 'prfm.prfstatus, '
-                                                 'prfm.modifydate '
-                                             'FROM prfdetail prfd '
-                                             'LEFT JOIN rfdetail rfd '
-                                             'ON prfd.rfdetail_id = rfd.id '
-                                             'LEFT JOIN rfmain rfm '
-                                             'ON rfd.rfmain_id = rfm.id '
-                                             'LEFT JOIN prfmain prfm '
-                                             'ON prfd.prfmain_id = prfm.id '
-                                             'WHERE '
-                                                'rfm.rfnum = ' + self.object.rfnum + ' AND '
-                                                'prfm.isdeleted = 0 '
-                                             'ORDER BY prfm.modifydate')
+                                  'rfm.rfnum, prfm.prfnum, prfm.id, '
+                                  'prfm.prfstatus, prfm.modifydate '
+                                  'FROM prfdetail prfd '
+                                  'LEFT JOIN rfdetail rfd '
+                                  'ON prfd.rfdetail_id = rfd.id '
+                                  'LEFT JOIN rfmain rfm '
+                                  'ON rfd.rfmain_id = rfm.id '
+                                  'LEFT JOIN prfmain prfm '
+                                  'ON prfd.prfmain_id = prfm.id '
+                                  'WHERE '
+                                  'rfm.rfnum = ' + self.object.rfnum + ' AND '
+                                  'prfm.isdeleted = 0 '
+                                  'ORDER BY prfm.modifydate')
         context['prfs'] = []
         for data in prfs:
             context['prfs'].append([data.prfnum,
@@ -77,8 +78,9 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Rfmain
     template_name = 'requisitionform/create.html'
-    fields = ['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
-              'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
+    fields = ['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype',
+              'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
+              'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('requisitionform.add_rfmain'):
@@ -105,17 +107,17 @@ class CreateView(CreateView):
             self.object = form.save(commit=False)
 
             year = str(form.cleaned_data['rfdate'].year)
-            yearQS = Rfmain.objects.filter(rfnum__startswith=year)
+            yearqs = Rfmain.objects.filter(rfnum__startswith=year)
 
-            if yearQS:
-                rfnumlast = yearQS.latest('rfnum')
+            if yearqs:
+                rfnumlast = yearqs.latest('rfnum')
                 latestrfnum = str(rfnumlast)
                 print "latest: " + latestrfnum
 
                 rfnum = year
                 last = str(int(latestrfnum[4:])+1)
                 zero_addon = 6 - len(last)
-                for x in range(0, zero_addon):
+                for num in range(0, zero_addon):
                     rfnum += '0'
                 rfnum += last
 
@@ -129,7 +131,9 @@ class CreateView(CreateView):
             self.object.totalremainingquantity = self.request.POST['totalquantity']
             self.object.save()
 
-            detailtemp = Rfdetailtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+            detailtemp = Rfdetailtemp.objects.filter(isdeleted=0,
+                                                     secretkey=self.request.
+                                                     POST['secretkey']).\
                 order_by('enterdate')
             i = 1
             for dt in detailtemp:
@@ -140,11 +144,12 @@ class CreateView(CreateView):
                 detail.invitem_code = dt.invitem_code
                 detail.invitem_name = dt.invitem_name
                 detail.invitem_unitofmeasure = Unitofmeasure.objects\
-                                                            .get(code=self.request.POST.getlist('temp_item_um')[i-1],
+                                                            .get(code=self.request.POST
+                                                                 .getlist('temp_item_um')[i-1],
                                                                  isdeleted=0, status='A')
-                detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                              getlist('temp_item_um')[i - 1], isdeleted=0,
-                                                                              status='A').code
+                detail.invitem_unitofmeasure_code = Unitofmeasure.objects\
+                    .get(code=self.request.POST.getlist('temp_item_um')[i - 1],
+                         isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
                 detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
                 detail.status = dt.status
@@ -166,8 +171,9 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Rfmain
     template_name = 'requisitionform/edit.html'
-    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit', 'urgencytype', 'dateneeded',
-              'branch', 'department', 'particulars', 'designatedapprover', 'totalquantity']
+    fields = ['rfnum', 'rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit',
+              'urgencytype', 'dateneeded', 'branch', 'department', 'particulars',
+              'designatedapprover', 'totalquantity']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -188,13 +194,14 @@ class UpdateView(UpdateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
-        context['totalremainingquantity'] = Rfmain.objects.get(pk=self.object.pk).totalremainingquantity
+        context['totalremainingquantity'] = Rfmain.objects.get(pk=self.object.pk).\
+            totalremainingquantity
         prfs = Rfmain.objects.raw('SELECT DISTINCT '
-                                      'rfm.rfnum, '
-                                      'prfm.prfnum, '
-                                      'prfm.id, '
-                                      'prfm.prfstatus, '
-                                      'prfm.modifydate '
+                                  'rfm.rfnum, '
+                                  'prfm.prfnum, '
+                                  'prfm.id, '
+                                  'prfm.prfstatus, '
+                                  'prfm.modifydate '
                                   'FROM prfdetail prfd '
                                   'LEFT JOIN rfdetail rfd '
                                   'ON prfd.rfdetail_id = rfd.id '
@@ -204,7 +211,7 @@ class UpdateView(UpdateView):
                                   'ON prfd.prfmain_id = prfm.id '
                                   'WHERE '
                                   'rfm.rfnum = ' + self.object.rfnum + ' AND '
-                                      'prfm.isdeleted = 0 '
+                                  'prfm.isdeleted = 0 '
                                   'ORDER BY prfm.modifydate')
 
         context['prfs'] = []
@@ -214,7 +221,8 @@ class UpdateView(UpdateView):
                                     data.modifydate,
                                     data.id])
 
-        detail = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('item_counter')
+        detail = Rfdetail.objects.filter(isdeleted=0, rfmain=self.object.pk)\
+            .order_by('item_counter')
 
         Rfdetailtemp.objects.filter(rfmain=self.object.pk).delete()        # clear all temp data
         for d in detail:
@@ -242,7 +250,9 @@ class UpdateView(UpdateView):
             detailtemp.prfremainingquantity = d.prfremainingquantity
             detailtemp.save()
 
-        context['rfdetailtemp'] = Rfdetailtemp.objects.filter(isdeleted=0, rfmain=self.object.pk).order_by('item_counter')
+        context['rfdetailtemp'] = Rfdetailtemp.objects.filter(isdeleted=0,
+                                                              rfmain=self.object.pk).\
+            order_by('item_counter')
         return context
 
     def form_valid(self, form):
@@ -258,9 +268,11 @@ class UpdateView(UpdateView):
             if self.object.rfstatus == 'A':
                 self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
             else:
-                self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum', 'rftype', 'unit',
-                                                'urgencytype', 'dateneeded', 'branch', 'department', 'particulars',
-                                                'designatedapprover', 'totalquantity', 'modifyby', 'modifydate',
+                self.object.save(update_fields=['rfdate', 'inventoryitemtype', 'refnum',
+                                                'rftype', 'unit', 'urgencytype',
+                                                'dateneeded', 'branch', 'department',
+                                                'particulars', 'designatedapprover',
+                                                'totalquantity', 'modifyby', 'modifydate',
                                                 'totalremainingquantity'])
 
             Rfdetailtemp.objects.filter(isdeleted=1, rfmain=self.object.pk).delete()
@@ -284,18 +296,19 @@ class UpdateView(UpdateView):
                 alldetail.invitem_code = atd.invitem_code
                 alldetail.invitem_name = atd.invitem_name
 
-                # if rfstatus == "Approved", unitofmeasure, unitofmeasurecode and quantity will not be updated
+                # if rfstatus == "Approved", unitofmeasure, unitofmeasurecode
+                # and quantity will not be updated
                 if self.object.rfstatus == 'Approved':
                     alldetail.invitem_unitofmeasure = atd.invitem_unitofmeasure
                     alldetail.invitem_unitofmeasure_code = atd.invitem_unitofmeasure_code
                     alldetail.quantity = atd.quantity
                 else:
-                    alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                                getlist('temp_item_um')[i - 1],
-                                                                                isdeleted=0, status='A')
-                    alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.
-                                                                                     getlist('temp_item_um')[i - 1],
-                                                                                     isdeleted=0, status='A').code
+                    alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(
+                        code=self.request.POST.getlist('temp_item_um')[i - 1],
+                        isdeleted=0, status='A')
+                    alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(
+                        code=self.request.POST.getlist('temp_item_um')[i - 1],
+                        isdeleted=0, status='A').code
                     alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
                     alldetail.prfremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
 
@@ -325,8 +338,9 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('requisitionform.delete_rfmain') or self.object.status != 'A' or \
-                        self.object.rfstatus != 'F' or self.object.isdeleted == 1:
+        if not request.user.has_perm('requisitionform.delete_rfmain') or \
+                        self.object.status != 'A' or self.object.rfstatus != 'F' or \
+                        self.object.isdeleted == 1:
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -349,7 +363,8 @@ class Pdf(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-        context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+        context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0,
+                                                      status='A').order_by('item_counter')
 
         printedrf = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedrf.print_ctr += 1
@@ -365,12 +380,14 @@ def savedetailtemp(request):
         detailtemp = Rfdetailtemp()
         detailtemp.item_counter = request.POST['itemno']
         detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A')
-        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').code
-        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').description
-        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').\
-            unitofmeasure
-        detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['id_item'], status='A').\
-            unitofmeasure.code
+        detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_item'],
+                                                            status='A').code
+        detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_item'],
+                                                            status='A').description
+        detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['id_item'],
+                                                                     status='A').unitofmeasure
+        detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(
+            pk=request.POST['id_item'], status='A').unitofmeasure.code
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.remarks = request.POST['id_remarks']
         detailtemp.secretkey = request.POST['secretkey']
@@ -407,7 +424,8 @@ def deletedetailtemp(request):
             detailtemp.delete()
         except Rfdetailtemp.DoesNotExist:
             print "this happened"
-            detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'], rfmain__rfnum=request.POST['rfnum'])
+            detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'],
+                                                  rfmain__rfnum=request.POST['rfnum'])
             detailtemp.isdeleted = 1
             detailtemp.save()
 
@@ -438,9 +456,9 @@ def paginate(request, command, current, limit, search):
                                              Q(rfstatus__icontains=search_not_slug))\
                                             .order_by('-enterdate')
     else:
-        rfmain = Rfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
+        rfmain = Rfmain.objects.all().filter(isdeleted=0)\
+                     .order_by('-enterdate')[current:current+limit]
 
     json_models = serializers.serialize("json", rfmain)
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
-
