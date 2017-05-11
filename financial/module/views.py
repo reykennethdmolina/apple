@@ -1,3 +1,4 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -5,8 +6,6 @@ from django.http import HttpResponseRedirect, Http404
 from module.models import Module
 from mainmodule.models import Mainmodule
 from django.contrib.contenttypes.models import ContentType
-import datetime
-
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -38,7 +37,8 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['mainmodule'] = Mainmodule.objects.filter(isdeleted=0).order_by('description')
-        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
+        context['django_content_type'] = ContentType.objects.\
+            exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
         return context
 
     def form_valid(self, form):
@@ -63,14 +63,16 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['mainmodule'] = Mainmodule.objects.filter(isdeleted=0).order_by('description')
-        context['django_content_type'] = ContentType.objects.exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
+        context['django_content_type'] = ContentType.objects.\
+            exclude(pk__in=[1, 2, 5, 6]).order_by('app_label')
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'mainmodule', 'django_content_type', 'name', 'segment',
+        self.object.save(update_fields=['description', 'mainmodule', 'django_content_type',
+                                        'name', 'segment',
                                         'modifyby', 'modifydate'])
         return HttpResponseRedirect('/module')
 

@@ -1,15 +1,16 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-import datetime
-
 
 class Module(models.Model):
-    mainmodule = models.ForeignKey('mainmodule.Mainmodule', related_name='mainmodule_id', validators=[MinValueValidator(1)])
-    django_content_type = models.ForeignKey(ContentType, related_name='django_content_type_id', default=1, validators=[MinValueValidator(1)])
+    mainmodule = models.ForeignKey('mainmodule.Mainmodule', \
+        related_name='mainmodule_id', validators=[MinValueValidator(1)])
+    django_content_type = models.ForeignKey(ContentType, \
+        related_name='django_content_type_id', default=1, validators=[MinValueValidator(1)])
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=150, blank=True, null=True)
     description = models.CharField(max_length=250)
