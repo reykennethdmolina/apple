@@ -1,16 +1,16 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-import datetime
-
 
 # Create your models here.
 class Mainsupplier_supplier(models.Model):
     mainsupplier = models.ForeignKey('mainsupplier.Mainsupplier', related_name='mainsupplier_id',
                                      validators=[MinValueValidator(1)])
-    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_id', validators=[MinValueValidator(1)])
+    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_id', 
+                                 validators=[MinValueValidator(1)])
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -42,5 +42,3 @@ class Mainsupplier_supplier(models.Model):
 
     def status_verbose(self):
         return dict(Mainsupplier_supplier.STATUS_CHOICES)[self.status]
-
-
