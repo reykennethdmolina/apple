@@ -1,8 +1,8 @@
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
 
 
 class Jvmain(models.Model):
@@ -13,7 +13,8 @@ class Jvmain(models.Model):
     refnum = models.CharField(max_length=150, blank=True, null=True)
     currency = models.ForeignKey('currency.Currency', related_name='currency_jvmain_id')
     branch = models.ForeignKey('branch.Branch', related_name='branch_jvmain_id')
-    department = models.ForeignKey('department.Department', related_name='department_jvmain_id', null=True, blank=True)
+    department = models.ForeignKey('department.Department', \
+        related_name='department_jvmain_id', null=True, blank=True)
     particular = models.TextField()
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -27,7 +28,8 @@ class Jvmain(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='jvmain_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='jvmain_post',null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='jvmain_post', \
+        null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
 
@@ -50,27 +52,45 @@ class Jvmain(models.Model):
 
 class Jvdetail(models.Model):
     item_counter = models.IntegerField()
-    jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='jvmain_jvdetail_id', null=True, blank=True)
+    jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='jvmain_jvdetail_id', \
+        null=True, blank=True)
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField()
-    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_jvdetail_id')
-    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_jvdetail_id', null=True, blank=True)
-    department = models.ForeignKey('department.Department', related_name='department_jvdetail_id', null=True, blank=True)
-    employee = models.ForeignKey('employee.Employee', related_name='employee_jvdetail_id', null=True, blank=True)
-    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_jvdetail_id', null=True, blank=True)
-    customer = models.ForeignKey('customer.Customer', related_name='customer_jvdetail_id', null=True, blank=True)
-    unit = models.ForeignKey('unit.Unit', related_name='unit_jvdetail_id', null=True, blank=True)
-    branch = models.ForeignKey('branch.Branch', related_name='branch_jvdetail_id', null=True, blank=True)
-    product = models.ForeignKey('product.Product', related_name='product_jvdetail_id', null=True, blank=True)
-    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_jvdetail_id', null=True, blank=True)
-    outputvat = models.ForeignKey('outputvat.Outputvat', related_name='outputvat_jvdetail_id', null=True, blank=True)
-    vat = models.ForeignKey('vat.Vat', related_name='vat_jvdetail_id', null=True, blank=True)
-    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_jvdetail_id', null=True, blank=True)
-    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_jvdetail_id', null=True, blank=True)
-    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
-    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='chartofaccount_jvdetail_id')
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', \
+        related_name='bankaccount_jvdetail_id', null=True, blank=True)
+    department = models.ForeignKey('department.Department', \
+        related_name='department_jvdetail_id', null=True, blank=True)
+    employee = models.ForeignKey('employee.Employee', \
+        related_name='employee_jvdetail_id', null=True, blank=True)
+    supplier = models.ForeignKey('supplier.Supplier', \
+        related_name='supplier_jvdetail_id', null=True, blank=True)
+    customer = models.ForeignKey('customer.Customer', \
+        related_name='customer_jvdetail_id', null=True, blank=True)
+    unit = models.ForeignKey('unit.Unit', related_name='unit_jvdetail_id', \
+        null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='branch_jvdetail_id', \
+        null=True, blank=True)
+    product = models.ForeignKey('product.Product', related_name='product_jvdetail_id', \
+        null=True, blank=True)
+    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_jvdetail_id', \
+        null=True, blank=True)
+    outputvat = models.ForeignKey('outputvat.Outputvat', \
+        related_name='outputvat_jvdetail_id', null=True, blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='vat_jvdetail_id', \
+        null=True, blank=True)
+    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_jvdetail_id', \
+        null=True, blank=True)
+    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_jvdetail_id', \
+        null=True, blank=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
-    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, \
+        null=True, default=0.00)
 
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -84,7 +104,8 @@ class Jvdetail(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='jvdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='jvdetail_post',null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='jvdetail_post', \
+        null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
@@ -110,33 +131,51 @@ class Jvdetail(models.Model):
 
 class Jvdetailbreakdown(models.Model):
     item_counter = models.IntegerField()
-    jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='jvmain_jvdetailbreakdown_id', null=True, blank=True)
-    jvdetail = models.ForeignKey('journalvoucher.Jvdetail', related_name='jvdetail_jvdetailbreakdown_id', null=True, blank=True)
+    jvmain = models.ForeignKey('journalvoucher.Jvmain', \
+        related_name='jvmain_jvdetailbreakdown_id', null=True, blank=True)
+    jvdetail = models.ForeignKey('journalvoucher.Jvdetail', \
+        related_name='jvdetail_jvdetailbreakdown_id', null=True, blank=True)
     datatype = models.CharField(max_length=1, null=True, blank=True)
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField()
-    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_jvdetailbreakdown_id')
+    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', \
+        related_name='chartofaccount_jvdetailbreakdown_id')
     particular = models.TextField(null=True, blank=True)
-    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_jvdetailbreakdown_id', null=True,
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', \
+        related_name='bankaccount_jvdetailbreakdown_id', null=True,
                                     blank=True)
-    department = models.ForeignKey('department.Department', related_name='department_jvdetailbreakdown_id', null=True,
+    department = models.ForeignKey('department.Department', \
+        related_name='department_jvdetailbreakdown_id', null=True,
                                    blank=True)
-    employee = models.ForeignKey('employee.Employee', related_name='employee_jvdetailbreakdown_id', null=True, blank=True)
-    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_jvdetailbreakdown_id', null=True, blank=True)
-    customer = models.ForeignKey('customer.Customer', related_name='customer_jvdetailbreakdown_id', null=True, blank=True)
-    unit = models.ForeignKey('unit.Unit', related_name='unit_jvdetailbreakdown_id', null=True, blank=True)
-    branch = models.ForeignKey('branch.Branch', related_name='branch_jvdetailbreakdown_id', null=True, blank=True)
-    product = models.ForeignKey('product.Product', related_name='product_jvdetailbreakdown_id', null=True, blank=True)
-    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_jvdetailbreakdown_id', null=True, blank=True)
-    outputvat = models.ForeignKey('outputvat.Outputvat', related_name='outputvat_jvdetailbreakdown_id', null=True,
-                                  blank=True)
-    vat = models.ForeignKey('vat.Vat', related_name='vat_jvdetailbreakdown_id', null=True, blank=True)
-    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_jvdetailbreakdown_id', null=True, blank=True)
-    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_jvdetailbreakdown_id', null=True, blank=True)
-    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
-    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    employee = models.ForeignKey('employee.Employee', \
+        related_name='employee_jvdetailbreakdown_id', null=True, blank=True)
+    supplier = models.ForeignKey('supplier.Supplier', \
+        related_name='supplier_jvdetailbreakdown_id', null=True, blank=True)
+    customer = models.ForeignKey('customer.Customer', \
+        related_name='customer_jvdetailbreakdown_id', null=True, blank=True)
+    unit = models.ForeignKey('unit.Unit', related_name='unit_jvdetailbreakdown_id', \
+        null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', \
+        related_name='branch_jvdetailbreakdown_id', null=True, blank=True)
+    product = models.ForeignKey('product.Product', \
+        related_name='product_jvdetailbreakdown_id', null=True, blank=True)
+    inputvat = models.ForeignKey('inputvat.Inputvat', \
+        related_name='inputvat_jvdetailbreakdown_id', null=True, blank=True)
+    outputvat = models.ForeignKey('outputvat.Outputvat', \
+        related_name='outputvat_jvdetailbreakdown_id', null=True, blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='vat_jvdetailbreakdown_id', \
+        null=True, blank=True)
+    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_jvdetailbreakdown_id', \
+        null=True, blank=True)
+    ataxcode = models.ForeignKey('ataxcode.Ataxcode', \
+        related_name='ataxcode_jvdetailbreakdown_id', null=True, blank=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
-    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
 
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -150,7 +189,8 @@ class Jvdetailbreakdown(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='jvdetailbreakdown_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='jvdetailbreakdown_post', null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='jvdetailbreakdown_post', \
+        null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
@@ -196,10 +236,13 @@ class Jvdetailtemp(models.Model):
     vat = models.IntegerField(blank=True, null=True)
     wtax = models.IntegerField(blank=True, null=True)
     ataxcode = models.IntegerField(blank=True, null=True)
-    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
-    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
-    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
     supplierbreakstatus = models.IntegerField(blank=True, null=True)
     employeebreakstatus = models.IntegerField(blank=True, null=True)
@@ -216,7 +259,8 @@ class Jvdetailtemp(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='jvdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='jvdetailtemp_post',null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='jvdetailtemp_post', \
+        null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
 
@@ -244,7 +288,8 @@ class Jvdetailbreakdowntemp(models.Model):
     datatype = models.CharField(max_length=1, null=True, blank=True)
     jvmain = models.CharField(max_length=10, null=True, blank=True)
     jvdetail = models.CharField(max_length=10, null=True, blank=True)
-    jvdetailbreakdown = models.CharField(max_length=10, null=True, blank=True)
+    jvdetailbreakdown = models.CharField(max_length=10, \
+        null=True, blank=True)
     jv_num = models.CharField(max_length=10)
     jv_date = models.DateTimeField(blank=True, null=True)
     chartofaccount = models.IntegerField(blank=True, null=True)
@@ -262,10 +307,13 @@ class Jvdetailbreakdowntemp(models.Model):
     vat = models.IntegerField(blank=True, null=True)
     wtax = models.IntegerField(blank=True, null=True)
     ataxcode = models.IntegerField(blank=True, null=True)
-    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
-    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
-    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
     supplierbreakstatus = models.IntegerField(blank=True, null=True)
     employeebreakstatus = models.IntegerField(blank=True, null=True)
@@ -282,7 +330,8 @@ class Jvdetailbreakdowntemp(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='jvdetailbreakdowntemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='jvdetailbreakdowntemp_post',null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='jvdetailbreakdowntemp_post', \
+        null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
 
