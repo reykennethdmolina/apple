@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 import datetime
 
@@ -74,12 +75,22 @@ class Pomain(models.Model):
     deliverydate = models.DateTimeField(null=True, blank=True)
     DELIVERY_STATUS_CHOICES = (
         ('O', 'Ordered'),
-        ('I', 'Inactive'),
-        ('C', 'Cancelled'),
-        ('O', 'Posted'),
-        ('P', 'Printed'),
+        ('P', 'Partial Delivery'),
+        ('C', 'Complete'),
+        ('S', 'Stop'),
     )
-    # deliverystatus
+    deliverystatus = models.CharField(max_length=1, choices=DELIVERY_STATUS_CHOICES, null=True, blank=True)
+
+    # from supplier masterfile additional fields
+    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='pomain_creditterm_id')
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='pomain_atc_id', validators=[MinValueValidator(1)])
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    vat = models.ForeignKey('vat.Vat', related_name='pomain_vat_id', validators=[MinValueValidator(1)])
+    vatrate =
+    inputvattype
+    deferredvat
+    currency
+    fxrate
 
     class Meta:
         db_table = 'pomain'
