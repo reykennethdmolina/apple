@@ -158,12 +158,13 @@
                                                 <th>Name</th>
                                                 <th>Description</th>
                                                 <th>Remarks</th>
-                                                <th>RF No.</th>
-                                                <th style="width:90px">Quantity</th>
+                                                <th style="text-align:right">RF No.</th>
+                                                <th style="text-align:right;width:90px">Quantity</th>
                                                 <th>Unit of Measure</th>
-                                                <th>Currency</th>
-                                                <th>FX Rate</th>
-                                                <th>Amount</th>
+                                                <th style="text-align:right">Currency</th>
+                                                <th style="text-align:right">FX Rate</th>
+                                                <th style="text-align:right">Amount</th>
+                                                <th>Deparment</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -173,12 +174,13 @@
                                                     <td>{{ prfdetail.invitem_code }}</td>
                                                     <td>{{ prfdetail.invitem_name }}</td>
                                                     <td>{{ prfdetail.remarks }}</td>
-                                                    <td>{{ prfdetail.rfdetail.rfmain.rfnum }}</td>
-                                                    <td>{{ prfdetail.quantity }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.rfdetail.rfmain.rfnum|default:'-' }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.quantity }}</td>
                                                     <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
-                                                    <td>{{ prfdetail.currency.symbol }}</td>
-                                                    <td>{{ prfdetail.fxrate }}</td>
-                                                    <td>{{ prfdetail.netamount }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.currency.symbol }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.fxrate }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.netamount }}</td>
+                                                    <td>{{ prfdetail.department_code }} <br> {{ prfdetail.department_name }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

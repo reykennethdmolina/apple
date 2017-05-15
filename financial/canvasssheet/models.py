@@ -128,6 +128,8 @@ class Csdetail(models.Model):
         ('P', 'Printed'),
     )
 
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_csdetail', null=True, blank=True)
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_csdetail', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='csdetail_invitem_id')
     invitem_code = models.CharField(max_length=25) # get data from prf imported
     invitem_name = models.CharField(max_length=250)
@@ -193,6 +195,8 @@ class Csdetailtemp(models.Model):
         ('P', 'Printed'),
     )
 
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_csdetailtemp', null=True, blank=True)
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_csdetailtemp', null=True, blank=True)
     invitem = models.ForeignKey('inventoryitem.Inventoryitem', related_name='csdetailtemp_invitem_id')
     invitem_code = models.CharField(max_length=25) # get data from prf imported
     invitem_name = models.CharField(max_length=250)

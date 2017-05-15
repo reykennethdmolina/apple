@@ -51,7 +51,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Prfmain
     template_name = 'purchaserequisitionform/create.html'
-    fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
+    fields = ['prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'branch', 'urgencytype', 'dateneeded']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('purchaserequisitionform.add_prfmain'):
@@ -106,6 +106,9 @@ class CreateView(CreateView):
 
             # delete and update of prfdetailtemp and prfdetail (respectively)
             for dt in detailtemp:
+
+                department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
+
                 detail = Prfdetail()
                 detail.item_counter = i
                 detail.prfmain = prfmain
@@ -114,6 +117,9 @@ class CreateView(CreateView):
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                detail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
+                detail.department_code = department.code
+                detail.department_name = department.departmentname
                 detail.amount = 0
                 detail.remarks = dt.remarks
                 detail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
@@ -212,7 +218,7 @@ def deleteRfprftransactionitem(prfdetail):
 class UpdateView(UpdateView):
     model = Prfmain
     template_name = 'purchaserequisitionform/edit.html'
-    fields = ['prfnum', 'prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'department', 'branch', 'urgencytype', 'dateneeded']
+    fields = ['prfnum', 'prfdate', 'inventoryitemtype', 'designatedapprover', 'prftype', 'particulars', 'branch', 'urgencytype', 'dateneeded']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('purchaserequisitionform.change_prfmain'):
@@ -244,6 +250,9 @@ class UpdateView(UpdateView):
             detailtemp.item_counter = d.item_counter
             detailtemp.quantity = d.quantity
             detailtemp.amount = d.amount
+            detailtemp.department = d.department
+            detailtemp.department_code = d.department_code
+            detailtemp.department_name = d.department_name
             detailtemp.remarks = d.remarks
             detailtemp.currency = d.currency
             detailtemp.fxrate = d.fxrate
@@ -280,7 +289,7 @@ class UpdateView(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
-                                            'dateneeded', 'branch', 'department', 'particulars', 'designatedapprover',
+                                            'dateneeded', 'branch', 'particulars', 'designatedapprover',
                                             'modifyby', 'modifydate'])
 
             Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
@@ -306,6 +315,9 @@ class UpdateView(UpdateView):
             prfmain = Prfmain.objects.get(pk=self.object.pk)
             i = 1
             for atd in alltempdetail:
+
+                department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
+
                 alldetail = Prfdetail()
                 alldetail.item_counter = i
                 alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
@@ -315,6 +327,9 @@ class UpdateView(UpdateView):
                 alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
+                alldetail.department_code = department.code
+                alldetail.department_name = department.departmentname
                 alldetail.remarks = atd.remarks
                 alldetail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
                 alldetail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
@@ -401,6 +416,7 @@ def importItems(request):
                         .raw('SELECT inv.unitcost, '
                                     'inv.id AS inv_id, '
                                     'rfm.rfnum, '
+                                    'rfm.department_id, '
                                     'rfm.id AS rfm_id, '
                                     'rfd.invitem_code, '
                                     'rfd.invitem_name, '
@@ -445,7 +461,10 @@ def importItems(request):
                                 data.id,
                                 item_counter,
                                 data.um_code,
-                                data.prfremainingquantity])
+                                data.prfremainingquantity,
+                                data.department_id])
+
+                department = Department.objects.get(pk=data.department_id, isdeleted=0)
 
                 detailtemp = Prfdetailtemp()
                 detailtemp.invitem_code = data.invitem_code
@@ -454,6 +473,9 @@ def importItems(request):
                 detailtemp.invitem_unitofmeasure_code = data.um_code
                 detailtemp.item_counter = item_counter
                 detailtemp.quantity = data.quantity
+                detailtemp.department_code = department.code
+                detailtemp.department_name = department.departmentname
+                detailtemp.department = Department.objects.get(pk=data.department_id)
                 detailtemp.remarks = data.remarks
                 detailtemp.currency = Currency.objects.get(pk=1)
                 detailtemp.status = 'A'
@@ -504,11 +526,16 @@ def savedetailtemp(request):
                        data.unitcost,
                        data.id]
 
+            department = Department.objects.get(pk=request.POST['department'], isdeleted=0)
+
             detailtemp = Prfdetailtemp()
             detailtemp.invitem_code = data.code
             detailtemp.invitem_name = data.description
             detailtemp.item_counter = request.POST['itemno']
             detailtemp.quantity = request.POST['quantity']
+            detailtemp.department_code = department.code
+            detailtemp.department_name = department.departmentname
+            detailtemp.department = Department.objects.get(pk=request.POST['department'])
             detailtemp.remarks = request.POST['remarks']
             detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure
             detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure.code

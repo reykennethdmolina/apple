@@ -1,7 +1,8 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from . models import Supplier
 from creditterm.models import Creditterm
 from currency.models import Currency
@@ -130,6 +131,46 @@ class DeleteView(DeleteView):
         self.object.save()
         return HttpResponseRedirect('/supplier')
 
+
+@csrf_exempt
+def searchSupplier(request):
+    if request.POST['suppliercode'] == '' and request.POST['suppliername'] != '':
+        supplier = Supplier.objects.all().filter(Q(name__icontains=request.POST['suppliername']))
+
+    elif request.POST['suppliername'] == '' and request.POST['suppliercode'] != '':
+        supplier = Supplier.objects.all().filter(Q(code__icontains=request.POST['suppliercode']))
+    else:
+        supplier = Supplier.objects.all().filter(Q(code__icontains=request.POST['suppliercode']) | Q(name__icontains=request.POST['suppliername']))
+
+    if int(request.POST['suppliertype']) != 0:
+        print request.POST['suppliertype']
+        supplier = supplier.filter(suppliertype=request.POST['suppliertype'])
+
+    if int(request.POST['industry']) != 0:
+        supplier = supplier.filter(industry=request.POST['industry'])
+
+    supplier = supplier.filter(isdeleted=0, status='A').order_by('name')[0:10]
+
+    supplier_list = []
+
+    for data in supplier:
+        supplier_list.append([data.id,
+                              data.code,
+                              data.name,
+                              data.address1,
+                              data.address2,
+                              data.address3,
+                              data.telno,
+                              data.faxno,
+                              data.contactperson,
+                              ])
+
+    data = {
+        'success': 'success',
+        'supplier': supplier_list,
+    }
+
+    return JsonResponse(data)
 
 def paginate(request, command, current, limit, search):
     current = int(current)

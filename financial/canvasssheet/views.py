@@ -7,6 +7,8 @@ from . models import Csmain, Csdata, Csdetailtemp, Csdetail
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from inventoryitem.models import Inventoryitem
 from supplier.models import Supplier
+from industry.models import Industry
+from suppliertype.models import Suppliertype
 from vat.models import Vat
 from currency.models import Currency
 from django.contrib.auth.models import User
@@ -58,6 +60,8 @@ class CreateView(CreateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
+        context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
 
         return context
 
@@ -407,29 +411,167 @@ def importItemsManual(request):
                                       ])
 
             # store temp with supplier
-            csdetail = Csdetailtemp.objects.filter(invitem=data.inv_id, isdeleted=0, secretkey=request.POST['secretkey'])
+            detail = Csdetailtemp()
+            detail.invitem = Inventoryitem.objects.get(pk=data.inv_id)
+            detail.invitem_code = data.code
+            detail.invitem_name = data.description
+            detail.quantity = 0
+            detail.item_counter = i
+            detail.supplier = Supplier.objects.get(pk=data.supplier_id)
+            detail.suppliercode = data.supplier_code
+            detail.suppliername = data.supplier_name
+            detail.vatrate = data.vat_rate
+            detail.unitcost = data.price
+            detail.negocost = data.price
+            detail.secretkey = request.POST['secretkey']
+            detail.csstatus = 1 if i == 1 else 0
+            detail.status = 'A'
+            detail.enterdate = datetime.datetime.now()
+            detail.modifydate = datetime.datetime.now()
+            detail.vat = Vat.objects.get(pk=data.vat_id)
+            detail.vatable = 0
+            detail.vatexempt = 0
+            detail.vatzerorated = 0
+            detail.grossamount = 0
+            detail.vatamount = 0
+            detail.netamount = 0
+            detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
+            detail.enterby = request.user
+            detail.modifyby = request.user
+            detail.isdeleted = 0
+            detail.save()
 
-            if csdetail.exists():
-                print "no addition of quantity yet"
-            else:
+            i += 1
+
+        # store temp with default supplier
+        supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
+
+        detail = Csdetailtemp()
+        detail.invitem = Inventoryitem.objects.get(pk=item.id)
+        detail.invitem_code = item.code
+        detail.invitem_name = item.description
+        detail.quantity = 0
+        detail.item_counter = i
+        detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
+        detail.suppliercode = supplierdetail.code
+        detail.suppliername = supplierdetail.name
+        detail.vatrate = supplierdetail.vat.rate
+        detail.unitcost = 0
+        detail.negocost = 0
+        detail.secretkey = request.POST['secretkey']
+        detail.csstatus = 1
+        detail.status = 'A'
+        detail.enterdate = datetime.datetime.now()
+        detail.modifydate = datetime.datetime.now()
+        detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
+        detail.vatable = 0
+        detail.vatexempt = 0
+        detail.vatzerorated = 0
+        detail.grossamount = 0
+        detail.vatamount = 0
+        detail.netamount = 0
+        detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
+        detail.enterby = request.user
+        detail.modifyby = request.user
+        detail.isdeleted = 0
+        detail.save()
+
+        data = {
+                'status': 'success',
+                'item': item.id,
+                'item_code': item.code,
+                'item_description': item.description,
+                'item_supplier': itemsupplier_list,
+        }
+
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def importItems(request):
+    print generatekey(1)
+    # front end - hover imported prf to show details
+    # front end - item supplier manual add(manual add of extra supplier)
+    # back - prf should only be cs once unless cancelled\
+    # back - prf item without a supplier data
+    # back - prf item without cshistory
+
+    if request.method == 'POST':
+        # get selected prfmain data
+        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
+                                      prfstatus="A",
+                                      status="A",
+                                      isdeleted=0)
+
+        # get prfmain prfdetail data
+        prfdetail = Prfdetail.objects.filter(prfmain=prfmain.id,
+                                             status="A",
+                                             isdeleted=0).order_by('item_counter')
+
+        prfitemsupplier_list = []
+        prfitemcshistory_list = []
+
+        # get prf items suggested supplier
+        for data in prfdetail:
+            prfitemsupplier = Prfdetail.objects\
+                .raw('SELECT b.id, i.id AS inv_id, i.code, i.description, b.price, b.processingdate, b.datetransaction, '
+                     's.id AS supplier_id, s.code AS supplier_code, s.name AS supplier_name, '
+                     'v.id AS vat_id, v.code AS vat_code, v.rate AS vat_rate , chid '
+                     'FROM (SELECT IF(@prev != a.supplier_id, @rownum := 1, @rownum := @rownum + 1) AS rownumber, '
+                            '@prev := a.supplier_id, a.*, a.id AS chid '
+                            'FROM (SELECT * FROM cshistory ch, (SELECT @rownum := 0, @prev := "") sq '
+                            'WHERE invitem_id = ' + str(data.invitem.id) + ' '
+                            'ORDER BY supplier_id, datetransaction DESC, price) a) b '
+                     'LEFT JOIN inventoryitem i ON i.id = b.invitem_id '
+                     'LEFT JOIN supplier s ON s.id = b.supplier_id '
+                     'LEFT JOIN vat v ON v.id = s.vat_id '
+                     'WHERE rownumber = 1 '
+                     'ORDER BY price '
+                     'LIMIT 3')
+
+            i = 1
+            for data2 in prfitemsupplier:
+                if data2.chid not in prfitemcshistory_list:
+                    prfitemsupplier_list.append([data2.code,
+                                                 data2.description,
+                                                 data2.price,
+                                                 data2.processingdate,
+                                                 data2.datetransaction,
+                                                 data2.supplier_name,
+                                                 data2.vat_id,
+                                                 data2.vat_rate,
+                                                 data2.vat_code,
+                                                 data2.inv_id,
+                                                 data2.supplier_id,
+                                                 ])
+
+                prfitemcshistory_list.append(data2.chid)
+
                 detail = Csdetailtemp()
-                detail.invitem = Inventoryitem.objects.get(pk=data.inv_id)
-                detail.invitem_code = data.code
-                detail.invitem_name = data.description
+                detail.prfmain = Prfmain.objects.get(pk=data.prfmain.id)
+                detail.prfdetail = Prfdetail.objects.get(pk=data.id)
+                detail.invitem = Inventoryitem.objects.get(pk=data2.inv_id)
+                detail.invitem_code = data2.code
+                detail.invitem_name = data2.description
                 detail.quantity = 0
                 detail.item_counter = i
-                detail.supplier = Supplier.objects.get(pk=data.supplier_id)
-                detail.suppliercode = data.supplier_code
-                detail.suppliername = data.supplier_name
-                detail.vatrate = data.vat_rate
-                detail.unitcost = data.price
-                detail.negocost = data.price
+                detail.supplier = Supplier.objects.get(pk=data2.supplier_id)
+                detail.suppliercode = data2.supplier_code
+                detail.suppliername = data2.supplier_name
+                detail.vatrate = data2.vat_rate
+                detail.unitcost = data2.price
+                detail.negocost = data2.price
                 detail.secretkey = request.POST['secretkey']
                 detail.csstatus = 1 if i == 1 else 0
                 detail.status = 'A'
                 detail.enterdate = datetime.datetime.now()
                 detail.modifydate = datetime.datetime.now()
-                detail.vat = Vat.objects.get(pk=data.vat_id)
+                detail.vat = Vat.objects.get(pk=data2.vat_id)
                 detail.vatable = 0
                 detail.vatexempt = 0
                 detail.vatzerorated = 0
@@ -439,22 +581,19 @@ def importItemsManual(request):
                 detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
                 detail.enterby = request.user
                 detail.modifyby = request.user
-                detail.isdeleted = 3
+                detail.isdeleted = 0
                 detail.save()
 
-            i += 1
+                i += 1
 
-        # store temp with default supplier
-        csdetail = Csdetailtemp.objects.filter(invitem=item.id, secretkey=request.POST['secretkey'])
-        supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
+            supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
 
-        if csdetail.exists():
-            print "no addition of quantity yet"
-        else:
             detail = Csdetailtemp()
-            detail.invitem = Inventoryitem.objects.get(pk=item.id)
-            detail.invitem_code = item.code
-            detail.invitem_name = item.description
+            detail.prfmain = Prfmain.objects.get(pk=data.prfmain.id)
+            detail.prfdetail = Prfdetail.objects.get(pk=data.id)
+            detail.invitem = Inventoryitem.objects.get(pk=data.invitem.id)
+            detail.invitem_code = data.invitem.code
+            detail.invitem_name = data.invitem.description
             detail.quantity = 0
             detail.item_counter = i
             detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
@@ -478,134 +617,8 @@ def importItemsManual(request):
             detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
             detail.enterby = request.user
             detail.modifyby = request.user
-            detail.isdeleted = 3
+            detail.isdeleted = 0
             detail.save()
-
-        Csdetailtemp.objects.filter(isdeleted=3, secretkey=request.POST['secretkey']).update(isdeleted=0)
-
-        data = {
-                'status': 'success',
-                'item': item.id,
-                'item_code': item.code,
-                'item_description': item.description,
-                'item_supplier': itemsupplier_list,
-        }
-
-    else:
-        data = {
-            'status': 'error',
-        }
-
-    return JsonResponse(data)
-
-
-@csrf_exempt
-def importItems(request):
-    # front end - hover imported prf to show details
-    # front end - item supplier manual add(manual add of extra supplier)
-    # back - prf should only be cs once unless cancelled\
-    # back - prf item without a supplier data
-    # back - prf item without cshistory
-
-    if request.method == 'POST':
-        # get selected prfmain data
-        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
-                                      prfstatus="A",
-                                      status="A",
-                                      isdeleted=0)
-
-        # get prfmain prfdetail data
-        prfdetail = Prfdetail.objects.filter(prfmain=prfmain.id,
-                                             status="A",
-                                             isdeleted=0).order_by('item_counter')
-
-        # get prf items
-        prfitems = Prfdetail.objects\
-                    .raw('SELECT DISTINCT pd.invitem_id AS id '
-                         'FROM prfdetail pd '
-                         'LEFT JOIN prfmain pm ON pd.prfmain_id = pm.id  '
-                         'WHERE pm.prfnum = "' + request.POST['prfnum'] + '" '
-                         'AND pm.prfstatus = "A" '
-                         'AND pm.status = "A" '
-                         'AND pm.isdeleted = 0 '
-                         'AND pm.approverresponse = "A" '
-                         'AND pd.isdeleted = 0 '
-                         'AND pd.status = "A"')
-
-        prfitemsupplier_list = []
-
-        # get prf items suggested supplier
-        for data in prfitems:
-            prfitemsupplier = Prfdetail.objects\
-                .raw('SELECT b.id, i.id AS inv_id, i.code, i.description, b.price, b.processingdate, b.datetransaction, '
-                     's.id AS supplier_id, s.code AS supplier_code, s.name AS supplier_name, '
-                     'v.id AS vat_id, v.code AS vat_code, v.rate AS vat_rate '
-                     'FROM (SELECT IF(@prev != a.supplier_id, @rownum := 1, @rownum := @rownum + 1) AS rownumber, '
-                            '@prev := a.supplier_id, a.* '
-                            'FROM (SELECT * FROM cshistory ch, (SELECT @rownum := 0, @prev := "") sq '
-                            'WHERE invitem_id = ' + str(data.id) + ' '
-                            'ORDER BY supplier_id, datetransaction DESC, price) a) b '
-                     'LEFT JOIN inventoryitem i ON i.id = b.invitem_id '
-                     'LEFT JOIN supplier s ON s.id = b.supplier_id '
-                     'LEFT JOIN vat v ON v.id = s.vat_id '
-                     'WHERE rownumber = 1 '
-                     'ORDER BY price '
-                     'LIMIT 3')
-
-            i = 1
-            # not all is being entered here
-            for data2 in prfitemsupplier:
-
-                prfitemsupplier_list.append([data2.code,
-                                             data2.description,
-                                             data2.price,
-                                             data2.processingdate,
-                                             data2.datetransaction,
-                                             data2.supplier_name,
-                                             data2.vat_id,
-                                             data2.vat_rate,
-                                             data2.vat_code,
-                                             data2.inv_id,
-                                             data2.supplier_id,
-                                             ])
-
-                csdetail = Csdetailtemp.objects.filter(invitem=data2.inv_id, isdeleted=0, secretkey=request.POST['secretkey'])
-                if csdetail.exists():
-                    print "no addition of quantity yet"
-                else:
-                    detail = Csdetailtemp()
-                    detail.invitem = Inventoryitem.objects.get(pk=data2.inv_id)
-                    detail.invitem_code = data2.code
-                    detail.invitem_name = data2.description
-                    detail.quantity = 0
-                    detail.item_counter = i
-                    detail.supplier = Supplier.objects.get(pk=data2.supplier_id)
-                    detail.suppliercode = data2.supplier_code
-                    detail.suppliername = data2.supplier_name
-                    detail.vatrate = data2.vat_rate
-                    detail.unitcost = data2.price
-                    detail.negocost = data2.price
-                    detail.secretkey = request.POST['secretkey']
-                    detail.csstatus = 1 if i == 1 else 0
-                    detail.status = 'A'
-                    detail.enterdate = datetime.datetime.now()
-                    detail.modifydate = datetime.datetime.now()
-                    detail.vat = Vat.objects.get(pk=data2.vat_id)
-                    detail.vatable = 0
-                    detail.vatexempt = 0
-                    detail.vatzerorated = 0
-                    detail.grossamount = 0
-                    detail.vatamount = 0
-                    detail.netamount = 0
-                    detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
-                    detail.enterby = request.user
-                    detail.modifyby = request.user
-                    detail.isdeleted = 3
-                    detail.save()
-
-                i += 1
-
-            Csdetailtemp.objects.filter(isdeleted=3, secretkey=request.POST['secretkey']).update(isdeleted=0)
 
         prfdata = [prfmain.prfnum]
         prfdetail_list = []

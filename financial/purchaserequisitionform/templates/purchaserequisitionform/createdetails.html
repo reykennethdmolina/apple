@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-3 control-label" for="quantity">Currency</label>
+                <label class="col-sm-3 control-label" for="currency">Currency</label>
                 <div class="col-sm-4">
                     <select class="form-control input-sm" required style="width: 100%" id="id_currency" name="currency">
                         {% for currency in currency %}
@@ -31,6 +31,17 @@
                         {% endfor %}
                     </select>
                     <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-3 control-label" for="department">Department</label>
+                <div class="col-sm-4">
+                    <select class="form-control input-sm" required style="width: 100%" id="id_department" name="department">
+                        {% for department in department %}
+                            <option value="{{ department.id }}">{{ department.code }} - {{ department.departmentname }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
                 </div>
             </div>
             <div class="col-md-12">
@@ -78,6 +89,7 @@
                         'inv_id': $("#id_item_name").val(),
                         'quantity': $("#id_quantity").val(),
                         'currency': $("#id_currency").val(),
+                        'department': $("#id_department").val(),
                         'remarks': $("#id_remarks").val(),
                         'secretkey': $("#id_secretkey").val()
                 },
@@ -90,7 +102,7 @@
                                     "<td>" + response.prfdata[0] + "</td>" +
                                     "<td>" + response.prfdata[1] + "</td>" +
                                     "<td>" + response.remarks + "</td>" +
-                                    "<td> - </td>" +
+                                    "<td align='right'> - </td>" +
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
                                         "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
@@ -104,6 +116,11 @@
                                     "</td>" +
                                     "<td><input type='number' name='temp_fxrate' form='form-b' step='any' class='form-control input-sm temp_fxrate' value='0.00000'></td>" +
                                     "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
+                                    "<td>" +
+                                        "<select class='form-control input-sm temp_department' required style='width: 100%' name='temp_department' form='form-b'>" +
+                                            "{% for department in department %} <option value='{{ department.id }}'>{{ department.code }} - {{ department.departmentname }}</option>{% endfor %}" +
+                                        "</select>" +
+                                    "</td>" +
                                     "<td><button class='btn remove_item' data-itemno='" + $("#itemno").text() + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                     "</tr>");
 
@@ -112,10 +129,12 @@
                     }
 
                     $(summary).find('tr').last().find('.temp_item_currency').val($('#id_currency').val());
+                    $(summary).find('tr').last().find('.temp_department').val($('#id_department').val());
 
                     $("#id_item_name").val('').trigger('change.select2');
                     $("#id_quantity").val('');
                     $("#id_remarks").val('');
+                    $("#id_department").val('');
 
                     reorderItems();
                     totalQuantity();
@@ -166,10 +185,16 @@
                                         "</td>" +
                                         "<td><input type='number' name='temp_fxrate' form='form-b' step='any' class='form-control input-sm temp_fxrate' value='0.00000'></td>" +
                                         "<td><input type='number' name='temp_amount' form='form-b' step='any' class='form-control input-sm temp_amount' value='" + 0 + "'></td>" +
+                                        "<td>" +
+                                            "<select class='form-control input-sm temp_department' required style='width: 100%' name='temp_department' form='form-b'>" +
+                                                "{% for department in department %} <option value='{{ department.id }}'>{{ department.code }} - {{ department.departmentname }}</option>{% endfor %}" +
+                                            "</select>" +
+                                        "</td>" +
                                         "<td><button class='btn remove_item' data-rf='" + response.prfdata[i][3] + "' data-itemno='" + response.prfdata[i][8] + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                         "</tr>");
 
                             summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
+                            summary.find('tr').last().find('.temp_department').val(response.prfdata[i][11]);
                         }
                     }
 
