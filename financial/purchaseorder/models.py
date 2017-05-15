@@ -86,11 +86,11 @@ class Pomain(models.Model):
     atc = models.ForeignKey('ataxcode.Ataxcode', related_name='pomain_atc_id', validators=[MinValueValidator(1)])
     atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     vat = models.ForeignKey('vat.Vat', related_name='pomain_vat_id', validators=[MinValueValidator(1)])
-    vatrate =
-    inputvattype
-    deferredvat
-    currency
-    fxrate
+    # vatrate =
+    # inputvattype
+    # deferredvat
+    # currency
+    # fxrate
 
     class Meta:
         db_table = 'pomain'
