@@ -102,7 +102,11 @@ urlpatterns = [
     url(r'^departmentbudget/', include('departmentbudget.urls', namespace='departmentbudget')),
     url(r'^jvtype/', include('jvtype.urls', namespace='jvtype')),
     url(r'^rep_chartofaccount/', include('rep_chartofaccount.urls', namespace='rep_chartofaccount')),
+    url(r'^rep_department/', include('rep_department.urls', namespace='rep_department')),
+    url(r'^rep_supplier/', include('rep_supplier.urls', namespace='rep_supplier')),
+    url(r'^rep_customer/', include('rep_customer.urls', namespace='rep_customer')),
     url(r'^purchaserequisitionform/', include('purchaserequisitionform.urls', namespace='purchaserequisitionform')),
+    url(r'^canvasssheet/', include('canvasssheet.urls', namespace='canvasssheet')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
