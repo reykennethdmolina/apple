@@ -55,8 +55,8 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Pomain
-    template_name = 'purchaseorder/create.html'
-    fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'supplier', 'ataxcode', 'inputvat',
+    template_name = 'purchaseorder/create2.html'
+    fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'supplier', 'inputvat',
               'creditterm', 'particulars']
 
     def dispatch(self, request, *args, **kwargs):
@@ -368,7 +368,7 @@ def importitems(request):
                 'status': 'error',
             }
         else:
-            canvassedprfitems = Prfmain.objects.raw('SELECT a.id AS prfmain, a.prfnum, a.branch_id, a.department_id, b.id AS prfdetail, b.item_counter, '
+            canvassedprfitems = Prfmain.objects.raw('SELECT a.id AS prfmain, a.prfnum, a.branch_id, b.department_id, b.id AS prfdetail, b.item_counter, '
                                                     'b.invitem_id, b.invitem_code, b.invitem_name, b.invitem_unitofmeasure_code, '
                                                     'b.invitem_unitofmeasure_id, b.remarks, c.id, c.csmain_id, d.id, e.id, '
                                                     'e.supplier_id, e.suppliername, b.quantity, e.negocost, '

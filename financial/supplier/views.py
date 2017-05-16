@@ -1,19 +1,19 @@
+import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from . models import Supplier
+from ataxcode.models import Ataxcode
 from creditterm.models import Creditterm
 from currency.models import Currency
-from ataxcode.models import Ataxcode
 from industry.models import Industry
+from inputvattype.models import Inputvattype
 from suppliertype.models import Suppliertype
 from vat.models import Vat
-from inputvattype.models import Inputvattype
-from django.core import serializers
-from django.db.models import Q
-import datetime
+from . models import Supplier
 
 
 # Create your views here.
@@ -42,9 +42,9 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Supplier
     template_name = 'supplier/create.html'
-    fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency',
-              'industry', 'suppliertype']
+    fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
+              'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
+              'vat', 'atc', 'currency', 'industry', 'suppliertype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -78,9 +78,9 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Supplier
     template_name = 'supplier/edit.html'
-    fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-              'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat', 'atc', 'currency',
-              'industry', 'suppliertype']
+    fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
+              'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
+              'vat', 'atc', 'currency', 'industry', 'suppliertype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -94,10 +94,11 @@ class UpdateView(UpdateView):
         self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
         self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
         self.object.modifyby = self.request.user
-        self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno', 'zipcode',
-                                        'contactperson', 'creditterm', 'inputvattype', 'deferredvat', 'vat',
-                                        'atc', 'currency', 'fxrate', 'vatrate', 'atcrate', 'industry', 'suppliertype',
-                                        'modifyby', 'modifydate'])
+        self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'tin',
+                                        'telno', 'faxno', 'zipcode', 'contactperson',
+                                        'creditterm', 'inputvattype', 'deferredvat', 'vat',
+                                        'atc', 'currency', 'fxrate', 'vatrate', 'atcrate',
+                                        'industry', 'suppliertype', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):
@@ -198,4 +199,3 @@ def paginate(request, command, current, limit, search):
     json_models = serializers.serialize("json", supplier)
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
-

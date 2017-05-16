@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
+import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
-import datetime
 
 
 class Supplier(models.Model):
@@ -28,7 +28,8 @@ class Supplier(models.Model):
     faxno = models.CharField(max_length=20, blank=True, null=True)
     zipcode = models.CharField(max_length=10, blank=True, null=True)
 
-    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES, default='Y', null=True, blank=True)
+    multiplestatus = models.CharField(max_length=1, choices=YESNO_CHOICES,
+                                      default='Y', null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='supplier_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
@@ -38,19 +39,28 @@ class Supplier(models.Model):
 
     # added/modified fields
     contactperson = models.CharField(max_length=250)
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='supplier_creditterm_id')
-    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='supplier_inputvattype_id')
+    creditterm = models.ForeignKey('creditterm.Creditterm',
+                                   related_name='supplier_creditterm_id')
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype',
+                                     related_name='supplier_inputvattype_id')
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
-    vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id', validators=[MinValueValidator(1)])
-    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='supplier_atc_id', validators=[MinValueValidator(1)])
-    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    currency = models.ForeignKey('currency.Currency', related_name='supplier_currency_id', default=1)
-    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
+    vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id',
+                            validators=[MinValueValidator(1)])
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1),
+                                                         MaxValueValidator(100)])
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='supplier_atc_id',
+                            validators=[MinValueValidator(1)])
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1),
+                                                         MaxValueValidator(100)])
+    currency = models.ForeignKey('currency.Currency', related_name='supplier_currency_id',
+                                 default=1)
+    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5,
+                                 max_digits=18)
 
     industry = models.ForeignKey('industry.Industry', related_name='supplier_industry_id',
                                  validators=[MinValueValidator(1)])
-    suppliertype = models.ForeignKey('suppliertype.Suppliertype', related_name='supplier_suppliertype_id',
+    suppliertype = models.ForeignKey('suppliertype.Suppliertype',
+                                     related_name='supplier_suppliertype_id',
                                      validators=[MinValueValidator(1)])
 
     class Meta:
