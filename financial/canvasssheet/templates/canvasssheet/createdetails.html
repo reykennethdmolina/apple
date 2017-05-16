@@ -27,13 +27,77 @@
 <script type="text/javascript">
     $(document).ready(function() {
         summary = $("#summary tbody");
-        supplier_list = "<select name='manual_supplier' class='manual_supplier'>";
-        {% for data in supplier %}
-            supplier_list += "<option value='{{ data.id }}' data-vatcode='{{ data.vat.code }}' data-vatrate='{{ data.vat.rate }}'>{{ data.name }}</option>";
-        {% endfor %}
-        supplier_list += "</select>";
+        temp_form_counter = 0;
+        temp_formradio_counter = 0;
+
+        //add manual supplier container
+        manual_item_counter = 0;
+        manual_item = 0;
+        manual_itemdetail_key = 0;
+        manual_supplierchecked = 0;
 
         separateRadio();
+
+        $(document).on('click', '.search_supplier', function(){
+            manual_item_counter = $(this).index('.search_supplier');
+            manual_item = $(this).parent().parent().parent().find('.removeitem').data('item');
+            manual_itemdetail_key = $(this).parent().parent().parent().data('itemdetailkey');
+        });
+
+        $(document).on('click', '.add_supplier', function(){
+            current_container = $('.item_container:eq('+manual_item_counter+')');
+            status_checked = '';
+            if(current_container.next().hasClass('item_container') || current_container.is(':last-child')){
+                manual_supplierchecked = 1;
+                status_checked = "checked='checked'";
+            }
+            else{
+                manual_supplierchecked = 0;
+            }
+
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'canvasssheet:getsupplier' %}",
+                type: "post",
+                data: {'supplier': $(this).data('supplier'),
+                       'item': manual_item,
+                       'itemdetailkey': manual_itemdetail_key,
+                       'csstatus': manual_supplierchecked,
+                       'secretkey': $("#id_secretkey").val()
+                },
+
+                success: function(response) {
+
+                    current_container_next = current_container;
+                    while(current_container_next.next().not('.item_container').length == 1){
+                        current_container_next = current_container_next.next();
+                    }
+
+                    current_container_next.after("<tr><td><input type='radio' name='supplier' class='radio radio-custom supplier' " + status_checked + " data-item='" + current_container.attr('id') + "' data-supplier='" + response.supplierid + "' form='" + current_container.data('form') + "'></td>" +
+                                            "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.suppliername + "</td> " +
+                                            "<td class='small text-right' style='padding-right: 30px'> - </td> " +
+                                            "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + 0 + "'></td> " +
+                                            "<td class='small item_amount text-right'></td>" +
+                                            "<td class='small item_vat_rate text-center' data-vatcode='" + 0 + "'>" + 0 + "</td>" +
+                                            "<td class='small item_vatable text-right'></td>" +
+                                            "<td class='small item_vatexempt text-right'></td>" +
+                                            "<td class='small item_vatzero text-right'></td>" +
+                                            "<td class='small item_totalpurchase text-right'></td>" +
+                                            "<td class='small item_addvat text-right'></td>" +
+                                            "<td class='small item_total_amount text-right'></td></tr>"
+                                             );
+                    
+                    current_container.removeClass('supplied');
+                    addSupplierManual();
+                    $('#myModal3').modal('show');
+                    $('.shade').fadeOut();
+                }
+                , error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
 
         $(document).on('click', '#imp_suppliersubmit', function(){
             $('.shade').fadeIn();
@@ -52,10 +116,9 @@
                         for (var i = 0; i < response.supplier.length; i++) {
                             $('#imp_suppliertable tbody').append("<tr class='small'> " +
                                                                     "<td>" +
-                                                                        "<button class='btn btn-xs'><i class='icon fa-plus' aria-hidden='true'></i></button>&nbsp;&nbsp;" +
+                                                                        "<button class='add_supplier btn btn-xs' data-supplier='" + response.supplier[i][0] + "'><i class='icon fa-plus' aria-hidden='true'></i></button>&nbsp;&nbsp;" +
                                                                         "<b>" + response.supplier[i][2] + "</b>" +
                                                                         "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + response.supplier[i][1] + "</td>" +
-{#                                                                    "<td>" + response.supplier[i][3] + "<br>" + response.supplier[i][4] + "<br>" + response.supplier[i][5] + "</td>" +#}
                                                                     "<td>" + response.supplier[i][3] + "</td>" +
                                                                     "<td><b>" + response.supplier[i][8] + "</b><br><b>Tel no.:</b> " + response.supplier[i][6] + "<br><b>Fax no.:</b> " + response.supplier[i][7] + "</td>" +
                                                                  "</tr>");
@@ -86,7 +149,7 @@
                         temp_supplier = filterSupplier(response.item_code, response.item_supplier);
                         temp_supplier_length = temp_supplier.length;
 
-                        summary.append("<tr id='" + response.item + "' class='item_container'> " +
+                        summary.append("<tr id='" + response.item + "' class='item_container new_container' data-itemdetailkey='" + response.itemdetail_key + "'> " +
                                     "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.item_code + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.item_code + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.item_description + "</b></td>" +
@@ -96,42 +159,30 @@
                                     "</td>" +
                                     "</tr>");
 
+                        summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
+
                         for(var j = 0; j < temp_supplier_length; j++) {
                             // hover view more details about supplier
 
-                            if(j==0){
-                                summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +
-                                        "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
-                                        "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
-                                        "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
-                                        "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
-                                        "<td class='small item_vatable text-right'></td>" +
-                                        "<td class='small item_vatexempt text-right'></td>" +
-                                        "<td class='small item_vatzero text-right'></td>" +
-                                        "<td class='small item_totalpurchase text-right'></td>" +
-                                        "<td class='small item_addvat text-right'></td>" +
-                                        "<td class='small item_total_amount text-right'></td>"
-                                        );
-                            }
-                            else{
-                                summary.append("<tr>" +
-                                        "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
-                                        "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
-                                        "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
-                                        "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
-                                        "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
-                                        "<td class='small item_vatable text-right'></td>" +
-                                        "<td class='small item_vatexempt text-right'></td>" +
-                                        "<td class='small item_vatzero text-right'></td>" +
-                                        "<td class='small item_totalpurchase text-right'></td>" +
-                                        "<td class='small item_addvat text-right'></td>" +
-                                        "<td class='small item_total_amount text-right'</td>" +
-                                        "</tr>");
-                            }
+                            status_checked = '';
+                            if(j==0) status_checked = "checked='checked'";
+
+                            summary.append("<tr>" +
+                                    "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
+                                    "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
+                                    "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
+                                    "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
+                                    "<td class='small item_amount text-right'></td>" +
+                                    "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                    "<td class='small item_vatable text-right'></td>" +
+                                    "<td class='small item_vatexempt text-right'></td>" +
+                                    "<td class='small item_vatzero text-right'></td>" +
+                                    "<td class='small item_totalpurchase text-right'></td>" +
+                                    "<td class='small item_addvat text-right'></td>" +
+                                    "<td class='small item_total_amount text-right'</td>" +
+                                    "</tr>");
                         }
-                        $("#tempForm").append("<form action'#' id='" + i + "'>");
+                        addTempForm();
                     }
 
                     $("#id_item_name").val('').trigger('change.select2');
@@ -180,7 +231,7 @@
                             temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);
                             temp_supplier_length = temp_supplier.length;
 
-                            summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container' data-form='"+i+"'> " +
+                            summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container new_container' data-form='"+i+"' data-itemdetailkey='" + response.itemdetailkey[i][0] + "'> " +
                                     "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.prfdetail[i][0] + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][1] + "</b></td>" +
@@ -190,48 +241,46 @@
                                     "</td>" +
                                     "</tr>");
 
+                            summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
+
                             for(var j = 0; j < temp_supplier_length; j++) {
                                 // hover view more details about supplier
-                                if(j==0){
-                                    summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +
-                                            "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
-                                            "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
-                                            "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
-                                            "<td class='small item_amount text-right'></td>" +
-                                            "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
-                                            "<td class='small item_vatable text-right'></td>" +
-                                            "<td class='small item_vatexempt text-right'></td>" +
-                                            "<td class='small item_vatzero text-right'></td>" +
-                                            "<td class='small item_totalpurchase text-right'></td>" +
-                                            "<td class='small item_addvat text-right'></td>" +
-                                            "<td class='small item_total_amount text-right'></td>"
-                                    );
-                                }
-                                else{
-                                    summary.append("<tr>" +
-                                            "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
-                                            "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
-                                            "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
-                                            "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
-                                            "<td class='small item_amount text-right'></td>" +
-                                            "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
-                                            "<td class='small item_vatable text-right'></td>" +
-                                            "<td class='small item_vatexempt text-right'></td>" +
-                                            "<td class='small item_vatzero text-right'></td>" +
-                                            "<td class='small item_totalpurchase text-right'></td>" +
-                                            "<td class='small item_addvat text-right'></td>" +
-                                            "<td class='small item_total_amount text-right'</td>" +
-                                            "</tr>");
-                                }
-                            }
 
-                            $("#tempForm").append("<form action'#' id='" + i + "'>");
+                                status_checked = '';
+                                if(j==0) status_checked = "checked='checked'";
+
+                                summary.append("<tr>" +
+                                        "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +
+                                        "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
+                                        "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
+                                        "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
+                                        "<td class='small item_amount text-right'></td>" +
+                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vatable text-right'></td>" +
+                                        "<td class='small item_vatexempt text-right'></td>" +
+                                        "<td class='small item_vatzero text-right'></td>" +
+                                        "<td class='small item_totalpurchase text-right'></td>" +
+                                        "<td class='small item_addvat text-right'></td>" +
+                                        "<td class='small item_total_amount text-right'</td>" +
+                                        "</tr>");
+                            }
+                            // start investigating here
+                            // start investigating here
+                            // start investigating here
+                            // start investigating here
+                            // start investigating here
+                            addTempForm();
                             addSupplierManual();
                         }
                     }
                     separateRadio();
                     computeVatItem();
                     reorderItems();
+                    // end investigating here
+                    // end investigating here
+                    // end investigating here
+                    // end investigating here
+                    // end investigating here
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -319,6 +368,7 @@
                 url: "{% url 'canvasssheet:removeitem' %}",
                 type: "post",
                 data: {'item': $t.data('item'),
+                        'itemdetailkey': $(this).parent().parent().data('itemdetailkey'),
                         'secretkey': $("#id_secretkey").val()
                 },
 
@@ -345,9 +395,10 @@
             });
         });
 
-        $(document).on('change', '.manual_supplier', function(){
-           assignSupplierManual();
-        });
+        function addTempForm(){
+            $("#tempForm").append("<form action'#' id='" + temp_form_counter + "'>");
+            temp_form_counter++;
+        }
 
         function updateTempItems(){
             var arr_item_list = new Array();
@@ -526,22 +577,21 @@
         }
 
         function separateRadio(){
-            i = 0;
-
-            $('.item_container').each(function(){
-
+            $('.item_container.new_container').each(function(){
                 currentElement = $(this);
 
-                $(this).find('.supplier').attr('form', i);
-                $(this).find('.supplier').attr('form', i).attr('checked', 'checked');
+                $(this).find('.supplier').attr('form', temp_formradio_counter);
+                $(this).find('.supplier').attr('form', temp_formradio_counter).attr('checked', 'checked');
 
                 while(currentElement.next().not('.item_container').length == 1){
-                    currentElement.next().find('.supplier').attr('form', i);
+                    currentElement.next().find('.supplier').attr('form', temp_formradio_counter);
                     currentElement = currentElement.next();
                 }
 
-                i++;
+                temp_formradio_counter++;
             });
+
+            $('.new_container').removeClass('new_container');
         }
 
         function addSupplierManual(){
@@ -553,62 +603,11 @@
                 $(this).find('td:eq(1)').attr('rowspan', rowspan);
                 $(this).find('td:eq(2)').attr('rowspan', rowspan);
                 $(this).find('td:eq(3)').attr('rowspan', rowspan);
-                formCount = $(this).data('form');
-                itemId = $(this).attr('id');
-
-                if($(this).find('td').length == 5){
-
-                    $(this).append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + itemId + "' data-supplier='" + 0 + "' form='" + formCount + "'></td>" +
-                                   "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'>" + supplier_list + "</td> " +
-                                   "<td class='small text-right' style='padding-right: 30px'> - </td> " +
-                                   "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + 0 + "'></td> " +
-                                   "<td class='small item_amount text-right'></td>" +
-                                   "<td class='small item_vat_rate text-center' data-vatcode='" + 0 + "'>" + 0 + "</td>" +
-                                   "<td class='small item_vatable text-right'></td>" +
-                                   "<td class='small item_vatexempt text-right'></td>" +
-                                   "<td class='small item_vatzero text-right'></td>" +
-                                   "<td class='small item_totalpurchase text-right'></td>" +
-                                   "<td class='small item_addvat text-right'></td>" +
-                                   "<td class='small item_total_amount text-right'></td>"
-                                   );
-
-                }
-                //handler for has supplier
-                else{
-                    $(this).find('td:eq(4)').attr('rowspan', rowspan);
-
-                    $(this).parent().append("<tr><td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + itemId + "' data-supplier='" + 0 + "' form='" + formCount + "'></td>" +
-                                   "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'>" + supplier_list + "</td> " +
-                                   "<td class='small text-right' style='padding-right: 30px'> - </td> " +
-                                   "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + 0 + "'></td> " +
-                                   "<td class='small item_amount text-right'></td>" +
-                                   "<td class='small item_vat_rate text-center' data-vatcode='" + 0 + "'>" + 0 + "</td>" +
-                                   "<td class='small item_vatable text-right'></td>" +
-                                   "<td class='small item_vatexempt text-right'></td>" +
-                                   "<td class='small item_vatzero text-right'></td>" +
-                                   "<td class='small item_totalpurchase text-right'></td>" +
-                                   "<td class='small item_addvat text-right'></td>" +
-                                   "<td class='small item_total_amount text-right'></td></tr>"
-                                   );
-                }
+                $(this).find('td:eq(4)').attr('rowspan', rowspan);
                 $(this).addClass('supplied');
-                assignSupplierManual();
             });
 
 
-        }
-
-        function assignSupplierManual(){
-            $('.manual_supplier').each(function() {
-                manualId = $(this).val();
-                manualVatcode = $(this).find(':selected').data('vatcode');
-                manualVatrate = $(this).find(':selected').data('vatrate');
-                $(this).parent().parent().parent().find('.supplier').data('supplier', manualId);
-                $(this).parent().parent().parent().find('.item_vat_rate').data('vatcode', manualVatcode);
-                $(this).parent().parent().parent().find('.item_vat_rate').html(manualVatrate);
-            });
-
-            computeVatItem();
         }
     });
 </script>

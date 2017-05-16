@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^removeitem/$', views.removeItem, name='removeitem'),
     url(r'^updatecsdetailtemp/$', views.updateCsdetailtemp, name='updatecsdetailtemp'),
     url(r'^removeprf/$', views.removePrf, name='removeprf'),
+    url(r'^getsupplier/$', views.getSupplier, name='getsupplier'),
     url(r'^page/(?P<command>[\w\-]+)/(?P<current>[0-9]+)/(?P<limit>[0-9]+)/(?P<search>[\w\-]+)/$', views.paginate, name='paginate'),
 ]
 

@@ -147,6 +147,7 @@ class Csdetail(models.Model):
     csstatus = models.IntegerField(default=0)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    itemdetailkey = models.CharField(max_length=255)
     enterby = models.ForeignKey(User, default=1, related_name='csdetail_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='csdetail_modify')
@@ -211,6 +212,7 @@ class Csdetailtemp(models.Model):
     unitcost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     negocost = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     secretkey = models.CharField(max_length=255)
+    itemdetailkey = models.CharField(max_length=255)
     csmain = models.ForeignKey('canvasssheet.Csmain', related_name='csdetailtemp_csmain_id', null=True, blank=True)
     csdetail = models.ForeignKey('canvasssheet.Csdetail', related_name='csdetailtemp_csdetail_id', null=True, blank=True)
     csstatus = models.IntegerField(default=0)

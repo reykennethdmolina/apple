@@ -64,7 +64,7 @@
             <div class="margin-bottom-20">
                 <form method="post" id="form-b">
                     {% csrf_token %}
-                {{ form.errors }}
+                    {{ form.errors }}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-5 row-lg margin-left-10">
                         <div class="form-group col-sm-6">
@@ -160,7 +160,6 @@
                             <button type="button" class="btn btn-round btn-success" id="validateButton">Submit</button>
                         </div>
                         <div class="col-sm-6">
-                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="supplierbutton" data-toggle="modal" data-target="#myModal2"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;test button</button>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                         </div>
@@ -265,6 +264,7 @@
             <div id="myModal2" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
+                        <div class="shade"><div class="loader two-color"></div></div>
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">Select Supplier</h4>
@@ -317,6 +317,15 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="myModal3" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            Supplier added.
                         </div>
                     </div>
                 </div>

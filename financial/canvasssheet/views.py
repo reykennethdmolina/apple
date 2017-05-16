@@ -93,6 +93,10 @@ class CreateView(CreateView):
             csmain = Csmain.objects.get(csnum=csnum)
 
             # update csdata
+            # apply itemdetail key
+            # apply itemdetail key
+            # apply itemdetail key
+            # apply itemdetail key
             Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
 
 
@@ -370,11 +374,67 @@ def importTemptodetail(secretkey, csmain):
 
 
 @csrf_exempt
+def getSupplier(request):
+
+    if request.method == 'POST':
+        supplier = Supplier.objects.get(pk=request.POST['supplier'], isdeleted=0, status='A')
+        item = Inventoryitem.objects.get(code=request.POST['item'], status='A', isdeleted=0)
+
+        # check first if item supplier is first before creating new itemdetailkey
+
+        detail = Csdetailtemp()
+        detail.invitem = Inventoryitem.objects.get(pk=item.id)
+        detail.invitem_code = item.code
+        detail.invitem_name = item.description
+        detail.quantity = 0
+        detail.item_counter = 0
+        detail.supplier = Supplier.objects.get(pk=supplier.id)
+        detail.suppliercode = supplier.code
+        detail.suppliername = supplier.name
+        detail.vatrate = supplier.vat.rate
+        detail.unitcost = 0
+        detail.negocost = 0
+        detail.secretkey = request.POST['secretkey']
+        detail.csstatus = request.POST['csstatus']
+        detail.status = 'A'
+        detail.enterdate = datetime.datetime.now()
+        detail.modifydate = datetime.datetime.now()
+        detail.vat = Vat.objects.get(pk=supplier.vat.id, isdeleted=0)
+        detail.vatable = 0
+        detail.vatexempt = 0
+        detail.vatzerorated = 0
+        detail.grossamount = 0
+        detail.vatamount = 0
+        detail.netamount = 0
+        detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
+        detail.enterby = request.user
+        detail.modifyby = request.user
+        detail.isdeleted = 0
+        detail.itemdetailkey = request.POST['itemdetailkey']
+        detail.save()
+
+        data = {
+            'success': 'success',
+            'supplierid': supplier.id,
+            'suppliername': supplier.name,
+            # 'supplier': supplier_list,
+        }
+
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def importItemsManual(request):
     if request.method == 'POST':
         item = Inventoryitem.objects.get(pk=request.POST['inv_id'], status='A', isdeleted=0)
 
         itemsupplier_list = []
+        itemdetail_key = generatekey(1)
 
         # query supplier
         itemsupplier = Inventoryitem.objects\
@@ -439,42 +499,43 @@ def importItemsManual(request):
             detail.enterby = request.user
             detail.modifyby = request.user
             detail.isdeleted = 0
+            detail.itemdetailkey = itemdetail_key
             detail.save()
 
             i += 1
 
         # store temp with default supplier
-        supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
-
-        detail = Csdetailtemp()
-        detail.invitem = Inventoryitem.objects.get(pk=item.id)
-        detail.invitem_code = item.code
-        detail.invitem_name = item.description
-        detail.quantity = 0
-        detail.item_counter = i
-        detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
-        detail.suppliercode = supplierdetail.code
-        detail.suppliername = supplierdetail.name
-        detail.vatrate = supplierdetail.vat.rate
-        detail.unitcost = 0
-        detail.negocost = 0
-        detail.secretkey = request.POST['secretkey']
-        detail.csstatus = 1
-        detail.status = 'A'
-        detail.enterdate = datetime.datetime.now()
-        detail.modifydate = datetime.datetime.now()
-        detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
-        detail.vatable = 0
-        detail.vatexempt = 0
-        detail.vatzerorated = 0
-        detail.grossamount = 0
-        detail.vatamount = 0
-        detail.netamount = 0
-        detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
-        detail.enterby = request.user
-        detail.modifyby = request.user
-        detail.isdeleted = 0
-        detail.save()
+        # supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
+        #
+        # detail = Csdetailtemp()
+        # detail.invitem = Inventoryitem.objects.get(pk=item.id)
+        # detail.invitem_code = item.code
+        # detail.invitem_name = item.description
+        # detail.quantity = 0
+        # detail.item_counter = i
+        # detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
+        # detail.suppliercode = supplierdetail.code
+        # detail.suppliername = supplierdetail.name
+        # detail.vatrate = supplierdetail.vat.rate
+        # detail.unitcost = 0
+        # detail.negocost = 0
+        # detail.secretkey = request.POST['secretkey']
+        # detail.csstatus = 1
+        # detail.status = 'A'
+        # detail.enterdate = datetime.datetime.now()
+        # detail.modifydate = datetime.datetime.now()
+        # detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
+        # detail.vatable = 0
+        # detail.vatexempt = 0
+        # detail.vatzerorated = 0
+        # detail.grossamount = 0
+        # detail.vatamount = 0
+        # detail.netamount = 0
+        # detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
+        # detail.enterby = request.user
+        # detail.modifyby = request.user
+        # detail.isdeleted = 0
+        # detail.save()
 
         data = {
                 'status': 'success',
@@ -482,6 +543,7 @@ def importItemsManual(request):
                 'item_code': item.code,
                 'item_description': item.description,
                 'item_supplier': itemsupplier_list,
+                'itemdetail_key': itemdetail_key,
         }
 
     else:
@@ -494,7 +556,7 @@ def importItemsManual(request):
 
 @csrf_exempt
 def importItems(request):
-    print generatekey(1)
+    # print generatekey(1)
     # front end - hover imported prf to show details
     # front end - item supplier manual add(manual add of extra supplier)
     # back - prf should only be cs once unless cancelled\
@@ -515,9 +577,13 @@ def importItems(request):
 
         prfitemsupplier_list = []
         prfitemcshistory_list = []
+        itemdetailkey_list = []
 
         # get prf items suggested supplier
         for data in prfdetail:
+            itemdetail_key = generatekey(1)
+            itemdetailkey_list.append([itemdetail_key])
+
             prfitemsupplier = Prfdetail.objects\
                 .raw('SELECT b.id, i.id AS inv_id, i.code, i.description, b.price, b.processingdate, b.datetransaction, '
                      's.id AS supplier_id, s.code AS supplier_code, s.name AS supplier_name, '
@@ -536,6 +602,7 @@ def importItems(request):
 
             i = 1
             for data2 in prfitemsupplier:
+
                 if data2.chid not in prfitemcshistory_list:
                     prfitemsupplier_list.append([data2.code,
                                                  data2.description,
@@ -582,43 +649,44 @@ def importItems(request):
                 detail.enterby = request.user
                 detail.modifyby = request.user
                 detail.isdeleted = 0
+                detail.itemdetailkey = itemdetail_key
                 detail.save()
 
                 i += 1
 
-            supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
-
-            detail = Csdetailtemp()
-            detail.prfmain = Prfmain.objects.get(pk=data.prfmain.id)
-            detail.prfdetail = Prfdetail.objects.get(pk=data.id)
-            detail.invitem = Inventoryitem.objects.get(pk=data.invitem.id)
-            detail.invitem_code = data.invitem.code
-            detail.invitem_name = data.invitem.description
-            detail.quantity = 0
-            detail.item_counter = i
-            detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
-            detail.suppliercode = supplierdetail.code
-            detail.suppliername = supplierdetail.name
-            detail.vatrate = supplierdetail.vat.rate
-            detail.unitcost = 0
-            detail.negocost = 0
-            detail.secretkey = request.POST['secretkey']
-            detail.csstatus = 1
-            detail.status = 'A'
-            detail.enterdate = datetime.datetime.now()
-            detail.modifydate = datetime.datetime.now()
-            detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
-            detail.vatable = 0
-            detail.vatexempt = 0
-            detail.vatzerorated = 0
-            detail.grossamount = 0
-            detail.vatamount = 0
-            detail.netamount = 0
-            detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
-            detail.enterby = request.user
-            detail.modifyby = request.user
-            detail.isdeleted = 0
-            detail.save()
+            # supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
+            #
+            # detail = Csdetailtemp()
+            # detail.prfmain = Prfmain.objects.get(pk=data.prfmain.id)
+            # detail.prfdetail = Prfdetail.objects.get(pk=data.id)
+            # detail.invitem = Inventoryitem.objects.get(pk=data.invitem.id)
+            # detail.invitem_code = data.invitem.code
+            # detail.invitem_name = data.invitem.description
+            # detail.quantity = 0
+            # detail.item_counter = i
+            # detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
+            # detail.suppliercode = supplierdetail.code
+            # detail.suppliername = supplierdetail.name
+            # detail.vatrate = supplierdetail.vat.rate
+            # detail.unitcost = 0
+            # detail.negocost = 0
+            # detail.secretkey = request.POST['secretkey']
+            # detail.csstatus = 1
+            # detail.status = 'A'
+            # detail.enterdate = datetime.datetime.now()
+            # detail.modifydate = datetime.datetime.now()
+            # detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
+            # detail.vatable = 0
+            # detail.vatexempt = 0
+            # detail.vatzerorated = 0
+            # detail.grossamount = 0
+            # detail.vatamount = 0
+            # detail.netamount = 0
+            # detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
+            # detail.enterby = request.user
+            # detail.modifyby = request.user
+            # detail.isdeleted = 0
+            # detail.save()
 
         prfdata = [prfmain.prfnum]
         prfdetail_list = []
@@ -628,7 +696,8 @@ def importItems(request):
                                    data.invitem_name,
                                    data.prfmain.prfnum,
                                    data.quantity,
-                                   data.invitem.id
+                                   data.invitem.id,
+                                   itemdetail_key,
                                    ])
 
         # store temp csdata
@@ -647,6 +716,7 @@ def importItems(request):
                 'prfdata': prfdata,
                 'prfsupplier': prfitemsupplier_list,
                 'prfdetail': prfdetail_list,
+                'itemdetailkey': itemdetailkey_list,
             }
     else:
         data = {
@@ -683,7 +753,7 @@ def removeItem(request):
 
     if request.method == 'POST':
         item = Inventoryitem.objects.get(code=request.POST['item']).id
-        Csdetailtemp.objects.filter(invitem=item, secretkey=request.POST['secretkey']).delete()
+        Csdetailtemp.objects.filter(invitem=item, itemdetailkey=request.POST['itemdetailkey'], secretkey=request.POST['secretkey']).delete()
 
         data = {
             'status': 'success',
@@ -718,3 +788,7 @@ def paginate(request, command, current, limit, search):
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
 
+
+def comments():
+    print 123
+    # multiple import/add item radio button messed up,  use separate radio
