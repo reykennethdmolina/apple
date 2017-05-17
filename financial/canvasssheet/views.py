@@ -156,6 +156,7 @@ def updateCsdetailtemp(request):
         # assign quantity
         for data in request.POST.getlist('arr_quantity_item[]'):
             Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+                                        itemdetailkey=request.POST.getlist('arr_item_detail_key[]')[i],
                                         invitem=data,
                                         isdeleted=0,
                                         status='A').update(quantity=request.POST.getlist('arr_item_quantity_input[]')[i])
@@ -188,20 +189,21 @@ def updateCsdetailtemp(request):
         for data in request.POST.getlist('arr_item_cost_supplier[]'):
             detail = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
+                                        itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
                                         supplier=data,
                                         isdeleted=0,
                                         status='A')
+
 
             detail.update(negocost=request.POST.getlist('arr_item_cost[]')[i])
 
             detailget = Csdetailtemp.objects.get(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
+                                        itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
                                         supplier=data,
                                         isdeleted=0,
                                         status='A')
-
             # compute vat etc
-
             # nego cost
             item_total_amount = float(detailget.quantity) * float(detailget.negocost)
             item_vat_rate = detailget.vatrate
@@ -249,6 +251,7 @@ def updateCsdetailtemp(request):
 
             detailget_checked = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
+                                        itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
                                         supplier=data,
                                         csstatus=1,
                                         isdeleted=0,
@@ -293,11 +296,6 @@ def updateCsdetailtemp(request):
                                                   vatamount=item_addvat,
                                                   grossamount=item_gross_amount,
                                                   amount=item_total_amount)
-
-
-
-
-
 
             detail.update(netamount=item_total_amount,
                           vatable=item_vatable,
@@ -791,4 +789,3 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
-    # multiple import/add item radio button messed up,  use separate radio

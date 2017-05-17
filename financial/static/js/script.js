@@ -10,4 +10,28 @@ $(function(){
             e.preventDefault();
         }
     });
+
 });
+
+// custom-alert
+$(".custom-alert").each(function(){
+    alert_content = $(this).text();
+    alert_id = $(this).attr('id');
+    alert_class = "alt-info alert-info";
+
+    if($(this).hasClass('success')) alert_class = "alt-success alert-success";
+    else if($(this).hasClass('danger')) alert_class = "alt-danger alert-danger";
+    else if($(this).hasClass('warning')) alert_class = "alt-danger alert-warning";
+
+    $('body').append("<div id='"+alert_id+"' class='custom-alert alert dark "+alert_class+" fade' role='dialog'> " +
+                        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'> " +
+                            "<i class='icon fa-close' aria-hidden='true'></i> " +
+                        "</button>" +
+                        alert_content + "&nbsp;&nbsp;&nbsp;&nbsp;" +
+                    "</div>");
+    $(this).remove();
+});
+function customAlert(e){
+    e.modal('show');
+    setTimeout(function() { e.modal('hide'); }, 2000);
+}

@@ -99,9 +99,7 @@
 
                         current_container.removeClass('supplied');
                         addSupplierManual();
-                        $('#myModal3 .modal-body').html('Supplier added.');
-                        $('#myModal3 .modal-content').css({'background-color':'#5CB85C'});
-                        $('#myModal3').modal('show');
+                        customAlert($('#supplier-success'));
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -111,9 +109,7 @@
                 });
             }
             else{
-                $('#myModal3 .modal-body').html('Supplier already added!');
-                $('#myModal3 .modal-content').css({'background-color':'#D9534F'});
-                $('#myModal3').modal('show');
+                customAlert($('#supplier-danger'));
                 manual_duplicatesupplier = 0;
             }
 
@@ -363,9 +359,14 @@
             resetPrfOptions();
         });
 
-        $('#validateButton').click(function(){
-            $('.shade').fadeIn();
-            updateTempItems();
+        $('#validateButton').click(function(e){
+            if($('.removeitem').length == 0) {
+                customAlert($('#item-danger'));
+            }
+            else{
+                $('.shade').fadeIn();
+                updateTempItems();
+            }
         });
 
         $(document).on('click', '.removeitem', function(){
@@ -476,13 +477,7 @@
 
                 success: function(response) {
 
-                    if($('.removeitem').length == 0) {
-                        alert("Please add at least one item.");
-                    }
-                    else{
-                        $('#form-b').submit();
-                    }
-
+                    $('#form-b').submit();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {

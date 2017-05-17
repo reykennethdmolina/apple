@@ -147,5 +147,17 @@ div.has-error ul.select2-choices {
   border-color: rgb(185, 74, 72) !important;
 }
 
-
-
+/*custom alert modal*/
+.custom-alert{
+    position: fixed;
+    top: 0;
+    z-index: 999999;
+    right: 0;
+    margin: 20px;
+    display: none;
+}
+.custom-alert .close{
+    font-size: 16px !important;
+    color:black !important;
+    margin-right: 10px;
+}
