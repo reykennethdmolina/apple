@@ -10,7 +10,10 @@ class Pomain(models.Model):
     ponum = models.CharField(max_length=10, unique=True)
     podate = models.DateField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
-    potype = models.CharField(max_length=150, default='REGULAR')
+    RF_TYPE_CHOICES = (
+        ('REG', 'Regular'),
+    )
+    potype = models.CharField(max_length=10, choices=RF_TYPE_CHOICES, default='REG')
     URGENCY_CHOICES = (
         ('N', 'Normal'),
         ('R', 'Rush'),
