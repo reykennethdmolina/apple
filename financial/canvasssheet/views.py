@@ -9,6 +9,8 @@ from inventoryitem.models import Inventoryitem
 from supplier.models import Supplier
 from industry.models import Industry
 from suppliertype.models import Suppliertype
+from department.models import Department
+from unitofmeasure.models import Unitofmeasure
 from vat.models import Vat
 from currency.models import Currency
 from django.contrib.auth.models import User
@@ -61,6 +63,8 @@ class CreateView(CreateView):
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
         context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
 
         return context
@@ -92,13 +96,7 @@ class CreateView(CreateView):
 
             csmain = Csmain.objects.get(csnum=csnum)
 
-            # update csdata
-            # apply itemdetail key
-            # apply itemdetail key
-            # apply itemdetail key
-            # apply itemdetail key
             Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
-
 
             importTemptodetail(self.request.POST['secretkey'], csmain)
             updateCsmainvat(csnum)
@@ -155,22 +153,26 @@ def updateCsdetailtemp(request):
         i = 0
         # assign quantity
         for data in request.POST.getlist('arr_quantity_item[]'):
+            department = Department.objects.get(pk=request.POST.getlist('arr_item_department_input[]')[i], isdeleted=0)
+            unitofmeasure = Unitofmeasure.objects.get(pk=request.POST.getlist('arr_item_unitofmeasure_input[]')[i], isdeleted=0)
+
+            request.POST.getlist('arr_item_unitofmeasure_input[]')[i]
             Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         itemdetailkey=request.POST.getlist('arr_item_detail_key[]')[i],
                                         invitem=data,
                                         isdeleted=0,
-                                        status='A').update(quantity=request.POST.getlist('arr_item_quantity_input[]')[i])
+                                        status='A').update(quantity=request.POST.getlist('arr_item_quantity_input[]')[i],
+                                                           department=department.id,
+                                                           department_code=department.code,
+                                                           department_name=department.departmentname,
+                                                           invitem_unitofmeasure=unitofmeasure.id,
+                                                           invitem_unitofmeasure_code=unitofmeasure.code)
             i += 1
 
         i = 0
 
         # assign checked supplier
         for data in request.POST.getlist('arr_checked_supplier[]'):
-            # filter if supplier is changed
-            # filter if supplier is changed
-            # filter if supplier is changed
-            # filter if supplier is changed
-            # filter if supplier is changed
             csdetail = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_checked_supplier_item[]')[i],
                                         isdeleted=0,
@@ -190,24 +192,22 @@ def updateCsdetailtemp(request):
             detail = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
                                         itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
-                                        supplier=data,
-                                        isdeleted=0,
-                                        status='A')
+                                        supplier=data, isdeleted=0, status='A')
 
-
+            # assignment of negocost
             detail.update(negocost=request.POST.getlist('arr_item_cost[]')[i])
 
             detailget = Csdetailtemp.objects.get(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
                                         itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
-                                        supplier=data,
-                                        isdeleted=0,
-                                        status='A')
+                                        supplier=data, isdeleted=0, status='A')
+
             # compute vat etc
             # nego cost
             item_total_amount = float(detailget.quantity) * float(detailget.negocost)
             item_vat_rate = detailget.vatrate
             item_gross_amount = item_total_amount
+            item_gross_cost = float(detailget.negocost)
             item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
             item_vatable = 0
             item_vatexempt = 0
@@ -215,6 +215,7 @@ def updateCsdetailtemp(request):
 
             if item_vat_rate > 0:
                 item_gross_amount = float(item_total_amount)/(1+(float(item_vat_rate)/100))
+                item_gross_cost = float(detailget.negocost)/(1+(float(item_vat_rate)/100))
                 item_vatable = item_gross_amount
             else:
                 if item_vatcode == 'VE':
@@ -229,6 +230,7 @@ def updateCsdetailtemp(request):
             uc_item_total_amount = float(detailget.quantity) * float(detailget.unitcost)
             uc_item_vat_rate = detailget.vatrate
             uc_item_gross_amount = uc_item_total_amount
+            uc_item_gross_cost = float(detailget.unitcost)
             uc_item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
             uc_item_vatable = 0
             uc_item_vatexempt = 0
@@ -236,6 +238,7 @@ def updateCsdetailtemp(request):
 
             if uc_item_vat_rate > 0:
                 uc_item_gross_amount = float(uc_item_total_amount)/(1+(float(uc_item_vat_rate)/100))
+                uc_item_gross_cost = float(detailget.unitcost)/(1+(float(uc_item_vat_rate)/100))
                 uc_item_vatable = item_gross_amount
             else:
                 if uc_item_vatcode == 'VE':
@@ -246,56 +249,55 @@ def updateCsdetailtemp(request):
 
             uc_item_addvat = float(uc_item_total_amount) - float(uc_item_gross_amount)
 
-            # update prfdetail
-            csdata = Csdata.objects.filter(secretkey=request.POST['secretkey'], isdeleted=0)
-
-            detailget_checked = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
-                                        invitem=request.POST.getlist('arr_item_cost_item[]')[i],
-                                        itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
-                                        supplier=data,
-                                        csstatus=1,
-                                        isdeleted=0,
-                                        status='A')
-
-            if detailget_checked.exists():
-                for data in csdata:
-
-                    prfdetail = Prfdetail.objects.filter(prfmain=data.prfmain,
-                                             status='A',
-                                             isdeleted=0,
-                                             invitem=request.POST.getlist('arr_item_cost_item[]')[i])
-
-                    for data2 in prfdetail:
-                        prfdetail_specific = Prfdetail.objects.filter(pk=data2.id)
-                        prfdetail_get = Prfdetail.objects.get(pk=data2.id)
-                        item_total_amount = float(prfdetail_get.quantity) * float(detailget.negocost)
-                        item_vat_rate = detailget.vatrate
-                        item_gross_amount = item_total_amount
-                        item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
-                        item_vatable = 0
-                        item_vatexempt = 0
-                        item_vatzero = 0
-
-                        if item_vat_rate > 0:
-                            item_gross_amount = float(item_total_amount)/(1+(float(item_vat_rate)/100))
-                            item_vatable = item_gross_amount
-                        else:
-                            if item_vatcode == 'VE':
-                                item_vatexempt = item_gross_amount
-
-                            elif item_vatcode == 'ZE':
-                                item_vatzero = item_gross_amount
-
-                        uc_item_addvat = float(uc_item_total_amount) - float(uc_item_gross_amount)
-
-                        prfdetail_specific.update(cost=detailget.negocost,
-                                                  netamount=item_total_amount,
-                                                  vatable=item_vatable,
-                                                  vatexempt=item_vatexempt,
-                                                  vatzerorated=item_vatzero,
-                                                  vatamount=item_addvat,
-                                                  grossamount=item_gross_amount,
-                                                  amount=item_total_amount)
+            # update prfdetail, use this if cs is approved
+            # csdata = Csdata.objects.filter(secretkey=request.POST['secretkey'], isdeleted=0)
+            #
+            # detailget_checked = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+            #                             invitem=request.POST.getlist('arr_item_cost_item[]')[i],
+            #                             itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
+            #                             supplier=data,
+            #                             csstatus=1,
+            #                             isdeleted=0,
+            #                             status='A')
+            #
+            # if detailget_checked.exists():
+            #     for data in csdata:
+            #         prfdetail = Prfdetail.objects.filter(prfmain=data.prfmain,
+            #                                  status='A',
+            #                                  isdeleted=0,
+            #                                  invitem=request.POST.getlist('arr_item_cost_item[]')[i])
+            #
+            #         for data2 in prfdetail:
+            #             prfdetail_specific = Prfdetail.objects.filter(pk=data2.id)
+            #             prfdetail_get = Prfdetail.objects.get(pk=data2.id)
+            #             temp_item_total_amount = float(prfdetail_get.quantity) * float(detailget.negocost)
+            #             temp_item_vat_rate = detailget.vatrate
+            #             temp_item_gross_amount = temp_item_total_amount
+            #             temp_item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
+            #             temp_item_vatable = 0
+            #             temp_item_vatexempt = 0
+            #             temp_item_vatzero = 0
+            #
+            #             if temp_item_vat_rate > 0:
+            #                 temp_item_gross_amount = float(temp_item_total_amount)/(1+(float(temp_item_vat_rate)/100))
+            #                 temp_item_vatable = temp_item_gross_amount
+            #             else:
+            #                 if temp_item_vatcode == 'VE':
+            #                     temp_item_vatexempt = temp_item_gross_amount
+            #
+            #                 elif temp_item_vatcode == 'ZE':
+            #                     temp_item_vatzero = temp_item_gross_amount
+            #
+            #             uc_item_addvat = float(temp_item_total_amount) - float(temp_item_gross_amount)
+            #
+            #             prfdetail_specific.update(cost=detailget.negocost,
+            #                                       netamount=temp_item_total_amount,
+            #                                       vatable=temp_item_vatable,
+            #                                       vatexempt=temp_item_vatexempt,
+            #                                       vatzerorated=temp_item_vatzero,
+            #                                       vatamount=item_addvat,
+            #                                       grossamount=temp_item_gross_amount,
+            #                                       amount=uc_item_total_amount)
 
             detail.update(netamount=item_total_amount,
                           vatable=item_vatable,
@@ -303,12 +305,14 @@ def updateCsdetailtemp(request):
                           vatzerorated=item_vatzero,
                           vatamount=item_addvat,
                           grossamount=item_gross_amount,
+                          grosscost=item_gross_cost,
                           uc_netamount=uc_item_total_amount,
                           uc_vatable=uc_item_vatable,
                           uc_vatexempt=uc_item_vatexempt,
                           uc_vatzerorated=uc_item_vatzero,
                           uc_vatamount=uc_item_addvat,
-                          uc_grossamount=uc_item_gross_amount)
+                          uc_grossamount=uc_item_gross_amount,
+                          uc_grosscost=uc_item_gross_cost)
 
             i += 1
 
@@ -335,6 +339,11 @@ def importTemptodetail(secretkey, csmain):
         csdetail.invitem_name = data.invitem_name
         csdetail.suppliercode = data.suppliercode
         csdetail.suppliername = data.suppliername
+        csdetail.department = data.department
+        csdetail.department_code = data.department_code
+        csdetail.department_name = data.department_name
+        csdetail.invitem_unitofmeasure = data.invitem_unitofmeasure
+        csdetail.invitem_unitofmeasure_code = data.invitem_unitofmeasure_code
         csdetail.vatrate = data.vatrate
         csdetail.unitcost = data.unitcost
         csdetail.negocost = data.negocost
@@ -350,12 +359,14 @@ def importTemptodetail(secretkey, csmain):
         csdetail.vatable = data.vatable
         csdetail.vatexempt = data.vatexempt
         csdetail.vatzerorated = data.vatzerorated
+        csdetail.grosscost = data.grosscost
         csdetail.grossamount = data.grossamount
         csdetail.vatamount = data.vatamount
         csdetail.netamount = data.netamount
         csdetail.uc_vatable = data.uc_vatable
         csdetail.uc_vatexempt = data.uc_vatexempt
         csdetail.uc_vatzerorated = data.uc_vatzerorated
+        csdetail.uc_grosscost = data.uc_grosscost
         csdetail.uc_grossamount = data.uc_grossamount
         csdetail.uc_vatamount = data.uc_vatamount
         csdetail.uc_netamount = data.uc_netamount
@@ -365,6 +376,9 @@ def importTemptodetail(secretkey, csmain):
         csdetail.supplier = data.supplier
         csdetail.vat = data.vat
         csdetail.quantity = data.quantity
+        csdetail.itemdetailkey = data.itemdetailkey
+        csdetail.prfmain = data.prfmain
+        csdetail.prfdetail = data.prfdetail
         csdetail.save()
         i += 1
 
@@ -554,12 +568,8 @@ def importItemsManual(request):
 
 @csrf_exempt
 def importItems(request):
-    # print generatekey(1)
     # front end - hover imported prf to show details
-    # front end - item supplier manual add(manual add of extra supplier)
-    # back - prf should only be cs once unless cancelled\
-    # back - prf item without a supplier data
-    # back - prf item without cshistory
+    # back - prf should only be cs once unless cancelled
 
     if request.method == 'POST':
         # get selected prfmain data
@@ -624,6 +634,11 @@ def importItems(request):
                 detail.invitem_code = data2.code
                 detail.invitem_name = data2.description
                 detail.quantity = 0
+                detail.department = Department.objects.get(pk=data.department.id)
+                detail.department_code = data.department_code
+                detail.department_name = data.department_name
+                detail.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=data.invitem_unitofmeasure.id)
+                detail.invitem_unitofmeasure_code = data.invitem_unitofmeasure_code
                 detail.item_counter = i
                 detail.supplier = Supplier.objects.get(pk=data2.supplier_id)
                 detail.suppliercode = data2.supplier_code
@@ -652,40 +667,6 @@ def importItems(request):
 
                 i += 1
 
-            # supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
-            #
-            # detail = Csdetailtemp()
-            # detail.prfmain = Prfmain.objects.get(pk=data.prfmain.id)
-            # detail.prfdetail = Prfdetail.objects.get(pk=data.id)
-            # detail.invitem = Inventoryitem.objects.get(pk=data.invitem.id)
-            # detail.invitem_code = data.invitem.code
-            # detail.invitem_name = data.invitem.description
-            # detail.quantity = 0
-            # detail.item_counter = i
-            # detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
-            # detail.suppliercode = supplierdetail.code
-            # detail.suppliername = supplierdetail.name
-            # detail.vatrate = supplierdetail.vat.rate
-            # detail.unitcost = 0
-            # detail.negocost = 0
-            # detail.secretkey = request.POST['secretkey']
-            # detail.csstatus = 1
-            # detail.status = 'A'
-            # detail.enterdate = datetime.datetime.now()
-            # detail.modifydate = datetime.datetime.now()
-            # detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
-            # detail.vatable = 0
-            # detail.vatexempt = 0
-            # detail.vatzerorated = 0
-            # detail.grossamount = 0
-            # detail.vatamount = 0
-            # detail.netamount = 0
-            # detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
-            # detail.enterby = request.user
-            # detail.modifyby = request.user
-            # detail.isdeleted = 0
-            # detail.save()
-
         prfdata = [prfmain.prfnum]
         prfdetail_list = []
 
@@ -696,6 +677,8 @@ def importItems(request):
                                    data.quantity,
                                    data.invitem.id,
                                    itemdetail_key,
+                                   data.department.id,
+                                   data.invitem_unitofmeasure.id,
                                    ])
 
         # store temp csdata

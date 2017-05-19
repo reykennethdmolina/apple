@@ -73,7 +73,7 @@
                         </div>
                         <div class="form-group col-sm-6">
                             <label class="control-label" for="id_csdate">Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker" id="id_csdate" name="csdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.csdate.value|default:'' }}">
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_csdate" name="csdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.csdate.value|default:'' }}">
                             <span class="help-block form-error">{{ form.csdate.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-12 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
@@ -186,21 +186,23 @@
                                 <thead>
                                     <tr class="small">
                                         <th style="min-width: 50px">#</th>
+                                        <th>Code</th>
                                         <th>Name</th>
-                                        <th>Description</th>
                                         <th>PRF Number</th>
+                                        <th>Department</th>
                                         <th class="text-center" style="width:70px">Quantity</th>
+                                        <th>Unit of Measure</th>
                                         <th colspan="2" style="text-align: center; min-width: 250px;">Supplier</th>
-                                        <th class="text-right" style="padding-right: 30px">Unit&nbsp;Cost</th>
-                                        <th class="text-center" style="width: 130px;">Nego&nbsp;Cost</th>
-                                        <th class="text-right">Gross&nbsp;Amount</th>
-                                        <th class="text-center">VAT&nbsp;Rate</th>
-                                        <th class="text-right">VATable</th>
-                                        <th class="text-right">VAT&nbsp;-&nbsp;Exempt</th>
-                                        <th class="text-right">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
-                                        <th class="text-right">Total&nbsp;Purchase</th>
-                                        <th class="text-right">Add&nbsp;VAT</th>
-                                        <th class="text-right">Total&nbsp;Amount</th>
+                                        <th class="text-right warning" style="padding-right: 30px">Unit&nbsp;Cost</th>
+                                        <th class="text-center info" style="width: 130px;">Nego&nbsp;Cost</th>
+                                        <th class="text-right info">Gross&nbsp;Amount</th>
+                                        <th class="text-center info">VAT&nbsp;Rate</th>
+                                        <th class="text-right info">VATable</th>
+                                        <th class="text-right info">VAT&nbsp;-&nbsp;Exempt</th>
+                                        <th class="text-right info">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
+                                        <th class="text-right info">Total&nbsp;Purchase</th>
+                                        <th class="text-right info">Add&nbsp;VAT</th>
+                                        <th class="text-right info">Total&nbsp;Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -229,7 +231,7 @@
                                                 data-refnum="{{ prfmain.prfnum }}"
                                                 data-urgency="{{ prfmain.get_urgencytype_display }}"
                                                 data-dateneeded="{{ prfmain.dateneeded }}"
-                                                data-approver="{{ prfmain.actualapprover }}">{{ prfmain.prfnum }}</option>
+                                                data-approver="{{ prfmain.actualapprover }}">{{ prfmain.prfnum }} | {{ prfmain.prfdate|date:"Y-m-d" }} | {{ prfmain.get_urgencytype_display }} | Date needed: {{ prfmain.dateneeded|date:"Y-m-d" }}</option>
                                     {% endfor %}
                                 </select>
                                 <br><br>
@@ -323,7 +325,9 @@
             </div>
             <div id="supplier-success" class="custom-alert success">Supplier added.</div>
             <div id="supplier-danger" class="custom-alert danger">Supplier already exists!</div>
+            <div id="supplier-item-danger" class="custom-alert danger">All items must have a supplier!</div>
             <div id="item-danger" class="custom-alert danger">Please add at least one item!</div>
+            <div id="add-item-danger" class="custom-alert danger">Item and item quantity are required!</div>
         </div>
     </div>
 </div>

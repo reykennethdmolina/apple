@@ -37,7 +37,25 @@
         manual_supplierchecked = 0;
         manual_duplicatesupplier = 0;
 
+        //department list
+        department_list = "<select name='item_department_input' class='form-control input-sm item_department_input'>";
+        {% for data in department %}
+            department_list += "<option value='{{ data.id }}'>{{ data.code }} - {{ data.departmentname }}</option>";
+        {% endfor %}
+        department_list += "</select>";
+
+        //unitofmeasure list
+        unitofmeasure_list = "<select name='item_unitofmeasure_input' class='form-control input-sm item_unitofmeasure_input'>";
+        {% for data in unitofmeasure %}
+            unitofmeasure_list += "<option value='{{ data.id }}'>{{ data.description }} ({{ data.code }})</option>";
+        {% endfor %}
+        unitofmeasure_list += "</select>";
+
         separateRadio();
+
+        $("#btn_detailclose").click(function(){
+            $("#detailentry").hide();
+        });
 
         $(document).on('click', '.search_supplier', function(){
             manual_item_counter = $(this).index('.search_supplier');
@@ -149,76 +167,83 @@
             });
         });
 
-        $(document).on('click', '#btn_detailsubmit', function(){
-            $('.shade').fadeIn();
-            $.ajax({
-                url: "{% url 'canvasssheet:importitemsmanual' %}",
-                type: "post",
-                data: {'inv_id': $("#id_item_name").val(),
-                        'secretkey': $("#id_secretkey").val()
-                },
-
-                success: function(response) {
-                    if(response.item != ""){
-                        $("#itemno").text(parseInt($("#itemno").text()) + 1);
-
-                        temp_supplier = filterSupplier(response.item_code, response.item_supplier);
-                        temp_supplier_length = temp_supplier.length;
-
-                        summary.append("<tr id='" + response.item + "' class='item_container new_container' data-itemdetailkey='" + response.itemdetail_key + "' form='"+temp_formradio_counter+"'> " +
-                                    "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
-                                    "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetail_key + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.item_code + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.item_code + "</b></td>" +
-                                    "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.item_description + "</b></td>" +
-                                    "<td class='small' rowspan='" + temp_supplier_length + "'><b> - </b></td>" +
-                                    "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                        "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.item + "' value='" + $("#id_quantity").val() + "'>" +
-                                    "</td>" +
-                                    "</tr>");
-
-                        summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
-
-                        for(var j = 0; j < temp_supplier_length; j++) {
-                            // hover view more details about supplier
-
-                            status_checked = '';
-                            if(j==0) status_checked = "checked='checked'";
-
-                            summary.append("<tr>" +
-                                    "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-itemdetailkey='" + response.itemdetail_key + "' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + temp_formradio_counter + "'></td> " +
-                                    "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
-                                    "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
-                                    "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
-                                    "<td class='small item_amount text-right'></td>" +
-                                    "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
-                                    "<td class='small item_vatable text-right'></td>" +
-                                    "<td class='small item_vatexempt text-right'></td>" +
-                                    "<td class='small item_vatzero text-right'></td>" +
-                                    "<td class='small item_totalpurchase text-right'></td>" +
-                                    "<td class='small item_addvat text-right'></td>" +
-                                    "<td class='small item_total_amount text-right'</td>" +
-                                    "</tr>");
-                        }
-                        addTempForm();
-                    }
-
-                    $("#id_item_name").val('').trigger('change.select2');
-                    $("#id_quantity").val('');
-
-                    addSupplierManual();
-                    separateRadio();
-                    computeVatItem();
-                    reorderItems();
-                    $('.shade').fadeOut();
-                }
-                , error: function(response) {
-                    console.debug(response);
-                    $('.shade').fadeOut();
-                }
-            });
-        });
-
         $(document).on('click', '#detailsbutton', function() {
             $("#detailentry").show();
+        });
+
+        $(document).on('click', '#btn_detailsubmit', function(){
+            if($('#id_quantity').val() >= 1 && $('#id_item_name').val() != ''){
+                $('.shade').fadeIn();
+                $.ajax({
+                    url: "{% url 'canvasssheet:importitemsmanual' %}",
+                    type: "post",
+                    data: {'inv_id': $("#id_item_name").val(),
+                            'secretkey': $("#id_secretkey").val()
+                    },
+
+                    success: function(response) {
+                        if(response.item != ""){
+                            $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
+                            temp_supplier = filterSupplier(response.item_code, response.item_supplier);
+                            temp_supplier_length = temp_supplier.length;
+
+                            summary.append("<tr id='" + response.item + "' class='item_container new_container' data-itemdetailkey='" + response.itemdetail_key + "' form='"+temp_formradio_counter+"'> " +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetail_key + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.item_code + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.item_code + "</b></td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.item_description + "</b></td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'><b> - </b></td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'>" + department_list + "</td>" +
+                                        "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                            "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.item + "' value='" + $("#id_quantity").val() + "'>" +
+                                        "</td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'>" + unitofmeasure_list + "</td>" +
+                                        "</tr>");
+
+                            summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
+
+                            for(var j = 0; j < temp_supplier_length; j++) {
+                                // hover view more details about supplier
+
+                                status_checked = '';
+                                if(j==0) status_checked = "checked='checked'";
+
+                                summary.append("<tr>" +
+                                        "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-itemdetailkey='" + response.itemdetail_key + "' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + temp_formradio_counter + "'></td> " +
+                                        "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
+                                        "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
+                                        "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
+                                        "<td class='small item_amount text-right'></td>" +
+                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vatable text-right'></td>" +
+                                        "<td class='small item_vatexempt text-right'></td>" +
+                                        "<td class='small item_vatzero text-right'></td>" +
+                                        "<td class='small item_totalpurchase text-right'></td>" +
+                                        "<td class='small item_addvat text-right'></td>" +
+                                        "<td class='small item_total_amount text-right'</td>" +
+                                        "</tr>");
+                            }
+                            addTempForm();
+                        }
+
+                        $("#id_item_name").val('').trigger('change.select2');
+                        $("#id_quantity").val('');
+
+                        addSupplierManual();
+                        separateRadio();
+                        computeVatItem();
+                        reorderItems();
+                        $('.shade').fadeOut();
+                    }
+                    , error: function(response) {
+                        console.debug(response);
+                        $('.shade').fadeOut();
+                    }
+                });
+            }
+            else{
+                customAlert($('#add-item-danger'));
+            }
         });
 
         $(document).on('click', '#importconfirm', function(){
@@ -247,14 +272,16 @@
                             temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);
                             temp_supplier_length = temp_supplier.length;
 
-                            summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container new_container' data-form='"+(temp_formradio_counter+i)+"' data-itemdetailkey='" + response.itemdetailkey[i][0] + "'> " +
+                            summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container new_container imported_prf' data-form='"+(temp_formradio_counter+i)+"' data-itemdetailkey='" + response.itemdetailkey[i][0] + "'> " +
                                     "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetailkey[i][0] + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.prfdetail[i][0] + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][1] + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][2] + "</b></td>" +
+                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-department='" + response.prfdetail[i][6] + "'>" + department_list + "</td>" +
                                     "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                    "<input type='number' class='form-control input-sm item_quantity_input' readOnly='readOnly' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
+                                        "<input type='number' class='form-control input-sm item_quantity_input' readOnly='readOnly' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
                                     "</td>" +
+                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-unitofmeasure='" + response.prfdetail[i][7] + "'>" + unitofmeasure_list + "</td>" +
                                     "</tr>");
 
                             summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
@@ -284,6 +311,7 @@
                             addSupplierManual();
                         }
                     }
+                    autoSelectItemPrfVal();
                     separateRadio();
                     computeVatItem();
                     reorderItems();
@@ -363,6 +391,9 @@
             if($('.removeitem').length == 0) {
                 customAlert($('#item-danger'));
             }
+            else if($('.item_container').length != $('.supplier:checked').length){
+                customAlert($('#supplier-item-danger'));
+            }
             else{
                 $('.shade').fadeIn();
                 updateTempItems();
@@ -406,6 +437,17 @@
             });
         });
 
+        function autoSelectItemPrfVal(){
+            $('.imported_prf').each(function(){
+                sel_department = $(this).find('.item_department_input').parent().data('department');
+                sel_unitofmeasure = $(this).find('.item_unitofmeasure_input').parent().data('unitofmeasure');
+                $(this).find('.item_department_input').val(sel_department);
+                $(this).find('.item_department_input option:not(:selected)').prop('disabled',true);
+                $(this).find('.item_unitofmeasure_input').val(sel_unitofmeasure);
+                $(this).find('.item_unitofmeasure_input option:not(:selected)').prop('disabled',true);
+            });
+        }
+
         function addTempForm(){
             $("#tempForm").append("<form action'#' id='" + temp_form_counter + "'>");
             temp_form_counter++;
@@ -415,6 +457,8 @@
             var arr_item_list = new Array();
             var arr_quantity_item = new Array();
             var arr_item_quantity_input = new Array();
+            var arr_item_department_input = new Array();
+            var arr_item_unitofmeasure_input = new Array();
             var arr_checked_supplier = new Array();
             var arr_checked_supplier_item = new Array();
             var arr_item_cost_supplier = new Array();
@@ -429,9 +473,13 @@
             });
 
             // get quantity input per item
+            // get department input per item
+            // get unitofmeasure input per item
             $('.item_quantity_input').each(function(index){
                 arr_quantity_item.push($(this).data('item'));
                 arr_item_quantity_input.push($(this).val());
+                arr_item_department_input.push($(this).parent().parent().find('.item_department_input').val());
+                arr_item_unitofmeasure_input.push($(this).parent().parent().find('.item_unitofmeasure_input').val());
             });
 
             // get supplier selected per item
@@ -467,6 +515,8 @@
                         'arr_checked_supplier[]': arr_checked_supplier,
                         'arr_checked_supplier_item[]': arr_checked_supplier_item,
                         'arr_item_quantity_input[]': arr_item_quantity_input,
+                        'arr_item_department_input[]': arr_item_department_input,
+                        'arr_item_unitofmeasure_input[]': arr_item_unitofmeasure_input,
                         'arr_item_cost_supplier[]': arr_item_cost_supplier,
                         'arr_item_cost_item[]': arr_item_cost_item,
                         'arr_item_cost[]': arr_item_cost,
@@ -624,6 +674,8 @@
                 $(this).find('td:eq(2)').attr('rowspan', rowspan);
                 $(this).find('td:eq(3)').attr('rowspan', rowspan);
                 $(this).find('td:eq(4)').attr('rowspan', rowspan);
+                $(this).find('td:eq(5)').attr('rowspan', rowspan);
+                $(this).find('td:eq(6)').attr('rowspan', rowspan);
                 $(this).addClass('supplied');
             });
 
