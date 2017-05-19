@@ -407,7 +407,7 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            enableDisableImport();
+            enableDisableButtons();
 
             if($("#id_postatus option:selected").text() == "For Approval")
                 $("#id_postatus option:selected").siblings().attr('disabled','disabled');
@@ -433,7 +433,7 @@
             });
 
             $("#id_supplier").change(function(){
-                enableDisableImport();
+                enableDisableButtons();
                 displaySupplierData();
             });
 
@@ -449,9 +449,15 @@
                 showRate("#id_currency", "fxrate", "FX RATE");
             }
 
-            function enableDisableImport(){
-                if($("#id_supplier option:selected").text() == "-- Select --")  $('#importbutton').prop("disabled", true);
-                else                                                            $('#importbutton').prop("disabled", false);
+            function enableDisableButtons(){
+                if($("#id_supplier option:selected").text() == "-- Select --"){
+                    $('#importbutton').prop("disabled", true);
+                    $('#detailsbutton').prop("disabled", true);
+                }
+                else {
+                    $('#importbutton').prop("disabled", false);
+                    $('#detailsbutton').prop("disabled", false);
+                }
             }
 
             function showRate(field, rateSpan, defaultText){
@@ -461,16 +467,6 @@
                     $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
                 }
             }
-
-{#            $(window).load(showSelected);#}
-{##}
-{#            function showSelected(){#}
-{#                $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));#}
-{#                $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));#}
-{#                $('#id_vat').removeData('id');#}
-{#                $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));#}
-{#                $('#id_vat').removeData('code');#}
-{#            }#}
 
             $("#form-b").submit(function(event){
                 if($('.remove_item').length == 0) {

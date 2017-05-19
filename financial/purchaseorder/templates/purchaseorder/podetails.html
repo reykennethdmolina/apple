@@ -4,13 +4,16 @@
         <label style="display: none;" id="itemno">1</label>
         <div class="col-lg-12 form-group row">
             <div class="col-md-12 row">
-                <label class="col-sm-offset-2 col-sm-1 control-label" for="item_name">Item</label>
+                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_item_name">Item</label>
                 <div class="col-sm-7">
                     <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                         <option value="">-- Select Item --</option>
                         {% for invitem in invitem %}
                             <option value="{{ invitem.id }}" data-um="{{ invitem.unitofmeasure.id }}"
-                                    data-code="{{ invitem.code }}">{{ invitem.description }}</option>
+                                    data-code="{{ invitem.code }}"
+                                    data-type="{{ invitem.inventoryitemclass.inventoryitemtype.code }}">
+                                {{ invitem.description }}
+                            </option>
                         {% endfor %}
                     </select>
                     <span class="help-block form-error"></span>
@@ -36,18 +39,6 @@
                     </select>
                     <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
                 </div>
-{#                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_currency">Currency</label>#}
-{#                <div class="col-sm-3">#}
-{#                    <select class="form-control input-sm select2" data-validation="required" id="id_currency" name="currency" style="width: 100%">#}
-{#                        <option value="">-- Select --</option>#}
-{#                        {% for currency in currency %}#}
-{#                            {% if currency.id == 1 %}#}
-{#                            <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>{{ currency.description }} ({{ currency.symbol }})</option>#}
-{#                            {% endif %}#}
-{#                        {% endfor %}#}
-{#                    </select>#}
-{#                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>#}
-{#                </div>#}
                 <label class="col-sm-1 control-label" for="id_department">Dept.</label>
                 <div class="col-sm-3">
                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department" style="width: 100%">
@@ -79,6 +70,27 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-12 form-group row">
+            <div class="col-md-12 row" style="display: none;" id="fixedasset">
+                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_assetnum">Asset&nbsp;No.</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control input-sm" id="id_assetnum" name="assetnum">
+                    <span class="help-block form-error">{{ form.assetnum.errors.as_text }}</span>
+                </div>
+                <label class="col-sm-1 control-label" for="id_serialnum">Serial&nbsp;No.</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control input-sm" id="id_serialnum" name="serialnum">
+                    <span class="help-block form-error">{{ form.serialnum.errors.as_text }}</span>
+                </div>
+            </div>
+            <div class="col-md-12 row" style="display: none;" id="suppliesinventory">
+                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_expirationdate">Expiry&nbsp;Date</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_expirationdate" name="expirationdate" readonly="readonly" placeholder="YYYY-MM-DD">
+                    <span class="help-block form-error">{{ form.expirationdate.errors.as_text }}</span>
+                </div>
+            </div>
+        </div>
         <div class="col-sm-12 pull-left margin-bottom-10">
             <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailsubmit">Add Item</button>
             <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
@@ -95,6 +107,21 @@
 
         $('#id_branch').val(5).trigger('change');
 
+        $('#id_item_name').select2().on("change", function(e) {
+            if($("#id_item_name option:selected").data('type') == 'FA'){
+                $('#fixedasset').show();
+                $('#suppliesinventory').hide();
+            }
+            else if($("#id_item_name option:selected").data('type') == 'SI'){
+                $('#suppliesinventory').show();
+                $('#fixedasset').hide();
+            }
+            else{
+                $('#suppliesinventory').hide();
+                $('#fixedasset').hide();
+            }
+        });
+
         $(document).on('click', '#importconfirm', function(){
             $('.shade').fadeIn();
             $.ajax({
@@ -105,109 +132,7 @@
                 },
 
                 success: function(response) {
-                    var supplier_list = '';
-                    for (var i = 0; i < response.prfsuppliers.length; i++){
-                        supplier_list += "<li data-id='" + response.prfsuppliers[i][2] + "'>" + response.prfsuppliers[i][4] + "</li>";
-                    }
 
-                    if(response.prfdata != "[]"){
-                        $("#prfcontainer").append("<div class='widgett widgett-article widgett-shadow'>" +
-                                                    "<div class='widgett-header cover padding-0 bg-grey-600'>" +
-                                                    "<div class='background-cover padding-10' style='color:white'><small>PRF - " +
-                                                        response.prfdata[0] +
-                                                        "</small><ul style='display:none' class='supplier_list'>" +
-                                                        supplier_list +
-                                                    "</ul><button type='button' class='close removeprf' data-prf='" + response.prfdata[0] + "'>" +
-                                                        "<i class='icon fa-close' aria-hidden='true'></i>" +
-                                                    "</button>" +
-                                                    "</div></div></div>");
-                    }
-                    if($('#id_supplier').val() == ""){
-                        suppliers = $('.widgett.widgett-article.widgett-shadow').last().find('.supplier_list li');
-                        $('#supplier-option').html('');
-                        if(response.prfsuppliers.length == 0){
-                            //fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), 'PRFHasNoSuppliers');
-                            console.log('PRF has no suppliers.');
-                        }
-                        else {
-                            $.each(suppliers, function() {
-                            $('#supplier-option').append("<button type='button' class='btn btn-info btn-block waves-effect " +
-                                    "waves-light supplier-button' data-id='" + $(this).data('id') + "' style='margin: 5px;'>" +
-                                    $(this).text() + "</button>");
-                            });
-                            $("#importbutton2").trigger("click");
-                            $('.widgett.widgett-article.widgett-shadow').last().addClass('for-deletion');
-                        }
-                    }
-                    else {
-                        fetchPRFItems($("#importprfselect2").val(), $("#secretkey").val(), $('#id_supplier').val());
-                    }
-{##}
-{#                        for (var i = 0; i < response.prfdetail.length; i++) {#}
-{##}
-{#                            if($("tr#" + response.prfdetail[i][4]).length > 0){#}
-{#                                item_total = parseInt($("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val()) + parseInt(response.prfdetail[i][3]);#}
-{#                                $("tr#" + response.prfdetail[i][4] + " .item_quantity").find('.item_quantity_input').val(item_total);#}
-{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
-{#                            }#}
-{#                            else{#}
-{#                                $("#itemno").text(parseInt($("#itemno").text()) + 1);#}
-{##}
-{#                                temp_supplier = filterSupplier(response.prfdetail[i][0], response.prfsupplier);#}
-{#                                temp_supplier_length = temp_supplier.length;#}
-{##}
-{#                                summary.append("<tr id='" + response.prfdetail[i][4] + "' class='item_container'> " +#}
-{#                                            "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +#}
-{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.prfdetail[i][0] + "</td>" +#}
-{#                                            "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][1] + "</td>" +#}
-{#                                            "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +#}
-{#                                                "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +#}
-{#                                            "</td>" +#}
-{#                                            "</tr>");#}
-{##}
-{#                                for(var j = 0; j < temp_supplier_length; j++) {#}
-{#                                    // hover view more details about supplier#}
-{##}
-{#                                    if(j==0){#}
-{#                                        summary.find('tr').last().append("<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td>" +#}
-{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
-{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
-{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
-{#                                                "<td class='small item_amount text-right'></td>" +#}
-{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
-{#                                                "<td class='small item_vatable text-right'></td>" +#}
-{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
-{#                                                "<td class='small item_vatzero text-right'></td>" +#}
-{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
-{#                                                "<td class='small item_addvat text-right'></td>" +#}
-{#                                                "<td class='small item_total_amount text-right'></td>"#}
-{#                                                );#}
-{#                                    }#}
-{#                                    else{#}
-{#                                        summary.append("<tr>" +#}
-{#                                                "<td><input type='radio' name='supplier' class='radio radio-custom supplier' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + i + "'></td> " +#}
-{#                                                "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +#}
-{#                                                "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +#}
-{#                                                "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +#}
-{#                                                "<td class='small item_amount text-right'></td>" +#}
-{#                                                "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +#}
-{#                                                "<td class='small item_vatable text-right'></td>" +#}
-{#                                                "<td class='small item_vatexempt text-right'></td>" +#}
-{#                                                "<td class='small item_vatzero text-right'></td>" +#}
-{#                                                "<td class='small item_totalpurchase text-right'></td>" +#}
-{#                                                "<td class='small item_addvat text-right'></td>" +#}
-{#                                                "<td class='small item_total_amount text-right'</td>" +#}
-{#                                                "</tr>");#}
-{#                                    }#}
-{#                                }#}
-{##}
-{#                                $("#tempForm").append("<form action'#' id='" + i + "'>");#}
-{#                            }#}
-{#                        }#}
-{#                    }#}
-{#                    separateRadio();#}
-{#                    computeVatItem();#}
-{#                    reorderItems();#}
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -256,138 +181,144 @@
         }
 
         $("#btn_detailsubmit").click(function(){
-            $('.shade').fadeIn();
-
-            // parse values to be used for computation
-            var unitCost = $("#id_unitcost").val().replace( /,/g, "") == "" ? 0 :
-                    parseFloat($("#id_unitcost").val().replace( /,/g, ""));
-            var vat = $("#id_vat").val().replace(/%/g, "") == "" ? 0 :
-                    parseFloat($("#id_vat").val().replace(/%/g, ""));
-            var vatCode = $('#id_vat').data('code');
-            var qty = $("#id_qty").val() == "" ? 0 :
-                    parseFloat($("#id_qty").val());
-            var discountType = $("#id_discounttype").val();
-            var discountRate = $.trim($("#id_discountrate").val()) == "" ? 0 :
-                    parseFloat($.trim($("#id_discountrate").val()));
-            var discountAmount = $("#id_discountamount").val().replace( /,/g, "") == "" ? 0 :
-                    parseFloat($("#id_discountamount").val().replace( /,/g, ""));
-
-            var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);
-
-            $.ajax({
-                url: "{% url 'purchaseorder:savedetailtemp' %}",
-                type: "post",
-                data: {'itemno': $('#itemno').text(),
-                        'id_itemid': $('#id_item_name').val(),
-                        'id_remarks': $("#id_remarks").val(),
-                        'id_um': $("option:selected", $("#id_item_name")).data('um'),
-                        'id_prfno': '',
-                        'id_department': $("#id_department").val(),
-                        'id_currency': $("#id_currency").val(),
-                        'id_unitcost': unitCost,
-                        'id_grossunitcost': computedValues.grossUnitCost,
-                        'id_quantity': qty,
-                        'id_grossamount': computedValues.grossAmount,
-                        'id_discountrate': (discountType == "rate") ? discountRate : 0,
-                        'id_discountamount': (discountType == "amount") ? discountAmount : computedValues.discountAmt,
-                        'id_vat': $("#id_vat").data('id'),
-                        'id_vatrate': vat,
-                        'id_vatable': computedValues.vatable,
-                        'id_vatexempt': computedValues.vatExempt,
-                        'id_vatzerorated': computedValues.vatZeroRated,
-                        'id_totalpurchase': computedValues.totalPurchase,
-                        'id_addvat': computedValues.addedVat,
-                        'id_totalamount': computedValues.totalAmount,
-                        'secretkey': $("#secretkey").val()},
-
-                success: function(response) {
-                    $("#itemno").text(parseInt($("#itemno").text()) + 1);
-                    var um_selected = $("#id_item_name option:selected").data('um');
-
-                    summary.append("<tr class='small tblItemCounter'><td class='text-center'></td>" +
-                        "<td class='tblItemCode'>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
-                        "<td class='tblItemName'>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
-                        "<td class='tblRemarks'><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
-                            "input-sm tblInputRemarks' value='" + response.remarks + "'></td>" +
-                        "<td class='tblUnitOfMeasure'><select class='form-control input-sm tblSelectUnitOfMeasure' required style='width: 100%' id='id_temp_item_um' " +
-                            "name='temp_item_um' form='form-b'>" +
-                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.id }}' " +
-                            "data-code='{{ unitofmeasure.code }}'>" +
-                            "{{ unitofmeasure.description }}</option>{% endfor %}</select></td>" +
-                        "<td class='text-center tblPRFNumber'> - </td>" +
-                        "<td class='text-center tblDepartment'>" + response.department + "</td>" +
-                        "<td class='text-center tblCurrency'>" + response.currency + "</td>" +
-                        "<td class='tblUnitCost'><input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
-                            "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' value='" +
-                            unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'></td>" +
-                        "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='tblQuantity'><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control " +
-                            "text-right tblInputQuantity input-sm' value='" + qty + "'></td>" +
-                        "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='col_discount tblDiscount'>" +
-                            "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +
-                            "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' " +
-                            "maxlength='26' form='form-b'></td>" +
-                        "<td class='col_discount_type tblDiscountType'><select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +
-                            "<option value='rate'>%</option>" +
-                            "<option value='amount'>(amt)</option>" +
-                        "</select></td>" +
-                        "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-                            "</td>" +
-                        "<td class='text-right tblTotalAmount'><strong>" +
-                            computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
-                        "<td class='tblDeleteItem'><button class='btn remove_item' style='margin: 0px;' data-itemno='" + response.itemno +
-                            "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
-                        "</tr>");
-
-                    initMaskMoney('po_dynamic');
-                    summary.find("tr").last().find("#id_temp_item_um option[value=" + um_selected + "]")
-                            .attr('selected','selected');
-                    summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]")
-                            .attr('selected','selected');
-                    if(discountType == "rate"){
-                        summary.find("tr").last().find(".temp_discount_rate").val(discountRate);
-                    }
-                    else{
-                        summary.find("tr").last().find(".temp_discount_amount").val(discountAmount.toFixed(2).
-                                replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                    }
-
-                    filterDiscount();
-
-                    $("#id_item_name").val('').trigger('change.select2');
-                    $("#id_qty").val('');
-                    $("#id_unitcost").val('');
-                    $("#id_department").val('').trigger('change.select2');
-                    $("#id_currency").val('').trigger('change.select2');
-                    $("#id_remarks").val('');
-                    $("#id_discountrate").val('');
-                    $("#id_discountamount").val('');
-                    $("#id_discounttype").val('rate');
-
-                    reorderItems();
-                    computeTotalAmounts();
-
-                    $('.shade').fadeOut();
-                }
-
-                , error: function(response) {
-                    console.debug(response);
-                    $('.shade').fadeOut();
-                }
-            });
+            if($('#id_supplier').val() == ''){
+                alert("Please select a supplier first.");
+            }
+            else {
+                alert("Working!");
+            }
+{#            $('.shade').fadeIn();#}
+{##}
+{#            // parse values to be used for computation#}
+{#            var unitCost = $("#id_unitcost").val().replace( /,/g, "") == "" ? 0 :#}
+{#                    parseFloat($("#id_unitcost").val().replace( /,/g, ""));#}
+{#            var vat = $("#id_vat").val().replace(/%/g, "") == "" ? 0 :#}
+{#                    parseFloat($("#id_vat").val().replace(/%/g, ""));#}
+{#            var vatCode = $('#id_vat').data('code');#}
+{#            var qty = $("#id_qty").val() == "" ? 0 :#}
+{#                    parseFloat($("#id_qty").val());#}
+{#            var discountType = $("#id_discounttype").val();#}
+{#            var discountRate = $.trim($("#id_discountrate").val()) == "" ? 0 :#}
+{#                    parseFloat($.trim($("#id_discountrate").val()));#}
+{#            var discountAmount = $("#id_discountamount").val().replace( /,/g, "") == "" ? 0 :#}
+{#                    parseFloat($("#id_discountamount").val().replace( /,/g, ""));#}
+{##}
+{#            var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);#}
+{##}
+{#            $.ajax({#}
+{#                url: "{% url 'purchaseorder:savedetailtemp' %}",#}
+{#                type: "post",#}
+{#                data: {'itemno': $('#itemno').text(),#}
+{#                        'id_itemid': $('#id_item_name').val(),#}
+{#                        'id_remarks': $("#id_remarks").val(),#}
+{#                        'id_um': $("option:selected", $("#id_item_name")).data('um'),#}
+{#                        'id_prfno': '',#}
+{#                        'id_department': $("#id_department").val(),#}
+{#                        'id_currency': $("#id_currency").val(),#}
+{#                        'id_unitcost': unitCost,#}
+{#                        'id_grossunitcost': computedValues.grossUnitCost,#}
+{#                        'id_quantity': qty,#}
+{#                        'id_grossamount': computedValues.grossAmount,#}
+{#                        'id_discountrate': (discountType == "rate") ? discountRate : 0,#}
+{#                        'id_discountamount': (discountType == "amount") ? discountAmount : computedValues.discountAmt,#}
+{#                        'id_vat': $("#id_vat").data('id'),#}
+{#                        'id_vatrate': vat,#}
+{#                        'id_vatable': computedValues.vatable,#}
+{#                        'id_vatexempt': computedValues.vatExempt,#}
+{#                        'id_vatzerorated': computedValues.vatZeroRated,#}
+{#                        'id_totalpurchase': computedValues.totalPurchase,#}
+{#                        'id_addvat': computedValues.addedVat,#}
+{#                        'id_totalamount': computedValues.totalAmount,#}
+{#                        'secretkey': $("#secretkey").val()},#}
+{##}
+{#                success: function(response) {#}
+{#                    $("#itemno").text(parseInt($("#itemno").text()) + 1);#}
+{#                    var um_selected = $("#id_item_name option:selected").data('um');#}
+{##}
+{#                    summary.append("<tr class='small tblItemCounter'><td class='text-center'></td>" +#}
+{#                        "<td class='tblItemCode'>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +#}
+{#                        "<td class='tblItemName'>" + $("option:selected", $("#id_item_name")).text() + "</td>" +#}
+{#                        "<td class='tblRemarks'><input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +#}
+{#                            "input-sm tblInputRemarks' value='" + response.remarks + "'></td>" +#}
+{#                        "<td class='tblUnitOfMeasure'><select class='form-control input-sm tblSelectUnitOfMeasure' required style='width: 100%' id='id_temp_item_um' " +#}
+{#                            "name='temp_item_um' form='form-b'>" +#}
+{#                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.id }}' " +#}
+{#                            "data-code='{{ unitofmeasure.code }}'>" +#}
+{#                            "{{ unitofmeasure.description }}</option>{% endfor %}</select></td>" +#}
+{#                        "<td class='text-center tblPRFNumber'> - </td>" +#}
+{#                        "<td class='text-center tblDepartment'>" + response.department + "</td>" +#}
+{#                        "<td class='text-center tblCurrency'>" + response.currency + "</td>" +#}
+{#                        "<td class='tblUnitCost'><input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +#}
+{#                            "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' value='" +#}
+{#                            unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'></td>" +#}
+{#                        "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='tblQuantity'><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control " +#}
+{#                            "text-right tblInputQuantity input-sm' value='" + qty + "'></td>" +#}
+{#                        "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='col_discount tblDiscount'>" +#}
+{#                            "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +#}
+{#                            "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' " +#}
+{#                            "maxlength='26' form='form-b'></td>" +#}
+{#                        "<td class='col_discount_type tblDiscountType'><select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +#}
+{#                            "<option value='rate'>%</option>" +#}
+{#                            "<option value='amount'>(amt)</option>" +#}
+{#                        "</select></td>" +#}
+{#                        "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +#}
+{#                            "</td>" +#}
+{#                        "<td class='text-right tblTotalAmount'><strong>" +#}
+{#                            computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +#}
+{#                        "<td class='tblDeleteItem'><button class='btn remove_item' style='margin: 0px;' data-itemno='" + response.itemno +#}
+{#                            "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +#}
+{#                        "</tr>");#}
+{##}
+{#                    initMaskMoney('po_dynamic');#}
+{#                    summary.find("tr").last().find("#id_temp_item_um option[value=" + um_selected + "]")#}
+{#                            .attr('selected','selected');#}
+{#                    summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]")#}
+{#                            .attr('selected','selected');#}
+{#                    if(discountType == "rate"){#}
+{#                        summary.find("tr").last().find(".temp_discount_rate").val(discountRate);#}
+{#                    }#}
+{#                    else{#}
+{#                        summary.find("tr").last().find(".temp_discount_amount").val(discountAmount.toFixed(2).#}
+{#                                replace(/\B(?=(\d{3})+(?!\d))/g, ","));#}
+{#                    }#}
+{##}
+{#                    filterDiscount();#}
+{##}
+{#                    $("#id_item_name").val('').trigger('change.select2');#}
+{#                    $("#id_qty").val('');#}
+{#                    $("#id_unitcost").val('');#}
+{#                    $("#id_department").val('').trigger('change.select2');#}
+{#                    $("#id_currency").val('').trigger('change.select2');#}
+{#                    $("#id_remarks").val('');#}
+{#                    $("#id_discountrate").val('');#}
+{#                    $("#id_discountamount").val('');#}
+{#                    $("#id_discounttype").val('rate');#}
+{##}
+{#                    reorderItems();#}
+{#                    computeTotalAmounts();#}
+{##}
+{#                    $('.shade').fadeOut();#}
+{#                }#}
+{##}
+{#                , error: function(response) {#}
+{#                    console.debug(response);#}
+{#                    $('.shade').fadeOut();#}
+{#                }#}
+{#            });#}
         });
 
         $(document).on('change', '.tblInputUnitCost, .tblInputQuantity, .tblInputDiscountRate, .tblInputDiscountAmount', function(){
