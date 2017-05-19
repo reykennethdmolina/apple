@@ -20,10 +20,10 @@
             text-align: right;
         }
         .heading-top-index-2 {
-            padding: 10px 15px;
+            padding: 27px 15px 26px 15px;
         }
         #prfcontainer {
-            height: 290px;
+            height: 358px;
             padding: 10px;
             background-color: #e6e6e6;
             overflow: scroll;
@@ -35,9 +35,8 @@
         .widgett{
             margin-bottom: 5px;
         }
-        {
-            padding-right: 10px;
-            padding-left: 10px;
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: transparent;
         }
     </style>
 {% endblock extra_css %}
@@ -86,7 +85,7 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_dateneeded">Date Needed</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" value="{{ form.dateneeded.value|default:'' }}" data-validation="required">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_dateneeded" name="dateneeded" readonly="readonly" placeholder="YYYY-MM-DD" value="{{ form.dateneeded.value|default:'' }}" data-validation="required">
                                     <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4">
@@ -95,32 +94,35 @@
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_designatedapprover">Approver</label>
-                                <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-{#                                    <option value="1">Rey Kenneth Molina</option>#}
-                                    <option value="">-- Select --</option>
-                                    {% for designatedapprover in designatedapprover %}
-                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-4 {{ form.urgencytype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_urgencytype">PO Status</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
-                                        {% for id,name in form.fields.urgencytype.choices %}
-                                            <option value="{{ id }}"{% if form.urgencytype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    <label class="control-label" for="id_designatedapprover">Approver</label>
+                                    <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                        <option value="">-- Select --</option>
+                                        {% for designatedapprover in designatedapprover %}
+                                            <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.postatus.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_postatus">PO Status</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_postatus" name="postatus">
+                                        {% for id,name in form.fields.postatus.choices %}
+                                            <option value="{{ id }}"{% if form.postatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.postatus.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-8 {{ form.supplier.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_supplier">Supplier</label>
                                     <select class="form-control input-sm select2" id="id_supplier" name="supplier">
                                         <option value="">-- Select --</option>
                                         {% for supplier in supplier %}
-                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %} data-vat="{{ supplier.vat.id }}"
-                                                    data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%">{{ supplier.code }} - {{ supplier.name }}</option>
+                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}
+                                                    data-vat="{{ supplier.vat.id }}" data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%"
+                                                    data-creditterm="{{ supplier.creditterm.id }}" data-atc="{{ supplier.atc.id }}" data-currency="{{ supplier.currency.id }}"
+                                                    data-inputvattype="{{ supplier.inputvattype.id }}" data-deferredvat="{{ supplier.deferredvat }}">
+                                                {{ supplier.code }} - {{ supplier.name }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
@@ -134,6 +136,69 @@
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_vat">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                        <option value="">-- Select --</option>
+                                        {% for vat in vat %}
+                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.atc.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_atc">ATC</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc">
+                                        <option value="">-- Select --</option>
+                                        {% for atc in atc %}
+                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.currency.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_currency">Currency</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                        <option value="">-- Select --</option>
+                                        {% for currency in currency %}
+                                            <option value="{{ currency.id }}" data-rate="{{ currency.fxrate }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>{{ currency.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="fxrate" class="text-success small floatright"><strong>FX RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
+                                        <option value="">-- Select --</option>
+                                        {% for inputvattype in inputvattype %}
+                                            <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.deferredvat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_deferredvat">Deferred?</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
+                                        {% for id,name in form.fields.deferredvat.choices %}
+                                            <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_wtax">Withholding&nbsp;Tax</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
+                                        <option value="">-- Select --</option>
+                                        {% for wtax in wtax %}
+                                            <option value="{{ wtax.id }}" data-rate="{{ wtax.rate }}" {% if form.wtax.value|add:0 == wtax.id %} selected="selected" {% endif %}>{{ wtax.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="wtaxrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
@@ -184,6 +249,14 @@
                                     </table>
                                 </div>
                             </div>
+                            <br>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label small" for="id_deliverystatus">Delivery Status</label>
+                                <select class="form-control input-sm" id="id_deliverystatus" name="deliverystatus" disabled="disabled">
+                                    <option>N/A</option>
+                                </select>
+                                <span class="help-block form-error">{{ form.deliverystatus.errors.as_text }}</span>
+                            </div>
                         </div>
 
                         <div class="col-md-2">
@@ -191,74 +264,11 @@
                             <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
                                 <div class="shade"><div class="loader two-color"></div></div>
                             </div>
-                        </div>
-
-                        <div class="col-sm-12">
-                            <div class="row-lg">
-                                <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
-                                        <option value="">-- Select --</option>
-                                        {% for vat in vat %}
-                                            <option value="{{ vat.id }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }} ({{ vat.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_ataxcode">ATC</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_ataxcode">Currency</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>FX RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_ataxcode">Input&nbsp;VAT&nbsp;Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_ataxcode">Deferred?</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label small" for="id_ataxcode">Withholding&nbsp;Tax</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
+                            <div class="form-group col-sm-12">
+                                <br>
+                                <label class="control-label small" for="id_podate">Delivery Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" readonly="readonly" value="{{ form.dateneeded.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
                             </div>
                         </div>
 
@@ -397,19 +407,70 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            enableDisableImport();
+
+            if($("#id_postatus option:selected").text() == "For Approval")
+                $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
 
-            $(window).load(showSelected);
+            $("#id_vat").change(function(){
+                showRate("#id_vat", "vatrate", "RATE");
+            });
 
-            function showSelected(){
-                $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
-                $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
-                $('#id_vat').removeData('id');
-                $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
-                $('#id_vat').removeData('code');
+            $("#id_atc").change(function(){
+                showRate("#id_atc", "atcrate", "RATE");
+            });
+
+            $("#id_currency").change(function(){
+                showRate("#id_currency", "fxrate", "FX RATE");
+            });
+
+            $("#id_wtax").change(function(){
+                showRate("#id_wtax", "wtaxrate", "RATE");
+            });
+
+            $("#id_supplier").change(function(){
+                enableDisableImport();
+                displaySupplierData();
+            });
+
+            function displaySupplierData(){
+                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
+                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
+                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
+                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
+                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
+                showRate("#id_vat", "vatrate", "RATE");
+                showRate("#id_atc", "atcrate", "RATE");
+                showRate("#id_currency", "fxrate", "FX RATE");
             }
+
+            function enableDisableImport(){
+                if($("#id_supplier option:selected").text() == "-- Select --")  $('#importbutton').prop("disabled", true);
+                else                                                            $('#importbutton').prop("disabled", false);
+            }
+
+            function showRate(field, rateSpan, defaultText){
+                $('#' + rateSpan).html("<strong>" + defaultText + ": " + $(field + " option:selected").data('rate') +
+                        "%</strong>");
+                if($(field + " option:selected").text() == "-- Select --"){
+                    $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+                }
+            }
+
+{#            $(window).load(showSelected);#}
+{##}
+{#            function showSelected(){#}
+{#                $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));#}
+{#                $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));#}
+{#                $('#id_vat').removeData('id');#}
+{#                $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));#}
+{#                $('#id_vat').removeData('code');#}
+{#            }#}
 
             $("#form-b").submit(function(event){
                 if($('.remove_item').length == 0) {

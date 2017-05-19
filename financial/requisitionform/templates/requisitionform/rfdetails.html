@@ -53,8 +53,12 @@
 
         $("#btn_detailsubmit").click(function(){
             if(($('#id_item_name').val() == "") || ($('#id_quantity').val() == "")){
-                if($('#id_item_name').val() == "")  alert("Please select an item.");
-                if($('#id_quantity').val() == "")  alert("Please indicate requested quantity.");
+                if(($('#id_item_name').val() == "") && ($('#id_quantity').val() != ""))
+                    customAlert($('#item-select'));
+                else if(($('#id_item_name').val() != "") && ($('#id_quantity').val() == ""))
+                    customAlert($('#item-quantity'));
+                else if(($('#id_item_name').val() == "") && ($('#id_quantity').val() == ""))
+                    customAlert($('#item-select-quantity'));
             }
             else {
                 $('.shade').fadeIn();
@@ -97,6 +101,7 @@
                         resetItems();
                         callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
 
+                        customAlert($('#item-added'));
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {

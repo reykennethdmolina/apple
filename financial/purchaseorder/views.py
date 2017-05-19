@@ -7,9 +7,10 @@ from django.db.models import Q
 from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata
 from purchaserequisitionform.models import Prfmain
+from branch.models import Branch
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
-from inputvat.models import Inputvat
+from inputvattype.models import Inputvattype
 from vat.models import Vat
 from creditterm.models import Creditterm
 from inventoryitem.models import Inventoryitem
@@ -17,6 +18,7 @@ from branch.models import Branch
 from currency.models import Currency
 from department.models import Department
 from unitofmeasure.models import Unitofmeasure
+from wtax.models import Wtax
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from acctentry.views import generatekey
@@ -56,8 +58,8 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Pomain
     template_name = 'purchaseorder/create2.html'
-    fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'supplier', 'inputvat',
-              'creditterm', 'particulars']
+    fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus', 'supplier', 'inputvattype',
+              'deferredvat', 'creditterm', 'particulars']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('purchaseorder.add_pomain'):
@@ -66,17 +68,21 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['secretkey'] = generatekey(self)
-        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A')
+        context['secretkey'] = generatekey(self)
+        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         return context
 
     def form_valid(self, form):

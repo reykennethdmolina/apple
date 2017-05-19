@@ -122,6 +122,8 @@ class Podetail(models.Model):
     branch = models.ForeignKey('branch.Branch', related_name='podetail_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetail_department_id', blank=True,
                                    null=True)
+    department_code = models.CharField(max_length=10)
+    department_name = models.CharField(max_length=250)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='podetail_vat_id')
     vatrate = models.IntegerField(default=0)
@@ -185,6 +187,8 @@ class Podetailtemp(models.Model):
     branch = models.ForeignKey('branch.Branch', related_name='podetailtemp_branch_id')
     department = models.ForeignKey('department.Department', related_name='podetailtemp_department_id', blank=True,
                                    null=True)
+    department_code = models.CharField(max_length=10)
+    department_name = models.CharField(max_length=250)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='podetailtemp_vat_id')
     vatrate = models.IntegerField(default=0)

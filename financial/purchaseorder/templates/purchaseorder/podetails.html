@@ -26,18 +26,28 @@
                            maxlength="26">
                     <span class="help-block form-error">{{ form.unitcost.errors.as_text }}</span>
                 </div>
-                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_currency">Currency</label>
+                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_branch">Branch</label>
                 <div class="col-sm-3">
-                    <select class="form-control input-sm select2" data-validation="required" id="id_currency" name="currency" style="width: 100%">
+                    <select class="form-control input-sm select2" data-validation="required" id="id_branch" name="branch" style="width: 100%">
                         <option value="">-- Select --</option>
-                        {% for currency in currency %}
-                            {% if currency.id == 1 %}
-                            <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>{{ currency.description }} ({{ currency.symbol }})</option>
-                            {% endif %}
+                        {% for branch in branch %}
+                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
                         {% endfor %}
                     </select>
                     <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
                 </div>
+{#                <label class="col-sm-offset-2 col-sm-1 control-label" for="id_currency">Currency</label>#}
+{#                <div class="col-sm-3">#}
+{#                    <select class="form-control input-sm select2" data-validation="required" id="id_currency" name="currency" style="width: 100%">#}
+{#                        <option value="">-- Select --</option>#}
+{#                        {% for currency in currency %}#}
+{#                            {% if currency.id == 1 %}#}
+{#                            <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>{{ currency.description }} ({{ currency.symbol }})</option>#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>#}
+{#                </div>#}
                 <label class="col-sm-1 control-label" for="id_department">Dept.</label>
                 <div class="col-sm-3">
                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department" style="width: 100%">
@@ -82,6 +92,8 @@
 <script type="text/javascript">
     $(document).ready(function() {
         summary = $("#summary tbody");
+
+        $('#id_branch').val(5).trigger('change');
 
         $(document).on('click', '#importconfirm', function(){
             $('.shade').fadeIn();
@@ -383,19 +395,19 @@
         });
 
         $('#id_supplier').on('change', function(){
-            showSelected();
+{#            showSelected();#}
             if($('.remove_item').length > 0){
                 computeAllValues();
             }
         });
 
-        function showSelected(){
-            $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
-            $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
-            $('#id_vat').removeData('id');
-            $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
-            $('#id_vat').removeData('code');
-        }
+{#        function showSelected(){#}
+{#            $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));#}
+{#            $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));#}
+{#            $('#id_vat').removeData('id');#}
+{#            $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));#}
+{#            $('#id_vat').removeData('code');#}
+{#        }#}
 
         function computeAllValues(){
             var vat = $("#id_vat").val().replace(/%/g, "") == "" ? 0 :
