@@ -131,22 +131,38 @@ class DeleteView(DeleteView):
 
 @csrf_exempt
 def updateCsmainvat(csnum):
-    csmain_aggregates = Csdetail.objects.filter(csmain__csnum=csnum, csstatus=1).aggregate(Sum('grossamount'),
-                                                                               Sum('netamount'),
-                                                                               Sum('quantity'),
+    csmain_aggregates = Csdetail.objects.filter(csmain__csnum=csnum, csstatus=1).aggregate(Sum('quantity'),
                                                                                Sum('vatable'),
-                                                                               Sum('vatamount'),
                                                                                Sum('vatexempt'),
-                                                                               Sum('vatzerorated'))
+                                                                               Sum('vatzerorated'),
+                                                                               Sum('grosscost'),
+                                                                               Sum('grossamount'),
+                                                                               Sum('vatamount'),
+                                                                               Sum('netamount'),
+                                                                               Sum('uc_vatable'),
+                                                                               Sum('uc_vatexempt'),
+                                                                               Sum('uc_vatzerorated'),
+                                                                               Sum('uc_grosscost'),
+                                                                               Sum('uc_grossamount'),
+                                                                               Sum('uc_vatamount'),
+                                                                               Sum('uc_netamount'))
 
     Csmain.objects.filter(csnum=csnum, isdeleted=0, status='A').\
-                  update(grossamount=csmain_aggregates['grossamount__sum'],
-                         netamount=csmain_aggregates['netamount__sum'],
-                         quantity=csmain_aggregates['quantity__sum'],
+                  update(quantity=csmain_aggregates['quantity__sum'],
                          vatable=csmain_aggregates['vatable__sum'],
-                         vatamount=csmain_aggregates['vatamount__sum'],
                          vatexempt=csmain_aggregates['vatexempt__sum'],
-                         vatzerorated=csmain_aggregates['vatzerorated__sum'])
+                         vatzerorated=csmain_aggregates['vatzerorated__sum'],
+                         grosscost=csmain_aggregates['grosscost__sum'],
+                         grossamount=csmain_aggregates['grossamount__sum'],
+                         vatamount=csmain_aggregates['vatamount__sum'],
+                         netamount=csmain_aggregates['netamount__sum'],
+                         uc_vatable=csmain_aggregates['uc_vatable__sum'],
+                         uc_vatexempt=csmain_aggregates['uc_vatexempt__sum'],
+                         uc_vatzerorated=csmain_aggregates['uc_vatzerorated__sum'],
+                         uc_grosscost=csmain_aggregates['uc_grosscost__sum'],
+                         uc_grossamount=csmain_aggregates['uc_grossamount__sum'],
+                         uc_vatamount=csmain_aggregates['uc_vatamount__sum'],
+                         uc_netamount=csmain_aggregates['uc_netamount__sum'])
 
 
 @csrf_exempt
@@ -762,6 +778,43 @@ def removeItem(request):
         data = {
             'status': 'error',
         }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def updateStatus(request, command, pk):
+
+    response = 'success'
+    data = Csmain.objects.filter(pk=pk, isdeleted=0)
+
+    if (command == "approve" or command == "disapprove") and data:
+        if command == "approve":
+            status = 'A'
+        elif command == "disapprove":
+            status = 'D'
+
+        data.update(csstatus=status)
+    else:
+        response = 'error'
+
+        # redirect
+        # add changer for purchase requisition form
+        # add changer for purchase requisition form
+        # add changer for purchase requisition form
+            # approve
+                # update prfcontents
+                    # prfdetail
+                    # prfmain
+            # disapprove
+                # set isdeleted csdata
+                # reset prfcontents
+                    # prfdetail
+                    # prfmain
+
+    data = {
+        'status': response
+    }
 
     return JsonResponse(data)
 

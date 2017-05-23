@@ -48,15 +48,25 @@ class Csmain(models.Model):
     responsedate = models.DateTimeField(null=True, blank=True)
     designatedapprover = models.ForeignKey(User, default=2, related_name='csdesignated_approver')
     actualapprover = models.ForeignKey(User, related_name='csactual_approver', null=True, blank=True)
-
-    # vat
     quantity = models.IntegerField(default=0)
+
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'csmain'

@@ -125,6 +125,20 @@
                                                 <span class="detail-profile"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12"><br>
+                                        {% if perms.canvasssheet.change_csmain %}
+                                            {% if object.csstatus == 'F' or object.csstatus == 'A'%}
+                                                <a href="../updatestatus/disapprove/{{ object.id }}" class="updatestatus">
+                                                    <button class="btn btn-round btn-danger btn-sm waves-effect waves-light floatright">Disapprove</button>
+                                                </a>
+                                            {% endif %}
+                                            {% if object.csstatus == 'F' or object.csstatus == 'D'%}
+                                                <a href="../updatestatus/approve/{{ object.id }}" class="updatestatus">
+                                                    <button class="btn btn-round btn-success btn-sm waves-effect waves-light floatright">Approve</button>
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -315,12 +329,15 @@
                 </div>
             </div>
         </div>
-
-
-
-
-
-
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script type="text/javascript">
+        $(function(){
+            $(document).on('click', '.updatestatus', function() {
+                if (!confirm('Are you sure?')) return false;
+            });
+        });
+    </script>
+{% endblock extra_js %}

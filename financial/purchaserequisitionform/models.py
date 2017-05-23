@@ -61,16 +61,25 @@ class Prfmain(models.Model):
     responsedate = models.DateTimeField(null=True, blank=True)
     remarks = models.TextField(max_length=250, null=True, blank=True)
     print_ctr = models.IntegerField(default=0)
-
-    # vat
     quantity = models.IntegerField()
-    amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
 
     class Meta:
@@ -158,24 +167,23 @@ class Prfdetail(models.Model):
 
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
-    # vat
-    cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
-    # CS
-    # cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    # csnum = models.CharField(max_length=10, null=True, blank=True,)
-    # csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
-    # cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssupplier_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    # cssuppliercode = models.CharField(max_length=10, null=True, blank=True)
-    # cssuppliername = models.CharField(max_length=250, null=True, blank=True)
-    # csvat = models.ForeignKey('vat.Vat', related_name='csvat_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    # csvatrate = models.IntegerField(default=0)
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'prfdetail'
@@ -229,25 +237,23 @@ class Prfdetailtemp(models.Model):
 
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
-    # vat
-    cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
-
-    # CS
-    # cscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
-    # csnum = models.CharField(max_length=10, null=True, blank=True,)
-    # csdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
-    # cssupplier = models.ForeignKey('supplier.Supplier', related_name='cssuppliertemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    # cssuppliercode = models.CharField(max_length=10, null=True, blank=True)
-    # cssuppliername = models.CharField(max_length=250, null=True, blank=True)
-    # csvat = models.ForeignKey('vat.Vat', related_name='csvattemp_id', null=True, blank=True, validators=[MaxValueValidator(99999), MinValueValidator(0)])
-    # csvatrate = models.IntegerField(default=0)
+    # uc vat
+    uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grosscost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     class Meta:
         db_table = 'prfdetailtemp'
