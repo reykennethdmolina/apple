@@ -107,13 +107,22 @@
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-name-profile text-info">CS Status&nbsp;: </span>
-                                                <span class="detail-profile"><b>{{ object.get_csstatus_display }}</b></span>
+                                                <span class="detail-profile
+                                                    {% if object.csstatus == 'F' %}
+                                                        text-primary
+                                                    {% elif object.csstatus == 'A' %}
+                                                        text-success
+                                                    {% elif object.csstatus == 'D' %}
+                                                        text-danger
+                                                    {% endif %}"><b>
+                                                        {{ object.get_csstatus_display }}
+                                                </b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-name-profile text-info">Status&nbsp;: </span>
-                                                <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
+                                                <span class="detail-profile"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
                                     </div>
@@ -138,12 +147,12 @@
                                             <tr class="small">
                                                 <th>Name</th>
                                                 <th>Description</th>
-                                                <th class="text-center" style="width:70px">Quantity</th>
-                                                <th style="text-align: center; min-width: 250px;">Supplier</th>
-                                                <th class="text-right" style="padding-right: 30px">CS&nbsp;Cost</th>
-                                                <th class="text-center" style="width: 130px;">Nego&nbsp;Cost</th>
+                                                <th class="text-right" style="width:70px; padding-right:50px;">Quantity</th>
+                                                <th style="min-width: 250px;">Supplier</th>
+                                                <th class="text-right">CS&nbsp;Cost</th>
+                                                <th class="text-right" style="width: 130px;">Nego&nbsp;Cost</th>
                                                 <th class="text-right">Gross&nbsp;Amount</th>
-                                                <th class="text-center">VAT&nbsp;Rate</th>
+                                                <th class="text-right">VAT&nbsp;Rate</th>
                                                 <th class="text-right">VATable</th>
                                                 <th class="text-right">VAT&nbsp;-&nbsp;Exempt</th>
                                                 <th class="text-right">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
@@ -156,13 +165,13 @@
                                             {% for data in csdetail %}
                                                 <tr>
                                                     <td>{{ data.invitem_code }}</td>
-                                                    <td class="text-left">{{ data.invitem_name }}</td>
-                                                    <td class="text-center">{{ data.quantity }}</td>
-                                                    <td class="text-center">{{ data.supplier.name }}</td>
+                                                    <td>{{ data.invitem_name }}</td>
+                                                    <td class="text-right" style="padding-right:50px;">{{ data.quantity }}</td>
+                                                    <td>{{ data.supplier.name }}</td>
                                                     <td class="text-right">{{ data.unitcost }}</td>
                                                     <td class="text-right">{{ data.negocost }}</td>
                                                     <td class="text-right">{{ data.grossamount }}</td>
-                                                    <td class="text-center">{{ data.vatrate }}</td>
+                                                    <td class="text-right">{{ data.vatrate }}</td>
                                                     <td class="text-right">{{ data.vatable }}</td>
                                                     <td class="text-right">{{ data.vatexempt }}</td>
                                                     <td class="text-right">{{ data.vatzerorated }}</td>

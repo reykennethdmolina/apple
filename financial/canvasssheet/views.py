@@ -10,6 +10,7 @@ from supplier.models import Supplier
 from industry.models import Industry
 from suppliertype.models import Suppliertype
 from department.models import Department
+from branch.models import Branch
 from unitofmeasure.models import Unitofmeasure
 from vat.models import Vat
 from currency.models import Currency
@@ -58,12 +59,14 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A')
+        csdata = Csdata.objects.filter(isdeleted=0).values_list('prfmain', flat=True)
+        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A').exclude(id__in=csdata)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
-        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('inventoryitemclass__inventoryitemtype__code', 'description')
+        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('code')
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
         context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('code')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
 
@@ -154,19 +157,29 @@ def updateCsdetailtemp(request):
         # assign quantity
         for data in request.POST.getlist('arr_quantity_item[]'):
             department = Department.objects.get(pk=request.POST.getlist('arr_item_department_input[]')[i], isdeleted=0)
+            branch = Branch.objects.get(pk=request.POST.getlist('arr_item_branch_input[]')[i], isdeleted=0)
             unitofmeasure = Unitofmeasure.objects.get(pk=request.POST.getlist('arr_item_unitofmeasure_input[]')[i], isdeleted=0)
 
+
             request.POST.getlist('arr_item_unitofmeasure_input[]')[i]
-            Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+            csdetailtempupdate = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         itemdetailkey=request.POST.getlist('arr_item_detail_key[]')[i],
                                         invitem=data,
                                         isdeleted=0,
-                                        status='A').update(quantity=request.POST.getlist('arr_item_quantity_input[]')[i],
+                                        status='A')
+
+            csdetailtempupdate.update(quantity=request.POST.getlist('arr_item_quantity_input[]')[i],
                                                            department=department.id,
                                                            department_code=department.code,
                                                            department_name=department.departmentname,
+                                                           branch=branch.id,
                                                            invitem_unitofmeasure=unitofmeasure.id,
-                                                           invitem_unitofmeasure_code=unitofmeasure.code)
+                                                           invitem_unitofmeasure_code=unitofmeasure.code,
+                                                           remarks=request.POST.getlist('arr_item_remarks_input[]')[i])
+
+            if request.POST.getlist('arr_item_etd_input[]')[i]:
+                csdetailtempupdate.update(estimateddateofdelivery=request.POST.getlist('arr_item_etd_input[]')[i])
+
             i += 1
 
         i = 0
@@ -342,8 +355,11 @@ def importTemptodetail(secretkey, csmain):
         csdetail.department = data.department
         csdetail.department_code = data.department_code
         csdetail.department_name = data.department_name
+        csdetail.branch = data.branch
         csdetail.invitem_unitofmeasure = data.invitem_unitofmeasure
         csdetail.invitem_unitofmeasure_code = data.invitem_unitofmeasure_code
+        csdetail.estimateddateofdelivery = data.estimateddateofdelivery
+        csdetail.remarks = data.remarks
         csdetail.vatrate = data.vatrate
         csdetail.unitcost = data.unitcost
         csdetail.negocost = data.negocost
@@ -637,6 +653,7 @@ def importItems(request):
                 detail.department = Department.objects.get(pk=data.department.id)
                 detail.department_code = data.department_code
                 detail.department_name = data.department_name
+                detail.branch = Branch.objects.get(pk=data.prfmain.branch.id)
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=data.invitem_unitofmeasure.id)
                 detail.invitem_unitofmeasure_code = data.invitem_unitofmeasure_code
                 detail.item_counter = i
@@ -679,6 +696,8 @@ def importItems(request):
                                    itemdetail_key,
                                    data.department.id,
                                    data.invitem_unitofmeasure.id,
+                                   data.prfmain.branch.id,
+                                   data.remarks,
                                    ])
 
         # store temp csdata

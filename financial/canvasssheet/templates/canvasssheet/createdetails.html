@@ -7,7 +7,7 @@
                 <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
                     <option value="">-- Select Item --</option>
                     {% for invitem in invitem %}
-                        <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}">{{ invitem.description }} ({{ invitem.unitofmeasure.code }})</option>
+                        <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}">{{ invitem.code  }} - {{ invitem.description }}</option>
                     {% endfor %}
                 </select>
                 <span class="help-block form-error">{{ form.item_name.errors.as_text }}</span>
@@ -43,6 +43,13 @@
             department_list += "<option value='{{ data.id }}'>{{ data.code }} - {{ data.departmentname }}</option>";
         {% endfor %}
         department_list += "</select>";
+
+        //branch list
+        branch_list = "<select name='item_branch_input' class='form-control input-sm item_branch_input'>";
+        {% for data in branch %}
+            branch_list += "<option value='{{ data.id }}'>{{ data.code }} - {{ data.description }}</option>";
+        {% endfor %}
+        branch_list += "</select>";
 
         //unitofmeasure list
         unitofmeasure_list = "<select name='item_unitofmeasure_input' class='form-control input-sm item_unitofmeasure_input'>";
@@ -193,11 +200,19 @@
                                         "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetail_key + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.item_code + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.item_code + "</b></td>" +
                                         "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.item_description + "</b></td>" +
                                         "<td class='small' rowspan='" + temp_supplier_length + "'><b> - </b></td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'>" + branch_list + "</td>" +
                                         "<td class='small' rowspan='" + temp_supplier_length + "'>" + department_list + "</td>" +
-                                        "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                            "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;' data-item='" + response.item + "' value='" + $("#id_quantity").val() + "'>" +
+                                        "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "'>" +
+                                            "<input type='number' class='form-control input-sm item_quantity_input' style='margin:auto; width: 70px;text-align:right' data-item='" + response.item + "' value='" + $("#id_quantity").val() + "'>" +
                                         "</td>" +
                                         "<td class='small' rowspan='" + temp_supplier_length + "'>" + unitofmeasure_list + "</td>" +
+                                        "<td class='small item_etd text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                            "<input type='text' class='form-control input-sm item_etd_input datepicker date-yyyymmdd' placeholder='YYYY-MM-DD' readOnly='readOnly' style='margin:auto;' data-item='" + response.item + "'>" +
+                                        "</td>" +
+                                        "<td class='small item_remarks text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                            "<input type='text' class='form-control input-sm item_remarks_input' style='margin:auto;' data-item='" + response.item + "'>" +
+                                        "</td>" +
+                                        "<td class='small' rowspan='" + temp_supplier_length + "'><b> - </b></td>" +
                                         "</tr>");
 
                             summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
@@ -214,7 +229,7 @@
                                         "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                         "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                         "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vat_rate text-right' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
                                         "<td class='small item_vatable text-right'></td>" +
                                         "<td class='small item_vatexempt text-right'></td>" +
                                         "<td class='small item_vatzero text-right'></td>" +
@@ -277,11 +292,19 @@
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetailkey[i][0] + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.prfdetail[i][0] + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][1] + "</b></td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][2] + "</b></td>" +
+                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-branch='" + response.prfdetail[i][8] + "'>" + branch_list + "</td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "' data-department='" + response.prfdetail[i][6] + "'>" + department_list + "</td>" +
-                                    "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                        "<input type='number' class='form-control input-sm item_quantity_input' readOnly='readOnly' style='margin:auto; width: 70px;' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
+                                    "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "'>" +
+                                        "<input type='number' class='form-control input-sm item_quantity_input' readOnly='readOnly' style='margin:auto; width: 70px;text-align:right' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +
                                     "</td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "' data-unitofmeasure='" + response.prfdetail[i][7] + "'>" + unitofmeasure_list + "</td>" +
+                                    "<td class='small item_etd text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                        "<input type='text' class='form-control input-sm item_etd_input datepicker date-yyyymmdd' placeholder='YYYY-MM-DD' readOnly='readOnly' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'>" +
+                                    "</td>" +
+                                    "<td class='small item_remarks text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                        "<input type='text' class='form-control input-sm item_remarks_input' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'>" +
+                                    "</td>" +
+                                    "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][9] + "</td>" +
                                     "</tr>");
 
                             summary.find('tr').last().append("<td colspan='12'><small><a href='#' class='search_supplier' data-toggle='modal' data-target='#myModal2'><i class='icon fa-plus-circle' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;Add Supplier</a></small></td>");
@@ -298,7 +321,7 @@
                                         "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                         "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                         "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-center' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vat_rate text-right' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
                                         "<td class='small item_vatable text-right'></td>" +
                                         "<td class='small item_vatexempt text-right'></td>" +
                                         "<td class='small item_vatzero text-right'></td>" +
@@ -440,9 +463,12 @@
         function autoSelectItemPrfVal(){
             $('.imported_prf').each(function(){
                 sel_department = $(this).find('.item_department_input').parent().data('department');
+                sel_branch = $(this).find('.item_branch_input').parent().data('branch');
                 sel_unitofmeasure = $(this).find('.item_unitofmeasure_input').parent().data('unitofmeasure');
                 $(this).find('.item_department_input').val(sel_department);
                 $(this).find('.item_department_input option:not(:selected)').prop('disabled',true);
+                $(this).find('.item_branch_input').val(sel_branch);
+                $(this).find('.item_branch_input option:not(:selected)').prop('disabled',true);
                 $(this).find('.item_unitofmeasure_input').val(sel_unitofmeasure);
                 $(this).find('.item_unitofmeasure_input option:not(:selected)').prop('disabled',true);
             });
@@ -458,7 +484,10 @@
             var arr_quantity_item = new Array();
             var arr_item_quantity_input = new Array();
             var arr_item_department_input = new Array();
+            var arr_item_branch_input = new Array();
             var arr_item_unitofmeasure_input = new Array();
+            var arr_item_etd_input = new Array();
+            var arr_item_remarks_input = new Array();
             var arr_checked_supplier = new Array();
             var arr_checked_supplier_item = new Array();
             var arr_item_cost_supplier = new Array();
@@ -474,12 +503,18 @@
 
             // get quantity input per item
             // get department input per item
+            // get branch input per item
+            // get remarks input per item
+            // get etd input per item
             // get unitofmeasure input per item
             $('.item_quantity_input').each(function(index){
                 arr_quantity_item.push($(this).data('item'));
                 arr_item_quantity_input.push($(this).val());
                 arr_item_department_input.push($(this).parent().parent().find('.item_department_input').val());
+                arr_item_branch_input.push($(this).parent().parent().find('.item_branch_input').val());
                 arr_item_unitofmeasure_input.push($(this).parent().parent().find('.item_unitofmeasure_input').val());
+                arr_item_etd_input.push($(this).parent().parent().find('.item_etd_input').val());
+                arr_item_remarks_input.push($(this).parent().parent().find('.item_remarks_input').val());
             });
 
             // get supplier selected per item
@@ -516,7 +551,10 @@
                         'arr_checked_supplier_item[]': arr_checked_supplier_item,
                         'arr_item_quantity_input[]': arr_item_quantity_input,
                         'arr_item_department_input[]': arr_item_department_input,
+                        'arr_item_branch_input[]': arr_item_branch_input,
                         'arr_item_unitofmeasure_input[]': arr_item_unitofmeasure_input,
+                        'arr_item_etd_input[]': arr_item_etd_input,
+                        'arr_item_remarks_input[]': arr_item_remarks_input,
                         'arr_item_cost_supplier[]': arr_item_cost_supplier,
                         'arr_item_cost_item[]': arr_item_cost_item,
                         'arr_item_cost[]': arr_item_cost,
@@ -551,6 +589,10 @@
             for(i=0;i<len;i++){
                 summary.find('tr.item_container:eq('+i+')').find('td:eq(0)').html(i+1);
             }
+            $(".datepicker").datepicker({
+                autoclose: true,
+                format: 'yyyy-mm-dd'
+            });
         }
 
         function filterSupplier(item, supplier){
@@ -669,6 +711,12 @@
             $('.item_container:not(".supplied")').each(function(){
                 //handler for no supplier
                 rowspan = parseInt($(this).find('td:eq(0)').attr('rowspan')) + 1;
+
+{#                for(i=0;i<=10;i++){#}
+{#                    $(this).find('td:eq(i)').attr('rowspan', rowspan);#}
+{#                    console.log(rowspan)#}
+{#                }#}
+
                 $(this).find('td:eq(0)').attr('rowspan', rowspan);
                 $(this).find('td:eq(1)').attr('rowspan', rowspan);
                 $(this).find('td:eq(2)').attr('rowspan', rowspan);
@@ -676,6 +724,11 @@
                 $(this).find('td:eq(4)').attr('rowspan', rowspan);
                 $(this).find('td:eq(5)').attr('rowspan', rowspan);
                 $(this).find('td:eq(6)').attr('rowspan', rowspan);
+                $(this).find('td:eq(7)').attr('rowspan', rowspan);
+                $(this).find('td:eq(8)').attr('rowspan', rowspan);
+                $(this).find('td:eq(9)').attr('rowspan', rowspan);
+                $(this).find('td:eq(10)').attr('rowspan', rowspan);
+
                 $(this).addClass('supplied');
             });
 

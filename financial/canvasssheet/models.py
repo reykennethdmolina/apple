@@ -149,8 +149,11 @@ class Csdetail(models.Model):
     department_code = models.CharField(max_length=25, null=True, blank=True,)
     department_name = models.CharField(max_length=250, null=True, blank=True,)
     department = models.ForeignKey('department.Department', related_name='csdetail_department_id', null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='csdetail_branch_id', null=True, blank=True)
     invitem_unitofmeasure = models.ForeignKey('unitofmeasure.Unitofmeasure', related_name='csdetail_unitofmeasure_id', null=True, blank=True)
     invitem_unitofmeasure_code = models.CharField(max_length=50, null=True, blank=True)
+    estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
+    remarks = models.CharField(max_length=250, null=True, blank=True)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     itemdetailkey = models.CharField(max_length=255)
@@ -161,7 +164,6 @@ class Csdetail(models.Model):
     postby = models.ForeignKey(User, default=1, related_name='csdetail_post', null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
-    # remarks = models.CharField(max_length=250, null=True, blank=True)
 
     # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -232,13 +234,15 @@ class Csdetailtemp(models.Model):
     postby = models.ForeignKey(User, default=1, related_name='csdetailtemp_post', null=True, blank=True)
     postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
-    # remarks = models.CharField(max_length=250, null=True, blank=True)
 
     department_code = models.CharField(max_length=25, null=True, blank=True)
     department_name = models.CharField(max_length=250, null=True, blank=True)
     department = models.ForeignKey('department.Department', related_name='csdetailtemp_department_id', null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='csdetailtemp_branch_id', null=True, blank=True)
     invitem_unitofmeasure = models.ForeignKey('unitofmeasure.Unitofmeasure', related_name='csdetailtemp_unitofmeasure_id', null=True, blank=True)
     invitem_unitofmeasure_code = models.CharField(max_length=50, null=True, blank=True)
+    estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
+    remarks = models.CharField(max_length=250, null=True, blank=True)
 
     # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
