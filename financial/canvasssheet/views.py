@@ -17,6 +17,7 @@ from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q, Sum
 from acctentry.views import generatekey
+from purchaserequisitionform.views import updateTransaction
 from easy_pdf.views import PDFTemplateView
 from django.core import serializers
 import datetime
@@ -795,22 +796,16 @@ def updateStatus(request, command, pk):
             status = 'D'
 
         data.update(csstatus=status)
+
+        for data2 in Csdata.objects.filter(csmain=pk, isdeleted=0):
+            updateTransaction(data2.prfmain.pk, status)
+            data2.isdeleted = 1
+            data2.save()
+
     else:
         response = 'error'
 
         # redirect
-        # add changer for purchase requisition form
-        # add changer for purchase requisition form
-        # add changer for purchase requisition form
-            # approve
-                # update prfcontents
-                    # prfdetail
-                    # prfmain
-            # disapprove
-                # set isdeleted csdata
-                # reset prfcontents
-                    # prfdetail
-                    # prfmain
 
     data = {
         'status': response
@@ -844,3 +839,4 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
+    # front end no supplier indicatorts():

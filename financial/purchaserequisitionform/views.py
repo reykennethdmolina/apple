@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from . models import Prfmain
 from requisitionform.models import Rfmain, Rfdetail
 from purchaserequisitionform.models import Prfmain, Prfdetail, Prfdetailtemp, Rfprftransaction
+from canvasssheet.models import Csmain, Csdetail, Csdata
+from supplier.models import Supplier
 from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
@@ -13,7 +15,7 @@ from department.models import Department
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
 from django.contrib.auth.models import User
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from django.core import serializers
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
@@ -586,6 +588,128 @@ def deletedetailtemp(request):
     return JsonResponse(data)
 
 
+def updateTransaction(pk, status):
+    csdata = Csdata.objects.get(prfmain=pk, isdeleted=0)
+    if csdata and Csmain.objects.get(pk=csdata.csmain.pk, status='A', isdeleted=0):
+
+        if status == 'A':
+
+            prfdetail = Prfdetail.objects.filter(prfmain=pk, isdeleted=0)
+
+            for data in prfdetail:
+                csdetail = Csdetail.objects.filter(csmain=csdata.csmain.pk,
+                                                csstatus=1,
+                                                prfdetail=data.pk,
+                                                status='A',
+                                                isdeleted=0).first()
+
+                if csdetail:
+                    data.vatable = csdetail.vatable
+                    data.vatexempt = csdetail.vatexempt
+                    data.vatzerorated = csdetail.vatzerorated
+                    data.grosscost = csdetail.grosscost
+                    data.grossamount = csdetail.grossamount
+                    data.vatamount = csdetail.vatamount
+                    data.netamount = csdetail.netamount
+                    data.uc_vatable = csdetail.uc_vatable
+                    data.uc_vatexempt = csdetail.uc_vatexempt
+                    data.uc_vatzerorated = csdetail.uc_vatzerorated
+                    data.uc_grosscost = csdetail.uc_grosscost
+                    data.uc_grossamount = csdetail.uc_grossamount
+                    data.uc_vatamount = csdetail.uc_vatamount
+                    data.uc_netamount = csdetail.uc_netamount
+
+                    data.csmain = Csmain.objects.get(pk=csdata.csmain.pk)
+                    data.csdetail = Csdetail.objects.get(pk=csdetail.pk)
+                    data.csnum = csdata.csmain.csnum
+                    data.csdate = csdata.csmain.csdate
+
+                    data.supplier = Supplier.objects.get(pk=csdetail.supplier.pk)
+                    data.suppliercode = csdetail.supplier.code
+                    data.suppliername = csdetail.supplier.name
+                    data.save()
+
+            data = Csdetail.objects.filter(csmain=csdata.csmain.pk,
+                                           csstatus=1,
+                                           prfmain=pk,
+                                           status='A',
+                                           isdeleted=0).aggregate(Sum('vatable'),
+                                                                  Sum('vatexempt'),
+                                                                  Sum('vatzerorated'),
+                                                                  Sum('grosscost'),
+                                                                  Sum('grossamount'),
+                                                                  Sum('vatamount'),
+                                                                  Sum('netamount'),
+                                                                  Sum('uc_vatable'),
+                                                                  Sum('uc_vatexempt'),
+                                                                  Sum('uc_vatzerorated'),
+                                                                  Sum('uc_grosscost'),
+                                                                  Sum('uc_grossamount'),
+                                                                  Sum('uc_vatamount'),
+                                                                  Sum('uc_netamount'))
+            Prfmain.objects.filter(pk=pk,
+                                   prfstatus='A',
+                                   isdeleted=0).update(vatable=data['vatable__sum'],
+                                                       vatexempt=data['vatexempt__sum'],
+                                                       vatzerorated=data['vatzerorated__sum'],
+                                                       grosscost=data['grosscost__sum'],
+                                                       grossamount=data['grossamount__sum'],
+                                                       vatamount=data['vatamount__sum'],
+                                                       netamount=data['netamount__sum'],
+                                                       uc_vatable=data['uc_vatable__sum'],
+                                                       uc_vatexempt=data['uc_vatexempt__sum'],
+                                                       uc_vatzerorated=data['uc_vatzerorated__sum'],
+                                                       uc_grosscost=data['uc_grosscost__sum'],
+                                                       uc_grossamount=data['uc_grossamount__sum'],
+                                                       uc_vatamount=data['uc_vatamount__sum'],
+                                                       uc_netamount=data['uc_netamount__sum'])
+
+        elif status == 'D':
+
+            prfdetail = Prfdetail.objects.filter(prfmain=pk, isdeleted=0)
+
+            for data in prfdetail:
+                csdetail = Csdetail.objects.filter(csmain=csdata.csmain.pk,
+                                                csstatus=1,
+                                                prfdetail=data.pk,
+                                                status='A',
+                                                isdeleted=0).first()
+
+                if csdetail:
+
+                    data.vatable = 0
+                    data.vatexempt = 0
+                    data.vatzerorated = 0
+                    data.grosscost = 0
+                    data.grossamount = 0
+                    data.vatamount = 0
+                    data.netamount = 0
+                    data.uc_vatable = 0
+                    data.uc_vatexempt = 0
+                    data.uc_vatzerorated = 0
+                    data.uc_grosscost = 0
+                    data.uc_grossamount = 0
+                    data.uc_vatamount = 0
+                    data.uc_netamount = 0
+
+                    data.csmain = None
+                    data.csdetail = None
+                    data.csnum = None
+                    data.csdate = None
+
+                    data.supplier = None
+                    data.suppliercode = None
+                    data.suppliername = None
+                    data.save()
+
+            Prfmain.objects.filter(pk=pk,
+                                   prfstatus='A',
+                                   isdeleted=0).update(vatable=0, vatexempt=0, vatzerorated=0, grosscost=0,
+                                                       grossamount=0, vatamount=0, netamount=0, uc_vatable=0,
+                                                       uc_vatexempt=0, uc_vatzerorated=0, uc_grosscost=0,
+                                                       uc_grossamount=0, uc_vatamount=0, uc_netamount=0)
+
+
 def paginate(request, command, current, limit, search):
     current = int(current)
     limit = int(limit)
@@ -611,6 +735,7 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
+    # handle cs getting vat total with different currency
     # update import select behind modal
     # quantity cost front end change
     # delete item prompt

@@ -185,6 +185,18 @@ class Prfdetail(models.Model):
     uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
+    # cs detail
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='prfdetail_csmain_id', null=True, blank=True)
+    csdetail = models.ForeignKey('canvasssheet.Csdetail', related_name='prfdetail_csdetail_id', null=True, blank=True)
+    csnum = models.CharField(max_length=10, null=True, blank=True)
+    csdate = models.DateField(null=True, blank=True)
+
+    # supplier
+    supplier = models.ForeignKey('supplier.Supplier', related_name='prfdetail_supplier_id', null=True, blank=True)
+    suppliercode = models.CharField(max_length=10, null=True, blank=True)
+    suppliername = models.CharField(max_length=250, null=True, blank=True)
+
+
     class Meta:
         db_table = 'prfdetail'
         ordering = ['-pk']
@@ -254,6 +266,17 @@ class Prfdetailtemp(models.Model):
     uc_grossamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
+    # cs detail
+    csmain = models.ForeignKey('canvasssheet.Csmain', related_name='prfdetailtemp_csmain_id', null=True, blank=True)
+    csdetail = models.ForeignKey('canvasssheet.Csdetail', related_name='prfdetailtemp_csdetail_id', null=True, blank=True)
+    csnum = models.CharField(max_length=10, null=True, blank=True)
+    csdate = models.DateField(null=True, blank=True)
+
+    # supplier
+    supplier = models.ForeignKey('supplier.Supplier', related_name='prfdetailtemp_supplier_id', null=True, blank=True)
+    suppliercode = models.CharField(max_length=10, null=True, blank=True)
+    suppliername = models.CharField(max_length=250, null=True, blank=True)
 
     class Meta:
         db_table = 'prfdetailtemp'
