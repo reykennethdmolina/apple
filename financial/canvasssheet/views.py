@@ -74,7 +74,7 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0) and
+        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
             # Csdata.objects.filter():
             # validate cs data
             # validate cs data
