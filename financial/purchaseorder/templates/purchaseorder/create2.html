@@ -277,7 +277,6 @@
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
-                                <button type="button" style="display: none;" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton2" data-toggle="modal" data-target="#myModal2"></button>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                             </div>
@@ -304,15 +303,19 @@
                                         <thead>
                                             <tr class="small info">
                                                 <th style="text-align: center; vertical-align: middle;">No.</th>
-                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Name</th>
-                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Description</th>
-                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Remarks</th>
+                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Code</th>
+                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Name</th>
+                                                <th style="min-width: 140px; text-align: center; vertical-align: middle;">Remarks</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Unit&nbsp;of&nbsp;Measure</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">PRF&nbsp;No.</th>
-                                                <th style="text-align: center; vertical-align: middle;">Dept.</th>
-                                                <th style="text-align: center; vertical-align: middle;">Currency</th>
+                                                <th style="min-width: 140px; text-align: center; vertical-align: middle;">Branch</th>
+                                                <th style="min-width: 250px; text-align: center; vertical-align: middle;">Department</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Expiry&nbsp;Date</th>
+                                                <th style="min-width: 250px; text-align: center; vertical-align: middle;">Employee</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Serial&nbsp;No.</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Asset&nbsp;No.</th>
                                                 <th style="min-width: 120px; text-align: center; vertical-align: middle;">Unit&nbsp;Cost</th>
-                                                <th style="min-width: 80px; text-align: center; vertical-align: middle;">Gross&nbsp;Unit&nbsp;Cost</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Gross&nbsp;Unit&nbsp;Cost</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Quantity</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Gross&nbsp;Amount</th>
                                                 <th style="min-width: 120px; text-align: center; vertical-align: middle;">Discount</th>
@@ -320,11 +323,10 @@
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Disc.&nbsp;Amount</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">VATable</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT-Exempt</th>
-                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT&nbsp;Zero-Rated</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Purchase</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Add&nbsp;VAT</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Amount</th>
-                                                <th style="text-align: center; vertical-align: middle;">DELETE</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -335,20 +337,6 @@
                         </div>
                 </div>
             <div class="clearfix"></div>
-            <div id="myModal2" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Select Supplier from Canvassed PRF</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div id="supplier-option"></div>
-                        </div>
-                        <div class="modal-footer">
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div id="myModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -361,11 +349,13 @@
                                 <select name="" id="importprfselect2" class="form-control input-sm select2" style="width: 100%;">
                                     <option value="">-- Select --</option>
                                     {% for prfmain in prfmain %}
-                                        <option value="{{ prfmain.prfnum }}"
+                                        <option value="{{ prfmain.id }}"
                                             data-refnum="{{ prfmain.prfnum }}"
                                             data-urgency="{{ prfmain.get_urgencytype_display }}"
                                             data-dateneeded="{{ prfmain.dateneeded }}"
-                                            data-approver="{{ prfmain.actualapprover }}">{{ prfmain.prfnum }}</option>
+                                            data-approver="{{ prfmain.actualapprover }}">
+                                                {{ prfmain.prfnum }} | {{ prfmain.prfdate }} | {{ prfmain.get_urgencytype_display }} | Date needed: {{ prfmain.dateneeded }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                                 <br><br>
@@ -461,8 +451,9 @@
             }
 
             function showRate(field, rateSpan, defaultText){
-                $('#' + rateSpan).html("<strong>" + defaultText + ": " + $(field + " option:selected").data('rate') +
-                        "%</strong>");
+                var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
+                        parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
+                $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
                 if($(field + " option:selected").text() == "-- Select --"){
                     $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
                 }

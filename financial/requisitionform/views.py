@@ -404,6 +404,7 @@ def savedetailtemp(request):
             'itemno': request.POST['itemno'],
             'quantity': request.POST['id_quantity'],
             'remarks': request.POST['id_remarks'],
+            'rfdetailid' : detailtemp.pk,
         }
     else:
         data = {
@@ -418,13 +419,13 @@ def deletedetailtemp(request):
 
     if request.method == 'POST':
         try:
-            detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'],
+            detailtemp = Rfdetailtemp.objects.get(id=request.POST['rfdetailid'],
                                                   secretkey=request.POST['secretkey'],
                                                   rfmain=None)
             detailtemp.delete()
         except Rfdetailtemp.DoesNotExist:
             print "this happened"
-            detailtemp = Rfdetailtemp.objects.get(item_counter=request.POST['itemno'],
+            detailtemp = Rfdetailtemp.objects.get(id=request.POST['rfdetailid'],
                                                   rfmain__rfnum=request.POST['rfnum'])
             detailtemp.isdeleted = 1
             detailtemp.save()

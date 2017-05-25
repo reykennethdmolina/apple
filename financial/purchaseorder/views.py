@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata
-from purchaserequisitionform.models import Prfmain
-from branch.models import Branch
+from purchaserequisitionform.models import Prfmain, Prfdetail
+from employee.models import Employee
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
@@ -75,6 +75,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A')
@@ -226,10 +227,22 @@ def savedetailtemp(request):
         print request.POST
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
+        detailtemp.branch = Branch.objects.get(pk=request.POST['id_branch'])
+        detailtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
+        detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
+        if request.POST['id_employee']:
+            detailtemp.employee = Employee.objects.get(pk=request.POST['id_employee'])
+            detailtemp.employee_code = Employee.objects.get(pk=request.POST['id_employee']).code
+            detailtemp.employee_name = Employee.objects.get(pk=request.POST['id_employee']).firstname + ' ' + Employee.\
+                objects.get(pk=request.POST['id_employee']).lastname
+        detailtemp.enterby = User.objects.get(pk=request.user.id)
+        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_itemid'])
+        detailtemp.modifyby = User.objects.get(pk=request.user.id)
+        detailtemp.unitofmeasure = Unitofmeasure.objects.get(pk=request.POST['id_um'])
+        detailtemp.vat = Vat.objects.get(pk=request.POST['id_vat'])
         detailtemp.invitem_code = Inventoryitem.objects.get(pk=request.POST['id_itemid']).code
         detailtemp.invitem_name = Inventoryitem.objects.get(pk=request.POST['id_itemid']).description
         detailtemp.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=request.POST['id_um']).code
-        detailtemp.unitofmeasure = Unitofmeasure.objects.get(pk=request.POST['id_um'])
         detailtemp.quantity = request.POST['id_quantity']
         detailtemp.unitcost = request.POST['id_unitcost']
         detailtemp.discountrate = request.POST['id_discountrate']
@@ -238,29 +251,28 @@ def savedetailtemp(request):
         detailtemp.enterdate = datetime.datetime.now()
         detailtemp.modifydate = datetime.datetime.now()
         detailtemp.secretkey = request.POST['secretkey']
-        detailtemp.branch = Branch.objects.get(pk=5)
-        detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
-        detailtemp.enterby = User.objects.get(pk=request.user.id)
-        detailtemp.invitem = Inventoryitem.objects.get(pk=request.POST['id_itemid'])
-        detailtemp.modifyby = User.objects.get(pk=request.user.id)
         detailtemp.discountamount = request.POST['id_discountamount']
         detailtemp.grossamount = request.POST['id_grossamount']
         detailtemp.netamount = request.POST['id_totalamount']
-        detailtemp.vat = Vat.objects.get(pk=request.POST['id_vat'])
         detailtemp.vatable = request.POST['id_vatable']
         detailtemp.vatamount = request.POST['id_addvat']
         detailtemp.vatexempt = request.POST['id_vatexempt']
         detailtemp.vatrate = request.POST['id_vatrate']
         detailtemp.vatzerorated = request.POST['id_vatzerorated']
-        detailtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
+        detailtemp.assetnum = request.POST['id_assetnum']
+        if request.POST['id_expirationdate']:
+            detailtemp.expirationdate = request.POST['id_expirationdate']
+        detailtemp.serialnum = request.POST['id_serialnum']
+        detailtemp.department_code = Department.objects.get(pk=request.POST['id_department']).code
+        detailtemp.department_name = Department.objects.get(pk=request.POST['id_department']).departmentname
         detailtemp.save()
 
         data = {
             'status': 'success',
-            'itemno': request.POST['itemno'],
-            'remarks': request.POST['id_remarks'],
-            'department': Department.objects.get(pk=request.POST['id_department']).code,
-            'currency': Currency.objects.get(pk=request.POST['id_currency']).symbol,
+            'podetailid': detailtemp.pk,
+            # 'remarks': request.POST['id_remarks'],
+            # 'department': Department.objects.get(pk=request.POST['id_department']).code,
+            # 'currency': Currency.objects.get(pk=request.POST['id_currency']).symbol,
         }
     else:
         data = {
@@ -275,13 +287,13 @@ def deletedetailtemp(request):
 
     if request.method == 'POST':
         try:
-            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'],
+            detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
                                                   secretkey=request.POST['secretkey'],
                                                   pomain=None)
             detailtemp.delete()
         except Podetailtemp.DoesNotExist:
             print "temp detail has pomain"
-            detailtemp = Podetailtemp.objects.get(item_counter=request.POST['itemno'],
+            detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
                                                   pomain__ponum=request.POST['ponum'])
             detailtemp.isdeleted = 1
             detailtemp.save()
@@ -353,6 +365,77 @@ def importsuppliers(request):
             'prfsuppliers': prfsupplier_list,
             # 'prfdetail': prfdetail_list,
         }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def fetchitems(request):
+    if request.method == 'POST':
+        prfmain = Prfmain.objects.get(pk=request.POST['prfid'],
+                                      prfstatus='A',
+                                      status='A',
+                                      isdeleted=0)
+
+        if Podata.objects.filter(prfmain=prfmain).exists():
+            data = {
+                'status': 'error',
+            }
+        else:
+            prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0)
+            prfdetail_list = []
+
+            for data in prfdetail:
+                prfdetail_list.append([data.id,
+                                       data.invitem.id,
+                                       data.invitem_code,
+                                       data.invitem_name,
+                                       data.invitem_unitofmeasure_code,
+                                       data.item_counter,
+                                       data.quantity,
+                                       data.remarks,
+                                       data.amount,
+                                       data.currency.id,
+                                       data.currency.symbol,
+                                       data.currency.description,
+                                       data.fxrate,
+                                       data.grossamount,
+                                       data.netamount,
+                                       data.vatable,
+                                       data.vatamount,
+                                       data.vatexempt,
+                                       data.vatzerorated,
+                                       data.grosscost,
+                                       data.department.id,
+                                       data.department_code,
+                                       data.department_name,
+                                       data.uc_grossamount,
+                                       data.uc_grosscost,
+                                       data.uc_netamount,
+                                       data.uc_vatable,
+                                       data.uc_vatamount,
+                                       data.uc_vatexempt,
+                                       data.uc_vatzerorated,
+                                       data.csmain.id,
+                                       data.csnum,
+                                       data.csdate,
+                                       data.csdetail.id,
+                                       data.supplier.id,
+                                       data.suppliercode,
+                                       data.suppliername,
+                                       data.estimateddateofdelivery,
+                                       data.negocost,
+                                       data.uc_cost
+                                       ])
+
+            data = {
+                'status': 'success',
+                'prfdetail': prfdetail_list
+            }
     else:
         data = {
             'status': 'error',

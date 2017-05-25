@@ -87,7 +87,7 @@
                                 "<td><select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
                                 "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}</select></td>" +
                                 "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm tblInputQuantity text-right' value='" + response.quantity + "'></td>" +
-                                "<td><button class='btn remove_item' data-itemno='" + response.itemno + "' data-itemid='" + itemid + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
+                                "<td><button class='btn remove_item' data-rfdetailid='" + response.rfdetailid + "' data-itemno='" + response.itemno + "' data-itemid='" + itemid + "'><i class='icon fa-remove' aria-hidden='true'></i></button></td>" +
                                 "</tr>");
 
                         summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
@@ -101,7 +101,6 @@
                         resetItems();
                         callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
 
-                        customAlert($('#item-added'));
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -137,7 +136,7 @@
             $.ajax({
                 url: "{% url 'requisitionform:deletedetailtemp' %}",
                 type: "post",
-                data: {'itemno': $(this).data('itemno'),
+                data: {'rfdetailid': $(this).data('rfdetailid'),
                         'secretkey': $("#id_secretkey").val(),
                         'rfnum': $("#id_rfnum").val()
                 },
