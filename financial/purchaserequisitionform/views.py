@@ -604,6 +604,7 @@ def updateTransaction(pk, status):
                                                 isdeleted=0).first()
 
                 if csdetail:
+                    data.negocost = csdetail.negocost
                     data.vatable = csdetail.vatable
                     data.vatexempt = csdetail.vatexempt
                     data.vatzerorated = csdetail.vatzerorated
@@ -611,6 +612,7 @@ def updateTransaction(pk, status):
                     data.grossamount = csdetail.grossamount
                     data.vatamount = csdetail.vatamount
                     data.netamount = csdetail.netamount
+                    data.uc_cost = csdetail.unitcost
                     data.uc_vatable = csdetail.uc_vatable
                     data.uc_vatexempt = csdetail.uc_vatexempt
                     data.uc_vatzerorated = csdetail.uc_vatzerorated
@@ -627,19 +629,22 @@ def updateTransaction(pk, status):
                     data.supplier = Supplier.objects.get(pk=csdetail.supplier.pk)
                     data.suppliercode = csdetail.supplier.code
                     data.suppliername = csdetail.supplier.name
+                    data.estimateddateofdelivery = csdetail.estimateddateofdelivery
                     data.save()
 
             data = Csdetail.objects.filter(csmain=csdata.csmain.pk,
                                            csstatus=1,
                                            prfmain=pk,
                                            status='A',
-                                           isdeleted=0).aggregate(Sum('vatable'),
+                                           isdeleted=0).aggregate(Sum('negocost'),
+                                                                  Sum('vatable'),
                                                                   Sum('vatexempt'),
                                                                   Sum('vatzerorated'),
                                                                   Sum('grosscost'),
                                                                   Sum('grossamount'),
                                                                   Sum('vatamount'),
                                                                   Sum('netamount'),
+                                                                  Sum('unitcost'),
                                                                   Sum('uc_vatable'),
                                                                   Sum('uc_vatexempt'),
                                                                   Sum('uc_vatzerorated'),
@@ -649,13 +654,15 @@ def updateTransaction(pk, status):
                                                                   Sum('uc_netamount'))
             Prfmain.objects.filter(pk=pk,
                                    prfstatus='A',
-                                   isdeleted=0).update(vatable=data['vatable__sum'],
+                                   isdeleted=0).update(negocost=data['negocost__sum'],
+                                                       vatable=data['vatable__sum'],
                                                        vatexempt=data['vatexempt__sum'],
                                                        vatzerorated=data['vatzerorated__sum'],
                                                        grosscost=data['grosscost__sum'],
                                                        grossamount=data['grossamount__sum'],
                                                        vatamount=data['vatamount__sum'],
                                                        netamount=data['netamount__sum'],
+                                                       uc_cost=data['unitcost__sum'],
                                                        uc_vatable=data['uc_vatable__sum'],
                                                        uc_vatexempt=data['uc_vatexempt__sum'],
                                                        uc_vatzerorated=data['uc_vatzerorated__sum'],
@@ -677,6 +684,7 @@ def updateTransaction(pk, status):
 
                 if csdetail:
 
+                    data.negocost = 0
                     data.vatable = 0
                     data.vatexempt = 0
                     data.vatzerorated = 0
@@ -684,6 +692,7 @@ def updateTransaction(pk, status):
                     data.grossamount = 0
                     data.vatamount = 0
                     data.netamount = 0
+                    data.uc_cost = 0
                     data.uc_vatable = 0
                     data.uc_vatexempt = 0
                     data.uc_vatzerorated = 0
@@ -700,6 +709,7 @@ def updateTransaction(pk, status):
                     data.supplier = None
                     data.suppliercode = None
                     data.suppliername = None
+                    data.estimateddateofdelivery = None
                     data.save()
 
             Prfmain.objects.filter(pk=pk,

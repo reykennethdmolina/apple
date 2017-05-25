@@ -64,6 +64,7 @@ class Prfmain(models.Model):
     quantity = models.IntegerField()
 
     # nego vat
+    negocost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -73,6 +74,7 @@ class Prfmain(models.Model):
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     # uc vat
+    uc_cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -168,6 +170,7 @@ class Prfdetail(models.Model):
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # nego vat
+    negocost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -177,6 +180,7 @@ class Prfdetail(models.Model):
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     # uc vat
+    uc_cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -195,6 +199,7 @@ class Prfdetail(models.Model):
     supplier = models.ForeignKey('supplier.Supplier', related_name='prfdetail_supplier_id', null=True, blank=True)
     suppliercode = models.CharField(max_length=10, null=True, blank=True)
     suppliername = models.CharField(max_length=250, null=True, blank=True)
+    estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
 
 
     class Meta:
@@ -250,6 +255,7 @@ class Prfdetailtemp(models.Model):
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
     # nego vat
+    negocost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -259,6 +265,7 @@ class Prfdetailtemp(models.Model):
     netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
     # uc vat
+    uc_cost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
@@ -277,6 +284,7 @@ class Prfdetailtemp(models.Model):
     supplier = models.ForeignKey('supplier.Supplier', related_name='prfdetailtemp_supplier_id', null=True, blank=True)
     suppliercode = models.CharField(max_length=10, null=True, blank=True)
     suppliername = models.CharField(max_length=250, null=True, blank=True)
+    estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'prfdetailtemp'

@@ -147,24 +147,36 @@
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
-                            <div class="panel-body">
+                            <div class="panel-body" style="overflow: auto; width: 100%">
                                 <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
                                     <span id="totalrequestedquantity">{{ object.quantity }}</span>
                                 </label><br><br>
                                 <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
-                                                <th>Item No.</th>
-                                                <th>Name</th>
-                                                <th>Description</th>
-                                                <th>Remarks</th>
+                                                <th style="width: 10px; text-align: center">#</th>
+                                                <th style="min-width: 100px; text-align: left">Name</th>
+                                                <th style="min-width: 100px; text-align: left">Description</th>
+                                                <th style="min-width: 100px; text-align: left">Remarks</th>
                                                 <th style="text-align:right">RF No.</th>
+                                                <th style="min-width: 100px; text-align:right">Currency</th>
+                                                <th style="min-width: 100px; text-align:right">FX&nbsp;Rate</th>
+                                                <th style="min-width: 100px; text-align:right">Amount</th>
+                                                <th style="min-width: 200px; text-align: left">Deparment</th>
+                                                <th>Estimated&nbsp;delivery</th>
+                                                <th style="text-align: center; min-width: 250px;">Supplier</th>
                                                 <th style="text-align:right;width:90px">Quantity</th>
-                                                <th>Unit of Measure</th>
-                                                <th style="text-align:right">Currency</th>
-                                                <th style="text-align:right">FX Rate</th>
-                                                <th style="text-align:right">Amount</th>
-                                                <th>Deparment</th>
+                                                <th style="min-width: 100px; text-align: left">Unit&nbsp;of&nbsp;Measure</th>
+                                                <th class="text-right warning" style="padding-right: 30px">Unit&nbsp;Cost</th>
+                                                <th class="text-right info" style="width: 130px;">Nego&nbsp;Cost</th>
+                                                <th class="text-right info">Gross&nbsp;Amount</th>
+                                                <th class="text-right info">VAT&nbsp;Rate</th>
+                                                <th class="text-right info">VATable</th>
+                                                <th class="text-right info">VAT&nbsp;-&nbsp;Exempt</th>
+                                                <th class="text-right info">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
+                                                <th class="text-right info">Total&nbsp;Purchase</th>
+                                                <th class="text-right info">Add&nbsp;VAT</th>
+                                                <th class="text-right info">Total&nbsp;Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -175,12 +187,24 @@
                                                     <td>{{ prfdetail.invitem_name }}</td>
                                                     <td>{{ prfdetail.remarks }}</td>
                                                     <td style="text-align:right">{{ prfdetail.rfdetail.rfmain.rfnum|default:'-' }}</td>
-                                                    <td style="text-align:right">{{ prfdetail.quantity }}</td>
-                                                    <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
                                                     <td style="text-align:right">{{ prfdetail.currency.symbol }}</td>
                                                     <td style="text-align:right">{{ prfdetail.fxrate }}</td>
                                                     <td style="text-align:right">{{ prfdetail.netamount }}</td>
                                                     <td>{{ prfdetail.department_code }} <br> {{ prfdetail.department_name }}</td>
+                                                    <td>{{ prfdetail.estimateddateofdelivery|default:'-' }}</td>
+                                                    <td>{{ prfdetail.suppliername }}</td>
+                                                    <td style="text-align:right">{{ prfdetail.quantity }}</td>
+                                                    <td>{{ prfdetail.invitem_unitofmeasure_code }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.uc_cost }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.negocost }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.grossamount }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.vatrate }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.vatable }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.vatexempt }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.vatzerorated }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.grossamount }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.vatamount }}</td>
+                                                    <td style="text-align: right">{{ prfdetail.netamount }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

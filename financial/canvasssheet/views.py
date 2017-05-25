@@ -60,7 +60,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        csdata = Csdata.objects.filter(isdeleted=0).values_list('prfmain', flat=True)
+        csdata = Csdata.objects.filter(isdeleted=0).exclude(csmain=None).values_list('prfmain', flat=True)
         context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A').exclude(id__in=csdata)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('code')
@@ -74,7 +74,14 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
+        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0) and
+            # Csdata.objects.filter():
+            # validate cs data
+            # validate cs data
+            # validate cs data
+            # validate cs data
+            # validate cs data
+
             self.object = form.save(commit=False)
 
             try:
@@ -799,19 +806,19 @@ def updateStatus(request, command, pk):
 
         for data2 in Csdata.objects.filter(csmain=pk, isdeleted=0):
             updateTransaction(data2.prfmain.pk, status)
-            data2.isdeleted = 1
-            data2.save()
+            if command == "disapprove":
+                data2.isdeleted = 1
+                data2.save()
 
     else:
         response = 'error'
-
-        # redirect
 
     data = {
         'status': response
     }
 
-    return JsonResponse(data)
+    # return JsonResponse(data)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def paginate(request, command, current, limit, search):

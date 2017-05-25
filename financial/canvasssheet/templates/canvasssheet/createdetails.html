@@ -564,7 +564,6 @@
                 },
 
                 success: function(response) {
-
                     $('#form-b').submit();
                     $('.shade').fadeOut();
                 }
@@ -592,6 +591,16 @@
             $(".datepicker").datepicker({
                 autoclose: true,
                 format: 'yyyy-mm-dd'
+            });
+
+            // alert user for blank supplier
+            $('.item_container').each(function(){
+               if($(this).next().not('.item_container')){
+                   $(this).addClass('danger');
+               }
+               else{
+                   $(this).removeClass('danger');
+               }
             });
         }
 
