@@ -607,7 +607,7 @@
                             var checked = response.prfdetail[i][34] == null ? "checked='checked'" :
                                     response.prfdetail[i][34] == $('#id_supplier').val() ? "checked='checked'" : "";
                             importPRFPreview.append("<tr class='small prfTblItemContainer'>" +
-                                "<td><input type='checkbox' class='checkItem' data-itemid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
+                                "<td><input type='checkbox' class='checkItem' data-prfdetailid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
                                 "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
                                 "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
                                 "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][6] + "</td>" +
@@ -639,6 +639,26 @@
             $('.checkItem').each(function() {
                 if(this.checked) {
                     $('#importconfirm').prop('disabled', false);
+                }
+            });
+        });
+
+        $('#importconfirm').click(function(){
+            var checkedItems = {'imported_items[]' : []};
+            $(".checkItem:checked").each(function() {
+              checkedItems['imported_items[]'].push($(this).data('prfdetailid'));
+            });
+
+            $.ajax({
+                url: "{% url 'purchaseorder:saveimporteddetailtemp' %}",
+                type: "post",
+                data: checkedItems,
+
+                success: function(response) {
+                    console.log("yey");
+                }
+                , error: function(response) {
+                    console.debug(response);
                 }
             });
         });

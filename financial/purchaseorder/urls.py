@@ -11,6 +11,7 @@ urlpatterns = [
     # url(r'^importitems/$', views.importitems, name='importitems'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^fetchitems/$', views.fetchitems, name='fetchitems'),
+    url(r'^saveimporteddetailtemp/$', views.saveimporteddetailtemp, name='saveimporteddetailtemp'),
     url(r'^savedetailtemp/$', views.savedetailtemp, name='savedetailtemp'),
     url(r'^deletedetailtemp/$', views.deletedetailtemp, name='deletedetailtemp'),
     url(r'^page/(?P<command>[\w\-]+)/(?P<current>[0-9]+)/(?P<limit>[0-9]+)/(?P<search>[\w\-]+)/$', views.paginate,

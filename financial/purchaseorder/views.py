@@ -78,7 +78,8 @@ class CreateView(CreateView):
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
-        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A')
+        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
+                                                    totalremainingquantity__gt=0)
         context['secretkey'] = generatekey(self)
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
@@ -221,10 +222,83 @@ class DeleteView(DeleteView):
 
 
 @csrf_exempt
+def fetchitems(request):
+    if request.method == 'POST':
+        prfmain = Prfmain.objects.get(pk=request.POST['prfid'],
+                                      prfstatus='A',
+                                      status='A',
+                                      isdeleted=0)
+
+        if Podata.objects.filter(prfmain=prfmain).exists():
+            data = {
+                'status': 'error',
+            }
+        else:
+            prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0, isfullypo=0)
+            prfdetail_list = []
+
+            for data in prfdetail:
+                temp_csmain = data.csmain.pk if data.csmain else None
+                temp_detail = data.csdetail.pk if data.csdetail else None
+                temp_supplier = data.supplier.pk if data.supplier else None
+                prfdetail_list.append([data.id,
+                                       data.invitem.id,
+                                       data.invitem_code,
+                                       data.invitem_name,
+                                       data.invitem_unitofmeasure_code,
+                                       data.item_counter,
+                                       data.quantity,
+                                       data.remarks,
+                                       data.amount,
+                                       data.currency.id,
+                                       data.currency.symbol,
+                                       data.currency.description,
+                                       data.fxrate,
+                                       data.grossamount,
+                                       data.netamount,
+                                       data.vatable,
+                                       data.vatamount,
+                                       data.vatexempt,
+                                       data.vatzerorated,
+                                       data.grosscost,
+                                       data.department.id,
+                                       data.department_code,
+                                       data.department_name,
+                                       data.uc_grossamount,
+                                       data.uc_grosscost,
+                                       data.uc_netamount,
+                                       data.uc_vatable,
+                                       data.uc_vatamount,
+                                       data.uc_vatexempt,
+                                       data.uc_vatzerorated,
+                                       temp_csmain,
+                                       data.csnum,
+                                       data.csdate,
+                                       temp_detail,
+                                       temp_supplier,
+                                       data.suppliercode,
+                                       data.suppliername,
+                                       data.estimateddateofdelivery,
+                                       data.negocost,
+                                       data.uc_cost
+                                       ])
+
+            data = {
+                'status': 'success',
+                'prfdetail': prfdetail_list
+            }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def savedetailtemp(request):
 
     if request.method == 'POST':
-        print request.POST
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
         detailtemp.branch = Branch.objects.get(pk=request.POST['id_branch'])
@@ -283,6 +357,34 @@ def savedetailtemp(request):
 
 
 @csrf_exempt
+def saveimporteddetailtemp(request):
+    if request.method == 'POST':
+        for data in request.POST.getlist('imported_items[]'):
+            prfitemdetails = Prfdetail.objects.get(pk=data)
+            if prfitemdetails.isdeleted == 0 and prfitemdetails.isfullypo == 0 and \
+                prfitemdetails.poremainingquantity > 0 and prfitemdetails.prfmain.prfstatus == 'A' and \
+                prfitemdetails.prfmain.isdeleted == 0 and prfitemdetails.prfmain.status == 'A' and \
+                    prfitemdetails.prfmain.totalremainingquantity > 0:
+
+                podetailtemp = Podetailtemp()
+
+                data = {
+                    'status': 'success',
+                }
+            else:
+                data = {
+                    'status': 'error',
+                }
+
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def deletedetailtemp(request):
 
     if request.method == 'POST':
@@ -330,260 +432,5 @@ def paginate(request, command, current, limit, search):
     json_models = serializers.serialize("json", pomain)
     print json_models
     return HttpResponse(json_models, content_type="application/javascript")
-
-
-@csrf_exempt
-def importsuppliers(request):
-    if request.method == 'POST':
-        # get selected prfmain data
-        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
-                                      prfstatus="A",
-                                      status="A",
-                                      isdeleted=0)
-        prfdata = [prfmain.prfnum]
-
-        itemsuppliers = Prfmain.objects.raw('SELECT DISTINCT a.id, a.prfnum, d.supplier_id, d.suppliercode, '
-                                            'd.suppliername FROM prfmain a JOIN csdata b ON b.prfmain_id = a.id '
-                                            'JOIN csmain c ON b.csmain_id = c.id JOIN csdetail d ON c.id = d.csmain_id '
-                                            'WHERE a.prfnum = "' + request.POST['prfnum'] + '" '
-                                            'AND b.csmain_id IS NOT NULL '
-                                            'AND d.csstatus = 1 AND a.isdeleted = 0 AND a.status = "A" '
-                                            'AND b.isdeleted = 0 AND c.isdeleted = 0 AND c.status = "A" '
-                                            'AND d.isdeleted = 0 AND d.status = "A"')
-        prfsupplier_list = []
-        if itemsuppliers:
-            for data in itemsuppliers:
-                prfsupplier_list.append([data.id,
-                                         data.prfnum,
-                                         data.supplier_id,
-                                         data.suppliercode,
-                                         data.suppliername])
-
-        data = {
-            'status': 'success',
-            'prfdata': prfdata,
-            'prfsuppliers': prfsupplier_list,
-            # 'prfdetail': prfdetail_list,
-        }
-    else:
-        data = {
-            'status': 'error',
-        }
-
-    return JsonResponse(data)
-
-
-@csrf_exempt
-def fetchitems(request):
-    if request.method == 'POST':
-        prfmain = Prfmain.objects.get(pk=request.POST['prfid'],
-                                      prfstatus='A',
-                                      status='A',
-                                      isdeleted=0)
-
-        if Podata.objects.filter(prfmain=prfmain).exists():
-            data = {
-                'status': 'error',
-            }
-        else:
-            prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0)
-            prfdetail_list = []
-
-            for data in prfdetail:
-                temp_csmain = data.csmain.pk if data.csmain else None
-                temp_detail = data.csdetail.pk if data.csdetail else None
-                temp_supplier = data.supplier.pk if data.supplier else None
-                print temp_csmain
-                prfdetail_list.append([data.id,
-                                       data.invitem.id,
-                                       data.invitem_code,
-                                       data.invitem_name,
-                                       data.invitem_unitofmeasure_code,
-                                       data.item_counter,
-                                       data.quantity,
-                                       data.remarks,
-                                       data.amount,
-                                       data.currency.id,
-                                       data.currency.symbol,
-                                       data.currency.description,
-                                       data.fxrate,
-                                       data.grossamount,
-                                       data.netamount,
-                                       data.vatable,
-                                       data.vatamount,
-                                       data.vatexempt,
-                                       data.vatzerorated,
-                                       data.grosscost,
-                                       data.department.id,
-                                       data.department_code,
-                                       data.department_name,
-                                       data.uc_grossamount,
-                                       data.uc_grosscost,
-                                       data.uc_netamount,
-                                       data.uc_vatable,
-                                       data.uc_vatamount,
-                                       data.uc_vatexempt,
-                                       data.uc_vatzerorated,
-                                       temp_csmain,
-                                       data.csnum,
-                                       data.csdate,
-                                       temp_detail,
-                                       temp_supplier,
-                                       data.suppliercode,
-                                       data.suppliername,
-                                       data.estimateddateofdelivery,
-                                       data.negocost,
-                                       data.uc_cost
-                                       ])
-
-            data = {
-                'status': 'success',
-                'prfdetail': prfdetail_list
-            }
-    else:
-        data = {
-            'status': 'error',
-        }
-
-    return JsonResponse(data)
-
-
-@csrf_exempt
-def importitems(request):
-    if request.method == 'POST':
-        prfmain = Prfmain.objects.get(prfnum=request.POST['prfnum'],
-                                      prfstatus="A",
-                                      status="A",
-                                      isdeleted=0)
-
-        if Podata.objects.filter(prfmain=prfmain).exists():
-            data = {
-                'status': 'error',
-            }
-        else:
-            canvassedprfitems = Prfmain.objects.raw('SELECT a.id AS prfmain, a.prfnum, a.branch_id, b.department_id, b.id AS prfdetail, b.item_counter, '
-                                                    'b.invitem_id, b.invitem_code, b.invitem_name, b.invitem_unitofmeasure_code, '
-                                                    'b.invitem_unitofmeasure_id, b.remarks, c.id, c.csmain_id, d.id, e.id, '
-                                                    'e.supplier_id, e.suppliername, b.quantity, e.negocost, '
-                                                    'e.csstatus, e.isdeleted, e.status, e.grossamount, e.netamount, e.vat_id, '
-                                                    'e.vatable, e.vatamount, e.vatexempt, e.vatrate, e.vatzerorated, b.currency_id '
-                                                    'FROM prfmain a '
-                                                    'LEFT JOIN prfdetail b ON a.id = b.prfmain_id '
-                                                    'LEFT JOIN csdata c ON a.id = c.prfmain_id '
-                                                    'LEFT JOIN csmain d ON c.csmain_id = d.id '
-                                                    'LEFT JOIN csdetail e '
-                                                    'ON d.id = e.csmain_id AND b.invitem_id = e.invitem_id '
-                                                    'WHERE a.prfnum = "' + request.POST[
-                                                        'prfnum']
-                                                    + '" AND a.prfstatus = "A" AND a.status = "A" AND a.isdeleted = 0 '
-                                                      'AND b.status = "A" AND b.isdeleted = 0 AND d.isdeleted = 0 '
-                                                      'AND d.status = "A" '
-                                                      'ORDER BY b.item_counter')
-
-            supplier_vat = Supplier.objects.get(pk=request.POST['supplier'], isdeleted=0, status='A').vat
-            prfitem_list = []
-            if canvassedprfitems:
-                for data in canvassedprfitems:
-                    if data.csstatus == 1 and data.isdeleted == 0 and data.status == 'A':
-                        if request.POST['supplier'] != '':
-                            if str(data.supplier_id) == request.POST['supplier']:
-                                prfitem_list.append([data.prfnum,
-                                                     data.prfdetail,
-                                                     data.item_counter,
-                                                     data.invitem_id,
-                                                     data.invitem_code,
-                                                     data.invitem_name,
-                                                     data.invitem_unitofmeasure_code,
-                                                     data.quantity,
-                                                     data.negocost,
-                                                     data.remarks,
-                                                     data.branch_id,
-                                                     data.department_id,
-                                                     data.grossamount,
-                                                     data.netamount,
-                                                     data.vat_id,
-                                                     data.vatable,
-                                                     data.vatamount,
-                                                     data.vatexempt,
-                                                     data.vatrate,
-                                                     data.vatzerorated,
-                                                     data.currency_id,
-                                                     data.invitem_unitofmeasure_id,
-                                                     data.suppliername])
-                    if data.suppliername is None:
-                        prfitem_list.append([data.prfnum,
-                                             data.prfdetail,
-                                             data.item_counter,
-                                             data.invitem_id,
-                                             data.invitem_code,
-                                             data.invitem_name,
-                                             data.invitem_unitofmeasure_code,
-                                             data.quantity,
-                                             data.negocost,
-                                             data.remarks,
-                                             data.branch_id,
-                                             data.department_id,
-                                             data.grossamount,
-                                             data.netamount,
-                                             data.vat_id,
-                                             data.vatable,
-                                             data.vatamount,
-                                             data.vatexempt,
-                                             data.vatrate,
-                                             data.vatzerorated,
-                                             data.currency_id,
-                                             data.invitem_unitofmeasure_id,
-                                             data.suppliername])
-
-            if prfitem_list:
-                # save in podata as temp data (secretkey and prfmain)
-                podatatemp = Podata()
-                podatatemp.secretkey = request.POST['secretkey']
-                podatatemp.prfmain = prfmain
-                podatatemp.save()
-
-            i = 1
-            # save in podetailtemp based on prfitem_list
-            for data in prfitem_list:
-                print i
-                podetailtemp = Podetailtemp()
-                podetailtemp.item_counter = data[2]
-                podetailtemp.invitem_code = data[4]
-                podetailtemp.invitem_name = data[5]
-                podetailtemp.invitem_unitofmeasure = data[6]
-                podetailtemp.quantity = data[7]                            # from prfdetail, won't change even if quantity is modified in CS
-                unitcost = data[8] if data[8] is not None else 0.00
-                podetailtemp.unitcost = unitcost                           # from csdetail
-                podetailtemp.remarks = data[9]
-                podetailtemp.secretkey = request.POST['secretkey']
-                podetailtemp.branch = Branch.objects.get(pk=data[10], isdeleted=0, status='A')
-                podetailtemp.department = Department.objects.get(pk=data[11], isdeleted=0)
-                podetailtemp.enterby = request.user
-                podetailtemp.invitem = Inventoryitem.objects.get(pk=data[3], isdeleted=0, status='A')
-                podetailtemp.modifyby = request.user
-                podetailtemp.vat = supplier_vat
-                podetailtemp.vatrate = supplier_vat.rate
-                grossamount = float(data[7]) * (float(unitcost) / (1 + (float(supplier_vat.rate)/100)))
-                podetailtemp.grossamount = grossamount
-                podetailtemp.vatable = grossamount if float(supplier_vat.rate) > 0 else 0.00
-                podetailtemp.vatexempt = grossamount if supplier_vat.code == 'VE' else 0.00
-                podetailtemp.vatzerorated = grossamount if supplier_vat.code == 'ZE' else 0.00
-                podetailtemp.vatamount = grossamount * (float(supplier_vat.rate)/100)
-                podetailtemp.netamount = grossamount + (grossamount * (float(supplier_vat.rate)/100))
-                podetailtemp.currency = Currency.objects.get(pk=data[20], isdeleted=0, status='A') if data[20] is not None else None
-                podetailtemp.unitofmeasure = Unitofmeasure.objects.get(pk=data[21], isdeleted=0, status='A')
-                podetailtemp.save()
-                i += 1
-
-            data = {
-                'status': 'success',
-                'prfitems': prfitem_list
-            }
-    else:
-        data = {
-            'status': 'error',
-        }
-
-    return JsonResponse(data)
 
 

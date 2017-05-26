@@ -252,7 +252,6 @@ class Podetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
-    itemdetailkey = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'podetailtemp'
