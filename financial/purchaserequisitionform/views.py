@@ -137,6 +137,7 @@ class CreateView(CreateView):
                 detail.invitem = dt.invitem
                 detail.rfmain = dt.rfmain
                 detail.rfdetail = dt.rfdetail
+                detail.poremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
                 detail.save()
                 dt.delete()
 
@@ -152,6 +153,8 @@ class CreateView(CreateView):
                 i += 1
 
             prfmain.quantity = int(itemquantity)
+            prfmain.totalquantity = int(itemquantity)
+            prfmain.totalremainingquantity = int(itemquantity)
             prfmain.save()
 
             return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
@@ -212,7 +215,7 @@ def deleteRfprftransactionitem(prfdetail):
     # delete rfprftransaction, prfdetail
     data.delete()
     Prfdetail.objects.filter(pk=prfdetail.id).delete()
-    Prfmain.objects.filter(pk=prfdetail.prfmain.id).update(quantity=0, amount=0.00, grossamount=0.00,
+    Prfmain.objects.filter(pk=prfdetail.prfmain.id).update(quantity=0, grossamount=0.00,
                                                            netamount=0.00, vatable=0.00, vatamount=0.00,
                                                            vatexempt=0.00, vatzerorated=0.00)
 
@@ -270,6 +273,9 @@ class UpdateView(UpdateView):
             detailtemp.prfmain = d.prfmain
             detailtemp.rfmain = d.rfmain
             detailtemp.rfdetail = d.rfdetail
+            detailtemp.isfullypo = d.isfullypo
+            detailtemp.pototalquantity = d.pototalquantity
+            detailtemp.poremainingquantity = d.poremainingquantity
             detailtemp.save()
 
         context['prfdetailtemp'] = Prfdetailtemp.objects.filter(isdeleted=0, prfmain=self.object.pk).order_by('item_counter')
@@ -345,6 +351,7 @@ class UpdateView(UpdateView):
                 alldetail.isdeleted = atd.isdeleted
                 alldetail.rfmain = atd.rfmain
                 alldetail.rfdetail = atd.rfdetail
+                alldetail.poremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
                 alldetail.save()
                 atd.delete()
 
@@ -360,6 +367,8 @@ class UpdateView(UpdateView):
                 i += 1
 
             prfmain.quantity = int(itemquantity)
+            prfmain.totalquantity = int(itemquantity)
+            prfmain.totalremainingquantity = int(itemquantity)
             prfmain.save()
 
             Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
@@ -374,7 +383,9 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('purchaserequisitionform.delete_prfmain') or self.object.status == 'O':
+        if not request.user.has_perm('purchaserequisitionform.delete_prfmain') or \
+                        self.object.status == 'O' or \
+                        self.object.prfstatus == 'A':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

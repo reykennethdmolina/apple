@@ -41,7 +41,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-12 row-lg margin-bottom-20">
-                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}
+                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' and object.prfstatus != 'A' %}
                             <a href="{% url 'purchaserequisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">

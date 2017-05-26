@@ -83,6 +83,8 @@ class Prfmain(models.Model):
     uc_vatamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     uc_netamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
 
+    totalquantity = models.IntegerField(default=0)
+    totalremainingquantity = models.IntegerField(default=0)     # upon creation, this is equal to totalquantity
 
     class Meta:
         db_table = 'prfmain'
@@ -201,6 +203,11 @@ class Prfdetail(models.Model):
     suppliername = models.CharField(max_length=250, null=True, blank=True)
     estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
 
+    # additional columns for PRF-PO transactions
+    isfullypo = models.IntegerField(default=0)
+    pototalquantity = models.IntegerField(default=0)
+    poremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
+
 
     class Meta:
         db_table = 'prfdetail'
@@ -285,6 +292,11 @@ class Prfdetailtemp(models.Model):
     suppliercode = models.CharField(max_length=10, null=True, blank=True)
     suppliername = models.CharField(max_length=250, null=True, blank=True)
     estimateddateofdelivery = models.DateTimeField(null=True, blank=True)
+
+    # additional columns for PRF-PO transactions
+    isfullypo = models.IntegerField(default=0)
+    pototalquantity = models.IntegerField(default=0)
+    poremainingquantity = models.IntegerField(default=0)  # upon creation, this is equal to quantity
 
     class Meta:
         db_table = 'prfdetailtemp'

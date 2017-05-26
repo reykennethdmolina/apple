@@ -125,6 +125,7 @@
                         current_container.removeClass('supplied');
                         addSupplierManual();
                         customAlert($('#supplier-success'));
+                        reorderItems();
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -137,7 +138,6 @@
                 customAlert($('#supplier-danger'));
                 manual_duplicatesupplier = 0;
             }
-
         });
 
         $(document).on('click', '#imp_suppliersubmit', function(){
@@ -595,7 +595,7 @@
 
             // alert user for blank supplier
             $('.item_container').each(function(){
-               if($(this).next().not('.item_container')){
+               if($(this).next().is('.item_container') || $(this).is(':last-child')){
                    $(this).addClass('danger');
                }
                else{

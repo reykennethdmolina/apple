@@ -74,46 +74,46 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
-        if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
-            # Csdata.objects.filter():
-            # validate cs data
-            # validate cs data
-            # validate cs data
-            # validate cs data
-            # validate cs data
+        csdata = Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0)
 
-            self.object = form.save(commit=False)
+        for data in csdata:
+            csdata_item = Csdata.objects.filter(prfmain=data.prfmain, isdeleted=0)\
+                                        .exclude(csmain=None)
 
-            try:
-                csnumlast = Csmain.objects.latest('csnum')
-                latestcsnum = str(csnumlast)
-                if latestcsnum[0:4] == str(datetime.datetime.now().year):
-                    csnum = str(datetime.datetime.now().year)
-                    last = str(int(latestcsnum[4:])+1)
-                    zero_addon = 6 - len(last)
-                    for x in range(0, zero_addon):
-                        csnum += '0'
-                    csnum += last
-                else:
-                    csnum = str(datetime.datetime.now().year) + '000001'
-            except Csmain.DoesNotExist:
-                csnum = str(datetime.datetime.now().year) + '000001'
+            if not csdata_item:
+                if Csdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
+                    self.object = form.save(commit=False)
 
-            self.object.csnum = csnum
+                    try:
+                        csnumlast = Csmain.objects.latest('csnum')
+                        latestcsnum = str(csnumlast)
+                        if latestcsnum[0:4] == str(datetime.datetime.now().year):
+                            csnum = str(datetime.datetime.now().year)
+                            last = str(int(latestcsnum[4:])+1)
+                            zero_addon = 6 - len(last)
+                            for x in range(0, zero_addon):
+                                csnum += '0'
+                            csnum += last
+                        else:
+                            csnum = str(datetime.datetime.now().year) + '000001'
+                    except Csmain.DoesNotExist:
+                        csnum = str(datetime.datetime.now().year) + '000001'
 
-            self.object.enterby = self.request.user
-            self.object.modifyby = self.request.user
-            self.object.save()
+                    self.object.csnum = csnum
 
-            csmain = Csmain.objects.get(csnum=csnum)
+                    self.object.enterby = self.request.user
+                    self.object.modifyby = self.request.user
+                    self.object.save()
 
-            Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
+                    csmain = Csmain.objects.get(csnum=csnum)
 
-            importTemptodetail(self.request.POST['secretkey'], csmain)
-            updateCsmainvat(csnum)
+                    Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
 
-            # return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
-            return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/')
+                    importTemptodetail(self.request.POST['secretkey'], csmain)
+                    updateCsmainvat(csnum)
+
+                    # return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
+                    return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/')
 
 
 @method_decorator(login_required, name='dispatch')

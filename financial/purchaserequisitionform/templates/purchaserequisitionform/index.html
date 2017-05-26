@@ -44,7 +44,7 @@
                                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
                                                 {% endif %}
-                                                {% if perms.purchaserequisitionform.delete_prfmain and data.status != 'O' %}
+                                                {% if perms.purchaserequisitionform.delete_prfmain and data.status != 'O' and data.prfstatus != 'A' %}
                                                 <a href="{% url 'purchaserequisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>

@@ -240,7 +240,7 @@
                                 </button>
                             </a>
                             {% endif %}
-                            {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' %}
+                            {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' and object.prfstatus != 'A' %}
                             <a href="{% url 'purchaserequisitionform:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
