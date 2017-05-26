@@ -6,6 +6,7 @@ from django.db.models import F
 from django.contrib.auth.models import User
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from purchaserequisitionform.views import deleteRfprftransactionitem
+from canvasssheet.models import Csdata
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
@@ -36,9 +37,9 @@ class IndexView(ListView):
             context['rfapprovers'] = context['rfapprovers'].filter(id=self.request.user.id)
 
         context['rfpending'] = rfdata.filter(rfstatus='F').order_by('enterdate')
+        # exclude approved RFs that already have dependent PRFs
         context['rfapproved'] = rfdata.filter(rfstatus='A', totalremainingquantity=F('totalquantity')).\
             order_by('enterdate')
-        # exclude approved RFs that already have dependent PRFs
         context['rfdisapproved'] = rfdata.filter(rfstatus='D', status='C').order_by('enterdate')
 
         prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A')
@@ -48,7 +49,12 @@ class IndexView(ListView):
             context['prfapprovers'] = context['prfapprovers'].filter(id=self.request.user.id)
 
         context['prfpending'] = prfdata.filter(prfstatus='F').order_by('enterdate')
-        context['prfapproved'] = prfdata.filter(prfstatus='A').order_by('enterdate')
+
+        # exclude approved PRFs that already have dependent CSs (prfmain_id is used in csdata)
+        csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
+        context['prfapproved'] = prfdata.filter(prfstatus='A').\
+            exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True))).order_by('enterdate')
+
         context['prfdisapproved'] = prfdata.filter(prfstatus='D').order_by('enterdate')
 
         context['formtype'] = 'ALL'
