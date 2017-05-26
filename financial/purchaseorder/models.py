@@ -108,6 +108,36 @@ class Pomain(models.Model):
         return self.ponum
 
 
+class Prfpotransaction(models.Model):
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_prfpotransaction')
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_prfpotransaction')
+    pomain = models.ForeignKey('purchaseorder.Pomain', related_name='pomain_prfpotransaction')
+    podetail = models.ForeignKey('purchaseorder.Podetail', related_name='podetail_prfpotransaction')
+    poquantity = models.IntegerField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+
+    class Meta:
+        db_table = 'prfpotransaction'
+        ordering = ['-pk']
+
+    def get_absolute_url(self):
+        return reverse('purchaseorder:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pomain.ponum
+
+    def __unicode__(self):
+        return self.pomain.ponum
+
+
 class Podetail(models.Model):
     pomain = models.ForeignKey('purchaseorder.Pomain', related_name='podetail_pomain_id', null=True, blank=True)
     item_counter = models.IntegerField()

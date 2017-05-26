@@ -340,6 +340,7 @@
             <div id="myModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
+                        <div class="shade" id="shadePRFImport"><div class="loader two-color"></div></div>
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h4 class="modal-title">Select Purchase Requisition Form</h4>
@@ -359,22 +360,18 @@
                                     {% endfor %}
                                 </select>
                                 <br><br>
-                                <table class="col-md-12 table-bordered" id="importrfpreview">
+                                <table class="col-md-12 table-bordered" id="importprfpreview">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: center"><small><b>PRF No.</b></small></th>
-                                            <th style="text-align: center"><small><b>Urgency Type</b></small></th>
-                                            <th style="text-align: center"><small><b>Actual Approver</b></small></th>
-                                            <th style="text-align: center"><small><b>Date Needed</b></small></th>
+                                            <th style="text-align: center; min-width: 20px"></th>
+                                            <th style="text-align: center"><small><b>Code</b></small></th>
+                                            <th style="text-align: center"><small><b>Name</b></small></th>
+                                            <th style="text-align: center"><small><b>Quantity</b></small></th>
+                                            <th style="text-align: center"><small><b>Amount</b></small></th>
+                                            <th style="text-align: center"><small><b>Proposed Supplier</b></small></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td align="middle"> - </td>
-                                            <td align="middle"> - </td>
-                                            <td align="middle"> - </td>
-                                            <td align="middle"> - </td>
-                                        </tr>
                                     </tbody>
                                 </table>
                                 <br><br>
@@ -425,6 +422,11 @@
             $("#id_supplier").change(function(){
                 enableDisableButtons();
                 displaySupplierData();
+            });
+
+            $("#importbutton").click(function(){
+                $('#importprfpreview tbody').empty();
+                $("#importprfselect2").val('').trigger('change.select2');
             });
 
             function displaySupplierData(){

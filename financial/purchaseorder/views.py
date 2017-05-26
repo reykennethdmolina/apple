@@ -390,6 +390,10 @@ def fetchitems(request):
             prfdetail_list = []
 
             for data in prfdetail:
+                temp_csmain = data.csmain.pk if data.csmain else None
+                temp_detail = data.csdetail.pk if data.csdetail else None
+                temp_supplier = data.supplier.pk if data.supplier else None
+                print temp_csmain
                 prfdetail_list.append([data.id,
                                        data.invitem.id,
                                        data.invitem_code,
@@ -420,11 +424,11 @@ def fetchitems(request):
                                        data.uc_vatamount,
                                        data.uc_vatexempt,
                                        data.uc_vatzerorated,
-                                       data.csmain.id,
+                                       temp_csmain,
                                        data.csnum,
                                        data.csdate,
-                                       data.csdetail.id,
-                                       data.supplier.id,
+                                       temp_detail,
+                                       temp_supplier,
                                        data.suppliercode,
                                        data.suppliername,
                                        data.estimateddateofdelivery,

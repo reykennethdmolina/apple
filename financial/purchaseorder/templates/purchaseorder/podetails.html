@@ -134,26 +134,6 @@
             }
         });
 
-{#        $(document).on('click', '#importconfirm', function(){#}
-{#            $('.shade').fadeIn();#}
-{#            $.ajax({#}
-{#                url: "{% url 'purchaseorder:importsuppliers' %}",#}
-{#                type: "post",#}
-{#                data: {'prfnum': $("#importprfselect2").val(),#}
-{#                        'secretkey': $("#secretkey").val()#}
-{#                },#}
-{##}
-{#                success: function(response) {#}
-{##}
-{#                    $('.shade').fadeOut();#}
-{#                }#}
-{#                , error: function(response) {#}
-{#                    console.debug(response);#}
-{#                    $('.shade').fadeOut();#}
-{#                }#}
-{#            });#}
-{#        });#}
-
         $(document).on('click', '#myModal2', function(e){
             if(e.target !== e.currentTarget){
                 $('.widgett.widgett-article.widgett-shadow').last().removeClass('for-deletion');
@@ -169,27 +149,6 @@
         $("#btn_detailclose").click(function(){
             $("#detailentry").hide();
         });
-
-{#        function fetchPRFItems(prfNum, secretKey, supplier){#}
-{#            $('.shade').fadeIn();#}
-{#            $.ajax({#}
-{#                url: "{% url 'purchaseorder:importitems' %}",#}
-{#                type: "post",#}
-{#                data: {'prfnum': prfNum,#}
-{#                        'secretkey': secretKey,#}
-{#                        'supplier': supplier#}
-{#                },#}
-{##}
-{#                success: function(response) {#}
-{#                    console.log("yey");#}
-{#                    $('.shade').fadeOut();#}
-{#                }#}
-{#                , error: function(response) {#}
-{#                    console.debug(response);#}
-{#                    $('.shade').fadeOut();#}
-{#                }#}
-{#            });#}
-{#        }#}
 
         $("#btn_detailsubmit").click(function(){
             if($('#id_supplier').val() == ''){
@@ -633,35 +592,55 @@
         }
 
         $('#importprfselect2').change(function(){
+            $('#importconfirm').prop('disabled', true);
+            importPRFPreview = $("#importprfpreview tbody");
+            importPRFPreview.empty();
             if($(this).val() != ''){
-
-{#                importrfpreview = $("#importrfpreview tbody tr td");#}
-{#                importrfpreview.eq(0).text($(this).children('option:selected').data('refnum'));#}
-{#                importrfpreview.eq(1).text($(this).children('option:selected').data('urgency'));#}
-{#                importrfpreview.eq(2).text($(this).children('option:selected').data('approver'));#}
-{#                importrfpreview.eq(3).text($(this).children('option:selected').data('dateneeded'));#}
-
-                $('.shade').fadeIn();
+                $('#shadePRFImport').fadeIn();
                 $.ajax({
                     url: "{% url 'purchaseorder:fetchitems' %}",
                     type: "post",
                     data: {'prfid': $(this).val()},
-
                     success: function(response) {
-                        console.log('success');
-                        $('.shade').fadeOut();
+                        for (var i = 0; i < response.prfdetail.length; i++) {
+                            var supplier = response.prfdetail[i][36] != null ? response.prfdetail[i][36] : ' - ';
+                            var checked = response.prfdetail[i][34] == null ? "checked='checked'" :
+                                    response.prfdetail[i][34] == $('#id_supplier').val() ? "checked='checked'" : "";
+                            importPRFPreview.append("<tr class='small prfTblItemContainer'>" +
+                                "<td><input type='checkbox' class='checkItem' data-itemid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
+                                "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
+                                "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
+                                "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][6] + "</td>" +
+                                "<td style='text-align: right' class='text-center prfTblAmount'>" + response.prfdetail[i][14] + "</td>" +
+                                "<td style='text-align: left' class='text-center prfTblProposedSupplier'>" + supplier + "</td>" +
+                            "</tr>");
+                        }
+                        $('#importconfirm').prop('disabled', true);
+                        $('.checkItem').each(function() {
+                            if(this.checked) {
+                                $('#importconfirm').prop('disabled', false);
+                            }
+                        });
+                        $('#shadePRFImport').fadeOut();
                     }
                     , error: function(response) {
                         console.debug(response);
-                        $('.shade').fadeOut();
+                        $('#shadePRFImport').fadeOut();
                     }
                 });
-
-                $('#importconfirm').prop('disabled', false);
             }
             else{
                 $('#importconfirm').prop('disabled', true);
             }
+        });
+
+        $(document).on('change', '.checkItem', function(){
+            $('#importconfirm').prop('disabled', true);
+            $('.checkItem').each(function() {
+                if(this.checked) {
+                    $('#importconfirm').prop('disabled', false);
+                }
+            });
         });
     });
 </script>
