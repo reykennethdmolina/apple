@@ -1,6 +1,8 @@
 {% extends 'base-form.html' %}
+{% load staticfiles %}
 {% block page-title %} Purchase Requisition Form {% endblock page-title %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <style>
         .text-name-profile.text-info
         {
@@ -9,6 +11,28 @@
         .detail-profile
         {
             width: 70%;
+        }
+        .select2-results__option[aria-selected] {
+            font-size: 12px;
+        }
+        .select2-container--default .select2-results__option[aria-disabled=true] {
+            display: none;
+        }
+        .vattable td, .temp_quantity, .temp_fxrate, .temp_amount {
+            text-align: right;
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding: 17px 30px;
+            padding-right: 15px;
+            padding-left: 45px;
         }
     </style>
 {% endblock extra_css %}
@@ -139,7 +163,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-8">
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">PRF Items</a></li>
@@ -147,11 +171,12 @@
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
-                            <div class="panel-body" style="overflow: auto; width: 100%">
+                            <div class="panel-body" >
                                 <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
                                     <span id="totalrequestedquantity">{{ object.quantity }}</span>
                                 </label><br><br>
-                                <table class="table table-striped margin-bottom-0 small" id="summary">
+                                <div style="overflow: auto; width: 100%">
+                                    <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
                                             <tr>
                                                 <th style="width: 10px; text-align: center">#</th>
@@ -209,6 +234,7 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -216,7 +242,55 @@
             </div>
             <!--  End Profile Tab Section -->
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
+            <ul class="nav nav-tabs nav-profile">
+                <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Summary</a></li>
+            </ul>
+            <div class="widgett widgett-article widgett-shadow">
+                <div class="heading-top-index-2">
+                    <table class="vattable">
+                        <tr>
+                            <td><small><b>Quantity:</b></small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm" disabled="disabled" value="{{ object.quantity }}"></td>
+                        </tr>
+                        <tr>
+                            <td><small><b>Amount:</b></small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="heading-top-index-2">
+                    <table class="vattable">
+                        <tr>
+                            <td><small>VATable&nbsp;Purchase:</small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatable }}"></td>
+                        </tr>
+                        <tr>
+                            <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatexempt }}"></td>
+                        </tr>
+                        <tr>
+                            <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatzerorated }}"></td>
+                        </tr>
+                        <tr><td colspan="0"><br></td></tr>
+                        <tr>
+                            <td><small><b>Total&nbsp;Purchase:</b></small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
+                        </tr>
+                        <tr>
+                            <td><small><b>Add&nbsp;VAT:</b></small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.vatamount }}"></td>
+                        </tr>
+                        <tr>
+                            <td><small><b>Total&nbsp;Amount:</b></small></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.netamount }}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
             <div class="right-box-profile">
                 <h4 class="skill-title">Activity Logs</h4>
                 <div class="panel">

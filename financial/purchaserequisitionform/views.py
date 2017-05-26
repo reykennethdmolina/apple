@@ -149,7 +149,6 @@ class CreateView(CreateView):
                 else:
                     itemquantity = int(itemquantity) + int(detail.quantity)
 
-
                 i += 1
 
             prfmain.quantity = int(itemquantity)
@@ -200,7 +199,7 @@ def addRfprftransactionitem(id):
 
 
 def deleteRfprftransactionitem(prfdetail):
-
+    print prfdetail.id
     data = Rfprftransaction.objects.get(prfdetail=prfdetail.id, status='A')
     # update rfdetail
     remainingquantity = prfdetail.rfdetail.prfremainingquantity + data.prfquantity
@@ -296,80 +295,84 @@ class UpdateView(UpdateView):
 
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
+
+            if self.object.prfstatus == 'A':
+                self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
+            else:
+                self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
                                             'dateneeded', 'branch', 'particulars', 'designatedapprover',
                                             'modifyby', 'modifydate'])
 
-            Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
+                Prfdetailtemp.objects.filter(isdeleted=1, prfmain=self.object.pk).delete()
 
-            detailtagasdeleted = Prfdetail.objects.filter(prfmain=self.object.pk)
-            for dtd in detailtagasdeleted:
-                dtd.isdeleted = 1
-                dtd.save()
+                detailtagasdeleted = Prfdetail.objects.filter(prfmain=self.object.pk)
+                for dtd in detailtagasdeleted:
+                    dtd.isdeleted = 1
+                    dtd.save()
 
-            alltempdetail = Prfdetailtemp.objects.filter(
-                Q(isdeleted=0),
-                Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
-            ).order_by('enterdate')
+                alltempdetail = Prfdetailtemp.objects.filter(
+                    Q(isdeleted=0),
+                    Q(prfmain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+                ).order_by('enterdate')
 
-            # remove old detail in rfquantities
-            prfdetail = Prfdetail.objects.filter(prfmain=self.object.id, isdeleted=1)
-            for data in prfdetail:
-                if Rfprftransaction.objects.filter(prfdetail=data.id):
-                    deleteRfprftransactionitem(data)
-            Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
+                # remove old detail in rfquantities
+                prfdetail = Prfdetail.objects.filter(prfmain=self.object.id, isdeleted=1)
+                for data in prfdetail:
+                    if Rfprftransaction.objects.filter(prfdetail=data.id):
+                        deleteRfprftransactionitem(data)
+                Prfdetail.objects.filter(prfmain=self.object.pk, isdeleted=1).delete()
 
-            itemquantity = 0
-            prfmain = Prfmain.objects.get(pk=self.object.pk)
-            i = 1
-            for atd in alltempdetail:
+                itemquantity = 0
+                prfmain = Prfmain.objects.get(pk=self.object.pk)
+                i = 1
+                for atd in alltempdetail:
 
-                department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
+                    department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
 
-                alldetail = Prfdetail()
-                alldetail.item_counter = i
-                alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
-                alldetail.invitem = atd.invitem
-                alldetail.invitem_code = atd.invitem_code
-                alldetail.invitem_name = atd.invitem_name
-                alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
-                alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
-                alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
-                alldetail.department_code = department.code
-                alldetail.department_name = department.departmentname
-                alldetail.remarks = atd.remarks
-                alldetail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
-                alldetail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
-                alldetail.status = atd.status
-                alldetail.enterby = atd.enterby
-                alldetail.enterdate = atd.enterdate
-                alldetail.modifyby = atd.modifyby
-                alldetail.modifydate = atd.modifydate
-                alldetail.postby = atd.postby
-                alldetail.postdate = atd.postdate
-                alldetail.isdeleted = atd.isdeleted
-                alldetail.rfmain = atd.rfmain
-                alldetail.rfdetail = atd.rfdetail
-                alldetail.poremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
-                alldetail.save()
-                atd.delete()
+                    alldetail = Prfdetail()
+                    alldetail.item_counter = i
+                    alldetail.prfmain = Prfmain.objects.get(prfnum=self.request.POST['prfnum'])
+                    alldetail.invitem = atd.invitem
+                    alldetail.invitem_code = atd.invitem_code
+                    alldetail.invitem_name = atd.invitem_name
+                    alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
+                    alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
+                    alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                    alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
+                    alldetail.department_code = department.code
+                    alldetail.department_name = department.departmentname
+                    alldetail.remarks = atd.remarks
+                    alldetail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
+                    alldetail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
+                    alldetail.status = atd.status
+                    alldetail.enterby = atd.enterby
+                    alldetail.enterdate = atd.enterdate
+                    alldetail.modifyby = atd.modifyby
+                    alldetail.modifydate = atd.modifydate
+                    alldetail.postby = atd.postby
+                    alldetail.postdate = atd.postdate
+                    alldetail.isdeleted = atd.isdeleted
+                    alldetail.rfmain = atd.rfmain
+                    alldetail.rfdetail = atd.rfdetail
+                    alldetail.poremainingquantity = self.request.POST.getlist('temp_quantity')[i-1]
+                    alldetail.save()
+                    atd.delete()
 
-                if atd.rfmain:
-                    if addRfprftransactionitem(alldetail.id):
-                        itemquantity = int(itemquantity) + int(alldetail.quantity)
+                    if atd.rfmain:
+                        if addRfprftransactionitem(alldetail.id):
+                            itemquantity = int(itemquantity) + int(alldetail.quantity)
+                        else:
+                            alldetail.delete()
                     else:
-                        alldetail.delete()
-                else:
-                    itemquantity = int(itemquantity) + int(alldetail.quantity)
+                        itemquantity = int(itemquantity) + int(alldetail.quantity)
 
 
-                i += 1
+                    i += 1
 
-            prfmain.quantity = int(itemquantity)
-            prfmain.totalquantity = int(itemquantity)
-            prfmain.totalremainingquantity = int(itemquantity)
-            prfmain.save()
+                prfmain.quantity = int(itemquantity)
+                prfmain.totalquantity = int(itemquantity)
+                prfmain.totalremainingquantity = int(itemquantity)
+                prfmain.save()
 
             Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()
 

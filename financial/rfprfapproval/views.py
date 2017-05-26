@@ -139,7 +139,7 @@ def approve(request):
                 approve.prfstatus = request.POST['response']
                 approve.status = 'C'
 
-                prfdetail = Prfdetail.objects.filter(prfmain=request.POST['main_id'])
+                prfdetail = Prfdetail.objects.filter(prfmain=request.POST['main_id']).exclude(rfmain=None)
                 for data in prfdetail:
                     deleteRfprftransactionitem(data)
             else:
