@@ -124,6 +124,27 @@
         {% endfor %}
         unitofmeasure_list += "</select>";
 
+        //branch list
+        branch_list = "<select name='temp_branch' form='form-b' id='id_temp_branch' class='form-control input-sm tblSelectBranch' required style='width: 100%'>";
+        {% for data in branch %}
+            branch_list += "<option value='{{ data.id }}'>{{ data.description }}</option>";
+        {% endfor %}
+        branch_list += "</select>";
+
+        //department list
+        department_list = "<select name='temp_department' form='form-b' id='id_temp_department' class='form-control input-sm tblSelectDepartment' required style='width: 100%'>";
+        {% for data in department %}
+            department_list += "<option value='{{ data.id }}'>{{ data.code }} | {{ data.departmentname }}</option>";
+        {% endfor %}
+        department_list += "</select>";
+
+        //employee list
+        employee_list = "<select name='temp_employee' form='form-b' id='id_temp_employee' class='form-control input-sm tblSelectEmployee' required style='width: 100%'>";
+        {% for data in employee %}
+            employee_list += "<option value='{{ data.id }}'>{{ data.code }} | {{ data.lastname }}, {{ data.firstname }}</option>";
+        {% endfor %}
+        employee_list += "</select>";
+
         $('#id_branch').val(5).trigger('change');
 
         $('#id_item_name').select2().on("change", function(e) {
@@ -230,41 +251,14 @@
                                 "</td>" +
                                 "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
                                 "<td class='text-center tblPRFNumber'> - </td>" +
-                                "<td class='tblBranch'>" +
-                                    "<select class='form-control input-sm tblSelectBranch' required style='width:" +
-                                    " 100%' id='id_temp_branch' name='temp_branch' form='form-b'>" +
-                                        "{% for branch in branch %} " +
-                                            "<option value='{{ branch.id }}'>" +
-                                                "{{ branch.description }}" +
-                                            "</option>" +
-                                        "{% endfor %}" +
-                                    "</select>" +
-                                "</td>" +
-                                "<td class='tblDepartment'>" +
-                                    "<select class='form-control input-sm tblSelectDepartment' required style='width:" +
-                                    " 100%' id='id_temp_department' name='temp_department' form='form-b'>" +
-                                        "{% for department in department %} " +
-                                            "<option value='{{ department.id }}'>" +
-                                                "{{ department.code }} | {{ department.departmentname }}" +
-                                            "</option>" +
-                                        "{% endfor %}" +
-                                    "</select>" +
-                                "</td>" +
+                                "<td class='tblBranch'>" + branch_list + "</td>" +
+                                "<td class='tblDepartment'>" + department_list + "</td>" +
                                 "<td class='tblExpirationDate'>" +
                                     "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +
                                     "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +
                                     "name='temp_expirationdate' readonly='readonly' value='" + $('#id_expirationdate').val() + "'>" +
                                 "</td>" +
-                                "<td class='tblEmployee'>" +
-                                    "<select class='form-control input-sm tblSelectEmployee' required style='width:" +
-                                    " 100%' id='id_temp_employee' name='temp_employee' form='form-b'>" +
-                                        "{% for employee in employee %} " +
-                                            "<option value='{{ employee.id }}'>" +
-                                                "{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}" +
-                                            "</option>" +
-                                        "{% endfor %}" +
-                                    "</select>" +
-                                "</td>" +
+                                "<td class='tblEmployee'>" + employee_list + "</td>" +
                                 "<td class='tblSerialNum'>" +
                                     "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +
                                     "input-sm tblInputSerialNum' value='" + $("#id_serialnum").val() + "'>" +
@@ -650,7 +644,8 @@
                 var data = {'imported_items[]' : [],
                         'id_vat' : $('#id_vat').val(),
                         'id_supplier' : $('#id_supplier').val(),
-                        'secretkey' : $('#secretkey').val()};
+                        'secretkey' : $('#secretkey').val(),
+                        'prfmainid' : $('#importprfselect2').val()};
                 $(".checkItem:checked").each(function() {
                   data['imported_items[]'].push($(this).data('prfdetailid'));
                 });
@@ -661,9 +656,18 @@
                     data: data,
 
                     success: function(response) {
-
                         for(var i=0; i<response.podetail.length; i++) {
+                            var unitCost = parseFloat(response.podetail[i][9]);
+                            var vat = parseFloat(response.podetail[i][10]) / 100;
+                            var vatCode = response.podetail[i][11];
+                            var qty = response.podetail[i][12];
+                            var discountType = "rate";
+                            var discountRate = 0;
+                            var discountAmount = 0;
+                            var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);
+
                             $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
                             summary.append("<tr class='small tblItemContainer'>" +
                                 "<td class='text-center tblItemCounter'></td>" +
                                 "<td class='tblItemCode' data-type='" + response.podetail[i][1] + "'>" +
@@ -679,80 +683,89 @@
                                 "</td>" +
                                 "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
                                 "<td class='text-center tblPRFNumber'>" + response.podetail[i][5] + "</td>" +
-{#                                "<td class='tblBranch'>" +#}
-{#                                    "<select class='form-control input-sm tblSelectBranch' required style='width:" +#}
-{#                                    " 100%' id='id_temp_branch' name='temp_branch' form='form-b'>" +#}
-{#                                        "{% for branch in branch %} " +#}
-{#                                            "<option value='{{ branch.id }}'>" +#}
-{#                                                "{{ branch.description }}" +#}
-{#                                            "</option>" +#}
-{#                                        "{% endfor %}" +#}
-{#                                    "</select>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblDepartment'>" +#}
-{#                                    "<select class='form-control input-sm tblSelectDepartment' required style='width:" +#}
-{#                                    " 100%' id='id_temp_department' name='temp_department' form='form-b'>" +#}
-{#                                        "{% for department in department %} " +#}
-{#                                            "<option value='{{ department.id }}'>" +#}
-{#                                                "{{ department.code }} | {{ department.departmentname }}" +#}
-{#                                            "</option>" +#}
-{#                                        "{% endfor %}" +#}
-{#                                    "</select>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblExpirationDate'>" +#}
-{#                                    "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +#}
-{#                                    "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +#}
-{#                                    "name='temp_expirationdate' readonly='readonly' value='" + $('#id_expirationdate').val() + "'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblEmployee'>" +#}
-{#                                    "<select class='form-control input-sm tblSelectEmployee' required style='width:" +#}
-{#                                    " 100%' id='id_temp_employee' name='temp_employee' form='form-b'>" +#}
-{#                                        "{% for employee in employee %} " +#}
-{#                                            "<option value='{{ employee.id }}'>" +#}
-{#                                                "{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}" +#}
-{#                                            "</option>" +#}
-{#                                        "{% endfor %}" +#}
-{#                                    "</select>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblSerialNum'>" +#}
-{#                                    "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +#}
-{#                                    "input-sm tblInputSerialNum' value='" + $("#id_serialnum").val() + "'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblAssetNum'>" +#}
-{#                                    "<input type='text' name='temp_assetnum' form='form-b' step='any' class='form-control " +#}
-{#                                    "input-sm tblInputAssetNum' value='" + $("#id_assetnum").val() + "'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='tblUnitCost'>" +#}
-{#                                    "<input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +#}
-{#                                    "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' " +#}
-{#                                    "value='" + unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='tblQuantity'>" +#}
-{#                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' value='" + qty + "'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='col_discount tblDiscount'>" +#}
-{#                                    "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +#}
-{#                                    "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' maxlength='26' form='form-b'>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='col_discount_type tblDiscountType'>" +#}
-{#                                    "<select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +#}
-{#                                        "<option value='rate'>%</option>" +#}
-{#                                        "<option value='amount'>(amt)</option>" +#}
-{#                                    "</select>" +#}
-{#                                "</td>" +#}
-{#                                "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
-{#                                "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +#}
+                                "<td class='tblBranch'>" + branch_list + "</td>" +
+                                "<td class='tblDepartment'>" + department_list + "</td>" +
+                                "<td class='tblExpirationDate'>" +
+                                    "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +
+                                    "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +
+                                    "name='temp_expirationdate' readonly='readonly'>" +
+                                "</td>" +
+                                "<td class='tblEmployee'>" + employee_list + "</td>" +
+                                "<td class='tblSerialNum'>" +
+                                    "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +
+                                    "input-sm tblInputSerialNum'>" +
+                                "</td>" +
+                                "<td class='tblAssetNum'>" +
+                                    "<input type='text' name='temp_assetnum' form='form-b' step='any' class='form-control " +
+                                    "input-sm tblInputAssetNum'>" +
+                                "</td>" +
+                                "<td class='tblUnitCost'>" +
+                                    "<input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
+                                    "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' " +
+                                    "value='" + unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'>" +
+                                "</td>" +
+                                "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='tblQuantity'>" +
+                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' value='" + qty + "'>" +
+                                "</td>" +
+                                "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='col_discount tblDiscount'>" +
+                                    "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +
+                                    "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' maxlength='26' form='form-b'>" +
+                                "</td>" +
+                                "<td class='col_discount_type tblDiscountType'>" +
+                                    "<select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +
+                                        "<option value='rate'>%</option>" +
+                                        "<option value='amount'>(amt)</option>" +
+                                    "</select>" +
+                                "</td>" +
+                                "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
                             "</tr>");
-                            console.log(response.podetail[i][6]);
+
+                            initMaskMoney('po_dynamic');
+
                             summary.find("tr").last().find("#id_temp_item_um option[value=" + response.podetail[i][6] + "]").attr('selected','selected');
+                            summary.find("tr").last().find("#id_temp_branch option[value=" + response.podetail[i][7] + "]").attr('selected','selected');
+                            summary.find("tr").last().find("#id_temp_department option[value=" + response.podetail[i][8] + "]").attr('selected','selected');
+                            summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]").attr('selected','selected');
+
+                            if(discountType == "rate"){
+                                summary.find("tr").last().find(".temp_discount_rate").val(discountRate);
+                            }
+                            else{
+                                summary.find("tr").last().find(".temp_discount_amount").val(discountAmount.toFixed(2).
+                                        replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            }
+
+                            filterDiscount();
+                            filterExtraFields();
+                            reorderItems();
+                            computeTotalAmounts();
                         }
+                        $('#id_supplier option:selected').siblings().prop("disabled", true);
+                        $('#id_supplier').select2("destroy");
+                        $('#id_supplier').select2();
+
+                        $("#id_item_name").val('').trigger('change.select2');
+                        $("#id_qty").val('');
+                        $("#id_unitcost").val('');
+                        $("#id_branch").val('5').trigger('change.select2');
+                        $("#id_department").val('').trigger('change.select2');
+                        $("#id_remarks").val('');
+                        $("#id_discountrate").val('');
+                        $("#id_discountamount").val('');
+                        $("#id_discounttype").val('rate');
+                        $("#id_expirationdate").val('');
+                        $("#id_employee").val('').trigger('change.select2');
+                        $("#id_serialnum").val('');
+                        $("#id_assetnum").val('');
+
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {

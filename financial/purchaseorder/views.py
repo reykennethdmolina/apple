@@ -359,6 +359,7 @@ def savedetailtemp(request):
 @csrf_exempt
 def saveimporteddetailtemp(request):
     if request.method == 'POST':
+        prfmain = Prfmain.objects.get(pk=request.POST['prfmainid'], prfstatus='A', status='A', isdeleted=0)
         i = 1
         podetail_list = []
         for data in request.POST.getlist('imported_items[]'):
@@ -392,6 +393,8 @@ def saveimporteddetailtemp(request):
                 detailtemp.vatrate = Vat.objects.get(pk=request.POST['id_vat']).rate
                 detailtemp.department_code = prfitemdetails.department_code
                 detailtemp.department_name = prfitemdetails.department_name
+                detailtemp.prfmain = prfitemdetails.prfmain
+                detailtemp.prfdetail = prfitemdetails
                 detailtemp.save()
                 i += 1
                 podetail_list.append([detailtemp.pk,
@@ -399,12 +402,30 @@ def saveimporteddetailtemp(request):
                                       detailtemp.invitem.id,
                                       detailtemp.invitem_code,
                                       detailtemp.invitem_name,
-                                      prfitemdetails.prfmain.prfnum,            # replace with prfnum from prfdetail
-                                      detailtemp.invitem.unitofmeasure.id, ])
-        data = {
-            'status': 'success',
-            'podetail': podetail_list,
-        }
+                                      detailtemp.prfmain.prfnum,
+                                      detailtemp.invitem.unitofmeasure.id,
+                                      detailtemp.branch.id,
+                                      detailtemp.department.id,
+                                      detailtemp.unitcost,
+                                      detailtemp.vatrate,
+                                      detailtemp.vat.code,
+                                      detailtemp.quantity, ])
+
+        # store temppodata
+        if Podata.objects.filter(secretkey=request.POST['secretkey'], prfmain=prfmain).exists():
+            data = {
+                'status': 'error',
+            }
+        else:
+            detail = Podata()
+            detail.secretkey = request.POST['secretkey']
+            detail.prfmain = prfmain
+            detail.save()
+
+            data = {
+                'status': 'success',
+                'podetail': podetail_list,
+            }
     else:
         data = {
             'status': 'error',
