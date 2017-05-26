@@ -117,6 +117,13 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
 
+        //unitofmeasure list
+        unitofmeasure_list = "<select name='temp_item_um' form='form-b' id='id_temp_item_um' class='form-control input-sm tblSelectUnitOfMeasure' style='width:100%' required>";
+        {% for data in unitofmeasure %}
+            unitofmeasure_list += "<option value='{{ data.id }}' data-code='{{ data.code }}'>{{ data.description }} ({{ data.code }})</option>";
+        {% endfor %}
+        unitofmeasure_list += "</select>";
+
         $('#id_branch').val(5).trigger('change');
 
         $('#id_item_name').select2().on("change", function(e) {
@@ -221,16 +228,7 @@
                                     "<input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
                                     "input-sm tblInputRemarks' value='" + $("#id_remarks").val() + "'>" +
                                 "</td>" +
-                                "<td class='tblUnitOfMeasure'>" +
-                                    "<select class='form-control input-sm tblSelectUnitOfMeasure' required style='width:" +
-                                    " 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                        "{% for unitofmeasure in unitofmeasure %} " +
-                                            "<option value='{{ unitofmeasure.id }}' data-code='{{ unitofmeasure.code }}'>" +
-                                                "{{ unitofmeasure.description }} ({{ unitofmeasure.code }})" +
-                                            "</option>" +
-                                        "{% endfor %}" +
-                                    "</select>" +
-                                "</td>" +
+                                "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
                                 "<td class='text-center tblPRFNumber'> - </td>" +
                                 "<td class='tblBranch'>" +
                                     "<select class='form-control input-sm tblSelectBranch' required style='width:" +
@@ -644,23 +642,125 @@
         });
 
         $('#importconfirm').click(function(){
-            var checkedItems = {'imported_items[]' : []};
-            $(".checkItem:checked").each(function() {
-              checkedItems['imported_items[]'].push($(this).data('prfdetailid'));
-            });
+            if($('#id_supplier').val() == ''){
+                alert("Please select a supplier first.");
+            }
+            else {
+                $('.shade').fadeIn();
+                var data = {'imported_items[]' : [],
+                        'id_vat' : $('#id_vat').val(),
+                        'id_supplier' : $('#id_supplier').val(),
+                        'secretkey' : $('#secretkey').val()};
+                $(".checkItem:checked").each(function() {
+                  data['imported_items[]'].push($(this).data('prfdetailid'));
+                });
 
-            $.ajax({
-                url: "{% url 'purchaseorder:saveimporteddetailtemp' %}",
-                type: "post",
-                data: checkedItems,
+                $.ajax({
+                    url: "{% url 'purchaseorder:saveimporteddetailtemp' %}",
+                    type: "post",
+                    data: data,
 
-                success: function(response) {
-                    console.log("yey");
-                }
-                , error: function(response) {
-                    console.debug(response);
-                }
-            });
+                    success: function(response) {
+
+                        for(var i=0; i<response.podetail.length; i++) {
+                            $("#itemno").text(parseInt($("#itemno").text()) + 1);
+                            summary.append("<tr class='small tblItemContainer'>" +
+                                "<td class='text-center tblItemCounter'></td>" +
+                                "<td class='tblItemCode' data-type='" + response.podetail[i][1] + "'>" +
+                                    "<span style='cursor:pointer;font-size:15px;' class='remove_item' data-itemno='" + parseInt($("#itemno").text()) + 1 +
+                                    "' data-itemid='" + response.podetail[i][2] + "' data-podetailid='" + response.podetail[i][0] + "'>" +
+                                        "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
+                                    "</span> &nbsp;&nbsp;" + response.podetail[i][3] +
+                                "</td>" +
+                                "<td class='tblItemName'>" + response.podetail[i][4] + "</td>" +
+                                "<td class='tblRemarks'>" +
+                                    "<input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
+                                    "input-sm tblInputRemarks'>" +
+                                "</td>" +
+                                "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
+                                "<td class='text-center tblPRFNumber'>" + response.podetail[i][5] + "</td>" +
+{#                                "<td class='tblBranch'>" +#}
+{#                                    "<select class='form-control input-sm tblSelectBranch' required style='width:" +#}
+{#                                    " 100%' id='id_temp_branch' name='temp_branch' form='form-b'>" +#}
+{#                                        "{% for branch in branch %} " +#}
+{#                                            "<option value='{{ branch.id }}'>" +#}
+{#                                                "{{ branch.description }}" +#}
+{#                                            "</option>" +#}
+{#                                        "{% endfor %}" +#}
+{#                                    "</select>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblDepartment'>" +#}
+{#                                    "<select class='form-control input-sm tblSelectDepartment' required style='width:" +#}
+{#                                    " 100%' id='id_temp_department' name='temp_department' form='form-b'>" +#}
+{#                                        "{% for department in department %} " +#}
+{#                                            "<option value='{{ department.id }}'>" +#}
+{#                                                "{{ department.code }} | {{ department.departmentname }}" +#}
+{#                                            "</option>" +#}
+{#                                        "{% endfor %}" +#}
+{#                                    "</select>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblExpirationDate'>" +#}
+{#                                    "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +#}
+{#                                    "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +#}
+{#                                    "name='temp_expirationdate' readonly='readonly' value='" + $('#id_expirationdate').val() + "'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblEmployee'>" +#}
+{#                                    "<select class='form-control input-sm tblSelectEmployee' required style='width:" +#}
+{#                                    " 100%' id='id_temp_employee' name='temp_employee' form='form-b'>" +#}
+{#                                        "{% for employee in employee %} " +#}
+{#                                            "<option value='{{ employee.id }}'>" +#}
+{#                                                "{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}" +#}
+{#                                            "</option>" +#}
+{#                                        "{% endfor %}" +#}
+{#                                    "</select>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblSerialNum'>" +#}
+{#                                    "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +#}
+{#                                    "input-sm tblInputSerialNum' value='" + $("#id_serialnum").val() + "'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblAssetNum'>" +#}
+{#                                    "<input type='text' name='temp_assetnum' form='form-b' step='any' class='form-control " +#}
+{#                                    "input-sm tblInputAssetNum' value='" + $("#id_assetnum").val() + "'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='tblUnitCost'>" +#}
+{#                                    "<input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +#}
+{#                                    "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' " +#}
+{#                                    "value='" + unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='tblQuantity'>" +#}
+{#                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' value='" + qty + "'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='col_discount tblDiscount'>" +#}
+{#                                    "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +#}
+{#                                    "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' maxlength='26' form='form-b'>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='col_discount_type tblDiscountType'>" +#}
+{#                                    "<select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +#}
+{#                                        "<option value='rate'>%</option>" +#}
+{#                                        "<option value='amount'>(amt)</option>" +#}
+{#                                    "</select>" +#}
+{#                                "</td>" +#}
+{#                                "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +#}
+{#                                "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +#}
+                            "</tr>");
+                            console.log(response.podetail[i][6]);
+                            summary.find("tr").last().find("#id_temp_item_um option[value=" + response.podetail[i][6] + "]").attr('selected','selected');
+                        }
+                        $('.shade').fadeOut();
+                    }
+                    , error: function(response) {
+                        console.debug(response);
+                        $('.shade').fadeOut();
+                    }
+                });
+            }
         });
     });
 </script>

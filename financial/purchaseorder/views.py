@@ -359,6 +359,8 @@ def savedetailtemp(request):
 @csrf_exempt
 def saveimporteddetailtemp(request):
     if request.method == 'POST':
+        i = 1
+        podetail_list = []
         for data in request.POST.getlist('imported_items[]'):
             prfitemdetails = Prfdetail.objects.get(pk=data)
             if prfitemdetails.isdeleted == 0 and prfitemdetails.isfullypo == 0 and \
@@ -366,16 +368,43 @@ def saveimporteddetailtemp(request):
                 prfitemdetails.prfmain.isdeleted == 0 and prfitemdetails.prfmain.status == 'A' and \
                     prfitemdetails.prfmain.totalremainingquantity > 0:
 
-                podetailtemp = Podetailtemp()
-
-                data = {
-                    'status': 'success',
-                }
-            else:
-                data = {
-                    'status': 'error',
-                }
-
+                detailtemp = Podetailtemp()
+                detailtemp.item_counter = i
+                detailtemp.branch = prfitemdetails.prfmain.branch
+                detailtemp.currency = prfitemdetails.currency
+                detailtemp.department = prfitemdetails.department
+                detailtemp.enterby = User.objects.get(pk=request.user.id)
+                detailtemp.invitem = prfitemdetails.invitem
+                detailtemp.modifyby = User.objects.get(pk=request.user.id)
+                detailtemp.unitofmeasure = prfitemdetails.invitem_unitofmeasure
+                detailtemp.vat = Vat.objects.get(pk=request.POST['id_vat'])
+                detailtemp.invitem_code = prfitemdetails.invitem_code
+                detailtemp.invitem_name = prfitemdetails.invitem_name
+                detailtemp.invitem_unitofmeasure = prfitemdetails.invitem_unitofmeasure_code
+                detailtemp.quantity = prfitemdetails.quantity
+                if prfitemdetails.supplier:
+                    if int(request.POST['id_supplier']) == int(prfitemdetails.supplier.id):
+                        detailtemp.unitcost = prfitemdetails.negocost
+                detailtemp.status = 'A'
+                detailtemp.enterdate = datetime.datetime.now()
+                detailtemp.modifydate = datetime.datetime.now()
+                detailtemp.secretkey = request.POST['secretkey']
+                detailtemp.vatrate = Vat.objects.get(pk=request.POST['id_vat']).rate
+                detailtemp.department_code = prfitemdetails.department_code
+                detailtemp.department_name = prfitemdetails.department_name
+                detailtemp.save()
+                i += 1
+                podetail_list.append([detailtemp.pk,
+                                      detailtemp.invitem.inventoryitemclass.inventoryitemtype.code,
+                                      detailtemp.invitem.id,
+                                      detailtemp.invitem_code,
+                                      detailtemp.invitem_name,
+                                      prfitemdetails.prfmain.prfnum,            # replace with prfnum from prfdetail
+                                      detailtemp.invitem.unitofmeasure.id, ])
+        data = {
+            'status': 'success',
+            'podetail': podetail_list,
+        }
     else:
         data = {
             'status': 'error',

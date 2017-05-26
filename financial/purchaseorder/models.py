@@ -186,6 +186,10 @@ class Podetail(models.Model):
     postby = models.ForeignKey(User, related_name='podetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_podetail', null=True,
+                                blank=True)
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_podetail', null=True,
+                              blank=True)
 
     class Meta:
         db_table = 'podetail'
@@ -252,6 +256,10 @@ class Podetailtemp(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
+    prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_podetailtemp', null=True,
+                                blank=True)
+    prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_podetailtemp', null=True,
+                              blank=True)
 
     class Meta:
         db_table = 'podetailtemp'
