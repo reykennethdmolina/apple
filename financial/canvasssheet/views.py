@@ -123,7 +123,7 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('canvasssheet.delete_csmain') or self.object.status == 'O':
+        if not request.user.has_perm('canvasssheet.delete_csmain') or self.object.status == 'O' or self.object.csstatus == 'A':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

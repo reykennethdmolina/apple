@@ -46,6 +46,9 @@ class DetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['prfdetail'] = Prfdetail.objects.filter(isdeleted=0, prfmain=self.kwargs['pk']).order_by('item_counter')
+        context['totalpoquantity'] = Prfmain.objects.get(pk=self.kwargs['pk']).\
+                                        totalquantity - Prfmain.objects.\
+                                        get(pk=self.kwargs['pk']).totalremainingquantity
         return context
 
 
@@ -71,6 +74,7 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A').order_by('id')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        context['totalremainingquantity'] = 0
         return context
 
     def form_valid(self, form):
@@ -241,6 +245,8 @@ class UpdateView(UpdateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['prfstatus'] = Prfmain.objects.get(pk=self.object.pk).get_prfstatus_display()
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        context['totalremainingquantity'] = Prfmain.objects.get(pk=self.object.pk).\
+            totalremainingquantity
 
         Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()        # clear all temp data
 

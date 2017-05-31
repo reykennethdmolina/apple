@@ -172,9 +172,32 @@
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
                             <div class="panel-body" >
-                                <label class="control-label floatright">Total&nbsp;Requested&nbsp;Qty:&nbsp;&nbsp;
-                                    <span id="totalrequestedquantity">{{ object.quantity }}</span>
-                                </label><br><br>
+                                <table class="floatright margin-bottom-10 small">
+                                    <tr>
+                                        <td width="150px">
+                                            <label class="control-label float-left">Total&nbsp;Requested&nbsp;Qty:</label>
+                                        </td>
+                                        <td class="text-align-right">
+                                            <label class="control-label">{{ object.totalquantity }}</label>
+                                        </td>
+                                    </tr>
+                                    {% if object.prfstatus == 'A' %}<tr>
+                                        <td width="150px">
+                                            <label class="control-label float-left">Total&nbsp;PO&nbsp;Qty:</label>
+                                        </td>
+                                        <td class="text-align-right">
+                                            <label class="control-label">{{ totalpoquantity }}</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="150px">
+                                            <label class="control-label float-left">Total&nbsp;Remaining&nbsp;Qty:</label>
+                                        </td>
+                                        <td class="text-align-right">
+                                            <label class="control-label">{{ object.totalremainingquantity }}</label>
+                                        </td>
+                                    </tr>{% endif %}
+                                </table><br><br>
                                 <div style="overflow: auto; width: 100%">
                                     <table class="table table-striped margin-bottom-0 small" id="summary">
                                         <thead>
@@ -290,7 +313,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 col-md-offset-8">
             <div class="right-box-profile">
                 <h4 class="skill-title">Activity Logs</h4>
                 <div class="panel">

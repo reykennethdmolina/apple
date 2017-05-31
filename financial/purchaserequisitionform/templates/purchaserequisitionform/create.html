@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load mathfilters %}
 {% block page-title %} Purchase Requisition Form {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
@@ -222,7 +223,14 @@
                                                     data-rfnum="{{ rfmain.rfnum }}"
                                                     data-urgency="{{ rfmain.get_urgencytype_display }}"
                                                     data-dateneeded="{{ rfmain.dateneeded }}"
-                                                    data-approver="{{ rfmain.actualapprover }}">{{ rfmain.rfnum }} | {{ rfmain.rfdate|date:"Y-m-d" }} | {{ rfmain.department.departmentname }} | {{ rfmain.get_urgencytype_display }} | Date needed: {{ rfmain.dateneeded|date:"Y-m-d" }}</option>
+                                                    data-approver="{{ rfmain.actualapprover }}">
+                                                        {{ rfmain.rfnum }} |
+                                                        ({{ rfmain.totalquantity|sub:rfmain.totalremainingquantity }} / {{ rfmain.totalquantity }})
+                                                        {{ rfmain.rfdate|date:"Y-m-d" }} |
+                                                        {{ rfmain.department.departmentname }} |
+                                                        {{ rfmain.get_urgencytype_display }} |
+                                                        Needed: {{ rfmain.dateneeded|date:"Y-m-d" }} |
+                                            </option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>

@@ -49,6 +49,7 @@ class Csmain(models.Model):
     designatedapprover = models.ForeignKey(User, default=2, related_name='csdesignated_approver')
     actualapprover = models.ForeignKey(User, related_name='csactual_approver', null=True, blank=True)
     quantity = models.IntegerField(default=0)
+    print_ctr = models.IntegerField(default=0)
 
     # nego vat
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

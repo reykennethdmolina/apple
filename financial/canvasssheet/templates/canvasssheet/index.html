@@ -33,9 +33,9 @@
                                     <td>{{ data.csdate }}</td>
                                     <td>{{ data.particulars }}</td>
                                     <td>{{ data.get_csstatus_display }}</td>
-                                    <td class="text-center">
+                                    <td style="width: 150px; padding-left: 30px">
                                         <div class="iconlist-wrap auto-0">
-                                            <div class="iconlist">
+                                            <div class="iconlist" style="text-align: left">
                                                 <a href="{% url 'canvasssheet:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
@@ -44,7 +44,7 @@
 {#                                                    <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>#}
 {#                                                </a>#}
 {#                                                {% endif %}#}
-                                                {% if perms.canvasssheet.delete_csmain and data.status != 'O' %}
+                                                {% if perms.canvasssheet.delete_csmain and data.status != 'O' and data.csstatus != 'A' %}
                                                 <a href="{% url 'canvasssheet:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>

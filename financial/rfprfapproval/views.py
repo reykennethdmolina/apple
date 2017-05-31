@@ -111,10 +111,10 @@ class IndexView(ListView):
 def approve(request):
 
     if request.method == 'POST':
-        print request.POST['main_id']
-        print request.POST['response']
-        print request.POST['main_type']
-        print request.POST['remarks']
+        # print request.POST['main_id']
+        # print request.POST['response']
+        # print request.POST['main_type']
+        # print request.POST['remarks']
 
         valid = True
 
@@ -135,7 +135,11 @@ def approve(request):
                 approve = Prfmain.objects.get(pk=request.POST['main_id'])
                 approve.prfstatus = request.POST['response']
             elif request.POST['response'] == 'D' and request.user.has_perm('purchaserequisitionform.can_disapproveprf'):
-                approve = Prfmain.objects.get(pk=request.POST['main_id'])
+
+                # exclude approved PRFs that already have dependent CSs (prfmain_id is used in csdata)
+                csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
+                approve = Prfmain.objects.filter(pk=request.POST['main_id'])\
+                    .exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True))).first()
                 approve.prfstatus = request.POST['response']
                 approve.status = 'C'
 
