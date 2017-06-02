@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
     <style>
         .select2-results__option[aria-selected] {
             font-size: 12px;
@@ -256,7 +257,14 @@
                                             <td style="width: 10px;">{{ prfdetailtemp.item_counter }}</td>
                                             <td>{{ prfdetailtemp.invitem_code }}</td>
                                             <td>{{ prfdetailtemp.invitem_name }}</td>
-                                            <td>{{ prfdetailtemp.remarks }}</td>
+                                            <td><div>
+                                                <div class="col-sm-11 row">
+                                                    <textarea class="form-control input-sm input-remarks" id="id_temp_remarks[{{ prfdetailtemp.item_counter }}]" name="temp_remarks" form="form-b">{{ prfdetailtemp.remarks }}</textarea>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <button class="btn showRemarks" data-toggle="modal" data-target="#remarksModal" data-itemno="{{ prfdetailtemp.item_counter }}">...</button>
+                                                </div>
+                                            </div></td>
                                             <td>{{ prfdetailtemp.rfdetail.rfmain.rfnum }}</td>
                                             {% load mathfilters %}
                                             <td><input type="number" name="temp_quantity" form="form-b" step="any" class="form-control input-sm temp_quantity" value="{{ prfdetailtemp.quantity }}" min="1" max="{{ prfdetailtemp.rfdetail.prfremainingquantity|addition:prfdetailtemp.quantity }}" {% if object.prfstatus == 'A' %} disabled="disabled" {% endif %}></td>
@@ -358,6 +366,27 @@
         </div>
     </div>
 </div>
+<div id="remarksModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> <span id="modal-header-title">Remarks</span></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="hidden" id="remarks_itemno">
+                    <textarea name="remarks" id="id_modal_remarks" class="form-control remarks-editor" rows="10"></textarea>
+                    <br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="save_remarks">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -366,7 +395,16 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $('.select2').select2({});
+        $(function(){
+           var i = 1;
+            $.each($('.input-remarks'), function() {
+                var editor = new wysihtml5.Editor("id_temp_remarks[" + i + "]");
+                i += 1;
+            });
+        });
     </script>
 {% endblock extra_js %}

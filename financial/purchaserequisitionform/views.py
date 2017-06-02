@@ -127,7 +127,7 @@ class CreateView(CreateView):
                 detail.department_code = department.code
                 detail.department_name = department.departmentname
                 detail.amount = 0
-                detail.remarks = dt.remarks
+                detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
                 detail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
                 detail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
                 detail.status = dt.status
@@ -347,7 +347,7 @@ class UpdateView(UpdateView):
                     alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
                     alldetail.department_code = department.code
                     alldetail.department_name = department.departmentname
-                    alldetail.remarks = atd.remarks
+                    alldetail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
                     alldetail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
                     alldetail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
                     alldetail.status = atd.status
@@ -576,6 +576,7 @@ def savedetailtemp(request):
             'prfdata': prfdata,
             'remarks': request.POST['remarks'],
             'currency': Currency.objects.get(pk=request.POST['currency']).symbol,
+            'itemno': request.POST['itemno'],
         }
     else:
         data = {

@@ -1,0 +1,103 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Accounts Payable {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_apnum">Number</label>
+                            <input type="text" class="form-control input-sm" placeholder="APxxxxxxx" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_apdate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_apdate" name="apdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.apdate.value|default:'' }}" readonly="readonly">
+                            <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.aptype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_aptype">AP Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_aptype" name="aptype">
+                            </select>
+                            <span class="help-block form-error">{{ form.aptype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_apstatus">AP Status</label>
+                            <input type="text" class="form-control input-sm" value="VERIFIED" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_payeecode">Payee Code</label>
+                            <input type="text" class="form-control input-sm" name="payeecode">
+                            <span class="help-block form-error">{{ form.payeecode.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.branch.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_branch">Branch</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                            </select>
+                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_vat">VAT</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                            </select>
+                            <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.ataxcode.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_ataxcode">ATC</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
+                            </select>
+                            <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_branchdisburse">Disbursing Branch</label>
+                            <input type="text" class="form-control input-sm" name="branchdisburse">
+                            <span class="help-block form-error">{{ form.branchdisburse.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_inputvattype">Input VAT Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
+                            </select>
+                            <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_terms">Terms</label>
+                            <input type="text" class="form-control input-sm" name="terms">
+                            <span class="help-block form-error">{{ form.terms.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_duedate">Due Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_duedate" name="duedate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.duedate.value|default:'' }}" readonly="readonly">
+                            <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_terms">Reference No.</label>
+                            <input type="text" class="form-control input-sm" name="refno">
+                            <span class="help-block form-error">{{ form.refno.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.deferred.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_deferred">Deferred (Y/N)</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_deferred" name="deferred">
+                                <option value="y">Yes</option>
+                                <option value="n">No</option>
+                            </select>
+                            <span class="help-block form-error">{{ form.deferred.errors.as_text }}</span>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label" for="id_particulars">Particulars</label>
+                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

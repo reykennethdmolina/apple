@@ -47,7 +47,7 @@
             <div class="col-md-12">
                 <label class="col-sm-3 control-label">Remarks</label>
                 <div class="col-sm-4">
-                    <textarea class="form-control input-sm" id="id_remarks" name="remarks"></textarea>
+                    <textarea class="form-control input-sm remarks-editor" id="id_remarks" name="remarks" rows="5"></textarea>
                     <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
                 </div>
             </div>
@@ -64,6 +64,16 @@
         filterItems();
         inventorytypeimportDisable();
         computeTotalRequestedQty();
+
+        $('.remarks-editor').wysihtml5({
+            "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
+            "emphasis": false, //Italics, bold, etc. Default true
+            "lists": false, //(Un)ordered lists, e.g. Bullets, Numbers. Default true
+            "html": false, //Button which allows you to edit the generated HTML. Default false
+            "link": false, //Button to insert a link. Default true
+            "image": false, //Button to insert an image. Default true,
+            "color": false //Button to change color of font
+        });
 
         $("#form-b").submit(function(event){
             if($('.remove_item').length == 0) {
@@ -101,7 +111,14 @@
                         summary.append("<tr><td style='width:10px'></td>" +
                                     "<td>" + response.prfdata[0] + "</td>" +
                                     "<td>" + response.prfdata[1] + "</td>" +
-                                    "<td>" + response.remarks + "</td>" +
+                                    "<td><div>" +
+                                        "<div class='col-sm-11 row'>" +
+                                            "<textarea class='form-control input-sm input-remarks' id='id_temp_remarks[" + $("#itemno").text() + "]' name='temp_remarks' form='form-b'>" + response.remarks + "</textarea>" +
+                                        "</div>" +
+                                        "<div class='col-sm-1'>" +
+                                            "<button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + $("#itemno").text() + "'>...</button>" +
+                                        "</div>" +
+                                    "</div></td>" +
                                     "<td align='right'> - </td>" +
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
@@ -133,14 +150,15 @@
 
                     $("#id_item_name").val('').trigger('change.select2');
                     $("#id_quantity").val('');
-                    $("#id_remarks").val('');
                     $("#id_department").val('');
+                    $('#id_remarks').data("wysihtml5").editor.setValue('');
 
                     reorderItems();
                     totalQuantity();
                     inventorytypeimportDisable();
                     computeFxRateAll();
                     computeTotalRequestedQty();
+                    callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -170,7 +188,14 @@
                             summary.append("<tr><td style='max-width:10px'></td>" +
                                         "<td>" + response.prfdata[i][0] + "</td>" +
                                         "<td>" + response.prfdata[i][1] + "</td>" +
-                                        "<td>" + response.prfdata[i][4] + "</td>" +
+                                        "<td><div>" +
+                                            "<div class='col-sm-11 row'>" +
+                                                "<textarea class='form-control input-sm input-remarks' id='id_temp_remarks[" + response.prfdata[i][8] + "]' name='temp_remarks' form='form-b'></textarea>" +
+                                            "</div>" +
+                                            "<div class='col-sm-1'>" +
+                                                "<button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.prfdata[i][8] + "'>...</button>" +
+                                            "</div>" +
+                                        "</div></td>" +
                                         "<td align='right'>" + response.prfdata[i][3] + "</td>" +
                                         "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' data-itemno='" + response.prfdata[i][8] + "' value='" + response.prfdata[i][10] + "' min='1' max='" + response.prfdata[i][10] + "'></td>" +
                                         "<td>" +
@@ -195,10 +220,11 @@
 
                             summary.find("tr").last().find("#id_temp_item_um option[value="+um_selected+"]").attr('selected','selected');
                             summary.find('tr').last().find('.temp_department').val(response.prfdata[i][11]);
+                            reorderItems();
+                            callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
                         }
                     }
 
-                    reorderItems();
                     totalQuantity();
                     inventorytypeimportDisable();
                     computeFxRateAll();
@@ -212,7 +238,23 @@
             });
         });
 
+        $(document).on("click", ".showRemarks", function(e){
+            $('#remarks_itemno').val($(this).data('itemno'));
+            $('#id_modal_remarks').data("wysihtml5").editor.setValue($(this).parent().siblings().find('.input-remarks').val());
+        });
+
+        $(document).on("click", "#save_remarks", function(e){
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').next().next().remove();
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').prev().remove();
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').css('display', 'block');
+            $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').val($('#id_modal_remarks').val());
+            callEventHandler($('#remarks_itemno').val());
+            $('#remarksModal').modal('hide');
+        });
+
         $(document).on('click', '.remove_item', function(){
+            if (!confirm('Remove item(s) from list?')) return false;
+
             $('.shade').fadeIn();
             var elem = $(this);
 
@@ -287,6 +329,10 @@
             computeTotalRequestedQty();
         });
 
+        function callEventHandler(i){
+            var editor = new wysihtml5.Editor("id_temp_remarks["+i+"]");
+        }
+
         function computeFxRateAll(){
             $('.temp_item_currency').each(function(){
                 if(parseFloat($(this).parent().parent().find('.temp_fxrate').val()) == parseFloat(0.00000)){
@@ -313,6 +359,8 @@
             for(i=0;i<len;i++){
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
             }
+            //change id index of id_temp_remarks[]
+            jQuery($('.input-remarks:eq(' + i + ')')).attr('id', 'id_temp_remarks[' + (i + 1) + ']')
         }
 
         function totalQuantity(){
