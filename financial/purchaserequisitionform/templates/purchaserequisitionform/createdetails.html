@@ -248,6 +248,7 @@
             $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').prev().remove();
             $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').css('display', 'block');
             $(".remove_item[data-itemno='" + $('#remarks_itemno').val() +"']").parent().parent().find('.input-remarks').val($('#id_modal_remarks').val());
+            console.log($('#remarks_itemno').val())
             callEventHandler($('#remarks_itemno').val());
             $('#remarksModal').modal('hide');
         });
@@ -360,6 +361,7 @@
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
             }
             //change id index of id_temp_remarks[]
+            console.log(i)
             jQuery($('.input-remarks:eq(' + i + ')')).attr('id', 'id_temp_remarks[' + (i + 1) + ']')
         }
 

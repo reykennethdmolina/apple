@@ -642,8 +642,8 @@ def updateTransaction(pk, status):
                     data.uc_vatamount = csdetail.uc_vatamount
                     data.uc_netamount = csdetail.uc_netamount
 
-                    data.csmain = Csmain.objects.get(pk=csdata.csmain.pk)
-                    data.csdetail = Csdetail.objects.get(pk=csdetail.pk)
+                    data.csmain = Csmain.objects.get(pk=csdata.csmain.pk).pk
+                    data.csdetail = Csdetail.objects.get(pk=csdetail.pk).pk
                     data.csnum = csdata.csmain.csnum
                     data.csdate = csdata.csmain.csdate
 

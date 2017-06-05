@@ -58,6 +58,16 @@
         {% endfor %}
         unitofmeasure_list += "</select>";
 
+        $('.remarks-editor').wysihtml5({
+            "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
+            "emphasis": false, //Italics, bold, etc. Default true
+            "lists": false, //(Un)ordered lists, e.g. Bullets, Numbers. Default true
+            "html": false, //Button which allows you to edit the generated HTML. Default false
+            "link": false, //Button to insert a link. Default true
+            "image": false, //Button to insert an image. Default true,
+            "color": false //Button to change color of font
+        });
+
         separateRadio();
 
         $("#btn_detailclose").click(function(){
@@ -108,7 +118,7 @@
                         while(current_container_next.next().not('.item_container').length == 1){
                             current_container_next = current_container_next.next();
                         }
-                        current_container_next.after("<tr><td><input type='radio' name='supplier' class='radio radio-custom supplier' " + status_checked + " data-itemdetailkey='" + current_container.data('itemdetailkey') + "' data-item='" + current_container.attr('id') + "' data-supplier='" + response.supplierid + "' form='" + current_container.attr('form') + "'></td>" +
+                        current_container_next.after("<tr><td><input type='radio' name='supplier' class='radio radio-custom supplier' " + status_checked + " data-itemdetailkey='" + current_container.data('itemdetailkey') + "' data-item='" + current_container.attr('id') + "' data-supplier='" + response.supplierid + "' form='" + current_container.data('form') + "'></td>" +
                                                 "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.suppliername + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'> - </td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + 0 + "'></td> " +
@@ -209,8 +219,13 @@
                                         "<td class='small item_etd text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
                                             "<input type='text' class='form-control input-sm item_etd_input datepicker date-yyyymmdd' placeholder='YYYY-MM-DD' readOnly='readOnly' style='margin:auto;' data-item='" + response.item + "'>" +
                                         "</td>" +
-                                        "<td class='small item_remarks text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                            "<input type='text' class='form-control input-sm item_remarks_input' style='margin:auto;' data-item='" + response.item + "'>" +
+                                        "<td class='small item_remarks' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                            "<div class='col-sm-11 row'>" +
+                                                "<textarea class='form-control input-sm input-remarks item_remarks_input' id='id_temp_remarks[" + response.item + "]' style='margin:auto;' data-item='" + response.item + "'></textarea>" +
+                                            "</div>" +
+                                            "<div class='col-sm-1'>" +
+                                                "<button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.item + "'>...</button>" +
+                                            "</div>" +
                                         "</td>" +
                                         "<td class='small' rowspan='" + temp_supplier_length + "'><b> - </b></td>" +
                                         "</tr>");
@@ -248,6 +263,7 @@
                         separateRadio();
                         computeVatItem();
                         reorderItems();
+                        callEventHandler(i);
                         $('.shade').fadeOut();
                     }
                     , error: function(response) {
@@ -301,8 +317,13 @@
                                     "<td class='small item_etd text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
                                         "<input type='text' class='form-control input-sm item_etd_input datepicker date-yyyymmdd' placeholder='YYYY-MM-DD' readOnly='readOnly' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'>" +
                                     "</td>" +
-                                    "<td class='small item_remarks text-center' rowspan='" + temp_supplier_length + "' align='center'>" +
-                                        "<input type='text' class='form-control input-sm item_remarks_input' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'>" +
+                                    "<td class='small item_remarks' rowspan='" + temp_supplier_length + "' align='center'>" +
+                                        "<div class='col-sm-11 row'>" +
+                                        "<textarea class='form-control input-sm input-remarks item_remarks_input' id='id_temp_remarks[" + response.prfdetail[i][4] + "]' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'></textarea>" +
+                                        "</div>" +
+                                        "<div class='col-sm-1'>" +
+                                            "<button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.prfdetail[i][4] + "'>...</button>" +
+                                        "</div>" +
                                     "</td>" +
                                     "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][9] + "</td>" +
                                     "</tr>");
@@ -332,12 +353,14 @@
                             }
                             addTempForm();
                             addSupplierManual();
+
+                            reorderItems();
+                            callEventHandler(parseInt($('.item_container').last().index('.item_container'))+1);
                         }
                     }
                     autoSelectItemPrfVal();
                     separateRadio();
                     computeVatItem();
-                    reorderItems();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -345,6 +368,21 @@
                     $('.shade').fadeOut();
                 }
             });
+        });
+
+        $(document).on("click", ".showRemarks", function(e){
+            $('#remarks_itemno').val(parseInt($(this).closest('.item_container').index('.item_container'))+1);
+            $('#id_modal_remarks').data("wysihtml5").editor.setValue($(this).parent().siblings().find('.input-remarks').val());
+        });
+
+        $(document).on("click", "#save_remarks", function(e){
+            remarks_itemcount = parseInt($('#remarks_itemno').val()) - 1
+            $('.input-remarks:eq('+ remarks_itemcount +')').next().next().remove();
+            $('.input-remarks:eq('+ remarks_itemcount +')').prev().remove();
+            $('.input-remarks:eq('+ remarks_itemcount +')').css('display', 'block');
+            $('.input-remarks:eq('+ remarks_itemcount +')').val($('#id_modal_remarks').val());
+            callEventHandler($('#remarks_itemno').val());
+            $('#remarksModal').modal('hide');
         });
 
         $("#importrfselect2").change(function(){
@@ -460,6 +498,10 @@
             });
         });
 
+        function callEventHandler(i){
+            var editor = new wysihtml5.Editor("id_temp_remarks["+i+"]");
+        }
+
         function autoSelectItemPrfVal(){
             $('.imported_prf').each(function(){
                 sel_department = $(this).find('.item_department_input').parent().data('department');
@@ -537,7 +579,6 @@
 
             // get item detail key
             $('.itemdetailkey').each(function(index){
-                console.log($(this).val())
                 arr_item_detail_key.push($(this).val());
             });
 
@@ -602,6 +643,9 @@
                    $(this).removeClass('danger');
                }
             });
+
+            //change id index of id_temp_remarks[]
+            jQuery($('.input-remarks:eq(' + (i-1) + ')')).attr('id', 'id_temp_remarks[' + (i) + ']')
         }
 
         function filterSupplier(item, supplier){
