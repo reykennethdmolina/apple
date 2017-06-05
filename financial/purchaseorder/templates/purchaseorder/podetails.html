@@ -20,7 +20,7 @@
                 </div><br><br><br>
                 <label class="col-sm-offset-2 col-sm-1 control-label" for="id_qty">Quantity</label>
                 <div class="col-sm-3">
-                    <input type="number" class="form-control input-sm text-right" id="id_qty" name="qty">
+                    <input type="number" class="form-control input-sm text-right" id="id_qty" name="qty" min="1">
                     <span class="help-block form-error">{{ form.quantity.errors.as_text }}</span>
                 </div>
                 <label class="col-sm-1 control-label" for="id_unitcost">Cost</label>
@@ -74,7 +74,7 @@
             <div class="col-md-12 row" style="display: none;" id="fixedasset">
                 <label class="col-sm-offset-2 col-sm-1 control-label" for="id_employee">Employee</label>
                 <div class="col-sm-7">
-                    <select class="form-control input-sm select2" required style="width: 100%" id="id_employee" name="employee">
+                    <select class="form-control input-sm select2" style="width: 100%" id="id_employee" name="employee">
                         <option value="">-- Select Employee --</option>
                         {% for employee in employee %}
                             <option value="{{ employee.id }}">
@@ -139,7 +139,7 @@
         department_list += "</select>";
 
         //employee list
-        employee_list = "<select name='temp_employee' form='form-b' id='id_temp_employee' class='form-control input-sm tblSelectEmployee' required style='width: 100%'>";
+        employee_list = "<select name='temp_employee' form='form-b' id='id_temp_employee' class='form-control input-sm tblSelectEmployee' style='width: 100%'>";
         {% for data in employee %}
             employee_list += "<option value='{{ data.id }}'>{{ data.code }} | {{ data.lastname }}, {{ data.firstname }}</option>";
         {% endfor %}
@@ -256,7 +256,7 @@
                                 "<td class='tblExpirationDate'>" +
                                     "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +
                                     "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +
-                                    "name='temp_expirationdate' readonly='readonly' value='" + $('#id_expirationdate').val() + "'>" +
+                                    "name='temp_expirationdate' readonly='readonly'  form='form-b' value='" + $('#id_expirationdate').val() + "'>" +
                                 "</td>" +
                                 "<td class='tblEmployee'>" + employee_list + "</td>" +
                                 "<td class='tblSerialNum'>" +
@@ -274,7 +274,7 @@
                                 "</td>" +
                                 "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                 "<td class='tblQuantity'>" +
-                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' value='" + qty + "'>" +
+                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' min='1' value='" + qty + "'>" +
                                 "</td>" +
                                 "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                 "<td class='col_discount tblDiscount'>" +
@@ -440,6 +440,7 @@
                     $('.datepicker.week').datepicker('setStartDate', d);
 
                     $(this).find('.tblSelectEmployee').find('option').remove();
+                    $(this).find('.tblSelectEmployee').html('<option value=""></option>');
                     $(this).find('.tblSelectEmployee').css('background-color', '#eee');
                     $(this).find('.tblInputSerialNum').prop('readonly', true);
                     $(this).find('.tblInputAssetNum').prop('readonly', true);
@@ -460,6 +461,7 @@
                     $(this).find('.tblInputExpirationDate').removeClass('hasDatepicker').removeAttr('id');
                     $(this).find('.tblInputExpirationDate').css('background-color', '#eee');
                     $(this).find('.tblSelectEmployee').find('option').remove();
+                    $(this).find('.tblSelectEmployee').html('<option value=""></option>');
                     $(this).find('.tblSelectEmployee').css('background-color', '#eee');
                     $(this).find('.tblInputSerialNum').prop('readonly', true);
                     $(this).find('.tblInputAssetNum').prop('readonly', true);
@@ -476,7 +478,8 @@
                 type: "post",
                 data: {'podetailid': $(this).data('podetailid'),
                         'secretkey': $("#secretkey").val(),
-                        'ponum': $("#id_ponum").val()
+                        'ponum': $("#id_ponum").val(),
+                        'prfmainid': $(this).attr('data-prfmainid') ? $(this).data('prfmainid') : ''
                 },
                 success: function(response) {
                     elem.parent().parent().remove();
@@ -485,6 +488,9 @@
                         $('#id_supplier').find('option').prop("disabled",false);
                         $('#id_supplier').select2("destroy");
                         $('#id_supplier').select2();
+                    }
+                    if(response.podatadeleted == 'true'){
+                        $(".removeprf[data-prf='" + response.prfnum + "'").parent().remove();
                     }
                     $('.shade').fadeOut();
                 }
@@ -599,13 +605,15 @@
                             var checked = response.prfdetail[i][34] == null ? "checked='checked'" :
                                     response.prfdetail[i][34] == $('#id_supplier').val() ? "checked='checked'" : "";
                             importPRFPreview.append("<tr class='small prfTblItemContainer'>" +
-                                "<td><input type='checkbox' class='checkItem' data-prfdetailid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
+                                "<td class='prfTblItemCheck'><input type='checkbox' class='checkItem' data-prfdetailid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
                                 "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
                                 "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
                                 "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][6] + "</td>" +
                                 "<td style='text-align: right' class='text-center prfTblAmount'>" + response.prfdetail[i][14] + "</td>" +
                                 "<td style='text-align: left' class='text-center prfTblProposedSupplier'>" + supplier + "</td>" +
                             "</tr>");
+
+                            filterPrfCheckboxItems();
                         }
                         $('#importconfirm').prop('disabled', true);
                         $('.checkItem').each(function() {
@@ -622,9 +630,37 @@
                 });
             }
             else{
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
                 $('#importconfirm').prop('disabled', true);
             }
         });
+
+        function filterPrfCheckboxItems(){
+            $('.remove_item').each(function(){
+                if($(this).data('prfdetailid') == $('.checkItem').last().data('prfdetailid')){
+                    $('.checkItem').last().remove();
+                    $('.prfTblItemCheck').last().html("<i class='icon fa-check' style='color: #2c9079' aria-hidden='true'></i>");
+                }
+            });
+            if($('.checkItem').length == 0){
+                $('#importconfirm').prop('disabled', true);
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
+                $('.prfTblCheckUncheckAll').html("<i id='iconChecked' class='icon fa-check' style='color: #2c9079' aria-hidden='true'></i>");
+            }
+            else    {
+                $('#importconfirm').prop('disabled', false);
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
+                $('.prfTblCheckUncheckAll').html('<input type="checkbox" id="checkUncheckAll">');
+                if ($('.checkItem:checked').length == $('.checkItem').length)
+                    $('#checkUncheckAll').prop('checked', true);
+                else
+                    $('#checkUncheckAll').prop('checked', false);
+            }
+
+        }
 
         $(document).on('change', '.checkItem', function(){
             $('#importconfirm').prop('disabled', true);
@@ -633,6 +669,17 @@
                     $('#importconfirm').prop('disabled', false);
                 }
             });
+            if ($('.checkItem:checked').length == $('.checkItem').length)
+                $('#checkUncheckAll').prop('checked', true);
+            else
+                $('#checkUncheckAll').prop('checked', false);
+        });
+
+        $(document).on('change', '#checkUncheckAll', function(){
+            if($('#checkUncheckAll').is(':checked'))
+                $('.checkItem').prop('checked', true);
+            else
+                $('.checkItem').prop('checked', false);
         });
 
         $('#importconfirm').click(function(){
@@ -654,100 +701,121 @@
                     url: "{% url 'purchaseorder:saveimporteddetailtemp' %}",
                     type: "post",
                     data: data,
-
                     success: function(response) {
-                        for(var i=0; i<response.podetail.length; i++) {
-                            var unitCost = parseFloat(response.podetail[i][9]);
-                            var vat = parseFloat(response.podetail[i][10]) / 100;
-                            var vatCode = response.podetail[i][11];
-                            var qty = response.podetail[i][12];
-                            var discountType = "rate";
-                            var discountRate = 0;
-                            var discountAmount = 0;
-                            var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);
-
-                            $("#itemno").text(parseInt($("#itemno").text()) + 1);
-
-                            summary.append("<tr class='small tblItemContainer'>" +
-                                "<td class='text-center tblItemCounter'></td>" +
-                                "<td class='tblItemCode' data-type='" + response.podetail[i][1] + "'>" +
-                                    "<span style='cursor:pointer;font-size:15px;' class='remove_item' data-itemno='" + parseInt($("#itemno").text()) + 1 +
-                                    "' data-itemid='" + response.podetail[i][2] + "' data-podetailid='" + response.podetail[i][0] + "'>" +
-                                        "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
-                                    "</span> &nbsp;&nbsp;" + response.podetail[i][3] +
-                                "</td>" +
-                                "<td class='tblItemName'>" + response.podetail[i][4] + "</td>" +
-                                "<td class='tblRemarks'>" +
-                                    "<input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
-                                    "input-sm tblInputRemarks'>" +
-                                "</td>" +
-                                "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
-                                "<td class='text-center tblPRFNumber'>" + response.podetail[i][5] + "</td>" +
-                                "<td class='tblBranch'>" + branch_list + "</td>" +
-                                "<td class='tblDepartment'>" + department_list + "</td>" +
-                                "<td class='tblExpirationDate'>" +
-                                    "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +
-                                    "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +
-                                    "name='temp_expirationdate' readonly='readonly'>" +
-                                "</td>" +
-                                "<td class='tblEmployee'>" + employee_list + "</td>" +
-                                "<td class='tblSerialNum'>" +
-                                    "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +
-                                    "input-sm tblInputSerialNum'>" +
-                                "</td>" +
-                                "<td class='tblAssetNum'>" +
-                                    "<input type='text' name='temp_assetnum' form='form-b' step='any' class='form-control " +
-                                    "input-sm tblInputAssetNum'>" +
-                                "</td>" +
-                                "<td class='tblUnitCost'>" +
-                                    "<input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
-                                    "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' " +
-                                    "value='" + unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'>" +
-                                "</td>" +
-                                "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='tblQuantity'>" +
-                                    "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' value='" + qty + "'>" +
-                                "</td>" +
-                                "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='col_discount tblDiscount'>" +
-                                    "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +
-                                    "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' maxlength='26' form='form-b'>" +
-                                "</td>" +
-                                "<td class='col_discount_type tblDiscountType'>" +
-                                    "<select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +
-                                        "<option value='rate'>%</option>" +
-                                        "<option value='amount'>(amt)</option>" +
-                                    "</select>" +
-                                "</td>" +
-                                "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
-                            "</tr>");
-
-                            initMaskMoney('po_dynamic');
-
-                            summary.find("tr").last().find("#id_temp_item_um option[value=" + response.podetail[i][6] + "]").attr('selected','selected');
-                            summary.find("tr").last().find("#id_temp_branch option[value=" + response.podetail[i][7] + "]").attr('selected','selected');
-                            summary.find("tr").last().find("#id_temp_department option[value=" + response.podetail[i][8] + "]").attr('selected','selected');
-                            summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]").attr('selected','selected');
-
-                            if(discountType == "rate"){
-                                summary.find("tr").last().find(".temp_discount_rate").val(discountRate);
-                            }
-                            else{
-                                summary.find("tr").last().find(".temp_discount_amount").val(discountAmount.toFixed(2).
-                                        replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                        if(response.prfdata != "[]") {
+                            var prfDoesNotExist = true;
+                            $("#prfcontainer").find('.removeprf').each(function(){
+                               if($(this).data('prf') == response.prfdata[0]){
+                                   prfDoesNotExist = false;
+                                   return prfDoesNotExist;
+                               }
+                            });
+                            if(prfDoesNotExist){
+                                $("#prfcontainer").append("<div class='widgett widgett-article widgett-shadow small'>" +
+                                    "<div class='widgett-header cover padding-0 bg-grey-600'>" +
+                                    "<div class='background-cover padding-10' style='color: white;'>PRF - " +
+                                    response.prfdata[0] +
+                                    "<button type='button' class='close removeprf' data-prf='" + response.prfdata[0] + "'>" +
+                                    "<i class='icon fa-close' aria-hidden='true'></i>" +
+                                    "</button>" +
+                                    "</div></div></div>");
                             }
 
-                            filterDiscount();
-                            filterExtraFields();
-                            reorderItems();
-                            computeTotalAmounts();
+                            for (var i = 0; i < response.podetail.length; i++) {
+                                var unitCost = parseFloat(response.podetail[i][9]);
+                                var vat = parseFloat(response.podetail[i][10]) / 100;
+                                var vatCode = response.podetail[i][11];
+                                var qty = response.podetail[i][12];
+                                var discountType = "rate";
+                                var discountRate = 0;
+                                var discountAmount = 0;
+                                var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);
+
+                                $("#itemno").text(parseInt($("#itemno").text()) + 1);
+
+                                summary.append("<tr class='small tblItemContainer'>" +
+                                        "<td class='text-center tblItemCounter'></td>" +
+                                        "<td class='tblItemCode' data-type='" + response.podetail[i][1] + "'>" +
+                                            "<span style='cursor:pointer;font-size:15px;' class='remove_item' data-itemno='" + parseInt($("#itemno").text()) + 1 +
+                                            "' data-itemid='" + response.podetail[i][2] + "' data-podetailid='" + response.podetail[i][0] + "' data-prfmainid='" +
+                                            response.podetail[i][13] + "' data-prfdetailid='" + response.podetail[i][14] + "'>" +
+                                                "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
+                                            "</span> &nbsp;&nbsp;" + response.podetail[i][3] +
+                                        "</td>" +
+                                        "<td class='tblItemName'>" + response.podetail[i][4] + "</td>" +
+                                        "<td class='tblRemarks'>" +
+                                            "<input type='text' name='temp_remarks' form='form-b' step='any' class='form-control " +
+                                            "input-sm tblInputRemarks'>" +
+                                        "</td>" +
+                                        "<td class='tblUnitOfMeasure'>" + unitofmeasure_list + "</td>" +
+                                        "<td class='text-center tblPRFNumber'>" + response.podetail[i][5] + "</td>" +
+                                        "<td class='tblBranch'>" + branch_list + "</td>" +
+                                        "<td class='tblDepartment'>" + department_list + "</td>" +
+                                        "<td class='tblExpirationDate'>" +
+                                            "<input type='text' class='form-control input-sm tblInputExpirationDate date-yyyymmdd " +
+                                            "datepicker week' style='width: 100%' id='id_temp_expirationdate' " +
+                                            "name='temp_expirationdate' readonly='readonly' form='form-b'>" +
+                                        "</td>" +
+                                        "<td class='tblEmployee'>" + employee_list + "</td>" +
+                                        "<td class='tblSerialNum'>" +
+                                            "<input type='text' name='temp_serialnum' form='form-b' step='any' class='form-control " +
+                                            "input-sm tblInputSerialNum'>" +
+                                        "</td>" +
+                                        "<td class='tblAssetNum'>" +
+                                            "<input type='text' name='temp_assetnum' form='form-b' step='any' class='form-control " +
+                                            "input-sm tblInputAssetNum'>" +
+                                        "</td>" +
+                                        "<td class='tblUnitCost'>" +
+                                            "<input type='text' name='temp_unitcost' form='form-b' step='any' class='form-control " +
+                                            "tblInputUnitCost input-sm amount text-right po_dynamic' maxlength='26' " +
+                                            "value='" + unitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "'>" +
+                                        "</td>" +
+                                        "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='tblQuantity'>" +
+                                            "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' min='1' max='" + response.podetail[i][15] + "' value='" + qty + "'>" +
+                                        "</td>" +
+                                        "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='col_discount tblDiscount'>" +
+                                            "<input name='temp_discountrate' class='temp_discount_rate form-control input-sm rate text-right tblInputDiscountRate' maxlength='2' form='form-b'>" +
+                                            "<input name='temp_discountamount' class='temp_discount_amount form-control input-sm amount text-right tblInputDiscountAmount po_dynamic' maxlength='26' form='form-b'>" +
+                                        "</td>" +
+                                        "<td class='col_discount_type tblDiscountType'>" +
+                                            "<select name='temp_discounttype' class='temp_discount_type form-control input-sm tblSelectDiscountType' form='form-b'>" +
+                                                "<option value='rate'>%</option>" +
+                                                "<option value='amount'>(amt)</option>" +
+                                            "</select>" +
+                                        "</td>" +
+                                        "<td class='text-right tblDiscountAmount'>" + computedValues.discountAmt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblVatable'>" + computedValues.vatable.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblVatExempt'>" + computedValues.vatExempt.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
+                                        "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
+                                        "</tr>");
+
+                                initMaskMoney('po_dynamic');
+
+                                summary.find("tr").last().find("#id_temp_item_um option[value=" + response.podetail[i][6] + "]").attr('selected', 'selected');
+                                summary.find("tr").last().find("#id_temp_branch option[value=" + response.podetail[i][7] + "]").attr('selected', 'selected');
+                                summary.find("tr").last().find("#id_temp_department option[value=" + response.podetail[i][8] + "]").attr('selected', 'selected');
+                                summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]").attr('selected', 'selected');
+
+                                if (discountType == "rate") {
+                                    summary.find("tr").last().find(".temp_discount_rate").val(discountRate);
+                                }
+                                else {
+                                    summary.find("tr").last().find(".temp_discount_amount").val(discountAmount.toFixed(2).
+                                            replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                                }
+
+                                filterDiscount();
+                                filterExtraFields();
+                                reorderItems();
+                                computeTotalAmounts();
+                            }
                         }
+
                         $('#id_supplier option:selected').siblings().prop("disabled", true);
                         $('#id_supplier').select2("destroy");
                         $('#id_supplier').select2();
@@ -775,5 +843,36 @@
                 });
             }
         });
+
+        $(document).on('click', '.removeprf', function(){
+            if (confirm('Are you sure you want to remove this PRF? All its items in the table will also be deleted.')) {
+                $('.shade').fadeIn();
+                var e = $(this);
+
+                $.ajax({
+                    url: "{% url 'purchaseorder:deleteimportedprf' %}",
+                    type: "post",
+                    data: {'prfnum': $(this).data('prf'),
+                            'secretkey': $("#secretkey").val()
+                    },
+
+                    success: function(response) {
+                        $('.remove_item').each(function(){
+                            if($(this).data('prfmainid') == response.prfmainid){
+                                $(this).parent().parent().remove();
+                            }
+                        });
+                        reorderItems();
+                        e.parent().remove();
+                        $('.shade').fadeOut();
+                    }
+                    , error: function(response) {
+                        console.debug(response);
+                        $('.shade').fadeOut();
+                    }
+                });
+            }
+        });
+
     });
 </script>

@@ -266,9 +266,9 @@
                             </div>
                             <div class="form-group col-sm-12">
                                 <br>
-                                <label class="control-label small" for="id_podate">Delivery Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" readonly="readonly" value="{{ form.dateneeded.value|default:'' }}">
-                                <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
+                                <label class="control-label small" for="id_deliverydate">Delivery Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_deliverydate" name="deliverydate" placeholder="YYYY-MM-DD" readonly="readonly" value="{{ form.deliverydate.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.deliverydate.errors.as_text }}</span>
                             </div>
                         </div>
 
@@ -346,36 +346,37 @@
                             <h4 class="modal-title">Select Purchase Requisition Form</h4>
                         </div>
                         <div class="modal-body">
-                            <p>
-                                <select name="" id="importprfselect2" class="form-control input-sm select2" style="width: 100%;">
-                                    <option value="">-- Select --</option>
-                                    {% for prfmain in prfmain %}
-                                        <option value="{{ prfmain.id }}"
-                                            data-refnum="{{ prfmain.prfnum }}"
-                                            data-urgency="{{ prfmain.get_urgencytype_display }}"
-                                            data-dateneeded="{{ prfmain.dateneeded }}"
-                                            data-approver="{{ prfmain.actualapprover }}">
-                                                {{ prfmain.prfnum }} | {{ prfmain.prfdate }} | {{ prfmain.get_urgencytype_display }} | Date needed: {{ prfmain.dateneeded }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                <br><br>
-                                <table class="col-md-12 table-bordered" id="importprfpreview">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align: center; min-width: 20px"></th>
-                                            <th style="text-align: center"><small><b>Code</b></small></th>
-                                            <th style="text-align: center"><small><b>Name</b></small></th>
-                                            <th style="text-align: center"><small><b>Quantity</b></small></th>
-                                            <th style="text-align: center"><small><b>Amount</b></small></th>
-                                            <th style="text-align: center"><small><b>Proposed Supplier</b></small></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                                <br><br>
-                            </p>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <select name="" id="importprfselect2" class="form-control input-sm select2" style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        {% for prfmain in prfmain %}
+                                            <option value="{{ prfmain.id }}"
+                                                data-refnum="{{ prfmain.prfnum }}"
+                                                data-urgency="{{ prfmain.get_urgencytype_display }}"
+                                                data-dateneeded="{{ prfmain.dateneeded }}"
+                                                data-approver="{{ prfmain.actualapprover }}">
+                                                    {{ prfmain.prfnum }} | {{ prfmain.prfdate }} | {{ prfmain.get_urgencytype_display }} | Date needed: {{ prfmain.dateneeded }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <br><br>
+                                    <table class="table table-bordered" id="importprfpreview">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center; min-width: 20px" class="prfTblCheckUncheckAll"></th>
+                                                <th style="text-align: center"><small><b>Code</b></small></th>
+                                                <th style="text-align: center"><small><b>Name</b></small></th>
+                                                <th style="text-align: center"><small><b>Quantity</b></small></th>
+                                                <th style="text-align: center"><small><b>Amount</b></small></th>
+                                                <th style="text-align: center"><small><b>Proposed Supplier</b></small></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info" id="importconfirm" data-dismiss="modal" disabled="disabled">Confirm</button>
@@ -394,6 +395,25 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $("#form-b").submit(function(event){
+                if($('.tblInputQuantity').length == 0) {
+                    alert("Please add at least one item.");
+                    event.preventDefault();
+                }
+                $('.tblInputQuantity').each(function(){
+                    if($(this).val() == '0' || $(this).val() == ''){
+                        alert("Null or zero quantity is not allowed.");
+                        event.preventDefault();
+                    }
+                });
+                $('.tblInputUnitCost').each(function(){
+                    if($(this).val() == '0.00' || $(this).val() == ''){
+                        alert("Please complete the unit costs of all items.");
+                        event.preventDefault();
+                    }
+                });
+            });
+
             enableDisableButtons();
 
             if($("#id_postatus option:selected").text() == "For Approval")
@@ -427,6 +447,8 @@
             $("#importbutton").click(function(){
                 $('#importprfpreview tbody').empty();
                 $("#importprfselect2").val('').trigger('change.select2');
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
             });
 
             function displaySupplierData(){

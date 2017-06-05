@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
+from django.db.models import Q, F
 from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata
 from purchaserequisitionform.models import Prfmain, Prfdetail
@@ -59,7 +59,8 @@ class CreateView(CreateView):
     model = Pomain
     template_name = 'purchaseorder/create2.html'
     fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus', 'supplier', 'inputvattype',
-              'deferredvat', 'creditterm', 'particulars']
+              'deferredvat', 'creditterm', 'particulars', 'creditterm', 'vat', 'atc', 'currency', 'deliverydate',
+              'designatedapprover', 'wtax']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('purchaseorder.add_pomain'):
@@ -116,8 +117,11 @@ class CreateView(CreateView):
             self.object.supplier_name = Supplier.objects.get(pk=self.request.POST['supplier']).name
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user
-            self.object.vat = Vat.objects.get(pk=Supplier.objects.get(pk=self.request.POST['supplier']).vat.pk)
-            self.object.vatrate = Vat.objects.get(pk=Supplier.objects.get(pk=self.request.POST['supplier']).vat.pk).rate
+            self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+            self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
+            self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
+            self.object.totalquantity = 0
             self.object.save()
 
             detailtemp = Podetailtemp.objects.filter(secretkey=self.request.POST['secretkey'],
@@ -125,61 +129,101 @@ class CreateView(CreateView):
                                                      status='A').order_by('enterdate')
 
             i = 1
+            pomain_totalamount = 0
             for dt in detailtemp:
-                detail = Podetail()
-                detail.item_counter = i
-                detail.pomain = Pomain.objects.get(ponum=ponum)
-                detail.invitem = dt.invitem
-                detail.invitem_code = dt.invitem_code
-                detail.invitem_name = dt.invitem_name
-                detail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.getlist('temp_item_um')[i - 1],
-                                                                 isdeleted=0,
-                                                                 status='A')
-                detail.invitem_unitofmeasure = Unitofmeasure.objects.get(
-                    pk=self.request.POST.getlist('temp_item_um')[i - 1],
-                    isdeleted=0,
-                    status='A').code
-                detail.quantity = self.request.POST.getlist('temp_quantity')[i - 1]
-                detail.unitcost = self.request.POST.getlist('temp_unitcost')[i - 1]
-                detail.discountrate = self.request.POST.getlist('temp_discountrate')[i - 1] if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else 0
-                detail.remarks = self.request.POST.getlist('temp_remarks')[i - 1]
-                detail.status = dt.status
-                detail.enterdate = dt.enterdate
-                detail.modifydate = dt.modifydate
-                detail.postdate = dt.postdate
-                detail.isdeleted = dt.isdeleted
-                detail.branch = dt.branch
-                detail.department = dt.department
-                detail.enterby = dt.enterby
-                detail.modifyby = dt.modifyby
-                detail.postby = dt.postby
-                detail.vat = dt.vat
-                detail.vatrate = dt.vatrate
-                detail.currency = dt.currency
+                if dt.prfdetail is None or self.request.POST.getlist('temp_quantity')[i - 1] <= dt.prfdetail.\
+                        poremainingquantity:
+                    detail = Podetail()
+                    detail.item_counter = i
+                    detail.pomain = Pomain.objects.get(ponum=ponum)
+                    detail.invitem = dt.invitem
+                    detail.invitem_code = dt.invitem_code
+                    detail.invitem_name = dt.invitem_name
+                    detail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.
+                                                                     getlist('temp_item_um')[i - 1], isdeleted=0,
+                                                                     status='A')
+                    detail.invitem_unitofmeasure = Unitofmeasure.objects.get(
+                        pk=self.request.POST.getlist('temp_item_um')[i - 1],
+                        isdeleted=0,
+                        status='A').code
+                    detail.quantity = self.request.POST.getlist('temp_quantity')[i - 1]
+                    detail.unitcost = self.request.POST.getlist('temp_unitcost')[i - 1]
+                    detail.discountrate = self.request.POST.getlist('temp_discountrate')[i - 1] if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else 0
+                    detail.remarks = self.request.POST.getlist('temp_remarks')[i - 1]
+                    detail.status = dt.status
+                    detail.enterdate = dt.enterdate
+                    detail.modifydate = dt.modifydate
+                    detail.postdate = dt.postdate
+                    detail.isdeleted = dt.isdeleted
+                    detail.branch = Branch.objects.get(pk=self.request.POST.getlist('temp_branch')[i - 1], isdeleted=0,
+                                                       status='A')
+                    detail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i - 1],
+                                                               isdeleted=0)
+                    detail.department_code = detail.department.code
+                    detail.department_name = detail.department.departmentname
+                    detail.enterby = dt.enterby
+                    detail.modifyby = dt.modifyby
+                    detail.postby = dt.postby
+                    detail.vat = Vat.objects.get(pk=self.request.POST['vat'], isdeleted=0, status='A')
+                    detail.vatrate = detail.vat.rate
+                    detail.currency = dt.currency
 
-                grossUnitCost = float(detail.unitcost) / (1 + (float(detail.vatrate) / 100))
-                detail.grossamount = grossUnitCost * float(detail.quantity)
-                detail.discountamount = detail.grossamount * float(detail.discountrate) / 100 if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(self.request.POST.getlist('temp_discountamount')[i - 1])
-                discountedAmount = detail.grossamount - detail.discountamount
-                detail.vatamount = discountedAmount * (float(detail.vatrate) / 100)
-                detail.netamount = discountedAmount + detail.vatamount
+                    grossUnitCost = float(detail.unitcost) / (1 + (float(detail.vatrate) / 100))
+                    detail.grossamount = grossUnitCost * float(detail.quantity)
+                    detail.discountamount = detail.grossamount * float(detail.discountrate) / 100 if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(self.request.POST.getlist('temp_discountamount')[i - 1])
+                    discountedAmount = detail.grossamount - detail.discountamount
+                    detail.vatamount = discountedAmount * (float(detail.vatrate) / 100)
+                    detail.netamount = discountedAmount + detail.vatamount
 
-                if detail.vatrate > 0:
-                    detail.vatable = discountedAmount
-                    detail.vatexempt = 0
-                    detail.vatzerorated = 0
-                elif detail.vat.code == "VE":
-                    detail.vatable = 0
-                    detail.vatexempt = discountedAmount
-                    detail.vatzerorated = 0
-                elif detail.vat.code == "ZE":
-                    detail.vatable = 0
-                    detail.vatexempt = 0
-                    detail.vatzerorated = discountedAmount
+                    if detail.vatrate > 0:
+                        detail.vatable = discountedAmount
+                        detail.vatexempt = 0
+                        detail.vatzerorated = 0
+                    elif detail.vat.code == "VE":
+                        detail.vatable = 0
+                        detail.vatexempt = discountedAmount
+                        detail.vatzerorated = 0
+                    elif detail.vat.code == "ZE":
+                        detail.vatable = 0
+                        detail.vatexempt = 0
+                        detail.vatzerorated = discountedAmount
 
-                detail.save()
-                dt.delete()
+                    if 'temp_expirationdate' in self.request.POST:
+                        if self.request.POST.getlist('temp_expirationdate')[i - 1] != '':
+                            detail.expirationdate = self.request.POST.getlist('temp_expirationdate')[i - 1]
+                    if 'temp_employee' in self.request.POST:
+                        if self.request.POST.getlist('temp_employee')[i - 1] != '':
+                            detail.employee = Employee.objects.get(pk=self.request.POST.getlist('temp_employee')[i - 1])
+                            detail.employee_code = detail.employee.code
+                            detail.employee_name = detail.employee.firstname + ' ' + detail.employee.lastname
+                    if 'temp_assetnum' in self.request.POST:
+                        if self.request.POST.getlist('temp_assetnum')[i - 1] != '':
+                            detail.assetnum = self.request.POST.getlist('temp_assetnum')[i - 1]
+                    if 'temp_serialnum' in self.request.POST:
+                        if self.request.POST.getlist('temp_serialnum')[i - 1] != '':
+                            detail.serialnum = self.request.POST.getlist('temp_serialnum')[i - 1]
+
+                    detail.prfmain = dt.prfmain
+                    detail.prfdetail = dt.prfdetail
+
+                    print "save 1"
+                    detail.save()
+                    print "save 2"
+                    dt.delete()
+
+                    if detail.prfdetail is not None:
+                        prfd = Prfdetail.objects.get(pk=detail.prfdetail.id)
+                        prfd.pototalquantity = detail.quantity
+                        prfd.poremainingquantity = prfd.quantity - detail.quantity
+                        if prfd.poremainingquantity == 0:
+                            prfd.isfullypo = 1
+                        prfd.save()
+
+                    pomain_totalamount += ((float(detail.unitcost) * float(detail.quantity)) - float(detail.discountamount))
                 i += 1
+
+            # prfmains = detailtemp.values('prfmain').distinct()
+            # print prfmains
 
             po_main_aggregates = Podetail.objects.filter(pomain__ponum=ponum).aggregate(Sum('discountamount'),
                                                                                         Sum('grossamount'),
@@ -187,14 +231,18 @@ class CreateView(CreateView):
                                                                                         Sum('vatable'),
                                                                                         Sum('vatamount'),
                                                                                         Sum('vatexempt'),
-                                                                                        Sum('vatzerorated'))
+                                                                                        Sum('vatzerorated'),
+                                                                                        Sum('unitcost'),
+                                                                                        Sum('quantity'))
 
             Pomain.objects.filter(ponum=ponum, isdeleted=0, status='A').\
                 update(discountamount=po_main_aggregates['discountamount__sum'],
                        grossamount=po_main_aggregates['grossamount__sum'],
                        netamount=po_main_aggregates['netamount__sum'], vatable=po_main_aggregates['vatable__sum'],
                        vatamount=po_main_aggregates['vatamount__sum'], vatexempt=po_main_aggregates['vatexempt__sum'],
-                       vatzerorated=po_main_aggregates['vatzerorated__sum'])
+                       vatzerorated=po_main_aggregates['vatzerorated__sum'],
+                       totalamount=pomain_totalamount,
+                       totalquantity=po_main_aggregates['quantity__sum'])
 
             # return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
             return HttpResponseRedirect('/purchaseorder/create')
@@ -229,7 +277,7 @@ def fetchitems(request):
                                       status='A',
                                       isdeleted=0)
 
-        if Podata.objects.filter(prfmain=prfmain).exists():
+        if Podata.objects.filter(prfmain=prfmain, isdeleted=0).exclude(pomain=None).exists():
             data = {
                 'status': 'error',
             }
@@ -280,7 +328,7 @@ def fetchitems(request):
                                        data.suppliername,
                                        data.estimateddateofdelivery,
                                        data.negocost,
-                                       data.uc_cost
+                                       data.uc_cost,
                                        ])
 
             data = {
@@ -297,7 +345,6 @@ def fetchitems(request):
 
 @csrf_exempt
 def savedetailtemp(request):
-
     if request.method == 'POST':
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
@@ -360,6 +407,8 @@ def savedetailtemp(request):
 def saveimporteddetailtemp(request):
     if request.method == 'POST':
         prfmain = Prfmain.objects.get(pk=request.POST['prfmainid'], prfstatus='A', status='A', isdeleted=0)
+        prfdata = [prfmain.prfnum]
+        print prfdata
         i = 1
         podetail_list = []
         for data in request.POST.getlist('imported_items[]'):
@@ -409,23 +458,48 @@ def saveimporteddetailtemp(request):
                                       detailtemp.unitcost,
                                       detailtemp.vatrate,
                                       detailtemp.vat.code,
-                                      detailtemp.quantity, ])
+                                      detailtemp.quantity,
+                                      detailtemp.prfmain.id,
+                                      detailtemp.prfdetail.id,
+                                      prfitemdetails.poremainingquantity,
+                                      ])
 
         # store temppodata
-        if Podata.objects.filter(secretkey=request.POST['secretkey'], prfmain=prfmain).exists():
-            data = {
-                'status': 'error',
-            }
-        else:
+        if not Podata.objects.filter(prfmain=prfmain, secretkey=request.POST['secretkey'], pomain=None).exists():
             detail = Podata()
             detail.secretkey = request.POST['secretkey']
             detail.prfmain = prfmain
             detail.save()
 
-            data = {
-                'status': 'success',
-                'podetail': podetail_list,
-            }
+        data = {
+            'status': 'success',
+            'podetail': podetail_list,
+            'prfdata': prfdata,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def deleteimportedprf(request):
+    if request.method == 'POST':
+        podetailfordeletion = Podetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+                                                          prfmain__prfnum=request.POST['prfnum'],
+                                                          pomain=None)      # applicable for CREATE page
+        for data in podetailfordeletion:
+            data.delete()
+
+        Podata.objects.get(secretkey=request.POST['secretkey'], prfmain__prfnum=request.POST['prfnum'],
+                           pomain=None).delete()                            # applicable for CREATE page
+
+        data = {
+            'status': 'success',
+            'prfmainid': Prfmain.objects.get(prfnum=request.POST['prfnum']).id,
+        }
     else:
         data = {
             'status': 'error',
@@ -436,13 +510,23 @@ def saveimporteddetailtemp(request):
 
 @csrf_exempt
 def deletedetailtemp(request):
-
+    podatadeleted = 'false'
+    prfnum = None
     if request.method == 'POST':
         try:
             detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
                                                   secretkey=request.POST['secretkey'],
                                                   pomain=None)
             detailtemp.delete()
+
+            if request.POST['prfmainid'] != '':
+                if not Podetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+                                                   prfmain=request.POST['prfmainid'], pomain=None).exists():
+                    Podata.objects.get(secretkey=request.POST['secretkey'], prfmain=request.POST['prfmainid'],
+                                       pomain=None).delete()
+                    podatadeleted = 'true'
+                    prfnum = Prfmain.objects.get(id=request.POST['prfmainid']).prfnum
+
         except Podetailtemp.DoesNotExist:
             print "temp detail has pomain"
             detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
@@ -452,6 +536,8 @@ def deletedetailtemp(request):
 
         data = {
             'status': 'success',
+            'podatadeleted': podatadeleted,
+            'prfnum': prfnum,
         }
     else:
         data = {
