@@ -57,7 +57,7 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Pomain
-    template_name = 'purchaseorder/create2.html'
+    template_name = 'purchaseorder/create.html'
     fields = ['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus', 'supplier', 'inputvattype',
               'deferredvat', 'creditterm', 'particulars', 'creditterm', 'vat', 'atc', 'currency', 'deliverydate',
               'designatedapprover', 'wtax']

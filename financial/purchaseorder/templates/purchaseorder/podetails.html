@@ -602,9 +602,8 @@
                     type: "post",
                     data: {'prfid': $(this).val()},
                     success: function(response) {
-                        if(response.prfdetail.length == 0){
+                        if(response.prfdetail.length == 0)
                             $('#checkUncheckAll').prop('checked', false);
-                        }
                         else {
                             for (var i = 0; i < response.prfdetail.length; i++) {
                                 var supplier = response.prfdetail[i][36] != null ? response.prfdetail[i][36] : ' - ';

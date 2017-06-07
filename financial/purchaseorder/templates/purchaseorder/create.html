@@ -7,32 +7,51 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
+        .select2-results__option {
+            font-size: 12px;
+        }
         .vattable td {
             text-align: right;
 
         }
         .vattable td:first-child {
-            width: 170px;
-            padding-right: 20px;
+            width: 130px;
+            padding-right: 10px;
         }
         .vattable td input {
             width: 100px;
             text-align: right;
         }
         .heading-top-index-2 {
-            padding-right: 15px;
-            padding-left: 45px;
+            padding: 27px 15px 26px 15px;
+        }
+        #prfcontainer {
+            height: 358px;
+            padding: 10px;
+            background-color: #e6e6e6;
+            overflow: scroll;
+        }
+        .removeprf{
+            font-size: 15px;
+            margin-top: 2px;
+        }
+        .widgett{
+            margin-bottom: 5px;
+        }
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: transparent;
         }
     </style>
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
-            <div class="panel margin-bottom-20">
+            <div class="margin-bottom-20">
+                    <h3 class="panel-title" style="padding:0px 10px 15px 25px;">CREATE</h3>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
-                        <div class="col-sm-8">
+                        <div class="col-sm-7">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-4">
                                     <label class="control-label" for="id_ponum">Number</label>
@@ -41,12 +60,16 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_podate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.podate.value %}{{ form.podate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" readonly="readonly" data-validation="required" value="{% if form.podate.value %}{{ form.podate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.potype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_potype">PO Type</label>
-                                    <input type="text" class="form-control input-sm" maxlength="150" id="id_potype" name="potype" placeholder="PO Type" value="{{ form.potype.value|default:'' }}">
+                                    <select class="form-control input-sm" data-validation="required" id="id_potype" name="potype">
+                                        {% for id,name in form.fields.potype.choices %}
+                                            <option value="{{ id }}"{% if form.potype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
                                     <span class="help-block form-error">{{ form.potype.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4">
@@ -65,47 +88,49 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_dateneeded">Date Needed</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" value="{{ form.dateneeded.value|default:'' }}" data-validation="required">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_dateneeded" name="dateneeded" readonly="readonly" placeholder="YYYY-MM-DD" value="{{ form.dateneeded.value|default:'' }}" data-validation="required">
                                     <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-9 {{ form.supplier.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4">
+                                    <label class="control-label" for="id_particulars">Particulars</label>
+                                    <textarea data-fv-field="standard_content" style="resize: vertical;" class="form-control input-sm" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                    <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_designatedapprover">Approver</label>
+                                    <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                        <option value="">-- Select --</option>
+                                        {% for designatedapprover in designatedapprover %}
+                                            <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.postatus.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_postatus">PO Status</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_postatus" name="postatus">
+                                        {% for id,name in form.fields.postatus.choices %}
+                                            <option value="{{ id }}"{% if form.postatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.postatus.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-8 {{ form.supplier.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_supplier">Supplier</label>
                                     <select class="form-control input-sm select2" id="id_supplier" name="supplier">
                                         <option value="">-- Select --</option>
                                         {% for supplier in supplier %}
-                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %} data-vat="{{ supplier.vat.id }}"
-                                                    data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%">{{ supplier.code }} - {{ supplier.name }}</option>
+                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}
+                                                    data-vat="{{ supplier.vat.id }}" data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%"
+                                                    data-creditterm="{{ supplier.creditterm.id }}" data-atc="{{ supplier.atc.id }}" data-currency="{{ supplier.currency.id }}"
+                                                    data-inputvattype="{{ supplier.inputvattype.id }}" data-deferredvat="{{ supplier.deferredvat }}">
+                                                {{ supplier.code }} - {{ supplier.name }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_vat">VAT</label>
-                                    <input type="text" class="form-control input-sm" id="id_vat" data-id="" data-code="" name="vat" placeholder="VAT" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.apnum.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_apnum">Reference AP</label>
-                                    <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.apnum.errors.as_text }}</span>
-                                </div>
-                                 <div class="form-group col-sm-3 {{ form.apdate.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_apdate">AP Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd" id="id_apdate" name="apdate"
-                                           placeholder="YYYY-MM-DD" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.ataxcode.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_ataxcode">ATax Code</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ataxcode" name="ataxcode">
-                                        <option value="">-- Select --</option>
-                                        {% for ataxcode in ataxcode %}
-                                            <option value="{{ ataxcode.id }}" {% if form.ataxcode.value|add:0 == ataxcode.id %} selected="selected" {% endif %}>{{ ataxcode.code }} ({{ ataxcode.rate }}%)</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.ataxcode.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.creditterm.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.creditterm.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_creditterm">Credit Term</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
                                         <option value="">-- Select --</option>
@@ -115,25 +140,72 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.inputvat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_inputvat">Input VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_inputvat" name="inputvat">
+                                <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_vat">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
                                         <option value="">-- Select --</option>
-                                        {% for inputvat in inputvat %}
-                                            <option value="{{ inputvat.id }}" {% if form.inputvat.value|add:0 == inputvat.id %} selected="selected" {% endif %}>{{ inputvat.code }}</option>
+                                        {% for vat in vat %}
+                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span class="help-block form-error">{{ form.inputvat.errors.as_text }}</span>
+                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-9">
-                                    <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="1" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
-                                    <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                                <div class="form-group col-sm-4 {{ form.atc.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_atc">ATC</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc">
+                                        <option value="">-- Select --</option>
+                                        {% for atc in atc %}
+                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.currency.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_currency">Currency</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                        <option value="">-- Select --</option>
+                                        {% for currency in currency %}
+                                            <option value="{{ currency.id }}" data-rate="{{ currency.fxrate }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>{{ currency.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="fxrate" class="text-success small floatright"><strong>FX RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
+                                        <option value="">-- Select --</option>
+                                        {% for inputvattype in inputvattype %}
+                                            <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.deferredvat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_deferredvat">Deferred?</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
+                                        {% for id,name in form.fields.deferredvat.choices %}
+                                            <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
+                                    <label class="control-label small" for="id_wtax">Withholding&nbsp;Tax</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
+                                        <option value="">-- Select --</option>
+                                        {% for wtax in wtax %}
+                                            <option value="{{ wtax.id }}" data-rate="{{ wtax.rate }}" {% if form.wtax.value|add:0 == wtax.id %} selected="selected" {% endif %}>{{ wtax.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="wtaxrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="widgett widgett-article widgett-shadow">
                                 <div class="heading-top-index-2">
                                     <table class="vattable">
@@ -162,10 +234,9 @@
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblVATExempt" disabled="disabled" value="0"></td>
                                         </tr>
                                         <tr>
-                                            <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
+                                            <td><small style="letter-spacing: -0.7px;">VAT&nbsp;Zero-Rated&nbsp;Purchase:</small></td>
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblVATZeroRated" disabled="disabled" value="0"></td>
                                         </tr>
-                                        <tr><td colspan="0"><br></td></tr>
                                         <tr>
                                             <td><small><b>Total&nbsp;Purchase:</b></small></td>
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblTotalPurchase" disabled="disabled" value="0"></td>
@@ -181,14 +252,36 @@
                                     </table>
                                 </div>
                             </div>
+                            <br>
+                            <div class="form-group col-sm-12">
+                                <label class="control-label small" for="id_deliverystatus">Delivery Status</label>
+                                <select class="form-control input-sm" id="id_deliverystatus" name="deliverystatus" disabled="disabled">
+                                    <option>N/A</option>
+                                </select>
+                                <span class="help-block form-error">{{ form.deliverystatus.errors.as_text }}</span>
+                            </div>
                         </div>
+
+                        <div class="col-md-2">
+                            <label class="control-label" for="id_cstype">PRF(s) Imported</label><br>
+                            <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
+                                <div class="shade"><div class="loader two-color"></div></div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <br>
+                                <label class="control-label small" for="id_deliverydate">Delivery Date</label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_deliverydate" name="deliverydate" placeholder="YYYY-MM-DD" readonly="readonly" value="{{ form.deliverydate.value|default:'' }}">
+                                <span class="help-block form-error">{{ form.deliverydate.errors.as_text }}</span>
+                            </div>
+                        </div>
+
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                             </div>
                         </div>
                         </form>
@@ -213,15 +306,19 @@
                                         <thead>
                                             <tr class="small info">
                                                 <th style="text-align: center; vertical-align: middle;">No.</th>
-                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Name</th>
-                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Description</th>
-                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Remarks</th>
+                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Code</th>
+                                                <th style="min-width: 150px; text-align: center; vertical-align: middle;">Name</th>
+                                                <th style="min-width: 140px; text-align: center; vertical-align: middle;">Remarks</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Unit&nbsp;of&nbsp;Measure</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">PRF&nbsp;No.</th>
-                                                <th style="text-align: center; vertical-align: middle;">Dept.</th>
-                                                <th style="text-align: center; vertical-align: middle;">Currency</th>
+                                                <th style="min-width: 140px; text-align: center; vertical-align: middle;">Branch</th>
+                                                <th style="min-width: 250px; text-align: center; vertical-align: middle;">Department</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Expiry&nbsp;Date</th>
+                                                <th style="min-width: 250px; text-align: center; vertical-align: middle;">Employee</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Serial&nbsp;No.</th>
+                                                <th style="min-width: 120px; text-align: center; vertical-align: middle;">Asset&nbsp;No.</th>
                                                 <th style="min-width: 120px; text-align: center; vertical-align: middle;">Unit&nbsp;Cost</th>
-                                                <th style="min-width: 80px; text-align: center; vertical-align: middle;">Gross&nbsp;Unit&nbsp;Cost</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">Gross&nbsp;Unit&nbsp;Cost</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Quantity</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Gross&nbsp;Amount</th>
                                                 <th style="min-width: 120px; text-align: center; vertical-align: middle;">Discount</th>
@@ -229,11 +326,10 @@
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Disc.&nbsp;Amount</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">VATable</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT-Exempt</th>
-                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT&nbsp;Zero-Rated</th>
+                                                <th style="min-width: 100px; text-align: center; vertical-align: middle;">VAT&nbsp;Zero&nbsp;-&nbsp;Rated</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Purchase</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Add&nbsp;VAT</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Amount</th>
-                                                <th style="text-align: center; vertical-align: middle;">DELETE</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -244,6 +340,54 @@
                         </div>
                 </div>
             <div class="clearfix"></div>
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="shade" id="shadePRFImport"><div class="loader two-color"></div></div>
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Select Purchase Requisition Form</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <select name="" id="importprfselect2" class="form-control input-sm select2" style="width: 100%;">
+                                        <option value="">-- Select --</option>
+                                        {% for prfmain in prfmain %}
+                                            <option value="{{ prfmain.id }}"
+                                                data-refnum="{{ prfmain.prfnum }}"
+                                                data-urgency="{{ prfmain.get_urgencytype_display }}"
+                                                data-dateneeded="{{ prfmain.dateneeded }}"
+                                                data-approver="{{ prfmain.actualapprover }}">
+                                                    {{ prfmain.prfnum }} | {{ prfmain.prfdate }} | {{ prfmain.get_urgencytype_display }} | Date needed: {{ prfmain.dateneeded }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <br><br>
+                                    <table class="table table-bordered" id="importprfpreview">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center; min-width: 20px" class="prfTblCheckUncheckAll"></th>
+                                                <th style="text-align: center"><small><b>Code</b></small></th>
+                                                <th style="text-align: center"><small><b>Name</b></small></th>
+                                                <th style="text-align: center"><small><b>Quantity</b></small></th>
+                                                <th style="text-align: center"><small><b>Amount</b></small></th>
+                                                <th style="text-align: center"><small><b>Proposed Supplier</b></small></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="importconfirm" data-dismiss="modal" disabled="disabled">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -254,18 +398,92 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $("#form-b").submit(function(event){
+                if($('.tblInputQuantity').length == 0) {
+                    alert("Please add at least one item.");
+                    event.preventDefault();
+                }
+                $('.tblInputQuantity').each(function(){
+                    if($(this).val() == '0' || $(this).val() == ''){
+                        alert("Null or zero quantity is not allowed.");
+                        event.preventDefault();
+                    }
+                });
+                $('.tblInputUnitCost').each(function(){
+                    if($(this).val() == '0.00' || $(this).val() == ''){
+                        alert("Please complete the unit costs of all items.");
+                        event.preventDefault();
+                    }
+                });
+            });
+
+            enableDisableButtons();
+
+            if($("#id_postatus option:selected").text() == "For Approval")
+                $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
 
-            $(window).load(showSelected);
+            $("#id_vat").change(function(){
+                showRate("#id_vat", "vatrate", "RATE");
+            });
 
-            function showSelected(){
-                $('#id_vat').val($('#id_supplier').find(':selected').data('vatrate'));
-                $('#id_vat').attr('data-id', $('#id_supplier').find(':selected').data('vat'));
-                $('#id_vat').removeData('id');
-                $('#id_vat').attr('data-code', $('#id_supplier').find(':selected').data('vatcode'));
-                $('#id_vat').removeData('code');
+            $("#id_atc").change(function(){
+                showRate("#id_atc", "atcrate", "RATE");
+            });
+
+            $("#id_currency").change(function(){
+                showRate("#id_currency", "fxrate", "FX RATE");
+            });
+
+            $("#id_wtax").change(function(){
+                showRate("#id_wtax", "wtaxrate", "RATE");
+            });
+
+            $("#id_supplier").change(function(){
+                enableDisableButtons();
+                displaySupplierData();
+            });
+
+            $("#importbutton").click(function(){
+                $('#importprfpreview tbody').empty();
+                $("#importprfselect2").val('').trigger('change.select2');
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
+            });
+
+            function displaySupplierData(){
+                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
+                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
+                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
+                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
+                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
+                showRate("#id_vat", "vatrate", "RATE");
+                showRate("#id_atc", "atcrate", "RATE");
+                showRate("#id_currency", "fxrate", "FX RATE");
+            }
+
+            function enableDisableButtons(){
+                if($("#id_supplier option:selected").text() == "-- Select --"){
+                    $('#importbutton').prop("disabled", true);
+                    $('#detailsbutton').prop("disabled", true);
+                }
+                else {
+                    $('#importbutton').prop("disabled", false);
+                    $('#detailsbutton').prop("disabled", false);
+                }
+            }
+
+            function showRate(field, rateSpan, defaultText){
+                var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
+                        parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
+                $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
+                if($(field + " option:selected").text() == "-- Select --"){
+                    $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+                }
             }
 
             $("#form-b").submit(function(event){
@@ -273,6 +491,12 @@
                     alert("Please add at least one item.");
                     event.preventDefault();
                 }
+            });
+
+            $(document).ready(function() {
+                $("#importprfselect2").select2({
+                    dropdownParent: $("#myModal")
+                });
             });
         });
     </script>
