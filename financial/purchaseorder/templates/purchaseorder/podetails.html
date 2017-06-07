@@ -334,6 +334,7 @@
                         $("#id_assetnum").val('');
 
                         reorderItems();
+                        warnUnitCost();
                         computeTotalAmounts();
 
                         $('.shade').fadeOut();
@@ -350,6 +351,7 @@
         });
 
         $(document).on('change', '#id_vat, .tblInputUnitCost, .tblInputQuantity, .tblInputDiscountRate, .tblInputDiscountAmount', function(){
+            warnUnitCost();
             computeAllValues();
         });
 
@@ -600,27 +602,32 @@
                     type: "post",
                     data: {'prfid': $(this).val()},
                     success: function(response) {
-                        for (var i = 0; i < response.prfdetail.length; i++) {
-                            var supplier = response.prfdetail[i][36] != null ? response.prfdetail[i][36] : ' - ';
-                            var checked = response.prfdetail[i][34] == null ? "checked='checked'" :
-                                    response.prfdetail[i][34] == $('#id_supplier').val() ? "checked='checked'" : "";
-                            importPRFPreview.append("<tr class='small prfTblItemContainer'>" +
-                                "<td class='prfTblItemCheck'><input type='checkbox' class='checkItem' data-prfdetailid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
-                                "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
-                                "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
-                                "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][6] + "</td>" +
-                                "<td style='text-align: right' class='text-center prfTblAmount'>" + response.prfdetail[i][14] + "</td>" +
-                                "<td style='text-align: left' class='text-center prfTblProposedSupplier'>" + supplier + "</td>" +
-                            "</tr>");
-
-                            filterPrfCheckboxItems();
+                        if(response.prfdetail.length == 0){
+                            $('#checkUncheckAll').prop('checked', false);
                         }
-                        $('#importconfirm').prop('disabled', true);
-                        $('.checkItem').each(function() {
-                            if(this.checked) {
-                                $('#importconfirm').prop('disabled', false);
+                        else {
+                            for (var i = 0; i < response.prfdetail.length; i++) {
+                                var supplier = response.prfdetail[i][36] != null ? response.prfdetail[i][36] : ' - ';
+                                var checked = response.prfdetail[i][34] == null ? "checked='checked'" :
+                                        response.prfdetail[i][34] == $('#id_supplier').val() ? "checked='checked'" : "";
+                                importPRFPreview.append("<tr class='small prfTblItemContainer'>" +
+                                        "<td class='prfTblItemCheck'><input type='checkbox' class='checkItem' data-prfdetailid='" + response.prfdetail[i][0] + "' " + checked + "></td>" +
+                                        "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
+                                        "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
+                                        "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][40] + "</td>" +
+                                        "<td style='text-align: right' class='text-center prfTblAmount'>" + response.prfdetail[i][14] + "</td>" +
+                                        "<td style='text-align: left' class='text-center prfTblProposedSupplier'>" + supplier + "</td>" +
+                                        "</tr>");
+
+                                filterPrfCheckboxItems();
                             }
-                        });
+                            $('#importconfirm').prop('disabled', true);
+                            $('.checkItem').each(function () {
+                                if (this.checked) {
+                                    $('#importconfirm').prop('disabled', false);
+                                }
+                            });
+                        }
                         $('#shadePRFImport').fadeOut();
                     }
                     , error: function(response) {
@@ -676,10 +683,14 @@
         });
 
         $(document).on('change', '#checkUncheckAll', function(){
-            if($('#checkUncheckAll').is(':checked'))
+            if($('#checkUncheckAll').is(':checked')){
                 $('.checkItem').prop('checked', true);
-            else
+                $('#importconfirm').prop('disabled', false);
+            }
+            else {
                 $('.checkItem').prop('checked', false);
+                $('#importconfirm').prop('disabled', true);
+            }
         });
 
         $('#importconfirm').click(function(){
@@ -725,7 +736,7 @@
                                 var unitCost = parseFloat(response.podetail[i][9]);
                                 var vat = parseFloat(response.podetail[i][10]) / 100;
                                 var vatCode = response.podetail[i][11];
-                                var qty = response.podetail[i][12];
+                                var qty = response.podetail[i][15];
                                 var discountType = "rate";
                                 var discountRate = 0;
                                 var discountAmount = 0;
@@ -772,7 +783,7 @@
                                         "</td>" +
                                         "<td class='text-right tblGrossUnitCost'>" + computedValues.grossUnitCost.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "<td class='tblQuantity'>" +
-                                            "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' min='1' max='" + response.podetail[i][15] + "' value='" + qty + "'>" +
+                                            "<input type='number' name='temp_quantity' form='form-b' step='any' class='form-control text-right tblInputQuantity input-sm' min='1' max='" + qty + "' value='" + qty + "'>" +
                                         "</td>" +
                                         "<td class='text-right tblGrossAmount'>" + computedValues.grossAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "<td class='col_discount tblDiscount'>" +
@@ -812,6 +823,7 @@
                                 filterDiscount();
                                 filterExtraFields();
                                 reorderItems();
+                                warnUnitCost();
                                 computeTotalAmounts();
                             }
                         }
@@ -873,6 +885,20 @@
                 });
             }
         });
+
+        function warnUnitCost(){
+            $('.tblInputUnitCost').each(function(){
+                if($(this).val() == ''){
+                    $(this).parent().parent().addClass('danger');
+                }
+                else if(parseInt($(this).val()) > 0){
+                    $(this).parent().parent().removeClass('danger');
+                }
+                else if(parseInt($(this).val()) <= 0){
+                    $(this).parent().parent().addClass('danger');
+                }
+            });
+        }
 
     });
 </script>

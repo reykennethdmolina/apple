@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpRespons
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, F
 from django.core import serializers
-from .models import Pomain, Podetail, Podetailtemp, Podata
+from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from employee.models import Employee
 from supplier.models import Supplier
@@ -89,6 +89,7 @@ class CreateView(CreateView):
         return context
 
     def form_valid(self, form):
+        # START: save po main
         if Podetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
             self.object = form.save(commit=False)
 
@@ -121,9 +122,10 @@ class CreateView(CreateView):
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
             self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
-            self.object.totalquantity = 0
             self.object.save()
+            # END: save po main
 
+            # START: transfer po detail temp data to po detail, reflecting changes made in the screen
             detailtemp = Podetailtemp.objects.filter(secretkey=self.request.POST['secretkey'],
                                                      isdeleted=0,
                                                      status='A').order_by('enterdate')
@@ -131,8 +133,7 @@ class CreateView(CreateView):
             i = 1
             pomain_totalamount = 0
             for dt in detailtemp:
-                if dt.prfdetail is None or self.request.POST.getlist('temp_quantity')[i - 1] <= dt.prfdetail.\
-                        poremainingquantity:
+                if dt.prfdetail is None or int(self.request.POST.getlist('temp_quantity')[i - 1]) <= int(dt.prfdetail.poremainingquantity):
                     detail = Podetail()
                     detail.item_counter = i
                     detail.pomain = Pomain.objects.get(ponum=ponum)
@@ -206,24 +207,31 @@ class CreateView(CreateView):
                     detail.prfmain = dt.prfmain
                     detail.prfdetail = dt.prfdetail
 
-                    print "save 1"
                     detail.save()
-                    print "save 2"
-                    dt.delete()
+                    # END: transfer po detail temp data to po detail, reflecting changes made in the screen
 
+                    # START: update po-related fields in prf detail
                     if detail.prfdetail is not None:
                         prfd = Prfdetail.objects.get(pk=detail.prfdetail.id)
-                        prfd.pototalquantity = detail.quantity
-                        prfd.poremainingquantity = prfd.quantity - detail.quantity
+                        prfd.pototalquantity = int(prfd.pototalquantity) + int(detail.quantity)
+                        prfd.poremainingquantity = int(prfd.poremainingquantity) - int(detail.quantity)
                         if prfd.poremainingquantity == 0:
                             prfd.isfullypo = 1
                         prfd.save()
+                        # END: update po-related fields in prf detail
+                        # START: save in prfpotransaction
+                        prfpotrans = Prfpotransaction()
+                        prfpotrans.poquantity = detail.quantity
+                        prfpotrans.podetail = detail
+                        prfpotrans.pomain = detail.pomain
+                        prfpotrans.prfdetail = detail.prfdetail
+                        prfpotrans.prfmain = detail.prfmain
+                        prfpotrans.save()
+                        # END: save in prfpotransaction
 
+                    # START: update total fields in po main
                     pomain_totalamount += ((float(detail.unitcost) * float(detail.quantity)) - float(detail.discountamount))
                 i += 1
-
-            # prfmains = detailtemp.values('prfmain').distinct()
-            # print prfmains
 
             po_main_aggregates = Podetail.objects.filter(pomain__ponum=ponum).aggregate(Sum('discountamount'),
                                                                                         Sum('grossamount'),
@@ -243,6 +251,34 @@ class CreateView(CreateView):
                        vatzerorated=po_main_aggregates['vatzerorated__sum'],
                        totalamount=pomain_totalamount,
                        totalquantity=po_main_aggregates['quantity__sum'])
+            # END: update total fields in po main
+
+            # START: update po-related fields in prf main
+            temp_prfmain = 0
+            prfmains = detailtemp.values('prfmain').order_by('prfmain')
+            for data in prfmains:
+                if data['prfmain'] is not None:
+                    if temp_prfmain != data['prfmain']:
+                        existingtotalremqty = Prfmain.objects.get(id=data['prfmain']).totalremainingquantity
+                        print existingtotalremqty
+                        totalpoqty = Podetail.objects.filter(pomain__ponum=ponum, prfmain=data['prfmain']). \
+                            aggregate(Sum('quantity'))['quantity__sum']
+                        print totalpoqty
+                        totalremainingqty = existingtotalremqty - totalpoqty
+                        if totalremainingqty > -1:
+                            Prfmain.objects.filter(id=data['prfmain']).\
+                                update(totalremainingquantity=totalremainingqty)
+                    temp_prfmain = data['prfmain']
+                    # END: update po-related fields in prf main
+
+            # START: delete po detail temp data
+            detailtemp.delete()
+            # END: delete po detail temp data
+
+            # START: update po data
+            Podata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).\
+                update(pomain=Pomain.objects.get(ponum=ponum))
+            # END: update po data
 
             # return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
             return HttpResponseRedirect('/purchaseorder/create')
@@ -286,8 +322,8 @@ def fetchitems(request):
             prfdetail_list = []
 
             for data in prfdetail:
-                temp_csmain = data.csmain.pk if data.csmain else None
-                temp_detail = data.csdetail.pk if data.csdetail else None
+                temp_csmain = data.csmain if data.csmain else None
+                temp_detail = data.csdetail if data.csdetail else None
                 temp_supplier = data.supplier.pk if data.supplier else None
                 prfdetail_list.append([data.id,
                                        data.invitem.id,
@@ -329,6 +365,7 @@ def fetchitems(request):
                                        data.estimateddateofdelivery,
                                        data.negocost,
                                        data.uc_cost,
+                                       data.poremainingquantity,
                                        ])
 
             data = {
