@@ -117,7 +117,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">RF Status&nbsp;: </span>
-                                            <span class="detail-profile {% if object.rfstatus == 'A' %} text-success {% elif object.rfstatus == 'D' %} text-danger {% endif %}"><b>{{ object.get_rfstatus_display }}</b></span>
+                                            <span class="detail-profile {% if object.rfstatus == 'F' %} text-primary {% elif object.rfstatus == 'A' %} text-success {% elif object.rfstatus == 'D' %} text-danger {% endif %}"><b>{{ object.get_rfstatus_display }}</b></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">

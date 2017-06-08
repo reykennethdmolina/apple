@@ -23,7 +23,7 @@
                                     <th><span>Date</span></th>
                                     <th><span>Particulars</span></th>
                                     <th><span>Status</span></th>
-                                    <th class="text-center"><span>Action</span></th>
+                                    <th class="text-center" style="width: 150px"><span>Action</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -34,18 +34,18 @@
                                     <td>{{ data.podate }}</td>
                                     <td>{{ data.particulars }}</td>
                                     <td>{{ data.get_postatus_display }}</td>
-                                    <td class="text-center">
+                                    <td style="width: 150px; padding-left: 30px">
                                         <div class="iconlist-wrap auto-0">
-                                            <div class="iconlist">
+                                            <div class="iconlist" style="text-align: left">
                                             <a href="{% url 'purchaseorder:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
-                                            {% if perms.requisitionform.change_rfmain %}
+                                            {% if perms.purchaseorder.change_pomain and data.isdeleted == 0 %}
                                             <a href="{% url 'requisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}
-                                            {% if perms.purchaseorder.delete_pomain and data.status != 'O' %}
+                                            {% if perms.purchaseorder.delete_pomain and data.postatus == 'F' and data.isdeleted == 0 and data.status == 'A' %}
                                             <a href="{% url 'purchaseorder:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>

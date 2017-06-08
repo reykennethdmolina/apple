@@ -51,6 +51,7 @@ class DetailView(DetailView):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['podetail'] = Podetail.objects.filter(isdeleted=0).filter(pomain=self.kwargs['pk']).\
             order_by('item_counter')
+        context['podata'] = Podata.objects.filter(isdeleted=0, pomain=self.kwargs['pk'])
         return context
 
 
@@ -280,8 +281,7 @@ class CreateView(CreateView):
                 update(pomain=Pomain.objects.get(ponum=ponum))
             # END: update po data
 
-            # return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
-            return HttpResponseRedirect('/purchaseorder/create')
+            return HttpResponseRedirect('/purchaseorder/' + str(self.object.id))
 
 
 @method_decorator(login_required, name='dispatch')
@@ -291,7 +291,8 @@ class DeleteView(DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('purchaseorder.delete_pomain') or self.object.status == 'O':
+        if not request.user.has_perm('purchaseorder.delete_pomain') or self.object.status == 'O' \
+                or self.object.postatus == 'A':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
@@ -300,8 +301,19 @@ class DeleteView(DeleteView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.isdeleted = 1
-        self.object.status = 'I'
+        self.object.status = 'C'
+        self.object.postatus = 'D'
         self.object.save()
+
+        podetail = Podetail.objects.filter(pomain=self.object.id)
+        for data in podetail:
+            deleteprfpotransactionitem(data)
+
+        podata = Podata.objects.filter(pomain=self.object.id)
+        for data in podata:
+            data.isdeleted = 1
+            data.save()
+
         return HttpResponseRedirect('/purchaseorder')
 
 
@@ -313,65 +325,60 @@ def fetchitems(request):
                                       status='A',
                                       isdeleted=0)
 
-        if Podata.objects.filter(prfmain=prfmain, isdeleted=0).exclude(pomain=None).exists():
-            data = {
-                'status': 'error',
-            }
-        else:
-            prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0, isfullypo=0)
-            prfdetail_list = []
+        prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0, isfullypo=0)
+        prfdetail_list = []
 
-            for data in prfdetail:
-                temp_csmain = data.csmain if data.csmain else None
-                temp_detail = data.csdetail if data.csdetail else None
-                temp_supplier = data.supplier.pk if data.supplier else None
-                prfdetail_list.append([data.id,
-                                       data.invitem.id,
-                                       data.invitem_code,
-                                       data.invitem_name,
-                                       data.invitem_unitofmeasure_code,
-                                       data.item_counter,
-                                       data.quantity,
-                                       data.remarks,
-                                       data.amount,
-                                       data.currency.id,
-                                       data.currency.symbol,
-                                       data.currency.description,
-                                       data.fxrate,
-                                       data.grossamount,
-                                       data.netamount,
-                                       data.vatable,
-                                       data.vatamount,
-                                       data.vatexempt,
-                                       data.vatzerorated,
-                                       data.grosscost,
-                                       data.department.id,
-                                       data.department_code,
-                                       data.department_name,
-                                       data.uc_grossamount,
-                                       data.uc_grosscost,
-                                       data.uc_netamount,
-                                       data.uc_vatable,
-                                       data.uc_vatamount,
-                                       data.uc_vatexempt,
-                                       data.uc_vatzerorated,
-                                       temp_csmain,
-                                       data.csnum,
-                                       data.csdate,
-                                       temp_detail,
-                                       temp_supplier,
-                                       data.suppliercode,
-                                       data.suppliername,
-                                       data.estimateddateofdelivery,
-                                       data.negocost,
-                                       data.uc_cost,
-                                       data.poremainingquantity,
-                                       ])
+        for data in prfdetail:
+            temp_csmain = data.csmain if data.csmain else None
+            temp_detail = data.csdetail if data.csdetail else None
+            temp_supplier = data.supplier.pk if data.supplier else None
+            prfdetail_list.append([data.id,
+                                   data.invitem.id,
+                                   data.invitem_code,
+                                   data.invitem_name,
+                                   data.invitem_unitofmeasure_code,
+                                   data.item_counter,
+                                   data.quantity,
+                                   data.remarks,
+                                   data.amount,
+                                   data.currency.id,
+                                   data.currency.symbol,
+                                   data.currency.description,
+                                   data.fxrate,
+                                   data.grossamount,
+                                   data.netamount,
+                                   data.vatable,
+                                   data.vatamount,
+                                   data.vatexempt,
+                                   data.vatzerorated,
+                                   data.grosscost,
+                                   data.department.id,
+                                   data.department_code,
+                                   data.department_name,
+                                   data.uc_grossamount,
+                                   data.uc_grosscost,
+                                   data.uc_netamount,
+                                   data.uc_vatable,
+                                   data.uc_vatamount,
+                                   data.uc_vatexempt,
+                                   data.uc_vatzerorated,
+                                   temp_csmain,
+                                   data.csnum,
+                                   data.csdate,
+                                   temp_detail,
+                                   temp_supplier,
+                                   data.suppliercode,
+                                   data.suppliername,
+                                   data.estimateddateofdelivery,
+                                   data.negocost,
+                                   data.uc_cost,
+                                   data.poremainingquantity,
+                                   ])
 
-            data = {
-                'status': 'success',
-                'prfdetail': prfdetail_list
-            }
+        data = {
+            'status': 'success',
+            'prfdetail': prfdetail_list
+        }
     else:
         data = {
             'status': 'error',
@@ -582,6 +589,28 @@ def deletedetailtemp(request):
         }
 
     return JsonResponse(data)
+
+
+def deleteprfpotransactionitem(podetail):
+    print podetail.id
+    data = Prfpotransaction.objects.get(podetail=podetail.id, status='A')
+    # update prfdetail
+    remainingquantity = podetail.prfdetail.poremainingquantity + data.poquantity
+    isfullypo = 0 if remainingquantity != 0 else 1
+    Prfdetail.objects.filter(pk=data.prfdetail.id).update(pototalquantity=F('pototalquantity') - data.poquantity,
+                                                          poremainingquantity=F('poremainingquantity') + data.poquantity
+                                                          , isfullypo=isfullypo)
+
+    # update prfmain
+    Prfmain.objects.filter(pk=data.prfmain.id).update(totalremainingquantity=F('totalremainingquantity') + data.
+                                                      poquantity)
+
+    # delete prfpotransaction, podetail
+    data.delete()
+    Podetail.objects.filter(pk=podetail.id).delete()
+    Pomain.objects.filter(pk=podetail.pomain.id).update(totalquantity=0, totalamount=0.00, grossamount=0.00,
+                                                        discountamount=0.00, netamount=0.00, vatable=0.00,
+                                                        vatamount=0.00, vatexempt=0.00, vatzerorated=0.00)
 
 
 def paginate(request, command, current, limit, search):
