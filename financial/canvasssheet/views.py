@@ -117,6 +117,97 @@ class CreateView(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class UpdateView(UpdateView):
+    model = Csmain
+    template_name = 'canvasssheet/edit.html'
+    fields = ['csdate', 'cstype', 'particulars', 'designatedapprover']
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('canvasssheett.change_csmain'):
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['secretkey'] = generatekey(self)
+        csdata = Csdata.objects.filter(isdeleted=0).exclude(csmain=None).values_list('prfmain', flat=True)
+        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A').exclude(id__in=csdata)
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('code')
+        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('code')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
+        context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+        context['prfimported'] = Csdata.objects.filter(csmain=self.object.pk, isdeleted=0).exclude(prfmain=None)
+        context['csmain'] = self.object.pk
+        context['pagetype'] = 'update'
+
+        Csdetailtemp.objects.filter(csmain=self.object.pk).delete()  # clear all temp data
+
+        # move to temp
+        detail = Csdetail.objects.filter(isdeleted=0, csmain=self.object.pk).order_by('item_counter')
+        for d in detail:
+            detailtemp = Csdetailtemp()
+            detailtemp.invitem_code = d.invitem_code
+            detailtemp.invitem_name = d.invitem_name
+            detailtemp.item_counter = d.item_counter
+            detailtemp.suppliercode = d.suppliercode
+            detailtemp.suppliername = d.suppliername
+            detailtemp.vatrate = d.vatrate
+            detailtemp.unitcost = d.unitcost
+            detailtemp.negocost = d.negocost
+            detailtemp.csstatus = d.csstatus
+            detailtemp.status = d.status
+            detailtemp.enterdate = d.enterdate
+            detailtemp.modifydate = d.modifydate
+            detailtemp.postdate = d.postdate
+            detailtemp.isdeleted = d.isdeleted
+            detailtemp.vatable = d.vatable
+            detailtemp.vatexempt = d.vatexempt
+            detailtemp.vatzerorated = d.vatzerorated
+            detailtemp.grossamount = d.grossamount
+            detailtemp.vatamount = d.vatamount
+            detailtemp.netamount = d.netamount
+            detailtemp.csmain = d.csmain
+            detailtemp.currency = d.currency
+            detailtemp.enterby = d.enterby
+            detailtemp.invitem = d.invitem
+            detailtemp.modifyby = d.modifyby
+            detailtemp.postby = d.postby
+            detailtemp.supplier = d.supplier
+            detailtemp.vat = d.vat
+            detailtemp.quantity = d.quantity
+            detailtemp.uc_grossamount = d.uc_grossamount
+            detailtemp.uc_netamount = d.uc_netamount
+            detailtemp.uc_vatable = d.uc_vatable
+            detailtemp.uc_vatamount = d.uc_vatamount
+            detailtemp.uc_vatexempt = d.uc_vatexempt
+            detailtemp.uc_vatzerorated = d.uc_vatzerorated
+            detailtemp.prfmain = d.prfmain
+            detailtemp.prfdetail = d.prfdetail
+            detailtemp.csdetail = Csdetail.objects.get(pk=d.pk)
+            detailtemp.itemdetailkey = d.itemdetailkey
+            detailtemp.department = d.department
+            detailtemp.department_code = d.department_code
+            detailtemp.department_name = d.department_name
+            detailtemp.invitem_unitofmeasure = d.invitem_unitofmeasure
+            detailtemp.invitem_unitofmeasure_code = d.invitem_unitofmeasure_code
+            detailtemp.grosscost = d.grosscost
+            detailtemp.uc_grosscost = d.uc_grosscost
+            detailtemp.estimateddateofdelivery = d.estimateddateofdelivery
+            detailtemp.remarks = d.remarks
+            detailtemp.branch = d.branch
+            detailtemp.save()
+
+        context['csdetailtemp'] = Csdetailtemp.objects.filter(isdeleted=0, csmain=self.object.pk).\
+            order_by('itemdetailkey', '-csstatus')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class DeleteView(DeleteView):
     model = Csmain
     template_name = 'canvasssheet/delete.html'
@@ -286,56 +377,6 @@ def updateCsdetailtemp(request):
 
             uc_item_addvat = float(uc_item_total_amount) - float(uc_item_gross_amount)
 
-            # update prfdetail, use this if cs is approved
-            # csdata = Csdata.objects.filter(secretkey=request.POST['secretkey'], isdeleted=0)
-            #
-            # detailget_checked = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
-            #                             invitem=request.POST.getlist('arr_item_cost_item[]')[i],
-            #                             itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
-            #                             supplier=data,
-            #                             csstatus=1,
-            #                             isdeleted=0,
-            #                             status='A')
-            #
-            # if detailget_checked.exists():
-            #     for data in csdata:
-            #         prfdetail = Prfdetail.objects.filter(prfmain=data.prfmain,
-            #                                  status='A',
-            #                                  isdeleted=0,
-            #                                  invitem=request.POST.getlist('arr_item_cost_item[]')[i])
-            #
-            #         for data2 in prfdetail:
-            #             prfdetail_specific = Prfdetail.objects.filter(pk=data2.id)
-            #             prfdetail_get = Prfdetail.objects.get(pk=data2.id)
-            #             temp_item_total_amount = float(prfdetail_get.quantity) * float(detailget.negocost)
-            #             temp_item_vat_rate = detailget.vatrate
-            #             temp_item_gross_amount = temp_item_total_amount
-            #             temp_item_vatcode = Vat.objects.get(pk=detailget.vat.id, status='A', isdeleted=0).code
-            #             temp_item_vatable = 0
-            #             temp_item_vatexempt = 0
-            #             temp_item_vatzero = 0
-            #
-            #             if temp_item_vat_rate > 0:
-            #                 temp_item_gross_amount = float(temp_item_total_amount)/(1+(float(temp_item_vat_rate)/100))
-            #                 temp_item_vatable = temp_item_gross_amount
-            #             else:
-            #                 if temp_item_vatcode == 'VE':
-            #                     temp_item_vatexempt = temp_item_gross_amount
-            #
-            #                 elif temp_item_vatcode == 'ZE':
-            #                     temp_item_vatzero = temp_item_gross_amount
-            #
-            #             uc_item_addvat = float(temp_item_total_amount) - float(temp_item_gross_amount)
-            #
-            #             prfdetail_specific.update(cost=detailget.negocost,
-            #                                       netamount=temp_item_total_amount,
-            #                                       vatable=temp_item_vatable,
-            #                                       vatexempt=temp_item_vatexempt,
-            #                                       vatzerorated=temp_item_vatzero,
-            #                                       vatamount=item_addvat,
-            #                                       grossamount=temp_item_gross_amount,
-            #                                       amount=uc_item_total_amount)
-
             detail.update(netamount=item_total_amount,
                           vatable=item_vatable,
                           vatexempt=item_vatexempt,
@@ -429,17 +470,54 @@ def importTemptodetail(secretkey, csmain):
 def getSupplier(request):
 
     if request.method == 'POST':
+
+        # check if data from updateview
+        csdetail_exist = Csdetailtemp.objects.filter(itemdetailkey=request.POST['itemdetailkey']).exclude(csmain=None).order_by('modifydate')
+
         supplier = Supplier.objects.get(pk=request.POST['supplier'], isdeleted=0, status='A')
-        item = Inventoryitem.objects.get(code=request.POST['item'], status='A', isdeleted=0)
-
-        # check first if item supplier is first before creating new itemdetailkey
-
         detail = Csdetailtemp()
-        detail.invitem = Inventoryitem.objects.get(pk=item.id)
-        detail.invitem_code = item.code
-        detail.invitem_name = item.description
-        detail.quantity = 0
-        detail.item_counter = 0
+        if not csdetail_exist:
+            # from createview
+            item = Inventoryitem.objects.get(code=request.POST['item'], status='A', isdeleted=0)
+            # check first if item supplier is first before creating new itemdetailkey
+            detail.invitem = Inventoryitem.objects.get(pk=item.id)
+            detail.invitem_code = item.code
+            detail.invitem_name = item.description
+            if int(request.POST['prfmain']) != 0 and int(request.POST['prfdetail']) != 0:
+                detail.prfmain = Prfmain.objects.get(pk=request.POST['prfmain'])
+                detail.prfdetail = Prfdetail.objects.get(pk=request.POST['prfdetail'])
+            detail.quantity = 0
+            detail.item_counter = 0
+            if request.POST['pagetype'] == 'update':
+                detail.csmain = Csmain.objects.get(pk=request.POST['csmain'])
+
+        else:
+            # from updateview
+            csdetail_exist = csdetail_exist.first()
+            if csdetail_exist.csdetail:
+                detail.csdetail = Csdetail.objects.get(pk=csdetail_exist.csdetail.id)
+            detail.csmain = Csmain.objects.get(pk=csdetail_exist.csmain.id)
+            if csdetail_exist.department:
+                detail.department = Department.objects.get(pk=csdetail_exist.department.id)
+            detail.department_code = csdetail_exist.department_code
+            detail.department_name = csdetail_exist.department_name
+            detail.estimateddateofdelivery = csdetail_exist.estimateddateofdelivery
+            detail.remarks = csdetail_exist.remarks
+            if csdetail_exist.branch:
+                detail.branch = Branch.objects.get(pk=csdetail_exist.branch.id)
+            if csdetail_exist.invitem_unitofmeasure:
+                detail.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=csdetail_exist.invitem_unitofmeasure.id)
+            detail.invitem_unitofmeasure_code = csdetail_exist.invitem_unitofmeasure_code
+
+            detail.invitem = Inventoryitem.objects.get(pk=csdetail_exist.invitem.id)
+            detail.invitem_code = csdetail_exist.invitem_code
+            detail.invitem_name = csdetail_exist.invitem_name
+            if csdetail_exist.prfmain and csdetail_exist.prfdetail:
+                detail.prfmain = Prfmain.objects.get(pk=csdetail_exist.prfmain.id)
+                detail.prfdetail = Prfdetail.objects.get(pk=csdetail_exist.prfdetail.id)
+            detail.quantity = csdetail_exist.quantity
+            detail.item_counter = int(csdetail_exist.item_counter) + 1
+
         detail.supplier = Supplier.objects.get(pk=supplier.id)
         detail.suppliercode = supplier.code
         detail.suppliername = supplier.name
@@ -552,42 +630,11 @@ def importItemsManual(request):
             detail.modifyby = request.user
             detail.isdeleted = 0
             detail.itemdetailkey = itemdetail_key
+            if request.POST['pagetype'] == "update":
+                detail.csmain = Csmain.objects.get(pk=request.POST['csmain'])
             detail.save()
 
             i += 1
-
-        # store temp with default supplier
-        # supplierdetail = Supplier.objects.filter(isdeleted=0).order_by('name').first()
-        #
-        # detail = Csdetailtemp()
-        # detail.invitem = Inventoryitem.objects.get(pk=item.id)
-        # detail.invitem_code = item.code
-        # detail.invitem_name = item.description
-        # detail.quantity = 0
-        # detail.item_counter = i
-        # detail.supplier = Supplier.objects.get(pk=supplierdetail.id)
-        # detail.suppliercode = supplierdetail.code
-        # detail.suppliername = supplierdetail.name
-        # detail.vatrate = supplierdetail.vat.rate
-        # detail.unitcost = 0
-        # detail.negocost = 0
-        # detail.secretkey = request.POST['secretkey']
-        # detail.csstatus = 1
-        # detail.status = 'A'
-        # detail.enterdate = datetime.datetime.now()
-        # detail.modifydate = datetime.datetime.now()
-        # detail.vat = Vat.objects.get(pk=supplierdetail.vat.id, isdeleted=0)
-        # detail.vatable = 0
-        # detail.vatexempt = 0
-        # detail.vatzerorated = 0
-        # detail.grossamount = 0
-        # detail.vatamount = 0
-        # detail.netamount = 0
-        # detail.currency = Currency.objects.get(isdeleted=0, status='A', symbol='PHP')
-        # detail.enterby = request.user
-        # detail.modifyby = request.user
-        # detail.isdeleted = 0
-        # detail.save()
 
         data = {
                 'status': 'success',
@@ -704,6 +751,8 @@ def importItems(request):
                 detail.modifyby = request.user
                 detail.isdeleted = 0
                 detail.itemdetailkey = itemdetail_key
+                if request.POST['pagetype'] == "update":
+                    detail.csmain = Csmain.objects.get(pk=request.POST['csmain'])
                 detail.save()
 
                 i += 1
@@ -722,6 +771,8 @@ def importItems(request):
                                    data.invitem_unitofmeasure.id,
                                    data.prfmain.branch.id,
                                    data.remarks,
+                                   data.id,
+                                   data.prfmain.id
                                    ])
 
         # store temp csdata
@@ -759,7 +810,15 @@ def removePrf(request):
                                       status="A",
                                       isdeleted=0)
 
-        Csdata.objects.filter(prfmain=prfmain.id, isdeleted=0, secretkey=request.POST['secretkey']).delete()
+        if request.POST['pagetype'] == 'update':
+            csdata = Csdata()
+            csdata.secretkey = request.POST['secretkey']
+            csdata.isdeleted = 2
+            csdata.csmain = Csmain.objects.get(pk=request.POST['csmain'])
+            csdata.prfmain = Prfmain.objects.get(pk=prfmain.id)
+            csdata.save()
+        else:
+            Csdata.objects.filter(prfmain=prfmain.id, isdeleted=0, secretkey=request.POST['secretkey']).delete()
 
         data = {
             'status': 'success',
@@ -777,7 +836,10 @@ def removeItem(request):
 
     if request.method == 'POST':
         item = Inventoryitem.objects.get(code=request.POST['item']).id
-        Csdetailtemp.objects.filter(invitem=item, itemdetailkey=request.POST['itemdetailkey'], secretkey=request.POST['secretkey']).delete()
+        if request.POST['pagetype'] == 'update':
+            Csdetailtemp.objects.filter(invitem=item, itemdetailkey=request.POST['itemdetailkey'], csmain=request.POST['csmain']).delete()
+        else:
+            Csdetailtemp.objects.filter(invitem=item, itemdetailkey=request.POST['itemdetailkey'], secretkey=request.POST['secretkey']).delete()
 
         data = {
             'status': 'success',
@@ -846,4 +908,4 @@ def paginate(request, command, current, limit, search):
 
 def comments():
     print 123
-    # front end no supplier indicatorts():
+    # removed from imported(doesnt remove prfdetail data of items) -> re-imported(diplicates item with same prfdetail)

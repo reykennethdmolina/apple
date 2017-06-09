@@ -1,0 +1,56 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
+<style>
+    @media (min-width: 768px){
+        .modal-dialog {
+            width: 700px;
+        }
+    }
+    .select2-results__option {
+        font-size: 12px;
+    }
+    .select2-container--default .select2-results__option[aria-disabled=true] {
+        display: none;
+    }
+    .widgett.widgett-article.widgett-shadow {
+        margin-bottom: 5px;
+        color: white;
+    }
+    #prfcontainer {
+        height: 300px;
+        padding: 10px;
+        background-color: #e6e6e6;
+        overflow: scroll;
+    }
+    #tempForm{
+        display: none;
+    }
+    .vattable td {
+        text-align: right;
+
+    }
+    .vattable td:first-child {
+        width: 170px;
+        padding-right: 20px;
+    }
+    .vattable td input {
+        width: 100px;
+        text-align: right;
+    }
+    .heading-top-index-2 {
+        padding-right: 15px;
+        padding-left: 45px;
+    }
+    #summary th{
+        min-width: 120px;
+    }
+{#        .item_container{#}
+{#            border-top: 2px solid #006064;#}
+{#        }#}
+    .item_cost{
+        text-align: right;
+    }
+</style>

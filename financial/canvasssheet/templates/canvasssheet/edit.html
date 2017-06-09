@@ -7,7 +7,7 @@
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-heading">
-        <h3 class="panel-title">Create</h3>
+        <h3 class="panel-title">Update</h3>
     </div>
     <div class="panel-body container-fluid">
         <div class="row">
@@ -103,6 +103,18 @@
                         <label class="control-label" for="id_cstype">PRF(s) Imported</label><br>
                         <div id="prfcontainer" class="col-md-12 col-sm-12 col-xs-12 col-lg-12 prf-container">
                             <div class="shade"><div class="loader two-color"></div></div>
+                            {% for data in prfimported %}
+                                <div class="widgett widgett-article widgett-shadow">
+                                    <div class="widgett-header cover padding-0 bg-grey-600">
+                                        <div class="background-cover padding-10">
+                                            PRF - {{ data.prfmain.prfnum }}
+                                            <button type="button" class="close removeprf" data-prf="{{ data.prfmain.prfnum }}">
+                                                <i class="icon fa-close" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-sm-12 margin-bottom-10">
@@ -134,6 +146,31 @@
                             <table class="col-sm-6 table margin-bottom-0" id="summary" style="border: 1px solid #e0e0e0;">
                                 {% include "canvasssheet/createhead.html" %}
                                 <tbody>
+
+{#                                    <tr id='" + response.prfdetail[i][4] + "' class='item_container new_container imported_prf' data-form='"+(temp_formradio_counter+i)+"' data-itemdetailkey='" + response.itemdetailkey[i][0] + "' data-prfdetail='" + response.prfdetail[i][10] + "' data-prfmain='" + response.prfdetail[i][11] + "'> " +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "' style='width: 40px'></td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "'><input type='hidden' class='itemdetailkey' value='" + response.itemdetailkey[i][0] + "' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='" + response.prfdetail[i][0] + "'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>" + response.prfdetail[i][0] + "</b></td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][1] + "</b></td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "'><b>" + response.prfdetail[i][2] + "</b></td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-branch='" + response.prfdetail[i][8] + "'>" + branch_list + "</td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-department='" + response.prfdetail[i][6] + "'>" + department_list + "</td>" +#}
+{#                                    "<td class='small item_quantity text-center' rowspan='" + temp_supplier_length + "'>" +#}
+{#                                        "<input type='number' class='form-control input-sm item_quantity_input' readOnly='readOnly' style='margin:auto; width: 70px;text-align:right' data-item='" + response.prfdetail[i][4] + "' value='" + response.prfdetail[i][3] + "'>" +#}
+{#                                    "</td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "' data-unitofmeasure='" + response.prfdetail[i][7] + "'>" + unitofmeasure_list + "</td>" +#}
+{#                                    "<td class='small item_etd text-center' rowspan='" + temp_supplier_length + "' align='center'>" +#}
+{#                                        "<input type='text' class='form-control input-sm item_etd_input datepicker date-yyyymmdd' placeholder='YYYY-MM-DD' readOnly='readOnly' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'>" +#}
+{#                                    "</td>" +#}
+{#                                    "<td class='small item_remarks' rowspan='" + temp_supplier_length + "' align='center'>" +#}
+{#                                        "<div class='col-sm-11 row'>" +#}
+{#                                        "<textarea class='form-control input-sm input-remarks item_remarks_input' id='id_temp_remarks[" + response.prfdetail[i][4] + "]' style='margin:auto;' data-item='" + response.prfdetail[i][4] + "'></textarea>" +#}
+{#                                        "</div>" +#}
+{#                                        "<div class='col-sm-1'>" +#}
+{#                                            "<button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.prfdetail[i][4] + "'>...</button>" +#}
+{#                                        "</div>" +#}
+{#                                    "</td>" +#}
+{#                                    "<td class='small' rowspan='" + temp_supplier_length + "'>" + response.prfdetail[i][9] + "</td>" +#}
+{#                                    "</tr>#}
                                 </tbody>
                             </table>
                         </div>
