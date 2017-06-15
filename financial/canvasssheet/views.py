@@ -112,8 +112,7 @@ class CreateView(CreateView):
                     importTemptodetail(self.request.POST['secretkey'], csmain)
                     updateCsmainvat(csnum)
 
-                    # return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
-                    return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/')
+                    return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -199,12 +198,42 @@ class UpdateView(UpdateView):
             detailtemp.estimateddateofdelivery = d.estimateddateofdelivery
             detailtemp.remarks = d.remarks
             detailtemp.branch = d.branch
+            detailtemp.secretkey = context['secretkey']
             detailtemp.save()
 
         context['csdetailtemp'] = Csdetailtemp.objects.filter(isdeleted=0, csmain=self.object.pk).\
             order_by('itemdetailkey', '-csstatus')
 
         return context
+
+    def form_valid(self, form):
+        csdata = Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0)
+
+        csmain = Csmain.objects.get(pk=self.object.id)
+
+        for data in csdata:
+            csdata_item = Csdata.objects.filter(prfmain=data.prfmain, isdeleted=0)\
+                                        .exclude(csmain=None)
+
+            if not csdata_item:
+                Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0).update(csmain=csmain)
+
+        # for removed csdatas
+        csdata = Csdata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=2)
+
+        for data in csdata:
+            Csdata.objects.filter(csmain=data.csmain.id, prfmain=data.prfmain.id, isdeleted=0).update(isdeleted=1)
+            data.delete()
+
+        self.object = form.save(commit=False)
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.save()
+
+        updateimportTemptodetail(csmain)
+        updateCsmainvat(csmain.csnum)
+
+        return HttpResponseRedirect('/canvasssheet/' + str(self.object.id) + '/update/')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -403,6 +432,70 @@ def updateCsdetailtemp(request):
         }
 
     return JsonResponse(data)
+
+
+@csrf_exempt
+def updateimportTemptodetail(csmain):
+    csdetailtemp = Csdetailtemp.objects.filter(csmain=csmain.id, isdeleted=0, status='A').order_by('id')
+
+    Csdetail.objects.filter(csmain=csmain.id, isdeleted=0, status='A').update(isdeleted=2)
+
+    i = 1
+    for data in csdetailtemp:
+        csdetail = Csdetail()
+        csdetail.item_counter = i
+        csdetail.invitem_code = data.invitem_code
+        csdetail.invitem_name = data.invitem_name
+        csdetail.suppliercode = data.suppliercode
+        csdetail.suppliername = data.suppliername
+        csdetail.department = data.department
+        csdetail.department_code = data.department_code
+        csdetail.department_name = data.department_name
+        csdetail.branch = data.branch
+        csdetail.invitem_unitofmeasure = data.invitem_unitofmeasure
+        csdetail.invitem_unitofmeasure_code = data.invitem_unitofmeasure_code
+        csdetail.estimateddateofdelivery = data.estimateddateofdelivery
+        csdetail.remarks = data.remarks
+        csdetail.vatrate = data.vatrate
+        csdetail.unitcost = data.unitcost
+        csdetail.negocost = data.negocost
+        csdetail.csstatus = data.csstatus
+        csdetail.status = data.status
+        csdetail.enterby = data.enterby
+        csdetail.enterdate = data.enterdate
+        csdetail.modifyby = data.modifyby
+        csdetail.modifydate = data.modifydate
+        csdetail.postby = data.postby
+        csdetail.postdate = data.postdate
+        csdetail.isdeleted = data.isdeleted
+        csdetail.vatable = data.vatable
+        csdetail.vatexempt = data.vatexempt
+        csdetail.vatzerorated = data.vatzerorated
+        csdetail.grosscost = data.grosscost
+        csdetail.grossamount = data.grossamount
+        csdetail.vatamount = data.vatamount
+        csdetail.netamount = data.netamount
+        csdetail.uc_vatable = data.uc_vatable
+        csdetail.uc_vatexempt = data.uc_vatexempt
+        csdetail.uc_vatzerorated = data.uc_vatzerorated
+        csdetail.uc_grosscost = data.uc_grosscost
+        csdetail.uc_grossamount = data.uc_grossamount
+        csdetail.uc_vatamount = data.uc_vatamount
+        csdetail.uc_netamount = data.uc_netamount
+        csdetail.csmain = csmain
+        csdetail.currency = data.currency
+        csdetail.invitem = data.invitem
+        csdetail.supplier = data.supplier
+        csdetail.vat = data.vat
+        csdetail.quantity = data.quantity
+        csdetail.itemdetailkey = data.itemdetailkey
+        csdetail.prfmain = data.prfmain
+        csdetail.prfdetail = data.prfdetail
+        csdetail.save()
+        i += 1
+
+    csdetailtemp.delete()
+    Csdetail.objects.filter(csmain=csmain.id, isdeleted=2, status='A').delete()
 
 
 @csrf_exempt

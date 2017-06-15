@@ -579,7 +579,7 @@
                     if("{{ data.prfmain.prfnum }}" != "") imported = 'imported_prf';
                     else imported = 'imported_prf not_disabled';
 
-                    summary.append("<tr id='{{ data.invitem.id }}' class='item_container supplied "+imported+"' data-form='"+(temp_formradio_counter+upd_i)+"' data-itemdetailkey='{{ data.itemdetailkey }}' data-prfdetail='{{ data.prfdetail.id }}' data-prfmain='{{ data.prfmain.id }}'> " +
+                    summary.append("<tr id='{{ data.invitem.id }}' class='item_container new_container supplied "+imported+"' data-form='"+(temp_formradio_counter+upd_i)+"' data-itemdetailkey='{{ data.itemdetailkey }}' data-prfdetail='{{ data.prfdetail.id }}' data-prfmain='{{ data.prfmain.id }}'> " +
                                    "<td class='small' rowspan='1' style='width: 40px'></td>" +
                                    "<td class='small' rowspan='1'><input type='hidden' class='itemdetailkey' value='{{ data.itemdetailkey }}' readOnly='readOnly'><span style='cursor:pointer;font-size:15px;' class='removeitem' data-item='{{ data.invitem_code }}'><i class='icon fa-trash text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;<b>{{ data.invitem_code }}</b></td>" +
                                    "<td class='small' rowspan='1'><b>{{ data.invitem_name }}</b></td>" +
@@ -650,6 +650,7 @@
             {% endfor %}
             updateRowspan();
             autoSelectItemPrfVal();
+            separateRadio();
         });
 
         $('#validateButton').click(function(e){
