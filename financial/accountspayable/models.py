@@ -6,7 +6,33 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Accountspayable(models.Model):
-    # code = models.CharField(max_length=10, unique=True)
+    # AP_TYPE_CHOICES = (
+    #     ('PO', 'PO'),
+    # )
+    #
+    # AP_STATUS_CHOICES = (
+    #     ('V', 'Verified'),
+    # )
+    #
+    # apnum = models.CharField(max_length=10, unique=True)
+    # apdate = models.DateField()
+    # aptype = models.CharField(max_length=10, choices=AP_TYPE_CHOICES, default='PO')
+    # apstatus = models.CharField(max_length=1, choices=AP_STATUS_CHOICES, default='V')
+    #
+    # payee = models.ForeignKey('supplier.Supplier', related_name='ap_supplier_id')
+    # payeecode = models.CharField(max_length=10)
+    #
+    # branch = models.ForeignKey('branch.Branch', related_name='ap_branch_id')
+    #
+    # vat = models.ForeignKey('vat.Vat', related_name='ap_vat_id', null=True, blank=True)
+    # vatcode = models.CharField(max_length=10, null=True, blank=True)
+    # vatrate = models.IntegerField(default=0, null=True, blank=True)
+    #
+    # atax = models.ForeignKey('ataxcode.Ataxcode', related_name='ap_ataxcode_id', null=True, blank=True)
+    # ataxcode = models.CharField(max_length=10, null=True, blank=True)
+    # ataxrate = models.IntegerField(default=0, null=True, blank=True)
+
+
     # description = models.CharField(max_length=250)
     # STATUS_CHOICES = (
     #     ('A', 'Active'),

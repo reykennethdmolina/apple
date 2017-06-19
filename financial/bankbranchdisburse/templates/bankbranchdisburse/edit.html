@@ -1,0 +1,95 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Bank Branch Disburse {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">Edit</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="page-wrap">
+                            <div class="row">
+                                <div class="form-group form-material col-md-8 {{ form.bank.errors|yesno:'has-error,' }}">
+                                    <label for="id_bank" class="control-label">Bank</label>
+                                    <select id="id_bank" name="bank" class="form-control" data-validation="required">
+                                        <option value="">-- Select --</option>
+                                        {% for bank in bank %}
+                                            <option value="{{ bank.id }}" {% if form.bank.value|add:0 == bank.id %} selected="selected" {% endif %}>{{ bank.code }} - {{ bank.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.bank.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-4 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label for="id_branch" class="control-label">Branch</label>
+                                    <input type="text" class="form-control" id="id_branch" maxlength="10" placeholder="Branch" name="branch"
+                                           data-validation="required" value="{{ form.branch.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-4 {{ form.address1.errors|yesno:'has-error,' }}">
+                                    <label for="id_address1" class="control-label">Address</label>
+                                    <input type="text" class="form-control" id="id_address1" maxlength="250" name="address1"
+                                           data-validation="required" value="{{ form.address1.value|default:'' }}" placeholder="Address code">
+                                    <span class="help-block form-error">{{ form.address1.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-4 {{ form.address2.errors|yesno:'has-error,' }}">
+                                    <label for="id_address2" class="control-label">&nbsp;</label>
+                                    <input type="text" class="form-control" id="id_address2" maxlength="250" name="address2"
+                                           data-validation="required" value="{{ form.address2.value|default:'' }}" placeholder="Building, Street, Barangay">
+                                    <span class="help-block form-error">{{ form.address2.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-4 {{ form.address3.errors|yesno:'has-error,' }}">
+                                    <label for="id_address3" class="control-label">&nbsp;</label>
+                                    <input type="text" class="form-control" id="id_address3" maxlength="250" name="address3"
+                                           data-validation="required" value="{{ form.address3.value|default:'' }}" placeholder="City, Province">
+                                    <span class="help-block form-error">{{ form.address3.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-12"><br></div>
+                                <div class="form-group col-md-6" {{ form.contact_person.errors|yesno:'has-error,' }}>
+                                    <label class="control-label" for="id_contact_person">Contact Person</label>
+                                    <input type="text" class="form-control" id="id_contact_person" maxlength="250" placeholder="Contact Person" name="contact_person"
+                                           data-validation="required" value="{{ form.contact_person.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contact_person.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-6" {{ form.contact_position.errors|yesno:'has-error,' }}>
+                                    <label class="control-label" for="id_contact_position">Contact Position</label>
+                                    <input type="text" class="form-control" id="id_contact_position" maxlength="250" placeholder="Contact Position" name="contact_position"
+                                           data-validation="required" value="{{ form.contact_position.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.contact_position.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-6" {{ form.telephone1.errors|yesno:'has-error,' }}>
+                                    <label class="control-label" for="id_telephone1">Telephone #1</label>
+                                    <input type="text" class="form-control" id="id_telephone1" maxlength="75" placeholder="Telephone #1" name="telephone1"
+                                           data-validation="required" value="{{ form.telephone1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.telephone1.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-6" {{ form.telephone2.errors|yesno:'has-error,' }}>
+                                    <label class="control-label" for="id_telephone2">Telephone #2</label>
+                                    <input type="text" class="form-control" id="id_telephone2" maxlength="75" placeholder="Telephone #2" name="telephone2"
+                                           data-validation="required" value="{{ form.telephone2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.telephone2.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-md-12" {{ form.remarks.errors|yesno:'has-error,' }}>
+                                    <label class="control-label" for="id_remarks">Remarks</label>
+                                    <input type="text" class="form-control" id="id_remarks" maxlength="250" placeholder="Remarks" name="remarks"
+                                           data-validation="required" value="{{ form.remarks.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group margin-bottom-0">
+                                <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
