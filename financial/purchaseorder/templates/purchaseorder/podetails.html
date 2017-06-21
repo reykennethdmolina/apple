@@ -145,6 +145,10 @@
         {% endfor %}
         employee_list += "</select>";
 
+        filterDiscount();
+        filterExtraFields();
+        computeTotalAmounts();
+
         $('#id_branch').val(5).trigger('change');
 
         $('#id_item_name').select2().on("change", function(e) {
@@ -190,7 +194,7 @@
                         parseFloat($('#id_unitcost').val().replace( /,/g, ''));
                 var vat = $('#id_vat option:selected').data('rate') == '' ? 0 :
                         parseFloat($('#id_vat option:selected').data('rate')) / 100;
-                var vatCode = $('#id_vat').val();
+                var vatCode = $("#id_vat option:selected").text();
                 var qty = $("#id_qty").val() == "" ? 0 :
                         parseFloat($("#id_qty").val());
                 var discountType = $("#id_discounttype").val();
@@ -453,7 +457,9 @@
                     $(this).find('.tblInputExpirationDate').removeClass('hasDatepicker').removeAttr('id');
                     $(this).find('.tblInputExpirationDate').css('background-color', '#eee');
                     if (index === total - 1) {
-                        $(this).find('.tblSelectEmployee option[value=' + $('#id_employee').val() + ']').attr('selected','selected');
+                        {% if pagetype != "update" %}
+                            $(this).find('.tblSelectEmployee option[value=' + $('#id_employee').val() + ']').attr('selected','selected');
+                        {% endif %}
                     }
                 }
                 else
@@ -699,6 +705,11 @@
             else {
                 $('.shade').fadeIn();
                 var data = {'imported_items[]' : [],
+                        {% if pagetype == "update" %}
+                        'ponumber' : $('#id_ponum').val(),
+                        {% else %}
+                        'ponumber' : 'PONUMBER',
+                        {% endif %}
                         'id_vat' : $('#id_vat').val(),
                         'id_supplier' : $('#id_supplier').val(),
                         'secretkey' : $('#secretkey').val(),

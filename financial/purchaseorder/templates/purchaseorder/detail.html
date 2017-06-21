@@ -397,7 +397,7 @@
                                     <div class="master-degree">
                                         <div class="iconlist">
                                             {% if perms.purchaseorder.change_pomain and object.isdeleted == 0 %}
-                                                <a href="{% url 'requisitionform:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <a href="{% url 'purchaseorder:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_pencil" aria-hidden="true"></i>
                                                     </button>

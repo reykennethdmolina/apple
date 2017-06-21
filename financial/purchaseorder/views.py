@@ -1,9 +1,9 @@
-from django.views.generic import ListView, DetailView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q, F
+from django.db.models import Q, F, DecimalField, Value
 from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
@@ -87,6 +87,7 @@ class CreateView(CreateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['pagetype'] = "create"
         return context
 
     def form_valid(self, form):
@@ -261,10 +262,8 @@ class CreateView(CreateView):
                 if data['prfmain'] is not None:
                     if temp_prfmain != data['prfmain']:
                         existingtotalremqty = Prfmain.objects.get(id=data['prfmain']).totalremainingquantity
-                        print existingtotalremqty
                         totalpoqty = Podetail.objects.filter(pomain__ponum=ponum, prfmain=data['prfmain']). \
                             aggregate(Sum('quantity'))['quantity__sum']
-                        print totalpoqty
                         totalremainingqty = existingtotalremqty - totalpoqty
                         if totalremainingqty > -1:
                             Prfmain.objects.filter(id=data['prfmain']).\
@@ -281,7 +280,290 @@ class CreateView(CreateView):
                 update(pomain=Pomain.objects.get(ponum=ponum))
             # END: update po data
 
-            return HttpResponseRedirect('/purchaseorder/' + str(self.object.id))
+            return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
+
+
+@method_decorator(login_required, name='dispatch')
+class UpdateView(UpdateView):
+    model = Pomain
+    template_name = 'purchaseorder/edit.html'
+    fields = ['ponum', 'podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus', 'supplier',
+              'inputvattype', 'deferredvat', 'creditterm', 'particulars', 'creditterm', 'vat', 'atc', 'currency',
+              'deliverydate', 'designatedapprover', 'wtax']
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('purchaseorder.change_pomain') or self.object.isdeleted == 1:
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['secretkey'] = generatekey(self)
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
+            order_by('first_name')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
+        context['prfimported'] = Podata.objects.filter(pomain=self.object.pk, isdeleted=0).exclude(prfmain=None)
+        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
+                                                    totalremainingquantity__gt=0)
+        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
+        context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
+
+        detail = Podetail.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
+
+        if self.object.postatus != 'A':
+            Podetailtemp.objects.filter(pomain=self.object.pk).delete()        # clear all temp data
+            for d in detail:
+                detailtemp = Podetailtemp()
+                detailtemp.item_counter = d.item_counter
+                detailtemp.invitem_code = d.invitem_code
+                detailtemp.invitem_name = d.invitem_name
+                detailtemp.invitem_unitofmeasure = d.invitem_unitofmeasure
+                detailtemp.quantity = d.quantity
+                detailtemp.unitcost = d.unitcost
+                detailtemp.discountrate = d.discountrate
+                detailtemp.remarks = d.remarks
+                detailtemp.status = d.status
+                detailtemp.enterdate = d.enterdate
+                detailtemp.modifydate = d.modifydate
+                detailtemp.postdate = d.postdate
+                detailtemp.isdeleted = d.isdeleted
+                detailtemp.branch = d.branch
+                detailtemp.department = d.department
+                detailtemp.enterby = d.enterby
+                detailtemp.invitem = d.invitem
+                detailtemp.modifyby = d.modifyby
+                # detailtemp.podetail = Podetail.objects.get(pk=d.id)
+                detailtemp.pomain = d.pomain
+                detailtemp.postby = d.postby
+                detailtemp.discountamount = d.discountamount
+                detailtemp.grossamount = d.grossamount
+                detailtemp.netamount = d.netamount
+                detailtemp.vat = d.vat
+                detailtemp.vatable = d.vatable
+                detailtemp.vatamount = d.vatamount
+                detailtemp.vatexempt = d.vatexempt
+                detailtemp.vatrate = d.vatrate
+                detailtemp.vatzerorated = d.vatzerorated
+                detailtemp.currency = d.currency
+                detailtemp.unitofmeasure = d.unitofmeasure
+                detailtemp.assetnum = d.assetnum
+                detailtemp.employee = d.employee
+                detailtemp.employee_code = d.employee_code
+                detailtemp.employee_name = d.employee_name
+                detailtemp.serialnum = d.serialnum
+                detailtemp.expirationdate = d.expirationdate
+                detailtemp.department_code = d.department_code
+                detailtemp.department_name = d.department_name
+                detailtemp.prfdetail = d.prfdetail
+                detailtemp.prfmain = d.prfmain
+                detailtemp.save()
+            podetailtemp = Podetailtemp.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
+        else:
+            podetailtemp = Podetail.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
+
+        context['podetailtemp'] = podetailtemp
+
+        context['grossunitcost'] = []
+
+        for data in context['podetailtemp']:
+            grossunitcost = float(data.unitcost) / (1 + (float(data.vatrate) / 100))
+            context['grossunitcost'].append(grossunitcost)
+
+        context['data'] = zip(context['podetailtemp'], context['grossunitcost'])
+        context['pagetype'] = "update"
+        context['pomain'] = self.object.pk
+        return context
+
+    def form_valid(self, form):
+        if Podetailtemp.objects.filter(  # this will not include APPROVED purchase orders
+                Q(isdeleted=0), Q(pomain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])):
+            self.object = form.save(commit=False)
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+
+            # if self.object.rfstatus == 'A':  the save line below will be used for APPROVED purchase orders
+            #     self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
+
+            self.object.save(update_fields=['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus',
+                                            'supplier', 'inputvattype', 'deferredvat', 'creditterm', 'particulars',
+                                            'creditterm', 'vat', 'atc', 'currency', 'deliverydate',
+                                            'designatedapprover', 'wtax'])
+
+            Podetailtemp.objects.filter(isdeleted=1, pomain=self.object.pk).delete()
+
+            Podetail.objects.filter(pomain=self.object.pk).update(isdeleted=1)
+
+            alltempdetail = Podetailtemp.objects.filter(
+                Q(isdeleted=0), Q(pomain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])
+            ).order_by('enterdate')
+            podetaildeleted = Podetail.objects.filter(pomain=self.object.id, isdeleted=1)
+            for data in podetaildeleted:
+                if Prfpotransaction.objects.filter(podetail=data.id):
+                    deleteprfpotransactionitem(data)
+            i = 1
+            pomain_totalamount = 0
+            for atd in alltempdetail:
+                # START: transfer po detail temp data to po detail, reflecting changes made in the screen
+                alldetail = Podetail()
+                alldetail.item_counter = i
+                alldetail.pomain = Pomain.objects.get(ponum=self.request.POST['ponum'])
+                alldetail.invitem = atd.invitem
+                alldetail.invitem_code = atd.invitem_code
+                alldetail.invitem_name = atd.invitem_name
+                alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.
+                                                                            getlist('temp_item_um')[i - 1], isdeleted=0,
+                                                                            status='A').code
+                alldetail.quantity = self.request.POST.getlist('temp_quantity')[i - 1]
+                alldetail.unitcost = self.request.POST.getlist('temp_unitcost')[i - 1]
+                alldetail.discountrate = self.request.POST.getlist('temp_discountrate')[i - 1] if \
+                    self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else 0
+                alldetail.remarks = self.request.POST.getlist('temp_remarks')[i - 1]
+                alldetail.status = atd.status
+                alldetail.enterdate = atd.enterdate
+                alldetail.modifydate = atd.modifydate
+                alldetail.postdate = atd.postdate
+                alldetail.isdeleted = atd.isdeleted
+                alldetail.branch = Branch.objects.get(pk=self.request.POST.getlist('temp_branch')[i - 1], isdeleted=0,
+                                                      status='A')
+                alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i - 1],
+                                                              isdeleted=0)
+                alldetail.department_code = alldetail.department.code
+                alldetail.department_name = alldetail.department.departmentname
+                alldetail.enterby = atd.enterby
+                alldetail.modifyby = atd.modifyby
+                alldetail.postby = atd.postby
+                alldetail.vat = Vat.objects.get(pk=self.request.POST['vat'], isdeleted=0, status='A')
+                alldetail.vatrate = alldetail.vat.rate
+                alldetail.currency = atd.currency
+                alldetail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.getlist('temp_item_um')[i - 1],
+                                                                    isdeleted=0, status='A')
+
+                grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
+                alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
+                alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
+                    self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
+                    self.request.POST.getlist('temp_discountamount')[i - 1])
+                discountedAmount = alldetail.grossamount - alldetail.discountamount
+                alldetail.vatamount = discountedAmount * (float(alldetail.vatrate) / 100)
+                alldetail.netamount = discountedAmount + alldetail.vatamount
+
+                if alldetail.vatrate > 0:
+                    alldetail.vatable = discountedAmount
+                    alldetail.vatexempt = 0
+                    alldetail.vatzerorated = 0
+                elif alldetail.vat.code == "VE":
+                    alldetail.vatable = 0
+                    alldetail.vatexempt = discountedAmount
+                    alldetail.vatzerorated = 0
+                elif alldetail.vat.code == "ZE":
+                    alldetail.vatable = 0
+                    alldetail.vatexempt = 0
+                    alldetail.vatzerorated = discountedAmount
+
+                if 'temp_expirationdate' in self.request.POST:
+                    if self.request.POST.getlist('temp_expirationdate')[i - 1] != '':
+                        alldetail.expirationdate = self.request.POST.getlist('temp_expirationdate')[i - 1]
+                if 'temp_employee' in self.request.POST:
+                    if self.request.POST.getlist('temp_employee')[i - 1] != '':
+                        alldetail.employee = Employee.objects.get(pk=self.request.POST.getlist('temp_employee')[i - 1])
+                        alldetail.employee_code = alldetail.employee.code
+                        alldetail.employee_name = alldetail.employee.firstname + ' ' + alldetail.employee.lastname
+                if 'temp_assetnum' in self.request.POST:
+                    if self.request.POST.getlist('temp_assetnum')[i - 1] != '':
+                        alldetail.assetnum = self.request.POST.getlist('temp_assetnum')[i - 1]
+                if 'temp_serialnum' in self.request.POST:
+                    if self.request.POST.getlist('temp_serialnum')[i - 1] != '':
+                        alldetail.serialnum = self.request.POST.getlist('temp_serialnum')[i - 1]
+
+                alldetail.prfmain = atd.prfmain
+                alldetail.prfdetail = atd.prfdetail
+
+                alldetail.save()
+                # END: transfer po detail temp data to po detail, reflecting changes made in the screen
+
+                # START: updates on prfpotransaction, prfdetail and prfmain
+                if atd.prfmain:
+                    podetail = Podetail.objects.get(pk=alldetail.id)
+
+                    if podetail.quantity <= podetail.prfdetail.poremainingquantity and \
+                                    podetail.prfdetail.isfullypo == 0:
+                        data = Prfpotransaction()
+                        data.prfmain = podetail.prfmain
+                        data.prfdetail = podetail.prfdetail
+                        data.pomain = podetail.pomain
+                        data.podetail = podetail
+                        data.poquantity = podetail.quantity
+                        data.save()
+
+                        # adjust prf detail
+                        newpototalquantity = podetail.prfdetail.pototalquantity + data.poquantity
+                        newporemainingquantity = podetail.prfdetail.poremainingquantity - data.poquantity
+                        if newporemainingquantity == 0:
+                            isfullypo = 1
+                        else:
+                            isfullypo = 0
+
+                        Prfdetail.objects.filter(pk=data.prfdetail.id).update(pototalquantity=newpototalquantity,
+                                                                              poremainingquantity=newporemainingquantity,
+                                                                              isfullypo=isfullypo)
+
+                        # adjust prf main
+                        prfmain_poquantity = Prfmain.objects.get(pk=data.prfmain.id)
+                        newtotalremainingquantity = prfmain_poquantity.totalremainingquantity - data.poquantity
+                        Prfmain.objects.filter(pk=data.prfmain.id).update(
+                            totalremainingquantity=newtotalremainingquantity)
+                # END: updates on prfpotransaction, prfdetail and prfmain
+
+                # START: update total fields in po main
+                pomain_totalamount += ((float(alldetail.unitcost) * float(alldetail.quantity)) -
+                                       float(alldetail.discountamount))
+                atd.delete()
+                i += 1
+
+            Podetailtemp.objects.filter(pomain=self.object.pk).delete()  # clear all temp data
+            Podetail.objects.filter(pomain=self.object.pk, isdeleted=1).delete()
+
+            po_main_aggregates = Podetail.objects.filter(pomain=self.object.pk).aggregate(Sum('discountamount'),
+                                                                                          Sum('grossamount'),
+                                                                                          Sum('netamount'),
+                                                                                          Sum('vatable'),
+                                                                                          Sum('vatamount'),
+                                                                                          Sum('vatexempt'),
+                                                                                          Sum('vatzerorated'),
+                                                                                          Sum('unitcost'),
+                                                                                          Sum('quantity'))
+
+            Pomain.objects.filter(pk=self.object.pk, isdeleted=0, status='A'). \
+                update(discountamount=po_main_aggregates['discountamount__sum'],
+                       grossamount=po_main_aggregates['grossamount__sum'],
+                       netamount=po_main_aggregates['netamount__sum'], vatable=po_main_aggregates['vatable__sum'],
+                       vatamount=po_main_aggregates['vatamount__sum'], vatexempt=po_main_aggregates['vatexempt__sum'],
+                       vatzerorated=po_main_aggregates['vatzerorated__sum'],
+                       totalamount=pomain_totalamount,
+                       totalquantity=po_main_aggregates['quantity__sum'])
+            # END: update total fields in po main
+
+            # START: update po data
+            podatafordeletion = Podata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=2,
+                                                      pomain=self.object.pk)
+            for data in podatafordeletion:
+                Podata.objects.filter(isdeleted=0, pomain=data.pomain, prfmain=data.prfmain).update(isdeleted=1)
+                data.delete()
+            Podata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0, pomain=None).\
+                update(pomain=self.object.pk)
+            # END: update po data
+
+            return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -509,11 +791,15 @@ def saveimporteddetailtemp(request):
                                       ])
 
         # store temppodata
-        if not Podata.objects.filter(prfmain=prfmain, secretkey=request.POST['secretkey'], pomain=None).exists():
-            detail = Podata()
-            detail.secretkey = request.POST['secretkey']
-            detail.prfmain = prfmain
-            detail.save()
+        Podata.objects.filter(secretkey=request.POST['secretkey'], isdeleted=2, pomain__ponum=request.POST['ponumber'],
+                              prfmain=prfmain).delete()
+        if not Podata.objects.filter(prfmain=prfmain, isdeleted=0, secretkey=request.POST['secretkey'],
+                                     pomain=None).exists():
+            if not Podata.objects.filter(prfmain=prfmain, isdeleted=0, pomain__ponum=request.POST['ponumber']).exists():
+                detail = Podata()
+                detail.secretkey = request.POST['secretkey']
+                detail.prfmain = prfmain
+                detail.save()
 
         data = {
             'status': 'success',
@@ -556,28 +842,68 @@ def deleteimportedprf(request):
 def deletedetailtemp(request):
     podatadeleted = 'false'
     prfnum = None
+    print request.POST['ponum']
     if request.method == 'POST':
         try:
             detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
                                                   secretkey=request.POST['secretkey'],
                                                   pomain=None)
             detailtemp.delete()
-
             if request.POST['prfmainid'] != '':
                 if not Podetailtemp.objects.filter(secretkey=request.POST['secretkey'],
-                                                   prfmain=request.POST['prfmainid'], pomain=None).exists():
-                    Podata.objects.get(secretkey=request.POST['secretkey'], prfmain=request.POST['prfmainid'],
-                                       pomain=None).delete()
-                    podatadeleted = 'true'
-                    prfnum = Prfmain.objects.get(id=request.POST['prfmainid']).prfnum
-
+                                                   prfmain=request.POST['prfmainid']).exists():
+                    try:
+                        Podata.objects.get(secretkey=request.POST['secretkey'], prfmain=request.POST['prfmainid'],
+                                           pomain=None).delete()
+                    except Podata.DoesNotExist:
+                        print "po data does not exist"
+                    if not Podata.objects.filter(prfmain=request.POST['prfmainid'], pomain__ponum=request.POST['ponum']).\
+                            exists():
+                        podatadeleted = 'true'
+                        prfnum = Prfmain.objects.get(id=request.POST['prfmainid']).prfnum
+                    else:
+                        if Podata.objects.filter(prfmain=request.POST['prfmainid'], pomain__ponum=request.POST['ponum'],
+                                                 isdeleted=0).exclude(secretkey=request.POST['secretkey']).exists():
+                            podatatobecopied = Podata.objects.get(prfmain=request.POST['prfmainid'],
+                                                                  pomain__ponum=request.POST['ponum'], isdeleted=0)
+                            if not Podata.objects.filter(prfmain=request.POST['prfmainid'],
+                                                         pomain__ponum=request.POST['ponum'],
+                                                         isdeleted=2).exists():
+                                if not Podetailtemp.objects.filter(pomain__ponum=request.POST['ponum'],
+                                                                   prfmain=request.POST['prfmainid'],
+                                                                   isdeleted=0).exists():
+                                    podatadeleted = 'true'
+                                    prfnum = Prfmain.objects.get(id=request.POST['prfmainid']).prfnum
+                                    podatacopy = Podata()
+                                    podatacopy.secretkey = request.POST['secretkey']
+                                    podatacopy.isdeleted = 2
+                                    podatacopy.pomain = podatatobecopied.pomain
+                                    podatacopy.prfmain = podatatobecopied.prfmain
+                                    podatacopy.save()
         except Podetailtemp.DoesNotExist:
-            print "temp detail has pomain"
             detailtemp = Podetailtemp.objects.get(pk=request.POST['podetailid'],
                                                   pomain__ponum=request.POST['ponum'])
             detailtemp.isdeleted = 1
             detailtemp.save()
 
+            if request.POST['prfmainid'] != '':
+                podetailtemp = Podetailtemp.objects.filter(secretkey=request.POST['secretkey'],
+                                                           prfmain=request.POST['prfmainid'])
+                if not podetailtemp.filter(isdeleted=0).exists():
+                    podatatobecopied = Podata.objects.get(prfmain=request.POST['prfmainid'],
+                                                          pomain__ponum=request.POST['ponum'], isdeleted=0)
+                    if not Podata.objects.filter(prfmain=request.POST['prfmainid'], pomain__ponum=request.POST['ponum'],
+                                                 isdeleted=2).exists():
+                        if not Podetailtemp.objects.filter(pomain__ponum=request.POST['ponum'],
+                                                           prfmain=request.POST['prfmainid'], isdeleted=0).exists():
+                            podatadeleted = 'true'
+                            prfnum = Prfmain.objects.get(id=request.POST['prfmainid']).prfnum
+                            podatacopy = Podata()
+                            podatacopy.secretkey = request.POST['secretkey']
+                            podatacopy.isdeleted = 2
+                            podatacopy.pomain = podatatobecopied.pomain
+                            podatacopy.prfmain = podatatobecopied.prfmain
+                            podatacopy.save()
         data = {
             'status': 'success',
             'podatadeleted': podatadeleted,

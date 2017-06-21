@@ -41,7 +41,7 @@
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% if perms.purchaseorder.change_pomain and data.isdeleted == 0 %}
-                                            <a href="{% url 'requisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'purchaseorder:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}
