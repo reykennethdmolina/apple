@@ -2,7 +2,7 @@ import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from acctentry.views import generatekey
 from supplier.models import Supplier
 from branch.models import Branch
@@ -12,13 +12,14 @@ from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
+from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain
 
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
     model = Apmain
-    template_name = 'accountspayable/create.html'
+    template_name = 'accountspayable/create2.html'
     fields = ['apdate', 'aptype', 'payee', 'branch',
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
@@ -80,3 +81,28 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
         return HttpResponseRedirect('/accountspayable')
+
+
+@csrf_exempt
+def selectSupplier(request):
+    if request.method == 'GET':
+
+        # listitems = []
+
+        # listitems.append("asd")
+        # listitems.append("ddd")
+        # listitems.append("asssd")
+        # listitems.append("asder")
+
+        listitems = [{'text':'bob', 'id':27}, {'text':'bobby', 'id':28}]
+
+        data = {
+            'status': 'success',
+            'items': listitems,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
