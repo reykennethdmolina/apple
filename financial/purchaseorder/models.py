@@ -96,7 +96,9 @@ class Pomain(models.Model):
     class Meta:
         db_table = 'pomain'
         ordering = ['-pk']
-        permissions = (("view_purchaseorder", "Can view purchaseorder"),)
+        permissions = (("view_purchaseorder", "Can view purchaseorder"),
+                       ("approve_assignedpo", "Can approve assigned po"),
+                       ("approve_allpo", "Can approve all po"),)
 
     def get_absolute_url(self):
         return reverse('purchaseorder:detail', kwargs={'pk': self.pk})

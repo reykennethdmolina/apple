@@ -543,8 +543,7 @@
 
             enableDisableButtons();
 
-            if($("#id_postatus option:selected").text() == "For Approval")
-                $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+            enableDisablePOStatus();
 
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
@@ -564,6 +563,10 @@
 
             $("#id_wtax").change(function(){
                 showRate("#id_wtax", "wtaxrate", "RATE");
+            });
+
+            $("#id_designatedapprover").change(function(){
+                enableDisablePOStatus();
             });
 
             $("#id_supplier").change(function(){
@@ -598,6 +601,25 @@
                 else {
                     $('#importbutton').prop("disabled", false);
                     $('#detailsbutton').prop("disabled", false);
+                }
+            }
+
+            function enableDisablePOStatus(){
+                if($("#id_postatus option:selected").text() == "For Approval"){
+                    var designatedApprover = $('#id_designatedapprover').val();
+                    var currentUser = "";
+                    currentUser = {{ request.user.id }};
+                    if(designatedApprover != currentUser){
+                        {% if not perms.purchaseorder.approve_allpo %}
+                            $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+                        {% endif %}
+                    }
+                    else{
+                        {% if not perms.purchaseorder.approve_allpo and not perms.purchaseorder.approve_assignedpo %}
+                            $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+                        {% endif %}
+                    }
+
                 }
             }
 
