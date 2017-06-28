@@ -12,7 +12,6 @@ from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
-from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain
 
 
@@ -82,27 +81,3 @@ class CreateView(CreateView):
         self.object.save()
         return HttpResponseRedirect('/accountspayable')
 
-
-@csrf_exempt
-def selectSupplier(request):
-    if request.method == 'GET':
-
-        # listitems = []
-
-        # listitems.append("asd")
-        # listitems.append("ddd")
-        # listitems.append("asssd")
-        # listitems.append("asder")
-
-        listitems = [{'text':'bob', 'id':27}, {'text':'bobby', 'id':28}]
-
-        data = {
-            'status': 'success',
-            'items': listitems,
-        }
-    else:
-        data = {
-            'status': 'error',
-        }
-
-    return JsonResponse(data)
