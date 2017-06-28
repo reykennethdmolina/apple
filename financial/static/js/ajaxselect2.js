@@ -1,7 +1,8 @@
 /**
  * Created by kelvin on 6/28/2017.
  */
-function ajaxselect2(url, table){
+function ajaxselect2(table){
+    url = "/utils/ajaxselect/";
     $('.ajaxselect2').select2({
         placeholder: "Search for an Item",
         ajax: {
