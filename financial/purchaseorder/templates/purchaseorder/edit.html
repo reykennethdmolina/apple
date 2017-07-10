@@ -273,9 +273,11 @@
                                         <div class="widgett-header cover padding-0 bg-grey-600">
                                             <div class="background-cover padding-10" style="color: white;">
                                                 PRF - {{ data.prfmain.prfnum }}
+                                                {% if postatus != 'Approved' %}
                                                 <button type="button" class="close removeprf" data-prf="{{ data.prfmain.prfnum }}">
                                                     <i class="icon fa-close" aria-hidden="true"></i>
                                                 </button>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -294,8 +296,10 @@
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                             <div class="col-sm-6">
+                                {% if postatus != 'Approved' %}
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
+                                {% endif %}
                             </div>
                         </div>
                         </form>
@@ -354,7 +358,7 @@
                                                         <span style="cursor:pointer;font-size:15px;" class="remove_item" data-itemno="{{ podetailtemp.item_counter }}"
                                                               data-itemid="{{ podetailtemp.invitem.id }}" data-podetailid="{{ podetailtemp.id }}"
                                                               data-prfmainid="{{ podetailtemp.prfmain.id }}" data-prfdetailid="{{ podetailtemp.prfdetail.id }}">
-                                                            <i class="icon fa-trash text-info" aria-hidden="true"></i>
+                                                            {% if postatus != 'Approved' %}<i class="icon fa-trash text-info" aria-hidden="true"></i>{% endif %}
                                                         </span>&nbsp;&nbsp;{{ podetailtemp.invitem_code }}</td>
                                                     <td class="tblItemName">{{ podetailtemp.invitem_name }}</td>
                                                     <td class="tblRemarks">
@@ -513,14 +517,162 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            showRate("#id_vat", "vatrate", "RATE");
-            showRate("#id_atc", "atcrate", "RATE");
-            showRate("#id_currency", "fxrate", "FX RATE");
-            showRate("#id_wtax", "wtaxrate", "RATE");
+            var postatus = "{{ postatus }}";
 
-            $('#id_supplier option:selected').siblings().prop("disabled", true);
-            $('#id_supplier').select2("destroy");
-            $('#id_supplier').select2();
+            if(postatus == "Approved"){
+                $("#id_podate").prop("readonly", true);
+                $("#id_podate").datepicker("destroy");
+                $("#id_podate").removeClass("datepicker").removeAttr('id');
+                $("#id_refnum").prop("readonly", true);
+                $("#id_urgencytype option:selected").siblings().attr('disabled','disabled');
+                $("#id_dateneeded").prop("readonly", true);
+                $("#id_dateneeded").datepicker("destroy");
+                $("#id_dateneeded").removeClass("datepicker").removeAttr('id');
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $("#id_postatus option[value='F']").attr('disabled', 'disabled');
+                $('#id_supplier option:selected').siblings().prop("disabled", true);
+                $('#id_supplier').select2("destroy");
+                $('#id_supplier').select2();
+                $('#id_creditterm option:selected').siblings().prop("disabled", true);
+                $('#id_vat option:selected').siblings().prop("disabled", true);
+                $('#id_atc option:selected').siblings().prop("disabled", true);
+                $('#id_currency option:selected').siblings().prop("disabled", true);
+                $('#id_inputvattype option:selected').siblings().prop("disabled", true);
+                $('#id_deferredvat option:selected').siblings().prop("disabled", true);
+                $('#id_wtax option:selected').siblings().prop("disabled", true);
+                $("#id_deliverydate").prop("readonly", true);
+                $("#id_deliverydate").datepicker("destroy");
+                $("#id_deliverydate").removeClass("datepicker").removeAttr('id');
+                $(".tblSelectUnitOfMeasure option:selected").siblings().attr('disabled','disabled');
+                $(".tblSelectDepartment option:selected").siblings().attr('disabled','disabled');
+                $(".tblInputExpirationDate").prop("readonly", true);
+                $(".tblInputExpirationDate").datepicker("destroy");
+                $(".tblInputExpirationDate").removeClass("datepicker").removeAttr('id');
+                $(".tblSelectEmployee option:selected").siblings().attr('disabled','disabled');
+                $(".tblInputSerialNum").prop("readonly", true);
+                $(".tblInputAssetNum").prop("readonly", true);
+                $(".tblInputUnitCost").prop("readonly", true);
+                $(".tblInputQuantity").prop("readonly", true);
+                $(".tblInputDiscountRate").prop("readonly", true);
+                $(".tblInputDiscountAmount").prop("readonly", true);
+                $(".tblSelectDiscountType option:selected").siblings().attr('disabled','disabled');
+            }
+            else{
+                showRate("#id_vat", "vatrate", "RATE");
+                showRate("#id_atc", "atcrate", "RATE");
+                showRate("#id_currency", "fxrate", "FX RATE");
+                showRate("#id_wtax", "wtaxrate", "RATE");
+
+                $('#id_supplier option:selected').siblings().prop("disabled", true);
+                $('#id_supplier').select2("destroy");
+                $('#id_supplier').select2();
+
+                enableDisableButtons();
+
+                enableDisablePOStatus();
+
+                enableDisableDesignatedApprover();
+
+                $("#detailsbutton").click(function (){
+                    $("#detailentry").show();
+                });
+
+                $("#id_vat").change(function(){
+                    showRate("#id_vat", "vatrate", "RATE");
+                });
+
+                $("#id_atc").change(function(){
+                    showRate("#id_atc", "atcrate", "RATE");
+                });
+
+                $("#id_currency").change(function(){
+                    showRate("#id_currency", "fxrate", "FX RATE");
+                });
+
+                $("#id_wtax").change(function(){
+                    showRate("#id_wtax", "wtaxrate", "RATE");
+                });
+
+                $("#id_designatedapprover").change(function(){
+                    enableDisablePOStatus();
+                    $("#id_postatus").val("F");
+                });
+
+                $("#id_supplier").change(function(){
+                    enableDisableButtons();
+                    displaySupplierData();
+                });
+
+                $("#importbutton").click(function(){
+                    $('#importprfpreview tbody').empty();
+                    $("#importprfselect2").val('').trigger('change.select2');
+                    $('#checkUncheckAll').remove();
+                    $('#iconChecked').remove();
+                });
+
+                function displaySupplierData(){
+                    $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+                    $('#id_vat').val($("#id_supplier option:selected").data('vat'));
+                    $('#id_atc').val($("#id_supplier option:selected").data('atc'));
+                    $('#id_currency').val($("#id_supplier option:selected").data('currency'));
+                    $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
+                    $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
+                    showRate("#id_vat", "vatrate", "RATE");
+                    showRate("#id_atc", "atcrate", "RATE");
+                    showRate("#id_currency", "fxrate", "FX RATE");
+                }
+
+                function enableDisableButtons(){
+                    if($("#id_supplier option:selected").text() == "-- Select --"){
+                        $('#importbutton').prop("disabled", true);
+                        $('#detailsbutton').prop("disabled", true);
+                    }
+                    else {
+                        $('#importbutton').prop("disabled", false);
+                        $('#detailsbutton').prop("disabled", false);
+                    }
+                }
+
+                function enableDisablePOStatus(){
+                    if($("#id_postatus option:selected").text() == "For Approval"){
+                        $('#id_postatus option').prop("disabled", false);
+                        var designatedApprover = $('#id_designatedapprover').val();
+                        var currentUser = "";
+                        currentUser = {{ request.user.id }};
+                        if(designatedApprover != currentUser){
+                            {% if not perms.purchaseorder.approve_allpo %}
+                                $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+                            {% endif %}
+                        }
+                        else{
+                            {% if not perms.purchaseorder.approve_allpo and not perms.purchaseorder.approve_assignedpo %}
+                                $("#id_postatus option:selected").siblings().attr('disabled','disabled');
+                            {% endif %}
+                        }
+
+                    }
+                }
+
+                function enableDisableDesignatedApprover(){
+                    $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                    {% if perms.purchaseorder.approve_allpo %}
+                        $('#id_designatedapprover option').prop("disabled", false);
+                    {% endif %}
+                    {% if not perms.purchaseorder.approve_allpo and not perms.purchaseorder.approve_assignedpo %}
+                        $('#id_designatedapprover option').prop("disabled", false);
+                    {% endif %}
+                }
+
+                function showRate(field, rateSpan, defaultText){
+                    var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
+                            parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
+                    $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
+                    if($(field + " option:selected").text() == "-- Select --"){
+                        $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+                    }
+                }
+            }
+
 
             $("#form-b").submit(function(event){
                 if($('.tblInputQuantity').length == 0) {
@@ -539,100 +691,6 @@
                         event.preventDefault();
                     }
                 });
-            });
-
-            enableDisableButtons();
-
-            enableDisablePOStatus();
-
-            $("#detailsbutton").click(function (){
-                $("#detailentry").show();
-            });
-
-            $("#id_vat").change(function(){
-                showRate("#id_vat", "vatrate", "RATE");
-            });
-
-            $("#id_atc").change(function(){
-                showRate("#id_atc", "atcrate", "RATE");
-            });
-
-            $("#id_currency").change(function(){
-                showRate("#id_currency", "fxrate", "FX RATE");
-            });
-
-            $("#id_wtax").change(function(){
-                showRate("#id_wtax", "wtaxrate", "RATE");
-            });
-
-            $("#id_designatedapprover").change(function(){
-                enableDisablePOStatus();
-            });
-
-            $("#id_supplier").change(function(){
-                enableDisableButtons();
-                displaySupplierData();
-            });
-
-            $("#importbutton").click(function(){
-                $('#importprfpreview tbody').empty();
-                $("#importprfselect2").val('').trigger('change.select2');
-                $('#checkUncheckAll').remove();
-                $('#iconChecked').remove();
-            });
-
-            function displaySupplierData(){
-                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
-                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
-                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
-                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
-                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
-                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
-                showRate("#id_vat", "vatrate", "RATE");
-                showRate("#id_atc", "atcrate", "RATE");
-                showRate("#id_currency", "fxrate", "FX RATE");
-            }
-
-            function enableDisableButtons(){
-                if($("#id_supplier option:selected").text() == "-- Select --"){
-                    $('#importbutton').prop("disabled", true);
-                    $('#detailsbutton').prop("disabled", true);
-                }
-                else {
-                    $('#importbutton').prop("disabled", false);
-                    $('#detailsbutton').prop("disabled", false);
-                }
-            }
-
-            function enableDisablePOStatus(){
-                if($("#id_postatus option:selected").text() == "For Approval"){
-                    var designatedApprover = $('#id_designatedapprover').val();
-                    var currentUser = "";
-                    currentUser = {{ request.user.id }};
-                    if(designatedApprover != currentUser){
-                        {% if not perms.purchaseorder.approve_allpo %}
-                            $("#id_postatus option:selected").siblings().attr('disabled','disabled');
-                        {% endif %}
-                    }
-                    else{
-                        {% if not perms.purchaseorder.approve_allpo and not perms.purchaseorder.approve_assignedpo %}
-                            $("#id_postatus option:selected").siblings().attr('disabled','disabled');
-                        {% endif %}
-                    }
-
-                }
-            }
-
-            function showRate(field, rateSpan, defaultText){
-                var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
-                        parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
-                $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
-                if($(field + " option:selected").text() == "-- Select --"){
-                    $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
-                }
-            }
-
-            $("#form-b").submit(function(event){
                 if($('.remove_item').length == 0) {
                     alert("Please add at least one item.");
                     event.preventDefault();

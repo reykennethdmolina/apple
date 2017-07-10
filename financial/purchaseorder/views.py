@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q, F, DecimalField, Value
+from django.db.models import Q, F
 from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
@@ -310,6 +310,7 @@ class UpdateView(UpdateView):
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
+        context['postatus'] = Pomain.objects.get(pk=self.object.pk).get_postatus_display()
         context['prfimported'] = Podata.objects.filter(pomain=self.object.pk, isdeleted=0).exclude(prfmain=None)
         context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
                                                     totalremainingquantity__gt=0)
@@ -394,10 +395,23 @@ class UpdateView(UpdateView):
             # if self.object.rfstatus == 'A':  the save line below will be used for APPROVED purchase orders
             #     self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
 
-            self.object.save(update_fields=['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded', 'postatus',
+            self.object.save(update_fields=['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded',
                                             'supplier', 'inputvattype', 'deferredvat', 'creditterm', 'particulars',
                                             'creditterm', 'vat', 'atc', 'currency', 'deliverydate',
-                                            'designatedapprover', 'wtax'])
+                                            'wtax'])
+
+            if self.request.POST['postatus'] == 'F':
+                self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
+                self.object.save()
+            else:
+                self.object.postatus = self.request.POST['postatus']
+                self.object.approverresponse = self.request.POST['postatus']
+                self.object.responsedate = datetime.datetime.now()
+                self.object.actualapprover = self.request.user
+                if self.request.POST['postatus'] == 'D':
+                    self.object.isdeleted = 0
+                    self.object.status = 'C'
+                self.object.save()
 
             Podetailtemp.objects.filter(isdeleted=1, pomain=self.object.pk).delete()
 
@@ -562,8 +576,30 @@ class UpdateView(UpdateView):
             Podata.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0, pomain=None).\
                 update(pomain=self.object.pk)
             # END: update po data
+        else:
+            self.object = form.save(commit=False)
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
 
-            return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
+            if self.request.POST['postatus'] != 'A':
+                self.object.postatus = self.request.POST['postatus']
+                self.object.responsedate = datetime.datetime.now()
+                self.object.actualapprover = self.request.user
+                if self.request.POST['postatus'] == 'D':
+                    self.object.isdeleted = 0
+                    self.object.approverresponse = 'D'
+                    self.object.status = 'C'
+            self.object.save()
+
+            approvedpoitems = Podetail.objects.filter(pomain=self.object.pk)
+            i = 0
+            for data in approvedpoitems:
+                data.remarks = self.request.POST.getlist('temp_remarks')[i]
+                data.save()
+                i += 1
+
+        return HttpResponseRedirect('/purchaseorder/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
