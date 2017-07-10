@@ -4,7 +4,7 @@
 function ajaxselect2(table){
     url = "/utils/ajaxselect/";
     $('.ajaxselect2').select2({
-        placeholder: "Search for an Item",
+        placeholder: "Enter keyword here...",
         ajax: {
             url: url,
             dataType: 'json',

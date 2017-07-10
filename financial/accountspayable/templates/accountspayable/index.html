@@ -1,13 +1,13 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Canvass Sheet {% endblock page-title %}
+{% block page-title %} Accounts Payable {% endblock page-title %}
 
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
-                {% if perms.canvasssheet.add_csmain %}
-                    <div class="text-right"><a href="{% url 'canvasssheet:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Canvass Sheet</button></a></div>
+                {% if perms.accountspayable.add_apmain %}
+                    <div class="text-right"><a href="{% url 'accountspayable:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Accounts Payable</button></a></div>
                 {% endif %}
             </div>
             <div class="col-md-12">
@@ -19,8 +19,8 @@
                                 <tr>
                                     <th><span>ID</span></th>
                                     <th><span>No.</span></th>
-                                    <th><span>Date requested</span></th>
-                                    <th><span>Particulars</span></th>
+                                    <th><span>Date</span></th>
+                                    <th><span>Type</span></th>
                                     <th><span>Status</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
@@ -29,26 +29,26 @@
                                 {% for data in data_list %}
                                 <tr>
                                     <td>{{ data.id }}</td>
-                                    <td>{{ data.csnum }}</td>
-                                    <td>{{ data.csdate }}</td>
-                                    <td>{{ data.particulars }}</td>
-                                    <td>{{ data.get_csstatus_display }}</td>
+                                    <td>{{ data.apnum }}</td>
+                                    <td>{{ data.apdate }}</td>
+                                    <td>{{ data.get_aptype_display }}</td>
+                                    <td>{{ data.get_apstatus_display }}</td>
                                     <td style="width: 150px; padding-left: 30px">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist" style="text-align: left">
-                                                <a href="{% url 'canvasssheet:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                    <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
-                                                </a>
-                                                {% if perms.canvasssheet.change_csmain %}
-                                                <a href="{% url 'canvasssheet:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+{#                                                <a href="{% url 'canvasssheet:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
+{#                                                    <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>#}
+{#                                                </a>#}
+                                                {% if perms.accountspayable.change_apmain %}
+                                                <a href="{% url 'accountspayable:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                                 </a>
                                                 {% endif %}
-                                                {% if perms.canvasssheet.delete_csmain and data.status != 'O' and data.csstatus != 'A' %}
-                                                <a href="{% url 'canvasssheet:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
-                                                    <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
-                                                </a>
-                                                {% endif %}
+{#                                                {% if perms.canvasssheet.delete_csmain and data.status != 'O' and data.csstatus != 'A' %}#}
+{#                                                <a href="{% url 'canvasssheet:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">#}
+{#                                                    <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>#}
+{#                                                </a>#}
+{#                                                {% endif %}#}
                                             </div>
                                         </div>
                                     </td>

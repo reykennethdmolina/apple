@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 # add models here
 from supplier.models import Supplier
 from chartofaccount.models import Chartofaccount
+from accountspayable.models import Apmain
+
 
 @csrf_exempt
 def ajaxSelect(request):
@@ -53,3 +55,35 @@ def ajaxSelect(request):
         }
 
     return JsonResponse(data)
+
+
+@csrf_exempt
+def ajaxSearch(request):
+    if request.method == 'POST':
+
+        # add model query here
+        if request.POST['table'] == "apmain":
+            items = Apmain.objects.all().filter(isdeleted=0).order_by('pk')
+
+            if request.POST['cache_apnum_from'] and request.POST['cache_apnum_to']:
+                items =items.filter(apnum__range=[int(request.POST['cache_apnum_from']),
+                                                  int(request.POST['cache_apnum_to'])])
+
+        listitems = []
+
+        for data in items:
+            if request.POST['table'] == "apmain":
+                listitems.append({'text': data.apnum, 'id': data.id})
+
+        data = {
+            'status': 'success',
+            'items': listitems,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+# pagination function goes here

@@ -65,7 +65,7 @@ class Apmain(models.Model):
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'accountspayable'
+        db_table = 'apmain'
         ordering = ['-pk']
         permissions = (("view_accountspayable", "Can view accountspayable"),)
 
