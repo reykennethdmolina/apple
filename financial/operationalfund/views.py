@@ -40,19 +40,36 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
         context['payee'] = Employee.objects.filter(isdeleted=0).order_by('pk')
-        # context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0, code='SI')
-        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        # context['headoffice'] = Branch.objects.get(code='HO').id
-        # context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        # context['invitem'] = Inventoryitem.objects.filter(isdeleted=0). \
-        #     filter(inventoryitemclass__inventoryitemtype__code='SI').order_by('description')
-        # context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        # context['totalremainingquantity'] = 0
         return context
 
     def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        year = str(form.cleaned_data['ofdate'].year)
+        yearqs = ofmain.objects.filter(ofnum__startswith=year)
+
+        if yearqs:
+            ofnumlast = yearqs.latest('ofnum')
+            latestofnum = str(ofnumlast)
+            print "latest: " + latestofnum
+
+            ofnum = year
+            last = str(int(latestofnum[4:]) + 1)
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                ofnum += '0'
+            ofnum += last
+
+        else:
+            ofnum = year + '000001'
+
+        print 'ofnum: ' + ofnum
+        self.object.ofnum = ofnum
+        self.object.enterby = self.request.user
+        self.object.modifyby = self.request.user
+        self.object.save()
         # if Rfdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
         #     self.object = form.save(commit=False)
         #
@@ -115,4 +132,5 @@ class CreateView(CreateView):
         #         dt.delete()
         #         i += 1
 
-            return HttpResponseRedirect('/requisitionform/' + str(self.object.id) + '/update')
+        # return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/update')
+        return HttpResponseRedirect('/operationalfund/')

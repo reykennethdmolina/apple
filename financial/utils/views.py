@@ -14,7 +14,7 @@ def ajaxSelect(request):
     if request.method == 'GET':
 
         # add model query here
-        if request.GET['table'] == "supplier":
+        if request.GET['table'] == "supplier" or request.GET['table'] == "payee":
             items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(name__icontains=request.GET['q']))\
                 .filter(isdeleted=0).order_by('-enterdate')
@@ -37,6 +37,8 @@ def ajaxSelect(request):
             # add model text format here
             if request.GET['table'] == "supplier":
                 text = data.code + " - " + data.name
+            elif request.GET['table'] == "payee":
+                text = data.name
             elif request.GET['table'] == "chartofaccount":
                 text = data.accountcode + " - " + data.title
 

@@ -4,6 +4,7 @@
 function ajaxselect2(table){
     url = "/utils/ajaxselect/";
     $('.ajaxselect2').select2({
+        //dropdownParent: parentmodal,
         placeholder: "Enter keyword here...",
         ajax: {
             url: url,
