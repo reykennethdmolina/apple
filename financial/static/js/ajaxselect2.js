@@ -1,10 +1,12 @@
 /**
  * Created by kelvin on 6/28/2017.
  */
-function ajaxselect2(table){
+function ajaxselect2(table, customid){
+
     url = "/utils/ajaxselect/";
-    $('.ajaxselect2').select2({
-        //dropdownParent: parentmodal,
+    toCall = customid != null ? $('#'+customid) : $('.ajaxselect2');
+
+    toCall.select2({
         placeholder: "Enter keyword here...",
         ajax: {
             url: url,
