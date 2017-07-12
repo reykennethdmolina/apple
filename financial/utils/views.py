@@ -16,11 +16,15 @@ def ajaxSelect(request):
     if request.method == 'GET':
 
         # add model query here
-        if request.GET['table'] == "supplier" or request.GET['table'] == "payee":
+        if request.GET['table'] == "supplier" or request.GET['table'] == "supplier_payee":
             items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(name__icontains=request.GET['q']))\
                 .filter(isdeleted=0).order_by('-enterdate')
         elif request.GET['table'] == "chartofaccount":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
+                                                        Q(title__icontains=request.GET['q']))\
+                .filter(isdeleted=0).order_by('-enterdate')
+        elif request.GET['table'] == "chartofaccount_arcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
                                                         Q(title__icontains=request.GET['q']))\
                 .filter(isdeleted=0).order_by('-enterdate')
@@ -49,7 +53,7 @@ def ajaxSelect(request):
             # add model text format here
             if request.GET['table'] == "supplier":
                 text = data.code + " - " + data.name
-            elif request.GET['table'] == "payee":
+            elif request.GET['table'] == "supplier_payee":
                 text = data.name
             elif request.GET['table'] == "chartofaccount":
                 text = data.accountcode + " - " + data.title
