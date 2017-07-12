@@ -126,7 +126,7 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['payee'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
@@ -134,14 +134,12 @@ class UpdateView(UpdateView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
         context['currency'] = Currency.objects.filter(isdeleted=0, symbol='PHP')
+        context['apnum'] = self.object.apnum
         return context
 
 
 def comments():
     print 123
     # copy po format for vat field
-    # no result found in lookup
-    # cache recently typed in search bar
-    # template edit no payee ajax yet
     # clear cache based on condition
     # cache api

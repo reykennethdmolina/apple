@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 # add models here
 from supplier.models import Supplier
 from chartofaccount.models import Chartofaccount
+from employee.models import Employee
+from department.models import Department
 from accountspayable.models import Apmain
 
 
@@ -22,9 +24,19 @@ def ajaxSelect(request):
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
                                                         Q(title__icontains=request.GET['q']))\
                 .filter(isdeleted=0).order_by('-enterdate')
+        elif request.GET['table'] == "employee":
+            items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(firstname__icontains=request.GET['q']) |
+                                                  Q(middlename__icontains=request.GET['q']) |
+                                                  Q(lastname__icontains=request.GET['q']))\
+                .filter(isdeleted=0).order_by('-enterdate')
+        elif request.GET['table'] == "department":
+            items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(departmentname__icontains=request.GET['q']))\
+                .filter(isdeleted=0).order_by('-enterdate')
 
         count = items.count()
-        limit = 6
+        limit = 10
         offset = (int(request.GET['page']) - 1) * limit
         items = items[offset:offset+limit]
         endcount = offset + limit
@@ -41,6 +53,10 @@ def ajaxSelect(request):
                 text = data.name
             elif request.GET['table'] == "chartofaccount":
                 text = data.accountcode + " - " + data.title
+            elif request.GET['table'] == "employee":
+                text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
+            elif request.GET['table'] == "department":
+                text = data.code + " - " + data.departmentname
 
             newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
             newtext = newtext.sub(q.upper(), text)
