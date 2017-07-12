@@ -18,26 +18,29 @@ def ajaxSelect(request):
         # add model query here
         if request.GET['table'] == "supplier" or request.GET['table'] == "supplier_payee":
             items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(name__icontains=request.GET['q']))\
-                .filter(isdeleted=0).order_by('-enterdate')
+                                                  Q(name__icontains=request.GET['q']))
+
         elif request.GET['table'] == "chartofaccount":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q']))\
-                .filter(isdeleted=0).order_by('-enterdate')
+                                                        Q(title__icontains=request.GET['q']))
         elif request.GET['table'] == "chartofaccount_arcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q']))\
-                .filter(isdeleted=0).order_by('-enterdate')
+                                                        Q(title__icontains=request.GET['q'])).filter(main=1)
+        elif request.GET['table'] == "chartofaccount_revcode":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
+                                                        Q(title__icontains=request.GET['q'])).filter(main__in=[2, 4])
+
         elif request.GET['table'] == "employee":
             items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(firstname__icontains=request.GET['q']) |
                                                   Q(middlename__icontains=request.GET['q']) |
-                                                  Q(lastname__icontains=request.GET['q']))\
-                .filter(isdeleted=0).order_by('-enterdate')
+                                                  Q(lastname__icontains=request.GET['q']))
+
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                    Q(departmentname__icontains=request.GET['q']))\
-                .filter(isdeleted=0).order_by('-enterdate')
+                                                    Q(departmentname__icontains=request.GET['q']))
+
+        items = items.filter(isdeleted=0).order_by('-enterdate')
 
         count = items.count()
         limit = 10
@@ -55,8 +58,10 @@ def ajaxSelect(request):
                 text = data.code + " - " + data.name
             elif request.GET['table'] == "supplier_payee":
                 text = data.name
-            elif request.GET['table'] == "chartofaccount":
-                text = data.accountcode + " - " + data.title
+            elif request.GET['table'] == "chartofaccount" \
+                    or request.GET['table'] == "chartofaccount_arcode" \
+                    or request.GET['table'] == "chartofaccount_revcode":
+                text = "[" + data.accountcode + "] - " + data.title
             elif request.GET['table'] == "employee":
                 text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
             elif request.GET['table'] == "department":
