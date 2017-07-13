@@ -29,7 +29,7 @@ class IndexView(ListView):
 class CreateView(CreateView):
     model = Ofmain
     template_name = 'operationalfund/create.html'
-    fields = ['ofdate', 'payee', 'amount', 'particulars', 'designatedapprover']
+    fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('operationalfund.add_ofmain'):
@@ -48,7 +48,7 @@ class CreateView(CreateView):
         self.object = form.save(commit=False)
 
         year = str(form.cleaned_data['ofdate'].year)
-        yearqs = ofmain.objects.filter(ofnum__startswith=year)
+        yearqs = Ofmain.objects.filter(ofnum__startswith=year)
 
         if yearqs:
             ofnumlast = yearqs.latest('ofnum')
@@ -66,6 +66,7 @@ class CreateView(CreateView):
             ofnum = year + '000001'
 
         print 'ofnum: ' + ofnum
+        print self.request.POST['hiddenpayee']
         self.object.ofnum = ofnum
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user

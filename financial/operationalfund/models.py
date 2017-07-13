@@ -22,16 +22,21 @@ class Ofmain(models.Model):
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
-    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofmain_atc_id', validators=[MinValueValidator(1)])
-    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    vat = models.ForeignKey('vat.Vat', related_name='ofmain_vat_id', validators=[MinValueValidator(1)])
-    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
-    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofmain_inputvattype_id')
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofmain_atc_id', validators=[MinValueValidator(1)],
+                            null=True, blank=True)
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='ofmain_vat_id', validators=[MinValueValidator(1)], null=True,
+                            blank=True)
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofmain_inputvattype_id', null=True,
+                                     blank=True)
     YESNO_CHOICES = (
         ('Y', 'Yes'),
         ('N', 'No'),
     )
-    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True)
     currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
     wtax = models.ForeignKey('wtax.Wtax', related_name='ofmain_wtax_id', validators=[MinValueValidator(1)],
