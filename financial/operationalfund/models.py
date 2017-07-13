@@ -81,7 +81,9 @@ class Ofmain(models.Model):
     class Meta:
         db_table = 'ofmain'
         ordering = ['-pk']
-        permissions = (("view_operationalfund", "Can view operational fund"),)
+        permissions = (("view_operationalfund", "Can view operational fund"),
+                       ("approve_assignedof", "Can approve assigned of"),
+                       ("approve_allof", "Can approve all of"),)
 
     def get_absolute_url(self):
         return reverse('operationalfund:detail', kwargs={'pk': self.pk})

@@ -4,13 +4,14 @@ from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from acctentry.views import generatekey
 from employee.models import Employee
+from supplier.models import Supplier
 from . models import Ofmain
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
-    """This class enlists all requisition forms."""
     model = Ofmain
     template_name = 'operationalfund/index.html'
     context_object_name = 'data_list'
@@ -22,6 +23,7 @@ class IndexView(ListView):
         context = super(ListView, self).get_context_data(**kwargs)
 
         context['listcount'] = Ofmain.objects.all().count()
+        context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
         return context
 
 
@@ -47,91 +49,77 @@ class CreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        year = str(form.cleaned_data['ofdate'].year)
-        yearqs = Ofmain.objects.filter(ofnum__startswith=year)
+        if float(self.request.POST['amount'])  <= 1000:
+            year = str(form.cleaned_data['ofdate'].year)
+            yearqs = Ofmain.objects.filter(ofnum__startswith=year)
 
-        if yearqs:
-            ofnumlast = yearqs.latest('ofnum')
-            latestofnum = str(ofnumlast)
-            print "latest: " + latestofnum
+            if yearqs:
+                ofnumlast = yearqs.latest('ofnum')
+                latestofnum = str(ofnumlast)
+                print "latest: " + latestofnum
 
-            ofnum = year
-            last = str(int(latestofnum[4:]) + 1)
-            zero_addon = 6 - len(last)
-            for num in range(0, zero_addon):
-                ofnum += '0'
-            ofnum += last
+                ofnum = year
+                last = str(int(latestofnum[4:]) + 1)
+                zero_addon = 6 - len(last)
+                for num in range(0, zero_addon):
+                    ofnum += '0'
+                ofnum += last
 
-        else:
-            ofnum = year + '000001'
+            else:
+                ofnum = year + '000001'
 
-        print 'ofnum: ' + ofnum
-        print self.request.POST['hiddenpayee']
-        self.object.ofnum = ofnum
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save()
-        # if Rfdetailtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0):
-        #     self.object = form.save(commit=False)
-        #
-        #     year = str(form.cleaned_data['rfdate'].year)
-        #     yearqs = Rfmain.objects.filter(rfnum__startswith=year)
-        #
-        #     if yearqs:
-        #         rfnumlast = yearqs.latest('rfnum')
-        #         latestrfnum = str(rfnumlast)
-        #         print "latest: " + latestrfnum
-        #
-        #         rfnum = year
-        #         last = str(int(latestrfnum[4:]) + 1)
-        #         zero_addon = 6 - len(last)
-        #         for num in range(0, zero_addon):
-        #             rfnum += '0'
-        #         rfnum += last
-        #
-        #     else:
-        #         rfnum = year + '000001'
-        #
-        #     print 'rfnum: ' + rfnum
-        #     self.object.rfnum = rfnum
-        #     self.object.enterby = self.request.user
-        #     self.object.modifyby = self.request.user
-        #     self.object.totalremainingquantity = self.request.POST['totalquantity']
-        #     self.object.save()
-        #
-        #     detailtemp = Rfdetailtemp.objects.filter(isdeleted=0,
-        #                                              secretkey=self.request.
-        #                                              POST['secretkey']). \
-        #         order_by('enterdate')
-        #     i = 1
-        #     for dt in detailtemp:
-        #         detail = Rfdetail()
-        #         detail.item_counter = i
-        #         detail.rfmain = Rfmain.objects.get(rfnum=rfnum)
-        #         detail.invitem = dt.invitem
-        #         detail.invitem_code = dt.invitem_code
-        #         detail.invitem_name = dt.invitem_name
-        #         detail.invitem_unitofmeasure = Unitofmeasure.objects \
-        #             .get(code=self.request.POST
-        #                  .getlist('temp_item_um')[i - 1],
-        #                  isdeleted=0, status='A')
-        #         detail.invitem_unitofmeasure_code = Unitofmeasure.objects \
-        #             .get(code=self.request.POST.getlist('temp_item_um')[i - 1],
-        #                  isdeleted=0, status='A').code
-        #         detail.quantity = self.request.POST.getlist('temp_quantity')[i - 1]
-        #         detail.remarks = self.request.POST.getlist('temp_remarks')[i - 1]
-        #         detail.status = dt.status
-        #         detail.enterby = dt.enterby
-        #         detail.enterdate = dt.enterdate
-        #         detail.modifyby = dt.modifyby
-        #         detail.modifydate = dt.modifydate
-        #         detail.postby = dt.postby
-        #         detail.postdate = dt.postdate
-        #         detail.isdeleted = dt.isdeleted
-        #         detail.prfremainingquantity = self.request.POST.getlist('temp_quantity')[i - 1]
-        #         detail.save()
-        #         dt.delete()
-        #         i += 1
+            print 'ofnum: ' + ofnum
+            print self.request.POST['payee']
+            print self.request.POST['hiddenpayee']
+            print self.request.POST['hiddenpayeeid']
+            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
+                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
+                self.object.payee_code = self.object.payee.code
+                self.object.payee_name = self.object.payee.name
+            else:
+                self.object.payee_name = self.request.POST['payee']
+
+            self.object.ofnum = ofnum
+            self.object.enterby = self.request.user
+            self.object.modifyby = self.request.user
+            self.object.save()
 
         # return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/update')
         return HttpResponseRedirect('/operationalfund/')
+
+
+@csrf_exempt
+def approve(request):
+    valid = True
+    return valid
+    # if request.method == 'POST':
+    #     valid = True
+    #
+    #     if request.POST['response'] == 'A' and request.user.has_perm('operational.can_approverf'):
+    #         approve = Rfmain.objects.get(pk=request.POST['main_id'])
+    #         approve.rfstatus = request.POST['response']
+    #     elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
+    #         approve = Rfmain.objects.get(pk=request.POST['main_id'])
+    #         approve.rfstatus = request.POST['response']
+    #         approve.isdeleted = 0
+    #         approve.status = 'C'
+    #     else:
+    #         valid = False
+    #
+    #     if valid:
+    #         approve.approverresponse = request.POST['response']
+    #         approve.responsedate = datetime.datetime.now()
+    #         approve.remarks = request.POST['remarks']
+    #         approve.actualapprover = User.objects.get(pk=request.user.id)
+    #         approve.save()
+    #
+    #     data = {
+    #         'status': 'success',
+    #         'valid': valid,
+    #     }
+    # else:
+    #     data = {
+    #         'status': 'error',
+    #     }
+    #
+    # return JsonResponse(data)

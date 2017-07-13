@@ -1,10 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends 'base-form.html' %}
+{% block page-title %} Operational Fund {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <style>
+{#        .iconlist {#}
+{#            text-align: left;#}
+{#            margin-left: 40px;#}
+{#            margin-right: 40px;#}
+{#        }#}
+        .btns-icon{
+            padding: 2px;
+            margin: auto;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if perms.operationalfund.add_ofmain %}
+                <div class="text-right"><a href="{% url 'operationalfund:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a></div>
+                {% endif  %}
+            </div>
+            <div class="col-md-12">
+                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="ofnum,ofdate,particulars,amount,ofstatus">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Data List</p></h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span>ID</span></th>
+                                    <th><span>Number</span></th>
+                                    <th><span>Date</span></th>
+                                    <th><span>Particulars</span></th>
+                                    <th><span>Amount</span></th>
+                                    <th><span>OF Status</span></th>
+                                    {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
+                                        {% if forapproval > 0 %}
+                                            <th class="text-center"><span>Approval</span></th>
+                                        {% endif %}
+                                    {% endif %}
+                                    <th class="text-center" style="width: 150px"><span>Action</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in data_list %}
+                                <tr>
+                                    <td>{{ data.id }}</td>
+                                    <td>{{ data.ofnum }}</td>
+                                    <td>{{ data.ofdate|date:"Y-m-d" }}</td>
+                                    <td>{{ data.particulars }}</td>
+                                    <td>{{ data.amount }}</td>
+                                    <td>{{ data.get_ofstatus_display }}</td>
+                                    {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
+                                            <td style="width: 100px;">
+                                                <div class="text-center">
+                                                    {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
+                                                        {% if data.ofstatus != 'A' %}
+                                                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light"
+                                                            data-toggle="tooltip" data-placement="left" data-trigger="hover"
+                                                            data-original-title="Click to Approve" aria-describedby="tooltip850155">
+                                                            <i class="icon fa-check" aria-hidden="true"></i></button>
+                                                        {% endif %}
+                                                        {% if data.ofstatus != 'D' %}
+                                                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light"
+                                                                data-toggle="tooltip" data-placement="right" data-trigger="hover"
+                                                                data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
+                                                                <i class="icon fa-remove" aria-hidden="true"></i></button>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                    {% endif %}
+                                    <td style="width: 150px; padding-left: 30px">
+                                        <div class="iconlist-wrap auto-0">
+                                            <div class="iconlist" style="text-align: left">
+                                            <a href="{% url 'requisitionform:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
+                                            <a href="{% url 'requisitionform:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            {% if perms.operationalfund.delete_ofmain and data.ofstatus == 'F' and data.isdeleted == 0 and data.status == 'A' %}
+                                            <a href="{% url 'requisitionform:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- End Basic Table Section -->
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'js/paginationSearchPlugin.js' %}" type="text/javascript"></script>
+{% endblock extra_js %}
 
-</body>
-</html>
