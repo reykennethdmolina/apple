@@ -57,8 +57,8 @@ class CreateView(CreateView):
         context['bankaccounttype'] = Bankaccounttype.objects.\
             filter(isdeleted=0).order_by('id')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('id')
-        context['chartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('description')
+        if self.request.POST.get('chartofaccount', False):
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
         return context
 
 
@@ -91,10 +91,12 @@ class UpdateView(UpdateView):
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('description')
         context['bankaccounttype'] = Bankaccounttype.objects.filter(isdeleted=0).order_by('id')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('id')
-        context['chartofaccount'] = Chartofaccount.objects.filter(isdeleted=0).\
-            order_by('description')
         context['bankbranch_id'] = self.object.bankbranch.id
         context['bankbranch_description'] = self.object.bankbranch.description
+        if self.request.POST.get('chartofaccount', False):
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
+        elif self.object.chartofaccount:
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.object.chartofaccount.id, isdeleted=0)
         return context
 
 

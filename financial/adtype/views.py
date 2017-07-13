@@ -36,10 +36,12 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).\
-            filter(main=1).order_by('accountcode')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).\
-            filter(main__in=[2, 4]).order_by('accountcode')
+        if self.request.POST.get('chartofaccount_arcode', False):
+            context['chartofaccount_arcode'] = Chartofaccount.objects.\
+                get(pk=self.request.POST['chartofaccount_arcode'], isdeleted=0, main=1)
+        if self.request.POST.get('chartofaccount_revcode', False):
+            context['chartofaccount_revcode'] = Chartofaccount.objects.\
+                get(pk=self.request.POST['chartofaccount_revcode'], isdeleted=0, main__in=[2, 4])
         return context
 
     def form_valid(self, form):
@@ -63,10 +65,16 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount_arcode'] = Chartofaccount.objects.filter(isdeleted=0).\
-            filter(main=1).order_by('accountcode')
-        context['chartofaccount_revcode'] = Chartofaccount.objects.filter(isdeleted=0).\
-            filter(main__in=[2, 4]).order_by('accountcode')
+        if self.request.POST.get('chartofaccount_arcode', False):
+            context['chartofaccount_arcode'] = Chartofaccount.objects.\
+                get(pk=self.request.POST['chartofaccount_arcode'], isdeleted=0, main=1)
+        else:
+            context['chartofaccount_arcode'] = Chartofaccount.objects.get(pk=self.object.chartofaccount_arcode.id, isdeleted=0, main=1)
+        if self.request.POST.get('chartofaccount_revcode', False):
+            context['chartofaccount_revcode'] = Chartofaccount.objects.\
+                get(pk=self.request.POST['chartofaccount_revcode'], isdeleted=0, main__in=[2, 4])
+        else:
+            context['chartofaccount_revcode'] = Chartofaccount.objects.get(pk=self.object.chartofaccount_revcode.id, isdeleted=0, main__in=[2, 4])
         return context
 
     def form_valid(self, form):

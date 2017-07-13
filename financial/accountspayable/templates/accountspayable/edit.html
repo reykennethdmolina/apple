@@ -1,10 +1,10 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
 {% block page-title %} Accounts Payable {% endblock page-title %}
-{% block page-content %}
 {% block extra_css %}
     {% include "accountspayable/createcss.html" %}
 {% endblock extra_css %}
+{% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
@@ -63,7 +63,7 @@
                             <div class="form-group col-sm-6">
                                 <label class="control-label" for="id_payee">Payee Code</label>
                                 <select class="form-control input-sm ajaxselect2" data-validation="required" id="id_payee" name="payee">
-                                    <option value="{{ form.payee.value }}">{{ payee.code }} - {{ payee.name }}</option>
+                                    <option value="{{ payee.id }}">{{ payee.code }} - {{ payee.name }}</option>
                                 </select>
                                 <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                             </div>

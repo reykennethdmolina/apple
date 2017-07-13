@@ -49,7 +49,8 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['payee'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        if self.request.POST.get('payee', False):
+            context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
@@ -126,7 +127,10 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
+        if self.request.POST.get('payee', False):
+            context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
+        else:
+            context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')

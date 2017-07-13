@@ -1,10 +1,10 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Advertising Type {% endblock page-title %}
-{% block page-content %}
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
 {% endblock extra_css %}
+{% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
@@ -32,6 +32,9 @@
                             <div>
                                 <select id="id_chartofaccount_arcode" class="form-control ajaxselect2" name="chartofaccount_arcode"
                                         data-validation="required">
+                                    {% if chartofaccount_arcode.id != None %}
+                                        <option value="{{ chartofaccount_arcode.id }}">[{{ chartofaccount_arcode.accountcode }}] - {{ chartofaccount_arcode.title }}</option>
+                                    {% endif %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartofaccount_arcode.errors.as_text }}</span>
                             </div>
@@ -41,6 +44,9 @@
                             <div>
                                 <select id="id_chartofaccount_revcode" class="form-control ajaxselect2" name="chartofaccount_revcode"
                                         data-validation="required">
+                                    {% if chartofaccount_revcode.id != None %}
+                                        <option value="{{ chartofaccount_revcode.id }}">[{{ chartofaccount_revcode.accountcode }}] - {{ chartofaccount_revcode.title }}</option>
+                                    {% endif %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartofaccount_revcode.errors.as_text }}</span>
                             </div>
@@ -67,6 +73,5 @@
         ajaxselect2("chartofaccount_arcode", "id_chartofaccount_arcode");
         ajaxselect2("chartofaccount_revcode", "id_chartofaccount_revcode");
     });
-
 </script>
 {% endblock extra_js %}

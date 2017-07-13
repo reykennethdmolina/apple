@@ -65,7 +65,7 @@ def ajaxSelect(request):
             elif request.GET['table'] == "employee":
                 text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
             elif request.GET['table'] == "department":
-                text = data.code + " - " + data.departmentname
+                text = data.departmentname
 
             newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
             newtext = newtext.sub(q.upper(), text)
