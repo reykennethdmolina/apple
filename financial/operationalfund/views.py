@@ -90,36 +90,34 @@ class CreateView(CreateView):
 
 @csrf_exempt
 def approve(request):
-    valid = True
-    return valid
-    # if request.method == 'POST':
-    #     valid = True
-    #
-    #     if request.POST['response'] == 'A' and request.user.has_perm('operational.can_approverf'):
-    #         approve = Rfmain.objects.get(pk=request.POST['main_id'])
-    #         approve.rfstatus = request.POST['response']
-    #     elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
-    #         approve = Rfmain.objects.get(pk=request.POST['main_id'])
-    #         approve.rfstatus = request.POST['response']
-    #         approve.isdeleted = 0
-    #         approve.status = 'C'
-    #     else:
-    #         valid = False
-    #
-    #     if valid:
-    #         approve.approverresponse = request.POST['response']
-    #         approve.responsedate = datetime.datetime.now()
-    #         approve.remarks = request.POST['remarks']
-    #         approve.actualapprover = User.objects.get(pk=request.user.id)
-    #         approve.save()
-    #
-    #     data = {
-    #         'status': 'success',
-    #         'valid': valid,
-    #     }
-    # else:
-    #     data = {
-    #         'status': 'error',
-    #     }
-    #
-    # return JsonResponse(data)
+    if request.method == 'POST':
+        valid = True
+
+        if request.POST['response'] == 'A' and request.user.has_perm('operational.can_approverf'):
+            approve = Rfmain.objects.get(pk=request.POST['main_id'])
+            approve.rfstatus = request.POST['response']
+        elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
+            approve = Rfmain.objects.get(pk=request.POST['main_id'])
+            approve.rfstatus = request.POST['response']
+            approve.isdeleted = 0
+            approve.status = 'C'
+        else:
+            valid = False
+
+        if valid:
+            approve.approverresponse = request.POST['response']
+            approve.responsedate = datetime.datetime.now()
+            approve.remarks = request.POST['remarks']
+            approve.actualapprover = User.objects.get(pk=request.user.id)
+            approve.save()
+
+        data = {
+            'status': 'success',
+            'valid': valid,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
