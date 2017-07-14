@@ -8,6 +8,8 @@ from supplier.models import Supplier
 from . models import Ofmain
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -91,30 +93,33 @@ class CreateView(CreateView):
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
-        valid = True
-
-        if request.POST['response'] == 'A' and request.user.has_perm('operational.can_approverf'):
-            approve = Rfmain.objects.get(pk=request.POST['main_id'])
-            approve.rfstatus = request.POST['response']
-        elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
-            approve = Rfmain.objects.get(pk=request.POST['main_id'])
-            approve.rfstatus = request.POST['response']
-            approve.isdeleted = 0
-            approve.status = 'C'
+        of_for_approval = Ofmain.objects.get(pk=request.POST['ofid'])
+        if request.user.has_perm('operationalfund.approve_allof') or \
+                request.user.has_perm('operationalfund.approve_assignedof'):
+            if request.user.has_perm('operationalfund.approve_allof') or \
+                    (request.user.has_perm('operationalfund.approve_assignedof') and
+                     of_for_approval.designatedapprover == request.user):
+                of_for_approval.ofstatus = request.POST['response']
+                of_for_approval.isdeleted = 0
+                if request.POST['response'] == 'D':
+                    of_for_approval.status = 'C'
+                of_for_approval.approverresponse = request.POST['response']
+                of_for_approval.responsedate = datetime.datetime.now()
+                of_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+                of_for_approval.save()
+                data = {
+                    'status': 'success',
+                    'ofnum': of_for_approval.ofnum,
+                    'newofstatus': of_for_approval.get_ofstatus_display(),
+                }
+            else:
+                data = {
+                    'status': 'error',
+                }
         else:
-            valid = False
-
-        if valid:
-            approve.approverresponse = request.POST['response']
-            approve.responsedate = datetime.datetime.now()
-            approve.remarks = request.POST['remarks']
-            approve.actualapprover = User.objects.get(pk=request.user.id)
-            approve.save()
-
-        data = {
-            'status': 'success',
-            'valid': valid,
-        }
+            data = {
+                'status': 'error',
+            }
     else:
         data = {
             'status': 'error',
