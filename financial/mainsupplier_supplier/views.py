@@ -45,7 +45,8 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['mainsupplier'] = Mainsupplier.objects.filter(isdeleted=0).order_by('description')
-        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        if self.request.POST.get('supplier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supplier'], isdeleted=0)
         return context
 
 
@@ -70,7 +71,10 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['mainsupplier'] = Mainsupplier.objects.filter(isdeleted=0).order_by('description')
-        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        if self.request.POST.get('supplier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supplier'], isdeleted=0)
+        elif self.object.supplier:
+            context['supplier'] = Supplier.objects.get(pk=self.object.supplier.id, isdeleted=0)
 
         # formfields = UpdateView.fields[:]
         # formvalues = [self.object.mainsupplier, self.object.supplier]

@@ -42,8 +42,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('description')
+        if self.request.POST.get('chartofaccount', False):
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
         return context
 
 
@@ -67,8 +67,10 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('description')
+        if self.request.POST.get('chartofaccount', False):
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
+        elif self.object.chartofaccount:
+            context['chartofaccount'] = Chartofaccount.objects.get(pk=self.object.chartofaccount.id, isdeleted=0)
         return context
 
 

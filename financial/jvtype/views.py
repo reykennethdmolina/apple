@@ -37,7 +37,8 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        if self.request.POST.get('department', False):
+            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         return context
 
@@ -62,7 +63,10 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        if self.request.POST.get('department', False):
+            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
+        elif self.object.department:
+            context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         return context
 

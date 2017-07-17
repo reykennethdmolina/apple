@@ -1,5 +1,9 @@
 {% extends 'base-form.html' %}
 {% block page-title %} JV Type {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -34,11 +38,10 @@
                             </div>
                             <div class="form-group form-material col-md-4">
                                 <label for="id_department" class="control-label">Department</label>
-                                <select id="id_department" name="department" class="form-control">
-                                    <option value="">-- Select --</option>
-                                    {% for department in department %}
-                                        <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.departmentname }}</option>
-                                    {% endfor %}
+                                <select id="id_department" name="department" class="form-control ajaxselect2">
+                                    {% if department.id != None %}
+                                        <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                                    {% endif %}
                                 </select>
                                 <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
                             </div>
@@ -70,3 +73,12 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            ajaxselect2("department");
+        });
+    </script>
+{% endblock extra_js %}

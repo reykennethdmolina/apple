@@ -1,5 +1,9 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Input VAT {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -24,11 +28,10 @@
                         </div>
                         <div class="form-group form-material {{ form.inputvatchartofaccount.errors|yesno:'has-error,' }}">
                             <label for="id_inputvatchartofaccount" class="control-label">Input VAT Chart of Account</label>
-                            <select id="id_inputvatchartofaccount" name="inputvatchartofaccount" class="form-control" data-validation="required">
-                                <option value="">-- Select --</option>
-                                {% for inputvatchartofaccount in inputvatchartofaccount %}
-                                    <option value="{{ inputvatchartofaccount.id }}" {% if form.inputvatchartofaccount.value|add:0 == inputvatchartofaccount.id %} selected="selected" {% endif %}>{{ inputvatchartofaccount.description }}</option>
-                                {% endfor %}
+                            <select id="id_inputvatchartofaccount" name="inputvatchartofaccount" class="form-control ajaxselect2" data-validation="required">
+                                {% if inputvatchartofaccount.id != None %}
+                                    <option value="{{ inputvatchartofaccount.id }}">[{{ inputvatchartofaccount.accountcode }}] - {{ inputvatchartofaccount.title }}</option>
+                                {% endif %}
                             </select>
                             <span class="help-block form-error">{{ form.inputvatchartofaccount.errors.as_text }}</span>
                         </div>
@@ -60,3 +63,12 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            ajaxselect2("chartofaccount");
+        });
+    </script>
+{% endblock extra_js %}

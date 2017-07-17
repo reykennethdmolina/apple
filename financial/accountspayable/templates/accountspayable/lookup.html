@@ -1,0 +1,195 @@
+<div id="lookupModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> <span id="modal-header-title">Lookup</span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <label class="control-label small">AP No. (From)</label>
+                        <input type="number" class="form-control input-sm" id="cache_apnum_from" value="2017000001">
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label class="control-label small">AP No. (To)</label>
+                        <input type="number" class="form-control input-sm" id="cache_apnum_to" value="2017000001">
+                    </div>
+                </div>
+                <br><br>
+                <table class="table" id="cache_table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>AP No.</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="cache_submit">Search</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="payee-danger" class="custom-alert danger">No results found.</div>
+<script>
+    $(function() {
+        // caching
+        var cachedItems = [];
+        var cachedFilters = [];
+        var retrieveItems = localStorage.getItem('cachedItems');
+        var retrieveFilters = localStorage.getItem('cachedFilters');
+        var dummyurl;
+        var nav_stepleft, nav_stepright, nav_left, nav_right, nav_exist, nav_href;
+
+        $('#cache_submit').on('click', function () {
+            cachedsearch('apmain');
+        });
+
+        $('.nav_btn').on('click', function(){
+            $('.shade').fadeIn();
+            nav_href = "{% url 'accountspayable:update' 0 %}";
+            switch ($(this).attr('id')) {
+                case 'nav_stepleft':
+                    nav_href = nav_href.replace(0, nav_stepleft);
+                    break;
+                case 'nav_left':
+                    nav_href = nav_href.replace(0, nav_left);
+                    break;
+                case 'nav_right':
+                    nav_href = nav_href.replace(0, nav_right);
+                    break;
+                case 'nav_stepright':
+                    nav_href = nav_href.replace(0, nav_stepright);
+                    break;
+            }
+            window.location.replace(nav_href);
+        });
+
+        // cache on load
+        $(document).ready(function(){
+            if (JSON.parse(retrieveItems) != null){
+                $('#cache_table tbody').html('');
+                for (var i = 0; i < JSON.parse(retrieveItems).length; i++) {
+                    cachedfilltable(JSON.parse(retrieveItems)[i]['id'], JSON.parse(retrieveItems)[i]['text']);
+                }
+                cachedfillform(JSON.parse(retrieveFilters)[0]['fil_from'], JSON.parse(retrieveFilters)[0]['fil_to']);
+                cachednavlink();
+            }
+        });
+
+        function cachedclear(){
+            localStorage.removeItem('cachedItems');
+            localStorage.removeItem('cachedFilters');
+            cachedItems = [];
+            cachedFilters = [];
+        }
+
+        function cachedsearch(table) {
+            $('.shade').fadeIn();
+            url = "/utils/ajaxsearch/";
+            $.ajax({
+                url: url,
+                type: "post",
+                data: {
+                    'cache_apnum_from': $("#cache_apnum_from").val(),
+                    'cache_apnum_to': $("#cache_apnum_to").val(),
+                    'table': table
+                },
+                success: function (response) {
+                    cachedclear();
+                    $('#cache_table tbody').html('');
+                    if (response.items.length > 0) {
+                        for (var i = 0; i < response.items.length; i++) {
+                            cachedfilltable(response.items[i].id, response.items[i].text);
+                            cachedItems.push({
+                                id: response.items[i].id,
+                                text: response.items[i].text
+                            });
+                        }
+                        cachedFilters.push({
+                                fil_from: $('#cache_apnum_from').val(),
+                                fil_to: $('#cache_apnum_to').val()
+                            });
+                        localStorage.setItem('cachedItems', JSON.stringify(cachedItems));
+                        localStorage.setItem('cachedFilters', JSON.stringify(cachedFilters));
+                        retrieveItems = localStorage.getItem('cachedItems');
+                        retrieveFilters = localStorage.getItem('retrieveFilters');
+                        cachednavlink();
+                    }
+                    else{
+                        customAlert($('#payee-danger'));
+                    }
+                    $('.shade').fadeOut();
+                }
+                , error: function (response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
+
+        function cachedfilltable(cachedID, cachedText){
+            $('#cache_table tbody').append("<tr>" +
+                    "<td>" +
+                        "<a href='{% url 'accountspayable:update' 0 %}' class='openAP'><button class='btn btn-xs'>" +
+                            "<i class='icon fa-pencil' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;" +
+                            cachedID +
+                        "</button></a>" +
+                    "</td>" +
+                    "<td>" + cachedText + "</td>" +
+                "</tr>");
+            if(cachedID == {{ pk }}){
+                dummyurl = "#";
+                $('#cache_table tbody tr:last td:first a').remove();
+                $('#cache_table tbody tr:last td:first').html("#" + cachedID).parent().addClass('info');
+            }
+            else{
+                dummyurl = $('#cache_table tbody tr:last td:first a').attr("href").replace('0', cachedID);
+                $('#cache_table tbody tr:last td:first a').attr("href", dummyurl);
+            }
+        }
+
+        function cachedfillform(fil_from, fil_to){
+            $('#cache_apnum_from').val(fil_from);
+            $('#cache_apnum_to').val(fil_to);
+        }
+
+        function cachednavlink(){
+            nav_exist = 0;
+            if (JSON.parse(retrieveItems) != null){
+                // value assignment
+                for (var i = 0; i < JSON.parse(retrieveItems).length; i++) {
+                    if(JSON.parse(retrieveItems)[i]['id'] == {{ pk }}){
+                        nav_left = i != 0 ? JSON.parse(retrieveItems)[i-1]['id'] : JSON.parse(retrieveItems)[i]['id'];
+                        nav_right = i < (JSON.parse(retrieveItems).length-1) ? JSON.parse(retrieveItems)[i+1]['id'] : JSON.parse(retrieveItems)[i]['id'];
+                        nav_exist = 1;
+                    }
+                }
+                nav_stepleft = JSON.parse(retrieveItems)[0]['id'];
+                nav_stepright = JSON.parse(retrieveItems)[JSON.parse(retrieveItems).length-1]['id'];
+
+                // disable/hide overlapping buttons
+                if(nav_stepleft == {{ pk }}) $('#nav_stepleft').prop("disabled",true);
+                else $('#nav_stepleft').prop("disabled",false);
+
+                if(nav_left == {{ pk }}) $('#nav_left').prop("disabled",true);
+                else $('#nav_left').prop("disabled",false);
+
+                if(nav_right == {{ pk }}) $('#nav_right').prop("disabled",true);
+                else $('#nav_right').prop("disabled",false);
+
+                if(nav_stepright == {{ pk }}) $('#nav_stepright').prop("disabled",true);
+                else $('#nav_stepright').prop("disabled",false);
+
+                if(nav_exist == 1) $('.nav_btn').show();
+                else $('.nav_btn').hide();
+            }
+        }
+        // caching end
+    });
+</script>

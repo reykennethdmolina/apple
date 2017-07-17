@@ -26,8 +26,8 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
+        context['pk'] = 0
 
-        context['listcount'] = Apmain.objects.filter(isdeleted=0).count()
         return context
 
 
@@ -58,6 +58,7 @@ class CreateView(CreateView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
         context['currency'] = Currency.objects.filter(isdeleted=0, symbol='PHP')
+        context['pk'] = 0
 
         return context
 
@@ -129,7 +130,7 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         if self.request.POST.get('payee', False):
             context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
-        else:
+        elif self.object.payee:
             context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
@@ -139,6 +140,7 @@ class UpdateView(UpdateView):
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
         context['currency'] = Currency.objects.filter(isdeleted=0, symbol='PHP')
         context['apnum'] = self.object.apnum
+        context['pk'] = self.object.pk
         return context
 
 

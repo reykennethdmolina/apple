@@ -38,8 +38,8 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['inputvattype'] = Inputvattype.objects.\
             filter(isdeleted=0).order_by('description')
-        context['inputvatchartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('description')
+        if self.request.POST.get('inputvatchartofaccount', False):
+            context['inputvatchartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['inputvatchartofaccount'], isdeleted=0)
         return context
 
     def form_valid(self, form):
@@ -65,8 +65,10 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['inputvattype'] = Inputvattype.objects.\
             filter(isdeleted=0).order_by('description')
-        context['inputvatchartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('description')
+        if self.request.POST.get('inputvatchartofaccount', False):
+            context['inputvatchartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['inputvatchartofaccount'], isdeleted=0)
+        elif self.object.inputvatchartofaccount:
+            context['inputvatchartofaccount'] = Chartofaccount.objects.get(pk=self.object.inputvatchartofaccount.id, isdeleted=0)
         return context
 
     def form_valid(self, form):

@@ -83,7 +83,7 @@ class UpdateView(UpdateView):
             filter(isdeleted=0).order_by('departmentname')
         if self.request.POST.get('department', False):
             context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
-        else:
+        elif self.object.department:
             context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
         return context
 

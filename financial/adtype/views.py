@@ -68,12 +68,12 @@ class UpdateView(UpdateView):
         if self.request.POST.get('chartofaccount_arcode', False):
             context['chartofaccount_arcode'] = Chartofaccount.objects.\
                 get(pk=self.request.POST['chartofaccount_arcode'], isdeleted=0, main=1)
-        else:
+        elif self.object.chartofaccount_arcode:
             context['chartofaccount_arcode'] = Chartofaccount.objects.get(pk=self.object.chartofaccount_arcode.id, isdeleted=0, main=1)
         if self.request.POST.get('chartofaccount_revcode', False):
             context['chartofaccount_revcode'] = Chartofaccount.objects.\
                 get(pk=self.request.POST['chartofaccount_revcode'], isdeleted=0, main__in=[2, 4])
-        else:
+        elif self.object.chartofaccount_revcode:
             context['chartofaccount_revcode'] = Chartofaccount.objects.get(pk=self.object.chartofaccount_revcode.id, isdeleted=0, main__in=[2, 4])
         return context
 

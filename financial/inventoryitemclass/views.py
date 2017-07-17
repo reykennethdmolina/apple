@@ -46,10 +46,14 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['inventoryitemtype'] = Inventoryitemtype.objects.\
             filter(isdeleted=0).order_by('description')
-        context['chartofaccount_exp'] = Chartofaccount.objects.\
-            filter(isdeleted=0, main=5).order_by('accountcode')
-        context['chartofaccount_asset'] = Chartofaccount.objects.\
-            filter(isdeleted=0, main=1).order_by('accountcode')
+        if self.request.POST.get('chartofaccountinventory', False):
+            context['chartofaccountinventory'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccountinventory'], isdeleted=0)
+        if self.request.POST.get('chartexpcostofsale', False):
+            context['chartexpcostofsale'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpcostofsale'], isdeleted=0)
+        if self.request.POST.get('chartexpgenandadmin', False):
+            context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpgenandadmin'], isdeleted=0)
+        if self.request.POST.get('chartexpsellexp', False):
+            context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpsellexp'], isdeleted=0)
         return context
 
 
@@ -69,10 +73,22 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['inventoryitemtype'] = Inventoryitemtype.objects.\
             filter(isdeleted=0).order_by('description')
-        context['chartofaccount_exp'] = Chartofaccount.objects.\
-            filter(isdeleted=0, main=5).order_by('accountcode')
-        context['chartofaccount_asset'] = Chartofaccount.objects.\
-            filter(isdeleted=0, main=1).order_by('accountcode')
+        if self.request.POST.get('chartofaccountinventory', False):
+            context['chartofaccountinventory'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccountinventory'], isdeleted=0)
+        elif self.object.chartofaccountinventory:
+            context['chartofaccountinventory'] = Chartofaccount.objects.get(pk=self.object.chartofaccountinventory.id, isdeleted=0)
+        if self.request.POST.get('chartexpcostofsale', False):
+            context['chartexpcostofsale'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpcostofsale'], isdeleted=0)
+        elif self.object.chartexpcostofsale:
+            context['chartexpcostofsale'] = Chartofaccount.objects.get(pk=self.object.chartexpcostofsale.id, isdeleted=0)
+        if self.request.POST.get('chartexpgenandadmin', False):
+            context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpgenandadmin'], isdeleted=0)
+        elif self.object.chartexpgenandadmin:
+            context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.object.chartexpgenandadmin.id, isdeleted=0)
+        if self.request.POST.get('chartexpsellexp', False):
+            context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpsellexp'], isdeleted=0)
+        elif self.object.chartexpsellexp:
+            context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.object.chartexpsellexp.id, isdeleted=0)
         return context
 
     def form_valid(self, form):

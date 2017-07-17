@@ -45,8 +45,14 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('accountcode')
+        if self.request.POST.get('debit1chartofaccount', False):
+            context['debit1chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['debit1chartofaccount'], isdeleted=0)
+        if self.request.POST.get('debit2chartofaccount', False):
+            context['debit2chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['debit2chartofaccount'], isdeleted=0)
+        if self.request.POST.get('credit1chartofaccount', False):
+            context['credit1chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['credit1chartofaccount'], isdeleted=0)
+        if self.request.POST.get('credit2chartofaccount', False):
+            context['credit2chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['credit2chartofaccount'], isdeleted=0)
         return context
 
 
@@ -75,8 +81,22 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['chartofaccount'] = Chartofaccount.objects.\
-            filter(isdeleted=0).order_by('accountcode')
+        if self.request.POST.get('debit1chartofaccount', False):
+            context['debit1chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['debit1chartofaccount'], isdeleted=0)
+        elif self.object.debit1chartofaccount:
+            context['debit1chartofaccount'] = Chartofaccount.objects.get(pk=self.object.debit1chartofaccount.id, isdeleted=0)
+        if self.request.POST.get('debit2chartofaccount', False):
+            context['debit2chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['debit2chartofaccount'], isdeleted=0)
+        elif self.object.debit2chartofaccount:
+            context['debit2chartofaccount'] = Chartofaccount.objects.get(pk=self.object.debit2chartofaccount.id, isdeleted=0)
+        if self.request.POST.get('credit1chartofaccount', False):
+            context['credit1chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['credit1chartofaccount'], isdeleted=0)
+        elif self.object.credit1chartofaccount:
+            context['credit1chartofaccount'] = Chartofaccount.objects.get(pk=self.object.credit1chartofaccount.id, isdeleted=0)
+        if self.request.POST.get('credit2chartofaccount', False):
+            context['credit2chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['credit2chartofaccount'], isdeleted=0)
+        elif self.object.credit2chartofaccount:
+            context['credit2chartofaccount'] = Chartofaccount.objects.get(pk=self.object.credit2chartofaccount.id, isdeleted=0)
         return context
 
 

@@ -23,7 +23,9 @@
                                     <label for="id_department" class="col-sm-4 control-label">Department</label>
                                     <div class="col-sm-7">
                                         <select id="id_department" class="form-control ajaxselect2" name="department" data-validation="required">
-                                            <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                                            {% if department.id != None %}
+                                                <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                                            {% endif %}
                                         </select>
                                         <span class="help-block form-error help-block-sm">{{ form.department.errors.as_text }}</span>
                                     </div>
