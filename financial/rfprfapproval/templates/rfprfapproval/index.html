@@ -12,6 +12,7 @@
 {% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
+    <div class="shade"><div class="loader two-color"></div></div>
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -353,6 +354,7 @@
             });
             $(document).on("click", "#approveconfirm", function(e){
                 if($("#id_remarks").val() != ""){
+                    $('.shade').fadeIn();
                     if (confirm('Are you sure?')) {
                         $.ajax({
                             url: "{% url 'rfprfapproval:approve' %}",
@@ -402,10 +404,12 @@
 
                                     $("#id_remarks").val('');
                                     buttonClean();
+                                    $('.shade').fadeOut();
                                 }
                             }
                             , error: function(response) {
                                 console.debug(response);
+                                $('.shade').fadeOut();
                             }
                         });
                     }
