@@ -1,0 +1,40 @@
+{% load endless %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>ID</span></th>
+                <th><span>No.</span></th>
+                <th><span>Date</span></th>
+                <th><span>Type</span></th>
+                <th><span>Status</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.apnum }}</td>
+                <td>{{ data.apdate }}</td>
+                <td>{{ data.get_aptype_display }}</td>
+                <td>{{ data.get_apstatus_display }}</td>
+                <td style="width: 150px; padding-left: 30px">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist" style="text-align: left">
+                            {% if perms.accountspayable.change_apmain %}
+                            <a href="{% url 'accountspayable:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>

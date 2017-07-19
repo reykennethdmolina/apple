@@ -13,19 +13,17 @@ from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from . models import Apmain
-
+from endless_pagination.views import AjaxListView
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Apmain
     template_name = 'accountspayable/index.html'
+    page_template = 'accountspayable/index_list.html'
     context_object_name = 'data_list'
 
-    def get_queryset(self):
-        return Apmain.objects.all().filter(isdeleted=0).order_by('enterdate')[0:10]
-
     def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
+        context = super(AjaxListView, self).get_context_data(**kwargs)
         context['pk'] = 0
 
         return context

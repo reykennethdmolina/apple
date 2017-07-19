@@ -165,3 +165,25 @@ div.has-error ul.select2-choices {
     color:black !important;
     margin-right: 10px;
 }
+
+/*endless pagination*/
+.endless_page_link, .endless_page_current, .endless_separator{
+    position: relative;
+    float: left;
+    padding: 4px 9px;
+    margin-left: -1px;
+    line-height: 1.57142857;
+    color: #757575;
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid #ddd !important;
+    font-size: 10px;
+}
+.endless_page_current{
+    background-color: #006064 !important;
+    border-color: #006064;
+    color: #fff;
+}
+.endless_separator{
+    border: 0px !important;
+}

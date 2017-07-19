@@ -35,3 +35,6 @@ function customAlert(e){
     e.modal('show');
     setTimeout(function() { e.modal('hide'); }, 2000);
 }
+
+// Ajax paginate
+$.endlessPaginate();
