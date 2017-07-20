@@ -9,16 +9,19 @@ import datetime
 class Ofmain(models.Model):
     ofnum = models.CharField(max_length=10, unique=True)
     ofdate = models.DateField()
-    OF_TYPE_CHOICES = (
-        ('E', 'Expenses'),
-        ('A', 'Advances'),
-    )
-    oftype = models.CharField(max_length=1, choices=OF_TYPE_CHOICES, default='E')
-    ofsubtype = models.CharField(max_length=25, null=True, blank=True)
+    oftype = models.ForeignKey('oftype.Oftype', related_name='ofmain_oftype_id', null=True, blank=True)
+    ofsubtype = models.ForeignKey('ofsubtype.Ofsubtype', related_name='ofmain_ofsubtype_id', null=True, blank=True)
     payee = models.ForeignKey('supplier.Supplier', related_name='ofmain_payee_id', null=True, blank=True)
     payee_code = models.CharField(max_length=25, null=True, blank=True)
     payee_name = models.CharField(max_length=150)
-    amount = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
+    employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id')
+    employee_code = models.CharField(max_length=20)
+    employee_name = models.CharField(max_length=150)
+    department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
+    department_code = models.CharField(max_length=10)
+    department_name = models.CharField(max_length=150)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
+                                                                              MinValueValidator(1)], default=0.00)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
@@ -36,7 +39,7 @@ class Ofmain(models.Model):
         ('Y', 'Yes'),
         ('N', 'No'),
     )
-    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True)
+    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
     currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
     wtax = models.ForeignKey('wtax.Wtax', related_name='ofmain_wtax_id', validators=[MinValueValidator(1)],
@@ -48,6 +51,8 @@ class Ofmain(models.Model):
         ('F', 'For Approval'),
         ('A', 'Approved'),
         ('D', 'Disapproved'),
+        ('I', 'In Process'),
+        ('R', 'Released'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
     designatedapprover = models.ForeignKey(User, default=2, related_name='ofmain_designated_approver')
@@ -75,6 +80,8 @@ class Ofmain(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     receiveby = models.ForeignKey(User, related_name='ofmain_receive', null=True, blank=True)
     receivedate = models.DateTimeField(null=True, blank=True)
+    releaseby = models.ForeignKey(User, related_name='ofmain_release', null=True, blank=True)
+    releasedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 
@@ -83,7 +90,8 @@ class Ofmain(models.Model):
         ordering = ['-pk']
         permissions = (("view_operationalfund", "Can view operational fund"),
                        ("approve_assignedof", "Can approve assigned of"),
-                       ("approve_allof", "Can approve all of"),)
+                       ("approve_allof", "Can approve all of"),
+                       ("is_cashier", "Is from cashier's office"),)
 
     def get_absolute_url(self):
         return reverse('operationalfund:detail', kwargs={'pk': self.pk})

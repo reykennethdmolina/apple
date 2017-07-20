@@ -63,11 +63,11 @@ class Migration(migrations.Migration):
             name='ofsubtype',
             field=models.CharField(blank=True, max_length=25, null=True),
         ),
-        migrations.AddField(
-            model_name='ofmain',
-            name='oftype',
-            field=models.CharField(choices=[('E', 'Expenses'), ('A', 'Advances')], default='E', max_length=1),
-        ),
+        # migrations.AddField(
+        #     model_name='ofmain',
+        #     name='oftype',
+        #     field=models.CharField(choices=[('E', 'Expenses'), ('A', 'Advances')], default='E', max_length=1),
+        # ),
         migrations.AddField(
             model_name='ofmain',
             name='payee_name',
