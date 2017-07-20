@@ -121,8 +121,8 @@
                                                     <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
                                                 </button>
                                         </div>
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{{ payee_name|default:'' }}">
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee|default:'' }}">
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{% if payee != '' %}{{ payee_name }}{% endif %}">
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee }}">
                                     <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.creditterm.errors|yesno:'has-error,' }}">
@@ -214,17 +214,10 @@
                                            data-validation="required" value="{{ form.fxrate.value }}">
                                     <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                                 </div>
-
-                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_designatedapprover">Approver</label>
-                                    <span></span>
-                                    <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-                                        <option value="">-- Select --</option>
-                                        {% for designatedapprover in designatedapprover %}
-                                            <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                                <div class="form-group col-sm-3 {{ form.actualapprover.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_actualapprover">Approved By</label>
+                                    <input type="text" class="form-control input-sm" id="id_actualapprover" name="actualapprover" value="{{ actualapprover }}" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.actualapprover.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_particulars">Particulars</label>
@@ -276,6 +269,37 @@
                     </div>
                 </div>
             </div>
+            <div id="releaseModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">OF Release Details</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="control-label" for="id_employeelookup">Released To:</label>
+                                    <select class="form-control input-sm select2 col-sm-12" id="id_employeelookup"
+                                            name="employeelookup" style="width: 565px;">
+                                        <option value="">-- Select --</option>
+                                        {% for employee in employee %}
+                                            <option value="{{ employee.id }}" {% if form.employee.value|add:0 == employee.id %} selected="selected" {% endif %}>{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <br><br>
+                                    <label class="control-label" for="id_releasedate">Released On:</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_releasedate" name="releasedate" value="{% now "Y-m-d" %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="releaseconfirm">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -285,11 +309,8 @@
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
+        var released = 0;
         $(document).ready(function() {
-            $("#form-b").submit(function(event){
-                //events after clicking submit
-            });
-
             var defaultOfType = "Expenses";
             var defaultOfSubtype = "CASH ADVANCE";
             if($("#id_oftype").val() == "")
@@ -302,7 +323,8 @@
             showRate("#id_wtax", "wtaxrate", "RATE");
 
             {% if originalofstatus == 'A' %}
-                alert("Default values for supplier-related fields have been set based on the selected PAYEE.");
+                if($('#id_hiddenpayeeid').val() != "")
+                    alert("Default values for supplier-related fields have been set based on the selected PAYEE.");
                 $.ajax({
                     url: "{% url 'operationalfund:getsupplierdata' %}",
                     type: "post",
@@ -373,13 +395,12 @@
                             $('#id_payee').data('deferredvat', response.deferredvat);
                             $('#id_payee').data('currency', response.currency);
                             $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));
+                            $("#lookupModal .close").click();
                         },
                         error: function(response) {
                             console.debug(response);
                         }
                     });
-
-                    $("#lookupModal .close").click();
                 }
             });
 
@@ -411,19 +432,6 @@
                 }
             });
 
-
-
-
-
-
-
-
-            enableDisableButtons();
-
-            $("#detailsbutton").click(function (){
-                $("#detailentry").show();
-            });
-
             $("#id_vat").change(function(){
                 showRate("#id_vat", "vatrate", "RATE");
             });
@@ -440,40 +448,9 @@
                 showRate("#id_wtax", "wtaxrate", "RATE");
             });
 
-            $("#id_supplier").change(function(){
-                enableDisableButtons();
-                displaySupplierData();
-            });
-
-            $("#importbutton").click(function(){
-                $('#importprfpreview tbody').empty();
-                $("#importprfselect2").val('').trigger('change.select2');
-                $('#checkUncheckAll').remove();
-                $('#iconChecked').remove();
-            });
-
-            function displaySupplierData(){
-                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
-                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
-                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
-                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
-                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
-                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
-                showRate("#id_vat", "vatrate", "RATE");
-                showRate("#id_atc", "atcrate", "RATE");
-                showRate("#id_currency", "fxrate", "FX RATE");
-            }
-
-            function enableDisableButtons(){
-                if($("#id_supplier option:selected").text() == "-- Select --"){
-                    $('#importbutton').prop("disabled", true);
-                    $('#detailsbutton').prop("disabled", true);
-                }
-                else {
-                    $('#importbutton').prop("disabled", false);
-                    $('#detailsbutton').prop("disabled", false);
-                }
-            }
+{#            $("#detailsbutton").click(function (){#}
+{#                $("#detailentry").show();#}
+{#            });#}
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
@@ -484,10 +461,55 @@
                 }
             }
 
+            $("#id_ofstatus").change(function(){
+              if($(this).val() == 'R'){
+                  $("#releaseModal").modal('show');
+              }
+            });
+
+            $('#id_employeelookup, #id_releasedate').on('change', function(){
+                if($('#id_employeelookup').val() == '' || $('#id_releasedate').val() == '')
+                    $('#releaseconfirm').prop('disabled', true);
+                else
+                    $('#releaseconfirm').prop('disabled', false);
+            });
+
+            $('#releaseconfirm').click(function(){
+                if($('#id_employeelookup').val() != '' && $('#id_releasedate').val() != '')
+                {
+                    if (confirm('Are you sure you want to tag this OF transaction as RELEASED? You cannot undo this action.')) {
+                        $.ajax({
+                            url: "{% url 'operationalfund:releaseof' %}",
+                            type: "post",
+                            data: {'ofnum': $('#id_ofnum').val(),
+                                   'ofreleasedto': $('#id_employeelookup').val(),   //receiveby (releaseby is logged-in user)
+                                   'ofreleasedon': $('#id_releasedate').val()       //receivedate and releasedate
+                            },
+                            success: function() {
+                                alert("OF #" + $('#id_ofnum').val() + " has been tagged as RELEASED.");
+                                $("#releaseModal .close").click();
+                                $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
+                                released = 1;
+                            },
+                            error: function(response) {
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
             $(document).ready(function() {
                 $("#importprfselect2").select2({
                     dropdownParent: $("#myModal")
                 });
+            });
+
+            $("#form-b").submit(function(event){
+                if($("#id_ofstatus").val() == 'R' && released == 0){
+                    event.preventDefault();
+                    $("#releaseModal").modal('show');
+                }
             });
         });
     </script>
@@ -498,5 +520,6 @@
     <script type="text/javascript">
         $('.select2').select2({});
         ajaxselect2("supplier_payee");
+        ajaxselect2("employee");
     </script>
 {% endblock extra_js %}

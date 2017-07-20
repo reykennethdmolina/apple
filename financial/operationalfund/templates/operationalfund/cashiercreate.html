@@ -205,21 +205,10 @@
                                     <input type="text" class="form-control input-sm" id="id_ofstatus" name="ofstatus" value="In Process" readonly="readonly">
                                     <span class="help-block form-error">{{ form.ofstatus.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_designatedapprover">Approver</label>
-                                    <span></span>
-                                    <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-                                        <option value="">-- Select --</option>
-                                        {% for designatedapprover in designatedapprover %}
-                                            <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-sm-6">
                                     <label class="control-label" for="id_particulars">Particulars</label>
                                     <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
-                                              rows="3" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                              rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
                             </div>

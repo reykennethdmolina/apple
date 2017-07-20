@@ -1,5 +1,6 @@
 from django.views.generic import ListView, CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
@@ -33,7 +34,9 @@ class IndexView(ListView):
         context = super(ListView, self).get_context_data(**kwargs)
 
         context['listcount'] = Ofmain.objects.all().count()
+        context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).count()
         context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
+        context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
         return context
 
 
@@ -107,8 +110,7 @@ class CreateViewCashier(CreateView):
     model = Ofmain
     template_name = 'operationalfund/cashiercreate.html'
     fields = ['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'designatedapprover', 'employee',
-              'department']
+              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'employee', 'department']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('operationalfund.add_ofmain') or not request.user.has_perm('operationalfund.is_cashier'):
@@ -176,9 +178,15 @@ class CreateViewCashier(CreateView):
             self.object.ofstatus = 'I'
             self.object.receiveby = self.request.user
             self.object.receivedate = datetime.datetime.now()
+            self.object.designatedapprover = self.request.user
+            self.object.actualapprover = self.request.user
+            self.object.approverresponse = 'A'
+            self.object.responsedate = datetime.datetime.now()
             self.object.save()
 
-        return HttpResponseRedirect('/operationalfund/')
+            return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
+        else:
+            return HttpResponseRedirect('/operationalfund/')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -189,8 +197,8 @@ class UpdateViewUser(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1 \
-                or self.object.ofstatus == 'A':
+        if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1 or \
+                request.user.has_perm('operationalfund.is_cashier'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -200,27 +208,26 @@ class UpdateViewUser(UpdateView):
             order_by('first_name')
         context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
+        context['ofstatus'] = Ofmain.objects.get(pk=self.object.id).get_ofstatus_display()
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        print self.request.POST['payee']
-        print self.request.POST['hiddenpayee']
-        print self.request.POST['hiddenpayeeid']
-        if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-            self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-            self.object.payee_code = self.object.payee.code
-            self.object.payee_name = self.object.payee.name
-        else:
-            self.object.payee = None
-            self.object.payee_code = None
-            self.object.payee_name = self.request.POST['payee']
+        if self.object.ofstatus != 'A' and self.object.ofstatus != 'I':
+            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
+                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
+                self.object.payee_code = self.object.payee.code
+                self.object.payee_name = self.object.payee.name
+            else:
+                self.object.payee = None
+                self.object.payee_code = None
+                self.object.payee_name = self.request.POST['payee']
 
-        self.object.modifyby = self.request.user
-        self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['ofdate', 'payee', 'payee_code', 'payee_name', 'amount', 'particulars',
-                                        'designatedapprover'])
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['ofdate', 'payee', 'payee_code', 'payee_name', 'amount', 'particulars',
+                                            'designatedapprover'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
@@ -230,8 +237,8 @@ class UpdateViewCashier(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/cashierupdate.html'
     fields = ['ofnum', 'ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'ofstatus', 'designatedapprover',
-              'employee', 'department', 'remarks']
+              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'ofstatus', 'employee', 'department',
+              'remarks']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -239,19 +246,21 @@ class UpdateViewCashier(UpdateView):
                 or not request.user.has_perm('operationalfund.is_cashier') or self.object.ofstatus == 'F' \
                 or self.object.ofstatus == 'D':
             raise Http404
-        else:
+        elif self.object.ofstatus == 'A':
             self.object.ofstatus = 'I'
-            self.object.save(update_fields=['ofstatus'])
+            self.object.receiveby = self.request.user
+            self.object.receivedate = datetime.datetime.now()
+            self.object.save(update_fields=['ofstatus', 'receiveby', 'receivedate'])
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
+        context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
+            User.objects.get(pk=self.object.actualapprover.id).last_name
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
@@ -261,15 +270,12 @@ class UpdateViewCashier(UpdateView):
         context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(
             pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
-        context['originalofstatus'] = 'A' if self.object.creditterm is None else 'I'
+        context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        print self.request.POST['payee']
-        print self.request.POST['hiddenpayee']
-        print self.request.POST['hiddenpayeeid']
         if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
             self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
             self.object.payee_code = self.object.payee.code
@@ -281,10 +287,29 @@ class UpdateViewCashier(UpdateView):
 
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['ofdate', 'payee', 'payee_code', 'payee_name', 'amount', 'particulars',
-                                        'designatedapprover'])
+        self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
+                                        'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
+                                        'fxrate', 'wtax', 'ofstatus', 'employee', 'department', 'remarks'])
 
-        return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
+        # revert status from RELEASED to In Process if no release date is saved
+        if self.object.ofstatus == 'R' and self.object.releasedate is None:
+            self.object.releaseby = None
+            self.object.releasedate = None
+            self.object.paymentreceivedby = None
+            self.object.paymentreceiveddate = None
+            self.object.ofstatus = 'I'
+            self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate',
+                                            'ofstatus'])
+
+        # remove release details if OFSTATUS is not RELEASED
+        if self.object.ofstatus != 'R':
+            self.object.releaseby = None
+            self.object.releasedate = None
+            self.object.paymentreceivedby = None
+            self.object.paymentreceiveddate = None
+            self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate'])
+
+        return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 
 
 @csrf_exempt
@@ -343,6 +368,26 @@ def getsupplierdata(request):
             'deferredvat': supplier.deferredvat,
             'currency': supplier.currency.id,
             'fxrate': supplier.fxrate,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def releaseof(request):
+    if request.method == 'POST':
+        offorrelease = Ofmain.objects.get(ofnum=request.POST['ofnum'])
+        offorrelease.releaseby = request.user
+        offorrelease.releasedate = request.POST['ofreleasedon']
+        offorrelease.paymentreceivedby = Employee.objects.get(pk=request.POST['ofreleasedto'])
+        offorrelease.paymentreceiveddate = request.POST['ofreleasedon']
+        offorrelease.ofstatus = 'R'
+        offorrelease.save()
+        data = {
+            'status': 'success',
         }
     else:
         data = {

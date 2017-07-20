@@ -38,26 +38,26 @@
                             </div>
                             <div class="form-group col-sm-6">
                                 <label class="control-label" for="id_ofdate">Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" readonly="readonly" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px; background: white;" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" readonly="readonly" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.ofdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-12 {{ form.payee.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_payee">Payee</label>
                                 <div class="input-search">
-                                    <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
+                                    <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase; background: white;"
                                             value="{{ payee_name|default:'' }}">
                                     <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                         <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
                                     </button>
                                 </div>
-                                <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{{ payee_name|default:'' }}">
+                                <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{% if payee != '' %}{{ payee_name }}{% endif %}">
                                 <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee|default:'' }}">
                                 <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-6 {{ form.amount.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_amount">Amount</label>
                                 <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
-                                       maxlength="7" data-validation="required" value="{{ form.amount.value }}">
+                                       maxlength="7" data-validation="required" value="{{ form.amount.value }}" style="background: white;">
                                 <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
@@ -75,7 +75,7 @@
                         <div class="row col-md-6 row-lg margin-left-10">
                             <div class="form-group col-sm-12">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                <textarea style="background: white;" data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                 <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                             </div>
                             <button type="submit" class="btn btn-round btn-success floatright margin-right-20" id="validateButton">Submit</button>
@@ -168,17 +168,20 @@
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            {% if ofstatus == 'Approved' or ofstatus == 'In Process' %}
+                $("#id_ofdate").prop("readonly", true);
+                $("#id_ofdate").datepicker("destroy");
+                $("#id_ofdate").removeClass("datepicker").removeAttr('id');
+                $("#id_payee").prop("readonly", true);
+                $(".input-search-button").hide();
+                $("#id_amount").prop("readonly", true);
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $("#id_particulars").prop("readonly", true);
+            {% endif %}
             $("#id_branch").val("{{ headoffice }}");
-
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
-{#            $("#form-b").submit(function(event){#}
-{#                if($('.tblInputQuantity').length == 0) {#}
-{#                    alert("Please add at least one item.");#}
-{#                    event.preventDefault();#}
-{#                }#}
-{#            });#}
             $('#id_payeelookup').on("change", function(e) {
                 $('#payeeconfirm').prop('disabled', false);
             });

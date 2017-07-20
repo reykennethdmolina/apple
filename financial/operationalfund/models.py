@@ -52,7 +52,7 @@ class Ofmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('R', 'Released'),
+        ('R', 'RELEASED'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
     designatedapprover = models.ForeignKey(User, default=2, related_name='ofmain_designated_approver')
@@ -78,10 +78,15 @@ class Ofmain(models.Model):
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofmain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    # triggers In Process status START
     receiveby = models.ForeignKey(User, related_name='ofmain_receive', null=True, blank=True)
     receivedate = models.DateTimeField(null=True, blank=True)
+    # triggers In Process status END
     releaseby = models.ForeignKey(User, related_name='ofmain_release', null=True, blank=True)
     releasedate = models.DateTimeField(null=True, blank=True)
+    paymentreceivedby = models.ForeignKey('employee.Employee', related_name='ofmain_paymentreceived', null=True,
+                                          blank=True)
+    paymentreceiveddate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 

@@ -19,9 +19,12 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
-                {% if perms.operationalfund.add_ofmain %}
+                {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}
+                <div class="text-right"><a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a></div>
+                {% elif perms.operationalfund.add_ofmain %}
                 <div class="text-right"><a href="{% url 'operationalfund:usercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a></div>
                 {% endif  %}
+                <input type="hidden" value="{{ userrole }}" id="user_role">
             </div>
             <div class="col-md-12">
                 <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="ofnum,ofdate,particulars,amount,ofstatus">
@@ -40,7 +43,9 @@
                                     <th><span>OF Status</span></th>
                                     {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
                                         {% if forapproval > 0 or perms.operationalfund.approve_allof %}
-                                            <th class="text-center"><span>Approval</span></th>
+                                            {% if canbeapproved > 0 %}
+                                                <th class="text-center"><span>Approval</span></th>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                     <th class="text-center"><span>Action</span></th>
@@ -59,24 +64,43 @@
                                             {% if data.ofstatus == 'A' %} text-success
                                             {% elif data.ofstatus == 'D' %} text-danger
                                             {% elif data.ofstatus == 'F' %} text-info
+                                            {% elif data.ofstatus == 'R' %} text-success
                                             {% endif %}">
                                         <b>{{ data.get_ofstatus_display }}</b>
                                     </td>
                                     {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
-                                            <td style="width: 100px;">
-                                                <div class="text-center">
-                                                    {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
-                                                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
-                                                            data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
-                                                            data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
-                                                            <i class="icon fa-check" aria-hidden="true"></i></button>
-                                                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"
-                                                            data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"
-                                                            data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
-                                                            <i class="icon fa-remove" aria-hidden="true"></i></button>
-                                                    {% endif %}
-                                                </div>
-                                            </td>
+                                        {% if forapproval > 0 or perms.operationalfund.approve_allof %}
+                                            {% if canbeapproved > 0 %}
+                                                <td style="width: 100px;">
+                                                    <div class="text-center">
+                                                        {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
+                                                            <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
+                                                                data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
+                                                                data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
+                                                                <i class="icon fa-check" aria-hidden="true"></i></button>
+                                                            <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"
+                                                                data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"
+                                                                data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
+                                                                <i class="icon fa-remove" aria-hidden="true"></i></button>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            {% endif %}
+                                        {% endif %}
+{#                                            <td style="width: 100px;">#}
+{#                                                <div class="text-center">#}
+{#                                                    {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}#}
+{#                                                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"#}
+{#                                                            data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"#}
+{#                                                            data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">#}
+{#                                                            <i class="icon fa-check" aria-hidden="true"></i></button>#}
+{#                                                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"#}
+{#                                                            data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"#}
+{#                                                            data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">#}
+{#                                                            <i class="icon fa-remove" aria-hidden="true"></i></button>#}
+{#                                                    {% endif %}#}
+{#                                                </div>#}
+{#                                            </td>#}
                                     {% endif %}
                                     <td style="width: 115px; padding-left: 13px" class="action-btns-container">
                                         <div class="iconlist-wrap auto-0">
@@ -84,7 +108,11 @@
                                             <a href="{% url 'requisitionform:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
-                                            {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
+                                            {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
+                                            <a href="{% url 'operationalfund:cashierupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
                                             <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
@@ -122,7 +150,8 @@
             $(this).show();
             $(this).parent().siblings('.btn-approve').hide();
         }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process"){
+        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
+                $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
             $(this).hide();
             $(this).parent().siblings('.btn-disapprove').hide();
         }
@@ -136,7 +165,8 @@
             $(this).hide();
             $(this).parent().siblings('.btn-approve').show();
         }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process"){
+        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
+                $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
             $(this).hide();
             $(this).parent().siblings('.btn-approve').hide();
         }
@@ -146,6 +176,16 @@
             $(this).hide();
         }
     });
+    {% if perms.operationalfund.is_cashier %}
+        $('.btnUpdate').each(function() {
+            if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "For Approval" ||
+                $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved")
+            {
+                $(this).hide();
+                $(this).parent().find('.btnDelete').hide();
+            }
+        });
+    {% endif %}
     $('.btn-approve, .btn-disapprove').on('click', function(){
         if (confirm('Are you sure?')) {
             var btnResponse = $(this);
@@ -176,6 +216,10 @@
                     if(response.newofstatus == "Approved")  btnResponse.siblings('.btn-disapprove').show();
                     else if(response.newofstatus == "Disapproved")  btnResponse.siblings('.btn-approve').show();
                     btnResponse.parent().parent().siblings('.action-btns-container').find('.btnDelete').hide();
+                    if($('#user_role').val() == 'C' && response.newofstatus == "Approved")
+                        btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').show();
+                    else if($('#user_role').val() == 'C' && response.newofstatus == "Disapproved")
+                        btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').hide();
                 },
                 error: function(response) {
                     console.debug(response);
