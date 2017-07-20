@@ -93,8 +93,52 @@ def ajaxSearch(request):
             items = Apmain.objects.all().filter(isdeleted=0).order_by('pk')
 
             if request.POST['cache_apnum_from'] and request.POST['cache_apnum_to']:
-                items =items.filter(apnum__range=[int(request.POST['cache_apnum_from']),
-                                                  int(request.POST['cache_apnum_to'])])
+                items = items.filter(apnum__range=[int(request.POST['cache_apnum_from']),
+                                                   int(request.POST['cache_apnum_to'])])
+            elif request.POST['cache_apnum_from']:
+                items = items.filter(apnum__gte=int(request.POST['cache_apnum_from']))
+            elif request.POST['cache_apnum_to']:
+                items = items.filter(apnum__lte=int(request.POST['cache_apnum_to']))
+            if request.POST['cache_apdate_from'] and request.POST['cache_apdate_to']:
+                items = items.filter(apdate__range=[request.POST['cache_apdate_from'],
+                                                    request.POST['cache_apdate_to']])
+            elif request.POST['cache_apdate_from']:
+                items = items.filter(apdate__gte=request.POST['cache_apdate_from'])
+            elif request.POST['cache_apdate_to']:
+                items = items.filter(apdate__lte=request.POST['cache_apdate_to'])
+            if request.POST['cache_payee']:
+                items = items.filter(payee=int(request.POST['cache_payee']))
+            if request.POST['cache_aptype']:
+                items = items.filter(aptype=str(request.POST['cache_aptype']))
+            if request.POST['cache_apstatus']:
+                items = items.filter(apstatus=str(request.POST['cache_apstatus']))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_disbursingbranch']:
+                items = items.filter(bankbranchdisburse=int(request.POST['cache_disbursingbranch']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_atc']:
+                items = items.filter(atax=int(request.POST['cache_atc']))
+            if request.POST['cache_inputvattype']:
+                items = items.filter(inputvattype=int(request.POST['cache_inputvattype']))
+            if request.POST['cache_terms']:
+                items = items.filter(creditterm=int(request.POST['cache_terms']))
+            if request.POST['cache_deferred']:
+                items = items.filter(deferred=str(request.POST['cache_deferred']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__contains=str(request.POST['cache_particulars']))
+            if request.POST['cache_refno']:
+                items = items.filter(refno__contains=str(request.POST['cache_refno']))
+            if request.POST['cache_duedate_from'] and request.POST['cache_duedate_to']:
+                items = items.filter(duedate__range=[request.POST['cache_duedate_from'],
+                                                     request.POST['cache_duedate_to']])
+            elif request.POST['cache_duedate_from']:
+                items = items.filter(duedate__gte=request.POST['cache_duedate_from'])
+            elif request.POST['cache_duedate_from']:
+                items = items.filter(duedate__lte=request.POST['cache_duedate_to'])
+
+            items = items[:500]
 
         listitems = []
 
@@ -112,5 +156,3 @@ def ajaxSearch(request):
         }
 
     return JsonResponse(data)
-
-# pagination function goes here

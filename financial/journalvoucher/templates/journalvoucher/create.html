@@ -63,10 +63,11 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
-                                    <select class="form-control input-sm" id="id_department" name="department">
-                                        {% if department.id != None %}
-                                            <option value="{{ department.id }}">{{ department.departmentname }}</option>
-                                        {% endif %}
+                                    <select class="form-control input-sm select2" id="id_department" name="department">
+                                        <option value="">-- Select --</option>
+                                        {% for department in department %}
+                                            <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
+                                        {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
                                 </div>
@@ -215,12 +216,10 @@
         });
     </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
-    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-        ajaxselect2("department", "id_department");
 {#        $('.select2modal').select2({#}
 {#            dropdownParent: $('.modal')#}
 {#        });#}

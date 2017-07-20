@@ -12,8 +12,8 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">CREATE
                         <div class="btn-group pull-right">
-                            <button class="btn btn-info" data-toggle='modal' data-target='#lookupModal'>
-                                <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                            <button class="btn btn-info" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-search" aria-hidden="true"></i> Search
                             </button>
 						</div>
                     </h3>
@@ -49,6 +49,7 @@
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label class="control-label" for="id_payee">Payee</label>
+                                <span></span>
                                 <select class="form-control input-sm ajaxselect2 col-sm-12" data-validation="required" id="id_payee" name="payee">
                                     {% if payee.id != None %}
                                         <option value="{{ payee.id }}">{{ payee.code }} - {{ payee.name }}</option>
@@ -185,5 +186,5 @@
         ajaxselect2("supplier");
     </script>
 {% endblock extra_js %}
-{% include "accountspayable/lookup.html" %}
+{% include "accountspayable/search.html" %}
 {% endblock page-content %}

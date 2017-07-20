@@ -72,8 +72,7 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         # context['chartofaccount'] = Chartofaccount.objects.\
         #     filter(isdeleted=0,status='A').order_by('accountcode')
-        if self.request.POST.get('department', False):
-            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')

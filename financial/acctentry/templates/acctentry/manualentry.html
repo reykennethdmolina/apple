@@ -5,6 +5,10 @@
             <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
             <div class="col-sm-9">
                 <select class="form-control input-sm select2modal" data-getunit="1" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
+                <option value="">-- Select Chart of Account --</option>
+                {% for chartofaccount in chartofaccount %}
+                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
+                {% endfor %}
                 </select>
             </div>
             <span class="help-block form-error"></span>
@@ -632,10 +636,4 @@
     {% load static %}
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
-    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
-    <script>
-        $(function(){
-            ajaxselect2("chartofaccount", "detail_chartofaccount");
-        });
-    </script>
 {% endblock extra_js %}

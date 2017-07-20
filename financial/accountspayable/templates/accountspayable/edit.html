@@ -13,8 +13,8 @@
                     <h3 class="panel-title">UPDATE
                         <div class="btn-group pull-right">
                             <div class="shade"><div class="loader loader-sm two-color"></div></div>
-                            <button class="btn btn-info" data-toggle='modal' data-target='#lookupModal'>
-                                <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                            <button class="btn btn-info" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-search" aria-hidden="true"></i> Search
                             </button>
                             <button id="nav_stepleft" class="btn btn-default nav_btn">
                                 <i class="icon fa-step-backward" aria-hidden="true"></i>
@@ -62,6 +62,7 @@
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label class="control-label" for="id_payee">Payee</label>
+                                <span></span>
                                 <select class="form-control input-sm ajaxselect2" data-validation="required" id="id_payee" name="payee">
                                     {% if payee.id != None %}
                                         <option value="{{ payee.id }}">{{ payee.code }} - {{ payee.name }}</option>
@@ -198,5 +199,5 @@
         ajaxselect2("supplier");
     </script>
 {% endblock extra_js %}
-{% include "accountspayable/lookup.html" %}
+{% include "accountspayable/search.html" %}
 {% endblock page-content %}
