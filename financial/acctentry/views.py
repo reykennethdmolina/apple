@@ -31,7 +31,7 @@ def maccountingentry(request):
 
         context = {
             'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A', \
-                accounttype='P').order_by('accountcode')[0:100],
+                accounttype='P').order_by('accountcode')[0:1000],
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
             'department':  Department.objects.filter(isdeleted=0).order_by('departmentname'),
             'employee':  Employee.objects.filter(isdeleted=0).order_by('firstname', 'lastname'),
