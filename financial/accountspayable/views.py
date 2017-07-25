@@ -45,14 +45,14 @@ class IndexView(AjaxListView):
         query = Apmain.objects.all().filter(isdeleted=0)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(apnum__contains=keysearch) |
-                                 Q(apdate__contains=keysearch) |
-                                 Q(payeecode__contains=keysearch) |
-                                 Q(vatcode__contains=keysearch) |
-                                 Q(ataxcode__contains=keysearch) |
-                                 Q(bankbranchdisbursebranch__contains=keysearch) |
-                                 Q(refno__contains=keysearch) |
-                                 Q(particulars__contains=keysearch))
+            query = query.filter(Q(apnum__icontains=keysearch) |
+                                 Q(apdate__icontains=keysearch) |
+                                 Q(payeecode__icontains=keysearch) |
+                                 Q(vatcode__icontains=keysearch) |
+                                 Q(ataxcode__icontains=keysearch) |
+                                 Q(bankbranchdisbursebranch__icontains=keysearch) |
+                                 Q(refno__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch))
         return query
 
     # def render_to_response(self, context, **response_kwargs):

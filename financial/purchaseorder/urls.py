@@ -14,7 +14,5 @@ urlpatterns = [
     url(r'^deleteimportedprf/$', views.deleteimportedprf, name='deleteimportedprf'),
     url(r'^savedetailtemp/$', views.savedetailtemp, name='savedetailtemp'),
     url(r'^deletedetailtemp/$', views.deletedetailtemp, name='deletedetailtemp'),
-    url(r'^page/(?P<command>[\w\-]+)/(?P<current>[0-9]+)/(?P<limit>[0-9]+)/(?P<search>[\w\-]+)/$', views.paginate,
-        name='paginate'),
 ]
 

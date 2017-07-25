@@ -4,7 +4,6 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, F
-from django.core import serializers
 from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
 from employee.models import Employee
@@ -24,22 +23,29 @@ from django.db.models import Sum
 from acctentry.views import generatekey
 import datetime
 
+# pagination and search
+from endless_pagination.views import AjaxListView
+
 # Create your views here.
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Pomain
     template_name = 'purchaseorder/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'purchaseorder/index_list.html'
     def get_queryset(self):
-        return Pomain.objects.all().filter(isdeleted=0).order_by('-enterdate')[0:10]
-
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-        context['listcount'] = Pomain.objects.filter(isdeleted=0).count()
-        return context
+        query = Pomain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(ponum__icontains=keysearch) |
+                                 Q(podate__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch) |
+                                 Q(postatus__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -973,28 +979,3 @@ def deleteprfpotransactionitem(podetail):
     Pomain.objects.filter(pk=podetail.pomain.id).update(totalquantity=0, totalamount=0.00, grossamount=0.00,
                                                         discountamount=0.00, netamount=0.00, vatable=0.00,
                                                         vatamount=0.00, vatexempt=0.00, vatzerorated=0.00)
-
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        pomain = Pomain.objects.all().filter(Q(ponum__icontains=search) |
-                                             Q(podate__icontains=search) |
-                                             Q(particulars__icontains=search) |
-                                             Q(postatus__icontains=search) |
-                                             Q(ponum__icontains=search_not_slug) |
-                                             Q(podate__icontains=search_not_slug) |
-                                             Q(particulars__icontains=search_not_slug) |
-                                             Q(postatus__icontains=search_not_slug))\
-                                            .filter(isdeleted=0).order_by('-enterdate')
-    else:
-        pomain = Pomain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
-
-    json_models = serializers.serialize("json", pomain)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")
-
-

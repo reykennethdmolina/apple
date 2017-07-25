@@ -6,8 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
-from django.core import serializers
 from branch.models import Branch
 from department.models import Department
 from inventoryitem.models import Inventoryitem
@@ -18,24 +16,29 @@ from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 from . models import Rfmain, Rfdetail, Rfdetailtemp
 
-# Create your views here.
+# pagination and search
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     """This class enlists all requisition forms."""
     model = Rfmain
     template_name = 'requisitionform/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'requisitionform/index_list.html'
     def get_queryset(self):
-        return Rfmain.objects.all().order_by('-enterdate')[0:10]
+        query = Rfmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(rfnum__icontains=keysearch) |
+                                 Q(rfdate__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch))
+        return query
 
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-
-        context['listcount'] = Rfmain.objects.all().count()
-        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -440,26 +443,3 @@ def deletedetailtemp(request):
 
     return JsonResponse(data)
 
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        rfmain = Rfmain.objects.all().filter(Q(rfnum__icontains=search) |
-                                             Q(rfdate__icontains=search) |
-                                             Q(particulars__icontains=search) |
-                                             Q(rfstatus__icontains=search) |
-                                             Q(rfnum__icontains=search_not_slug) |
-                                             Q(rfdate__icontains=search_not_slug) |
-                                             Q(particulars__icontains=search_not_slug) |
-                                             Q(rfstatus__icontains=search_not_slug))\
-                                            .order_by('-enterdate')
-    else:
-        rfmain = Rfmain.objects.all().filter(isdeleted=0)\
-                     .order_by('-enterdate')[current:current+limit]
-
-    json_models = serializers.serialize("json", rfmain)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")

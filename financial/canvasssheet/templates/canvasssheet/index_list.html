@@ -1,0 +1,60 @@
+{% load endless %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>ID</span></th>
+                <th><span>No.</span></th>
+                <th><span>Date requested</span></th>
+                <th><span>Particulars</span></th>
+                <th><span>Status</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.csnum }}</td>
+                <td>{{ data.csdate }}</td>
+                <td>{{ data.particulars }}</td>
+                <td>{{ data.get_csstatus_display }}</td>
+                <td style="width: 150px; padding-left: 30px">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist" style="text-align: left">
+                            <a href="{% url 'canvasssheet:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% if perms.canvasssheet.change_csmain %}
+                            <a href="{% url 'canvasssheet:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% endif %}
+                            {% if perms.canvasssheet.delete_csmain and data.status != 'O' and data.csstatus != 'A' %}
+                            <a href="{% url 'canvasssheet:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+    });
+</script>

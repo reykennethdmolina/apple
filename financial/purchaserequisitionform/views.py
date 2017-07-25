@@ -16,26 +16,30 @@ from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q, F, Sum
-from django.core import serializers
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 import datetime
 
+# pagination and search
+from endless_pagination.views import AjaxListView
+
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Prfmain
     template_name = 'purchaserequisitionform/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'purchaserequisitionform/index_list.html'
     def get_queryset(self):
-        return Prfmain.objects.all().order_by('enterdate')[0:10]
-
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-
-        context['listcount'] = Prfmain.objects.filter(isdeleted=0).count()
-        return context
+        query = Prfmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(prfnum__icontains=keysearch) |
+                                 Q(prfdate__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -739,29 +743,6 @@ def updateTransaction(pk, status):
                                                        grossamount=0, vatamount=0, netamount=0, uc_vatable=0,
                                                        uc_vatexempt=0, uc_vatzerorated=0, uc_grosscost=0,
                                                        uc_grossamount=0, uc_vatamount=0, uc_netamount=0)
-
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        prfmain = Prfmain.objects.all().filter(Q(prfnum__icontains=search) |
-                                             Q(prfdate__icontains=search) |
-                                             Q(particulars__icontains=search) |
-                                             Q(prfstatus__icontains=search) |
-                                             Q(prfnum__icontains=search_not_slug) |
-                                             Q(prfdate__icontains=search_not_slug) |
-                                             Q(particulars__icontains=search_not_slug) |
-                                             Q(prfstatus__icontains=search_not_slug))\
-                                            .filter(isdeleted=0).order_by('-enterdate')
-    else:
-        prfmain = Prfmain.objects.all().filter(isdeleted=0).order_by('-enterdate')[current:current+limit]
-
-    json_models = serializers.serialize("json", prfmain)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")
 
 
 def comments():

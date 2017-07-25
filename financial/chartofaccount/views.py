@@ -7,26 +7,29 @@ from product.models import Product
 from typeofexpense.models import Typeofexpense
 from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
+from django.http import HttpResponseRedirect, Http404
 
-#pagination
-from django.core import serializers
+# pagination and search
+from endless_pagination.views import AjaxListView
 from django.db.models import Q
-from django.http import HttpResponseRedirect, Http404, HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Chartofaccount
     template_name = 'chartofaccount/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'chartofaccount/index_list.html'
     def get_queryset(self):
-        return Chartofaccount.objects.all().filter(isdeleted=0).order_by('accountcode')[0:10]
-
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-        context['listcount'] = Chartofaccount.objects.filter(isdeleted=0).count()
-        return context
+        query = Chartofaccount.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(accountcode__icontains=keysearch) |
+                                 Q(title__icontains=keysearch) |
+                                 Q(description__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -184,24 +187,3 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/chartofaccount')
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        chartofaccount = Chartofaccount.objects.all().filter(Q(id__icontains=search) |
-                                                             Q(accountcode__icontains=search) |
-                                                             Q(description__icontains=search) |
-                                                             Q(title__icontains=search) |
-                                                             Q(accountcode__icontains=search_not_slug) |
-                                                             Q(description__icontains=search_not_slug) |
-                                                             Q(title__icontains=search_not_slug))\
-                                                            .filter(isdeleted=0).order_by('accountcode')
-    else:
-        chartofaccount = Chartofaccount.objects.all().filter(isdeleted=0).order_by('accountcode')[current:current+limit]
-
-    json_models = serializers.serialize("json", chartofaccount)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")

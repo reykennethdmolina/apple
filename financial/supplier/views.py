@@ -1,8 +1,6 @@
 import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,21 +13,27 @@ from suppliertype.models import Suppliertype
 from vat.models import Vat
 from . models import Supplier
 
+# pagination and search
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
+
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Supplier
     template_name = 'supplier/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'supplier/index_list.html'
     def get_queryset(self):
-        return Supplier.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
-
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-        context['listcount'] = Supplier.objects.filter(isdeleted=0).count()
-        return context
+        query = Supplier.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(code__icontains=keysearch) |
+                                 Q(name__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -180,22 +184,3 @@ def searchSupplier(request):
 
     return JsonResponse(data)
 
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        supplier = Supplier.objects.all().filter(Q(id__icontains=search) |
-                                                 Q(code__icontains=search) |
-                                                 Q(name__icontains=search) |
-                                                 Q(code__icontains=search_not_slug) |
-                                                 Q(name__icontains=search_not_slug))\
-                                                .filter(isdeleted=0).order_by('-pk')
-    else:
-        supplier = Supplier.objects.all().filter(isdeleted=0).order_by('-pk')[current:current+limit]
-
-    json_models = serializers.serialize("json", supplier)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")

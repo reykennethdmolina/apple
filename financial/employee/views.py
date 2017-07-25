@@ -2,26 +2,32 @@ import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.core import serializers
-from django.db.models import Q
+from django.http import HttpResponseRedirect, Http404
 from department.models import Department
 from . models import Employee
 
+# pagination and search
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
+
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Employee
     template_name = 'employee/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'employee/index_list.html'
     def get_queryset(self):
-        return Employee.objects.all().filter(isdeleted=0).order_by('-pk')[0:10]
-
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        context['listcount'] = Employee.objects.filter(isdeleted=0).count()
-        return context
+        query = Employee.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(code__icontains=keysearch) |
+                                 Q(firstname__icontains=keysearch) |
+                                 Q(middlename__icontains=keysearch) |
+                                 Q(lastname__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -106,28 +112,3 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/employee')
-
-def paginate(request, command, current, limit, search):
-    current = int(current)
-    limit = int(limit)
-
-    if command == "search" and search != "null":
-        search_not_slug = search.replace('-', ' ')
-        employee = Employee.objects.all().filter(Q(id__icontains=search) |
-                                                 Q(code__icontains=search) |
-                                                 Q(firstname__icontains=search) |
-                                                 Q(middlename__icontains=search) |
-                                                 Q(lastname__icontains=search) |
-                                                 Q(code__icontains=search_not_slug) |
-                                                 Q(firstname__icontains=search_not_slug) |
-                                                 Q(middlename__icontains=search_not_slug) |
-                                                 Q(lastname__icontains=search_not_slug))\
-                                                .filter(isdeleted=0).order_by('-pk')
-    else:
-        employee = Employee.objects.all().filter(isdeleted=0).\
-            order_by('-pk')[current:current+limit]
-
-    json_models = serializers.serialize("json", employee)
-    print json_models
-    return HttpResponse(json_models, content_type="application/javascript")
-
