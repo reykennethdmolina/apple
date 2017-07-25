@@ -1,31 +1,60 @@
-{% extends 'base-form.html' %}
-{% block page-title %} TEST {% endblock page-title %}
-{% block page-content %}
-<div class="panel">
-    <div class="panel-body container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="page-wrap">
-                    <h4><p>Data List</p></h4>
-                    <div class="table-responsive">
-                        {% load staticfiles %}
-                        {% load endless %}
-                        {% block js %}
-                            {{ block.super }}
-                            <script src="http://code.jquery.com/jquery-latest.js"></script>
-                            <script src="{% static 'financial-layout/assets/plugin/endless_pagination/js/endless-pagination.js' %}"></script>
-                            <script>$.endlessPaginate();</script>
-                        {% endblock %}
-
-                        {% block content %}
-                            <div class="endless_page_template">
-                            {% include page_template %}</div>
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-</div>
-{% endblock page-content %}
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {% load staticfiles %}
+    <style>
+        @page {
+            size: a4 landscape;
+            margin: 1cm;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td align="center" width="350px" style="border-top: 2px solid black;
+                                                    border-bottom: 2px solid black;
+                                                    border-left: 2px solid black;">
+                <img src='{% static "images/my-inquirer-logo.png" %}' width="250px"/>
+            </td>
+            <td align="right" width="30%" style="border-top: 2px solid black;
+                                                 border-bottom: 2px solid black;
+                                                 border-right: 2px solid black;">
+                <br>
+                <font size="15px">PRINT TOWN, INC.</font>   &nbsp;&nbsp;&nbsp;<br>
+                Print Town Complex, Lot 123                 &nbsp;&nbsp;&nbsp;<br>
+                Mamplasan, Binan Laguna                     &nbsp;&nbsp;&nbsp;<br>
+                Tel 123 546 222                             &nbsp;&nbsp;&nbsp;<br>
+                Mob 123 546 222                             &nbsp;&nbsp;&nbsp;<br>
+                Fax 122 222 333                             &nbsp;&nbsp;&nbsp;
+                <br>
+            </td>
+            <td width="80%" style="text-align: center;vertical-align: top; border-top: 2px solid black;
+                                                                           border-bottom: 2px solid black;
+                                                                           border-right: 2px solid black;">
+                <table>
+                    <tr>
+                        <td colspan="2" style="background-color: black;color: white;">
+                            <br><br><font size="20px">REQUISITION FORM</font><br><br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" width="150%" style="border-right: 2px solid black;font-size: 15px;">
+                            <br>
+                            &nbsp;&nbsp;&nbsp;<b>LOCATION:</b>
+                            &nbsp;&nbsp;&nbsp;Laguna &#9658;
+                            &nbsp;&nbsp;&nbsp;Makati &#9658;
+                            &nbsp;&nbsp;&nbsp;Cebu &#9658;
+                            &nbsp;&nbsp;&nbsp;Davao &#9658;
+                            <br>
+                        </td>
+                        <td style="font-size: 18px;" width="40%">
+                            <br><b>RF No. 00000027</b>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

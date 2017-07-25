@@ -13,14 +13,53 @@ from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from . models import Apmain
+from easy_pdf.views import PDFTemplateView
+
+# pagination and search
 from endless_pagination.views import AjaxListView
+from django.db.models import Q
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    download_filename = 'my_pdf.pdf'
+    template_name = 'accountspayable/create2.html'
+    # base_url = 'file://' + settings.STATIC_ROOT
+
+    def get_context_data(self, **kwargs):
+        return super(Pdf, self).get_context_data(
+            pagesize='A4',
+            title='Hi there!',
+            **kwargs
+        )
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(AjaxListView):
     model = Apmain
     template_name = 'accountspayable/index.html'
-    page_template = 'accountspayable/index_list.html'
     context_object_name = 'data_list'
+
+    # pagination and search
+    page_template = 'accountspayable/index_list.html'
+    def get_queryset(self):
+        query = Apmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(apnum__contains=keysearch) |
+                                 Q(apdate__contains=keysearch) |
+                                 Q(payeecode__contains=keysearch) |
+                                 Q(vatcode__contains=keysearch) |
+                                 Q(ataxcode__contains=keysearch) |
+                                 Q(bankbranchdisbursebranch__contains=keysearch) |
+                                 Q(refno__contains=keysearch) |
+                                 Q(particulars__contains=keysearch))
+        return query
+
+    # def render_to_response(self, context, **response_kwargs):
+    #     response = super(IndexView, self).render_to_response(context, **response_kwargs)
+    #     response.set_cookie('keysearch_' + self.request.resolver_match.app_name, 'qwe')
+    #     print self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name)
+    #     return response
 
     def get_context_data(self, **kwargs):
         context = super(AjaxListView, self).get_context_data(**kwargs)
