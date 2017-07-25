@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
@@ -37,7 +37,14 @@ class IndexView(ListView):
         context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).count()
         context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
         context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
+
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Ofmain
+    template_name = 'operationalfund/detail.html'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -47,7 +54,7 @@ class CreateViewUser(CreateView):
     fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('operationalfund.add_ofmain'):
+        if not request.user.has_perm('operationalfund.add_ofmain') or request.user.has_perm('operationalfund.is_cashier'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
@@ -214,7 +221,7 @@ class UpdateViewUser(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        if self.object.ofstatus != 'A' and self.object.ofstatus != 'I':
+        if self.object.ofstatus != 'A' and self.object.ofstatus != 'I' and self.object.ofstatus != 'R':
             if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
                 self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
                 self.object.payee_code = self.object.payee.code
@@ -238,7 +245,7 @@ class UpdateViewCashier(UpdateView):
     template_name = 'operationalfund/cashierupdate.html'
     fields = ['ofnum', 'ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
               'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'ofstatus', 'employee', 'department',
-              'remarks']
+              'remarks', 'paymentreceivedby', 'paymentreceiveddate']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -276,40 +283,71 @@ class UpdateViewCashier(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-            self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-            self.object.payee_code = self.object.payee.code
-            self.object.payee_name = self.object.payee.name
+        if self.request.POST['originalofstatus'] != 'R':
+            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
+                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
+                self.object.payee_code = self.object.payee.code
+                self.object.payee_name = self.object.payee.name
+            else:
+                self.object.payee = None
+                self.object.payee_code = None
+                self.object.payee_name = self.request.POST['payee']
+
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
+                                            'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
+                                            'fxrate', 'wtax', 'ofstatus', 'employee', 'department', 'remarks', 'payee',
+                                            'payee_code', 'payee_name', 'modifyby', 'modifydate'])
+
+            # revert status from RELEASED to In Process if no release date is saved
+            if self.object.ofstatus == 'R' and self.object.releasedate is None:
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.paymentreceivedby = None
+                self.object.paymentreceiveddate = None
+                self.object.ofstatus = 'I'
+                self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate',
+                                                'ofstatus'])
+
+            # remove release details if OFSTATUS is not RELEASED
+            if self.object.ofstatus != 'R':
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.paymentreceivedby = None
+                self.object.paymentreceiveddate = None
+                self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate'])
+
         else:
-            self.object.payee = None
-            self.object.payee_code = None
-            self.object.payee_name = self.request.POST['payee']
-
-        self.object.modifyby = self.request.user
-        self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
-                                        'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
-                                        'fxrate', 'wtax', 'ofstatus', 'employee', 'department', 'remarks'])
-
-        # revert status from RELEASED to In Process if no release date is saved
-        if self.object.ofstatus == 'R' and self.object.releasedate is None:
-            self.object.releaseby = None
-            self.object.releasedate = None
-            self.object.paymentreceivedby = None
-            self.object.paymentreceiveddate = None
-            self.object.ofstatus = 'I'
-            self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate',
-                                            'ofstatus'])
-
-        # remove release details if OFSTATUS is not RELEASED
-        if self.object.ofstatus != 'R':
-            self.object.releaseby = None
-            self.object.releasedate = None
-            self.object.paymentreceivedby = None
-            self.object.paymentreceiveddate = None
-            self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate'])
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Ofmain
+    template_name = 'operationalfund/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('operationalfund.delete_ofmain') or self.object.status == 'O' \
+                or self.object.ofstatus == 'A':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.ofstatus = 'D'
+        self.object.save()
+
+        return HttpResponseRedirect('/operationalfund')
 
 
 @csrf_exempt
@@ -326,6 +364,8 @@ def approve(request):
                     of_for_approval.isdeleted = 0
                     if request.POST['response'] == 'D':
                         of_for_approval.status = 'C'
+                    else:
+                        of_for_approval.status = 'A'
                     of_for_approval.approverresponse = request.POST['response']
                     of_for_approval.responsedate = datetime.datetime.now()
                     of_for_approval.actualapprover = User.objects.get(pk=request.user.id)

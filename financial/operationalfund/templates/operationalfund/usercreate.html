@@ -16,7 +16,7 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(even) {
+        .select2-container:nth-child(odd) {
             z-index: 999999;
         }
     </style>
@@ -61,6 +61,7 @@
                             </div>
                             <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_designatedapprover">Approver</label>
+                                <span></span>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
 {#                                    <option value="1">Rey Kenneth Molina</option>#}
                                     <option value="">-- Select --</option>

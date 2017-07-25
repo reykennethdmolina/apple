@@ -31,7 +31,7 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(odd) {
+        .select2-container:nth-child(even) {
             z-index: 999999;
         }
     </style>
@@ -46,13 +46,15 @@
                         <div class="col-sm-12">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-2">
+                                    <input type="hidden" id="id_originalofstatus" name="originalofstatus"
+                                           value="{{ originalofstatus }}">
                                     <label class="control-label" for="id_ofnum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_ofnum" name="ofnum" placeholder="OFxxxxxxx" value="{{ form.ofnum.value|default:'' }}" readonly="readonly">
                                     <span class="help-block form-error">{{ form.ofnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_ofdate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.ofdate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.oftype.errors|yesno:'has-error,' }}">
@@ -78,17 +80,16 @@
                                 <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_amount">Amount</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
-                                           maxlength="7" data-validation="required" value="{{ form.amount.value }}">
+                                           maxlength="7" data-validation="required" value="{{ form.amount.value }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_refnum">Reference #</label>
-                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
+                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_employee">Employee</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
@@ -99,7 +100,6 @@
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
@@ -111,7 +111,7 @@
                                 <div class="form-group col-sm-3 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
                                         <div class="input-search">
-                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
+                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase; background: white;"
                                                     data-creditterm="{{ form.creditterm.value|default:0 }}" data-vat="{{ form.vat.value|default:0 }}"
                                                     data-atc="{{ form.atc.value|default:0 }}" data-inputvattype="{{ form.inputvattype.value|default:0 }}"
                                                     data-deferredvat="{{ form.deferredvat.value|default:'N' }}" data-wtax="{{ form.wtax.value|default:0 }}"
@@ -211,7 +211,7 @@
                                 <div class="form-group col-sm-1 {{ form.fxrate.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_fxrate">FX Rate</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
-                                           data-validation="required" value="{{ form.fxrate.value }}">
+                                           data-validation="required" value="{{ form.fxrate.value }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.actualapprover.errors|yesno:'has-error,' }}">
@@ -221,13 +221,13 @@
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
+                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical; background: white;"
                                               rows="3" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_remarks">Remarks</label>
-                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_remarks" name="remarks" style="resize: vertical;"
+                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_remarks" name="remarks" style="resize: vertical; background: white;"
                                               rows="3">{{ form.remarks.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
                                 </div>
@@ -280,16 +280,26 @@
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <label class="control-label" for="id_employeelookup">Released To:</label>
+                                    <span></span>
                                     <select class="form-control input-sm select2 col-sm-12" id="id_employeelookup"
                                             name="employeelookup" style="width: 565px;">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
-                                            <option value="{{ employee.id }}" {% if form.employee.value|add:0 == employee.id %} selected="selected" {% endif %}>{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}</option>
+                                            <option value="{{ employee.id }}"
+                                                    {% if form.paymentreceivedby.value|add:0 == employee.id %}
+                                                        selected="selected"
+                                                    {% elif form.paymentreceivedby.value|add:0 == None and form.employee.value|add:0 == employee.id %}
+                                                        selected="selected"
+                                                    {% endif %}>
+                                                {{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                     <br><br>
                                     <label class="control-label" for="id_releasedate">Released On:</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_releasedate" name="releasedate" value="{% now "Y-m-d" %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
+                                           style="padding: 5px 10px; background: white" id="id_releasedate" name="releasedate"
+                                           value="{% if form.paymentreceiveddate.value %}{{ form.paymentreceiveddate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 </div>
                             </div>
                         </div>
@@ -311,6 +321,31 @@
     <script type="text/javascript">
         var released = 0;
         $(document).ready(function() {
+            if($('#id_ofstatus').val() == 'R'){
+                $("#id_ofdate").prop("readonly", true);
+                $("#id_ofdate").datepicker("destroy");
+                $("#id_ofdate").removeClass("datepicker").removeAttr('id');
+                $("#id_oftype option:selected").siblings().attr('disabled','disabled');
+                $("#id_ofsubtype option:selected").siblings().attr('disabled','disabled');
+                $("#id_refnum").prop("readonly", true);
+                $("#id_employee option:selected").siblings().attr('disabled','disabled');
+                $("#id_department option:selected").siblings().attr('disabled','disabled');
+                $("#id_creditterm option:selected").siblings().attr('disabled','disabled');
+                $("#id_vat option:selected").siblings().attr('disabled','disabled');
+                $("#id_atc option:selected").siblings().attr('disabled','disabled');
+                $("#id_inputvattype option:selected").siblings().attr('disabled','disabled');
+                $("#id_deferredvat option:selected").siblings().attr('disabled','disabled');
+                $("#id_wtax option:selected").siblings().attr('disabled','disabled');
+                $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
+                $("#id_currency option:selected").siblings().attr('disabled','disabled');
+                $("#id_payee").prop("readonly", true);
+                $("#id_fxrate").prop("readonly", true);
+                $(".input-search-button").hide();
+                $("#id_amount").prop("readonly", true);
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $("#id_particulars").prop("readonly", true);
+            }
+
             var defaultOfType = "Expenses";
             var defaultOfSubtype = "CASH ADVANCE";
             if($("#id_oftype").val() == "")
@@ -322,7 +357,7 @@
             showRate("#id_atc", "atcrate", "RATE");
             showRate("#id_wtax", "wtaxrate", "RATE");
 
-            {% if originalofstatus == 'A' %}
+            if($('#id_originalofstatus').val() == 'A'){
                 if($('#id_hiddenpayeeid').val() != "")
                     alert("Default values for supplier-related fields have been set based on the selected PAYEE.");
                 $.ajax({
@@ -353,7 +388,7 @@
                         console.debug(response);
                     }
                 });
-            {% endif %}
+            }
 
             $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
 
@@ -499,6 +534,23 @@
                 }
             });
 
+            $('#id_ofstatus').click(function(){
+               if($('#id_ofstatus').val() == 'R'){
+                   $(this).blur();
+                   $("#releaseModal").modal('show');
+               }
+            });
+
+            $('#releaseModal').on('shown.bs.modal', function () {
+                if($('#id_originalofstatus').val() == 'R'){
+                    $("#id_employeelookup option:selected").siblings().attr('disabled','disabled');
+                    $("#id_releasedate").prop("readonly", true);
+                    $("#id_releasedate").datepicker("destroy");
+                    $("#id_releasedate").removeClass("datepicker").removeAttr('id');
+                    $('#releaseconfirm').prop('disabled', true);
+               }
+            });
+
             $(document).ready(function() {
                 $("#importprfselect2").select2({
                     dropdownParent: $("#myModal")
@@ -506,7 +558,7 @@
             });
 
             $("#form-b").submit(function(event){
-                if($("#id_ofstatus").val() == 'R' && released == 0){
+                if($("#id_ofstatus").val() == 'R' && released == 0 && $("#id_originalofstatus").val() != 'R'){
                     event.preventDefault();
                     $("#releaseModal").modal('show');
                 }
@@ -520,6 +572,5 @@
     <script type="text/javascript">
         $('.select2').select2({});
         ajaxselect2("supplier_payee");
-        ajaxselect2("employee");
     </script>
 {% endblock extra_js %}

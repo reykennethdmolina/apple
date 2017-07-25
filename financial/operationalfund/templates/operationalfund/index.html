@@ -105,7 +105,7 @@
                                     <td style="width: 115px; padding-left: 13px" class="action-btns-container">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist" style="text-align: left">
-                                            <a href="{% url 'requisitionform:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'operationalfund:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
@@ -118,7 +118,7 @@
                                             </a>
                                             {% endif %}
                                             {% if perms.operationalfund.delete_ofmain and data.isdeleted == 0 and data.status == 'A' %}
-                                            <a href="{% url 'requisitionform:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                            <a href="{% url 'operationalfund:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                                             </a>
                                             {% endif %}
