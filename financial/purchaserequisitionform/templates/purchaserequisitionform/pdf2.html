@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Purchase Requisition Form</title>
+    <style>
+        @page {
+            margin: 1cm;
+            @frame footer {
+                -pdf-frame-content: footerPage;
+                bottom: 1cm;
+                margin-left: -3cm;
+                margin-right: 0cm;
+                height: 1cm;
+            }
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 0cm;
+                margin-left: 1cm;
+                margin-right: 1cm;
+                height: 8cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+    </style>
+</head>
+<body>
+<br><br>
+<table>
+    <tr>
+        <td></td>
+        <td width="500px">
+            <p class="title center">PURCHASE REQUISITION FORM</p>
+        </td>
+        <td>
+            <p class="title right">PRF No. 00000001</p>
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <span class="title">PRINT TOWN, INC.</span><br>
+            Print Town Complex, Lot 2532-C-128<br>
+            Mamplasan, Binan Laguna<br>
+            Tel: (02) 793-8888 Tel. Fax: (02) 793-8857<br>
+            VAT REG TIN: 229-722-206-00000
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <table>
+                <tr>
+                    <td style="vertical-align: top;"><b>Particulars :</b> sample RF</td>
+                    <td>
+                        <b>PRF Date &nbsp;&nbsp;&nbsp;&nbsp;:</b> October 3, 2016<br>
+                        <b>PRF Type &nbsp;&nbsp;&nbsp;:</b> MSRF<br>
+                        <b>Branch &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b> LAGUNA<br>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<br>
+<table>
+    <tr class="center" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black;"><b><i>Item Code</i></b></td>
+        <td style="width: 400px"><b><i>Description</i></b></td>
+        <td><b><i>RF Number</i></b></td>
+        <td><b><i>UM</i></b></td>
+        <td><b><i>Quantity</i></b></td>
+        <td><b><i>CS Cost</i></b></td>
+        <td style="border-right: 2px solid black;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    <tr style="padding-top: 5px;">
+        <td>02BK050003</td>
+        <td>PAPER, BOOK 35# 50GSM 25" W SAMPLE</td>
+        <td>0000001</td>
+        <td>KG</td>
+        <td align="right">1,000.00000</td>
+        <td align="right">7.00000</td>
+        <td align="right">7,000.00</td>
+    </tr>
+</table>
+<div id="footerContent">
+    <table style="border-top: 2px solid black; border-bottom: 2px solid black; text-align: right;padding: 5px; padding-bottom: 0px; font-weight: bold;">
+        <tr>
+            <td style="border-left: 2px solid black;"></td>
+            <td style="border-right: 2px solid black;width: 600px">
+                <table>
+                    <tr>
+                        <td width="400px" align="left" style="padding-right: 0px;">
+                            VATable Purchases<br>
+                            VAT Amount<br>
+                            VAT Exempt Purchases<br>
+                            Zero-Rated Purchases<hr>
+                        </td>
+                        <td width="50px" style="padding-left: 0px; padding-right: 0px;">
+                            :<br>
+                            :<br>
+                            :<br>
+                            :<hr>
+                        </td>
+                        <td style="padding-left: 0px;">
+                            6,250.00<br>
+                            750.00<br>
+                            0.00<br>
+                            0.00<hr>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="padding-right: 0px;">Total Amount</td>
+                        <td style="padding-left: 0px; padding-right: 0px;">:</td>
+                        <td style="padding-left: 0px;">7,000.00</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table style="margin-top: 3px;">
+        <tr style="border-top: 2px solid black;border-bottom: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td style="border-left: 2px solid black;">
+                <b>Requested by: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>RICARDO R. GONZALES
+                <br>
+                <b>Date Requested: &nbsp;&nbsp;</b>10/03/2016
+            </td>
+            <td style="border-right: 2px solid black;">
+                <b>Canvassed by: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>RICARDO R. GONZALES
+                <br>
+                <b>Date Canvassed: &nbsp;&nbsp;</b>10/03/2016
+            </td>
+        </tr>
+    </table>
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                Permit to Use (PTU) No.: 1108-05700016 CAS<br>
+                Date Issued: 07/22/2008<br>
+                Valid Until: 07/21/2018<br>
+                Series of 0000001 to 9999999<br>
+                <b>THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX</b><br>
+                <b>THIS DOCUMENT SHALL BE VALID FOR FIVE (5) YEARS FROM THE DATE OF PERMIT TO USE</b>
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                Software Provider: Philippine Daily Inquirer<br>
+                1098 Chino Roces Avenue corner Yague and Mascardo Streets, Makati City<br>
+                VAT REG TIN: 000-803-607-00000<br>
+                Accreditation No.: 1108-057-00016 CAS<br>
+                Date Issued: 10/03/2016<br>
+                Valid Until: 10/02/2021
+            </td>
+        </tr>
+    </table>
+</div>
+{#<div id="footerPage">#}
+{#    {%block page_foot%}#}
+{#        Page <pdf:pagenumber /> of <pdf:pagecount />#}
+{#    {%endblock%}#}
+{#</div>#}
+</body>
+</html>

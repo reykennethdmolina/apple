@@ -421,7 +421,7 @@ class DeleteView(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class Pdf(PDFTemplateView):
     model = Prfmain
-    template_name = 'purchaserequisitionform/pdf.html'
+    template_name = 'purchaserequisitionform/pdf2.html'
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)

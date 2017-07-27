@@ -13,11 +13,14 @@ from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from . models import Apmain
-from easy_pdf.views import PDFTemplateView
 
 # pagination and search
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
+
+# pdf
+from django.conf import settings
+from easy_pdf.views import PDFTemplateView
 
 
 @method_decorator(login_required, name='dispatch')
