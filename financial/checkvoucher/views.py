@@ -11,6 +11,7 @@ from creditterm.models import Creditterm
 from currency.models import Currency
 from inputvattype.models import Inputvattype
 from cvtype.models import Cvtype
+from supplier.models import Supplier
 from vat.models import Vat
 from . models import Cvmain
 from django.contrib.auth.models import User
@@ -40,7 +41,8 @@ class CreateView(CreateView):
     model = Cvmain
     template_name = 'checkvoucher/create.html'
     fields = ['cvdate', 'cvtype', 'amount', 'refnum', 'particulars', 'vat', 'atc', 'checknum', 'checkdate',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'branch', 'bankaccount', 'disbursingbranch']
+              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'branch', 'bankaccountnumber', 'bankaccountname',
+              'disbursingbranch']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('checkvoucher.add_cvmain'):
@@ -268,4 +270,27 @@ class CreateView(CreateView):
 #         self.object.save()
 #
 #         return HttpResponseRedirect('/operationalfund')
+
+
+@csrf_exempt
+def getsupplierdata(request):
+    if request.method == 'POST':
+        supplier = Supplier.objects.get(pk=request.POST['supplierid'])
+        data = {
+            'status': 'success',
+            'creditterm': supplier.creditterm.id,
+            'vat': supplier.vat.id,
+            'atc': supplier.atc.id,
+            'inputvattype': supplier.inputvattype.id,
+            'deferredvat': supplier.deferredvat,
+            'currency': supplier.currency.id,
+            'fxrate': supplier.fxrate,
+            'bankaccountnumber': supplier.bankaccountnumber,
+            'bankaccountname': supplier.bankaccountname,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
 

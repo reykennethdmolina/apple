@@ -50,43 +50,43 @@
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info" style="width: 20%;">Address&nbsp;2&nbsp;: </span>
-                                            <span class="detail-profile" style="float: left;">{{ object.address2 }}</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.address2|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info" style="width: 20%;">Address&nbsp;3&nbsp;: </span>
-                                            <span class="detail-profile" style="float: left;">{{ object.address3 }}</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.address3|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info" style="width: 20%;">Contact&nbsp;Person&nbsp;: </span>
-                                            <span class="detail-profile" style="float: left;">{{ object.contactperson }}</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.contactperson|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <br><span class="text-name-profile text-info" style="width: 35%;">Tel.&nbsp;No&nbsp;: </span>
-                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.telno }}</span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.telno|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <br><span class="text-name-profile text-info">TIN&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.tin }}</span>
+                                            <span class="detail-profile">{{ object.tin|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info" style="width: 35%;">Fax No.&nbsp;: </span>
-                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.faxno }}</span>
+                                            <span class="detail-profile" style="float: left; width: 65%;">{{ object.faxno|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Zip Code&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.zipcode }}</span>
+                                            <span class="detail-profile">{{ object.zipcode|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -129,6 +129,24 @@
                                             <span class="detail-profile">{{ object.atc.description }}</span>
                                             <br><span class="text-name-profile text-info"><small>ATC Rate&nbsp;: </small></span>
                                             <span class="detail-profile"><small>{{ object.atcrate }}%</small></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br><span class="text-name-profile text-info">Bank&nbsp;Account&nbsp;Type:&nbsp;</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.bankaccounttype.description|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info"">Bank&nbsp;Account&nbsp;Number:&nbsp;</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.bankaccountnumber|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Bank&nbsp;Account&nbsp;Name:&nbsp;</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.bankaccountname|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">

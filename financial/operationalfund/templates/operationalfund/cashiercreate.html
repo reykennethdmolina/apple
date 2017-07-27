@@ -110,7 +110,7 @@
                                     <label class="control-label" for="id_payee">Payee</label>
                                         <div class="input-search">
                                             <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
-                                                    data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N" data-wtax="0"
+                                                    data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"
                                                     data-currency="0" data-fxrate="0.00">
                                                 <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                                     <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
@@ -171,17 +171,17 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2 {{ form.wtax.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_wtax">Withholding&nbsp;Tax</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
+                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
                                         <option value="">-- Select --</option>
-                                        {% for wtax in wtax %}
-                                            <option value="{{ wtax.id }}" data-rate="{{ wtax.rate }}" {% if form.wtax.value|add:0 == wtax.id %} selected="selected" {% endif %}>{{ wtax.code }}</option>
+                                        {% for branch in branch %}
+                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span id="wtaxrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-12"></div>
                                 <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_currency">Currency</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
@@ -344,15 +344,6 @@
                 }
             });
 
-
-
-
-
-
-
-
-            enableDisableButtons();
-
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
@@ -369,44 +360,12 @@
                 $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
             });
 
-            $("#id_wtax").change(function(){
-                showRate("#id_wtax", "wtaxrate", "RATE");
-            });
-
-            $("#id_supplier").change(function(){
-                enableDisableButtons();
-                displaySupplierData();
-            });
-
             $("#importbutton").click(function(){
                 $('#importprfpreview tbody').empty();
                 $("#importprfselect2").val('').trigger('change.select2');
                 $('#checkUncheckAll').remove();
                 $('#iconChecked').remove();
             });
-
-            function displaySupplierData(){
-                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
-                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
-                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
-                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
-                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
-                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
-                showRate("#id_vat", "vatrate", "RATE");
-                showRate("#id_atc", "atcrate", "RATE");
-                showRate("#id_currency", "fxrate", "FX RATE");
-            }
-
-            function enableDisableButtons(){
-                if($("#id_supplier option:selected").text() == "-- Select --"){
-                    $('#importbutton').prop("disabled", true);
-                    $('#detailsbutton').prop("disabled", true);
-                }
-                else {
-                    $('#importbutton').prop("disabled", false);
-                    $('#detailsbutton').prop("disabled", false);
-                }
-            }
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :

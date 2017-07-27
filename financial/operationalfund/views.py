@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
+from branch.models import Branch
 from creditterm.models import Creditterm
 from currency.models import Currency
 from department.models import Department
@@ -117,7 +118,7 @@ class CreateViewCashier(CreateView):
     model = Ofmain
     template_name = 'operationalfund/cashiercreate.html'
     fields = ['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'employee', 'department']
+              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'employee', 'department', 'branch']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('operationalfund.add_ofmain') or not request.user.has_perm('operationalfund.is_cashier'):
@@ -127,6 +128,7 @@ class CreateViewCashier(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
@@ -137,7 +139,6 @@ class CreateViewCashier(CreateView):
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         return context
 
     def form_valid(self, form):
@@ -189,6 +190,8 @@ class CreateViewCashier(CreateView):
             self.object.actualapprover = self.request.user
             self.object.approverresponse = 'A'
             self.object.responsedate = datetime.datetime.now()
+            self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.save()
 
             return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
@@ -244,8 +247,8 @@ class UpdateViewCashier(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/cashierupdate.html'
     fields = ['ofnum', 'ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'wtax', 'ofstatus', 'employee', 'department',
-              'remarks', 'paymentreceivedby', 'paymentreceiveddate']
+              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'ofstatus', 'employee', 'department',
+              'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'vatrate', 'atcrate']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -265,6 +268,7 @@ class UpdateViewCashier(UpdateView):
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
             User.objects.get(pk=self.object.actualapprover.id).last_name
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')

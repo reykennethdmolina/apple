@@ -70,7 +70,7 @@
                                         <div class="input-search">
                                             <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
                                                     data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N" data-wtax="0"
-                                                    data-currency="0" data-fxrate="0.00">
+                                                    data-currency="0" data-fxrate="0.00" data-bankaccountnumber="" data-bankaccountname="">
                                                 <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                                     <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
                                                 </button>
@@ -81,7 +81,7 @@
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_branch">Branch</label>
-                                    <select class="form-control input-sm select2" data-validation="required" id="id_branch" name="branch">
+                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
                                         <option value="">-- Select --</option>
                                         {% for branch in branch %}
                                             <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
@@ -89,20 +89,20 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_bankaccountnumber">Account #</label>
+                                    <input type="text" class="form-control input-sm text-right" id="id_bankaccountnumber" name="bankaccountnumber" placeholder="Account #" value="{{ form.bankaccountnumber.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.bankaccountnumber.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_bankaccountname">Account Name</label>
+                                    <input type="text" class="form-control input-sm" id="id_bankaccountname" name="bankaccountname" placeholder="Account Name" value="{{ form.bankaccountname.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.bankaccountname.errors.as_text }}</span>
+                                </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_refap">Reference&nbsp;AP</label>
                                     <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
                                     <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_bankaccount">Bank Account</label>
-                                    <select class="form-control input-sm select2" data-validation="required" id="id_bankaccount" name="bankaccount">
-                                        <option value="">-- Select --</option>
-                                        {% for bankaccount in bankaccount %}
-                                            <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.bank.code }}&nbsp;|&nbsp;{{ bankaccount.code }}&nbsp;|&nbsp;{{ bankaccount.accountnumber }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_vat">VAT</label>
@@ -136,7 +136,6 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2"></div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_checknum">Check Number</label>
                                     <input type="text" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
@@ -204,7 +203,7 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-6">
+                                <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_particulars">Particulars</label>
                                     <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
                                               rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
@@ -285,7 +284,7 @@
                     $('#id_hiddenpayeeid').val($('#id_payeelookup').val());
 
                     $.ajax({
-                        url: "{% url 'operationalfund:getsupplierdata' %}",
+                        url: "{% url 'checkvoucher:getsupplierdata' %}",
                         type: "post",
                         data: {'supplierid': $('#id_payeelookup').val()
                         },
@@ -299,6 +298,8 @@
                             $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
                             showRate("#id_vat", "vatrate", "RATE");
                             showRate("#id_atc", "atcrate", "RATE");
+                            $('#id_bankaccountnumber').val(response.bankaccountnumber);
+                            $('#id_bankaccountname').val(response.bankaccountname);
 
                             $('#id_payee').data('creditterm', response.creditterm);
                             $('#id_payee').data('vat', response.vat);
@@ -307,6 +308,8 @@
                             $('#id_payee').data('deferredvat', response.deferredvat);
                             $('#id_payee').data('currency', response.currency);
                             $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));
+                            $('#id_payee').data('bankaccountnumber', response.bankaccountnumber);
+                            $('#id_payee').data('bankaccountname', response.bankaccountname);
                         },
                         error: function(response) {
                             console.debug(response);
@@ -331,6 +334,8 @@
                     $('#id_fxrate').val($(this).data('fxrate'));
                     showRate("#id_vat", "vatrate", "RATE");
                     showRate("#id_atc", "atcrate", "RATE");
+                    $('#id_bankaccountnumber').val($(this).data('bankaccountnumber'));
+                    $('#id_bankaccountname').val($(this).data('bankaccountname'));
                 }
                 else {
                     $('#id_creditterm').val("");
@@ -342,17 +347,19 @@
                     $('#id_fxrate').val("1.00");
                     showRate("#id_vat", "vatrate", "RATE");
                     showRate("#id_atc", "atcrate", "RATE");
+                    $('#id_bankaccountnumber').val("");
+                    $('#id_bankaccountname').val("");
                 }
             });
 
-
-
-
-
-
-
-
-            enableDisableButtons();
+            $("#id_cvstatus").change(function(){
+              if($(this).val() == 'R'){
+                  if($('#id_cvdate').val() != '' && $('#id_cvtype').val() != '' && $('#id_payee').val() != ''){
+                      alert("completely filled up");
+                  }
+{#                  $("#releaseModal").modal('show');#}
+              }
+            });
 
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
@@ -374,40 +381,12 @@
                 showRate("#id_wtax", "wtaxrate", "RATE");
             });
 
-            $("#id_supplier").change(function(){
-                enableDisableButtons();
-                displaySupplierData();
-            });
-
             $("#importbutton").click(function(){
                 $('#importprfpreview tbody').empty();
                 $("#importprfselect2").val('').trigger('change.select2');
                 $('#checkUncheckAll').remove();
                 $('#iconChecked').remove();
             });
-
-            function displaySupplierData(){
-                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
-                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
-                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
-                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
-                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
-                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
-                showRate("#id_vat", "vatrate", "RATE");
-                showRate("#id_atc", "atcrate", "RATE");
-                showRate("#id_currency", "fxrate", "FX RATE");
-            }
-
-            function enableDisableButtons(){
-                if($("#id_supplier option:selected").text() == "-- Select --"){
-                    $('#importbutton').prop("disabled", true);
-                    $('#detailsbutton').prop("disabled", true);
-                }
-                else {
-                    $('#importbutton').prop("disabled", false);
-                    $('#detailsbutton').prop("disabled", false);
-                }
-            }
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :

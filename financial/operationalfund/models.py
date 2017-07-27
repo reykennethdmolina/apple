@@ -42,11 +42,6 @@ class Ofmain(models.Model):
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
     currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
-    wtax = models.ForeignKey('wtax.Wtax', related_name='ofmain_wtax_id', validators=[MinValueValidator(1)],
-                             null=True, blank=True)
-    wtaxrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)],
-                                   null=True, blank=True)
-    wtaxamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     OF_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
@@ -87,6 +82,7 @@ class Ofmain(models.Model):
     paymentreceivedby = models.ForeignKey('employee.Employee', related_name='ofmain_paymentreceived', null=True,
                                           blank=True)
     paymentreceiveddate = models.DateTimeField(null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='ofmain_branch_id', default=5)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 

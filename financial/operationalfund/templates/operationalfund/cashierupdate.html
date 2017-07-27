@@ -137,7 +137,7 @@
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for vat in vat %}
                                             <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
@@ -148,7 +148,7 @@
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.atc.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_atc">ATC</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc">
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for atc in atc %}
                                             <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
@@ -176,16 +176,15 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2 {{ form.wtax.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_wtax">Withholding&nbsp;Tax</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
+                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
                                         <option value="">-- Select --</option>
-                                        {% for wtax in wtax %}
-                                            <option value="{{ wtax.id }}" data-rate="{{ wtax.rate }}" {% if form.wtax.value|add:0 == wtax.id %} selected="selected" {% endif %}>{{ wtax.code }}</option>
+                                        {% for branch in branch %}
+                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span id="wtaxrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.ofstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_ofstatus">OF Status</label>
@@ -353,9 +352,11 @@
             if($("#id_ofsubtype").val() == "")
                 $("#id_ofsubtype option:contains(" + defaultOfSubtype + ")").attr('selected', 'selected');
 
-            showRate("#id_vat", "vatrate", "RATE");
-            showRate("#id_atc", "atcrate", "RATE");
-            showRate("#id_wtax", "wtaxrate", "RATE");
+            if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
+            else                            showRate("#id_vat", "vatrate", "RATE");
+
+            if($("#id_atc").val() != '')    $('#atcrate').html("<strong>" + $("#id_atc").data('atcrate') + "</strong>");
+            else                            showRate("#id_atc", "atcrate", "RATE");
 
             if($('#id_originalofstatus').val() == 'A'){
                 if($('#id_hiddenpayeeid').val() != "")
