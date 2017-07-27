@@ -62,6 +62,10 @@ class Supplier(models.Model):
     suppliertype = models.ForeignKey('suppliertype.Suppliertype',
                                      related_name='supplier_suppliertype_id',
                                      validators=[MinValueValidator(1)])
+    bankaccounttype = models.ForeignKey('bankaccounttype.Bankaccounttype', related_name='supplier_bankaccounttype_id',
+                                        null=True, blank=True)
+    bankaccountnumber = models.CharField(max_length=100, null=True, blank=True)
+    bankaccountname = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         db_table = 'supplier'

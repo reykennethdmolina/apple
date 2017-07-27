@@ -188,6 +188,36 @@
                                 <span class="help-block form-error help-block-sm">{{ form.atc.errors.as_text }}</span>
                             </div>
                         </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-12">
+                            <br><label class="col-sm-3 control-label">BANK ACCOUNT DETAILS:</label>
+                            <div class="form-group form-group-sm form-group-0 form-material col-md-12
+                             {{ form.bankaccounttype.errors|yesno:'has-error,' }}">
+                                <br><label for="id_bankaccounttype" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Type</label>
+                                <div class="col-sm-3">
+                                    <select id="id_bankaccounttype" class="form-control" name="bankaccounttype">
+                                        <option value="">-- Select --</option>
+                                        {% for bankaccounttype in bankaccounttype %}
+                                            <option value="{{ bankaccounttype.id }}" {% if form.bankaccounttype.value|add:0 == bankaccounttype.id %} selected="selected" {% endif %}>{{ bankaccounttype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.bankaccounttype.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-sm form-group-0 col-md-12 {{ form.bankaccountnumber.errors|yesno:'has-error,' }}">
+                                <label for="id_bankaccountnumber" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Number</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control text-right" id="id_bankaccountnumber" maxlength="100" placeholder="Number" name="bankaccountnumber" value="{{ form.bankaccountnumber.value|default:'' }}">
+                                    <span class="help-block form-error help-block-sm">{{ form.bankaccountnumber.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-sm form-group-0 col-md-12 {{ form.bankaccountname.errors|yesno:'has-error,' }}">
+                                <label for="id_bankaccountname" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Name</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="id_bankaccountname" maxlength="200" placeholder="Name" name="bankaccountname" value="{{ form.bankaccountname.value|default:'' }}">
+                                    <span class="help-block form-error help-block-sm">{{ form.bankaccountname.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group col-md-6">
                             <button type="submit" class="btn btn-info margin-top-25 margin-left-20" id="validateButton">Submit</button>
                         </div>

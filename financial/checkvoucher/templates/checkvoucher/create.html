@@ -1,0 +1,436 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} Check Voucher {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        .select2-results__option {
+            font-size: 12px;
+        }
+        .vattable td {
+            text-align: right;
+
+        }
+        .vattable td:first-child {
+            width: 130px;
+            padding-right: 10px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding: 27px 15px 26px 15px;
+        }
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: transparent;
+        }
+        .input-search {
+            z-index: 99;
+        }
+        .select2-container:nth-child(even) {
+            z-index: 999999;
+        }
+    </style>
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="margin-bottom-20">
+                    <h3 class="panel-title" style="padding:10px 10px 15px 25px;">CREATE</h3>
+                    <form method="post" id="form-b">
+                        {% csrf_token %}
+                        <div class="col-sm-12">
+                            <div class="row-lg">
+                                <div class="form-group  col-sm-2">
+                                    <label class="control-label" for="id_cvnum">Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_cvnum" name="cvnum" placeholder="CVxxxxxxx" value="{{ form.cvnum.value|default:'' }}" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.cvnum.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_cvdate">Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_cvdate" name="cvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cvdate.value %}{{ form.cvdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <span class="help-block form-error">{{ form.cvdate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.cvtype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_cvtype">CV Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_cvtype" name="cvtype">
+                                        <option value="">-- Select --</option>
+                                        {% for cvtype in cvtype %}
+                                            <option value="{{ cvtype.id }}" {% if form.cvtype.value|add:"0" == cvtype.id %} selected="selected" {% endif %}>{{ cvtype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.cvtype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_payee">Payee</label>
+                                        <div class="input-search">
+                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
+                                                    data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N" data-wtax="0"
+                                                    data-currency="0" data-fxrate="0.00">
+                                                <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
+                                                    <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
+                                                </button>
+                                        </div>
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee">
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid">
+                                    <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm select2" data-validation="required" id="id_branch" name="branch">
+                                        <option value="">-- Select --</option>
+                                        {% for branch in branch %}
+                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_refap">Reference&nbsp;AP</label>
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
+                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_bankaccount">Bank Account</label>
+                                    <select class="form-control input-sm select2" data-validation="required" id="id_bankaccount" name="bankaccount">
+                                        <option value="">-- Select --</option>
+                                        {% for bankaccount in bankaccount %}
+                                            <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.bank.code }}&nbsp;|&nbsp;{{ bankaccount.code }}&nbsp;|&nbsp;{{ bankaccount.accountnumber }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_vat">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                        <option value="">-- Select --</option>
+                                        {% for vat in vat %}
+                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.atc.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_atc">ATC</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc">
+                                        <option value="">-- Select --</option>
+                                        {% for atc in atc %}
+                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.disbursingbranch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_disbursingbranch">Disbursing Branch</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_disbursingbranch" name="disbursingbranch">
+                                        <option value="">-- Select --</option>
+                                        {% for disbursingbranch in disbursingbranch %}
+                                            <option value="{{ disbursingbranch.id }}" {% if form.disbursingbranch.value|add:0 == disbursingbranch.id %} selected="selected" {% endif %}>{{ disbursingbranch.bank.code }}&nbsp;|&nbsp;{{ disbursingbranch.branch }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2"></div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_checknum">Check Number</label>
+                                    <input type="text" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.checknum.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_checkdate">Check Date</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <span class="help-block form-error">{{ form.checkdate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_amount">Amount</label>
+                                    <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
+                                           maxlength="7" data-validation="required" value="{{ form.amount.value }}">
+                                    <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_currency">Currency</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                        <option value="">-- Select --</option>
+                                        {% for currency in currency %}
+                                            <option value="{{ currency.id }}" data-rate="{{ currency.fxrate|floatformat:2 }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}]&nbsp;&nbsp;&nbsp;{{ currency.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-1 {{ form.fxrate.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_fxrate">FX Rate</label>
+                                    <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
+                                           data-validation="required" value="{{ form.fxrate.value }}">
+                                    <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label" for="id_refnum">Reference #</label>
+                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
+                                        <option value="">-- Select --</option>
+                                        {% for inputvattype in inputvattype %}
+                                            <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.deferredvat.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_deferredvat">Deferred?</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
+                                        {% for id,name in form.fields.deferredvat.choices %}
+                                            <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-2 {{ form.cvstatus.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_cvstatus">CV Status</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">
+                                        <option value="I" {% if form.cvstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
+                                        <option value="R" {% if form.cvstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+{#                                        {% for id,name in form.fields.ofstatus.choices %}#}
+{#                                            <option value="{{ id }}"{% if form.ofstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                        {% endfor %}#}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="control-label" for="id_particulars">Particulars</label>
+                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
+                                              rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                    <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 margin-bottom-10 row">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            </div>
+{#                            <div class="col-sm-6">#}
+{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>#}
+{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>#}
+{#                            </div>#}
+                        </div>
+                    </form>
+                </div>
+                </div>
+            <div class="clearfix"></div>
+            <div id="lookupModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Payee Lookup</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <select class="form-control input-sm ajaxselect2 col-sm-12" style="width: 565px;"
+                                            id="id_payeelookup" name="payeelookup">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="payeeconfirm" disabled="disabled">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#form-b").submit(function(event){
+                //events after clicking submit
+            });
+
+            var defaultOfType = "Expenses";
+            var defaulyOfSubtype = "CASH ADVANCE";
+            $("#id_oftype option:contains(" + defaultOfType + ")").attr('selected', 'selected');
+            $("#id_ofsubtype option:contains(" + defaulyOfSubtype + ")").attr('selected', 'selected');
+
+            $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+
+            $('#id_payeelookup').on("change", function(e) {
+                $('#payeeconfirm').prop('disabled', false);
+            });
+
+            $('#payeeconfirm').click(function(){
+                if($('#id_payeelookup').val() == null){
+                    console.log("test");
+                    alert("Please select a payee first.");
+                }
+                else {
+                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();
+                    $('#id_payee').val(content);
+                    $('#id_hiddenpayee').val(content);
+                    $('#id_hiddenpayeeid').val($('#id_payeelookup').val());
+
+                    $.ajax({
+                        url: "{% url 'operationalfund:getsupplierdata' %}",
+                        type: "post",
+                        data: {'supplierid': $('#id_payeelookup').val()
+                        },
+                        success: function(response) {
+                            $('#id_creditterm').val(response.creditterm);
+                            $('#id_vat').val(response.vat);
+                            $('#id_atc').val(response.atc);
+                            $('#id_inputvattype').val(response.inputvattype);
+                            $('#id_deferredvat').val(response.deferredvat);
+                            $('#id_currency').val(response.currency);
+                            $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                            showRate("#id_vat", "vatrate", "RATE");
+                            showRate("#id_atc", "atcrate", "RATE");
+
+                            $('#id_payee').data('creditterm', response.creditterm);
+                            $('#id_payee').data('vat', response.vat);
+                            $('#id_payee').data('atc', response.atc);
+                            $('#id_payee').data('inputvattype', response.inputvattype);
+                            $('#id_payee').data('deferredvat', response.deferredvat);
+                            $('#id_payee').data('currency', response.currency);
+                            $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));
+                        },
+                        error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+
+                    $("#lookupModal .close").click();
+                }
+            });
+
+            if($("#id_ofstatus option:selected").text() == "For Approval")
+                $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
+
+            $('#id_payee').on('input', function() {
+                if($('#id_payee').val() == $('#id_hiddenpayee').val()){
+                    $('#id_creditterm').val($(this).data('creditterm'));
+                    $('#id_vat').val($(this).data('vat'));
+                    $('#id_atc').val($(this).data('atc'));
+                    $('#id_inputvattype').val($(this).data('inputvattype'));
+                    $('#id_deferredvat').val($(this).data('deferredvat'));
+                    $('#id_currency').val($(this).data('currency'));
+                    $('#id_fxrate').val($(this).data('fxrate'));
+                    showRate("#id_vat", "vatrate", "RATE");
+                    showRate("#id_atc", "atcrate", "RATE");
+                }
+                else {
+                    $('#id_creditterm').val("");
+                    $('#id_vat').val("");
+                    $('#id_atc').val("");
+                    $('#id_inputvattype').val("");
+                    $('#id_deferredvat').val("N");
+                    $('#id_currency').val("1");
+                    $('#id_fxrate').val("1.00");
+                    showRate("#id_vat", "vatrate", "RATE");
+                    showRate("#id_atc", "atcrate", "RATE");
+                }
+            });
+
+
+
+
+
+
+
+
+            enableDisableButtons();
+
+            $("#detailsbutton").click(function (){
+                $("#detailentry").show();
+            });
+
+            $("#id_vat").change(function(){
+                showRate("#id_vat", "vatrate", "RATE");
+            });
+
+            $("#id_atc").change(function(){
+                showRate("#id_atc", "atcrate", "RATE");
+            });
+
+            $("#id_currency").change(function(){
+                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+            });
+
+            $("#id_wtax").change(function(){
+                showRate("#id_wtax", "wtaxrate", "RATE");
+            });
+
+            $("#id_supplier").change(function(){
+                enableDisableButtons();
+                displaySupplierData();
+            });
+
+            $("#importbutton").click(function(){
+                $('#importprfpreview tbody').empty();
+                $("#importprfselect2").val('').trigger('change.select2');
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
+            });
+
+            function displaySupplierData(){
+                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+                $('#id_vat').val($("#id_supplier option:selected").data('vat'));
+                $('#id_atc').val($("#id_supplier option:selected").data('atc'));
+                $('#id_currency').val($("#id_supplier option:selected").data('currency'));
+                $('#id_inputvattype').val($("#id_supplier option:selected").data('inputvattype'));
+                $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
+                showRate("#id_vat", "vatrate", "RATE");
+                showRate("#id_atc", "atcrate", "RATE");
+                showRate("#id_currency", "fxrate", "FX RATE");
+            }
+
+            function enableDisableButtons(){
+                if($("#id_supplier option:selected").text() == "-- Select --"){
+                    $('#importbutton').prop("disabled", true);
+                    $('#detailsbutton').prop("disabled", true);
+                }
+                else {
+                    $('#importbutton').prop("disabled", false);
+                    $('#detailsbutton').prop("disabled", false);
+                }
+            }
+
+            function showRate(field, rateSpan, defaultText){
+                var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
+                        parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
+                $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
+                if($(field + " option:selected").text() == "-- Select --"){
+                    $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+                }
+            }
+
+            $(document).ready(function() {
+                $("#importprfselect2").select2({
+                    dropdownParent: $("#myModal")
+                });
+            });
+        });
+    </script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.select2').select2({});
+        ajaxselect2("supplier_payee");
+    </script>
+{% endblock extra_js %}
