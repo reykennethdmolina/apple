@@ -124,12 +124,19 @@
                                                 <span><b>{{ object.particulars }}</b></span>
                                             </div>
                                         </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Branch</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
+                                                <span><b>{{ object.branch.description }}</b></span>
+                                            </div>
+                                        </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Credit&nbsp;Terms</b></span>
+                                                <span class="text-info row col-md-2 margin-right-80"><b>ATC</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.creditterm.description|default:'N/A' }}</span>
+                                                <span>{% if object.atc %}{{ object.atc.description }}&nbsp;({{ object.atcrate }}%){% else %}N/A{% endif %}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -138,20 +145,6 @@
                                                 <span class="text-info col-md-1 margin-right-60"><b>VAT</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{% if object.vat %}{{ object.vat.description }}&nbsp;({{ object.vatrate }}%){% else %}N/A{% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>ATC</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{% if object.atc %}{{ object.atc.description }}&nbsp;({{ object.atcrate }}%){% else %}N/A{% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info col-md-1 margin-right-60"><b>W/Tax</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{% if object.wtax %}{{ object.wtax.description }}&nbsp;({{ object.wtaxrate }}%){% else %}N/A{% endif %}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -180,6 +173,20 @@
                                                 <span class="text-info col-md-1 margin-right-60"><b>FX&nbsp;Rate</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.fxrate|floatformat:2|intcomma|default:'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-80"><b>Credit&nbsp;Terms</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.creditterm.description|default:'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info col-md-1 margin-right-60"></span>
+                                                <span class="text-info row col-md-3"></span>
+                                                <span>&nbsp;</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">

@@ -187,3 +187,26 @@ def searchSupplier(request):
 
     return JsonResponse(data)
 
+
+@csrf_exempt
+def getSupplierData(request):
+    if request.method == 'POST':
+        supplier = Supplier.objects.get(pk=request.POST['supplierid'])
+        data = {
+            'status': 'success',
+            'creditterm': supplier.creditterm.id,
+            'vat': supplier.vat.id,
+            'atc': supplier.atc.id,
+            'inputvattype': supplier.inputvattype.id,
+            'deferredvat': supplier.deferredvat,
+            'currency': supplier.currency.id,
+            'fxrate': supplier.fxrate,
+            'bankaccountnumber': supplier.bankaccountnumber,
+            'bankaccountname': supplier.bankaccountname,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+

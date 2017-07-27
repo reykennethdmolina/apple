@@ -299,10 +299,12 @@ class UpdateViewCashier(UpdateView):
 
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
+            self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
                                             'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
-                                            'fxrate', 'wtax', 'ofstatus', 'employee', 'department', 'remarks', 'payee',
-                                            'payee_code', 'payee_name', 'modifyby', 'modifydate'])
+                                            'fxrate', 'branch', 'ofstatus', 'employee', 'department', 'remarks', 'payee',
+                                            'payee_code', 'payee_name', 'modifyby', 'modifydate', 'vatrate', 'atcrate'])
 
             # revert status from RELEASED to In Process if no release date is saved
             if self.object.ofstatus == 'R' and self.object.releasedate is None:
