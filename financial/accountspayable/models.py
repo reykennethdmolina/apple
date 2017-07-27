@@ -245,3 +245,140 @@ class Apdetailbreakdown(models.Model):
 
     def status_verbose(self):
         return dict(Apdetailbreakdown.STATUS_CHOICES)[self.status]
+
+class Apdetailtemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    apmain = models.CharField(max_length=10, null=True, blank=True)
+    apdetail = models.CharField(max_length=10, null=True, blank=True)
+    ap_num = models.CharField(max_length=10)
+    ap_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='apdetailtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='apdetailtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='apdetailtemp_post', \
+        null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'apdetailtemp'
+        ordering = ['-pk']
+        # permissions = (("view_apmain", "Can view apmain"),)
+
+    def get_absolute_url(self):
+        return reverse('apdetailtemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Apdetailtemp.STATUS_CHOICES)[self.status]
+
+class Apdetailbreakdowntemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    apdetailtemp = models.CharField(max_length=10, null=True, blank=True)
+    datatype = models.CharField(max_length=1, null=True, blank=True)
+    apmain = models.CharField(max_length=10, null=True, blank=True)
+    apdetail = models.CharField(max_length=10, null=True, blank=True)
+    apdetailbreakdown = models.CharField(max_length=10, \
+        null=True, blank=True)
+    ap_num = models.CharField(max_length=10)
+    ap_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    particular = models.TextField(null=True, blank=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, \
+        blank=True, null=True, default=0.00)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='apdetailbreakdowntemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='apdetailbreakdowntemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='apdetailbreakdowntemp_post', \
+        null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'apdetailbreakdowntemp'
+        ordering = ['-pk']
+        # permissions = (("view_apmain", "Can view apmain"),)
+
+    def get_absolute_url(self):
+        return reverse('apdetailbreakdowntemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return str(self.pk)
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Apdetailbreakdowntemp.STATUS_CHOICES)[self.status]
