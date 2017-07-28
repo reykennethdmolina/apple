@@ -90,7 +90,7 @@ class UpdateView(UpdateView):
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
               'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
-              'vat', 'atc', 'currency', 'industry', 'suppliertype']
+              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -108,18 +108,22 @@ class UpdateView(UpdateView):
                                         'telno', 'faxno', 'zipcode', 'contactperson',
                                         'creditterm', 'inputvattype', 'deferredvat', 'vat',
                                         'atc', 'currency', 'fxrate', 'vatrate', 'atcrate',
-                                        'industry', 'suppliertype', 'modifyby', 'modifydate'])
+                                        'industry', 'suppliertype', 'modifyby', 'modifydate',
+                                        'bankaccount', 'bankbranchdisburse', 'paytype'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('description')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
-        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
+        context['paytype'] = Paytype.objects.filter(isdeleted=0).order_by('code')
         context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
         return context
 
 

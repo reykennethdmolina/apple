@@ -102,3 +102,271 @@ class Ofmain(models.Model):
 
     def __unicode__(self):
         return self.ofnum
+
+
+class Ofdetail(models.Model):
+    item_counter = models.IntegerField()
+    ofmain = models.ForeignKey('operationalfund.Ofmain', related_name='ofmain_ofdetail_id', null=True, blank=True)
+    of_num = models.CharField(max_length=10)
+    of_date = models.DateTimeField()
+    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_ofdetail_id')
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_ofdetail_id', null=True,
+                                    blank=True)
+    department = models.ForeignKey('department.Department', related_name='department_ofdetail_id', null=True,
+                                   blank=True)
+    employee = models.ForeignKey('employee.Employee', related_name='employee_ofdetail_id', null=True, blank=True)
+    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_ofdetail_id', null=True, blank=True)
+    customer = models.ForeignKey('customer.Customer', related_name='customer_ofdetail_id', null=True, blank=True)
+    unit = models.ForeignKey('unit.Unit', related_name='unit_ofdetail_id', null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='branch_ofdetail_id', null=True, blank=True)
+    product = models.ForeignKey('product.Product', related_name='product_ofdetail_id', null=True, blank=True)
+    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_ofdetail_id', null=True, blank=True)
+    outputvat = models.ForeignKey('outputvat.Outputvat', related_name='outputvat_ofdetail_id', null=True, blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='vat_ofdetail_id', null=True, blank=True)
+    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_ofdetail_id', null=True, blank=True)
+    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_ofdetail_id', null=True, blank=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofdetail_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofdetail_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofdetail_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'ofdetail'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofdetail:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Ofdetail.STATUS_CHOICES)[self.status]
+
+
+class Ofdetailbreakdown(models.Model):
+    item_counter = models.IntegerField()
+    ofmain = models.ForeignKey('operationalfund.Ofmain', related_name='ofmain_ofdetailbreakdown_id', null=True,
+                               blank=True)
+    ofdetail = models.ForeignKey('operationalfund.Ofdetail', related_name='ofdetail_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    datatype = models.CharField(max_length=1, null=True, blank=True)
+    of_num = models.CharField(max_length=10)
+    of_date = models.DateTimeField()
+    chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
+                                       related_name='chartofaccount_ofdetailbreakdown_id')
+    particular = models.TextField(null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_ofdetailbreakdown_id',
+                                    null=True, blank=True)
+    department = models.ForeignKey('department.Department', related_name='department_ofdetailbreakdown_id', null=True,
+                                   blank=True)
+    employee = models.ForeignKey('employee.Employee', related_name='employee_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    supplier = models.ForeignKey('supplier.Supplier', related_name='supplier_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    customer = models.ForeignKey('customer.Customer', related_name='customer_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    unit = models.ForeignKey('unit.Unit', related_name='unit_ofdetailbreakdown_id', null=True, blank=True)
+    branch = models.ForeignKey('branch.Branch', related_name='branch_ofdetailbreakdown_id', null=True, blank=True)
+    product = models.ForeignKey('product.Product', related_name='product_ofdetailbreakdown_id', null=True, blank=True)
+    inputvat = models.ForeignKey('inputvat.Inputvat', related_name='inputvat_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    outputvat = models.ForeignKey('outputvat.Outputvat', related_name='outputvat_ofdetailbreakdown_id', null=True,
+                                  blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='vat_ofdetailbreakdown_id', null=True, blank=True)
+    wtax = models.ForeignKey('wtax.Wtax', related_name='wtax_ofdetailbreakdown_id', null=True, blank=True)
+    ataxcode = models.ForeignKey('ataxcode.Ataxcode', related_name='ataxcode_ofdetailbreakdown_id', null=True,
+                                 blank=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdown_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdown_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofdetailbreakdown_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'ofdetailbreakdown'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofdetailbreakdown:ofdetailbreakdown', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.ofdetail
+
+    def __unicode__(self):
+        return unicode(self.ofdetail)
+
+    def status_verbose(self):
+        return dict(Ofdetailbreakdown.STATUS_CHOICES)[self.status]
+
+
+class Ofdetailtemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    ofmain = models.CharField(max_length=10, null=True, blank=True)
+    ofdetail = models.CharField(max_length=10, null=True, blank=True)
+    of_num = models.CharField(max_length=10)
+    of_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofdetailtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofdetailtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofdetailtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'ofdetailtemp'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofdetailtemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Ofdetailtemp.STATUS_CHOICES)[self.status]
+
+
+class Ofdetailbreakdowntemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    ofdetailtemp = models.CharField(max_length=10, null=True, blank=True)
+    datatype = models.CharField(max_length=1, null=True, blank=True)
+    ofmain = models.CharField(max_length=10, null=True, blank=True)
+    ofdetail = models.CharField(max_length=10, null=True, blank=True)
+    ofdetailbreakdown = models.CharField(max_length=10, null=True, blank=True)
+    of_num = models.CharField(max_length=10)
+    of_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    particular = models.TextField(null=True, blank=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    customerbreakstatus = models.IntegerField(blank=True, null=True)
+    supplierbreakstatus = models.IntegerField(blank=True, null=True)
+    employeebreakstatus = models.IntegerField(blank=True, null=True)
+
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdowntemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdowntemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofdetailbreakdowntemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'ofdetailbreakdowntemp'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofdetailbreakdowntemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return str(self.pk)
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Ofdetailbreakdowntemp.STATUS_CHOICES)[self.status]
