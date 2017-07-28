@@ -12,6 +12,7 @@ from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
+from aptype.models import Aptype
 from . models import Apmain
 
 # pagination and search
@@ -88,7 +89,7 @@ class CreateView(CreateView):
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
-              'currency']
+              'currency', 'fxrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('accountspayable.add_apmain'):
@@ -100,7 +101,8 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         if self.request.POST.get('payee', False):
             context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
-        context['currency'] = Currency.objects.filter(isdeleted=0, symbol='PHP')
+        context['currency'] = Currency.objects.filter(isdeleted=0)
+        context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = 0
 
         #lookup
@@ -159,7 +161,7 @@ class UpdateView(UpdateView):
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
-              'currency']
+              'currency', 'fxrate']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('customer.change_apmain'):
@@ -189,8 +191,9 @@ class UpdateView(UpdateView):
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
-        context['currency'] = Currency.objects.filter(isdeleted=0, symbol='PHP')
+        context['currency'] = Currency.objects.filter(isdeleted=0)
         context['apnum'] = self.object.apnum
+        context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = self.object.pk
         return context
 

@@ -23,20 +23,19 @@ from vat.models import Vat
 from wtax.models import Wtax
 from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvdetailtemp, Jvdetailbreakdowntemp
+from accountspayable.models import Apdetailtemp, Apdetailbreakdowntemp
 
 # Create your views here.
 @csrf_exempt
 def maccountingentry(request):
     if request.method == 'POST':
 
+        table = 'jvdetailtemp'
+        if request.POST['table']:
+            table = request.POST['table']
+
         context = {
-            'chartofaccount':  Chartofaccount.objects.filter(isdeleted=0, status='A', \
-                accounttype='P').order_by('accountcode')[0:1000],
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
-            'department':  Department.objects.filter(isdeleted=0).order_by('departmentname'),
-            'employee':  Employee.objects.filter(isdeleted=0).order_by('firstname', 'lastname'),
-            'supplier':  Supplier.objects.filter(isdeleted=0).order_by('name'),
-            'customer':  Customer.objects.filter(isdeleted=0).order_by('name')[0:100],
             'branch':  Branch.objects.filter(isdeleted=0).order_by('description'),
             'product':  Product.objects.filter(isdeleted=0).order_by('description'),
             'inputvat':  Inputvat.objects.filter(isdeleted=0).order_by('description'),
@@ -44,6 +43,7 @@ def maccountingentry(request):
             'vat':  Vat.objects.filter(isdeleted=0).order_by('description'),
             'wtax':  Wtax.objects.filter(isdeleted=0).order_by('description'),
             'ataxcode':  Ataxcode.objects.filter(isdeleted=0).order_by('description'),
+            'table': table,
         }
         data = {
             'status': 'success',
@@ -89,10 +89,23 @@ def savemaccountingentry(request):
 
     if request.method == 'POST':
         # Save Data To JVDetail
+        tabledetailtemp = 'jvdetailtemp'
+        tablebreakdowntemp = 'jvdetailbreakdowntemp'
+
         if request.POST['table'] == 'jvdetailtemp':
             detailtemp = Jvdetailtemp()
+            detailtemp.jv_date = datetime.datetime.now()
             detailtemp.item_counter = len(Jvdetailtemp.objects.all().\
                 filter(secretkey=request.POST['secretkey'])) + 1
+            tabledetailtemp = request.POST['table']
+            tablebreakdowntemp = 'jvdetailbreakdowntemp'
+        elif request.POST['table'] == 'apdetailtemp':
+            detailtemp = Apdetailtemp()
+            detailtemp.ap_date = datetime.datetime.now()
+            detailtemp.item_counter = len(Apdetailtemp.objects.all().\
+                filter(secretkey=request.POST['secretkey'])) + 1
+            tabledetailtemp = request.POST['table']
+            tablebreakdowntemp = 'apdetailbreakdowntemp'
 
         detailtemp.chartofaccount = request.POST['chartofaccount']
 
@@ -144,7 +157,6 @@ def savemaccountingentry(request):
 
         detailtemp.balancecode = balancecode
         detailtemp.secretkey = request.POST['secretkey']
-        detailtemp.jv_date = datetime.datetime.now()
         detailtemp.enterby = request.user
         detailtemp.enterdate = datetime.datetime.now()
         detailtemp.modifyby = request.user
@@ -153,6 +165,8 @@ def savemaccountingentry(request):
 
         table = request.POST['table']
         context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tablebreakdowntemp,
             'datatemp': querystmtdetail(table, request.POST['secretkey']),
             'datatemptotal': querytotaldetail(table, request.POST['secretkey']),
         }
@@ -418,10 +432,16 @@ def deletedetail(request):
         detaildata = getdatainfo(table, dataid)
 
         # Delete if not for updation
-        if not detaildata[0].jvmain:
-            deletequery(table, dataid)
-        else:
-            updatequery(table, dataid)
+        if table == "jvdetailtemp":
+            if not detaildata[0].apmain:
+                deletequery(table, dataid)
+            else:
+                updatequery(table, dataid)
+        elif table == "apdetailtemp":
+            if not detaildata[0].apmain:
+                deletequery(table, dataid)
+            else:
+                updatequery(table, dataid)
 
         context = {
             'datatemp': querystmtdetail(table, secretkey),
@@ -538,46 +558,51 @@ def querytotalbreakdown(temptable, secretkey, detailid, datatype):
     return data
 
 def querystmtdetail(temptable, secretkey):
-    stmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, \
-    temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
-                "c.accountcode, c.description AS chartofaccountdesc, " \
-                "b.code AS bankaccountcode, b.accountnumber, " \
-                "d.code AS departmentcode, d.departmentname, " \
-                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \
-                e.multiplestatus AS employeestatus, " \
-                "s.code AS suppliercode, s.name AS suppliername, \
-                s.multiplestatus AS supplierstatus, " \
-                "cu.code AS customercode, cu.name AS customername, \
-                cu.multiplestatus AS customerstatus, " \
-                "u.code AS unitcode, u.description AS unitname, " \
-                "br.code AS branchcode, br.description AS branchname, " \
-                "p.code AS productcode, p.description AS productname, " \
-                "i.code AS inputvatcode, i.description AS inputvatname, " \
-                "o.code AS outputvatcode, o.description AS outputvatname, " \
-                "v.code AS vatcode, v.description AS vatname, " \
-                "w.code AS wtaxcode, w.description AS wtaxname, " \
-                "a.code AS ataxcode, a.description AS ataxname," \
-                "temp.customerbreakstatus, temp.supplierbreakstatus, temp.employeebreakstatus, " \
-                "FORMAT(temp.creditamount, 2) AS creditamount, \
-                FORMAT(temp.debitamount, 2) AS debitamount, " \
-                "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
-                "FROM "+temptable+" AS temp " \
-                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
-                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
-                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
-                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
-                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
-                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
-                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
-                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
-                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
-                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
-                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
-                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
-                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
-                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.secretkey = '" + secretkey + "' \
-                AND temp.isdeleted  NOT IN(1,2) ORDER BY temp.item_counter"
+    stmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, "
+
+    if temptable == "jvdetailtemp":
+        stmt += "temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, "
+    elif temptable == "apdetailtemp":
+        stmt += "temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, "
+
+    stmt += "c.accountcode, c.description AS chartofaccountdesc, " \
+            "b.code AS bankaccountcode, b.accountnumber, " \
+            "d.code AS departmentcode, d.departmentname, " \
+            "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \
+            e.multiplestatus AS employeestatus, " \
+            "s.code AS suppliercode, s.name AS suppliername, \
+            s.multiplestatus AS supplierstatus, " \
+            "cu.code AS customercode, cu.name AS customername, \
+            cu.multiplestatus AS customerstatus, " \
+            "u.code AS unitcode, u.description AS unitname, " \
+            "br.code AS branchcode, br.description AS branchname, " \
+            "p.code AS productcode, p.description AS productname, " \
+            "i.code AS inputvatcode, i.description AS inputvatname, " \
+            "o.code AS outputvatcode, o.description AS outputvatname, " \
+            "v.code AS vatcode, v.description AS vatname, " \
+            "w.code AS wtaxcode, w.description AS wtaxname, " \
+            "a.code AS ataxcode, a.description AS ataxname," \
+            "temp.customerbreakstatus, temp.supplierbreakstatus, temp.employeebreakstatus, " \
+            "FORMAT(temp.creditamount, 2) AS creditamount, \
+            FORMAT(temp.debitamount, 2) AS debitamount, " \
+            "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
+            "FROM "+temptable+" AS temp " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
+            "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
+            "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
+            "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
+            "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
+            "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
+            "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
+            "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
+            "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
+            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+            "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
+            "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
+            "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
+            "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
+            "WHERE temp.secretkey = '" + secretkey + "' \
+            AND temp.isdeleted  NOT IN(1,2) ORDER BY temp.item_counter"
 
     data = executestmt(stmt)
     return data

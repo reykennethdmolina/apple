@@ -48,8 +48,8 @@
                             <div class="form-group col-sm-3 {{ form.aptype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_aptype">AP Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_aptype" name="aptype">
-                                    {% for id,name in form.fields.aptype.choices %}
-                                    <option value="{{ id }}"{% if form.aptype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% for data in aptype %}
+                                        <option value="{{ data.id }}" {% if form.aptype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.aptype.errors.as_text }}</span>
@@ -156,6 +156,7 @@
                             <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_currency">Currency</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                    <option value="">-- Select --</option>
                                     {% for data in currency %}
                                         <option value="{{ data.id }}" {% if form.currency.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.symbol }}</option>
                                     {% endfor %}
@@ -164,7 +165,7 @@
                             </div>
                             <div class="form-group col-sm-1">
                                 <label class="control-label" for="id_apnum">FX Rate</label>
-                                <input type="text" class="form-control input-sm disabled-white" value="1" disabled="disabled">
+                                <input type="text" class="form-control input-sm disabled-white" id="id_fxrate" name="fxrate" value="1">
                             </div>
                         </div>
                         <div class="row">
@@ -197,6 +198,29 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         ajaxselect2("supplier");
+
+        $('#id_payee').change(function(){
+            $.ajax({
+                url: "{% url 'supplier:getsupplierdata' %}",
+                type: "post",
+                data: {'supplierid': $('#id_payee').val()
+                },
+                success: function(response) {
+                    $('#id_creditterm').val(response.creditterm);
+                    $('#id_vat').val(response.vat);
+                    $('#id_atax').val(response.atc);
+                    $('#id_inputvattype').val(response.inputvattype);
+                    $('#id_deferred').val(response.deferredvat);
+                    $('#id_currency').val(response.currency);
+                    $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                    $('#id_duedate').val(response.duedate);
+                    $('#id_bankbranchdisburse').val(response.bankbranchdisburse);
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
     </script>
 {% endblock extra_js %}
 {% include "accountspayable/search.html" %}

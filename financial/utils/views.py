@@ -8,6 +8,7 @@ from supplier.models import Supplier
 from chartofaccount.models import Chartofaccount
 from employee.models import Employee
 from department.models import Department
+from customer.models import Customer
 from accountspayable.models import Apmain
 
 
@@ -40,6 +41,10 @@ def ajaxSelect(request):
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                     Q(departmentname__icontains=request.GET['q']))
 
+        elif request.GET['table'] == "customer":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(name__icontains=request.GET['q']))
+
         items = items.filter(isdeleted=0).order_by('-enterdate')
 
         count = items.count()
@@ -66,6 +71,8 @@ def ajaxSelect(request):
                 text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
             elif request.GET['table'] == "department":
                 text = data.departmentname
+            elif request.GET['table'] == "customer":
+                text = data.name
 
             newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
             newtext = newtext.sub(q.upper(), text)

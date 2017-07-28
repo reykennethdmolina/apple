@@ -4,12 +4,7 @@
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label" for="detail_chartofaccount">Chart of Account</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm select2modal" data-getunit="1" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount">
-                <option value="">-- Select Chart of Account --</option>
-                {% for chartofaccount in chartofaccount %}
-                    <option value="{{ chartofaccount.id }}">{{ chartofaccount.accountcode }} | {{ chartofaccount.description }}</option>
-                {% endfor %}
-                </select>
+                <select class="form-control input-sm" data-getunit="1" required style="width: 100%" id="detail_chartofaccount" name="detail_chartofaccount"></select>
             </div>
             <span class="help-block form-error"></span>
         </div>
@@ -27,45 +22,25 @@
         <div class="col-lg-12 form-group hide" id="v_detail_department">
             <label class="col-sm-3 control-label" for="id_detail_department">Department</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm select2modal" style="width: 100%" id="detail_department" name="detail_department">
-                <option value="">-- Select Department --</option>
-                {% for department in department %}
-                    <option value="{{ department.id }}">{{ department.departmentname }}</option>
-                {% endfor %}
-                </select>
+                <select class="form-control input-sm" style="width: 100%" id="detail_department" name="detail_department"></select>
             </div>
         </div>
         <div class="col-lg-12 form-group hide" id="v_detail_employee">
             <label class="col-sm-3 control-label" for="id_detail_employee">Employee</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm" id="detail_employee" name="detail_employee">
-                <option value="">-- Select Employee --</option>
-                {% for employee in employee %}
-                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>
-                {% endfor %}
-                </select>
+                <select class="form-control input-sm" style="width: 100%" id="detail_employee" name="detail_employee"></select>
             </div>
         </div>
         <div class="col-lg-12 form-group hide" id="v_detail_supplier">
             <label class="col-sm-3 control-label" for="id_detail_supplier">Supplier</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm" id="detail_supplier" name="detail_supplier">
-                <option value="">-- Select Supplier --</option>
-                {% for supplier in supplier %}
-                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                {% endfor %}
-                </select>
+                <select class="form-control input-sm" style="width: 100%" id="detail_supplier" name="detail_supplier"></select>
             </div>
         </div>
         <div class="col-lg-12 form-group hide" id="v_detail_customer">
             <label class="col-sm-3 control-label" for="id_detail_customer">Customer</label>
             <div class="col-sm-9">
-                <select class="form-control input-sm" id="detail_customer" name="detail_customer">
-                <option value="">-- Select Customer --</option>
-                {% for customer in customer %}
-                    <option value="{{ customer.id }}" data-type="{{ customer.multiplestatus }}">{{ customer.name }}</option>
-                {% endfor %}
-                </select>
+                <select class="form-control input-sm" style="width: 100%" id="detail_customer" name="detail_customer"></select>
             </div>
         </div>
         <div class="col-lg-12 form-group hide" id="v_detail_unit">
@@ -179,6 +154,14 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.select2modal').select2({});
+
+        //Ajax Form Search
+        ajaxselect2("chartofaccount", "detail_chartofaccount");
+        ajaxselect2("department", "detail_department");
+        ajaxselect2("employee", "detail_employee");
+        ajaxselect2("supplier", "detail_supplier");
+        ajaxselect2("customer", "detail_customer");
+
         $("#manualbutton").click(function(){
             $("#entryview").show();
         });
@@ -217,7 +200,7 @@
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                            'secretkey': $("#secretkey").val(),
-                           'table': 'jvdetailtemp',
+                           'table': "{{ table }}",
                            'chartofaccount': $("#detail_chartofaccount").val(),
                            'bankaccount': $("#detail_bankaccount").val(),
                            'department': $("#detail_department").val(),
@@ -334,7 +317,7 @@
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                        'secretkey': $("#secretkey").val(),
-                       'table': 'jvdetailtemp',
+                       'table': {{ table }},
                        'id': id,
                        'chartid': chartid,
                 },

@@ -94,8 +94,8 @@
                 'chartid': $(this).data('chart'),
                 'datatype': $(this).data('type'),
                 'secretkey': $("#secretkey").val(),
-                'table': 'jvdetailbreakdowntemp',
-                'tablemain': 'jvdetailtemp',
+                'table': 'tablebreakdowntemp',
+                'tablemain': 'tabledetailtemp',
             },
             success: function(response) {
                 $("#breakdowndata").html(response['breakdowndata']);
@@ -118,7 +118,7 @@
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                     'id': id,
                     'secretkey': $("#secretkey").val(),
-                    'table': 'jvdetailtemp',
+                    'table': 'tabledetailtemp',
                 },
                 success: function(response){
                     $("#datatable").html(response['datatable']);

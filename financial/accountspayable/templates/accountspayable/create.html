@@ -21,7 +21,7 @@
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="row">
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_apnum">Number</label>
@@ -35,8 +35,8 @@
                             <div class="form-group col-sm-3 {{ form.aptype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_aptype">AP Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_aptype" name="aptype">
-                                    {% for id,name in form.fields.aptype.choices %}
-                                    <option value="{{ id }}"{% if form.aptype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                    {% for data in aptype %}
+                                        <option value="{{ data.id }}" {% if form.aptype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.aptype.errors.as_text }}</span>
@@ -143,6 +143,7 @@
                             <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_currency">Currency</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                    <option value="">-- Select --</option>
                                     {% for data in currency %}
                                         <option value="{{ data.id }}" {% if form.currency.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.symbol }}</option>
                                     {% endfor %}
@@ -151,7 +152,7 @@
                             </div>
                             <div class="form-group col-sm-1">
                                 <label class="control-label" for="id_apnum">FX Rate</label>
-                                <input type="text" class="form-control input-sm disabled-white" value="1" disabled="disabled">
+                                <input type="text" class="form-control input-sm disabled-white" id="id_fxrate" name="fxrate" value="1">
                             </div>
                         </div>
                         <div class="row">
@@ -170,6 +171,10 @@
                             </div>
                         </div>
                     </form>
+
+
+
+
                     <div class="col-sm-12" id="entryview" style="display: none">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
@@ -182,9 +187,61 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-12">
+                        <div class="panel">
+                            <div class="panel-body">
+                                <!-- Start Editable Section -->
+                                <table class="table table-striped margin-bottom-0">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">Counter</th>
+                                            <th width="25%">Chart of Account</th>
+                                            <th width="50%">Description</th>
+                                            <th width="10%">Debit</th>
+                                            <th width="10%">Credit</th>
+                                            <th width="10%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="datatable">
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>
+                                                <strong>Total</strong>
+                                            </th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                            <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
             <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade modal-message" id="modal-row">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+            </div>
         </div>
     </div>
 </div>
@@ -207,11 +264,36 @@
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
-                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'table': "apdetailtemp",},
                     success: function(response){
                         $("#manualentryview").html(response['viewhtml']);
                         $("#waitingbar").hide();
                     }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
+
+            $('#id_payee').change(function(){
+                $.ajax({
+                    url: "{% url 'supplier:getsupplierdata' %}",
+                    type: "post",
+                    data: {'supplierid': $('#id_payee').val()
+                    },
+                    success: function(response) {
+                        $('#id_creditterm').val(response.creditterm);
+                        $('#id_vat').val(response.vat);
+                        $('#id_atax').val(response.atc);
+                        $('#id_inputvattype').val(response.inputvattype);
+                        $('#id_deferred').val(response.deferredvat);
+                        $('#id_currency').val(response.currency);
+                        $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                        $('#id_duedate').val(response.duedate);
+                        $('#id_bankbranchdisburse').val(response.bankbranchdisburse);
+                        // apply to edit accounting entries
+                    },
+                    error: function(response) {
                         console.debug(response);
                     }
                 });
