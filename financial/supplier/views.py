@@ -206,7 +206,7 @@ def getSupplierData(request):
             'fxrate': supplier.fxrate,
             'bankaccount': supplier.bankaccount.id,
             'bankbranchdisburse': supplier.bankbranchdisburse.id,
-            'duedate': datetime.datetime.now() + datetime.timedelta(days=supplier.creditterm.daysdue),
+            'duedate': datetime.datetime.now().date() + datetime.timedelta(days=supplier.creditterm.daysdue),
         }
     else:
         data = {
