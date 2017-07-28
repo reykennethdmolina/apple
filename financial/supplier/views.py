@@ -201,8 +201,8 @@ def getSupplierData(request):
             'deferredvat': supplier.deferredvat,
             'currency': supplier.currency.id,
             'fxrate': supplier.fxrate,
-            'bankaccountnumber': supplier.bankaccountnumber,
-            'bankaccountname': supplier.bankaccountname,
+            'bankaccount': supplier.bankaccount.id,
+            'bankbranchdisburse': supplier.bankbranchdisburse.id,
         }
     else:
         data = {

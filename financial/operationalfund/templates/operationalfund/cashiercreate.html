@@ -284,7 +284,7 @@
                     $('#id_hiddenpayeeid').val($('#id_payeelookup').val());
 
                     $.ajax({
-                        url: "{% url 'operationalfund:getsupplierdata' %}",
+                        url: "{% url 'supplier:getsupplierdata' %}",
                         type: "post",
                         data: {'supplierid': $('#id_payeelookup').val()
                         },
@@ -320,7 +320,7 @@
                 $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
 
             $('#id_payee').on('input', function() {
-                if($('#id_payee').val() == $('#id_hiddenpayee').val()){
+                if($('#id_payee').val().toUpperCase() == $('#id_hiddenpayee').val().toUpperCase()){
                     $('#id_creditterm').val($(this).data('creditterm'));
                     $('#id_vat').val($(this).data('vat'));
                     $('#id_atc').val($(this).data('atc'));
