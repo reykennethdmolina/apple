@@ -5,7 +5,9 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ataxcode.models import Ataxcode
-from bankaccounttype.models import Bankaccounttype
+from bankaccount.models import Bankaccount
+from bankbranchdisburse.models import Bankbranchdisburse
+from paytype.models import Paytype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from industry.models import Industry
@@ -49,8 +51,7 @@ class CreateView(CreateView):
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
               'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
-              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccounttype',
-              'bankaccountnumber', 'bankaccountname']
+              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -70,14 +71,16 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['bankaccounttype'] = Bankaccounttype.objects.filter(isdeleted=0).order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('description')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('description')
-        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('description')
+        context['paytype'] = Paytype.objects.filter(isdeleted=0).order_by('code')
         context['suppliertype'] = Suppliertype.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('description')
         return context
 
 
@@ -203,6 +206,7 @@ def getSupplierData(request):
             'fxrate': supplier.fxrate,
             'bankaccount': supplier.bankaccount.id,
             'bankbranchdisburse': supplier.bankbranchdisburse.id,
+            'duedate': datetime.datetime.now() + datetime.timedelta(days=supplier.creditterm.daysdue),
         }
     else:
         data = {

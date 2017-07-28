@@ -1,6 +1,15 @@
 {% extends 'base-form.html' %}
+{% load staticfiles %}
 {% block page-title %} Supplier {% endblock page-title %}
 {% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <style>
+        .select2-results__option {
+            font-size: 12px;
+        }
+    </style>
+{% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
@@ -188,34 +197,43 @@
                                 <span class="help-block form-error help-block-sm">{{ form.atc.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="form-group form-group-sm form-group-0 form-material col-md-12">
-                            <br><label class="col-sm-3 control-label">BANK ACCOUNT DETAILS:</label>
-                            <div class="form-group form-group-sm form-group-0 form-material col-md-12
-                             {{ form.bankaccounttype.errors|yesno:'has-error,' }}">
-                                <br><label for="id_bankaccounttype" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Type</label>
-                                <div class="col-sm-3">
-                                    <select id="id_bankaccounttype" class="form-control" name="bankaccounttype">
-                                        <option value="">-- Select --</option>
-                                        {% for bankaccounttype in bankaccounttype %}
-                                            <option value="{{ bankaccounttype.id }}" {% if form.bankaccounttype.value|add:0 == bankaccounttype.id %} selected="selected" {% endif %}>{{ bankaccounttype.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.bankaccounttype.errors.as_text }}</span>
-                                </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-12
+                         {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                            <br><br><label for="id_bankaccount" class="col-sm-1 control-label" style="margin-right: 77px;">Bank&nbsp;Account</label>
+                            <div class="col-sm-4">
+                                <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
+                                    <option value="">-- Select --</option>
+                                    {% for bankaccount in bankaccount %}
+                                        <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.bankbranch.description }}]</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                             </div>
-                            <div class="form-group form-group-sm form-group-0 col-md-12 {{ form.bankaccountnumber.errors|yesno:'has-error,' }}">
-                                <label for="id_bankaccountnumber" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Number</label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control text-right" id="id_bankaccountnumber" maxlength="100" placeholder="Number" name="bankaccountnumber" value="{{ form.bankaccountnumber.value|default:'' }}">
-                                    <span class="help-block form-error help-block-sm">{{ form.bankaccountnumber.errors.as_text }}</span>
-                                </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-12
+                         {{ form.bankbranchdisburse.errors|yesno:'has-error,' }}">
+                            <label for="id_bankbranchdisburse" class="col-sm-1 control-label" style="margin-right: 77px;">Branch&nbsp;Disburse</label>
+                            <div class="col-sm-4">
+                                <select id="id_bankbranchdisburse" class="form-control input-sm select2" name="bankbranchdisburse">
+                                    <option value="">-- Select --</option>
+                                    {% for bankbranchdisburse in bankbranchdisburse %}
+                                        <option value="{{ bankbranchdisburse.id }}" {% if form.bankbranchdisburse.value|add:0 == bankbranchdisburse.id %} selected="selected" {% endif %}>[{{ bankbranchdisburse.branch }}] {{ bankbranchdisburse.address1 }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                             </div>
-                            <div class="form-group form-group-sm form-group-0 col-md-12 {{ form.bankaccountname.errors|yesno:'has-error,' }}">
-                                <label for="id_bankaccountname" class="col-sm-1 control-label" style="margin-right: 70px;">Account&nbsp;Name</label>
-                                <div class="col-sm-3">
-                                    <input type="text" class="form-control" id="id_bankaccountname" maxlength="200" placeholder="Name" name="bankaccountname" value="{{ form.bankaccountname.value|default:'' }}">
-                                    <span class="help-block form-error help-block-sm">{{ form.bankaccountname.errors.as_text }}</span>
-                                </div>
+                        </div>
+                        <div class="form-group form-group-sm form-group-0 form-material col-md-12
+                         {{ form.paytype.errors|yesno:'has-error,' }}">
+                            <label for="id_paytype" class="col-sm-1 control-label" style="margin-right: 77px;">Payment&nbsp;Type</label>
+                            <div class="col-sm-4">
+                                <select id="id_paytype" class="form-control input-sm select2" name="paytype">
+                                    <option value="">-- Select --</option>
+                                    {% for paytype in paytype %}
+                                        <option value="{{ paytype.id }}" {% if form.paytype.value|add:0 == paytype.id %} selected="selected" {% endif %}>[{{ paytype.code }}] {{ paytype.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group col-md-6">
@@ -232,6 +250,7 @@
 {% endblock page-content %}
 {% block extra_js %}
     {% load static %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/js/form-mask/jquery.formatter.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
     <script src="{% static 'financial-layout/assets/js/form-mask/validate-masks.js' %}"></script>
@@ -247,5 +266,7 @@
                     + '</strong></small>');
             });
         });
+
+        $('.select2').select2({});
     </script>
 {% endblock extra_js %}
