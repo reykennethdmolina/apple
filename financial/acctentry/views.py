@@ -24,6 +24,7 @@ from wtax.models import Wtax
 from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvdetailtemp, Jvdetailbreakdowntemp
 from accountspayable.models import Apdetailtemp, Apdetailbreakdowntemp
+from operationalfund.models import Ofdetailtemp, Ofdetailbreakdowntemp
 
 
 def validatetable(table):
@@ -42,6 +43,14 @@ def validatetable(table):
             'str_detailbreakdowntemp': 'apdetailbreakdowntemp',
             'stmt_detailtemp': 'temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, ',
             'stmt_detailbreakdowntemp': 'temp.apdetailtemp AS detailid, temp.particular, temp.item_counter, temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, ',
+        }
+    elif table == 'ofdetailtemp':
+        data = {
+            'sal': 'of',
+            'str_detailtemp': 'ofdetailtemp',
+            'str_detailbreakdowntemp': 'ofdetailbreakdowntemp',
+            'stmt_detailtemp': 'temp.ofmain, temp.of_num, DATE(temp.of_date) AS ofdate, ',
+            'stmt_detailbreakdowntemp': 'temp.ofdetailtemp AS detailid, temp.particular, temp.item_counter, temp.ofmain, temp.of_num, DATE(temp.of_date) AS ofdate, ',
         }
 
     return data

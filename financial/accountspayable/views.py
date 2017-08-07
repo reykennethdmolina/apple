@@ -20,7 +20,7 @@ from customer.models import Customer
 from department.models import Department
 from unit.models import Unit
 from product.models import Product
-from inputvat.models import  Inputvat
+from inputvat.models import Inputvat
 from outputvat.models import Outputvat
 from wtax.models import Wtax
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
