@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
-from acctentry.views import generatekey
+from acctentry.views import generatekey, savedetail
 from supplier.models import Supplier
 from branch.models import Branch
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -164,99 +164,13 @@ class CreateView(CreateView):
         self.object.save()
 
         # accounting entry starts here..
+        source = 'apdetailtemp'
         mainid = self.object.id
-        apnum = self.object.apnum
+        num = self.object.apnum
         secretkey = self.request.POST['secretkey']
-        detailinfo = Apdetailtemp.objects.all().filter(secretkey=secretkey).order_by('item_counter')
-
-        counter = 1
-        for row in detailinfo:
-            detail = Apdetail()
-            detail.ap_num = apnum
-            detail.apmain = Apmain.objects.get(pk=mainid)
-            detail.item_counter = counter
-            detail.ap_date = row.ap_date
-            detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
-            # Return None if object is empty
-            detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
-            detail.employee = get_object_or_None(Employee, pk=row.employee)
-            detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
-            detail.customer = get_object_or_None(Customer, pk=row.customer)
-            detail.department = get_object_or_None(Department, pk=row.department)
-            detail.unit = get_object_or_None(Unit, pk=row.unit)
-            detail.branch = get_object_or_None(Branch, pk=row.branch)
-            detail.product = get_object_or_None(Product, pk=row.product)
-            detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
-            detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
-            detail.vat = get_object_or_None(Vat, pk=row.vat)
-            detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
-            detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
-            detail.debitamount = row.debitamount
-            detail.creditamount = row.creditamount
-            detail.balancecode = row.balancecode
-            detail.customerbreakstatus = row.customerbreakstatus
-            detail.supplierbreakstatus = row.supplierbreakstatus
-            detail.employeebreakstatus = row.employeebreakstatus
-            detail.modifyby = self.request.user
-            detail.enterby = self.request.user
-            detail.modifydate = datetime.datetime.now()
-            detail.save()
-            counter += 1
-
-            # Saving breakdown entry
-            if row.customerbreakstatus <> 0:
-                savebreakdownentry(self.request.user, apnum, mainid, detail.pk, row.pk, 'C')
-            if row.employeebreakstatus <> 0:
-                savebreakdownentry(self.request.user, apnum, mainid, detail.pk, row.pk, 'E')
-            if row.supplierbreakstatus <> 0:
-                savebreakdownentry(self.request.user, apnum, mainid, detail.pk, row.pk, 'S')
+        savedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
-
-
-def savebreakdownentry(user, apnum, mainid, detailid, tempdetailid, dtype):
-
-    breakdowninfo = Apdetailbreakdowntemp.objects.all().\
-        filter(apdetailtemp=tempdetailid, datatype=dtype).order_by('item_counter')
-
-    counter = 1
-    for row in breakdowninfo:
-        breakdown = Apdetailbreakdown()
-        breakdown.ap_num = apnum
-        breakdown.apmain = Apmain.objects.get(pk=mainid)
-        breakdown.apdetail = Apdetail.objects.get(pk=detailid)
-        breakdown.item_counter = counter
-        breakdown.ap_date = row.ap_date
-        breakdown.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
-        breakdown.particular = row.particular
-        # Return None if object is empty
-        breakdown.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
-        breakdown.employee = get_object_or_None(Employee, pk=row.employee)
-        breakdown.supplier = get_object_or_None(Supplier, pk=row.supplier)
-        breakdown.customer = get_object_or_None(Customer, pk=row.customer)
-        breakdown.department = get_object_or_None(Department, pk=row.department)
-        breakdown.unit = get_object_or_None(Unit, pk=row.unit)
-        breakdown.branch = get_object_or_None(Branch, pk=row.branch)
-        breakdown.product = get_object_or_None(Product, pk=row.product)
-        breakdown.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
-        breakdown.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
-        breakdown.vat = get_object_or_None(Vat, pk=row.vat)
-        breakdown.wtax = get_object_or_None(Wtax, pk=row.wtax)
-        breakdown.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
-        breakdown.debitamount = row.debitamount
-        breakdown.creditamount = row.creditamount
-        breakdown.balancecode = row.balancecode
-        breakdown.datatype = dtype
-        breakdown.customerbreakstatus = row.customerbreakstatus
-        breakdown.supplierbreakstatus = row.supplierbreakstatus
-        breakdown.employeebreakstatus = row.employeebreakstatus
-        breakdown.modifyby = user
-        breakdown.enterby = user
-        breakdown.modifydate = datetime.datetime.now()
-        breakdown.save()
-        counter += 1
-
-    return True
 
 
 @method_decorator(login_required, name='dispatch')
