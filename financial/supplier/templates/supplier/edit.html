@@ -217,7 +217,7 @@
                                 <select id="id_bankbranchdisburse" class="form-control input-sm select2" name="bankbranchdisburse">
                                     <option value="">-- Select --</option>
                                     {% for bankbranchdisburse in bankbranchdisburse %}
-                                        <option value="{{ bankbranchdisburse.id }}" {% if form.bankbranchdisburse.value|add:0 == bankbranchdisburse.id %} selected="selected" {% endif %}>[{{ bankbranchdisburse.branch }}] {{ bankbranchdisburse.address1 }}</option>
+                                        <option value="{{ bankbranchdisburse.id }}" {% if form.bankbranchdisburse.value|add:0 == bankbranchdisburse.id %} selected="selected" {% endif %}>[{{ bankbranchdisburse.branch }}] {{ bankbranchdisburse.bank.code }}, {{ bankbranchdisburse.address1 }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>

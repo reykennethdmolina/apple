@@ -140,7 +140,7 @@
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info"">Branch&nbsp;Disburse&nbsp;:</span>
-                                            <span class="detail-profile" style="float: left;">{% if object.bankbranchdisburse %}[{{ object.bankbranchdisburse.branch }}] {{ object.bankbranchdisburse.address1 }}{% else %}N/A{% endif %}</span>
+                                            <span class="detail-profile" style="float: left;">{% if object.bankbranchdisburse %}[{{ object.bankbranchdisburse.branch }}] {{ object.bankbranchdisburse.bank.code }}, {{ object.bankbranchdisburse.address1 }}{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">

@@ -402,27 +402,6 @@ def approve(request):
 
 
 @csrf_exempt
-def getsupplierdata(request):
-    if request.method == 'POST':
-        supplier = Supplier.objects.get(pk=request.POST['supplierid'])
-        data = {
-            'status': 'success',
-            'creditterm': supplier.creditterm.id,
-            'vat': supplier.vat.id,
-            'atc': supplier.atc.id,
-            'inputvattype': supplier.inputvattype.id,
-            'deferredvat': supplier.deferredvat,
-            'currency': supplier.currency.id,
-            'fxrate': supplier.fxrate,
-        }
-    else:
-        data = {
-            'status': 'error',
-        }
-    return JsonResponse(data)
-
-
-@csrf_exempt
 def releaseof(request):
     if request.method == 'POST':
         offorrelease = Ofmain.objects.get(ofnum=request.POST['ofnum'])

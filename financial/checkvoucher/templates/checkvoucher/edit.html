@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load humanize %}
 {% block page-title %} Check Voucher {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
@@ -40,19 +41,23 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
-                    <h3 class="panel-title" style="padding:10px 10px 15px 25px;">CREATE</h3>
+                    <h3 class="panel-title" style="padding:10px 10px 15px 25px;">UPDATE</h3>
                     <form method="post" id="form-b">
                         {% csrf_token %}
+                    {{ form.errors }}
                         <div class="col-sm-12">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-2">
+                                    <input type="hidden" id="id_originalcvstatus" name="originalcvstatus"
+                                           value="{{ originalcvstatus }}" data-actualstatus="{{ originalcvstatus }}">
+                                            <!-- change actualstatus data attribute upon ajax status change -->
                                     <label class="control-label" for="id_cvnum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_cvnum" name="cvnum" placeholder="CVxxxxxxx" value="{{ form.cvnum.value|default:'' }}" readonly="readonly">
                                     <span class="help-block form-error">{{ form.cvnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_cvdate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_cvdate" name="cvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cvdate.value %}{{ form.cvdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_cvdate" name="cvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cvdate.value %}{{ form.cvdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.cvdate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.cvtype.errors|yesno:'has-error,' }}">
@@ -68,15 +73,19 @@
                                 <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
                                         <div class="input-search">
-                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
-                                                    data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"
-                                                    data-currency="0" data-fxrate="0.00" data-bankaccount="" data-disbursingbranch="">
+                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase; background: white;"
+                                                    data-creditterm="{{ form.creditterm.value|default:0 }}" data-vat="{{ form.vat.value|default:0 }}"
+                                                    data-atc="{{ form.atc.value|default:0 }}" data-inputvattype="{{ form.inputvattype.value|default:0 }}"
+                                                    data-deferredvat="{{ form.deferredvat.value|default:'N' }}"
+                                                    data-currency="{{ form.currency.value|default:0 }}" data-fxrate="{{ form.fxrate.value|default:0.00 }}"
+                                                    data-bankaccount="{{ form.bankaccount.value|default:0 }}" data-disbursingbranch="{{ form.disbursingbranch.value|default:0 }}"
+                                                    value="{{ payee_name|default:'' }}">
                                                 <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                                     <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
                                                 </button>
                                         </div>
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee">
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid">
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{% if payee != '' %}{{ payee_name }}{% endif %}">
+                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee }}">
                                     <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
@@ -96,7 +105,7 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <label class="control-label" for="id_bankaccount">Bank Account</label>
-                                    <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
+                                    <select id="id_bankaccount" class="form-control input-sm select2" data-validation="required" name="bankaccount">
                                         <option value="">-- Select --</option>
                                         {% for bankaccount in bankaccount %}
                                             <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.bankbranch.description }}]</option>
@@ -116,23 +125,23 @@
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_refnum">Reference #</label>
-                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_checknum">Check Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.checknum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_checkdate">Check Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.checkdate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.amount.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_amount">Amount</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
-                                           maxlength="26" data-validation="required" value="{{ form.amount.value }}">
+                                           maxlength="26" data-validation="required" value="{{ form.amount.value|floatformat:'2'|intcomma }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
@@ -148,12 +157,12 @@
                                 <div class="form-group col-sm-1 {{ form.fxrate.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_fxrate">FX Rate</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
-                                           data-validation="required" value="{{ form.fxrate.value }}">
+                                           data-validation="required" value="{{ form.fxrate.value|floatformat:2 }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for vat in vat %}
                                             <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
@@ -164,7 +173,7 @@
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.atc.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_atc">ATC</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc">
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for atc in atc %}
                                             <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
@@ -198,23 +207,53 @@
                                     <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                         <option value="">-- Select --</option>
                                         {% for designatedapprover in designatedapprover %}
-                                            <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                            <option value="{{ designatedapprover.id }}" {% if actualapprover %} {% if actualapprover|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% else %} {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_cvstatus">CV Status</label>
-                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">
-{#                                    <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">#}
+{#                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">#}
+                                    <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">
 {#                                        {% for id,name in form.fields.cvstatus.choices %}#}
-{#                                            <option value="{{ id }}"{% if form.cvstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                            {% if id != 'I' and id != 'R' %}#}
+{#                                                <option value="{{ id }}"{% if form.cvstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                            {% endif %}#}
 {#                                        {% endfor %}#}
-{#                                    </select>#}
+                                        {% if originalcvstatus == 'F' %}
+                                            <option value="F" {% if form.cvstatus.value == "F" %} selected{% endif %}>For Approval</option>
+                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
+                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
+                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
+                                            {% elif perms.checkvoucher.approve_allcv %}
+                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
+                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
+                                            {% endif %}
+                                        {% elif originalcvstatus == 'A' %}
+                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
+                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
+                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
+                                            {% elif perms.checkvoucher.approve_allcv %}
+                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
+                                            {% endif %}
+                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
+                                        {% elif originalcvstatus == 'D' %}
+                                            <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
+                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
+                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
+                                            {% elif perms.checkvoucher.approve_allcv %}
+                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
+                                            {% endif %}
+                                        {% elif originalcvstatus == 'R' %}
+                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
+                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
+                                        {% endif %}
+                                    </select>
                                     <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
+                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical; background-color: white;"
                                               rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
@@ -256,6 +295,68 @@
                     </div>
                 </div>
             </div>
+            <div id="approvalModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"><span id="approvedisapprove"></span></h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <input type="hidden" id="id_main">
+                                <input type="hidden" id="id_type">
+                                <input type="hidden" id="id_responseselect">
+                                <label class="control-label" for="id_approverremarks">Remarks:</label>
+                                <textarea name="approverremarks" id="id_approverremarks" class="form-control" rows="3">{{ form.approverremarks.value.strip }}</textarea>
+                                <br>
+                                <label class="control-label" for="id_responsedate"></label>
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week"
+                                       readonly="readonly" style="padding: 5px 10px; background: white" id="id_responsedate" name="responsedate"
+                                       value="{% if form.responsedate.value %}{{ form.responsedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" disabled="disabled" id="approveconfirm">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" id="approveclose">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="releaseModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">CV Release Details</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label class="control-label" for="id_employeelookup">Released By:</label>
+                                    <span></span>
+                                    <select class="form-control input-sm select2 col-sm-12" id="id_releaseby"
+                                            name="releaseby" style="width: 565px;">
+                                        <option value="">-- Select --</option>
+                                            {% for designatedapprover in designatedapprover %}
+                                                <option value="{{ designatedapprover.id }}" {% if request.user.id == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                            {% endfor %}
+                                    </select>
+                                    <br><br>
+                                    <label class="control-label" for="id_releasedate">Released On:</label>
+                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
+                                           style="padding: 5px 10px; background: white" id="id_releasedate" name="releasedate"
+                                           value="{% if form.releasedate.value %}{{ form.releasedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="releaseconfirm">Confirm</button>
+                            <button type="button" class="btn btn-default" id="releaseclose" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -266,19 +367,138 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $("#form-b").submit(function(event){
-                //events after clicking submit
-            });
-
+            var approved = $('#id_cvstatus').val() != 'F';
+            var approverResponse = "";
             var defaultOfType = "Expenses";
             var defaulyOfSubtype = "CASH ADVANCE";
+            var released = $('#id_cvstatus').val() == 'R';
+
             $("#id_oftype option:contains(" + defaultOfType + ")").attr('selected', 'selected');
             $("#id_ofsubtype option:contains(" + defaulyOfSubtype + ")").attr('selected', 'selected');
 
-            $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+            if($('#id_fxrate').val() == 0.00)
+                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
 
-            $('#id_payeelookup').on("change", function(e) {
-                $('#payeeconfirm').prop('disabled', false);
+            if($('#id_originalcvstatus').val() == 'R'){
+                $("#id_cvdate").prop("readonly", true);
+                $("#id_cvdate").datepicker("destroy");
+                $("#id_cvdate").removeClass("datepicker").removeAttr('id');
+                $("#id_checkdate").prop("readonly", true);
+                $("#id_checkdate").datepicker("destroy");
+                $("#id_checkdate").removeClass("datepicker").removeAttr('id');
+                $("#id_cvtype option:selected").siblings().attr('disabled','disabled');
+                $("#id_branch option:selected").siblings().attr('disabled','disabled');
+                $("#id_bankaccount option:selected").siblings().attr('disabled','disabled');
+                $("#id_disbursingbranch option:selected").siblings().attr('disabled','disabled');
+                $("#id_currency option:selected").siblings().attr('disabled','disabled');
+                $("#id_vat option:selected").siblings().attr('disabled','disabled');
+                $("#id_atc option:selected").siblings().attr('disabled','disabled');
+                $("#id_inputvattype option:selected").siblings().attr('disabled','disabled');
+                $("#id_deferredvat option:selected").siblings().attr('disabled','disabled');
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $("#id_payee").prop("readonly", true);
+                $("#id_refnum").prop("readonly", true);
+                $("#id_checknum").prop("readonly", true);
+                $("#id_amount").prop("readonly", true);
+                $("#id_fxrate").prop("readonly", true);
+                $("#id_particulars").prop("readonly", true);
+                $(".input-search-button").hide();
+            }
+
+            if($('#id_originalcvstatus').val() != 'F'){
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+            }
+
+            if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
+            else                            showRate("#id_vat", "vatrate", "RATE");
+
+            if($("#id_atc").val() != '')    $('#atcrate').html("<strong>" + $("#id_atc").data('atcrate') + "</strong>");
+            else                            showRate("#id_atc", "atcrate", "RATE");
+
+            $("#id_atc").change(function(){
+                showRate("#id_atc", "atcrate", "RATE");
+            });
+
+            $("#id_currency").change(function(){
+                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+            });
+
+            $("#id_cvstatus").change(function(){
+                if($(this).val() == 'A' || $(this).val() == 'D' || $(this).val() == 'R'){
+                    var valid = true;
+                    var blankRequiredFields = "";
+                    $("[data-validation='required']").each(function(){
+                        if($(this).val() == ''){
+                            valid = false;
+                            blankRequiredFields += "\n*" + $('label[for="' + this.id + '"]').html();
+                        }
+                    });
+                    if(!valid){
+                        alert("Please fill-up the following required fields to proceed: " +
+                            blankRequiredFields);
+                        $('#id_cvstatus').val($('#id_originalcvstatus').data('actualstatus'));
+                    }
+                    else if(($(this).val() == 'A') || $(this).val() == 'D'){
+                        if($(this).val() == 'A'){
+                            $("#approvedisapprove").text("Approve Check Voucher");
+                            $("label[for='id_responsedate']").text("Approved On:");
+                            approverResponse = "APPROVED";
+                        }
+                        else if($(this).val() == 'D'){
+                            $("#approvedisapprove").text("Disapprove Check Voucher");
+                            $("label[for='id_responsedate']").text("Disapproved On:");
+                            approverResponse = "DISAPPROVED";
+                        }
+                        $("#approvalModal").modal('show');
+                    }
+                    else if($(this).val() == 'R'){
+                        $("#releaseModal").modal('show');
+                        $("#id_releaseby option:selected").siblings().attr('disabled','disabled');
+                    }
+                }
+
+            });
+
+            $("#id_vat").change(function(){
+                showRate("#id_vat", "vatrate", "RATE");
+            });
+
+            $('#approveconfirm').click(function(){
+                if($('#id_approverremarks').val() != '' && $('#id_responsedate').val() != ''){
+                    if (confirm('Are you sure you want to tag this CV transaction as ' + approverResponse + '?')){
+                        $.ajax({
+                            url: "{% url 'checkvoucher:approve' %}",
+                            type: "post",
+                            data: {'cvnum': $('#id_cvnum').val(),
+                                   'approverremarks': $('#id_approverremarks').val(),
+                                   'responsedate': $('#id_responsedate').val(),
+                                   'approverresponse': approverResponse == 'APPROVED' ? 'A' : approverResponse == 'DISAPPROVED' ? 'D' : '',
+                                   'originalcvstatus': $('#id_originalcvstatus').val(),
+                                   'backtoinprocess': $('#id_originalcvstatus').val() == 'R' && approverResponse == 'APPROVED' ? 1 : 0
+                            },
+                            success: function(response) {
+                                alert("CV #" + response.cvnum + " has been tagged as " + approverResponse + ".");
+                                $("#approvalModal .close").click();
+                                approved = true;
+                                $('#id_originalcvstatus').data('actualstatus', response.newcvstatus);
+                            },
+                            error: function(response) {
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
+            $("#detailsbutton").click(function (){
+                $("#detailentry").show();
+            });
+
+            $("#importbutton").click(function(){
+                $('#importprfpreview tbody').empty();
+                $("#importprfselect2").val('').trigger('change.select2');
+                $('#checkUncheckAll').remove();
+                $('#iconChecked').remove();
             });
 
             $('#payeeconfirm').click(function(){
@@ -329,8 +549,44 @@
                 }
             });
 
-            if($("#id_ofstatus option:selected").text() == "For Approval")
-                $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
+            $('#releaseconfirm').click(function(){
+                if($('#id_releaseby').val() != '' && $('#id_releasedate').val() != ''){
+                    if (confirm('Are you sure you want to tag this CV transaction as RELEASED?')){
+                        $.ajax({
+                            url: "{% url 'checkvoucher:release' %}",
+                            type: "post",
+                            data: {'cvnum': $('#id_cvnum').val(),
+                                   'releaseby': $('#id_releaseby').val(),
+                                   'releasedate': $('#id_releasedate').val()
+                            },
+                            success: function(){
+                                alert("CV #" + $('#id_cvnum').val() + " has been tagged as RELEASED.");
+                                $("#releaseModal .close").click();
+                                released = true;
+                                $('#id_originalcvstatus').data('actualstatus', 'R');
+                            },
+                            error: function(response){
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
+            $('#id_payeelookup').on("change", function() {
+                $('#payeeconfirm').prop('disabled', false);
+            });
+
+            $("#releaseModal").on("hidden.bs.modal", function (){revertCVStatus();});
+
+            $("#approvalModal").on("hidden.bs.modal", function (){revertCVStatus();});
+
+            $('#id_approverremarks, #id_responsedate').on('input', function(){
+                if($('#id_approverremarks').val() == '' || $('#id_responsedate').val() == '')
+                    $('#approveconfirm').prop('disabled', true);
+                else
+                    $('#approveconfirm').prop('disabled', false);
+            });
 
             $('#id_payee').on('input', function() {
                 if($('#id_payee').val() == $('#id_hiddenpayee').val()){
@@ -361,37 +617,9 @@
                 }
             });
 
-            $("#id_cvstatus").change(function(){
-              if($(this).val() == 'R'){
-                  if($('#id_cvdate').val() != '' && $('#id_cvtype').val() != '' && $('#id_payee').val() != ''){
-                      alert("completely filled up");
-                  }
-{#                  $("#releaseModal").modal('show');#}
-              }
-            });
-
-            $("#detailsbutton").click(function (){
-                $("#detailentry").show();
-            });
-
-            $("#id_vat").change(function(){
-                showRate("#id_vat", "vatrate", "RATE");
-            });
-
-            $("#id_atc").change(function(){
-                showRate("#id_atc", "atcrate", "RATE");
-            });
-
-            $("#id_currency").change(function(){
-                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
-            });
-
-            $("#importbutton").click(function(){
-                $('#importprfpreview tbody').empty();
-                $("#importprfselect2").val('').trigger('change.select2');
-                $('#checkUncheckAll').remove();
-                $('#iconChecked').remove();
-            });
+            function revertCVStatus(){
+                $('#id_cvstatus').val($('#id_originalcvstatus').data('actualstatus'));
+            }
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :

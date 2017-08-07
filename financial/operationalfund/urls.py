@@ -11,7 +11,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/userupdate/$', views.UpdateViewUser.as_view(), name='userupdate'),
     url(r'^(?P<pk>[0-9]+)/cashierupdate/$', views.UpdateViewCashier.as_view(), name='cashierupdate'),
     url(r'^approve/$', views.approve, name='approve'),
-    url(r'^getsupplierdata/$', views.getsupplierdata, name='getsupplierdata'),
     url(r'^releaseof/$', views.releaseof, name='releaseof'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     # url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),

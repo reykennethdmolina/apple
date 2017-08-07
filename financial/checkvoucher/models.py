@@ -24,9 +24,11 @@ class Cvmain(models.Model):
     checknum = models.CharField(max_length=150)
     checkdate = models.DateTimeField()
     vat = models.ForeignKey('vat.Vat', related_name='cvmain_vat_id', validators=[MinValueValidator(1)])
-    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
     atc = models.ForeignKey('ataxcode.Ataxcode', related_name='cvmain_atc_id', validators=[MinValueValidator(1)])
-    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
     currency = models.ForeignKey('currency.Currency', related_name='cvmain_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, decimal_places=5, max_digits=18)
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='cvmain_inputvattype_id')
@@ -36,12 +38,10 @@ class Cvmain(models.Model):
     )
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     branch = models.ForeignKey('branch.Branch', related_name='cvmain_branch_id', default='5')
-    bankaccountnumber = models.CharField(max_length=100, null=True, blank=True)
-    bankaccountname = models.CharField(max_length=200, null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='cvmain_bankaccount_id')
     disbursingbranch = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
                                          related_name='cvmain_bankbranchdisburse_id')
-    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                              MinValueValidator(1)], default=0.00)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     designatedapprover = models.ForeignKey(User, default=2, related_name='cvmain_designated_approver')
@@ -52,6 +52,7 @@ class Cvmain(models.Model):
     )
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
+    approverremarks = models.CharField(max_length=250, null=True, blank=True)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -75,7 +76,9 @@ class Cvmain(models.Model):
     class Meta:
         db_table = 'cvmain'
         ordering = ['-pk']
-        permissions = (("view_checkvoucher", "Can view check voucher"),)
+        permissions = (("view_checkvoucher", "Can view check voucher"),
+                       ("approve_assignedcv", "Can approve assigned cv"),
+                       ("approve_allcv", "Can approve all cv"),)
 
     def get_absolute_url(self):
         return reverse('checkvoucher:detail', kwargs={'pk': self.pk})

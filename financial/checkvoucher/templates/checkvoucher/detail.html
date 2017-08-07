@@ -1,7 +1,7 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
 {% load humanize %}
-{% block page-title %} Operational Fund {% endblock page-title %}
+{% block page-title %} Check Voucher {% endblock page-title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <style>
@@ -55,93 +55,107 @@
                                     <div class="row">
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Number</b></span>
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Number</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span><b>{{ object.ofnum }}</b></span>
+                                                <span><b>{{ object.cvnum }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-1 margin-right-60"><b>Date</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.ofdate }}</span>
+                                                <span>{{ object.cvdate }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Type</b></span>
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Type</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.oftype.description|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-1 margin-right-60"><b>Subtype</b></span>
+                                                <span class="text-info row col-md-1 margin-right-60"><b>Branch</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.ofsubtype.description|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Amount</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.amount|floatformat:2|intcomma }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-1 margin-right-60"><b>Ref.&nbsp;No.</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.refnum|default:'N/A' }}</span>
+                                                <span>{{ object.branch.description|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Employee</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
-                                                <span><b>{{ object.employee_name }}</b></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Department</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
-                                                <span><b>{{ object.department_name }}</b></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Payee</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Payee</b></span>
                                                 <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
                                                 <span><b>{{ object.payee_name }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Particulars</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Check&nbsp;Number</b></span>
                                                 <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
-                                                <span><b>{{ object.particulars }}</b></span>
+                                                <span><b>{{ object.checknum|default:'N/A' }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Branch</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Check&nbsp;Date</b></span>
                                                 <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
-                                                <span><b>{{ object.branch.description }}</b></span>
+                                                <span><b>{{ object.checkdate|date:'F j, Y'|default:'N/A' }}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Amount</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
+                                                <span><b>{{ object.amount|floatformat:2|intcomma }}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Bank&nbsp;Account</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
+                                                <span><b>{% if object.bankaccount %}{{ object.bankaccount.code }} [{{ object.bankaccount.bank.description }} - {{ object.bankaccount.bankaccounttype.description }}, {{ object.bankaccount.bankbranch.description }}]{% else %}N/A{% endif %}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Disbursing&nbsp;Branch</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
+                                                <span><b>{% if object.disbursingbranch %}[{{ object.disbursingbranch.branch }}] {{ object.disbursingbranch.bank.code }}, {{ object.disbursingbranch.address1 }}{% else %}N/A{% endif %}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Particulars</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 9px;"><b>: </b></span>
+                                                <span><b>{{ object.particulars|default:'N/A' }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <br>
-                                                <span class="text-info row col-md-2 margin-right-80"><b>VAT</b></span>
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Ref.&nbsp;AP</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.ref_ap|default:'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <br>
+                                                <span class="text-info col-md-1 margin-right-60"><b>Ref.&nbsp;No.</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.refnum|default:'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-90"><b>VAT</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{% if object.vat %}{{ object.vat.description }}&nbsp;({{ object.vatrate }}%){% else %}N/A{% endif %}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <br>
                                                 <span class="text-info col-md-1 margin-right-60"><b>ATC</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{% if object.atc %}{{ object.atc.description }}&nbsp;({{ object.atcrate }}%){% else %}N/A{% endif %}</span>
@@ -149,7 +163,7 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Input&nbsp;VAT&nbsp;Type</b></span>
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Input&nbsp;VAT&nbsp;Type</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.inputvattype.description|default:'N/A' }}</span>
                                             </div>
@@ -163,7 +177,7 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Deferred?</b></span>
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Deferred?</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.get_deferredvat_display|upper|default:'N/A' }}</span>
                                             </div>
@@ -177,27 +191,13 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Credit&nbsp;Terms</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.creditterm.description|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info col-md-1 margin-right-60"></span>
-                                                <span class="text-info row col-md-3"></span>
-                                                <span>&nbsp;</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
                                                 <br>
-                                                <span class="text-info row col-md-2 margin-right-80"><b>OF&nbsp;Status</b></span>
+                                                <span class="text-info row col-md-2 margin-right-80"><b>CV&nbsp;Status</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span class="{% if object.ofstatus == 'F' %} text-primary
-                                                             {% elif object.ofstatus == 'A' or object.ofstatus == 'R' %} text-success
-                                                             {% elif object.ofstatus == 'D' %} text-danger
-                                                             {% endif %}"><b>{{ object.get_ofstatus_display }}</b></span>
+                                                <span class="{% if object.cvstatus == 'F' %} text-primary
+                                                             {% elif object.cvstatus == 'A' or object.cvstatus == 'R' %} text-success
+                                                             {% elif object.cvstatus == 'D' %} text-danger
+                                                             {% endif %}"><b>{{ object.get_cvstatus_display }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -224,7 +224,7 @@
                                             <div class="first-name-profile">
                                                 <span class="text-info col-md-1 margin-right-60"><b>Remarks</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.remarks|default:'N/A' }}</span>
+                                                <span>{{ object.approverremarks|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -236,22 +236,18 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info col-md-1 margin-right-60"><b>Recipient</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>
-                                                    {% if object.paymentreceivedby %}
-                                                        {{ object.paymentreceivedby.firstname }}&nbsp;{{ object.paymentreceivedby.lastname }}
-                                                    {% else %}N/A
-                                                    {% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Status</b></span>
+                                                <span class="text-info col-md-1 margin-right-60"><b>Status</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span class="{% if object.status == 'A' %} text-success
                                                              {% else %} text-danger
                                                              {% endif %}"><b>{{ object.get_status_display }}</b></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-80"><b>Released&nbsp;By</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{% if object.releaseby %}{{ object.releaseby.first_name }}&nbsp;{{ object.releaseby.last_name }}{% else %}N/A{% endif %}</span>
                                             </div>
                                         </div>
                                     </div>

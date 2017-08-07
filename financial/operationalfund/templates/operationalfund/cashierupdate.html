@@ -211,7 +211,7 @@
                                 <div class="form-group col-sm-1 {{ form.fxrate.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_fxrate">FX Rate</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
-                                           data-validation="required" value="{{ form.fxrate.value }}" style="background: white;">
+                                           data-validation="required" value="{{ form.fxrate.value|floatformat:2 }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.actualapprover.errors|yesno:'has-error,' }}">
@@ -392,7 +392,8 @@
                 });
             }
 
-            $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+            if($('#id_fxrate').val() == 0.00)
+                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
 
             $('#id_payeelookup').on("change", function(e) {
                 $('#payeeconfirm').prop('disabled', false);
