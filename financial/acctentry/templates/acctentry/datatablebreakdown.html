@@ -70,8 +70,8 @@
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                        'secretkey': $("#secretkey").val(),
-                       'table': 'jvdetailbreakdowntemp',
-                       'id': id,
+                       'table': '{{ tabledetailtemp }}',
+                       'id': id
                 },
                 success: function(response) {
                     var info = $.parseJSON(response.info);
@@ -135,7 +135,7 @@
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                         'id': id,
                         'secretkey': $("#secretkey").val(),
-                        'table': 'jvdetailbreakdowntemp',
+                        'table': '{{ tabledetailtemp }}',
                         'detailid': {{ detailid }},
                         'datatype': "{{ datatype }}",
                     },

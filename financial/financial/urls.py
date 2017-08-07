@@ -115,6 +115,6 @@ urlpatterns = [
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
     url(r'^logout/$', logout, {'next_page': '/login/'}),
-    url(r'^admin/password_change/$', password_change, { 'template_name': 'admin/password_change_form.html'},name='password_change'),
+    url(r'^admin/password_change/$', password_change, {'template_name': 'admin/password_change_form.html'},name='password_change'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

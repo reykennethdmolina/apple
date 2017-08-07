@@ -172,9 +172,7 @@
                         </div>
                     </form>
 
-
-
-
+                    <!-- Accounting Entry Start -->
                     <div class="col-sm-12" id="entryview" style="display: none">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
@@ -219,9 +217,7 @@
                             </div>
                         </div>
                     </div>
-
-
-
+                    <!-- Accounting Entry End -->
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -229,8 +225,7 @@
     </div>
 </div>
 
-
-
+<!-- Accounting Entry Start -->
 <div class="modal fade modal-message" id="modal-row">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -245,6 +240,8 @@
         </div>
     </div>
 </div>
+<!-- Accounting Entry End -->
+
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
@@ -259,13 +256,14 @@
         $(function(){
             ajaxselect2("supplier");
 
+            <!-- Accounting Entry Start -->
             $("#manualbutton").unbind().click(function (){
                 $("#entryview").show();
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                           'table': "apdetailtemp",},
+                           'table': "apdetailtemp"},
                     success: function(response){
                         $("#manualentryview").html(response['viewhtml']);
                         $("#waitingbar").hide();
@@ -274,6 +272,31 @@
                     }
                 });
             });
+            $("#validateButton").on('click', function () {
+                var total_creditamount = $("#total_creditamount").text().replace(',', '');
+                var total_debitamount = $("#total_debitamount").text().replace(',', '');
+
+                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                    alert('Debit and Credit amount be equal');
+                    return false;
+                }
+                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+
+                if (checkbreakdownstatus) {
+                    alert('You have unbalanced various entry. Please review your entry!');
+                }
+
+                var validate = $('#form-b').find('div').hasClass('has-error');
+
+                if (validate) {
+                    alert('Accounts Payable is successfully created!');
+                }
+            });
+            <!-- Accounting Entry End -->
 
             $('#id_payee').change(function(){
                 $.ajax({

@@ -25,14 +25,34 @@ from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvdetailtemp, Jvdetailbreakdowntemp
 from accountspayable.models import Apdetailtemp, Apdetailbreakdowntemp
 
+
+def validatetable(table):
+    if table == 'jvdetailtemp':
+        data = {
+            'sal': 'jv',
+            'str_detailtemp': 'jvdetailtemp',
+            'str_detailbreakdowntemp': 'jvdetailbreakdowntemp',
+            'stmt_detailtemp': 'temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, ',
+            'stmt_detailbreakdowntemp': 'temp.jvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, ',
+        }
+    elif table == 'apdetailtemp':
+        data = {
+            'sal': 'ap',
+            'str_detailtemp': 'apdetailtemp',
+            'str_detailbreakdowntemp': 'apdetailbreakdowntemp',
+            'stmt_detailtemp': 'temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, ',
+            'stmt_detailbreakdowntemp': 'temp.apdetailtemp AS detailid, temp.particular, temp.item_counter, temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, ',
+        }
+
+    return data
+
+
 # Create your views here.
 @csrf_exempt
 def maccountingentry(request):
     if request.method == 'POST':
 
-        table = 'jvdetailtemp'
-        if request.POST['table']:
-            table = request.POST['table']
+        data_table = validatetable(request.POST['table'])
 
         context = {
             'bankaccount':  Bankaccount.objects.filter(isdeleted=0).order_by('code'),
@@ -43,7 +63,7 @@ def maccountingentry(request):
             'vat':  Vat.objects.filter(isdeleted=0).order_by('description'),
             'wtax':  Wtax.objects.filter(isdeleted=0).order_by('description'),
             'ataxcode':  Ataxcode.objects.filter(isdeleted=0).order_by('description'),
-            'table': table,
+            'table': data_table['str_detailtemp'],
         }
         data = {
             'status': 'success',
@@ -89,23 +109,21 @@ def savemaccountingentry(request):
 
     if request.method == 'POST':
         # Save Data To JVDetail
-        tabledetailtemp = 'jvdetailtemp'
-        tablebreakdowntemp = 'jvdetailbreakdowntemp'
 
-        if request.POST['table'] == 'jvdetailtemp':
-            detailtemp = Jvdetailtemp()
-            detailtemp.jv_date = datetime.datetime.now()
-            detailtemp.item_counter = len(Jvdetailtemp.objects.all().\
-                filter(secretkey=request.POST['secretkey'])) + 1
-            tabledetailtemp = request.POST['table']
-            tablebreakdowntemp = 'jvdetailbreakdowntemp'
-        elif request.POST['table'] == 'apdetailtemp':
-            detailtemp = Apdetailtemp()
-            detailtemp.ap_date = datetime.datetime.now()
-            detailtemp.item_counter = len(Apdetailtemp.objects.all().\
-                filter(secretkey=request.POST['secretkey'])) + 1
-            tabledetailtemp = request.POST['table']
-            tablebreakdowntemp = 'apdetailbreakdowntemp'
+        data_table = validatetable(request.POST['table'])
+
+        # declare temp table
+        detailtemp = ''
+        exec("detailtemp = " + data_table['str_detailtemp'].title() + "()")
+
+        # save col_date
+        exec("detailtemp." + data_table['sal'] + "_date = datetime.datetime.now()")
+
+        # save item_counter
+        exec("detailtemp.item_counter = len(" + data_table['sal'].title() + "detailtemp.objects.all().filter(secretkey=request.POST['secretkey'])) + 1")
+
+        tabledetailtemp = data_table['str_detailtemp']
+        tablebreakdowntemp = data_table['str_detailbreakdowntemp']
 
         detailtemp.chartofaccount = request.POST['chartofaccount']
 
@@ -244,19 +262,22 @@ def breakdownentry(request):
             colspan += 1
 
         table = request.POST['table']
+        tablemain = request.POST['tablemain']
+
         contexttable = {
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], \
+            'datatemp': querystmtbreakdown(tablemain, request.POST['secretkey'], \
                 detailid, request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], \
+            'datatemptotal': querytotalbreakdown(tablemain, request.POST['secretkey'], \
                 detailid, request.POST['datatype']),
         }
 
-        tablemain = request.POST['tablemain']
         datainfo = getdatainfo(tablemain, detailid)
 
         context = {
+            'tabledetailtemp': tablemain,
+            'tablebreakdowntemp': table,
             'detailid': detailid,
             'datainfo': datainfo,
             'datatype': request.POST['datatype'],
@@ -294,15 +315,24 @@ def breakdownentry(request):
 @csrf_exempt
 def savemaccountingentrybreakdown(request):
     if request.method == 'POST':
-        # Save Data To JVDetail
         detailid = request.POST['detailid']
-        if request.POST['table'] == 'jvdetailbreakdowntemp':
-            detailtempbreakdown = Jvdetailbreakdowntemp()
-            detailtempbreakdown.item_counter = len(Jvdetailbreakdowntemp.objects.all().\
-                filter(secretkey=request.POST['secretkey'], jvdetailtemp=detailid)) + 1
+
+        data_table = validatetable(request.POST['table'])
+
+        # declare temp table
+        detailtempbreakdown = ''
+        exec("detailtempbreakdown = " + data_table['str_detailbreakdowntemp'].title() + "()")
+
+        # save item_counter
+        exec("detailtempbreakdown.item_counter = len(" + data_table['str_detailbreakdowntemp'].title() + ".objects.all().filter(secretkey=request.POST['secretkey'], " + data_table['str_detailtemp'] + "=detailid)) + 1")
+
+        # save col_date
+        exec("detailtempbreakdown." + data_table['sal'] + "_date = datetime.datetime.now()")
+
+        # save col detailtemp
+        exec("detailtempbreakdown." + data_table['sal'] + "detailtemp = request.POST['detailid']")
 
         detailtempbreakdown.chartofaccount = request.POST['chartofaccount']
-        detailtempbreakdown.jvdetailtemp = request.POST['detailid']
         detailtempbreakdown.particular = request.POST['particular']
         detailtempbreakdown.datatype = request.POST['datatype']
 
@@ -345,7 +375,6 @@ def savemaccountingentrybreakdown(request):
 
         detailtempbreakdown.balancecode = balancecode
         detailtempbreakdown.secretkey = request.POST['secretkey']
-        detailtempbreakdown.jv_date = datetime.datetime.now()
         detailtempbreakdown.enterby = request.user
         detailtempbreakdown.enterdate = datetime.datetime.now()
         detailtempbreakdown.modifyby = request.user
@@ -356,16 +385,19 @@ def savemaccountingentrybreakdown(request):
         Get Data from tempbreakdown
         """
 
-        table = request.POST['table']
+        tabledetailtemp = request.POST['table']
+        tabledetailbreakdowntemp = data_table['str_detailbreakdowntemp']
+
         context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tabledetailbreakdowntemp,
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, request.POST['secretkey'], \
+            'datatemp': querystmtbreakdown(tabledetailtemp, request.POST['secretkey'], \
                 detailid, request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, request.POST['secretkey'], \
+            'datatemptotal': querytotalbreakdown(tabledetailtemp, request.POST['secretkey'], \
                 detailid, request.POST['datatype']),
         }
-        #print(context)
         data = {
             'datatablebreakdown': render_to_string('acctentry/datatablebreakdown.html', \
                 context),
@@ -385,25 +417,31 @@ def deletedetailbreakdown(request):
 
         dataid = request.POST['id']
         secretkey = request.POST['secretkey']
-        table = request.POST['table']
         detailid = request.POST['detailid']
         datatype = request.POST['datatype']
 
+        data_table = validatetable(request.POST['table'])
 
-        breakdowndata = getdatainfo(table, dataid)
+        breakdowndata = getdatainfo(data_table['str_detailbreakdowntemp'], dataid)
 
         # Delete if not for updation
-        if not breakdowndata[0].jvmain:
-            deletequery(table, dataid)
+        condition = "breakdowndata[0]." + data_table['sal'] + "main"
+        if not eval(condition):
+            deletequery(data_table['str_detailbreakdowntemp'], dataid)
         else:
-            updatequery(table, dataid)
+            updatequery(data_table['str_detailbreakdowntemp'], dataid)
+
+        tabledetailtemp = request.POST['table']
+        tabledetailbreakdowntemp = data_table['str_detailbreakdowntemp']
 
         context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tabledetailbreakdowntemp,
             'detailid': detailid,
             'datatype': datatype,
-            'datatemp': querystmtbreakdown(table, secretkey, \
+            'datatemp': querystmtbreakdown(request.POST['table'], secretkey, \
                 detailid, datatype),
-            'datatemptotal': querytotalbreakdown(table, secretkey, \
+            'datatemptotal': querytotalbreakdown(request.POST['table'], secretkey, \
                 detailid, datatype),
         }
 
@@ -427,25 +465,25 @@ def deletedetail(request):
 
         dataid = request.POST['id']
         secretkey = request.POST['secretkey']
-        table = request.POST['table']
 
-        detaildata = getdatainfo(table, dataid)
+        data_table = validatetable(request.POST['table'])
+
+        detaildata = getdatainfo(data_table['str_detailtemp'], dataid)
+
+        detailtemp = ''
 
         # Delete if not for updation
-        if table == "jvdetailtemp":
-            if not detaildata[0].apmain:
-                deletequery(table, dataid)
-            else:
-                updatequery(table, dataid)
-        elif table == "apdetailtemp":
-            if not detaildata[0].apmain:
-                deletequery(table, dataid)
-            else:
-                updatequery(table, dataid)
+        condition = "detaildata[0]." + data_table['sal'] + "main"
+        if not eval(condition):
+            deletequery(data_table['str_detailtemp'], dataid)
+        else:
+            updatequery(data_table['str_detailtemp'], dataid)
 
         context = {
-            'datatemp': querystmtdetail(table, secretkey),
-            'datatemptotal': querytotaldetail(table, secretkey),
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], secretkey),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], secretkey),
         }
 
         data = {
@@ -503,55 +541,60 @@ def getdatainfo(temptable, dataid):
     return list(data)
 
 def querystmtbreakdown(temptable, secretkey, detailid, datatype):
-    stmt = "SELECT temp.id, temp.chartofaccount, temp.jvdetailtemp AS detailid, \
-    temp.particular, temp.item_counter, temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, " \
-                "c.accountcode, c.description AS chartofaccountdesc, " \
-                "b.code AS bankaccountcode, b.accountnumber, " \
-                "d.code AS departmentcode, d.departmentname, " \
-                "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \
-                e.multiplestatus AS employeestatus, " \
-                "s.code AS suppliercode, s.name AS suppliername, \
-                s.multiplestatus AS supplierstatus, " \
-                "cu.code AS customercode, cu.name AS customername, \
-                cu.multiplestatus AS customerstatus, " \
-                "u.code AS unitcode, u.description AS unitname, " \
-                "br.code AS branchcode, br.description AS branchname, " \
-                "p.code AS productcode, p.description AS productname, " \
-                "i.code AS inputvatcode, i.description AS inputvatname, " \
-                "o.code AS outputvatcode, o.description AS outputvatname, " \
-                "v.code AS vatcode, v.description AS vatname, " \
-                "w.code AS wtaxcode, w.description AS wtaxname, " \
-                "a.code AS ataxcode, a.description AS ataxname, " \
-                "FORMAT(temp.creditamount, 2) AS creditamount, \
-                FORMAT(temp.debitamount, 2) AS debitamount," \
-                "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
-                "FROM "+temptable+" AS temp " \
-                "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
-                "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
-                "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
-                "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
-                "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
-                "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
-                "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
-                "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
-                "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
-                "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
-                "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
-                "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
-                "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
-                "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
-                "WHERE temp.jvdetailtemp ='" + detailid + "' \
-                AND temp.secretkey = '" + secretkey + "' \
-                AND temp.datatype='" + datatype + "' \
-                AND temp.isdeleted NOT IN(1,2) ORDER BY temp.item_counter"
+    data_table = validatetable(temptable)
+
+    stmt = "SELECT temp.id, temp.chartofaccount, "
+    stmt += data_table['stmt_detailbreakdowntemp']
+
+    stmt += "c.accountcode, c.description AS chartofaccountdesc, " \
+            "b.code AS bankaccountcode, b.accountnumber, " \
+            "d.code AS departmentcode, d.departmentname, " \
+            "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \
+            e.multiplestatus AS employeestatus, " \
+            "s.code AS suppliercode, s.name AS suppliername, \
+            s.multiplestatus AS supplierstatus, " \
+            "cu.code AS customercode, cu.name AS customername, \
+            cu.multiplestatus AS customerstatus, " \
+            "u.code AS unitcode, u.description AS unitname, " \
+            "br.code AS branchcode, br.description AS branchname, " \
+            "p.code AS productcode, p.description AS productname, " \
+            "i.code AS inputvatcode, i.description AS inputvatname, " \
+            "o.code AS outputvatcode, o.description AS outputvatname, " \
+            "v.code AS vatcode, v.description AS vatname, " \
+            "w.code AS wtaxcode, w.description AS wtaxname, " \
+            "a.code AS ataxcode, a.description AS ataxname, " \
+            "FORMAT(temp.creditamount, 2) AS creditamount, \
+            FORMAT(temp.debitamount, 2) AS debitamount," \
+            "temp.creditamount AS credit, temp.debitamount AS debit, temp.balancecode " \
+            "FROM "+data_table['str_detailbreakdowntemp']+" AS temp " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = temp.chartofaccount " \
+            "LEFT OUTER JOIN bankaccount AS b ON b.id = temp.bankaccount " \
+            "LEFT OUTER JOIN department AS d ON d.id = temp.department " \
+            "LEFT OUTER JOIN employee AS e ON e.id = temp.employee " \
+            "LEFT OUTER JOIN supplier AS s ON s.id = temp.supplier " \
+            "LEFT OUTER JOIN customer AS cu ON cu.id = temp.customer " \
+            "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
+            "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
+            "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
+            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+            "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
+            "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
+            "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
+            "LEFT OUTER JOIN ataxcode AS a ON a.id = temp.ataxcode " \
+            "WHERE temp." + data_table['sal'] + "detailtemp ='" + detailid + "' \
+            AND temp.secretkey = '" + secretkey + "' \
+            AND temp.datatype='" + datatype + "' \
+            AND temp.isdeleted NOT IN(1,2) ORDER BY temp.item_counter"
     data = executestmt(stmt)
     return data
 
 def querytotalbreakdown(temptable, secretkey, detailid, datatype):
+    data_table = validatetable(temptable)
+
     querytotal = "SELECT FORMAT(SUM(IFNULL(temp.creditamount,0)), 2) AS totalcreditamount, " \
                  "FORMAT(SUM(IFNULL(temp.debitamount,0)), 2) AS totaldebitamount " \
-                 "FROM "+temptable+" AS temp " \
-                 "WHERE temp.jvdetailtemp ='" + detailid + "' \
+                 "FROM "+data_table['str_detailbreakdowntemp']+" AS temp " \
+                 "WHERE temp." +data_table['sal']+ "detailtemp ='" + detailid + "' \
                  AND temp.secretkey = '" + secretkey + "' \
                  AND temp.datatype='" + datatype + "' AND temp.isdeleted  NOT IN(1,2)"
     data = executestmt(querytotal)
@@ -560,10 +603,8 @@ def querytotalbreakdown(temptable, secretkey, detailid, datatype):
 def querystmtdetail(temptable, secretkey):
     stmt = "SELECT temp.id, temp.chartofaccount, temp.item_counter, "
 
-    if temptable == "jvdetailtemp":
-        stmt += "temp.jvmain, temp.jv_num, DATE(temp.jv_date) AS jvdate, "
-    elif temptable == "apdetailtemp":
-        stmt += "temp.apmain, temp.ap_num, DATE(temp.ap_date) AS apdate, "
+    data_table = validatetable(temptable)
+    stmt += data_table['stmt_detailtemp']
 
     stmt += "c.accountcode, c.description AS chartofaccountdesc, " \
             "b.code AS bankaccountcode, b.accountnumber, " \
@@ -638,9 +679,25 @@ def updateentry(request):
 
         listdata = []  # create list
         for row in info:  # populate list
+
+            data_table = validatetable(table)
+
+            # assign main
+            row_main = ''
+            exec("row_main = row." + data_table['sal'] + "main")
+
+            # assign num
+            row_num = ''
+            exec("row_num = row." + data_table['sal'] + "_num")
+
+            # assign date
+            row_date = ''
+            exec("row_date = row." + data_table['sal'] + "_date")
+
             listdata.append({'id': row.id, 'item_counter': row.item_counter,
-                             'jvmain': row.jvmain, 'jv_num': row.jv_num, 
-                             'jv_date': str(row.jv_date),
+                             data_table['sal']+'main': row_main,
+                             data_table['sal']+'_num': row_num,
+                             data_table['sal']+'_date': str(row_date),
                              'chartofaccount': row.chartofaccount, 'bankaccount': row.bankaccount,
                              'department': row.department, 'employee': row.employee,
                              'supplier': row.supplier,
@@ -674,16 +731,31 @@ def updatebreakentry(request):
 
     if request.method == 'POST':
 
+        data_table = validatetable(request.POST['table'])
+
         dataid = request.POST['id']
-        table = request.POST['table']
+        table = data_table['str_detailbreakdowntemp']
 
         info = getdatainfo(table, dataid)
 
         listdata = []  # create list
         for row in info:  # populate list
+            # assign main
+            row_main = ''
+            exec("row_main = row." + data_table['sal'] + "main")
+
+            # assign num
+            row_num = ''
+            exec("row_num = row." + data_table['sal'] + "_num")
+
+            # assign date
+            row_date = ''
+            exec("row_date = row." + data_table['sal'] + "_date")
+
             listdata.append({'id': row.id, 'item_counter': row.item_counter,
-                             'jvmain': row.jvmain, 'jv_num': row.jv_num, 
-                             'jv_date': str(row.jv_date),
+                             data_table['sal']+'main': row_main,
+                             data_table['sal']+'_num': row_num,
+                             data_table['sal']+'_date': str(row_date),
                              'chartofaccount': row.chartofaccount, 'particular': row.particular,
                              'bankaccount': row.bankaccount,
                              'department': row.department, 'employee': row.employee,
@@ -793,7 +865,13 @@ def saveupdatemaccountingentry(request):
 
         updatedetailtemp(table, dataid, datastring)
 
+        data_table = validatetable(table)
+        tabledetailtemp = data_table['str_detailtemp']
+        tablebreakdowntemp = data_table['str_detailbreakdowntemp']
+
         context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tablebreakdowntemp,
             'datatemp': querystmtdetail(table, secretkey),
             'datatemptotal': querytotaldetail(table, secretkey),
         }
@@ -816,7 +894,8 @@ def saveupdatedetailbreakdown(request):
         dataid = request.POST['id']
         detailid = request.POST['detailid']
         secretkey = request.POST['secretkey']
-        table = request.POST['table']
+
+        data_table = validatetable(request.POST['table'])
 
         datastring = ""
 
@@ -858,14 +937,19 @@ def saveupdatedetailbreakdown(request):
 
         datastring += "particular='" + request.POST['particular'] + "'"
 
-        updatedetailtemp(table, dataid, datastring)
+        updatedetailtemp(data_table['str_detailbreakdowntemp'], dataid, datastring)
+
+        tabledetailtemp = data_table['str_detailtemp']
+        tablebreakdowntemp = data_table['str_detailbreakdowntemp']
 
         context = {
+            'tabledetailtemp': tabledetailtemp,
+            'tablebreakdowntemp': tablebreakdowntemp,
             'detailid': detailid,
             'datatype': request.POST['datatype'],
-            'datatemp': querystmtbreakdown(table, secretkey, \
+            'datatemp': querystmtbreakdown(request.POST['table'], secretkey, \
                 detailid, request.POST['datatype']),
-            'datatemptotal': querytotalbreakdown(table, secretkey, \
+            'datatemptotal': querytotalbreakdown(request.POST['table'], secretkey, \
                 detailid, request.POST['datatype']),
         }
 

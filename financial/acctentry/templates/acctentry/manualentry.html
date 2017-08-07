@@ -297,7 +297,6 @@
         });
 
         $('#datatable').unbind().on('click', '.detailedit', function () {
-
             $("#detail_unit").empty();
 
             var chartid = $(this).data('chartid');
@@ -317,9 +316,9 @@
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                        'secretkey': $("#secretkey").val(),
-                       'table': {{ table }},
+                       'table': "{{ table }}",
                        'id': id,
-                       'chartid': chartid,
+                       'chartid': chartid
                 },
                 success: function(response) {
                     var info = $.parseJSON(response.info);
@@ -377,7 +376,7 @@
                     $("#detail_chartofaccount").focus();
                 },
                 error: function(response) {
-                    console.log(response);;
+                    console.log(response);
                 }
             });
         });
@@ -393,15 +392,19 @@
                     $("#v_detail_department").addClass('hide');
                     $("#detail_department").removeAttr('required');
                     $("#detail_department").select2("val",0);
+                    $("#detail_department").html("");
                     $("#v_detail_employee").addClass('hide');
                     $("#detail_employee").removeAttr('required');
                     $("#detail_employee").prop("selectedIndex", 0);
+                    $("#detail_employee").html("");
                     $("#v_detail_supplier").addClass('hide');
                     $("#detail_supplier").removeAttr('required');
                     $("#detail_supplier").prop("selectedIndex", 0);
+                    $("#detail_supplier").html("");
                     $("#v_detail_customer").addClass('hide');
                     $("#detail_customer").removeAttr('required');
                     $("#detail_customer").prop("selectedIndex", 0);
+                    $("#detail_customer").html("");
                     $("#v_detail_unit").addClass('hide');
                     $("#detail_unit").removeAttr('required');
                     $("#detail_unit").prop("selectedIndex", 0);
@@ -440,7 +443,7 @@
                             dataType: "json",
                             data: {
                                 'csrfmiddlewaretoken': "{{csrf_token}}",
-                                'chartid':  id,
+                                'chartid':  id
                             },
                             success: function(response){
                                 chart = response.chart;
@@ -527,7 +530,7 @@
                                 }
 
                             }, error: function(response) {
-                                console.debug(reponse);
+                                console.debug(response);
                             }
                         });
                     }
@@ -541,7 +544,6 @@
             $('.btndupdate').hide();
 
             $("#btn_updatedetailbsubmit").attr('data-id', 0);
-
             $("#detail_chartofaccount").val("").trigger('change');
             $("#detail_chartofaccount").removeAttr('disabled');
             $("#detail_bankaccount").val("");
@@ -600,7 +602,7 @@
             $.ajax({
                 url: "{% url 'acctentry:updatebreakdownstatus' %}",
                 type: "post",
-                data: {'detailid': detailid, 'datatype': datatype, 'table': 'jvdetailtemp', 'stat': stat},
+                data: {'detailid': detailid, 'datatype': datatype, 'table': '{{ table }}', 'stat': stat},
                 success: function(response) {
                     console.log(response);
                 },
