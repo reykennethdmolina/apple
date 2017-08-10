@@ -171,7 +171,7 @@
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                           'table': "jvdetailtemp",},
+                           'table': "jvdetailtemp"},
                     success: function(response){
                         $("#manualentryview").html(response['viewhtml']);
                         $("#waitingbar").hide();

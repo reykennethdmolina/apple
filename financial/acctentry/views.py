@@ -182,7 +182,7 @@ def savemaccountingentry(request):
         if request.POST['ataxcode']:
             detailtemp.ataxcode = request.POST['ataxcode']
 
-        if request.POST['creditamount'] != "" and float(request.POST['creditamount']) != 0:
+        if request.POST['creditamount'] != "" and float(request.POST['creditamount'].replace(',', '')) != 0:
             balancecode = 'C'
         else:
             balancecode = 'D'
@@ -284,6 +284,8 @@ def breakdownentry(request):
         tablemain = request.POST['tablemain']
 
         contexttable = {
+            'tabledetailtemp': tablemain,
+            'tablebreakdowntemp': table,
             'detailid': detailid,
             'datatype': request.POST['datatype'],
             'datatemp': querystmtbreakdown(tablemain, request.POST['secretkey'], \
@@ -382,10 +384,13 @@ def savemaccountingentrybreakdown(request):
         if request.POST['ataxcode']:
             detailtempbreakdown.ataxcode = request.POST['ataxcode']
 
-        if request.POST['creditamount'] != "" and float(request.POST['creditamount']) != 0:
+        if request.POST['creditamount'] != "" and float(request.POST['creditamount'].replace(',', '')) != 0:
             balancecode = 'C'
         else:
             balancecode = 'D'
+
+        print request.POST['creditamount']
+        print request.POST['debitamount']
 
         if request.POST['creditamount']:
             detailtempbreakdown.creditamount = request.POST['creditamount'].replace(',', '')
@@ -551,8 +556,20 @@ def deletequery(temptable, dataid):
 
 def getdatainfo(temptable, dataid):
     stmt = "SELECT temp.*, FORMAT(temp.creditamount, 2) AS creditamountformatted, \
-    FORMAT(temp.debitamount, 2) AS debitamountformatted " \
-           "FROM " + temptable + " AS temp WHERE id='" + dataid + "'"
+    FORMAT(temp.debitamount, 2) AS debitamountformatted, \
+    chart.title AS chartofaccount_title, chart.accountcode AS chartofaccount_accountcode, \
+    dept.departmentname AS department_departmentname, \
+    emp.code AS employee_code, emp.lastname AS employee_lastname, \
+    emp.firstname AS employee_firstname, emp.middlename AS employee_middlename, \
+    sup.code AS supplier_code, sup.name AS supplier_name, \
+    cust.name AS customer_name " \
+           "FROM " + temptable + " AS temp \
+           JOIN chartofaccount chart ON chart.id = temp.chartofaccount \
+           LEFT JOIN department dept ON dept.id = temp.department \
+           LEFT JOIN employee emp ON emp.id = temp.employee \
+           LEFT JOIN supplier sup ON sup.id = temp.supplier \
+           LEFT JOIN customer cust ON cust.id = temp.customer \
+           WHERE temp.id='" + dataid + "'"
 
     data = executestmt(stmt)
     return list(data)
@@ -715,10 +732,23 @@ def updateentry(request):
                              data_table['sal']+'main': row_main,
                              data_table['sal']+'_num': row_num,
                              data_table['sal']+'_date': str(row_date),
-                             'chartofaccount': row.chartofaccount, 'bankaccount': row.bankaccount,
-                             'department': row.department, 'employee': row.employee,
+                             'chartofaccount': row.chartofaccount,
+                             'chartofaccount_title': row.chartofaccount_title,
+                             'chartofaccount_accountcode': row.chartofaccount_accountcode,
+                             'department': row.department,
+                             'department_departmentname': row.department_departmentname,
+                             'employee': row.employee,
+                             'employee_code': row.employee_code,
+                             'employee_lastname': row.employee_lastname,
+                             'employee_firstname': row.employee_firstname,
+                             'employee_middlename': row.employee_middlename,
                              'supplier': row.supplier,
-                             'customer': row.customer, 'unit': row.unit, 'branch': row.branch,
+                             'supplier_code': row.supplier_code,
+                             'supplier_name': row.supplier_name,
+                             'customer': row.customer,
+                             'customer_name': row.customer_name,
+                             'unit': row.unit, 'branch': row.branch,
+                             'bankaccount': row.bankaccount,
                              'product': row.product, 'inputvat': row.inputvat,
                              'outputvat': row.outputvat,
                              'vat': row.vat, 'wtax': row.wtax, 'ataxcode': row.ataxcode,
@@ -810,64 +840,77 @@ def saveupdatemaccountingentry(request):
         if request.POST['bankaccount']:
             datastring += "bankaccount='" + request.POST['bankaccount'] + "',"
         else:
-            datastring += "bankaccount='0',"
-        if request.POST['department']:
+            # datastring += "bankaccount='0',"
+            datastring += "bankaccount=NULL,"
+        if request.POST['department'] and request.POST['department'] != 'null':
             datastring += "department='" + request.POST['department'] + "',"
         else:
-            datastring += "department='0',"
-        if request.POST['employee']:
+            # datastring += "department='0',"
+            datastring += "department=NULL,"
+        if request.POST['employee'] and request.POST['employee'] != 'null':
             datastring += "employee='" + request.POST['employee'] + "',"
-            if request.POST['employeetype'] == 'Y':
+            if request.POST.get('employeetype') == 'Y':
                 datastring += "employeebreakstatus='1',"
         else:
-            datastring += "employee='0',"
+            # datastring += "employee='0',"
+            datastring += "employee=NULL,"
             datastring += "employeebreakstatus='0',"
-        if request.POST['supplier']:
+        if request.POST['supplier'] and request.POST['supplier'] != 'null':
             datastring += "supplier='" + request.POST['supplier'] + "',"
-            if request.POST['suppliertype'] == 'Y':
+            if request.POST.get('suppliertype') == 'Y':
                 datastring += "supplierbreakstatus='1',"
         else:
-            datastring += "supplier='0',"
+            # datastring += "supplier='0',"
+            datastring += "supplier=NULL,"
             datastring += "supplierbreakstatus='0',"
-        if request.POST['customer']:
+        if request.POST['customer'] and request.POST['customer'] != 'null':
             datastring += "customer='" + request.POST['customer'] + "',"
-            if request.POST['customertype'] == 'Y':
+            if request.POST.get('customertype') == 'Y':
                 datastring += "customerbreakstatus='1',"
         else:
-            datastring += "customer='0',"
+            # datastring += "customer='0',"
+            datastring += "customer=NULL,"
             datastring += "customerbreakstatus='0',"
         if request.POST['unit']:
             datastring += "unit='" + request.POST['unit'] + "',"
         else:
-            datastring += "unit='0',"
+            # datastring += "unit='0',"
+            datastring += "unit=NULL,"
         if request.POST['branch']:
             datastring += "branch='" + request.POST['branch'] + "',"
         else:
-            datastring += "branch='0',"
+            # datastring += "branch='0',"
+            datastring += "branch=NULL,"
         if request.POST['product']:
             datastring += "product='" + request.POST['product'] + "',"
         else:
-            datastring += "product='0',"
+            # datastring += "product='0',"
+            datastring += "product=NULL,"
         if request.POST['inputvat']:
             datastring += "inputvat='" + request.POST['inputvat'] + "',"
         else:
-            datastring += "inputvat='0',"
+            # datastring += "inputvat='0',"
+            datastring += "inputvat=NULL,"
         if request.POST['outputvat']:
             datastring += "outputvat='" + request.POST['outputvat'] + "',"
         else:
-            datastring += "outputvat='0',"
+            # datastring += "outputvat='0',"
+            datastring += "outputvat=NULL,"
         if request.POST['vat']:
             datastring += "vat='" + request.POST['vat'] + "',"
         else:
-            datastring += "vat='0',"
+            # datastring += "vat='0',"
+            datastring += "vat=NULL,"
         if request.POST['wtax']:
             datastring += "wtax='" + request.POST['wtax'] + "',"
         else:
-            datastring += "wtax='0',"
+            # datastring += "wtax='0',"
+            datastring += "wtax=NULL,"
         if request.POST['ataxcode']:
             datastring += "ataxcode='" + request.POST['ataxcode'] + "',"
         else:
-            datastring += "ataxcode='0',"
+            # datastring += "ataxcode='0',"
+            datastring += "ataxcode=NULL,"
 
         if request.POST['creditamount'] <> "" and request.POST['creditamount'] <> '0.00':
             datastring += "balancecode='C',"
@@ -1087,6 +1130,8 @@ def savebreakdownentry(user, num, mainid, detailid, tempdetailid, dtype, data_ta
     counter = 1
     for row in breakdowninfo:
 
+        breakdown = ''
+
         # breakdown = Apdetailbreakdown()
         exec("breakdown = " + data_table['str_detailbreakdown'].title() + "()")
 
@@ -1133,3 +1178,229 @@ def savebreakdownentry(user, num, mainid, detailid, tempdetailid, dtype, data_ta
         counter += 1
 
     return True
+
+def updatedetail(source, mainid, num, secretkey, by_user):
+
+    data_table = validatetable(source)
+
+    detailinfo = ''
+    exec("detailinfo = " + data_table['str_detailtemp'].title() + ".objects.all()")
+    detailinfo = detailinfo.filter(secretkey=secretkey).order_by('item_counter')
+
+    counter = 1
+    for row in detailinfo:
+        if eval("row." + data_table['str_main']):
+            if row.isdeleted == 0:
+                #update
+                # detail = Jvdetail.objects.get(pk=row.jvdetail)
+                exec("detail = " + data_table['str_detail'].title() + ".objects.get(pk=row." + data_table['str_detail'] + ")")
+
+                detail.item_counter = counter
+                detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
+                # Return None if object is empty
+                detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
+                detail.employee = get_object_or_None(Employee, pk=row.employee)
+                detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
+                detail.customer = get_object_or_None(Customer, pk=row.customer)
+                detail.department = get_object_or_None(Department, pk=row.department)
+                detail.unit = get_object_or_None(Unit, pk=row.unit)
+                detail.branch = get_object_or_None(Branch, pk=row.branch)
+                detail.product = get_object_or_None(Product, pk=row.product)
+                detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
+                detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
+                detail.vat = get_object_or_None(Vat, pk=row.vat)
+                detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
+                detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
+                detail.debitamount = row.debitamount
+                detail.creditamount = row.creditamount
+                detail.balancecode = row.balancecode
+                detail.customerbreakstatus = row.customerbreakstatus
+                detail.supplierbreakstatus = row.supplierbreakstatus
+                detail.employeebreakstatus = row.employeebreakstatus
+                detail.modifyby = by_user
+                detail.modifydate = datetime.datetime.now()
+                detail.save()
+
+                datatype = 'X'
+                if row.customerbreakstatus <> 0:
+                    datatype = 'C'
+                if row.employeebreakstatus <> 0:
+                    datatype = 'E'
+                if row.supplierbreakstatus <> 0:
+                    datatype = 'S'
+
+                breakdowninfo = ''
+                exec("breakdowninfo = " + data_table['str_detailbreakdowntemp'].title() + ".objects.all()")
+                exec("breakdowninfo = breakdowninfo.filter(" + data_table['str_detailtemp'] + "=row.pk, datatype=datatype)")
+                breakdowninfo = breakdowninfo.order_by('item_counter')
+                # breakdowninfo = Jvdetailbreakdowntemp.objects.all().filter(jvdetailtemp=row.pk, datatype=datatype).order_by('item_counter')
+
+                counterb = 1
+                for brow in breakdowninfo:
+                    if eval("brow." + data_table['str_main']):
+                        if brow.isdeleted == 0:
+                            #update
+                            # breakdown = Jvdetailbreakdown.objects.get(pk=brow.jvdetailbreakdown)
+                            exec("breakdown = " + data_table['str_detailbreakdown'].title() + ".objects.get(pk=brow." + data_table['str_detailbreakdown'] + ")")
+
+                            breakdown.item_counter = counterb
+                            breakdown.chartofaccount = Chartofaccount.objects.\
+                                get(pk=brow.chartofaccount)
+                            breakdown.particular = brow.particular
+                            # Return None if object is empty
+                            breakdown.bankaccount = get_object_or_None(Bankaccount, \
+                                pk=brow.bankaccount)
+                            breakdown.employee = get_object_or_None(Employee, \
+                                pk=brow.employee)
+                            breakdown.supplier = get_object_or_None(Supplier, \
+                                pk=brow.supplier)
+                            breakdown.customer = get_object_or_None(Customer, \
+                                pk=brow.customer)
+                            breakdown.department = get_object_or_None(Department, \
+                                pk=brow.department)
+                            breakdown.unit = get_object_or_None(Unit, pk=brow.unit)
+                            breakdown.branch = get_object_or_None(Branch, pk=brow.branch)
+                            breakdown.product = get_object_or_None(Product, pk=brow.product)
+                            breakdown.inputvat = get_object_or_None(Inputvat, \
+                                pk=brow.inputvat)
+                            breakdown.outputvat = get_object_or_None(Outputvat, \
+                                pk=brow.outputvat)
+                            breakdown.vat = get_object_or_None(Vat, pk=brow.vat)
+                            breakdown.wtax = get_object_or_None(Wtax, pk=brow.wtax)
+                            breakdown.ataxcode = get_object_or_None(Ataxcode, pk=brow.ataxcode)
+                            breakdown.debitamount = brow.debitamount
+                            breakdown.creditamount = brow.creditamount
+                            breakdown.balancecode = brow.balancecode
+                            breakdown.datatype = datatype
+                            breakdown.customerbreakstatus = brow.customerbreakstatus
+                            breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                            breakdown.employeebreakstatus = brow.employeebreakstatus
+                            breakdown.modifyby = by_user
+                            breakdown.modifydate = datetime.datetime.now()
+                            breakdown.save()
+                            counterb = 1
+                        if brow.isdeleted == 2:
+                            #delete
+                            # instance = Jvdetailbreakdown.objects.get(pk=brow.jvdetailbreakdown)
+                            exec("instance = " + data_table['str_detailbreakdown'].title() + ".objects.get(pk=brow." + data_table['str_detailbreakdown'] + ")")
+
+                            instance.delete()
+                    if not eval("brow." + data_table['str_main']):
+                        #add
+                        breakdown = ''
+
+                        # breakdown = Jvdetailbreakdown()
+                        exec("breakdown = " + data_table['str_detailbreakdown'].title() + "()")
+
+                        # breakdown.jv_num = num
+                        exec("breakdown." + data_table['sal'] + "_num = num")
+
+                        # breakdown.jvmain = Jvmain.objects.get(pk=mainid)
+                        exec("breakdown." + data_table['str_main'] + " = " + data_table['str_main'].title() + ".objects.get(pk=mainid)")
+
+                        # breakdown.jvdetail = Jvdetail.objects.get(pk=detail.pk)
+                        exec("breakdown." + data_table['str_detail'] + " = " + data_table['str_detail'].title() + ".objects.get(pk=detail.pk)")
+
+                        # breakdown.jv_date = brow.jv_date
+                        exec("breakdown." + data_table['sal'] + "_date = brow." + data_table['sal'] + "_date")
+
+                        breakdown.item_counter = counterb
+                        breakdown.chartofaccount = Chartofaccount.objects.get(\
+                            pk=brow.chartofaccount)
+                        breakdown.particular = brow.particular
+                        # Return None if object is empty
+                        breakdown.bankaccount = get_object_or_None(Bankaccount, \
+                            pk=brow.bankaccount)
+                        breakdown.employee = get_object_or_None(Employee, pk=brow.employee)
+                        breakdown.supplier = get_object_or_None(Supplier, pk=brow.supplier)
+                        breakdown.customer = get_object_or_None(Customer, pk=brow.customer)
+                        breakdown.department = get_object_or_None(Department, \
+                            pk=brow.department)
+                        breakdown.unit = get_object_or_None(Unit, pk=brow.unit)
+                        breakdown.branch = get_object_or_None(Branch, pk=brow.branch)
+                        breakdown.product = get_object_or_None(Product, pk=brow.product)
+                        breakdown.inputvat = get_object_or_None(Inputvat, pk=brow.inputvat)
+                        breakdown.outputvat = get_object_or_None(Outputvat, pk=brow.outputvat)
+                        breakdown.vat = get_object_or_None(Vat, pk=brow.vat)
+                        breakdown.wtax = get_object_or_None(Wtax, pk=brow.wtax)
+                        breakdown.ataxcode = get_object_or_None(Ataxcode, pk=brow.ataxcode)
+                        breakdown.debitamount = brow.debitamount
+                        breakdown.creditamount = brow.creditamount
+                        breakdown.balancecode = brow.balancecode
+                        breakdown.datatype = datatype
+                        breakdown.customerbreakstatus = brow.customerbreakstatus
+                        breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                        breakdown.employeebreakstatus = brow.employeebreakstatus
+                        breakdown.modifyby = by_user
+                        breakdown.enterby = by_user
+                        breakdown.modifydate = datetime.datetime.now()
+                        breakdown.save()
+                        counterb = 1
+
+                counter += 1
+            if row.isdeleted == 2:
+                #delete
+                instance = ''
+                instancebreakdown = ''
+
+                # instance = Jvdetail.objects.get(pk=row.jvdetail)
+                exec("instance = " + data_table['str_detail'].title() + ".objects.get(pk=row." + data_table['str_detail'] + ")")
+
+                instance.delete()
+
+                # instancebreakdown = Jvdetailbreakdown.objects.filter(jvdetail=row.jvdetail)
+                exec("instancebreakdown = " + data_table['str_detailbreakdown'].title() + ".objects.filter(" + data_table['str_detail'] + "=row." + data_table['str_detail'] + ")")
+
+                instancebreakdown.delete()
+        if not eval("row." + data_table['str_main']):
+            #add
+            detail = ''
+
+            # detail = Jvdetail()
+            exec("detail = " + data_table['str_detail'].title() + "()")
+
+            # detail.jv_num = num
+            exec("detail." + data_table['sal'] + "_num = num")
+
+            # detail.jvmain = Jvmain.objects.get(pk=mainid)
+            exec("detail." + data_table['str_main'] + " = " + data_table['str_main'].title() + ".objects.get(pk=mainid)")
+
+            # detail.jv_date = row.jv_date
+            exec("detail." + data_table['sal'] + "_date = row." + data_table['sal'] + "_date")
+
+            detail.item_counter = counter
+            detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
+            # Return None if object is empty
+            detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
+            detail.employee = get_object_or_None(Employee, pk=row.employee)
+            detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
+            detail.customer = get_object_or_None(Customer, pk=row.customer)
+            detail.department = get_object_or_None(Department, pk=row.department)
+            detail.unit = get_object_or_None(Unit, pk=row.unit)
+            detail.branch = get_object_or_None(Branch, pk=row.branch)
+            detail.product = get_object_or_None(Product, pk=row.product)
+            detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
+            detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
+            detail.vat = get_object_or_None(Vat, pk=row.vat)
+            detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
+            detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
+            detail.debitamount = row.debitamount
+            detail.creditamount = row.creditamount
+            detail.balancecode = row.balancecode
+            detail.customerbreakstatus = row.customerbreakstatus
+            detail.supplierbreakstatus = row.supplierbreakstatus
+            detail.employeebreakstatus = row.employeebreakstatus
+            detail.modifyby = by_user
+            detail.enterby = by_user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
+
+            # Saving breakdown entry
+            if row.customerbreakstatus <> 0:
+                savebreakdownentry(by_user, num, mainid, detail.pk, row.pk, 'C', data_table)
+            if row.employeebreakstatus <> 0:
+                savebreakdownentry(by_user, num, mainid, detail.pk, row.pk, 'E', data_table)
+            if row.supplierbreakstatus <> 0:
+                savebreakdownentry(by_user, num, mainid, detail.pk, row.pk, 'S', data_table)
+
+            counter += 1

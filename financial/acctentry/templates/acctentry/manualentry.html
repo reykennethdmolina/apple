@@ -262,7 +262,7 @@
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                            'id': id,
                            'secretkey': $("#secretkey").val(),
-                           'table': 'jvdetailtemp',
+                           'table': '{{ table }}',
                            'chartofaccount': $("#detail_chartofaccount").val(),
                            'bankaccount': $("#detail_bankaccount").val(),
                            'department': $("#detail_department").val(),
@@ -323,33 +323,36 @@
                 success: function(response) {
                     var info = $.parseJSON(response.info);
 
-                    $("#detail_chartofaccount").val(info[0].chartofaccount).data('getunit', 2).trigger('change').attr('disabled','disabled');
-                    $("#detail_bankaccount").val(info[0].bankaccount);
-                    $("#detail_department").val(info[0].department).trigger('change');
+                    $("#detail_chartofaccount").html("<option value='"+info[0].chartofaccount+"'>["+info[0].chartofaccount_accountcode+"] - "+info[0].chartofaccount_title+"</option>");
+                    $("#detail_chartofaccount").attr('getunit', 2).trigger('change').attr('disabled','disabled');
+
+                    $("#detail_department").html("<option value='"+info[0].department+"'>"+info[0].department_name+"</option>").trigger('change');
                     if (info[0].employeebreakstatus == 1 || info[0].employeebreakstatus == 2) {
-                        $("#detail_employee").val(info[0].employee);
+                        $("#detail_employee").html("<option value='"+info[0].employee+"'>"+info[0].employee_code+" - "+info[0].employee_lastname+", "+info[0].employee_firstname+" "+info[0].employee_middlename+"</option>");
                         $("#detail_employee option").attr('disabled', 'disabled');
                         $("#detail_employee option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Employee cannot be edited because of breakdown entry!');
                     } else {
-                        $("#detail_employee").val(info[0].employee);
+                        $("#detail_employee").html("<option value='"+info[0].employee+"'>"+info[0].employee_code+" - "+info[0].employee_lastname+", "+info[0].employee_firstname+" "+info[0].employee_middlename+"</option>");
                     }
                     if (info[0].supplierbreakstatus == 1 || info[0].supplierbreakstatus == 2) {
-                        $("#detail_supplier").val(info[0].supplier);
+                        $("#detail_supplier").html("<option value='"+info[0].supplier+"'>"+info[0].supplier_name+"</option>");
                         $("#detail_supplier option").attr('disabled', 'disabled');
                         $("#detail_supplier option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Supplier cannot be edited because of breakdown entry!');
                     } else {
-                        $("#detail_supplier").val(info[0].supplier);
+                        $("#detail_supplier").html("<option value='"+info[0].supplier+"'>"+info[0].supplier_name+"</option>");
                     }
                     if (info[0].customerbreakstatus == 1 || info[0].customerbreakstatus == 2) {
-                        $("#detail_customer").val(info[0].customer);
+                        $("#detail_customer").html("<option value='"+info[0].customer+"'>"+info[0].customer_name+"</option>");
                         $("#detail_customer option").attr('disabled', 'disabled');
                         $("#detail_customer option:selected").removeAttr('disabled').attr('data-type','Y');
                         alert('Customer cannot be edited because of breakdown entry!');
                     } else {
-                        $("#detail_customer").val(info[0].customer);
+                        $("#detail_customer").html("<option value='"+info[0].customer+"'>"+info[0].customer_name+"</option>");
                     }
+
+                    $("#detail_bankaccount").val(info[0].bankaccount);
                     $("#detail_branch").val(info[0].branch);
                     $("#detail_product").val(info[0].product);
                     $("#detail_inputvat").val(info[0].inputvat);

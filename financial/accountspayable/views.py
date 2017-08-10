@@ -188,6 +188,91 @@ class UpdateView(UpdateView):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    # accounting entry starts here
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
+
+        detailinfo = Apdetail.objects.filter(apmain=self.object.pk).order_by('item_counter')
+
+        for drow in detailinfo:
+            detail = Apdetailtemp()
+            detail.secretkey = self.mysecretkey
+            detail.ap_num = drow.ap_num
+            detail.apmain = drow.apmain_id
+            detail.apdetail = drow.pk
+            detail.item_counter = drow.item_counter
+            detail.ap_date = drow.ap_date
+            detail.chartofaccount = drow.chartofaccount_id
+            detail.bankaccount = drow.bankaccount_id
+            detail.employee = drow.employee_id
+            detail.supplier = drow.supplier_id
+            detail.customer = drow.customer_id
+            detail.department = drow.department_id
+            detail.unit = drow.unit_id
+            detail.branch = drow.branch_id
+            detail.product = drow.product_id
+            detail.inputvat = drow.inputvat_id
+            detail.outputvat = drow.outputvat_id
+            detail.vat = drow.vat_id
+            detail.wtax = drow.wtax_id
+            detail.ataxcode = drow.ataxcode_id
+            detail.debitamount = drow.debitamount
+            detail.creditamount = drow.creditamount
+            detail.balancecode = drow.balancecode
+            detail.customerbreakstatus = drow.customerbreakstatus
+            detail.supplierbreakstatus = drow.supplierbreakstatus
+            detail.employeebreakstatus = drow.employeebreakstatus
+            detail.isdeleted = 0
+            detail.modifyby = self.request.user
+            detail.enterby = self.request.user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
+
+            detailtempid = detail.id
+
+            breakinfo = Apdetailbreakdown.objects.\
+                filter(apdetail_id=drow.id).order_by('pk', 'datatype')
+            if breakinfo:
+                for brow in breakinfo:
+                    breakdown = Apdetailbreakdowntemp()
+                    breakdown.ap_num = drow.ap_num
+                    breakdown.secretkey = self.mysecretkey
+                    breakdown.apmain = drow.apmain_id
+                    breakdown.apdetail = drow.pk
+                    breakdown.apdetailtemp = detailtempid
+                    breakdown.apdetailbreakdown = brow.pk
+                    breakdown.item_counter = brow.item_counter
+                    breakdown.ap_date = brow.ap_date
+                    breakdown.chartofaccount = brow.chartofaccount_id
+                    breakdown.particular = brow.particular
+                    # Return None if object is empty
+                    breakdown.bankaccount = brow.bankaccount_id
+                    breakdown.employee = brow.employee_id
+                    breakdown.supplier = brow.supplier_id
+                    breakdown.customer = brow.customer_id
+                    breakdown.department = brow.department_id
+                    breakdown.unit = brow.unit_id
+                    breakdown.branch = brow.branch_id
+                    breakdown.product = brow.product_id
+                    breakdown.inputvat = brow.inputvat_id
+                    breakdown.outputvat = brow.outputvat_id
+                    breakdown.vat = brow.vat_id
+                    breakdown.wtax = brow.wtax_id
+                    breakdown.ataxcode = brow.ataxcode_id
+                    breakdown.debitamount = brow.debitamount
+                    breakdown.creditamount = brow.creditamount
+                    breakdown.balancecode = brow.balancecode
+                    breakdown.datatype = brow.datatype
+                    breakdown.customerbreakstatus = brow.customerbreakstatus
+                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                    breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.isdeleted = 0
+                    breakdown.modifyby = self.request.user
+                    breakdown.enterby = self.request.user
+                    breakdown.modifydate = datetime.datetime.now()
+                    breakdown.save()
+    # accounting entry ends here
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.enterby = self.request.user

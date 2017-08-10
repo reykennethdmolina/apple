@@ -131,8 +131,8 @@
                                                 </th>
                                                 <th></th>
                                                 <th></th>
-                                                <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
                                                 <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                                <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -206,6 +206,7 @@
         </div>
     </div>
 </div>
+    {{ tabledetailtemp }}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -231,7 +232,8 @@
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",
                     type: "post",
-                    data: {'csrfmiddlewaretoken': "{{csrf_token}}"},
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'table': "jvdetailtemp"},
                     success: function(response){
                         $("#manualentryview").html(response['viewhtml']);
                         $("#waitingbar").hide();

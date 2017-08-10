@@ -72,7 +72,7 @@
                         </div>
                         <div class="form-group col-sm-8 margin-bottom-10">
                             <label class="control-label small">Payee</label><br>
-                            <select class="form-control input-sm col-sm-12" id="cache_payee"></select>
+                            <select class="form-control input-sm col-sm-12 cache_select2" id="cache_payee"></select>
                         </div>
                         <div class="form-group col-sm-2 margin-bottom-10">
                             <label class="control-label small">AP Type</label>
@@ -197,7 +197,7 @@
         var retrieveItems = localStorage.getItem('cachedItems');
         var retrieveFilters = localStorage.getItem('cachedFilters');
         var dummyurl;
-        var nav_stepleft, nav_stepright, nav_left, nav_right, nav_exist, nav_href;
+        var nav_stepleft, nav_stepright, nav_left, nav_right, nav_exist, nav_href, nav_id;
 
         $('#cache_submit').on('click', function () {
             cachedsearch();
@@ -205,7 +205,7 @@
 
         $('#cache_clear').on('click', function(){
             cachedfillform();
-            $('#cache_payee').html('');
+            $('.cache_select2').html('');
             $('#cache_table tbody').html('');
             cachedclear();
         });
@@ -228,6 +228,40 @@
                     break;
             }
             window.location.replace(nav_href);
+        });
+
+        $('body').on('keyup', function(e){
+            var code = e.keyCode || e.which;
+
+            //exclude btn form-control select2-search__field
+            if($(':focus').attr('class') === undefined){
+                switch(code){
+                    case 38:
+                        nav_id = $('#nav_stepleft');
+                        break;
+                    case 37:
+                        nav_id = $('#nav_left');
+                        break;
+                    case 39:
+                        nav_id = $('#nav_right');
+                        break;
+                    case 40:
+                        nav_id = $('#nav_stepright');
+                        break;
+                    default:
+                        nav_id = '';
+                }
+            }
+            else nav_id = '';
+
+            if(nav_id != ''){
+                if(nav_id.is(':enabled') && nav_id.is(':visible')){
+                    setTimeout(function () {
+                       nav_id.trigger('click');
+                    }, 500);
+                }
+            }
+
         });
 
         // cache on load
