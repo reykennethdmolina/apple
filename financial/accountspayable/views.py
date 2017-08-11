@@ -3,7 +3,6 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
-from acctentry.views import generatekey, savedetail
 from supplier.models import Supplier
 from branch.models import Branch
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -24,6 +23,8 @@ from inputvat.models import Inputvat
 from outputvat.models import Outputvat
 from wtax.models import Wtax
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from django.template.loader import render_to_string
 from annoying.functions import get_object_or_None
 
 # pagination and search
@@ -273,17 +274,6 @@ class UpdateView(UpdateView):
                     breakdown.save()
     # accounting entry ends here
 
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save(update_fields=['apdate', 'aptype', 'payee', 'branch',
-                                        'bankbranchdisburse', 'vat', 'atax',
-                                        'inputvattype', 'creditterm', 'duedate',
-                                        'refno', 'deferred', 'particulars',
-                                        'currency'])
-        return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
-
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         if self.request.POST.get('payee', False):
@@ -300,7 +290,40 @@ class UpdateView(UpdateView):
         context['apnum'] = self.object.apnum
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = self.object.pk
+
+        # accounting entry starts here
+        context['secretkey'] = self.mysecretkey
+        contextdatatable = {
+            # to be used by accounting entry on load
+            'tabledetailtemp': 'apdetailtemp',
+            'tablebreakdowntemp': 'apdetailbreakdowntemp',
+
+            'datatemp': querystmtdetail('apdetailtemp', self.mysecretkey),
+            'datatemptotal': querytotaldetail('apdetailtemp', self.mysecretkey),
+        }
+        context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
+        # accounting entry ends here
+
         return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.enterby = self.request.user
+        self.object.modifyby = self.request.user
+        self.object.save(update_fields=['apdate', 'aptype', 'payee', 'branch',
+                                        'bankbranchdisburse', 'vat', 'atax',
+                                        'inputvattype', 'creditterm', 'duedate',
+                                        'refno', 'deferred', 'particulars',
+                                        'currency'])
+
+        # accounting entry starts here..
+        source = 'apdetailtemp'
+        mainid = self.object.id
+        num = self.object.apnum
+        secretkey = self.request.POST['secretkey']
+        updatedetail(source, mainid, num, secretkey, self.request.user)
+
+        return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 
 
 def comments():

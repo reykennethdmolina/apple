@@ -175,14 +175,115 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-12">
+                            <div class="form-group col-sm-6">
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                             </div>
                         </div>
                     </form>
+
+                    <!-- Accounting entry start -->
+                    <div class="col-sm-12" id="entryview" style="display: none">
+                        <div class="panel panel-bordered">
+                            <div class="panel-body">
+                                <h4>Manual Accounting Entry</h4>
+                                <div id="waitingbar" class="animatebar-bar progress-bar-success" style="width: 95%;">
+                                    <div class="animatebar-bar-percent">95%</div>
+                                </div>
+                                <div id="manualentryview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                            <div class="panel">
+                                <div class="panel-body">
+                                    <!-- Start Editable Section -->
+                                    <table class="table table-striped margin-bottom-0">
+                                        <thead>
+                                            <tr>
+                                                <th width="5%">Counter</th>
+                                                <th width="25%">Chart of Account</th>
+                                                <th width="50%">Description</th>
+                                                <th width="10%">Debit</th>
+                                                <th width="10%">Credit</th>
+                                                <th width="10%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="datatable">
+                                        {{ datatable|safe }}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    <strong>Total</strong>
+                                                </th>
+                                                <th></th>
+                                                <th></th>
+                                                <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                                <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- Accounting entry end -->
                 </div>
             </div>
             <div class="clearfix"></div>
+        </div>
+
+        <div class="row">
+            <div class="panel top-profile skill-profile margin-bottom-25">
+                <div class="panel-body">
+                    <!-- Start Personal Information Section -->
+                    <h4 class="list-title">Data Information</h4>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile">
+                                <span class="text-name-profile text-info">Enter By : </span>
+                                <span class="detail-profile">{{ self.enterby }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile">
+                                <span class="text-name-profile text-info">Enter Date : </span>
+                                <span class="detail-profile">{{ self.enterdate }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile">
+                                <span class="text-name-profile text-info">Modify By : </span>
+                                <span class="detail-profile">{{ self.modifyby }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile profile-email">
+                                <span class="text-name-profile text-info">Modify Data : </span>
+                                <span class="detail-profile">{{ self.modifydate }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile padding-0">
+                                <span class="text-name-profile text-info">Post By: </span>
+                                <span class="detail-profile">{{ self.postby|default:'' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="first-name-profile padding-0">
+                                <span class="text-name-profile text-info">Post Date: </span>
+                                <span class="detail-profile">{{ self.postdate|default:'' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Personal Information Section -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -220,6 +321,59 @@
                     console.debug(response);
                 }
             });
+
+            // Accounting entry start
+            $.ajax({
+                url: "{% url 'acctentry:maccountingentry' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'table': "apdetailtemp"},
+                success: function(response){
+                    $("#manualentryview").html(response['viewhtml']);
+                    $("#waitingbar").hide();
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+
+            $("#manualbutton").unbind().click(function (){
+                $("#entryview").show();
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'table': "apdetailtemp"},
+                    success: function(response){
+                        $("#manualentryview").html(response['viewhtml']);
+                        $("#waitingbar").hide();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
+
+            $("#validateButton").on('click', function() {
+                var total_creditamount = $("#total_creditamount").text().replace(',','');
+                var total_debitamount = $("#total_debitamount").text().replace(',','');
+                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                    alert('Debit and Credit amount be equal');
+                    return false;
+                }
+                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+                if (checkbreakdownstatus) {
+                    alert('You have unbalance various entry. Please review your entry!');
+                }
+
+                var validate = $('#form-b').find('div').hasClass('has-error');
+                if (validate) {
+                    alert('Accounts Payable is successfully created!');
+                }
+            });
+            // Accounting entry end
         });
     </script>
 {% endblock extra_js %}

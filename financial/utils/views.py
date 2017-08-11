@@ -24,6 +24,9 @@ def ajaxSelect(request):
         elif request.GET['table'] == "chartofaccount":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
                                                         Q(title__icontains=request.GET['q']))
+        elif request.GET['table'] == "chartofaccount_posting":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
+                                                        Q(title__icontains=request.GET['q'])).filter(accounttype='P')
         elif request.GET['table'] == "chartofaccount_arcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
                                                         Q(title__icontains=request.GET['q'])).filter(main=1)
@@ -64,6 +67,7 @@ def ajaxSelect(request):
             elif request.GET['table'] == "supplier_payee":
                 text = data.name
             elif request.GET['table'] == "chartofaccount" \
+                    or request.GET['table'] == "chartofaccount_posting" \
                     or request.GET['table'] == "chartofaccount_arcode" \
                     or request.GET['table'] == "chartofaccount_revcode":
                 text = "[" + data.accountcode + "] - " + data.title

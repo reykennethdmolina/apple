@@ -229,6 +229,8 @@ def breakdownentry(request):
             accounttype='P', pk=chartid)
         bankdata = []
         colspan = 1
+
+        print chartdata[0].bankaccount_enable
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
             colspan += 1
