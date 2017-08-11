@@ -210,7 +210,7 @@
             cachedclear();
         });
 
-        $('.nav_btn').on('click', function(){
+        $('.nav_btn').one('click', function(){
             $('.shade').fadeIn();
             nav_href = "{% url 'accountspayable:update' 0 %}";
             switch ($(this).attr('id')) {
@@ -256,9 +256,7 @@
 
             if(nav_id != ''){
                 if(nav_id.is(':enabled') && nav_id.is(':visible')){
-                    setTimeout(function () {
-                       nav_id.trigger('click');
-                    }, 500);
+                    nav_id.trigger('click');
                 }
             }
 
