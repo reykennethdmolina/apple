@@ -1,0 +1,63 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Agent {% endblock page-title %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        <div class="form-group {{ form.code.errors|yesno:'has-error,' }} col-md-5">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.agenttype.errors|yesno:'has-error,' }} col-md-5 form-material margin-left-30">
+                            <label for="id_agenttype" class="control-label">Agent Type</label>
+                            <select id="id_agenttype" class="form-control" name="agenttype" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for agenttype in agenttype %}
+                                    <option value="{{ agenttype.id }}" {% if form.agenttype.value|add:0 == agenttype.id %} selected="selected" {% endif %}>[{{ agenttype.code }}]&nbsp;&nbsp;{{ agenttype.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.agenttype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.name.errors|yesno:'has-error,' }} col-md-5">
+                            <label for="id_name" class="control-label">Name</label>
+                            <input type="text" class="form-control" id="id_name" maxlength="250" placeholder="Name" name="name" data-validation="required" value="{{ form.name.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.name.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.street.errors|yesno:'has-error,' }} col-md-5 margin-left-30">
+                            <label for="id_street" class="control-label">Street</label>
+                            <input type="text" class="form-control" id="id_street" maxlength="250" placeholder="Street" name="street" data-validation="required" value="{{ form.street.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.street.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-md-5">
+                            <label class="control-label" for="id_remarks">Remarks</label>
+                            <div>
+                                <textarea id="id_remarks" class="form-control text-area" name="remarks" rows="4">{{ form.remarks.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-5 margin-left-30">
+                            <label class="control-label" for="id_comments">Comments</label>
+                            <div>
+                                <textarea id="id_comments" class="form-control text-area" name="comments" rows="4">{{ form.comments.value|default:"" }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group margin-bottom-0 margin-top-20 col-sm-12">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
