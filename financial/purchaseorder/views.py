@@ -320,7 +320,10 @@ class UpdateView(UpdateView):
         context['prfimported'] = Podata.objects.filter(pomain=self.object.pk, isdeleted=0).exclude(prfmain=None)
         context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
                                                     totalremainingquantity__gt=0)
-        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
+        if self.request.POST.get('supplier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supplier'], isdeleted=0)
+        elif self.object.supplier:
+            context['supplier'] = Supplier.objects.get(pk=self.object.supplier.id, isdeleted=0)
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')

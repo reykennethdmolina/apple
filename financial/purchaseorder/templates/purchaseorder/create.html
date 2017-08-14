@@ -444,7 +444,7 @@
 
             $("#id_supplier").change(function(){
                 enableDisableButtons();
-                displaySupplierData();
+                displaySupplierData($(this).val());
             });
 
             $("#importbutton").click(function(){
@@ -454,8 +454,30 @@
                 $('#iconChecked').remove();
             });
 
-            function displaySupplierData(){
-                $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+            function displaySupplierData(selectedSupplier){
+                $.ajax({
+                    url: "{% url 'supplier:getsupplierdata' %}",
+                    type: "post",
+                    data: {'supplierid': selectedSupplier
+                    },
+                    success: function(response) {
+                        console.log("Successful");
+                        $('#id_creditterm').val(response.creditterm);
+                        $('#id_vat').val(response.vat);
+                        $('#id_atc').val(response.atc);
+                        $('#id_inputvattype').val(response.inputvattype);
+                        $('#id_deferredvat').val(response.deferredvat);
+                        $('#id_currency').val(response.currency);
+                        $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                        showRate("#id_vat", "vatrate", "RATE");
+                        showRate("#id_atc", "atcrate", "RATE");
+                        showRate("#id_currency", "fxrate", "FX RATE");
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+                /**$('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
                 $('#id_vat').val($("#id_supplier option:selected").data('vat'));
                 $('#id_atc').val($("#id_supplier option:selected").data('atc'));
                 $('#id_currency').val($("#id_supplier option:selected").data('currency'));
@@ -463,7 +485,7 @@
                 $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
                 showRate("#id_vat", "vatrate", "RATE");
                 showRate("#id_atc", "atcrate", "RATE");
-                showRate("#id_currency", "fxrate", "FX RATE");
+                showRate("#id_currency", "fxrate", "FX RATE");**/
             }
 
             function enableDisableButtons(){

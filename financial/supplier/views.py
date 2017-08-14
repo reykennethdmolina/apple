@@ -202,15 +202,15 @@ def getSupplierData(request):
 
         data = {
             'status': 'success',
-            'creditterm': supplier.creditterm_id,
-            'vat': supplier.vat_id,
-            'atc': supplier.atc_id,
-            'inputvattype': supplier.inputvattype_id,
+            'creditterm': supplier.creditterm_id if supplier.creditterm_id != 0 else '',
+            'vat': supplier.vat_id if supplier.vat_id != 0 else '',
+            'atc': supplier.atc_id if supplier.atc_id != 0 else '',
+            'inputvattype': supplier.inputvattype_id if supplier.inputvattype_id != 0 else '',
             'deferredvat': supplier.deferredvat,
-            'currency': supplier.currency_id,
+            'currency': supplier.currency_id if supplier.currency_id != 0 else '',
             'fxrate': supplier.fxrate,
-            'bankaccount': supplier.bankaccount_id,
-            'bankbranchdisburse': supplier.bankbranchdisburse_id,
+            'bankaccount': supplier.bankaccount_id if supplier.bankaccount_id != 0 else '',
+            'bankbranchdisburse': supplier.bankbranchdisburse_id if supplier.bankbranchdisburse_id != 0 else '',
             'duedate': datetime.datetime.now().date() + datetime.timedelta(days=supplier.creditterm.daysdue),
         }
     else:

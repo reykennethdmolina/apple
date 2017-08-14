@@ -119,16 +119,19 @@
                                 </div>
                                 <div class="form-group col-sm-8 {{ form.supplier.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_supplier">Supplier</label>
-                                    <select class="form-control input-sm select2" id="id_supplier" name="supplier">
-                                        <option value="">-- Select --</option>
-                                        {% for supplier in supplier %}
-                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}
-                                                    data-vat="{{ supplier.vat.id }}" data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%"
-                                                    data-creditterm="{{ supplier.creditterm.id }}" data-atc="{{ supplier.atc.id }}" data-currency="{{ supplier.currency.id }}"
-                                                    data-inputvattype="{{ supplier.inputvattype.id }}" data-deferredvat="{{ supplier.deferredvat }}">
-                                                {{ supplier.code }} - {{ supplier.name }}
-                                            </option>
-                                        {% endfor %}
+                                    <select class="form-control input-sm ajaxselect2" id="id_supplier" name="supplier">
+                                        {% if supplier.id != None %}
+                                            <option value="{{ supplier.id }}">{{ supplier.code }} - {{ supplier.name }}</option>
+                                        {% endif %}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for supplier in supplier %}#}
+{#                                            <option value="{{ supplier.id }}" {% if form.supplier.value|add:0 == supplier.id %} selected="selected" {% endif %}#}
+{#                                                    data-vat="{{ supplier.vat.id }}" data-vatcode="{{ supplier.vat.code }}" data-vatrate="{{ supplier.vat.rate }}%"#}
+{#                                                    data-creditterm="{{ supplier.creditterm.id }}" data-atc="{{ supplier.atc.id }}" data-currency="{{ supplier.currency.id }}"#}
+{#                                                    data-inputvattype="{{ supplier.inputvattype.id }}" data-deferredvat="{{ supplier.deferredvat }}">#}
+{#                                                {{ supplier.code }} - {{ supplier.name }}#}
+{#                                            </option>#}
+{#                                        {% endfor %}#}
                                     </select>
                                     <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
                                 </div>
@@ -563,9 +566,9 @@
                 showRate("#id_currency", "fxrate", "FX RATE");
                 showRate("#id_wtax", "wtaxrate", "RATE");
 
-                $('#id_supplier option:selected').siblings().prop("disabled", true);
-                $('#id_supplier').select2("destroy");
-                $('#id_supplier').select2();
+{#                $('#id_supplier option:selected').siblings().prop("disabled", true);#}
+{#                $('#id_supplier').select2("destroy");#}
+{#                $('#id_supplier').select2();#}
 
                 enableDisableButtons();
 
@@ -610,8 +613,30 @@
                     $('#iconChecked').remove();
                 });
 
-                function displaySupplierData(){
-                    $('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
+                function displaySupplierData(selectedSupplier){
+                    $.ajax({
+                        url: "{% url 'supplier:getsupplierdata' %}",
+                        type: "post",
+                        data: {'supplierid': selectedSupplier
+                        },
+                        success: function(response) {
+                            console.log("Successful");
+                            $('#id_creditterm').val(response.creditterm);
+                            $('#id_vat').val(response.vat);
+                            $('#id_atc').val(response.atc);
+                            $('#id_inputvattype').val(response.inputvattype);
+                            $('#id_deferredvat').val(response.deferredvat);
+                            $('#id_currency').val(response.currency);
+                            $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                            showRate("#id_vat", "vatrate", "RATE");
+                            showRate("#id_atc", "atcrate", "RATE");
+                            showRate("#id_currency", "fxrate", "FX RATE");
+                        },
+                        error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                    /**$('#id_creditterm').val($("#id_supplier option:selected").data('creditterm'));
                     $('#id_vat').val($("#id_supplier option:selected").data('vat'));
                     $('#id_atc').val($("#id_supplier option:selected").data('atc'));
                     $('#id_currency').val($("#id_supplier option:selected").data('currency'));
@@ -619,7 +644,7 @@
                     $('#id_deferredvat').val($("#id_supplier option:selected").data('deferredvat'));
                     showRate("#id_vat", "vatrate", "RATE");
                     showRate("#id_atc", "atcrate", "RATE");
-                    showRate("#id_currency", "fxrate", "FX RATE");
+                    showRate("#id_currency", "fxrate", "FX RATE");**/
                 }
 
                 function enableDisableButtons(){
@@ -707,7 +732,9 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
+        ajaxselect2("supplier");
     </script>
 {% endblock extra_js %}
