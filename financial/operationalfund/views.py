@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
+from acctentry.views import generatekey, savedetail
 from ataxcode.models import Ataxcode
 from branch.models import Branch
 from creditterm.models import Creditterm
@@ -148,6 +149,7 @@ class CreateViewCashier(CreateView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['secretkey'] = generatekey(self)
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         return context
 
@@ -205,101 +207,15 @@ class CreateViewCashier(CreateView):
             self.object.save()
 
             # accounting entry starts here..
+            source = 'ofdetailtemp'
             mainid = self.object.id
-            ofnum = self.object.ofnum
+            num = self.object.ofnum
             secretkey = self.request.POST['secretkey']
-            detailinfo = Ofdetailtemp.objects.all().filter(secretkey=secretkey).order_by('item_counter')
-
-            counter = 1
-            for row in detailinfo:
-                detail = Ofdetail()
-                detail.of_num = ofnum
-                detail.ofmain = Ofmain.objects.get(pk=mainid)
-                detail.item_counter = counter
-                detail.of_date = row.of_date
-                detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
-                # Return None if object is empty
-                detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
-                detail.employee = get_object_or_None(Employee, pk=row.employee)
-                detail.supplier = get_object_or_None(Supplier, pk=row.supplier)
-                detail.customer = get_object_or_None(Customer, pk=row.customer)
-                detail.department = get_object_or_None(Department, pk=row.department)
-                detail.unit = get_object_or_None(Unit, pk=row.unit)
-                detail.branch = get_object_or_None(Branch, pk=row.branch)
-                detail.product = get_object_or_None(Product, pk=row.product)
-                detail.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
-                detail.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
-                detail.vat = get_object_or_None(Vat, pk=row.vat)
-                detail.wtax = get_object_or_None(Wtax, pk=row.wtax)
-                detail.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
-                detail.debitamount = row.debitamount
-                detail.creditamount = row.creditamount
-                detail.balancecode = row.balancecode
-                detail.customerbreakstatus = row.customerbreakstatus
-                detail.supplierbreakstatus = row.supplierbreakstatus
-                detail.employeebreakstatus = row.employeebreakstatus
-                detail.modifyby = self.request.user
-                detail.enterby = self.request.user
-                detail.modifydate = datetime.datetime.now()
-                detail.save()
-                counter += 1
-
-                # Saving breakdown entry
-                if row.customerbreakstatus <> 0:
-                    savebreakdownentry(self.request.user, ofnum, mainid, detail.pk, row.pk, 'C')
-                if row.employeebreakstatus <> 0:
-                    savebreakdownentry(self.request.user, ofnum, mainid, detail.pk, row.pk, 'E')
-                if row.supplierbreakstatus <> 0:
-                    savebreakdownentry(self.request.user, ofnum, mainid, detail.pk, row.pk, 'S')
+            savedetail(source, mainid, num, secretkey, self.request.user)
 
             return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
         else:
             return HttpResponseRedirect('/operationalfund/')
-
-
-def savebreakdownentry(user, ofnum, mainid, detailid, tempdetailid, dtype):
-
-    breakdowninfo = Ofdetailbreakdowntemp.objects.all(). \
-        filter(ofdetailtemp=tempdetailid, datatype=dtype).order_by('item_counter')
-
-    counter = 1
-    for row in breakdowninfo:
-        breakdown = Ofdetailbreakdown()
-        breakdown.of_num = ofnum
-        breakdown.ofmain = Ofmain.objects.get(pk=mainid)
-        breakdown.ofdetail = Ofdetail.objects.get(pk=detailid)
-        breakdown.item_counter = counter
-        breakdown.of_date = row.of_date
-        breakdown.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
-        breakdown.particular = row.particular
-        # Return None if object is empty
-        breakdown.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
-        breakdown.employee = get_object_or_None(Employee, pk=row.employee)
-        breakdown.supplier = get_object_or_None(Supplier, pk=row.supplier)
-        breakdown.customer = get_object_or_None(Customer, pk=row.customer)
-        breakdown.department = get_object_or_None(Department, pk=row.department)
-        breakdown.unit = get_object_or_None(Unit, pk=row.unit)
-        breakdown.branch = get_object_or_None(Branch, pk=row.branch)
-        breakdown.product = get_object_or_None(Product, pk=row.product)
-        breakdown.inputvat = get_object_or_None(Inputvat, pk=row.inputvat)
-        breakdown.outputvat = get_object_or_None(Outputvat, pk=row.outputvat)
-        breakdown.vat = get_object_or_None(Vat, pk=row.vat)
-        breakdown.wtax = get_object_or_None(Wtax, pk=row.wtax)
-        breakdown.ataxcode = get_object_or_None(Ataxcode, pk=row.ataxcode)
-        breakdown.debitamount = row.debitamount
-        breakdown.creditamount = row.creditamount
-        breakdown.balancecode = row.balancecode
-        breakdown.datatype = dtype
-        breakdown.customerbreakstatus = row.customerbreakstatus
-        breakdown.supplierbreakstatus = row.supplierbreakstatus
-        breakdown.employeebreakstatus = row.employeebreakstatus
-        breakdown.modifyby = user
-        breakdown.enterby = user
-        breakdown.modifydate = datetime.datetime.now()
-        breakdown.save()
-        counter += 1
-
-    return True
 
 
 @method_decorator(login_required, name='dispatch')
@@ -364,6 +280,17 @@ class UpdateViewCashier(UpdateView):
             self.object.receiveby = self.request.user
             self.object.receivedate = datetime.datetime.now()
             self.object.save(update_fields=['ofstatus', 'receiveby', 'receivedate'])
+        elif self.object.ofstatus == 'R':
+            if self.object.oftype is None or self.object.ofsubtype is None or self.object.creditterm is None or \
+                    self.object.vat is None or self.object.atc is None or self.object.inputvattype is None or \
+                    self.object.currency is None:
+                self.object.ofstatus = 'I'
+                self.object.releasedate = None
+                self.object.releaseby = None
+                self.object.paymentreceivedby = None
+                self.object.paymentreceiveddate = None
+                self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
+                                                'paymentreceiveddate'])
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -428,6 +355,14 @@ class UpdateViewCashier(UpdateView):
                 self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate'])
 
         else:
+            if self.request.POST['ofstatus'] == 'I':
+                self.object.ofstatus = 'I'
+                self.object.releasedate = None
+                self.object.releaseby = None
+                self.object.paymentreceivedby = None
+                self.object.paymentreceiveddate = None
+                self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
+                                                'paymentreceiveddate'])
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])

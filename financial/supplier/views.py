@@ -199,17 +199,18 @@ def searchSupplier(request):
 def getSupplierData(request):
     if request.method == 'POST':
         supplier = Supplier.objects.get(pk=request.POST['supplierid'])
+
         data = {
             'status': 'success',
-            'creditterm': supplier.creditterm.id,
-            'vat': supplier.vat.id,
-            'atc': supplier.atc.id,
-            'inputvattype': supplier.inputvattype.id,
+            'creditterm': supplier.creditterm_id,
+            'vat': supplier.vat_id,
+            'atc': supplier.atc_id,
+            'inputvattype': supplier.inputvattype_id,
             'deferredvat': supplier.deferredvat,
-            'currency': supplier.currency.id,
+            'currency': supplier.currency_id,
             'fxrate': supplier.fxrate,
-            'bankaccount': supplier.bankaccount.id,
-            'bankbranchdisburse': supplier.bankbranchdisburse.id,
+            'bankaccount': supplier.bankaccount_id,
+            'bankbranchdisburse': supplier.bankbranchdisburse_id,
             'duedate': datetime.datetime.now().date() + datetime.timedelta(days=supplier.creditterm.daysdue),
         }
     else:

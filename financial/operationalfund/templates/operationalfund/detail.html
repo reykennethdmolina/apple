@@ -215,7 +215,7 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Response&nbsp;Date</b></span>
+                                                <span class="text-info row col-md-2 margin-right-80"><b>{% if object.approverresponse == 'D' %}Disapproval{% else %}Approval{% endif %}&nbsp;Date</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.responsedate|date:'F j, Y'|default:'N/A' }}</span>
                                             </div>

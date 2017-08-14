@@ -31,7 +31,7 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(even) {
+        .select2-container:nth-child(odd) {
             z-index: 999999;
         }
     </style>
@@ -89,6 +89,7 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_employee">Employee</label>
+                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
@@ -99,6 +100,7 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
+                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
@@ -283,6 +285,7 @@
                         <div class="modal-body" style="overflow:hidden;">
                             <div class="row">
                                 <div class="form-group col-md-12">
+                                    <span></span>
                                     <select class="form-control input-sm ajaxselect2 col-sm-12" style="width: 565px;"
                                             id="id_payeelookup" name="payeelookup">
                                     </select>
@@ -467,14 +470,21 @@
             $("#validateButton").on('click', function () {
                 var total_creditamount = $("#total_creditamount").text().replace(',', '');
                 var total_debitamount = $("#total_debitamount").text().replace(',', '');
+                var total_ofamount = $("#id_amount").val().replace(',', '');
 
                 if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
                     alert('Debit and Credit amount must not be zero');
                     return false;
                 }
                 if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
-                    alert('Debit and Credit amount be equal');
+                    alert('Debit and Credit amount must be equal');
                     return false;
+                }
+                else {
+                    if (parseFloat(total_creditamount) != parseFloat(total_ofamount)){
+                        alert('Debit and Credit amount must be equal to the OF Amount.');
+                        return false;
+                    }
                 }
                 var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
 
@@ -484,8 +494,8 @@
 
                 var validate = $('#form-b').find('div').hasClass('has-error');
 
-                if (validate) {
-                    alert('Accounts Payable is successfully created!');
+                if (!validate) {
+                    alert('OF Transaction is successfully created!');
                 }
             });
             <!-- Accounting Entry End -->
