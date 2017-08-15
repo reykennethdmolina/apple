@@ -6,11 +6,13 @@
             <div class="col-md-12">
                 <label class="col-sm-3 control-label" for="item_name">Item</label>
                 <div class="col-sm-6">
-                    <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
-                        <option value="">-- Select Item --</option>
-                        {% for invitem in invitem %}
-                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.code  }} - {{ invitem.description }}</option>
-                        {% endfor %}
+{#                    <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">#}
+{#                        <option value="">-- Select Item --</option>#}
+{#                        {% for invitem in invitem %}#}
+{#                            <option value="{{ invitem.id }}" data-itemtype="{{ invitem.inventoryitemclass.inventoryitemtype.id }}"  data-um="{{ invitem.unitofmeasure }}">{{ invitem.code  }} - {{ invitem.description }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+                    <select class="form-control input-sm" required style="width: 100%" id="id_item_name" name="item_name">
                     </select>
                     <span class="help-block form-error">{{ form.item_name.errors.as_text }}</span>
                 </div>
@@ -58,6 +60,8 @@
         </div>
     </div>
 </form>
+{% load staticfiles %}
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         summary = $("#summary tbody");
@@ -375,12 +379,14 @@
         }
 
         function filterItems(){
-            item_id = $('#id_inventoryitemtype').val();
-            $('#id_item_name').find('option').prop( "disabled", false );
-            $('#id_item_name').find('option').not('#id_item_name option[data-itemtype=' + item_id + ']').prop( "disabled", true );
-            $('#id_item_name').select2("destroy");
-            $('#id_item_name').select2();
-            $('#id_item_name').val('').trigger('change');
+            $("#id_item_name").html('');
+            item_type = $('#id_inventoryitemtype option:selected').data('code');
+            ajaxselect2("inventoryitem_" + item_type, "id_item_name");
+{#            $('#id_item_name').find('option').prop( "disabled", false );#}
+{#            $('#id_item_name').find('option').not('#id_item_name option[data-itemtype=' + item_id + ']').prop( "disabled", true );#}
+{#            $('#id_item_name').select2("destroy");#}
+{#            $('#id_item_name').select2();#}
+{#            $('#id_item_name').val('').trigger('change');#}
         }
 
         function inventorytypeimportDisable(){

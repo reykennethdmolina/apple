@@ -230,7 +230,6 @@ def breakdownentry(request):
         bankdata = []
         colspan = 1
 
-        print chartdata[0].bankaccount_enable
         if chartdata[0].bankaccount_enable == 'Y':
             bankdata = Bankaccount.objects.filter(isdeleted=0).order_by('code')
             colspan += 1
@@ -390,9 +389,6 @@ def savemaccountingentrybreakdown(request):
             balancecode = 'C'
         else:
             balancecode = 'D'
-
-        print request.POST['creditamount']
-        print request.POST['debitamount']
 
         if request.POST['creditamount']:
             detailtempbreakdown.creditamount = request.POST['creditamount'].replace(',', '')
@@ -807,9 +803,18 @@ def updatebreakentry(request):
                              data_table['sal']+'_date': str(row_date),
                              'chartofaccount': row.chartofaccount, 'particular': row.particular,
                              'bankaccount': row.bankaccount,
-                             'department': row.department, 'employee': row.employee,
+                             'department': row.department,
+                             'employee': row.employee,
+                             'employee_code': row.employee_code,
+                             'employee_lastname': row.employee_lastname,
+                             'employee_firstname': row.employee_firstname,
+                             'employee_middlename': row.employee_middlename,
                              'supplier': row.supplier,
-                             'customer': row.customer, 'unit': row.unit, 'branch': row.branch,
+                             'supplier_code': row.supplier_code,
+                             'supplier_name': row.supplier_name,
+                             'customer': row.customer,
+                             'customer_name': row.customer_name,
+                             'unit': row.unit, 'branch': row.branch,
                              'product': row.product, 'inputvat': row.inputvat,
                              'outputvat': row.outputvat,
                              'vat': row.vat, 'wtax': row.wtax, 'ataxcode': row.ataxcode,
@@ -1037,11 +1042,11 @@ def updatebreakdownstatus(request):
         stat = request.POST['stat']
         datastring = ""
         if datatype == 'C':
-            datastring = "customerbreakstatus ='" + stat + "'"
+            datastring = "customerbreakstatus =" + stat + ""
         if datatype == 'S':
-            datastring = "supplierbreakstatus ='" + stat + "'"
+            datastring = "supplierbreakstatus =" + stat + ""
         if datatype == 'E':
-            datastring = "employeebreakstatus ='" + stat + "'"
+            datastring = "employeebreakstatus =" + stat + ""
         cursor = connection.cursor()
 
         stmt = "UPDATE " + table + " SET " + datastring + "  WHERE id='" + dataid + "'"
@@ -1224,11 +1229,11 @@ def updatedetail(source, mainid, num, secretkey, by_user):
                 detail.save()
 
                 datatype = 'X'
-                if row.customerbreakstatus <> 0:
+                if row.customerbreakstatus <> 0 and row.customerbreakstatus is not None:
                     datatype = 'C'
-                if row.employeebreakstatus <> 0:
+                if row.employeebreakstatus <> 0 and row.employeebreakstatus is not None:
                     datatype = 'E'
-                if row.supplierbreakstatus <> 0:
+                if row.supplierbreakstatus <> 0 and row.supplierbreakstatus is not None:
                     datatype = 'S'
 
                 breakdowninfo = ''

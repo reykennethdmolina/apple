@@ -10,6 +10,7 @@ from employee.models import Employee
 from department.models import Department
 from customer.models import Customer
 from accountspayable.models import Apmain
+from inventoryitem.models import Inventoryitem
 
 
 @csrf_exempt
@@ -17,8 +18,20 @@ def ajaxSelect(request):
     if request.method == 'GET':
 
         # add model query here
-        if request.GET['table'] == "supplier" or request.GET['table'] == "supplier_payee":
+        if request.GET['table'] == "supplier" \
+                or request.GET['table'] == "supplier_payee" \
+                or request.GET['table'] == "supplier_notmultiple":
             items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "employee" or request.GET['table'] == "employee_notmultiple":
+            items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(firstname__icontains=request.GET['q']) |
+                                                  Q(middlename__icontains=request.GET['q']) |
+                                                  Q(lastname__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "customer" or request.GET['table'] == "customer_notmultiple":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "chartofaccount":
@@ -34,19 +47,27 @@ def ajaxSelect(request):
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
                                                         Q(title__icontains=request.GET['q'])).filter(main__in=[2, 4])
 
-        elif request.GET['table'] == "employee":
-            items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                  Q(firstname__icontains=request.GET['q']) |
-                                                  Q(middlename__icontains=request.GET['q']) |
-                                                  Q(lastname__icontains=request.GET['q']))
-
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                     Q(departmentname__icontains=request.GET['q']))
 
-        elif request.GET['table'] == "customer":
-            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
-                                                    Q(name__icontains=request.GET['q']))
+        elif request.GET['table'] == "inventoryitem_SV" \
+                or request.GET['table'] == "inventoryitem_SI" \
+                or request.GET['table'] == "inventoryitem_FA" \
+                or request.GET['table'] == "inventoryitem":
+            items = Inventoryitem.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(description__icontains=request.GET['q']))
+            if request.GET['table'] == "inventoryitem_SV":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='SV')
+            elif request.GET['table'] == "inventoryitem_SI":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='SI')
+            elif request.GET['table'] == "inventoryitem_FA":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='FA')
+
+        if request.GET['table'] == "supplier_notmultiple" \
+                or request.GET['table'] == "employee_notmultiple" \
+                or request.GET['table'] == "customer_notmultiple":
+            items = items.filter(multiplestatus='N')
 
         items = items.filter(isdeleted=0).order_by('-enterdate')
 
@@ -62,21 +83,29 @@ def ajaxSelect(request):
             q = "<b>" + request.GET['q'] + "</b>"
 
             # add model text format here
-            if request.GET['table'] == "supplier":
+            if request.GET['table'] == "supplier" \
+                    or request.GET['table'] == "supplier_notmultiple":
                 text = data.code + " - " + data.name
             elif request.GET['table'] == "supplier_payee":
+                text = data.name
+            elif request.GET['table'] == "employee" \
+                    or request.GET['table'] == "employee_notmultiple":
+                text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
+            elif request.GET['table'] == "customer" \
+                    or request.GET['table'] == "customer_notmultiple":
                 text = data.name
             elif request.GET['table'] == "chartofaccount" \
                     or request.GET['table'] == "chartofaccount_posting" \
                     or request.GET['table'] == "chartofaccount_arcode" \
                     or request.GET['table'] == "chartofaccount_revcode":
                 text = "[" + data.accountcode + "] - " + data.title
-            elif request.GET['table'] == "employee":
-                text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
             elif request.GET['table'] == "department":
                 text = data.departmentname
-            elif request.GET['table'] == "customer":
-                text = data.name
+            elif request.GET['table'] == "inventoryitem" \
+                    or request.GET['table'] == "inventoryitem_SV" \
+                    or request.GET['table'] == "inventoryitem_SI" \
+                    or request.GET['table'] == "inventoryitem_FA":
+                text = data.code + " | " + data.description
 
             newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
             newtext = newtext.sub(q.upper(), text)

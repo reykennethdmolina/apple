@@ -34,7 +34,7 @@
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="row">
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_apnum">Number</label>
@@ -287,6 +287,23 @@
         </div>
     </div>
 </div>
+
+<!-- Accounting Entry Start -->
+<div class="modal fade modal-message" id="modal-row">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Accounting Entry End -->
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
@@ -321,7 +338,9 @@
                     console.debug(response);
                 }
             });
+        });
 
+        $(document).ready(function() {
             // Accounting entry start
             $.ajax({
                 url: "{% url 'acctentry:maccountingentry' %}",
@@ -337,6 +356,7 @@
             });
 
             $("#manualbutton").unbind().click(function (){
+                console.log(123)
                 $("#entryview").show();
                 $.ajax({
                     url: "{% url 'acctentry:maccountingentry' %}",

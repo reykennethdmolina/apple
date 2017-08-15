@@ -1,3 +1,11 @@
+<style>
+    .select2-container:nth-child(odd) {
+        z-index: 999999;
+    }
+    .select2-container{
+        width: 100% !important;
+    }
+</style>
 <form class="form-horizontal" id="detailbreakdownform" method="get" action="">
 <div class="page-grid">
     <div class="row">
@@ -38,10 +46,10 @@
             <label class="col-sm-3 control-label" for="id_detailb_employee">Employee</label>
             <div class="col-sm-9">
                 <select class="form-control input-sm" id="detailb_employee" name="detailb_employee">
-                <option value="">-- Select Employee --</option>
-                {% for employee in employee %}
-                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>
-                {% endfor %}
+{#                <option value="">-- Select Employee --</option>#}
+{#                {% for employee in employee %}#}
+{#                    <option value="{{ employee.id }}">{{ employee.code }} | {{ employee.firstname }} {{ employee.lastname }}</option>#}
+{#                {% endfor %}#}
                 </select>
             </div>
         </div>
@@ -49,10 +57,10 @@
             <label class="col-sm-3 control-label" for="id_detailb_supplier">Supplier</label>
             <div class="col-sm-9">
                 <select class="form-control input-sm" id="detailb_supplier" name="detailb_supplier">
-                <option value="">-- Select Supplier --</option>
-                {% for supplier in supplier %}
-                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                {% endfor %}
+{#                <option value="">-- Select Supplier --</option>#}
+{#                {% for supplier in supplier %}#}
+{#                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>#}
+{#                {% endfor %}#}
                 </select>
             </div>
         </div>
@@ -60,10 +68,10 @@
             <label class="col-sm-3 control-label" for="id_detailb_customer">Customer</label>
             <div class="col-sm-9">
                 <select class="form-control input-sm" id="detailb_customer" name="detailb_customer">
-                <option value="">-- Select Customer --</option>
-                {% for customer in customer %}
-                    <option value="{{ customer.id }}">{{ customer.name }}</option>
-                {% endfor %}
+{#                <option value="">-- Select Customer --</option>#}
+{#                {% for customer in customer %}#}
+{#                    <option value="{{ customer.id }}">{{ customer.name }}</option>#}
+{#                {% endfor %}#}
                 </select>
             </div>
         </div>
@@ -391,6 +399,9 @@
             }
         });
 
+        ajaxselect2("employee_notmultiple", "detailb_employee");
+        ajaxselect2("supplier_notmultiple", "detailb_supplier");
+        ajaxselect2("customer_notmultiple", "detailb_customer");
     });
 
     $('#btn_updatedetailbsubmit').click(function(){

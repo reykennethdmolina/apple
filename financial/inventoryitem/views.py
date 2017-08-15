@@ -12,15 +12,27 @@ from unitofmeasure.models import Unitofmeasure
 #from django.core import serializers
 from json_views.views import JSONDataView
 
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
+
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Inventoryitem
     template_name = 'inventoryitem/index.html'
+    page_template = 'inventoryitem/index_list.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Inventoryitem.objects.all().filter(isdeleted=0).order_by('-pk')
+        query = Inventoryitem.objects.all().filter(isdeleted=0)
+
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(code__contains=keysearch) |
+                                 Q(description__contains=keysearch) |
+                                 Q(inventoryitemclass__code__contains=keysearch) |
+                                 Q(inventoryitemclass__description__contains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')

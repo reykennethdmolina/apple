@@ -56,7 +56,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('pk')
+        context['department'] = Department.objects.filter(isdeleted=0).exclude(pk=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
