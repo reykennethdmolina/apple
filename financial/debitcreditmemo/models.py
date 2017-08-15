@@ -16,8 +16,8 @@ class Dcmain(models.Model):
     )
     dcstatus = models.CharField(max_length=1, choices=DC_STATUS_CHOICES, default='F')
     DC_TYPE_CHOICES = (
-        ('D', 'Debit'),
-        ('C', 'Credit'),
+        ('D', 'Debit Memo'),
+        ('C', 'Credit Memo'),
     )
     dctype = models.CharField(max_length=1, choices=DC_TYPE_CHOICES)
     dcartype = models.ForeignKey('artype.Artype', related_name='dcmain_artype_id')
@@ -26,9 +26,6 @@ class Dcmain(models.Model):
     customer = models.ForeignKey('customer.Customer', related_name='dcmain_customer_id', null=True, blank=True)
     customer_code = models.CharField(max_length=10, null=True, blank=True)
     customer_name = models.CharField(max_length=250, null=True, blank=True)
-    employee = models.ForeignKey('employee.Employee', related_name='dcmain_employee_id', null=True, blank=True)
-    employee_code = models.CharField(max_length=10, null=True, blank=True)
-    employee_name = models.CharField(max_length=250, null=True, blank=True)
     DC_OUTPUTVATTYPE_CHOICES = (
         ('OUTV G', 'Output VAT - Goods'),
         ('OUTV S', 'Output VAT - Services'),
