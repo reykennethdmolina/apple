@@ -6,13 +6,10 @@ from django.utils.decorators import method_decorator
 from acctentry.views import generatekey, savedetail
 from artype.models import Artype
 from ataxcode.models import Ataxcode
-from bankaccount.models import Bankaccount
-from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
 from creditterm.models import Creditterm
 from currency.models import Currency
 from debitcreditmemosubtype.models import Debitcreditmemosubtype
-from inputvattype.models import Inputvattype
 from cvtype.models import Cvtype
 from supplier.models import Supplier
 from vat.models import Vat
@@ -37,7 +34,8 @@ class IndexView(ListView):
 class CreateView(CreateView):
     model = Dcmain
     template_name = 'debitcreditmemo/create.html'
-    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'customer', 'branch']
+    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'customer', 'branch', 'outputvattype',
+              'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('debitcreditmemo.add_dcmain'):
@@ -52,13 +50,8 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['dcartype'] = Artype.objects.filter(isdeleted=0).order_by('code')
         context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('code')
-        # context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        # context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-        #     order_by('first_name')
-        # context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
-        # context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        # context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        # context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
         context['secretkey'] = generatekey(self)
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         return context
