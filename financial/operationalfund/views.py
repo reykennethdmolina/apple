@@ -31,19 +31,29 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 from annoying.functions import get_object_or_None
+from endless_pagination.views import AjaxListView
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Ofmain
     template_name = 'operationalfund/index.html'
+    page_template = 'operationalfund/index_list.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Ofmain.objects.all().order_by('-enterdate')[0:10]
+        query = Ofmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(ofnum__contains=keysearch) |
+                                 Q(ofdate__contains=keysearch) |
+                                 Q(payee_name__contains=keysearch) |
+                                 Q(amount__contains=keysearch) |
+                                 Q(particulars__contains=keysearch))
+        return query
 
     def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
+        context = super(AjaxListView, self).get_context_data(**kwargs)
 
         context['listcount'] = Ofmain.objects.all().count()
         context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).count()

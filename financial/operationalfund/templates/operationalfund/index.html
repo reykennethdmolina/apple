@@ -19,213 +19,54 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
-                {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}
-                <div class="text-right"><a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a></div>
-                {% elif perms.operationalfund.add_ofmain %}
-                <div class="text-right"><a href="{% url 'operationalfund:usercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a></div>
-                {% endif  %}
-                <input type="hidden" value="{{ userrole }}" id="user_role">
-            </div>
-            <div class="col-md-12">
-                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="ofnum,ofdate,particulars,amount,ofstatus">
-                    <!-- Start Basic Table Section -->
-                    <h4><p>Data List</p></h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    <th><span>ID</span></th>
-                                    <th><span>Number</span></th>
-                                    <th><span>Date</span></th>
-                                    <th><span>Payee</span></th>
-                                    <th><span>Particulars</span></th>
-                                    <th><span>Amount</span></th>
-                                    <th><span>OF Status</span></th>
-                                    {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
-                                        {% if forapproval > 0 or perms.operationalfund.approve_allof %}
-                                            {% if canbeapproved > 0 %}
-                                                <th class="text-center"><span>Approval</span></th>
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endif %}
-                                    <th class="text-center"><span>Action</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for data in data_list %}
-                                <tr>
-                                    <td>{{ data.id }}</td>
-                                    <td>{{ data.ofnum }}</td>
-                                    <td>{{ data.ofdate|date:"Y-m-d" }}</td>
-                                    <td>{{ data.payee_name }}</td>
-                                    <td>{{ data.particulars }}</td>
-                                    <td style="text-align: right;">{{ data.amount }}</td>
-                                    <td class="tdOfStatus
-                                            {% if data.ofstatus == 'A' %} text-success
-                                            {% elif data.ofstatus == 'D' %} text-danger
-                                            {% elif data.ofstatus == 'F' %} text-info
-                                            {% elif data.ofstatus == 'R' %} text-success
-                                            {% endif %}">
-                                        <b>{{ data.get_ofstatus_display }}</b>
-                                    </td>
-                                    {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
-                                        {% if forapproval > 0 or perms.operationalfund.approve_allof %}
-                                            {% if canbeapproved > 0 %}
-                                                <td style="width: 100px;">
-                                                    <div class="text-center">
-                                                        {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
-                                                            <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
-                                                                data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
-                                                                data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">
-                                                                <i class="icon fa-check" aria-hidden="true"></i></button>
-                                                            <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"
-                                                                data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"
-                                                                data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">
-                                                                <i class="icon fa-remove" aria-hidden="true"></i></button>
-                                                        {% endif %}
-                                                    </div>
-                                                </td>
-                                            {% endif %}
-                                        {% endif %}
-{#                                            <td style="width: 100px;">#}
-{#                                                <div class="text-center">#}
-{#                                                    {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}#}
-{#                                                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"#}
-{#                                                            data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"#}
-{#                                                            data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">#}
-{#                                                            <i class="icon fa-check" aria-hidden="true"></i></button>#}
-{#                                                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove"#}
-{#                                                            data-ofid={{ data.id }} data-response="D" data-toggle="tooltip" data-placement="right"#}
-{#                                                            data-trigger="hover" data-original-title="Click to Disapprove" aria-describedby="tooltip850155">#}
-{#                                                            <i class="icon fa-remove" aria-hidden="true"></i></button>#}
-{#                                                    {% endif %}#}
-{#                                                </div>#}
-{#                                            </td>#}
-                                    {% endif %}
-                                    <td style="width: 115px; padding-left: 13px" class="action-btns-container">
-                                        <div class="iconlist-wrap auto-0">
-                                            <div class="iconlist" style="text-align: left">
-                                            <a href="{% url 'operationalfund:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
-                                            <a href="{% url 'operationalfund:cashierupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
-                                            <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% endif %}
-                                            {% if perms.operationalfund.delete_ofmain and data.isdeleted == 0 and data.status == 'A' %}
-                                            <a href="{% url 'operationalfund:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% endif %}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="text-right">
+
+                    <!-- pagination and search start -->
+                    <div id="search-container" class="row col-md-3 col-sm-4 col-xs-3">
+                        <div class="input-group">
+                            <input type="text" id="searchFilter" class="form-control" placeholder="Search...">
+                            <span class="input-group-btn">
+                                <button id="searchBtn" class="btn btn-info">
+                                    <span class="icon_search" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
                     </div>
-                    <!-- End Basic Table Section -->
+                    <!-- pagination and search end -->
+
+                    {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}
+                        <a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a>
+                    {% elif perms.operationalfund.add_ofmain %}
+                        <a href="{% url 'operationalfund:usercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a>
+                    {% endif  %}
+                    <input type="hidden" value="{{ userrole }}" id="user_role">
                 </div>
             </div>
+
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <br>
+                    {% block content %}
+                        <div class="endless_page_template">
+                        {% include page_template %}</div>
+                    {% endblock %}
+                </div>
+            </div>
+
             <div class="clearfix"></div>
         </div>
     </div>
 </div>
 {% endblock page-content %}
 {% block extra_js %}
-    <script src="{% static 'js/paginationSearchPlugin.js' %}" type="text/javascript"></script>
     <script>
-    $('.btn-approve').each(function() {
-        if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Approved"){
-            $(this).hide();
-            $(this).parent().siblings('.btn-disapprove').show();
-        }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved"){
-            $(this).show();
-            $(this).parent().siblings('.btn-approve').hide();
-        }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
-            $(this).hide();
-            $(this).parent().siblings('.btn-disapprove').hide();
-        }
-    });
-    $('.btn-disapprove').each(function() {
-        if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Approved"){
-            $(this).show();
-            $(this).parent().siblings('.btn-disapprove').hide();
-        }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved"){
-            $(this).hide();
-            $(this).parent().siblings('.btn-approve').show();
-        }
-        else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
-            $(this).hide();
-            $(this).parent().siblings('.btn-approve').hide();
-        }
-    });
-    $('.btnDelete').each(function() {
-        if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() != "For Approval"){
-            $(this).hide();
-        }
-    });
-    {% if perms.operationalfund.is_cashier %}
-        $('.btnUpdate').each(function() {
-            if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "For Approval" ||
-                $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved")
-            {
-                $(this).hide();
-                $(this).parent().find('.btnDelete').hide();
-            }
-        });
-    {% endif %}
-    $('.btn-approve, .btn-disapprove').on('click', function(){
-        if (confirm('Are you sure?')) {
-            var btnResponse = $(this);
-            $.ajax({
-                url: "{% url 'operationalfund:approve' %}",
-                type: "post",
-                data: {'ofid': $(this).data('ofid'),
-                    'response': $(this).data('response')},
-                success: function(response) {
-                    alert("OF #" + response.ofnum + " is now " + response.newofstatus.toUpperCase() + ".");
-                    switch(response.newofstatus){
-                        case 'Approved':
-                            statusClass = "text-success";
-                            break;
-                        case 'Disapproved':
-                            statusClass = "text-danger";
-                            break;
-                        default:
-                            statusClass = "text-info";
-                    }
-                    btnResponse.parent().parent()
-                            .siblings('.tdOfStatus')
-                            .html("<b>" + response.newofstatus + "</b>")
-                            .attr('class','')
-                            .addClass('tdOfStatus')
-                            .addClass(statusClass);
-                    btnResponse.hide();
-                    if(response.newofstatus == "Approved")  btnResponse.siblings('.btn-disapprove').show();
-                    else if(response.newofstatus == "Disapproved")  btnResponse.siblings('.btn-approve').show();
-                    btnResponse.parent().parent().siblings('.action-btns-container').find('.btnDelete').hide();
-                    if($('#user_role').val() == 'C' && response.newofstatus == "Approved")
-                        btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').show();
-                    else if($('#user_role').val() == 'C' && response.newofstatus == "Disapproved")
-                        btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').hide();
-                },
-                error: function(response) {
-                    console.debug(response);
-                }
-            });
-        }
-    });
+    $(function () {
+	    // ajax search and pagination
+	    $('#searchBtn').on('click', function(){
+	        $('.shade').fadeIn();
+	        setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+	        $('#dummy').trigger('click');
+	    });
+	});
     </script>
 {% endblock extra_js %}
