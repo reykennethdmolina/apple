@@ -26,10 +26,8 @@ from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetail
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
 from annoying.functions import get_object_or_None
-
-# pagination and search
 from endless_pagination.views import AjaxListView
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 # pdf
 from django.conf import settings
@@ -90,6 +88,23 @@ class IndexView(AjaxListView):
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
 
         context['pk'] = 0
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Apmain
+    template_name = 'accountspayable/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Apdetail.objects.filter(isdeleted=0).\
+            filter(apmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Apdetail.objects.filter(isdeleted=0).\
+            filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0).\
+            filter(apmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
         return context
 

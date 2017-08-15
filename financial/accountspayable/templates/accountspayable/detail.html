@@ -1,0 +1,278 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Accounts Payable {% endblock page-title %}
+{% block extra_css %}
+    <style>
+        .text-name-profile.text-info
+        {
+            width: 30%;
+        }
+        .detail-profile
+        {
+            width: 70%;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+{% load humanize %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body small">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Number&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.apnum }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.apdate|date:'Y-m-d' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">AP Type&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.aptype.code }} - {{ object.aptype.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Payee&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.payee.code }} - {{ object.payee.name }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Branch&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.branch }} - {{ object.branch.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Disbursing Branch&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.bankbranchdisburse.branch }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">VAT&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.vat }} - {{ object.vat.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">ATC&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.atax.code }}({{ object.atax.rate }})</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Disbursing Branch&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.bankbranchdisburse.branch }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Input VAT Type&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.inputvattype.code }} - {{ object.inputvattype.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Terms&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.creditterm.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Due date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.duedate|date:'Y-m-d' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Ref No.&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.refno }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Deferred&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.deferred }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Currency / FX Rate&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.currency.description }} <br> {{ object.fxrate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">AP Status&nbsp;: </span>
+                                            <span class="detail-profile
+                                                {% if object.apstatus == 'V' %}
+                                                    text-success
+                                                {% endif %}"><b>
+                                                    {{ object.get_apstatus_display }}
+                                            </b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
+                                            <span class="detail-profile text-left">{{ object.particulars }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Accounting Entry</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body">
+                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <table class="table table-striped margin-bottom-0 small" id="summary">
+                                        <thead>
+                                            <tr>
+                                                <th>Item No.</th>
+                                                <th>Chart of Account</th>
+                                                <th>Description</th>
+                                                <th>Debit</th>
+                                                <th>Credit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for detail in detail %}
+                                                <tr>
+                                                    <td>{{ detail.item_counter }}</td>
+                                                    <td>{{ detail.chartofaccount.accountcode }}</td>
+                                                    <td>{{ detail.chartofaccount.description }}</td>
+                                                    <td class="text-right">{{ detail.debitamount|intcomma }}</td>
+                                                    <td class="text-right">{{ detail.creditamount|intcomma }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6">
+                                                        <table class="table">
+                                                            <tr class="info">
+                                                                {% if detail.bankaccount %}
+                                                                <td>{{ detail.bankaccount.code }} - {{ detail.bankaccount.accountnumber }}</td>
+                                                                {% endif %}
+                                                                {% if detail.department %}
+                                                                <td>{{ detail.department.code }} - {{ detail.department.departmentname }}</td>
+                                                                {% endif %}
+                                                                {% if detail.employee %}
+                                                                <td>{{ detail.employee.code }} - {{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
+                                                                {% endif %}
+                                                                {% if detail.supplier %}
+                                                                <td>{{ detail.supplier.code }} - {{ detail.supplier.name }}</td>
+                                                                {% endif %}
+                                                                {% if detail.customer %}
+                                                                <td>{{ detail.customer.code }} - {{ detail.customer.name }}</td>
+                                                                {% endif %}
+                                                                {% if detail.unit %}
+                                                                <td>{{ detail.unit.code }} - {{ detail.unit.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.branch %}
+                                                                <td>{{ detail.branch.code }} - {{ detail.branch.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.product %}
+                                                                <td>{{ detail.product.code }} - {{ detail.product.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.inputvat %}
+                                                                <td>{{ detail.inputvat.code }} - {{ detail.inputvat.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.outputvat %}
+                                                                <td>{{ detail.outputvat.code }} - {{ detail.outputvat.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.vatcode %}
+                                                                <td>{{ detail.vatcode.code }} - {{ detail.vatcode.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.wtaxcode %}
+                                                                <td>{{ detail.wtaxcode.code }} - {{ detail.wtaxcode.description }}</td>
+                                                                {% endif %}
+                                                                {% if detail.ataxcode %}
+                                                                <td>{{ detail.ataxcode.code }} - {{ detail.ataxcode.description }}</td>
+                                                                {% endif %}
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Total</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th class="text-right">{{ totaldebitamount.debitamount__sum|intcomma }}</th>
+                                                <th class="text-right">{{ totalcreditamount.creditamount__sum|intcomma }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--  End Profile Tab Section -->
+        </div>
+        <div class="col-md-3">
+            <div class="right-box-profile">
+                <h4 class="skill-title">Activity Logs</h4>
+                <div class="panel">
+                    <div class="panel-body small">
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Created&nbsp;By:</span>
+                            <div class="univer-profile">{{ object.enterby }}</div>
+                            <div class="univer-profile">{{ object.enterdate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <span class="degree-name text-info">Modified&nbsp;By:</span>
+                            <div class="univer-profile">{{ object.modifyby }}</div>
+                            <div class="univer-profile">{{ object.modifydate }}</div>
+                        </div>
+                        <div class="master-degree">
+                            <div class="iconlist">
+                            {% if perms.accountspayable.change_apmain %}
+                            <a href="{% url 'accountspayable:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
+{#                            {% if perms.accountspayable.delete_apmain %}#}
+{#                            <a href="{% url 'accountspayable:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">#}
+{#                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">#}
+{#                                    <i class="icon_trash" aria-hidden="true"></i>#}
+{#                                </button>#}
+{#                            </a>#}
+{#                            {% endif %}#}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}

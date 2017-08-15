@@ -178,8 +178,7 @@ def ajaxSearch(request):
             elif request.POST['cache_duedate_from']:
                 items = items.filter(duedate__lte=request.POST['cache_duedate_to'])
 
-            items = items[:500]
-
+        items = items[:500]
         listitems = []
 
         for data in items:
