@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
+# Endless pagination
+# from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+# TEMPLATE_CONTEXT_PROCESSORS += (
+#     'django.core.context_processors.request',
+# )
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -27,7 +33,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'mathfilters',
     'vat',
     'wtax',
     'mainunit',
@@ -100,16 +104,28 @@ INSTALLED_APPS = [
     'jvtype',
     'employee',
     'rep_chartofaccount',
+    'rep_department',
+    'rep_supplier',
+    'rep_customer',
     'debitcreditmemosubtype',
     'acctentry',
     'purchaseorder',
+    'acknowledgementreceipt',
     'requisitionform',
     'purchaserequisitionform',
     'inventoryitemtype',
     'inventoryitemclass',
     'inventoryitem',
+    'canvasssheet',
     'rfprfapproval',
     'annoying',
+    'mathfilters',
+    'accountspayable',
+    'bankbranchdisburse',
+    'utils',
+    'operationalfund',
+    'endless_pagination',
+    'checkvoucher',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -157,8 +173,8 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_financial',
+        # 'HOST': 'localhost',
         'HOST': '128.1.44.2',
-        #'HOST': '127.0.0.1',
         'PORT': '3306',
         'USER': 'root',
         #'PASSWORD': '',
@@ -200,7 +216,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -210,6 +226,9 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [STATIC_DIR]
 STATIC_URL = '/static/'
 
+# STATIC_ROOT = "/kenmolina/financial/static"
+# WKHTMLTOPDF_CMD = "C:/Python27/Lib/site-packages/wkhtmltopdf"
+
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
@@ -217,3 +236,5 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
+
+ENDLESS_PAGINATION_PER_PAGE = 10
