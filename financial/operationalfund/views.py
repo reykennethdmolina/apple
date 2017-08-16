@@ -45,11 +45,11 @@ class IndexView(AjaxListView):
         query = Ofmain.objects.all().filter(isdeleted=0)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(ofnum__contains=keysearch) |
-                                 Q(ofdate__contains=keysearch) |
-                                 Q(payee_name__contains=keysearch) |
-                                 Q(amount__contains=keysearch) |
-                                 Q(particulars__contains=keysearch))
+            query = query.filter(Q(ofnum__icontains=keysearch) |
+                                 Q(ofdate__icontains=keysearch) |
+                                 Q(payee_name__icontains=keysearch) |
+                                 Q(amount__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch))
         return query
 
     def get_context_data(self, **kwargs):
@@ -60,6 +60,20 @@ class IndexView(AjaxListView):
         context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
         context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
 
+        # data for lookup
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = 0
+        # data for lookup
+
         return context
 
 
@@ -67,6 +81,24 @@ class IndexView(AjaxListView):
 class DetailView(DetailView):
     model = Ofmain
     template_name = 'operationalfund/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+
+        # data for lookup
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        # data for lookup
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -76,7 +108,8 @@ class CreateViewUser(CreateView):
     fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('operationalfund.add_ofmain') or request.user.has_perm('operationalfund.is_cashier'):
+        if not request.user.has_perm('operationalfund.add_ofmain'):
+            # or request.user.has_perm('operationalfund.is_cashier'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
@@ -148,19 +181,24 @@ class CreateViewCashier(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['secretkey'] = generatekey(self)
+
+        # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['secretkey'] = generatekey(self)
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = 0
+        # data for lookup
+
         return context
 
     def form_valid(self, form):
@@ -236,8 +274,8 @@ class UpdateViewUser(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1 or \
-                request.user.has_perm('operationalfund.is_cashier'):
+        if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1:
+            # or request.user.has_perm('operationalfund.is_cashier'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -307,21 +345,26 @@ class UpdateViewCashier(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
             User.objects.get(pk=self.object.actualapprover.id).last_name
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(
             pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
+
+        # data for lookup
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = self.object.pk
+        # data for lookup
+
         return context
 
     def form_valid(self, form):
