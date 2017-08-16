@@ -167,9 +167,9 @@ def ajaxSearch(request):
             if request.POST['cache_deferred']:
                 items = items.filter(deferred=str(request.POST['cache_deferred']))
             if request.POST['cache_particulars']:
-                items = items.filter(particulars__contains=str(request.POST['cache_particulars']))
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
             if request.POST['cache_refno']:
-                items = items.filter(refno__contains=str(request.POST['cache_refno']))
+                items = items.filter(refno__icontains=str(request.POST['cache_refno']))
             if request.POST['cache_duedate_from'] and request.POST['cache_duedate_to']:
                 items = items.filter(duedate__range=[request.POST['cache_duedate_from'],
                                                      request.POST['cache_duedate_to']])

@@ -28,10 +28,12 @@ class IndexView(AjaxListView):
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(code__contains=keysearch) |
-                                 Q(description__contains=keysearch) |
-                                 Q(inventoryitemclass__code__contains=keysearch) |
-                                 Q(inventoryitemclass__description__contains=keysearch))
+            query = query.filter(Q(code__icontains=keysearch) |
+                                 Q(description__icontains=keysearch) |
+                                 Q(inventoryitemclass__code__icontains=keysearch) |
+                                 Q(inventoryitemclass__description__icontains=keysearch))
+
+            print 123
         return query
 
 
