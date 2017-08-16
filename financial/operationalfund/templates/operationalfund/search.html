@@ -1,0 +1,546 @@
+<style>
+    .select2-container:nth-child(odd) {
+        z-index: 999999;
+    }
+    .select2-container{
+        width: 100% !important;
+    }
+    .select2-results__option {
+        font-size: 12px;
+    }
+    .pre-scrollable {
+        max-height: 120px;
+    }
+    #cache_table {
+        font-size: 12px;
+    }
+    #cache_table td {
+        padding: 8px;
+    }
+</style>
+<div id="searchModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <ul class="nav nav-tabs small">
+                    <li class="active"><a id="1" href="#">Basic</a></li>
+                    <li><a id="2" href="#">Advanced</a></li>
+                </ul>
+                <div class="tabContent" id="tabContent1">
+                    <div class="row">
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-8 margin-bottom-0">
+                                    <label class="control-label small">OF Num</label><br>
+                                    <div class="input-daterange">
+										<div class="input-group">
+											<span class="input-group-addon input-sm">from</span>
+											<input type="number" class="form-control input-sm" id="cache_ofnum_from" min="2017000000" max="2020000000">
+										</div>
+										<div class="input-group">
+											<span class="input-group-addon input-sm">to</span>
+											<input type="number" class="form-control input-sm" id="cache_ofnum_to" min="2017000000" max="2020000000">
+										</div>
+									</div>
+                                </div>
+                                <div class="form-group col-sm-4 margin-bottom-0">
+                                    <label class="control-label small">OF Type</label>
+                                    <select class="form-control input-sm" id="cache_oftype">
+                                        <option value="">-- Select --</option>
+                                        {% for data in oftype %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-8 margin-bottom-0">
+                                    <label class="control-label small">OF Date</label><br>
+                                    <div class="input-daterange datarange">
+										<div class="input-group">
+											<span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+											<input type="text" class="form-control input-sm datepickerfrom" id="cache_ofdate_from">
+										</div>
+										<div class="input-group">
+											<span class="input-group-addon input-sm">to</span>
+											<input type="text" class="form-control input-sm datepickerto" id="cache_ofdate_to">
+										</div>
+									</div>
+                                </div>
+                                <div class="form-group col-sm-4 margin-bottom-0">
+                                    <label class="control-label small">OF Subtype</label>
+                                    <select class="form-control input-sm" id="cache_ofsubtype">
+                                        <option value="">-- Select --</option>
+                                        {% for data in ofsubtype %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-8 margin-bottom-0">
+                                    <label class="control-label small">Payee</label>
+                                    <input type="text" class="form-control input-sm" id="cache_payee_name">
+                                </div>
+                                <div class="form-group col-sm-4 margin-bottom-0">
+                                    <label class="control-label small">Branch</label>
+                                    <select class="form-control input-sm" id="cache_branch">
+                                        <option value="">-- Select --</option>
+                                        {% for data in branch %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-8 margin-bottom-10">
+                                    <label class="control-label small">Amount</label><br>
+                                    <div class="input-daterange">
+										<div class="input-group">
+											<span class="input-group-addon input-sm">from</span>
+											<input type="text" class="form-control input-sm amount text-right" id="cache_amount_from">
+										</div>
+										<div class="input-group">
+											<span class="input-group-addon input-sm">to</span>
+											<input type="text" class="form-control input-sm amount text-right" id="cache_amount_to">
+										</div>
+									</div>
+                                </div>
+                                <div class="form-group col-sm-4 margin-bottom-10">
+                                    <label class="control-label small">OF Status</label>
+                                    <select class="form-control input-sm" id="cache_ofstatus">
+                                        <option value="">-- Select --</option>
+                                        <option value="F">For Approval</option>
+                                        <option value="A">Approved</option>
+                                        <option value="D">Disapproved</option>
+                                        <option value="I">In Process</option>
+                                        <option value="R">Released</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tabContent" id="tabContent2">
+                    <div class="row">
+                        <div class="form-group col-sm-6 margin-bottom-15">
+                            <label class="control-label small">Employee</label>
+                            <select class="form-control input-sm select2 cache_select1" id="cache_employee">
+                                <option value="">-- Select --</option>
+                                {% for data in employee %}
+                                    <option value="{{ data.id }}">{{ data.lastname }}, {{ data.firstname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-6 margin-bottom-15">
+                            <label class="control-label small">Department</label>
+                            <select class="form-control input-sm select2 cache_select1" id="cache_department">
+                                <option value="">-- Select --</option>
+                                {% for data in department %}
+                                    <option value="{{ data.id }}">[{{ data.code }}] {{ data.departmentname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">VAT</label>
+                            <select class="form-control input-sm" id="cache_vat">
+                                <option value="">-- Select --</option>
+                                {% for data in vat %}
+                                    <option value="{{ data.id }}">{{ data.code }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">Terms</label>
+                            <select class="form-control input-sm" id="cache_creditterm">
+                                <option value="">-- Select --</option>
+                                {% for data in creditterm %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-6 margin-bottom-15">
+                            <label class="control-label small">ATC</label>
+                            <select class="form-control input-sm" id="cache_atc">
+                                <option value="">-- Select --</option>
+                                {% for data in atc %}
+                                    <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">Input VAT Type</label>
+                            <select class="form-control input-sm" id="cache_inputvattype">
+                                <option value="">-- Select --</option>
+                                {% for data in inputvattype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">Deferred (Y/N)</label>
+                            <select class="form-control input-sm" id="cache_deferredvat">
+                                <option value="">-- Select --</option>
+                                <option value="Y">Yes</option>
+                                <option value="N">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">Currency</label>
+                            <select class="form-control input-sm" id="cache_currency">
+                                <option value="">-- Select --</option>
+                                {% for data in currency %}
+                                    <option value="{{ data.id }}">{{ data.symbol }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3 margin-bottom-15">
+                            <label class="control-label small">Reference No.</label>
+                            <input type="text" class="form-control input-sm" id="cache_refnum">
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <label class="control-label small">Particulars</label>
+                            <input type="text" class="form-control input-sm" id="cache_particulars">
+                        </div>
+                    </div>
+                </div>
+                <br><strong>Operational Fund</strong><br><br>
+                <div class="well well-sm pre-scrollable" style="margin-bottom: 0px">
+                    <table class="table table-striped" id="cache_table">
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger btn-sm pull-left" id="cache_clear"><i class="icon fa-refresh" aria-hidden="true"></i>&nbsp;&nbsp;Reset</button>
+                <button type="button" class="btn btn-success btn-sm" id="cache_submit"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="payee-danger" class="custom-alert danger">No results found.</div>
+{% load staticfiles %}
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script>
+    $(function() {
+        /** Modify here **/
+        /** Modify here **/
+        /** Modify here **/
+
+{#        $('.select2').select2({});#}
+
+        // var assignment
+        var update_url = "{% url 'operationalfund:cashierupdate' 0 %}";
+        var main_table = "ofmain";
+
+        // autofill forms onload
+        $(document).ready(function(){
+            if (JSON.parse(retrieveItems) != null){
+                $('#cache_table tbody').html('');
+                for (var i = 0; i < JSON.parse(retrieveItems).length; i++) {
+                    cachedfilltable(JSON.parse(retrieveItems)[i]['id'], JSON.parse(retrieveItems)[i]['text']);
+                }
+                cachedfillform(
+                        JSON.parse(retrieveFilters)[0]['fil_ofnum_from'],
+                        JSON.parse(retrieveFilters)[0]['fil_ofnum_to'],
+                        JSON.parse(retrieveFilters)[0]['fil_ofdate_from'],
+                        JSON.parse(retrieveFilters)[0]['fil_ofdate_to'],
+                        JSON.parse(retrieveFilters)[0]['fil_payee_name'],
+                        JSON.parse(retrieveFilters)[0]['fil_amount_from'],
+                        JSON.parse(retrieveFilters)[0]['fil_amount_to'],
+                        JSON.parse(retrieveFilters)[0]['fil_oftype'],
+                        JSON.parse(retrieveFilters)[0]['fil_ofsubtype'],
+                        JSON.parse(retrieveFilters)[0]['fil_branch'],
+                        JSON.parse(retrieveFilters)[0]['fil_ofstatus'],
+                        JSON.parse(retrieveFilters)[0]['fil_employee'],
+                        JSON.parse(retrieveFilters)[0]['fil_department'],
+                        JSON.parse(retrieveFilters)[0]['fil_vat'],
+                        JSON.parse(retrieveFilters)[0]['fil_creditterm'],
+                        JSON.parse(retrieveFilters)[0]['fil_atc'],
+                        JSON.parse(retrieveFilters)[0]['fil_inputvattype'],
+                        JSON.parse(retrieveFilters)[0]['fil_deferredvat'],
+                        JSON.parse(retrieveFilters)[0]['fil_currency'],
+                        JSON.parse(retrieveFilters)[0]['fil_refnum'],
+                        JSON.parse(retrieveFilters)[0]['fil_particulars']
+                );
+                cachednavlink();
+            }
+        });
+
+        // search
+        function cachedsearch() {
+            $('.shade').fadeIn();
+            url = "/utils/ajaxsearch/";
+            $.ajax({
+                url: url,
+                type: "post",
+                data: {
+                    'cache_ofnum_from': $("#cache_ofnum_from").val(),
+                    'cache_ofnum_to': $("#cache_ofnum_to").val(),
+                    'cache_ofdate_from': $("#cache_ofdate_from").val(),
+                    'cache_ofdate_to': $("#cache_ofdate_to").val(),
+                    'cache_payee_name': $("#cache_payee_name").val(),
+                    'cache_amount_from': $("#cache_amount_from").val(),
+                    'cache_amount_to': $("#cache_amount_to").val(),
+                    'cache_oftype': $("#cache_oftype").val(),
+                    'cache_ofsubtype': $("#cache_ofsubtype").val(),
+                    'cache_branch': $("#cache_branch").val(),
+                    'cache_ofstatus': $("#cache_ofstatus").val(),
+                    'cache_employee': $("#cache_employee").val(),
+                    'cache_department': $("#cache_department").val(),
+                    'cache_vat': $("#cache_vat").val(),
+                    'cache_creditterm': $("#cache_creditterm").val(),
+                    'cache_atc': $("#cache_atc").val(),
+                    'cache_inputvattype': $("#cache_inputvattype").val(),
+                    'cache_deferredvat': $("#cache_deferredvat").val(),
+                    'cache_currency': $("#cache_currency").val(),
+                    'cache_refnum': $("#cache_refnum").val(),
+                    'cache_particulars': $("#cache_particulars").val(),
+                    'table': main_table
+                },
+                success: function (response) {
+                    cachedclear();
+                    $('#cache_table tbody').html('');
+                    if (response.items.length > 0) {
+                        for (var i = 0; i < response.items.length; i++) {
+                            cachedfilltable(response.items[i].id, response.items[i].text);
+                            of_cachedItems.push({
+                                id: response.items[i].id,
+                                text: response.items[i].text
+                            });
+                        }
+                        of_cachedFilters.push({
+                                fil_ofnum_from: $("#cache_ofnum_from").val(),
+                                fil_ofnum_to: $("#cache_ofnum_to").val(),
+                                fil_ofdate_from: $("#cache_ofdate_from").val(),
+                                fil_ofdate_to: $("#cache_ofdate_to").val(),
+                                fil_payee_name: $("#cache_payee_name").val(),
+                                fil_amount_from: $("#cache_amount_from").val(),
+                                fil_amount_to: $("#cache_amount_to").val(),
+                                fil_oftype: $("#cache_oftype").val(),
+                                fil_ofsubtype: $("#cache_ofsubtype").val(),
+                                fil_branch: $("#cache_branch").val(),
+                                fil_ofstatus: $("#cache_ofstatus").val(),
+                                fil_employee: $("#cache_employee").val(),
+                                fil_department: $("#cache_department").val(),
+                                fil_vat: $("#cache_vat").val(),
+                                fil_creditterm: $("#cache_creditterm").val(),
+                                fil_atc: $("#cache_atc").val(),
+                                fil_inputvattype: $("#cache_inputvattype").val(),
+                                fil_deferredvat: $("#cache_deferredvat").val(),
+                                fil_currency: $("#cache_currency").val(),
+                                fil_refnum: $("#cache_refnum").val(),
+                                fil_particulars: $("#cache_particulars").val()
+                            });
+                        localStorage.setItem('of_cachedItems', JSON.stringify(of_cachedItems));
+                        localStorage.setItem('of_cachedFilters', JSON.stringify(of_cachedFilters));
+                        retrieveItems = localStorage.getItem('of_cachedItems');
+                        retrieveFilters = localStorage.getItem('retrieveFilters');
+                        cachednavlink();
+                    }
+                    else{
+                        customAlert($('#payee-danger'));
+                    }
+                    $('.shade').fadeOut();
+                }
+                , error: function (response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
+
+        // fill form from cache function
+        function cachedfillform(fil_ofnum_from, fil_ofnum_to, fil_ofdate_from, fil_ofdate_to, fil_payee_name, fil_amount_from,
+                                fil_amount_to, fil_oftype, fil_ofsubtype, fil_branch, fil_ofstatus, fil_employee,
+                                fil_department, fil_vat, fil_creditterm, fil_atc, fil_inputvattype, fil_deferredvat,
+                                fil_currency, fil_refnum, fil_particulars){
+            $("#cache_ofnum_from").val(fil_ofnum_from);
+            $("#cache_ofnum_to").val(fil_ofnum_to);
+            $("#cache_ofdate_from").val(fil_ofdate_from);
+            $("#cache_ofdate_to").val(fil_ofdate_to);
+            $("#cache_payee_name").val(fil_payee_name);
+            $("#cache_amount_from").val(fil_amount_from);
+            $("#cache_amount_to").val(fil_amount_to);
+            $("#cache_oftype").val(fil_oftype);
+            $("#cache_ofsubtype").val(fil_ofsubtype);
+            $("#cache_branch").val(fil_branch);
+            $("#cache_ofstatus").val(fil_ofstatus);
+            $("#cache_employee").val(fil_employee);
+            $("#cache_department").val(fil_department);
+            $("#cache_vat").val(fil_vat);
+            $("#cache_creditterm").val(fil_creditterm);
+            $("#cache_atc").val(fil_atc);
+            $("#cache_inputvattype").val(fil_inputvattype);
+            $("#cache_deferredvat").val(fil_deferredvat);
+            $("#cache_currency").val(fil_currency);
+            $("#cache_refnum").val(fil_refnum);
+            $("#cache_particulars").val(fil_particulars);
+        }
+
+        /** find all "_cachedItems" and replace with "<your_app>_cachedItems" **/
+        /** find all "_cachedFilters" and replace with "<your_app>_cachedFilters" **/
+
+        /** end of Modification **/
+        /** end of Modification **/
+        /** end of Modification **/
+
+
+
+
+
+
+
+        // tabs
+        $('#tabContent2').hide();
+        $('.nav a').click(function (e) {
+            $(this).tab('show');
+
+            var tabContent = '#tabContent' + this.id;
+            $('#tabContent1').hide();
+            $('#tabContent2').hide();
+            $(tabContent).show();
+        });
+
+        // caching
+        var of_cachedItems = [];
+        var of_cachedFilters = [];
+        var retrieveItems = localStorage.getItem('of_cachedItems');
+        var retrieveFilters = localStorage.getItem('of_cachedFilters');
+        var dummyurl;
+        var nav_stepleft, nav_stepright, nav_left, nav_right, nav_exist, nav_href, nav_id;
+
+        $('#cache_submit').on('click', function () {
+            cachedsearch();
+        });
+
+        $('#cache_clear').on('click', function(){
+            cachedfillform();
+            $('.cache_select1').val('').trigger('change.select2');
+            $('.cache_select2').html('');
+            $('#cache_table tbody').html('');
+            cachedclear();
+        });
+
+        $('.nav_btn').one('click', function(){
+            $('.shade').fadeIn();
+            nav_href = update_url;
+            switch ($(this).attr('id')) {
+                case 'nav_stepleft':
+                    nav_href = nav_href.replace(0, nav_stepleft);
+                    break;
+                case 'nav_left':
+                    nav_href = nav_href.replace(0, nav_left);
+                    break;
+                case 'nav_right':
+                    nav_href = nav_href.replace(0, nav_right);
+                    break;
+                case 'nav_stepright':
+                    nav_href = nav_href.replace(0, nav_stepright);
+                    break;
+            }
+            window.location.replace(nav_href);
+        });
+
+        $('body').on('keyup', function(e){
+            var code = e.keyCode || e.which;
+
+            //exclude btn form-control select2-search__field
+            if($(':focus').attr('class') === undefined){
+                switch(code){
+                    case 38:
+                        nav_id = $('#nav_stepleft');
+                        break;
+                    case 37:
+                        nav_id = $('#nav_left');
+                        break;
+                    case 39:
+                        nav_id = $('#nav_right');
+                        break;
+                    case 40:
+                        nav_id = $('#nav_stepright');
+                        break;
+                    default:
+                        nav_id = '';
+                }
+            }
+            else nav_id = '';
+
+            if(nav_id != ''){
+                if(nav_id.is(':enabled') && nav_id.is(':visible')){
+                    nav_id.trigger('click');
+                }
+            }
+
+        });
+
+        function cachedclear(){
+            localStorage.removeItem('of_cachedItems');
+            localStorage.removeItem('of_cachedFilters');
+            of_cachedItems = [];
+            of_cachedFilters = [];
+        }
+
+        function cachedfilltable(cachedID, cachedText){
+            $('#cache_table tbody').append("<tr>" +
+                    "<td>" +
+                        "<a href='" + update_url + "' class='openAP'>" +
+                            "<i class='icon fa-pencil' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;" +
+                            cachedID +
+                        "</a>" +
+                    "</td>" +
+                    "<td>" + cachedText + "</td>" +
+                "</tr>");
+            if(cachedID == {{ pk }}){
+                dummyurl = "#";
+                $('#cache_table tbody tr:last td:first a').remove();
+                $('#cache_table tbody tr:last td:first').html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + cachedID).parent().addClass('info');
+            }
+            else{
+                dummyurl = $('#cache_table tbody tr:last td:first a').attr("href").replace('0', cachedID);
+                $('#cache_table tbody tr:last td:first a').attr("href", dummyurl);
+            }
+        }
+
+        function cachednavlink(){
+            nav_exist = 0;
+            if (JSON.parse(retrieveItems) != null){
+                // value assignment
+                for (var i = 0; i < JSON.parse(retrieveItems).length; i++) {
+                    if(JSON.parse(retrieveItems)[i]['id'] == {{ pk }}){
+                        nav_left = i != 0 ? JSON.parse(retrieveItems)[i-1]['id'] : JSON.parse(retrieveItems)[i]['id'];
+                        nav_right = i < (JSON.parse(retrieveItems).length-1) ? JSON.parse(retrieveItems)[i+1]['id'] : JSON.parse(retrieveItems)[i]['id'];
+                        nav_exist = 1;
+                    }
+                }
+                nav_stepleft = JSON.parse(retrieveItems)[0]['id'];
+                nav_stepright = JSON.parse(retrieveItems)[JSON.parse(retrieveItems).length-1]['id'];
+
+                // disable/hide overlapping buttons
+                if(nav_stepleft == {{ pk }}) $('#nav_stepleft').prop("disabled",true);
+                else $('#nav_stepleft').prop("disabled",false);
+
+                if(nav_left == {{ pk }}) $('#nav_left').prop("disabled",true);
+                else $('#nav_left').prop("disabled",false);
+
+                if(nav_right == {{ pk }}) $('#nav_right').prop("disabled",true);
+                else $('#nav_right').prop("disabled",false);
+
+                if(nav_stepright == {{ pk }}) $('#nav_stepright').prop("disabled",true);
+                else $('#nav_stepright').prop("disabled",false);
+
+                if(nav_exist == 1) $('.nav_btn').show();
+                else $('.nav_btn').hide();
+            }
+        }
+        // caching end
+    });
+</script>

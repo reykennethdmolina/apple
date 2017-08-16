@@ -20,68 +20,31 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
-                {% if perms.checkvoucher.add_cvmain %}
-                <div class="text-right"><a href="{% url 'checkvoucher:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Check Voucher</button></a></div>
-                {% endif  %}
+                <div class="text-right">
+                    <!-- pagination and search start -->
+                    <div id="search-container" class="row col-md-3 col-sm-4 col-xs-3">
+                        <div class="input-group">
+                            <input type="text" id="searchFilter" class="form-control" placeholder="Search...">
+                            <span class="input-group-btn">
+                                <button id="searchBtn" class="btn btn-info">
+                                    <span class="icon_search" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- pagination and search end -->
+                    {% if perms.checkvoucher.add_cvmain %}
+                        <a href="{% url 'checkvoucher:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Check Voucher</button></a>
+                    {% endif  %}
+                </div>
             </div>
             <div class="col-md-12">
-                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="ofnum,ofdate,particulars,amount,ofstatus">
-                    <!-- Start Basic Table Section -->
-                    <h4><p>Data List</p></h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    <th><span>ID</span></th>
-                                    <th><span>Number</span></th>
-                                    <th><span>Date</span></th>
-                                    <th><span>Payee</span></th>
-                                    <th><span>Amount</span></th>
-                                    <th><span>CV Status</span></th>
-                                    <th class="text-center"><span>Action</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for data in data_list %}
-                                <tr>
-                                    <td>{{ data.id }}</td>
-                                    <td>{{ data.cvnum }}</td>
-                                    <td>{{ data.cvdate|date:"Y-m-d" }}</td>
-                                    <td>{{ data.payee_name }}</td>
-                                    <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
-                                    <td class="tdOfStatus
-                                            {% if data.cvstatus == 'A' %} text-success
-                                            {% elif data.cvstatus == 'D' %} text-danger
-                                            {% elif data.cvstatus == 'F' %} text-info
-                                            {% elif data.cvstatus == 'R' %} text-success
-                                            {% endif %}">
-                                        <b>{{ data.get_cvstatus_display }}</b>
-                                    </td>
-                                    <td style="width: 115px; padding-left: 13px" class="action-btns-container">
-                                        <div class="iconlist-wrap auto-0">
-                                            <div class="iconlist" style="text-align: left">
-                                            <a href="{% url 'checkvoucher:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% if perms.checkvoucher.change_cvmain and data.isdeleted == 0 %}
-                                            <a href="{% url 'checkvoucher:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% endif %}
-                                            {% if perms.checkvoucher.delete_cvmain and data.isdeleted == 0 and data.status == 'A' %}
-                                            <a href="{% url 'checkvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
-                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
-                                            </a>
-                                            {% endif %}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- End Basic Table Section -->
+                <div class="page-wrap">
+                    <br>
+                    {% block content %}
+                        <div class="endless_page_template">
+                        {% include page_template %}</div>
+                    {% endblock %}
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -90,5 +53,14 @@
 </div>
 {% endblock page-content %}
 {% block extra_js %}
-    <script src="{% static 'js/paginationSearchPlugin.js' %}" type="text/javascript"></script>
+<script>
+    $(function () {
+        // ajax search and pagination
+        $('#searchBtn').on('click', function(){
+            $('.shade').fadeIn();
+            setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+            $('#dummy').trigger('click');
+        });
+    });
+</script>
 {% endblock extra_js %}

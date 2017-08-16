@@ -31,7 +31,7 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(even) {
+        .select2-container:nth-child(odd) {
             z-index: 999999;
         }
     </style>
@@ -40,7 +40,26 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
-                    <h3 class="panel-title" style="padding:10px 10px 15px 25px;">UPDATE</h3>
+                    <h3 class="panel-title" style="padding:5px 10px 20px 25px;">UPDATE
+                        <div class="btn-group pull-right">
+                            <div class="shade"><div class="loader loader-sm two-color"></div></div>
+                            <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-search" aria-hidden="true"></i> Search
+                            </button>
+                            <button id="nav_stepleft" class="btn btn-default nav_btn small">
+                                <i class="icon fa-step-backward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_left" class="btn btn-default nav_btn small">
+                                <i class="icon fa-backward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_right" class="btn btn-default nav_btn small">
+                                <i class="icon fa-forward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_stepright" class="btn btn-default nav_btn small">
+                                <i class="icon icon fa-step-forward" aria-hidden="true"></i>
+                            </button>
+						</div>
+                    </h3>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <div class="col-sm-12">
@@ -90,6 +109,7 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_employee">Employee</label>
+                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
@@ -100,6 +120,7 @@
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
+                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
@@ -313,6 +334,7 @@
         </div>
     </div>
 </div>
+{% include "operationalfund/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
@@ -17,17 +17,27 @@ from . models import Cvmain
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from endless_pagination.views import AjaxListView
 import datetime
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Cvmain
     template_name = 'checkvoucher/index.html'
+    page_template = 'checkvoucher/index_list.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Cvmain.objects.all().order_by('-enterdate')[0:10]
+        query = Cvmain.objects.all().filter(isdeleted=0)
+
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(cvnum__icontains=keysearch) |
+                                 Q(cvdate__icontains=keysearch) |
+                                 Q(payee_name__icontains=keysearch) |
+                                 Q(amount__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -223,7 +233,7 @@ class DeleteView(DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not request.user.has_perm('checkvoucher.delete_cvmain') or self.object.status == 'O' \
-                or self.object.cvstatus == 'A':
+                or self.object.cvstatus == 'A' or self.object.cvstatus == 'I' or self.object.cvstatus == 'R':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

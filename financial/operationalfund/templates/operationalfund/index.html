@@ -1,7 +1,9 @@
 {% extends 'base-form.html' %}
+{% load staticfiles %}
 {% block page-title %} Operational Fund {% endblock page-title %}
 {% block extra_css %}
-    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
 {#        .iconlist {#}
 {#            text-align: left;#}
@@ -34,9 +36,15 @@
                     </div>
                     <!-- pagination and search end -->
 
-                    {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}
-                        <a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a>
-                    {% elif perms.operationalfund.add_ofmain %}
+                    {% if perms.operationalfund.change_ofmain and perms.operationalfund.is_cashier %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                        </button>
+                    {% endif %}
+
+{#                    {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}#}
+{#                        <a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a>#}
+                    {% if perms.operationalfund.add_ofmain %}
                         <a href="{% url 'operationalfund:usercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a>
                     {% endif  %}
                     <input type="hidden" value="{{ userrole }}" id="user_role">
@@ -57,16 +65,31 @@
         </div>
     </div>
 </div>
+{% include "operationalfund/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
     $(function () {
+        $('.select2').select2({});
 	    // ajax search and pagination
 	    $('#searchBtn').on('click', function(){
 	        $('.shade').fadeIn();
 	        setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
 	        $('#dummy').trigger('click');
 	    });
+        $('body').on('keyup', function(e){
+            var search_code = e.keyCode || e.which;
+            if(search_code == 13 && $(':focus').attr('id') == "searchFilter"){
+                $('#searchBtn').trigger('click');
+            }
+        });
 	});
     </script>
 {% endblock extra_js %}

@@ -108,8 +108,9 @@ class CreateViewUser(CreateView):
     fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
+        # if not request.user.has_perm('operationalfund.add_ofmain') or \
+        #     request.user.has_perm('operationalfund.is_cashier'):
         if not request.user.has_perm('operationalfund.add_ofmain'):
-            # or request.user.has_perm('operationalfund.is_cashier'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
@@ -175,9 +176,10 @@ class CreateViewCashier(CreateView):
               'inputvattype', 'deferredvat', 'currency', 'fxrate', 'employee', 'department', 'branch']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('operationalfund.add_ofmain') or not request.user.has_perm('operationalfund.is_cashier'):
-            raise Http404
-        return super(CreateView, self).dispatch(request, *args, **kwargs)
+        # if not request.user.has_perm('operationalfund.add_ofmain') or \
+        #         not request.user.has_perm('operationalfund.is_cashier'):
+        raise Http404
+        # return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -274,9 +276,14 @@ class UpdateViewUser(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1:
-            # or request.user.has_perm('operationalfund.is_cashier'):
+        # if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1 or \
+        #         request.user.has_perm('operationalfund.is_cashier'):
+        #     if not request.user.username == 'admin':
+        if not request.user.has_perm('operationalfund.change_ofmain'):
             raise Http404
+        elif request.user.has_perm('operationalfund.is_cashier'):
+            if self.object.ofstatus != 'F' and self.object.ofstatus != 'D' and request.user.username != 'admin':
+                raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -431,7 +438,7 @@ class DeleteView(DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not request.user.has_perm('operationalfund.delete_ofmain') or self.object.status == 'O' \
-                or self.object.ofstatus == 'A':
+                or self.object.ofstatus != 'F':
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

@@ -11,6 +11,7 @@ from department.models import Department
 from customer.models import Customer
 from accountspayable.models import Apmain
 from inventoryitem.models import Inventoryitem
+from operationalfund.models import Ofmain
 
 
 @csrf_exempt
@@ -178,12 +179,73 @@ def ajaxSearch(request):
             elif request.POST['cache_duedate_from']:
                 items = items.filter(duedate__lte=request.POST['cache_duedate_to'])
 
+        elif request.POST['table'] == "ofmain":
+            items = Ofmain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.user.has_perm('operationalfund.is_cashier'):
+                items = items.filter(Q(ofstatus='A') | Q(ofstatus='I') | Q(ofstatus='R'))
+
+            print request.POST['cache_ofnum_from']
+
+            if request.POST['cache_ofnum_from'] and request.POST['cache_ofnum_to']:
+                items = items.filter(ofnum__range=[int(request.POST['cache_ofnum_from']),
+                                                   int(request.POST['cache_ofnum_to'])])
+            elif request.POST['cache_ofnum_from']:
+                items = items.filter(ofnum__gte=int(request.POST['cache_ofnum_from']))
+            elif request.POST['cache_ofnum_to']:
+                items = items.filter(ofnum__lte=int(request.POST['cache_ofnum_to']))
+            if request.POST['cache_ofdate_from'] and request.POST['cache_ofdate_to']:
+                items = items.filter(ofdate__range=[request.POST['cache_ofdate_from'],
+                                                    request.POST['cache_ofdate_to']])
+            elif request.POST['cache_ofdate_from']:
+                items = items.filter(ofdate__gte=request.POST['cache_ofdate_from'])
+            elif request.POST['cache_ofdate_to']:
+                items = items.filter(ofdate__lte=request.POST['cache_ofdate_to'])
+            if request.POST['cache_payee_name']:
+                items = items.filter(payee_name__icontains=str(request.POST['cache_payee_name']))
+            if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
+                items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
+                                                    request.POST['cache_amount_to'].replace(',', '')])
+            elif request.POST['cache_amount_from']:
+                items = items.filter(amount__gte=request.POST['cache_amount_from'].replace(',', ''))
+            elif request.POST['cache_amount_to']:
+                items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
+            if request.POST['cache_oftype']:
+                items = items.filter(oftype=int(request.POST['cache_oftype']))
+            if request.POST['cache_ofsubtype']:
+                items = items.filter(ofsubtype=int(request.POST['cache_ofsubtype']))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_ofstatus']:
+                items = items.filter(ofstatus=str(request.POST['cache_ofstatus']))
+            if request.POST['cache_employee']:
+                items = items.filter(employee=int(request.POST['cache_employee']))
+            if request.POST['cache_department']:
+                items = items.filter(department=int(request.POST['cache_department']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_creditterm']:
+                items = items.filter(creditterm=int(request.POST['cache_creditterm']))
+            if request.POST['cache_atc']:
+                items = items.filter(atc=int(request.POST['cache_atc']))
+            if request.POST['cache_inputvattype']:
+                items = items.filter(inputvattype=int(request.POST['cache_inputvattype']))
+            if request.POST['cache_deferredvat']:
+                items = items.filter(deferredvat=str(request.POST['cache_deferredvat']))
+            if request.POST['cache_currency']:
+                items = items.filter(currency=int(request.POST['cache_currency']))
+            if request.POST['cache_refnum']:
+                items = items.filter(refnum__icontains=str(request.POST['cache_refnum']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+
         items = items[:500]
         listitems = []
 
         for data in items:
             if request.POST['table'] == "apmain":
                 listitems.append({'text': data.apnum, 'id': data.id})
+            elif request.POST['table'] == "ofmain":
+                listitems.append({'text': data.ofnum, 'id': data.id})
 
         data = {
             'status': 'success',
