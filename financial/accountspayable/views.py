@@ -86,7 +86,6 @@ class IndexView(AjaxListView):
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
-
         context['pk'] = 0
 
         return context
@@ -105,6 +104,15 @@ class DetailView(DetailView):
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0).\
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        #lookup
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
+        context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
+        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
+        context['pk'] = 0
 
         return context
 

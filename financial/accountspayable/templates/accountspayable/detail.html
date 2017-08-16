@@ -1,6 +1,7 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Accounts Payable {% endblock page-title %}
 {% block extra_css %}
+    {% include "accountspayable/createcss.html" %}
     <style>
         .text-name-profile.text-info
         {
@@ -21,6 +22,12 @@
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
+
+                    {% if perms.accountspayable.change_apmain %}
+                        <button class="btn btn-info btn-sm pull-right" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Search
+                        </button>
+                    {% endif %}
                 </ul>
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
@@ -275,4 +282,12 @@
         </div>
     </div>
 </div>
+{% load staticfiles %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+{% endblock extra_js %}
+{% include "accountspayable/search.html" %}
 {% endblock page-content %}

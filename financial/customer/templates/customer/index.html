@@ -52,6 +52,12 @@
                 setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
                 $('#dummy').trigger('click');
             });
+            $('body').on('keyup', function(e){
+                var search_code = e.keyCode || e.which;
+                if(search_code == 13 && $(':focus').attr('id') == "searchFilter"){
+                    $('#searchBtn').trigger('click');
+                }
+            });
         });
     </script>
 {% endblock extra_js %}
