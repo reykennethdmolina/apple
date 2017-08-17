@@ -35,7 +35,7 @@
 {% block page-content %}
 <div class="page-content container-fluid page">
     <div class="row">
-        <div class="row col-md-8">
+        <div class="row col-md-12">
             <div class="col-md-12">
                 <!-- Start Profile Tab Section -->
                 <div class="nav-tabs nav-tabs-animate border-profile">
@@ -262,7 +262,8 @@
                 </div>
             </div>
         </div>
-        <div class="row col-md-4">
+        {% include "acctentry/datatabledetail.html" %}
+        <div class="row col-md-3">
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">

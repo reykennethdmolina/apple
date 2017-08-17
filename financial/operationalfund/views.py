@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
@@ -85,6 +85,12 @@ class DetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Ofdetail.objects.filter(isdeleted=0).\
+            filter(ofmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ofdetail.objects.filter(isdeleted=0).\
+            filter(ofmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ofdetail.objects.filter(isdeleted=0).\
+            filter(ofmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')

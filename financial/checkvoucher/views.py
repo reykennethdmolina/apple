@@ -1,6 +1,6 @@
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
@@ -47,6 +47,17 @@ class IndexView(AjaxListView):
 class DetailView(DetailView):
     model = Cvmain
     template_name = 'checkvoucher/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Cvdetail.objects.filter(isdeleted=0).\
+            filter(cvmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Cvdetail.objects.filter(isdeleted=0).\
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0).\
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')

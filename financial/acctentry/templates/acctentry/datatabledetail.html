@@ -1,0 +1,157 @@
+{% load humanize %}
+<div class="col-md-9">
+    <div class="nav-tabs nav-tabs-animate border-profile">
+        <ul class="nav nav-tabs nav-profile">
+            <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Accounting Entry</a></li>
+        </ul>
+        <div class="tab-content padding-top-0">
+            <div class="tab-pane active" id="profiles" role="tabpanel">
+                <div class="panel top-profile skill-profile margin-bottom-25">
+                    <div class="panel-body">
+                        <!-- <h4 class="list-title">Personal Information</h4> -->
+
+                        <style>
+                            #summary{
+                                font-size: 13px;
+                            }
+                            #summary td{
+                                padding: 8px;
+                            }
+                            .breaktabledata {
+                                font-size: 12px;
+                            }
+                            table.breaktabledata>tbody>tr>td {
+                                border: none !important;
+                                height: 30px !important;
+                                padding: 21px !important;
+                                padding-top: 12px !important;
+                                padding-bottom: 12px !important;
+                            }
+                        </style>
+                        <table class="table margin-bottom-0 small" id="summary">
+                                <thead>
+                                    <tr>
+                                        <th width="55px"></th>
+                                        <th>Chart of Account</th>
+                                        <th>Title</th>
+                                        <th style="text-align: right;">Debit&nbsp;</th>
+                                        <th style="text-align: right;">Credit&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for detail in detail %}
+                                        <tr style="background-color: #f9f9f9;">
+                                            <td width="55px">{{ detail.item_counter }}</td>
+                                            <td style="border-right: 1px solid #e0e0e0">{{ detail.chartofaccount.accountcode }}</td>
+                                            <td style="border-right: 1px solid #e0e0e0">{{ detail.chartofaccount.title }}</td>
+                                            <td class="text-right warning" style="border-right: 1px solid #e0e0e0">{{ detail.debitamount|intcomma }}</td>
+                                            <td class="text-right warning" style="border-right: 1px solid #e0e0e0">{{ detail.creditamount|intcomma }}</td>
+                                        </tr>
+                                        {% if detail.bankaccount or detail.department or detail.employee or detail.supplier or detail.customer or detail.unit or detail.branch or detail.product or detail.inputvat.code or detail.outputvat.code or detail.vatcode.code or detail.wtaxcode.code or detail.ataxcode.code %}
+                                        <tr>
+                                            <td colspan="6" style="padding: 0px;">
+                                                <table class="table breaktabledata">
+                                                    <tr>
+                                                        <td width="5%"></td>
+                                                        {% if detail.bankaccount %}
+                                                        <td>
+                                                            <small><b>Account no.</b></small><br>
+                                                            {{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.department %}
+                                                        <td>
+                                                            <small><b>Department</b></small><br>
+                                                            {{ detail.department.departmentname }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.employee %}
+                                                        <td>
+                                                            <small><b>Employee</b></small><br>
+                                                            {{ detail.employee.firstname }} {{ detail.employee.lastname }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.supplier %}
+                                                        <td>
+                                                            <small><b>Supplier</b></small><br>
+                                                            {{ detail.supplier.name }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.customer %}
+                                                        <td>
+                                                            <small><b>Customer</b></small><br>
+                                                            {{ detail.customer.name }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.unit %}
+                                                        <td>
+                                                            <small><b>Unit</b></small><br>
+                                                            {{ detail.unit.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.branch %}
+                                                        <td>
+                                                            <small><b>Branch</b></small><br>
+                                                            {{ detail.branch.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.product %}
+                                                        <td>
+                                                            <small><b>Product/b></small><br>
+                                                            {{ detail.product.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.inputvat %}
+                                                        <td>
+                                                            <small><b>Input VAT</b></small><br>
+                                                            {{ detail.inputvat.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.outputvat %}
+                                                        <td>
+                                                            <small><b>Output VAT</b></small><br>
+                                                            {{ detail.outputvat.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.vatcode %}
+                                                        <td>
+                                                            <small><b>VAT</b></small><br>
+                                                            {{ detail.vatcode.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.wtaxcode %}
+                                                        <td>
+                                                            <small><b>WTax</b></small><br>
+                                                            {{ detail.wtaxcode.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                        {% if detail.ataxcode %}
+                                                        <td>
+                                                            <small><b>ATax</b></small><br>
+                                                            {{ detail.ataxcode.description }}
+                                                        </td>
+                                                        {% endif %}
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="text-right">{{ totaldebitamount.debitamount__sum|intcomma }}</th>
+                                        <th class="text-right">{{ totalcreditamount.creditamount__sum|intcomma }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  End Profile Tab Section -->
+</div>
