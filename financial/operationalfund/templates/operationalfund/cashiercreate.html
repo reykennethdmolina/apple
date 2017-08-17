@@ -31,9 +31,6 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(odd) {
-            z-index: 999999;
-        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -95,7 +92,6 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_employee">Employee</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
@@ -106,7 +102,6 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
@@ -291,7 +286,6 @@
                         <div class="modal-body" style="overflow:hidden;">
                             <div class="row">
                                 <div class="form-group col-md-12">
-                                    <span></span>
                                     <select class="form-control input-sm ajaxselect2 col-sm-12" style="width: 565px;"
                                             id="id_payeelookup" name="payeelookup">
                                     </select>
