@@ -198,3 +198,8 @@ div.has-error ul.select2-choices {
     /*padding: 5px 10px;*/
     /*font-size: 12px;*/
 /*}*/
+
+/*select2 dropdown index*/
+.select2-dropdown{
+    z-index: 999999 !important;
+}
