@@ -291,9 +291,28 @@ class UpdateViewUser(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(pk=self.object.id).payee is not None else ''
+        context['payee'] = Ofmain.objects.get(
+            pk=self.object.id).payee.id if Ofmain.objects.get(
+            pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['ofstatus'] = Ofmain.objects.get(pk=self.object.id).get_ofstatus_display()
+        context['assignedcashier'] = Ofmain.objects.get(
+            pk=self.object.id).receiveby.first_name + ' ' + Ofmain.objects.get(
+            pk=self.object.id).receiveby.last_name if Ofmain.objects.get(pk=self.object.id).receiveby else None
+        context['actualapprover'] = Ofmain.objects.get(
+            pk=self.object.id).actualapprover.first_name + ' ' + Ofmain.objects.get(
+            pk=self.object.id).actualapprover.last_name if Ofmain.objects.get(
+            pk=self.object.id).actualapprover else None
+        context['responsedate'] = Ofmain.objects.get(
+            pk=self.object.id).responsedate if Ofmain.objects.get(pk=self.object.id).responsedate else None
+        context['approverresponse'] = Ofmain.objects.get(
+            pk=self.object.id).approverresponse if Ofmain.objects.get(pk=self.object.id).approverresponse else None
+        context['releasedto'] = Ofmain.objects.get(
+            pk=self.object.id).paymentreceivedby.firstname + ' ' + Ofmain.objects.get(
+            pk=self.object.id).paymentreceivedby.lastname if Ofmain.objects.get(
+            pk=self.object.id).paymentreceivedby else None
+        context['releasedate'] = Ofmain.objects.get(
+            pk=self.object.id).releasedate if Ofmain.objects.get(pk=self.object.id).releasedate else None
         return context
 
     def form_valid(self, form):
@@ -490,10 +509,11 @@ class UpdateViewCashier(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+            # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
             self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
                                             'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
-                                            'fxrate', 'branch', 'ofstatus', 'employee', 'department', 'remarks', 'payee',
-                                            'payee_code', 'payee_name', 'modifyby', 'modifydate', 'vatrate', 'atcrate'])
+                                            'fxrate', 'branch', 'ofstatus', 'remarks', 'modifyby', 'modifydate',
+                                            'vatrate', 'atcrate'])
 
             # revert status from RELEASED to In Process if no release date is saved
             if self.object.ofstatus == 'R' and self.object.releasedate is None:

@@ -34,6 +34,14 @@ class Companyparameter(models.Model):
     wtaxsign_name = models.CharField(max_length=50, blank=True, null=True)
     wtaxsign_tin = models.CharField(max_length=20, blank=True, null=True)
     wtaxsign_position = models.CharField(max_length=20, blank=True, null=True)
+
+    # defaults for accounting entries
+    coa_cashinbank = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_cashinbank',
+                                       blank=True, null=True)
+    coa_inputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_inputvat',
+                                     blank=True, null=True)
+    # defaults for accounting entries
+
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
