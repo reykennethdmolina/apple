@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
-from acctentry.views import generatekey, savedetail
 from ataxcode.models import Ataxcode
 from branch.models import Branch
 from creditterm.models import Creditterm
@@ -26,6 +25,8 @@ from product.models import Product
 from inputvat.models import Inputvat
 from outputvat.models import Outputvat
 from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -348,6 +349,91 @@ class UpdateViewCashier(UpdateView):
                                                 'paymentreceiveddate'])
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    # accounting entry starts here
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
+
+        detailinfo = Ofdetail.objects.filter(ofmain=self.object.pk).order_by('item_counter')
+
+        for drow in detailinfo:
+            detail = Ofdetailtemp()
+            detail.secretkey = self.mysecretkey
+            detail.of_num = drow.of_num
+            detail.ofmain = drow.ofmain_id
+            detail.ofdetail = drow.pk
+            detail.item_counter = drow.item_counter
+            detail.of_date = drow.of_date
+            detail.chartofaccount = drow.chartofaccount_id
+            detail.bankaccount = drow.bankaccount_id
+            detail.employee = drow.employee_id
+            detail.supplier = drow.supplier_id
+            detail.customer = drow.customer_id
+            detail.department = drow.department_id
+            detail.unit = drow.unit_id
+            detail.branch = drow.branch_id
+            detail.product = drow.product_id
+            detail.inputvat = drow.inputvat_id
+            detail.outputvat = drow.outputvat_id
+            detail.vat = drow.vat_id
+            detail.wtax = drow.wtax_id
+            detail.ataxcode = drow.ataxcode_id
+            detail.debitamount = drow.debitamount
+            detail.creditamount = drow.creditamount
+            detail.balancecode = drow.balancecode
+            detail.customerbreakstatus = drow.customerbreakstatus
+            detail.supplierbreakstatus = drow.supplierbreakstatus
+            detail.employeebreakstatus = drow.employeebreakstatus
+            detail.isdeleted = 0
+            detail.modifyby = self.request.user
+            detail.enterby = self.request.user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
+
+            detailtempid = detail.id
+
+            breakinfo = Ofdetailbreakdown.objects. \
+                filter(ofdetail_id=drow.id).order_by('pk', 'datatype')
+            if breakinfo:
+                for brow in breakinfo:
+                    breakdown = Ofdetailbreakdowntemp()
+                    breakdown.of_num = drow.of_num
+                    breakdown.secretkey = self.mysecretkey
+                    breakdown.ofmain = drow.ofmain_id
+                    breakdown.ofdetail = drow.pk
+                    breakdown.ofdetailtemp = detailtempid
+                    breakdown.ofdetailbreakdown = brow.pk
+                    breakdown.item_counter = brow.item_counter
+                    breakdown.of_date = brow.of_date
+                    breakdown.chartofaccount = brow.chartofaccount_id
+                    breakdown.particular = brow.particular
+                    # Return None if object is empty
+                    breakdown.bankaccount = brow.bankaccount_id
+                    breakdown.employee = brow.employee_id
+                    breakdown.supplier = brow.supplier_id
+                    breakdown.customer = brow.customer_id
+                    breakdown.department = brow.department_id
+                    breakdown.unit = brow.unit_id
+                    breakdown.branch = brow.branch_id
+                    breakdown.product = brow.product_id
+                    breakdown.inputvat = brow.inputvat_id
+                    breakdown.outputvat = brow.outputvat_id
+                    breakdown.vat = brow.vat_id
+                    breakdown.wtax = brow.wtax_id
+                    breakdown.ataxcode = brow.ataxcode_id
+                    breakdown.debitamount = brow.debitamount
+                    breakdown.creditamount = brow.creditamount
+                    breakdown.balancecode = brow.balancecode
+                    breakdown.datatype = brow.datatype
+                    breakdown.customerbreakstatus = brow.customerbreakstatus
+                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                    breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.isdeleted = 0
+                    breakdown.modifyby = self.request.user
+                    breakdown.enterby = self.request.user
+                    breakdown.modifydate = datetime.datetime.now()
+                    breakdown.save()
+                    # accounting entry ends here
+
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
@@ -371,6 +457,19 @@ class UpdateViewCashier(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         # data for lookup
+
+        # accounting entry starts here
+        context['secretkey'] = self.mysecretkey
+        contextdatatable = {
+            # to be used by accounting entry on load
+            'tabledetailtemp': 'ofdetailtemp',
+            'tablebreakdowntemp': 'ofdetailbreakdowntemp',
+
+            'datatemp': querystmtdetail('ofdetailtemp', self.mysecretkey),
+            'datatemptotal': querytotaldetail('ofdetailtemp', self.mysecretkey),
+        }
+        context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
+        # accounting entry ends here
 
         return context
 
@@ -426,6 +525,13 @@ class UpdateViewCashier(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+
+        # accounting entry starts here..
+        source = 'ofdetailtemp'
+        mainid = self.object.id
+        num = self.object.ofnum
+        secretkey = self.request.POST['secretkey']
+        updatedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 
