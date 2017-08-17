@@ -40,6 +40,7 @@ class Companyparameter(models.Model):
                                        blank=True, null=True)
     coa_inputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_inputvat',
                                      blank=True, null=True)
+    def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')

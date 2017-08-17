@@ -10,6 +10,7 @@ class Branch(models.Model):
     description = models.CharField(max_length=250)
     lastsino = models.CharField(max_length=10, blank=True, null=True)
     lastorno = models.CharField(max_length=10, blank=True, null=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='branch_bankaccount', blank=True, null=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
