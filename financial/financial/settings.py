@@ -119,6 +119,9 @@ INSTALLED_APPS = [
     'canvasssheet',
     'rfprfapproval',
     'annoying',
+    'debitcreditmemo',
+    'agenttype',
+    'agent',
     'mathfilters',
     'accountspayable',
     'bankbranchdisburse',
@@ -238,3 +241,4 @@ LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 
 ENDLESS_PAGINATION_PER_PAGE = 10
+

@@ -68,6 +68,9 @@ urlpatterns = [
     url(r'^rfprfapproval/', include('rfprfapproval.urls', app_name='rfprfapproval', namespace='rfprfapproval')),
     url(r'^operationalfund/', include('operationalfund.urls', app_name='operationalfund', namespace='operationalfund')),
     url(r'^checkvoucher/', include('checkvoucher.urls', app_name='checkvoucher', namespace='checkvoucher')),
+    url(r'^debitcreditmemo/', include('debitcreditmemo.urls', app_name='debitcreditmemo', namespace='debitcreditmemo')),
+    url(r'^agenttype/', include('agenttype.urls', app_name='agenttype', namespace='agenttype')),
+    url(r'^agent/', include('agent.urls', app_name='agent', namespace='agent')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

@@ -31,7 +31,7 @@
         .input-search {
             z-index: 99;
         }
-        .select2-container:nth-child(odd) {
+        .select2-container:nth-child(even) {
             z-index: 999999;
         }
     </style>
@@ -110,7 +110,6 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_employee">Employee</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
                                         <option value="">-- Select --</option>
                                         {% for employee in employee %}
@@ -121,7 +120,6 @@
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
-                                    <span></span>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
                                         {% for department in department %}
