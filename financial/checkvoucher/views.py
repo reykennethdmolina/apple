@@ -18,6 +18,9 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
+from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from django.template.loader import render_to_string
 import datetime
 
 
@@ -61,6 +64,7 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
+        context['secretkey'] = generatekey(self)
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
@@ -114,6 +118,13 @@ class CreateView(CreateView):
         self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
         self.object.save()
 
+        # accounting entry starts here..
+        source = 'cvdetailtemp'
+        mainid = self.object.id
+        num = self.object.cvnum
+        secretkey = self.request.POST['secretkey']
+        savedetail(source, mainid, num, secretkey, self.request.user)
+
         return HttpResponseRedirect('/checkvoucher/' + str(self.object.id) + '/update')
 
 
@@ -130,6 +141,91 @@ class UpdateView(UpdateView):
         if not request.user.has_perm('checkvoucher.change_cvmain') or self.object.isdeleted == 1:
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    # accounting entry starts here
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
+
+        detailinfo = Cvdetail.objects.filter(cvmain=self.object.pk).order_by('item_counter')
+
+        for drow in detailinfo:
+            detail = Cvdetailtemp()
+            detail.secretkey = self.mysecretkey
+            detail.cv_num = drow.cv_num
+            detail.cvmain = drow.cvmain_id
+            detail.cvdetail = drow.pk
+            detail.item_counter = drow.item_counter
+            detail.cv_date = drow.cv_date
+            detail.chartofaccount = drow.chartofaccount_id
+            detail.bankaccount = drow.bankaccount_id
+            detail.employee = drow.employee_id
+            detail.supplier = drow.supplier_id
+            detail.customer = drow.customer_id
+            detail.department = drow.department_id
+            detail.unit = drow.unit_id
+            detail.branch = drow.branch_id
+            detail.product = drow.product_id
+            detail.inputvat = drow.inputvat_id
+            detail.outputvat = drow.outputvat_id
+            detail.vat = drow.vat_id
+            detail.wtax = drow.wtax_id
+            detail.ataxcode = drow.ataxcode_id
+            detail.debitamount = drow.debitamount
+            detail.creditamount = drow.creditamount
+            detail.balancecode = drow.balancecode
+            detail.customerbreakstatus = drow.customerbreakstatus
+            detail.supplierbreakstatus = drow.supplierbreakstatus
+            detail.employeebreakstatus = drow.employeebreakstatus
+            detail.isdeleted = 0
+            detail.modifyby = self.request.user
+            detail.enterby = self.request.user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
+
+            detailtempid = detail.id
+
+            breakinfo = Cvdetailbreakdown.objects.\
+                filter(cvdetail_id=drow.id).order_by('pk', 'datatype')
+            if breakinfo:
+                for brow in breakinfo:
+                    breakdown = Cvdetailbreakdowntemp()
+                    breakdown.cv_num = drow.cv_num
+                    breakdown.secretkey = self.mysecretkey
+                    breakdown.cvmain = drow.cvmain_id
+                    breakdown.cvdetail = drow.pk
+                    breakdown.cvdetailtemp = detailtempid
+                    breakdown.cvdetailbreakdown = brow.pk
+                    breakdown.item_counter = brow.item_counter
+                    breakdown.cv_date = brow.cv_date
+                    breakdown.chartofaccount = brow.chartofaccount_id
+                    breakdown.particular = brow.particular
+                    # Return None if object is empty
+                    breakdown.bankaccount = brow.bankaccount_id
+                    breakdown.employee = brow.employee_id
+                    breakdown.supplier = brow.supplier_id
+                    breakdown.customer = brow.customer_id
+                    breakdown.department = brow.department_id
+                    breakdown.unit = brow.unit_id
+                    breakdown.branch = brow.branch_id
+                    breakdown.product = brow.product_id
+                    breakdown.inputvat = brow.inputvat_id
+                    breakdown.outputvat = brow.outputvat_id
+                    breakdown.vat = brow.vat_id
+                    breakdown.wtax = brow.wtax_id
+                    breakdown.ataxcode = brow.ataxcode_id
+                    breakdown.debitamount = brow.debitamount
+                    breakdown.creditamount = brow.creditamount
+                    breakdown.balancecode = brow.balancecode
+                    breakdown.datatype = brow.datatype
+                    breakdown.customerbreakstatus = brow.customerbreakstatus
+                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                    breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.isdeleted = 0
+                    breakdown.modifyby = self.request.user
+                    breakdown.enterby = self.request.user
+                    breakdown.modifydate = datetime.datetime.now()
+                    breakdown.save()
+    # accounting entry ends here
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
@@ -153,6 +249,20 @@ class UpdateView(UpdateView):
         context['responsedate'] = Cvmain.objects.get(pk=self.object.id).responsedate
         context['releaseby'] = Cvmain.objects.get(pk=self.object.id).releaseby
         context['releasedate'] = Cvmain.objects.get(pk=self.object.id).releasedate
+
+        # accounting entry starts here
+        context['secretkey'] = self.mysecretkey
+        contextdatatable = {
+            # to be used by accounting entry on load
+            'tabledetailtemp': 'cvdetailtemp',
+            'tablebreakdowntemp': 'cvdetailbreakdowntemp',
+
+            'datatemp': querystmtdetail('cvdetailtemp', self.mysecretkey),
+            'datatemptotal': querytotaldetail('cvdetailtemp', self.mysecretkey),
+        }
+        context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
+        # accounting entry ends here
+
         return context
 
     def form_valid(self, form):
@@ -221,6 +331,13 @@ class UpdateView(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+
+        # accounting entry starts here..
+        source = 'cvdetailtemp'
+        mainid = self.object.id
+        num = self.object.cvnum
+        secretkey = self.request.POST['secretkey']
+        updatedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/checkvoucher/' + str(self.object.id) + '/update')
 

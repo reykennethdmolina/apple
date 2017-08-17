@@ -40,6 +40,7 @@
                     <h3 class="panel-title" style="padding:10px 10px 15px 25px;">CREATE</h3>
                     <form method="post" id="form-b">
                         {% csrf_token %}
+                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-12">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-2">
@@ -221,12 +222,60 @@
                             <div class="col-sm-6">
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
-{#                            <div class="col-sm-6">#}
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>#}
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>#}
-{#                            </div>#}
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                            </div>
                         </div>
                     </form>
+
+                    <!-- Accounting Entry Start -->
+                    <div class="col-sm-12" id="entryview" style="display: none">
+                        <div class="panel panel-bordered">
+                            <div class="panel-body">
+                                <h4>Manual Accounting Entry</h4>
+                                <div id="waitingbar" class="animatebar-bar progress-bar-success" style="width: 95%;">
+                                    <div class="animatebar-bar-percent">95%</div>
+                                </div>
+                                <div id="manualentryview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="panel">
+                            <div class="panel-body">
+                                <!-- Start Editable Section -->
+                                <table class="table table-striped margin-bottom-0">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%"></th>
+                                            <th width="15%">Chart of Account</th>
+                                            <th width="55%">Title</th>
+                                            <th width="10%" style="text-align: right;">Debit&nbsp;</th>
+                                            <th width="10%" style="text-align: right;">Credit&nbsp;</th>
+                                            <th width="15%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="datatable">
+                                    {{ datatable|safe }}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>
+                                                <strong>Total</strong>
+                                            </th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                            <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Accounting Entry End -->
                 </div>
                 </div>
             <div class="clearfix"></div>
@@ -256,6 +305,23 @@
         </div>
     </div>
 </div>
+
+<!-- Accounting Entry Start -->
+<div class="modal fade modal-message" id="modal-row">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Accounting Entry End -->
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -263,6 +329,43 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+
+            <!-- Accounting Entry Start -->
+            $("#manualbutton").unbind().click(function (){
+                $("#entryview").show();
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'table': "cvdetailtemp"},
+                    success: function(response){
+                        $("#manualentryview").html(response['viewhtml']);
+                        $("#waitingbar").hide();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
+            $("#validateButton").on('click', function () {
+                var total_creditamount = $("#total_creditamount").text().replace(',', '');
+                var total_debitamount = $("#total_debitamount").text().replace(',', '');
+
+                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                    alert('Debit and Credit amount be equal');
+                    return false;
+                }
+                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+
+                if (checkbreakdownstatus) {
+                    alert('You have unbalanced various entry. Please review your entry!');
+                }
+            });
+            <!-- Accounting Entry End -->
+
             $("#form-b").submit(function(event){
                 //events after clicking submit
             });

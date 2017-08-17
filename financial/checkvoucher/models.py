@@ -156,9 +156,9 @@ class Cvdetail(models.Model):
 
 class Cvdetailbreakdown(models.Model):
     item_counter = models.IntegerField()
-    cvmain = models.ForeignKey('operationalfund.Ofmain', related_name='cvmain_cvdetailbreakdown_id', null=True,
+    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_cvdetailbreakdown_id', null=True,
                                blank=True)
-    cvdetail = models.ForeignKey('operationalfund.Ofdetail', related_name='cvdetail_cvdetailbreakdown_id',
+    cvdetail = models.ForeignKey('checkvoucher.Cvdetail', related_name='cvdetail_cvdetailbreakdown_id',
                                  null=True, blank=True)
     datatype = models.CharField(max_length=1, null=True, blank=True)
     cv_num = models.CharField(max_length=10)

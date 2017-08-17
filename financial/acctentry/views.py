@@ -25,6 +25,7 @@ from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvmain, Jvdetailtemp, Jvdetailbreakdowntemp, Jvdetail, Jvdetailbreakdown
 from accountspayable.models import Apmain, Apdetailtemp, Apdetailbreakdowntemp, Apdetail, Apdetailbreakdown
 from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, Ofdetail, Ofdetailbreakdown
+from checkvoucher.models import Cvmain, Cvdetailtemp, Cvdetailbreakdowntemp, Cvdetail, Cvdetailbreakdown
 from annoying.functions import get_object_or_None
 
 
@@ -61,6 +62,17 @@ def validatetable(table):
             'str_detailbreakdown': 'ofdetailbreakdown',
             'stmt_detailtemp': 'temp.ofmain, temp.of_num, DATE(temp.of_date) AS ofdate, ',
             'stmt_detailbreakdowntemp': 'temp.ofdetailtemp AS detailid, temp.particular, temp.item_counter, temp.ofmain, temp.of_num, DATE(temp.of_date) AS ofdate, ',
+        }
+    elif table == 'cvdetailtemp':
+        data = {
+            'sal': 'cv',
+            'str_main': 'cvmain',
+            'str_detailtemp': 'cvdetailtemp',
+            'str_detail': 'cvdetail',
+            'str_detailbreakdowntemp': 'cvdetailbreakdowntemp',
+            'str_detailbreakdown': 'cvdetailbreakdown',
+            'stmt_detailtemp': 'temp.cvmain, temp.cv_num, DATE(temp.cv_date) AS cvdate, ',
+            'stmt_detailbreakdowntemp': 'temp.cvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.cvmain, temp.cv_num, DATE(temp.cv_date) AS cvdate, ',
         }
 
     return data
