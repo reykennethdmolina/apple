@@ -48,7 +48,8 @@
         </div>
     </div>
 </div>
-
+{% include "accountspayable/search.html" %}
+{% endblock page-content %}
 {% load staticfiles %}
 {% block extra_js %}
 <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -72,5 +73,3 @@ $(function () {
 });
 </script>
 {% endblock extra_js %}
-{% include "accountspayable/search.html" %}
-{% endblock page-content %}

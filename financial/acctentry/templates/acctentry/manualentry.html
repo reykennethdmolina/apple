@@ -306,7 +306,7 @@
             $("#updatedatailid").val(id);
 
             $('.trd_data').css("background-color","");
-            $("#trd_data_"+id).css('background-color', '#fa9b74');
+            $("#trd_data_"+id).css('background-color', '#f2dede');
             $("#btn_updatedetailbsubmit").attr('data-id', id);
             $("#entryview").show();
             $('.btndadd').hide();
@@ -595,7 +595,7 @@
                 //console.log('#tdtarget_'+datatype+''+detailid);
                 alert('Account does not tally with total balance!. Amount differ by '+amount.toFixed(2));
                 stat = 1;
-                $('#tdtarget_'+datatype+''+detailid).addClass('unbalancebreakdown').css('background-color', '#fa9b74');
+                $('#tdtarget_'+datatype+''+detailid).addClass('unbalancebreakdown').css('background-color', '#f2dede');
             } else {
                 //console.log('equal');
                 stat = 2;
@@ -619,7 +619,30 @@
 
     });
 </script>
-
+<style>
+    #datatable{
+        font-size: 13px;
+    }
+    #breaktabledata, #datatablebreakdown{
+        font-size: 12px;
+    }
+    #datatable td, #datatablebreakdown td{
+        padding: 8px;
+    }
+    table#breaktabledata>tbody>tr>td{
+        border: none;
+        height: 30px;
+        padding: 21px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+    .actionrow{
+        text-align: right;
+        background-color: white;
+        border: 2px solid white !important;
+        border-left: 1px solid #e0e0e0 !important;
+    }
+</style>
 {% block extra_js %}
     {% load static %}
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>

@@ -1,81 +1,90 @@
 {% for temp in datatemp %}
 <tr class="trd_data" id="trd_data_{{ temp.id }}">
     <td>{{ temp.item_counter }}</td>
-    <td>{{ temp.accountcode }}</td>
-    <td>{{ temp.chartofaccountdesc }}</td>
-    <td class="text-align-right">{{ temp.debitamount }}</td>
-    <td class="text-align-right">{{ temp.creditamount }}</td>
-    <td>
+    <td style="border-right: 1px solid #e0e0e0">{{ temp.accountcode }}</td>
+    <td style="border-right: 1px solid #e0e0e0">{{ temp.chartofaccounttitle }}</td>
+    <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.debitamount }}</td>
+    <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.creditamount }}</td>
+    <td class="actionrow">
         <a href="#" class="detailedit" id="detailedit" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
         <a href="#" class="detaildelete" id="detaildelete" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-remove" aria-hidden="true"></i></a>
     </td>
 </tr>
 <tr>
-    <td colspan="6">
-        <table class="table" id="breaktabledata">
-            <tr>
-                <td width="5%"></td>
-                {% if temp.accountnumber %}
-                <td>{{ temp.accountnumber|default:'' }} - {{ temp.bankaccountcode|default:'' }}</td>
-                {% endif %}
-                {% if temp.departmentname %}
-                <td>{{ temp.departmentname|default:'' }}</td>
-                {% endif %}
-                {% if temp.employeecode %}
-                <td id="tdtarget_E{{ temp.id }}" {% if temp.employeebreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#fa9b74" {% endif %}>
-                    {% if temp.employeestatus == 'Y' %}
-                        <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>
-                    {% else %}
-                        {{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}
+    {% if temp.accountnumber or temp.departmentname or temp.employeecode or temp.suppliercode or temp.customercode or temp.unitcode or temp.branchcode or temp.productcode or temp.inputvatcode or temp.outputvatcode or temp.vatcode or temp.wtaxcode or temp.ataxcode %}
+        <td colspan="3" style="padding: 0px;">
+            <table class="table" id="breaktabledata">
+                <tr>
+                    <td width="5%"></td>
+                    {% if temp.accountnumber %}
+                    <td><small><b>Account no.</b></small><br>{{ temp.accountnumber|default:'' }} ({{ temp.bankaccountcode|default:'' }})</td>
                     {% endif %}
-                </td>
-                {% endif %}
-                {% if temp.suppliercode %}
-                <td id="tdtarget_S{{ temp.id }}" {% if temp.supplierbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#fa9b74" {% endif %}>
-                    {% if temp.supplierstatus == 'Y' %}
-                        <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>
-                    {% else %}
-                        {{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}
+                    {% if temp.departmentname %}
+                    <td><small><b>Department name</b></small><br>{{ temp.departmentname|default:'' }}</td>
                     {% endif %}
-                </td>
-                {% endif %}
-                {% if temp.customercode %}
-                <td id="tdtarget_C{{ temp.id }}" {% if temp.customerbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#fa9b74" {% endif %}>
-                    {% if temp.customerstatus == 'Y' %}
-                        <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>
-                    {% else %}
-                        {{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}
+                    {% if temp.employeecode %}
+                    <td id="tdtarget_E{{ temp.id }}" {% if temp.employeebreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
+                        <small><b>Employee</b></small><br>{% if temp.employeestatus == 'Y' %}
+{#                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>#}
+                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeename|default:'' }}</a>
+                        {% else %}
+{#                            {{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}#}
+                            {{ temp.employeename|default:'' }}
+                        {% endif %}
+                    </td>
                     {% endif %}
-                </td>
-                {% endif %}
-                {% if temp.unitcode %}
-                <td>{{ temp.unitname|default:'' }}</td>
-                {% endif %}
-                {% if temp.branchcode %}
-                <td>{{ temp.branchname|default:'' }}</td>
-                {% endif %}
-                {% if temp.productcode %}
-                <td>{{ temp.productname|default:'' }}</td>
-                {% endif %}
-                {% if temp.inputvatcode %}
-                <td>{{ temp.inputvatname|default:'' }}</td>
-                {% endif %}
-                {% if temp.outputvatcode %}
-                <td>{{ temp.outputvatname|default:'' }}</td>
-                {% endif %}
-                {% if temp.vatcode %}
-                <td>{{ temp.vatname|default:'' }}</td>
-                {% endif %}
-                {% if temp.wtaxcode %}
-                <td>{{ temp.wtaxname|default:'' }}</td>
-                {% endif %}
-                {% if temp.ataxcode %}
-                <td>{{ temp.ataxname|default:'' }}</td>
-                {% endif %}
-                <td></td>
-            </tr>
-        </table>
-    </td>
+                    {% if temp.suppliercode %}
+                    <td id="tdtarget_S{{ temp.id }}" {% if temp.supplierbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
+                        <small><b>Supplier</b></small><br>{% if temp.supplierstatus == 'Y' %}
+{#                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>#}
+                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliername|default:'' }}</a>
+                        {% else %}
+{#                            {{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}#}
+                            {{ temp.suppliername|default:'' }}
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% if temp.customercode %}
+                    <td id="tdtarget_C{{ temp.id }}" {% if temp.customerbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
+                        <small><b>Customer</b></small><br>{% if temp.customerstatus == 'Y' %}
+{#                            <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>#}
+                            <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customername|default:'' }}</a>
+                        {% else %}
+{#                            {{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}#}
+                            {{ temp.customername|default:'' }}
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% if temp.unitcode %}
+                    <td><small><b>Unit</b></small><br>{{ temp.unitname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.branchcode %}
+                    <td><small><b>Branch</b></small><br>{{ temp.branchname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.productcode %}
+                    <td><small><b>Product</b></small><br>{{ temp.productname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.inputvatcode %}
+                    <td><small><b>Input VAT</b></small><br>{{ temp.inputvatname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.outputvatcode %}
+                    <td><small><b>Output VAT</b></small><br>{{ temp.outputvatname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.vatcode %}
+                    <td><small><b>VAT</b></small><br>{{ temp.vatname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.wtaxcode %}
+                    <td><small><b>WTax</b></small><br>{{ temp.wtaxname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.ataxcode %}
+                    <td><small><b>ATax</b></small><br>{{ temp.ataxname|default:'' }}</td>
+                    {% endif %}
+                    <td></td>
+                </tr>
+            </table>
+        </td>
+        <td colspan="3"></td>
+    {% endif %}
 </tr>
 {% endfor %}
 <script>

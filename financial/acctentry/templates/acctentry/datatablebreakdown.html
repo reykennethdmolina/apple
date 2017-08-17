@@ -2,19 +2,23 @@
 <tr class="tr_data" id="tr_data_{{ temp.id }}">
     <td>{{ temp.item_counter }}</td>
     {% if temp.accountnumber %}
-        <td>{{ temp.accountnumber|default:'' }} - {{ temp.bankaccountcode|default:'' }}</td>
+{#        <td>{{ temp.accountnumber|default:'' }} - {{ temp.bankaccountcode|default:'' }}</td>#}
+        <td>{{ temp.accountnumber|default:'' }} ({{ temp.bankaccountcode|default:'' }})</td>
     {% endif %}
     {% if temp.departmentname %}
         <td>{{ temp.departmentname|default:'' }}</td>
     {% endif %}
     {% if temp.employeecode %}
-        <td>{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</td>
+{#        <td>{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</td>#}
+        <td>{{ temp.employeename|default:'' }}</td>
     {% endif %}
     {% if temp.suppliercode %}
-        <td>{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</td>
+{#        <td>{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</td>#}
+        <td>{{ temp.suppliername|default:'' }}</td>
     {% endif %}
     {% if temp.customercode %}
-        <td>{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</td>
+{#        <td>{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</td>#}
+        <td>{{ temp.customername|default:'' }}</td>
     {% endif %}
     {% if temp.unitcode %}
         <td>{{ temp.unitname|default:'' }}</td>
@@ -40,10 +44,10 @@
     {% if temp.ataxcode %}
         <td>{{ temp.ataxname|default:'' }}</td>
     {% endif %}
-    <td>{{ temp.particular }}</td>
-    <td class="text-align-right">{{ temp.debitamount }}</td>
-    <td class="text-align-right">{{ temp.creditamount }}</td>
-    <td>
+    <td style="border-right: 1px solid #e0e0e0">{{ temp.particular }}</td>
+    <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.debitamount }}</td>
+    <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.creditamount }}</td>
+    <td class="actionrow">
         <a href="#" class="breakdownedit" data-id="{{ temp.id }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
         <a href="#" class="breakdowndelete" data-id="{{ temp.id }}"><i class="icon fa-remove" aria-hidden="true"></i></a>
     </td>
@@ -58,7 +62,7 @@
         $('.breakdownedit').click(function(){
             var id = $(this).data('id');
             $('.tr_data').css("background-color","");
-            $("#tr_data_"+id).css('background-color', '#fa9b74');
+            $("#tr_data_"+id).css('background-color', '#f2dede');
 
             $("#updatedetailbsubmit").val(id);
 

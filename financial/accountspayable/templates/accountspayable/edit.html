@@ -200,38 +200,38 @@
                     </div>
 
                     <div class="col-sm-12">
-                            <div class="panel">
-                                <div class="panel-body">
-                                    <!-- Start Editable Section -->
-                                    <table class="table table-striped margin-bottom-0">
-                                        <thead>
-                                            <tr>
-                                                <th width="5%">Counter</th>
-                                                <th width="25%">Chart of Account</th>
-                                                <th width="50%">Description</th>
-                                                <th width="10%">Debit</th>
-                                                <th width="10%">Credit</th>
-                                                <th width="10%">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="datatable">
-                                        {{ datatable|safe }}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th>
-                                                    <strong>Total</strong>
-                                                </th>
-                                                <th></th>
-                                                <th></th>
-                                                <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
-                                                <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
+                        <div class="panel">
+                            <div class="panel-body">
+                                <!-- Start Editable Section -->
+                                <table class="table table-striped margin-bottom-0">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%"></th>
+                                            <th width="15%">Chart of Account</th>
+                                            <th width="55%">Title</th>
+                                            <th width="10%" style="text-align: right;">Debit&nbsp;</th>
+                                            <th width="10%" style="text-align: right;">Credit&nbsp;</th>
+                                            <th width="15%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="datatable">
+                                    {{ datatable|safe }}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>
+                                                <strong>Total</strong>
+                                            </th>
+                                            <th></th>
+                                            <th></th>
+                                            <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                            <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
+                    </div>
                     <!-- Accounting entry end -->
                 </div>
             </div>
@@ -304,6 +304,8 @@
     </div>
 </div>
 <!-- Accounting Entry End -->
+{% include "accountspayable/search.html" %}
+{% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
@@ -397,5 +399,3 @@
         });
     </script>
 {% endblock extra_js %}
-{% include "accountspayable/search.html" %}
-{% endblock page-content %}

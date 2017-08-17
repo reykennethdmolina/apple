@@ -578,7 +578,7 @@ def querystmtbreakdown(temptable, secretkey, detailid, datatype):
     stmt = "SELECT temp.id, temp.chartofaccount, "
     stmt += data_table['stmt_detailbreakdowntemp']
 
-    stmt += "c.accountcode, c.description AS chartofaccountdesc, " \
+    stmt += "c.accountcode, c.description AS chartofaccountdesc, c.title AS chartofaccounttitle, " \
             "b.code AS bankaccountcode, b.accountnumber, " \
             "d.code AS departmentcode, d.departmentname, " \
             "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \
@@ -638,7 +638,7 @@ def querystmtdetail(temptable, secretkey):
     data_table = validatetable(temptable)
     stmt += data_table['stmt_detailtemp']
 
-    stmt += "c.accountcode, c.description AS chartofaccountdesc, " \
+    stmt += "c.accountcode, c.description AS chartofaccountdesc, c.title AS chartofaccounttitle, " \
             "b.code AS bankaccountcode, b.accountnumber, " \
             "d.code AS departmentcode, d.departmentname, " \
             "e.code AS employeecode, CONCAT(e.firstname,' ',e.lastname) AS employeename, \

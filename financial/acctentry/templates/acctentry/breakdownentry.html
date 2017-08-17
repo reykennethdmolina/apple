@@ -207,7 +207,7 @@
                 <table class="table table-striped margin-bottom-0">
                         <thead>
                             <tr>
-                                <th width="5%">Counter</th>
+                                <th width="5%"></th>
                                 {% if chartofaccount.0.bankaccount_enable == 'Y' %}
                                     <th width="25%">Bank Account</th>
                                 {% endif %}
@@ -218,7 +218,7 @@
                                     <th width="25%">Employee</th>
                                 {% endif %}
                                 {% if chartofaccount.0.supplier_enable == 'Y' %}
-                                    <th width="25%">Employee</th>
+                                    <th width="25%">Supplier</th>
                                 {% endif %}
                                 {% if chartofaccount.0.customer_enable == 'Y' %}
                                     <th width="25%">Customer</th>
@@ -245,9 +245,9 @@
                                     <th width="25%">ATAX Code</th>
                                 {% endif %}
                                 <th width="50%">Particulars</th>
-                                <th width="10%">Debit</th>
-                                <th width="10%">Credit</th>
-                                <th width="10%">Action</th>
+                                <th width="10%" style="text-align: right">Debit&nbsp;</th>
+                                <th width="10%" style="text-align: right">Credit&nbsp;</th>
+                                <th width="10%" style="visibility: hidden;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="datatablebreakdown">
@@ -261,6 +261,7 @@
                                 <th colspan="{{ colspan }}"></th>
                                 <th id="totalbreakdown_debitamount" class="text-align-right"><strong>0.00</strong></th>
                                 <th id="totalbreakdown_creditamount" class="text-align-right"><strong>0.00</strong></th>
+                                <th></th>
                             </tr>
                         </tfoot>
                     </table>
