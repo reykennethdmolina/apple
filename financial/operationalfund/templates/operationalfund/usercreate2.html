@@ -16,6 +16,20 @@
         .input-search {
             z-index: 99;
         }
+        .extra-fields{
+            display: none;
+        }
+        .rotate-up {
+            -webkit-transform: rotate(180deg);
+            -webkit-transition: -webkit-transform .5s;
+        }
+        .rotate-down {
+            -webkit-transform: rotate(0deg);
+            -webkit-transition: -webkit-transform .5s;
+        }
+        .rotate-icon{
+            display: inline-block;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -130,7 +144,9 @@
                                             <input type="text" class="form-control input-sm">
                                         </div>
                                         <div class="form-group col-sm-2 margin-bottom-0">
-                                            <a href="#" style="font-size: 17px" class="text-muted"><i class="icon fa-caret-square-o-down" aria-hidden="true"></i></a>
+                                            <div class="rotate-icon rotate-down">
+                                                <a href="#" style="font-size: 25px;vertical-align: top;" class="expand-fields"><i class="icon fa-sort-down" aria-hidden="true"></i></a>
+                                            </div>
                                             <a href="#" style="font-size: 17px" class="pull-right"><i class="icon fa-trash" aria-hidden="true"></i></a>
                                             <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
                                             <a href="#" style="font-size: 17px" class="pull-right"><i class="icon fa-save" aria-hidden="true"></i></a>
@@ -141,23 +157,29 @@
                                             <div class="form-group col-sm-1"></div>
                                             <div class="form-group col-sm-12"></div>
                                             <div class="form-group col-sm-1"></div>
-                                            <div class="form-group col-sm-2 padding-right-0">
-                                                <label class="control-label"><small>Currency</small></label>
-                                                <select class="form-control input-sm" name="" id="">
-                                                    <option value="">-- Select --</option>
-                                                </select>
+                                            <div class="form-group col-sm-6 padding-left-0">
+                                                <div class="form-group col-sm-8">
+                                                    <label class="control-label"><small>Currency</small></label>
+                                                    <select class="form-control input-sm" name="" id="">
+                                                        <option value="">-- Select --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <label class="control-label"><small>FX Rate</small></label>
+                                                    <input type="text" class="form-control input-sm" value="1">
+                                                </div>
+                                                <div class="form-group col-sm-6">
+                                                    <label class="control-label"><small>Period From</small></label>
+                                                    <input type="text" class="form-control input-sm">
+                                                </div>
+                                                <div class="form-group col-sm-6">
+                                                    <label class="control-label"><small>Period To</small></label>
+                                                    <input type="text" class="form-control input-sm">
+                                                </div>
                                             </div>
-                                            <div class="form-group col-sm-1">
-                                                <label class="control-label"><small>FX Rate</small></label>
-                                                <input type="text" class="form-control input-sm" value="1">
-                                            </div>
-                                            <div class="form-group col-sm-2 padding-right-0">
-                                                <label class="control-label"><small>Period From</small></label>
-                                                <input type="text" class="form-control input-sm">
-                                            </div>
-                                            <div class="form-group col-sm-2 padding-right-0">
-                                                <label class="control-label"><small>Period To</small></label>
-                                                <input type="text" class="form-control input-sm">
+                                            <div class="form-group col-sm-4">
+                                                <label class="control-label"><small>Particulars</small></label>
+                                                <textarea rows="4" class="form-control"></textarea>
                                             </div>
                                         </div>
                                     </td>
@@ -181,16 +203,22 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-
-        });
-    </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
+        $(document).ready(function() {
+            $('.expand-fields').on('click', function(){
+                $(this).parent().parent().parent().find('.extra-fields').slideToggle(300);
+                if($(this).parent().hasClass('rotate-down')){
+                    $(this).parent().removeClass('rotate-down').addClass('rotate-up')
+                }
+                else{
+                    $(this).parent().removeClass('rotate-up').addClass('rotate-down')
+                }
+            });
+        });
     </script>
 {% endblock extra_js %}
