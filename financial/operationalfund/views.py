@@ -127,7 +127,7 @@ class CreateViewUser(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['oftype'] = Oftype.objects.filter(isdeleted=0)
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['requestor'] = User.objects.filter(pk=self.request.user.id)
         return context
 
@@ -472,6 +472,7 @@ class UpdateViewCashier(UpdateView):
             pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
+        context['requestor'] = User.objects.filter(pk=self.request.user.id)
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
