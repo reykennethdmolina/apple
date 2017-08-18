@@ -574,6 +574,17 @@ def deletequery(temptable, dataid):
 
     return cursor.execute(stmt)
 
+
+def deleteallquery(temptable, secretkey):
+    cursor = connection.cursor()
+
+    data_table = validatetable(temptable)
+
+    stmt = "DELETE FROM " + temptable + " WHERE secretkey='" + secretkey + "' AND " + data_table['sal'] + "main IS NULL"
+
+    return cursor.execute(stmt)
+
+
 def getdatainfo(temptable, dataid):
     stmt = "SELECT temp.*, FORMAT(temp.creditamount, 2) AS creditamountformatted, \
     FORMAT(temp.debitamount, 2) AS debitamountformatted, \
@@ -630,7 +641,7 @@ def querystmtbreakdown(temptable, secretkey, detailid, datatype):
             "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
             "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
             "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
-            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.inputvat " \
             "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
             "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
             "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
@@ -691,7 +702,7 @@ def querystmtdetail(temptable, secretkey):
             "LEFT OUTER JOIN unit AS u ON u.id = temp.unit " \
             "LEFT OUTER JOIN branch AS br ON br.id = temp.branch " \
             "LEFT OUTER JOIN product AS p ON p.id = temp.product " \
-            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.product " \
+            "LEFT OUTER JOIN inputvat AS i ON i.id = temp.inputvat " \
             "LEFT OUTER JOIN outputvat AS o ON o.id = temp.outputvat " \
             "LEFT OUTER JOIN vat AS v ON v.id = temp.vat " \
             "LEFT OUTER JOIN wtax AS w ON w.id = temp.wtax " \
@@ -1207,6 +1218,7 @@ def savebreakdownentry(user, num, mainid, detailid, tempdetailid, dtype, data_ta
         counter += 1
 
     return True
+
 
 def updatedetail(source, mainid, num, secretkey, by_user):
 

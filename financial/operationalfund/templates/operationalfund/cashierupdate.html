@@ -673,36 +673,44 @@
             });
 
             $("#autobutton").click(function (){
-                //check of acctg entry table has contents, confirm with user if contents are to be deleted
-                if($(".detaildelete")[0]){
-                    //check if all required fields for auto-entry are filled-up
-                    if($("#id_branch").val() == "" || $("#id_vat").val() == "" || $("#id_inputvattype").val() == ""){
-                        alert("Please complete the required fields first. (Branch, VAT, Input VAT Type)");
+                //check if all required fields for auto-entry are filled-up
+                if($("#id_branch").val() == "" || $("#id_vat").val() == "" || $("#id_inputvattype").val() == "" ||
+                    $("#id_oftype").val() == "" || $("#id_ofsubtype").val() == ""){
+                    alert("Please complete the required fields first. (Type, Subtype, Branch, VAT, Input VAT Type)");
+                }
+                else {
+                    //check of acctg entry table has contents, confirm with user if contents are to be deleted
+                    if($(".detaildelete")[0]){
+                        if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?"))
+                            autoEntry();
                     }
-                    else {
-                        if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")){
-                            //check OF type and OF subtype (to be modified)
-                            if($("#id_oftype option:selected").text() == "Petty Cash"){
-                                //ajax function for generating and saving entries in detailtemp
-                                $.ajax({
-                                    url: "{% url 'operationalfund:autoentry' %}",
-                                    type: "post",
-                                    data: {'ofnum': $("#id_ofnum").val(),
-                                           'table': "ofdetailtemp"},
-                                    success: function(response){
-                                        console.log("success");
-                                    }, error: function(response) {
-                                        console.debug(response);
-                                    }
-                                });
-                            }
-                            else {
-                                alert("Auto-entry for the selected OF type and OF subtype is not yet available.");
-                            }
-                        }
-                    }
+                    else
+                        autoEntry();
                 }
             });
+
+            function autoEntry(){
+                //ajax function for generating and saving entries in detailtemp
+                $.ajax({
+                    url: "{% url 'operationalfund:autoentry' %}",
+                    type: "post",
+                    data: {'secretkey': $("#secretkey").val(),
+                           'ofnum': $("#id_ofnum").val(),
+                           'oftype': $("#id_oftype option:selected").text(),
+                           'ofsubtype': $("#id_ofsubtype").val(),
+                           'amount': $("#id_amount").val(),
+                           'vatrate': $("#id_vat option:selected").data('rate'),
+                           'branch': $("#id_branch").val(),
+                           'inputvattype': $("#id_inputvattype").val(),
+                           'table': "ofdetailtemp"},
+                    success: function(response){
+                        $("#datatable").html(response['datatable']);
+                        alert("Auto-entry Successful");
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
 
             $("#manualbutton").unbind().click(function (){
                 $("#entryview").show();

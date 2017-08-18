@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
 from branch.models import Branch
+from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
 from department.models import Department
@@ -25,7 +26,8 @@ from product.models import Product
 from inputvat.models import Inputvat
 from outputvat.models import Outputvat
 from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
+    validatetable, deleteallquery
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
@@ -590,11 +592,73 @@ class DeleteView(DeleteView):
 def autoentry(request):
     if request.method == 'POST':
         # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
         updateallquery(request.POST['table'], request.POST['ofnum'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+        vatamount = float(request.POST['amount']) * (float(request.POST['vatrate'])/100)
 
-        data = {
-            'status': 'success',
-        }
+        if request.POST['oftype'] == "Petty Cash":
+            # Entries: Cash In Bank (C), Input VAT (if VAT rate > 0.00) (C), Chart of Account assigned to OF Subtype (D)
+            # Cash In Bank
+            ofdetailtemp1 = Ofdetailtemp()
+            ofdetailtemp1.item_counter = 1
+            ofdetailtemp1.secretkey = request.POST['secretkey']
+            ofdetailtemp1.of_num = ''
+            ofdetailtemp1.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
+            ofdetailtemp1.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank_id
+            ofdetailtemp1.bankaccount = Branch.objects.get(id=request.POST['branch']).bankaccount_id if Branch.objects.\
+                get(id=request.POST['branch']).bankaccount else Companyparameter.objects.\
+                get(code='PDI').def_bankaccount_id
+            ofdetailtemp1.creditamount = float(request.POST['amount']) - vatamount
+            ofdetailtemp1.balancecode = 'C'
+            ofdetailtemp1.enterby = request.user
+            ofdetailtemp1.modifyby = request.user
+            ofdetailtemp1.save()
+
+            # Input VAT (if vatamount > 0.00)
+            if vatamount > 0:
+                ofdetailtemp2 = Ofdetailtemp()
+                ofdetailtemp2.item_counter = 2
+                ofdetailtemp2.secretkey = request.POST['secretkey']
+                ofdetailtemp2.of_num = ''
+                ofdetailtemp2.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
+                ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
+                inputvat = Inputvat.objects.filter(inputvattype=request.POST['inputvattype']).first()
+                ofdetailtemp2.inputvat = inputvat.id
+                ofdetailtemp2.creditamount = vatamount
+                ofdetailtemp2.balancecode = 'C'
+                ofdetailtemp2.enterby = request.user
+                ofdetailtemp2.modifyby = request.user
+                ofdetailtemp2.save()
+
+            # Chart of Account assigned to OF Subtype
+            ofdetailtemp3 = Ofdetailtemp()
+            ofdetailtemp3.item_counter = 3 if vatamount > 0 else 2
+            ofdetailtemp3.secretkey = request.POST['secretkey']
+            ofdetailtemp3.of_num = ''
+            ofdetailtemp3.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
+            ofdetailtemp3.chartofaccount = Ofsubtype.objects.get(id=request.POST['ofsubtype']).debitchartofaccount_id
+            ofdetailtemp3.debitamount = float(request.POST['amount'])
+            ofdetailtemp3.balancecode = 'D'
+            ofdetailtemp3.enterby = request.user
+            ofdetailtemp3.modifyby = request.user
+            ofdetailtemp3.save()
+
+            context = {
+                'tabledetailtemp': data_table['str_detailtemp'],
+                'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+                'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+                'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            }
+
+            data = {
+                'datatable': render_to_string('acctentry/datatable.html', context),
+                'status': 'success'
+            }
+        else:
+            data = {
+                'status': 'error',
+            }
     else:
         data = {
             'status': 'error',
