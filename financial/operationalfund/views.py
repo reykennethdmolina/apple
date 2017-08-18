@@ -587,6 +587,20 @@ class DeleteView(DeleteView):
 
 
 @csrf_exempt
+def autoentry(request):
+    if request.method == 'POST':
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def approve(request):
     if request.method == 'POST':
         of_for_approval = Ofmain.objects.get(pk=request.POST['ofid'])

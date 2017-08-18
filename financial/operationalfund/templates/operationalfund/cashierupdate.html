@@ -258,7 +258,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                             </div>
                         </div>
                     </form>
@@ -582,10 +582,6 @@
                 showRate("#id_wtax", "wtaxrate", "RATE");
             });
 
-{#            $("#detailsbutton").click(function (){#}
-{#                $("#detailentry").show();#}
-{#            });#}
-
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
                         parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
@@ -673,6 +669,39 @@
                     $("#waitingbar").hide();
                 }, error: function(response) {
                     console.debug(response);
+                }
+            });
+
+            $("#autobutton").click(function (){
+                //check of acctg entry table has contents, confirm with user if contents are to be deleted
+                if($(".detaildelete")[0]){
+                    //check if all required fields for auto-entry are filled-up
+                    if($("#id_branch").val() == "" || $("#id_vat").val() == "" || $("#id_inputvattype").val() == ""){
+                        alert("Please complete the required fields first. (Branch, VAT, Input VAT Type)");
+                    }
+                    else {
+                        if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")){
+                            //check OF type and OF subtype (to be modified)
+                            if($("#id_oftype option:selected").text() == "Advances" &&
+                                    $("#id_ofsubtype option:selected").text() == "REIMBURSEMENT"){
+                                //ajax function for generating and saving entries in detailtemp
+                                $.ajax({
+                                    url: "{% url 'operationalfund:autoentry' %}",
+                                    type: "post",
+                                    data: {'ofnum': $("#id_ofnum").val(),
+                                           'table': "ofdetailtemp"},
+                                    success: function(response){
+                                        console.log("success");
+                                    }, error: function(response) {
+                                        console.debug(response);
+                                    }
+                                });
+                            }
+                            else {
+                                alert("Auto-entry for the selected OF type and OF subtype is not yet available.");
+                            }
+                        }
+                    }
                 }
             });
 

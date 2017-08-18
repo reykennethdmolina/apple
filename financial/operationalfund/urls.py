@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^cashiercreate/$', views.CreateViewCashier.as_view(), name='cashiercreate'),
     url(r'^(?P<pk>[0-9]+)/userupdate/$', views.UpdateViewUser.as_view(), name='userupdate'),
     url(r'^(?P<pk>[0-9]+)/cashierupdate/$', views.UpdateViewCashier.as_view(), name='cashierupdate'),
+    url(r'^autoentry/$', views.autoentry, name='autoentry'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^releaseof/$', views.releaseof, name='releaseof'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
