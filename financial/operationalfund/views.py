@@ -25,7 +25,7 @@ from product.models import Product
 from inputvat.models import Inputvat
 from outputvat.models import Outputvat
 from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
@@ -589,6 +589,8 @@ class DeleteView(DeleteView):
 @csrf_exempt
 def autoentry(request):
     if request.method == 'POST':
+        # set isdeleted=2 for existing detailtemp data
+        updateallquery(request.POST['table'], request.POST['ofnum'])
 
         data = {
             'status': 'success',

@@ -557,6 +557,16 @@ def updatequery(temptable, dataid):
 
     return cursor.execute(stmt)
 
+
+def updateallquery(temptable, datanum):
+    data_table = validatetable(temptable)
+    cursor = connection.cursor()
+
+    stmt = "UPDATE " + temptable + " SET isdeleted=2 WHERE " + data_table['sal'] + "_num=" + "'" + datanum + "'"
+
+    return cursor.execute(stmt)
+
+
 def deletequery(temptable, dataid):
     cursor = connection.cursor()
 

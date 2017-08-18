@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 class Ofsubtype(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
+    oftype = models.ForeignKey('oftype.Oftype', related_name='ofsubtype_oftype')
     debitchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
                                             related_name='ofsubtype_debitchartofaccount', null=True, blank=True)
     STATUS_CHOICES = (

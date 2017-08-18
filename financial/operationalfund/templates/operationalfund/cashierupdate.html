@@ -682,8 +682,7 @@
                     else {
                         if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")){
                             //check OF type and OF subtype (to be modified)
-                            if($("#id_oftype option:selected").text() == "Advances" &&
-                                    $("#id_ofsubtype option:selected").text() == "REIMBURSEMENT"){
+                            if($("#id_oftype option:selected").text() == "Petty Cash"){
                                 //ajax function for generating and saving entries in detailtemp
                                 $.ajax({
                                     url: "{% url 'operationalfund:autoentry' %}",
