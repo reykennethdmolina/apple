@@ -113,7 +113,7 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateViewUser(CreateView):
     model = Ofmain
-    template_name = 'operationalfund/usercreate.html'
+    template_name = 'operationalfund/usercreate2.html'
     fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
@@ -127,6 +127,8 @@ class CreateViewUser(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['oftype'] = Oftype.objects.filter(isdeleted=0)
+        context['requestor'] = User.objects.filter(pk=self.request.user.id)
         return context
 
     def form_valid(self, form):
