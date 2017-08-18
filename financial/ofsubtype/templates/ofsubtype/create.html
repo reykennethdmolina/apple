@@ -1,5 +1,9 @@
 {% extends 'base-form.html' %}
 {% block page-title %} OF Subtype {% endblock page-title %}
+{% block extra_css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -16,6 +20,21 @@
                             <label for="id_code" class="control-label">Code</label>
                             <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
                             <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.oftype.errors|yesno:'has-error,' }}">
+                            <label for="id_oftype" class="control-label">OF Type</label>
+                            <select name="oftype" class="form-control" id="id_oftype" data-validation="required">
+                                {% for data in oftype %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.oftype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.debitchartofaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_debitchartofaccount" class="control-label">Debit Chart of Account</label>
+                            <select name="debitchartofaccount" class="form-control ajaxselect2" id="id_debitchartofaccount" data-validation="required">
+                            </select>
+                            <span class="help-block form-error">{{ form.debitchartofaccount.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
                             <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
@@ -35,3 +54,12 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function(){
+            ajaxselect2("chartofaccount_posting");
+        });
+    </script>
+{% endblock extra_js %}

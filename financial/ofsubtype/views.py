@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from ofsubtype.models import Ofsubtype
+from oftype.models import Oftype
+from chartofaccount.models import Chartofaccount
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -25,12 +27,17 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Ofsubtype
     template_name = 'ofsubtype/create.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'oftype', 'debitchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('ofsubtype.add_ofsubtype'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateView, self).get_context_data(**kwargs)
+        context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -44,18 +51,28 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Ofsubtype
     template_name = 'ofsubtype/edit.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'oftype', 'debitchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('ofsubtype.change_ofsubtype'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
+
+        if self.request.POST.get('debitchartofaccount', False):
+            context['debitchartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
+        elif self.object.debitchartofaccount:
+            context['debitchartofaccount'] = Chartofaccount.objects.get(pk=self.object.debitchartofaccount.id, isdeleted=0)
+        return context
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'oftype', 'debitchartofaccount', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/ofsubtype')
 
 
