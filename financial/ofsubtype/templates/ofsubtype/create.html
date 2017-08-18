@@ -20,7 +20,7 @@
                             <label for="id_oftype" class="control-label">OF Type</label>
                             <select name="oftype" class="form-control" id="id_oftype" data-validation="required">
                                 {% for data in oftype %}
-                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                    <option value="{{ data.id }}" {% if form.oftype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} - {{ data.description }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.oftype.errors.as_text }}</span>

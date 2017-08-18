@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from branch.models import Branch
+from bankaccount.models import Bankaccount
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -25,12 +26,17 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Branch
     template_name = 'branch/create.html'
-    fields = ['code', 'description', 'lastsino', 'lastorno']
+    fields = ['code', 'bankaccount', 'description', 'lastsino', 'lastorno']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('branch.add_branch'):
             raise Http404
         return super(CreateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateView, self).get_context_data(**kwargs)
+        context['bankaccount'] = Bankaccount.objects.all().filter(isdeleted=0)
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -44,18 +50,23 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Branch
     template_name = 'branch/edit.html'
-    fields = ['code', 'description', 'lastsino', 'lastorno']
+    fields = ['code', 'bankaccount', 'description', 'lastsino', 'lastorno']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('branch.change_branch'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['bankaccount'] = Bankaccount.objects.all().filter(isdeleted=0)
+        return context
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'lastsino', 'lastorno', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['bankaccount', 'description', 'lastsino', 'lastorno', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/branch')
 
 

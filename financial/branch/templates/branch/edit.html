@@ -17,6 +17,16 @@
                             <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
                             <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                         </div>
+                        <div class="form-group {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_bankaccount" class="control-label">Bank Account</label>
+                            <select name="bankaccount" id="id_bankaccount" class="form-control" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for data in bankaccount %}
+                                    <option value="{{ data.id }}" {% if form.bankaccount.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} - {{ data.accountnumber }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
+                        </div>
                         <div class="form-group">
                             <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
                             <div>
