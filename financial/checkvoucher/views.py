@@ -42,6 +42,23 @@ class IndexView(AjaxListView):
                                  Q(amount__icontains=keysearch))
         return query
 
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        # data for lookup
+        context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = 0
+        # data for lookup
+
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
@@ -56,6 +73,18 @@ class DetailView(DetailView):
             filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0).\
             filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        # data for lookup
+        context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = self.object.pk
+        # data for lookup
 
         return context
 
@@ -76,17 +105,21 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+
+        # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = 0
+        # data for lookup
+
         return context
 
     def form_valid(self, form):
@@ -240,17 +273,8 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['payee'] = Cvmain.objects.get(pk=self.object.id).payee.id if Cvmain.objects.get(
             pk=self.object.id).payee is not None else ''
         context['payee_name'] = Cvmain.objects.get(pk=self.object.id).payee_name
@@ -260,6 +284,18 @@ class UpdateView(UpdateView):
         context['responsedate'] = Cvmain.objects.get(pk=self.object.id).responsedate
         context['releaseby'] = Cvmain.objects.get(pk=self.object.id).releaseby
         context['releasedate'] = Cvmain.objects.get(pk=self.object.id).releasedate
+
+        # data for lookup
+        context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['pk'] = self.object.pk
+        # data for lookup
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey

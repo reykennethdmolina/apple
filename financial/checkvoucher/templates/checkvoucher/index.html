@@ -2,6 +2,8 @@
 {% block page-title %} Check Voucher {% endblock page-title %}
 {% block extra_css %}
     {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
 {#        .iconlist {#}
 {#            text-align: left;#}
@@ -33,6 +35,13 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
+
+                    {% if perms.checkvoucher.change_cvmain %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                        </button>
+                    {% endif %}
+
                     {% if perms.checkvoucher.add_cvmain %}
                         <a href="{% url 'checkvoucher:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Check Voucher</button></a>
                     {% endif  %}
@@ -51,16 +60,26 @@
         </div>
     </div>
 </div>
+{% include "checkvoucher/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
-<script>
-    $(function () {
-        // ajax search and pagination
-        $('#searchBtn').on('click', function(){
-            $('.shade').fadeIn();
-            setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
-            $('#dummy').trigger('click');
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+        $(function () {
+            $('.select2').select2({});
+
+            // ajax search and pagination
+            $('#searchBtn').on('click', function(){
+                $('.shade').fadeIn();
+                setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+                $('#dummy').trigger('click');
+            });
         });
-    });
-</script>
+    </script>
 {% endblock extra_js %}

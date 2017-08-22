@@ -12,6 +12,7 @@ from customer.models import Customer
 from accountspayable.models import Apmain
 from inventoryitem.models import Inventoryitem
 from operationalfund.models import Ofmain
+from checkvoucher.models import Cvmain
 
 
 @csrf_exempt
@@ -238,6 +239,58 @@ def ajaxSearch(request):
             if request.POST['cache_particulars']:
                 items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
 
+        elif request.POST['table'] == "cvmain":
+            items = Cvmain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.POST['cache_cvnum_from'] and request.POST['cache_cvnum_to']:
+                items = items.filter(cvnum__range=[int(request.POST['cache_cvnum_from']),
+                                                   int(request.POST['cache_cvnum_to'])])
+            elif request.POST['cache_cvnum_from']:
+                items = items.filter(cvnum__gte=int(request.POST['cache_cvnum_from']))
+            elif request.POST['cache_cvnum_to']:
+                items = items.filter(cvnum__lte=int(request.POST['cache_cvnum_to']))
+            if request.POST['cache_cvdate_from'] and request.POST['cache_cvdate_to']:
+                items = items.filter(cvdate__range=[request.POST['cache_cvdate_from'],
+                                                    request.POST['cache_cvdate_to']])
+            elif request.POST['cache_cvdate_from']:
+                items = items.filter(cvdate__gte=request.POST['cache_cvdate_from'])
+            elif request.POST['cache_cvdate_to']:
+                items = items.filter(cvdate__lte=request.POST['cache_cvdate_to'])
+            if request.POST['cache_payee_name']:
+                items = items.filter(payee_name__icontains=str(request.POST['cache_payee_name']))
+            if request.POST['cache_checknum']:
+                items = items.filter(checknum__icontains=str(request.POST['cache_checknum']))
+            if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
+                items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
+                                                    request.POST['cache_amount_to'].replace(',', '')])
+            elif request.POST['cache_amount_from']:
+                items = items.filter(amount__gte=request.POST['cache_amount_from'].replace(',', ''))
+            elif request.POST['cache_amount_to']:
+                items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
+            if request.POST['cache_cvtype']:
+                items = items.filter(cvtype=int(request.POST['cache_cvtype']))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_cvstatus']:
+                items = items.filter(cvstatus=str(request.POST['cache_cvstatus']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_atc']:
+                items = items.filter(atc=int(request.POST['cache_atc']))
+            if request.POST['cache_inputvattype']:
+                items = items.filter(inputvattype=int(request.POST['cache_inputvattype']))
+            if request.POST['cache_deferredvat']:
+                items = items.filter(deferredvat=str(request.POST['cache_deferredvat']))
+            if request.POST['cache_currency']:
+                items = items.filter(currency=int(request.POST['cache_currency']))
+            if request.POST['cache_bankaccount']:
+                items = items.filter(bankaccount=int(request.POST['cache_bankaccount']))
+            if request.POST['cache_disbursingbranch']:
+                items = items.filter(disbursingbranch=int(request.POST['cache_disbursingbranch']))
+            if request.POST['cache_refnum']:
+                items = items.filter(refnum__icontains=str(request.POST['cache_refnum']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+
         items = items[:500]
         listitems = []
 
@@ -246,6 +299,8 @@ def ajaxSearch(request):
                 listitems.append({'text': data.apnum, 'id': data.id})
             elif request.POST['table'] == "ofmain":
                 listitems.append({'text': data.ofnum, 'id': data.id})
+            elif request.POST['table'] == "cvmain":
+                listitems.append({'text': data.cvnum, 'id': data.id})
 
         data = {
             'status': 'success',

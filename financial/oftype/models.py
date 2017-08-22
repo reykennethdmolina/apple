@@ -4,9 +4,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Oftype(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
+    creditchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
+                                             related_name='oftype_creditchartofaccount')
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

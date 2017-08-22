@@ -7,31 +7,18 @@ import datetime
 
 
 class Ofmain(models.Model):
-    ofnum = models.CharField(max_length=10, unique=True)
-    ofdate = models.DateField()
-    oftype = models.ForeignKey('oftype.Oftype', related_name='ofmain_oftype_id', null=True, blank=True)
+    # -------------------columns for removal (remove after finishing CashierUpdate)----------------------------
     ofsubtype = models.ForeignKey('ofsubtype.Ofsubtype', related_name='ofmain_ofsubtype_id', null=True, blank=True)
     payee = models.ForeignKey('supplier.Supplier', related_name='ofmain_payee_id', null=True, blank=True)
     payee_code = models.CharField(max_length=25, null=True, blank=True)
-    payee_name = models.CharField(max_length=150)
-    employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id')
-    employee_code = models.CharField(max_length=20)
-    employee_name = models.CharField(max_length=150)
-    department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
-    department_code = models.CharField(max_length=10)
-    department_name = models.CharField(max_length=150)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                              MinValueValidator(1)], default=0.00)
-    particulars = models.TextField()
-    refnum = models.CharField(max_length=150, null=True, blank=True)
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
-    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofmain_atc_id', validators=[MinValueValidator(1)],
-                            null=True, blank=True)
-    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
-                                  blank=True)
+    payee_name = models.CharField(max_length=150, null=True, blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='ofmain_vat_id', validators=[MinValueValidator(1)], null=True,
                             blank=True)
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofmain_atc_id', validators=[MinValueValidator(1)],
+                            null=True, blank=True)
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
                                   blank=True)
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofmain_inputvattype_id', null=True,
                                      blank=True)
@@ -40,8 +27,31 @@ class Ofmain(models.Model):
         ('N', 'No'),
     )
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
-    currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', default=1)
-    fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
+    currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', null=True, blank=True)
+    fxrate = models.DecimalField(null=True, blank=True, decimal_places=5, max_digits=18)
+    employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id', null=True,
+                                 blank=True)  # will just comment
+    employee_code = models.CharField(max_length=20, null=True, blank=True)  # will just comment
+    employee_name = models.CharField(max_length=150, null=True, blank=True)  # will just comment
+    # -------------------columns for removal (remove after finishing CashierUpdate)----------------------------
+
+    ofnum = models.CharField(max_length=10, unique=True)
+    ofdate = models.DateField()
+    oftype = models.ForeignKey('oftype.Oftype', related_name='ofmain_oftype_id', null=True, blank=True)
+    requestor = models.ForeignKey(User, related_name='ofmain_requestor_id')
+    requestor_username = models.CharField(max_length=50)
+    requestor_name = models.CharField(max_length=150)
+    department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
+    department_code = models.CharField(max_length=10)
+    department_name = models.CharField(max_length=150)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
+                                                                              MinValueValidator(1)], default=0.00)
+    approvedamount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
+                                                                                      MinValueValidator(1)],
+                                         default=0.00)
+    particulars = models.TextField()
+    refnum = models.CharField(max_length=150, null=True, blank=True)
+    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
     OF_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
@@ -102,6 +112,70 @@ class Ofmain(models.Model):
 
     def __unicode__(self):
         return self.ofnum
+
+
+class Ofitem(models.Model):
+    item_counter = models.IntegerField()
+    ofmain = models.ForeignKey('operationalfund.Ofmain', related_name='ofitem_ofmain_id', null=True, blank=True)
+    ofnum = models.CharField(max_length=10)
+    ofdate = models.DateTimeField()
+    oftype = models.ForeignKey('oftype.Oftype', related_name='ofitem_oftype_id', null=True, blank=True)
+    ofsubtype = models.ForeignKey('ofsubtype.Ofsubtype', related_name='ofitem_ofsubtype_id', null=True, blank=True)
+    payee = models.ForeignKey('supplier.Supplier', related_name='ofitem_payee_id', null=True, blank=True)
+    payee_code = models.CharField(max_length=25, null=True, blank=True)
+    payee_name = models.CharField(max_length=150)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
+                                                                              MinValueValidator(1)], default=0.00)
+    particulars = models.TextField()
+    refnum = models.CharField(max_length=150, null=True, blank=True)
+    vat = models.ForeignKey('vat.Vat', related_name='ofitem_vat_id', validators=[MinValueValidator(1)], null=True,
+                            blank=True)
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofitem_inputvattype_id', null=True,
+                                     blank=True)
+    YESNO_CHOICES = (
+        ('Y', 'Yes'),
+        ('N', 'No'),
+    )
+    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
+    currency = models.ForeignKey('currency.Currency', related_name='ofitem_currency_id', default=1)
+    fxrate = models.DecimalField(default=1.00, null=True, blank=True, decimal_places=5, max_digits=18)
+    remarks = models.CharField(max_length=250, null=True, blank=True)
+    periodfrom = models.DateTimeField(null=True, blank=True)
+    periodto = models.DateTimeField(null=True, blank=True)
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofitem_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofitem_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofitem_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'ofitem'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofitem:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Ofitem.STATUS_CHOICES)[self.status]
 
 
 class Ofdetail(models.Model):
@@ -240,6 +314,69 @@ class Ofdetailbreakdown(models.Model):
 
     def status_verbose(self):
         return dict(Ofdetailbreakdown.STATUS_CHOICES)[self.status]
+
+
+class Ofitemtemp(models.Model):
+    item_counter = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    ofmain = models.CharField(max_length=10, null=True, blank=True)
+    ofitem = models.CharField(max_length=10, null=True, blank=True)
+    ofnum = models.CharField(max_length=10)
+    ofdate = models.DateTimeField(blank=True, null=True)
+    oftype = models.IntegerField(blank=True, null=True)
+    ofsubtype = models.IntegerField(blank=True, null=True)
+    payee = models.IntegerField(blank=True, null=True)
+    payee_code = models.CharField(max_length=25, null=True, blank=True)
+    payee_name = models.CharField(max_length=150)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
+                                                                              MinValueValidator(1)], default=0.00)
+    particulars = models.TextField(null=True, blank=True)
+    refnum = models.CharField(max_length=150, null=True, blank=True)
+    vat = models.IntegerField(blank=True, null=True)
+    vatrate = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True, blank=True)
+    inputvattype = models.IntegerField(blank=True, null=True)
+    YESNO_CHOICES = (
+        ('Y', 'Yes'),
+        ('N', 'No'),
+    )
+    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
+    currency = models.IntegerField(blank=True, null=True)
+    fxrate = models.DecimalField(null=True, blank=True, decimal_places=5, max_digits=18)
+    remarks = models.CharField(max_length=250, null=True, blank=True)
+    periodfrom = models.DateTimeField(null=True, blank=True)
+    periodto = models.DateTimeField(null=True, blank=True)
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
+    enterby = models.ForeignKey(User, default=1, related_name='ofitemtemp_enter')
+    enterdate = models.DateTimeField(auto_now_add=True)
+    modifyby = models.ForeignKey(User, default=1, related_name='ofitemtemp_modify')
+    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='ofitemtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(default=datetime.datetime.now())
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'ofitemtemp'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+    def get_absolute_url(self):
+        return reverse('ofitemtemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Ofitemtemp.STATUS_CHOICES)[self.status]
 
 
 class Ofdetailtemp(models.Model):

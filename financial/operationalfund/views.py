@@ -352,7 +352,7 @@ class UpdateViewCashier(UpdateView):
     template_name = 'operationalfund/cashierupdate.html'
     fields = ['ofnum', 'ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
               'inputvattype', 'deferredvat', 'currency', 'fxrate', 'ofstatus', 'employee', 'department',
-              'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'vatrate', 'atcrate']
+              'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'vatrate', 'atcrate', 'requestor']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -472,7 +472,8 @@ class UpdateViewCashier(UpdateView):
             pk=self.object.id).payee is not None else ''
         context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
-        context['requestor'] = User.objects.filter(pk=self.request.user.id)
+        context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
+        context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')

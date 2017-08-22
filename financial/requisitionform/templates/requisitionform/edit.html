@@ -6,6 +6,14 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.css' %}" />
+    <style>
+        .select2-results__option {
+            font-size: 12px;
+        }
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: white;
+        }
+    </style>
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -50,7 +58,7 @@
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_rfdate">Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" style="padding: 5px 10px" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.rfdate.value|date:'Y-m-d'|default:'' }}">
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_rfdate" name="rfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.rfdate.value|date:'Y-m-d'|default:'' }}">
                                 <span class="help-block form-error">{{ form.rfdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-4 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
@@ -362,6 +370,7 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
 

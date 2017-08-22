@@ -194,7 +194,7 @@
                         btnResponse.hide();
                         if(response.newofstatus == "Approved")  btnResponse.siblings('.btn-disapprove').show();
                         else if(response.newofstatus == "Disapproved")  btnResponse.siblings('.btn-approve').show();
-                        //btnResponse.parent().parent().siblings('.action-btns-container').find('.btnDelete').hide();
+                        btnResponse.parent().parent().siblings('.action-btns-container').find('.btnDelete').hide();
                         if($('#user_role').val() == 'C' && response.newofstatus == "Approved")
                             btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').show();
                         else if($('#user_role').val() == 'C' && response.newofstatus == "Disapproved")

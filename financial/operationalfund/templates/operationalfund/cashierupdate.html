@@ -84,64 +84,74 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.oftype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2 {{ form.ofsubtype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_ofsubtype">OF Subtype</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_ofsubtype" name="ofsubtype">
+{#                                <div class="form-group col-sm-2 {{ form.ofsubtype.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_ofsubtype">OF Subtype</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_ofsubtype" name="ofsubtype">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for ofsubtype in ofsubtype %}#}
+{#                                            <option value="{{ ofsubtype.id }}" {% if form.ofsubtype.value|add:"0" == ofsubtype.id %} selected="selected" {% endif %}>{{ ofsubtype.description }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.ofsubtype.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_amount">Amount</label>#}
+{#                                    <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"#}
+{#                                           maxlength="7" data-validation="required" value="{{ form.amount.value }}" style="background: white;">#}
+{#                                    <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_employee">Employee</label>#}
+{#                                    <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for employee in employee %}#}
+{#                                            <option value="{{ employee.id }}" {% if form.employee.value|add:0 == employee.id %} selected="selected" {% endif %}>{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>#}
+{#                                </div>#}
+                                <div class="form-group col-sm-4 {{ form.requestor.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_requestor">Requestor</label>
+                                    <select class="form-control input-sm select2" data-validation="required" id="id_requestor" name="requestor">
                                         <option value="">-- Select --</option>
-                                        {% for ofsubtype in ofsubtype %}
-                                            <option value="{{ ofsubtype.id }}" {% if form.ofsubtype.value|add:"0" == ofsubtype.id %} selected="selected" {% endif %}>{{ ofsubtype.description }}</option>
+                                        {% for requestor in requestor %}
+                                            <option value="{{ requestor.id }}" {% if form.requestor.value|add:0 == requestor.id %} selected="selected" {% endif %}>{{ requestor.first_name }} {{ requestor.last_name }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span class="help-block form-error">{{ form.ofsubtype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_amount">Amount</label>
-                                    <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
-                                           maxlength="7" data-validation="required" value="{{ form.amount.value }}" style="background: white;">
-                                    <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.requestor.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_refnum">Reference #</label>
                                     <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_employee">Employee</label>
-                                    <select class="form-control input-sm select2" data-validation="required" id="id_employee" name="employee">
-                                        <option value="">-- Select --</option>
-                                        {% for employee in employee %}
-                                            <option value="{{ employee.id }}" {% if form.employee.value|add:0 == employee.id %} selected="selected" {% endif %}>{{ employee.code }} | {{ employee.lastname }}, {{ employee.firstname }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.department.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_department">Department</label>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
-                                        {% for department in department %}
+                                        {% for department in requestordepartment %}
                                             <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} | {{ department.departmentname }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.payee.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_payee">Payee</label>
-                                        <div class="input-search">
-                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase; background: white;"
-                                                    data-creditterm="{{ form.creditterm.value|default:0 }}" data-vat="{{ form.vat.value|default:0 }}"
-                                                    data-atc="{{ form.atc.value|default:0 }}" data-inputvattype="{{ form.inputvattype.value|default:0 }}"
-                                                    data-deferredvat="{{ form.deferredvat.value|default:'N' }}" data-wtax="{{ form.wtax.value|default:0 }}"
-                                                    data-currency="{{ form.currency.value|default:0 }}" data-fxrate="{{ form.fxrate.value|default:0.00 }}"
-                                                   value="{{ payee_name|default:'' }}">
-                                                <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
-                                                    <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
-                                                </button>
-                                        </div>
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{% if payee != '' %}{{ payee_name }}{% endif %}">
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee }}">
-                                    <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
-                                </div>
+{#                                <div class="form-group col-sm-3 {{ form.payee.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_payee">Payee</label>#}
+{#                                        <div class="input-search">#}
+{#                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase; background: white;"#}
+{#                                                    data-creditterm="{{ form.creditterm.value|default:0 }}" data-vat="{{ form.vat.value|default:0 }}"#}
+{#                                                    data-atc="{{ form.atc.value|default:0 }}" data-inputvattype="{{ form.inputvattype.value|default:0 }}"#}
+{#                                                    data-deferredvat="{{ form.deferredvat.value|default:'N' }}" data-wtax="{{ form.wtax.value|default:0 }}"#}
+{#                                                    data-currency="{{ form.currency.value|default:0 }}" data-fxrate="{{ form.fxrate.value|default:0.00 }}"#}
+{#                                                   value="{{ payee_name|default:'' }}">#}
+{#                                                <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>#}
+{#                                                    <i class="icon fa-ellipsis-h" aria-hidden="true"></i>#}
+{#                                                </button>#}
+{#                                        </div>#}
+{#                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee" value="{% if payee != '' %}{{ payee_name }}{% endif %}">#}
+{#                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee }}">#}
+{#                                    <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>#}
+{#                                </div>#}
                                 <div class="form-group col-sm-2 {{ form.creditterm.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_creditterm">Credit Term</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
@@ -151,47 +161,6 @@
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
-                                        <option value="">-- Select --</option>
-                                        {% for vat in vat %}
-                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.atc.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_atc">ATC</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">
-                                        <option value="">-- Select --</option>
-                                        {% for atc in atc %}
-                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.inputvattype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
-                                        <option value="">-- Select --</option>
-                                        {% for inputvattype in inputvattype %}
-                                            <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.deferredvat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_deferredvat">Deferred VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
-                                        {% for id,name in form.fields.deferredvat.choices %}
-                                            <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_branch">Branch</label>
@@ -214,40 +183,77 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.ofstatus.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-12"></div>
-                                <div class="col-sm-4">
-                                    <div class="form-group col-sm-8 padding-left-0 {{ form.currency.errors|yesno:'has-error,' }}">
-                                        <label class="control-label" for="id_currency">Currency</label>
-                                        <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
-                                            <option value="">-- Select --</option>
-                                            {% for currency in currency %}
-                                                <option value="{{ currency.id }}" data-rate="{{ currency.fxrate|floatformat:2 }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}]&nbsp;&nbsp;&nbsp;{{ currency.description }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
-                                    </div>
-                                    <div class="form-group col-sm-4 padding-right-0 {{ form.fxrate.errors|yesno:'has-error,' }}">
-                                        <label class="control-label" for="id_fxrate">FX Rate</label>
-                                        <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
-                                               data-validation="required" value="{{ form.fxrate.value|floatformat:2 }}" style="background: white;">
-                                        <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
-                                    </div>
-                                    <div class="form-group col-sm-12 padding-left-0 padding-right-0 {{ form.actualapprover.errors|yesno:'has-error,' }}">
-                                        <label class="control-label" for="id_actualapprover">Approved By</label>
-                                        <input type="text" class="form-control input-sm" id="id_actualapprover" name="actualapprover" value="{{ actualapprover }}" readonly="readonly">
-                                        <span class="help-block form-error">{{ form.actualapprover.errors.as_text }}</span>
-                                    </div>
-
+                                <div class="form-group col-sm-2 {{ form.actualapprover.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_actualapprover">Approved By</label>
+                                    <input type="text" class="form-control input-sm" id="id_actualapprover" name="actualapprover" value="{{ actualapprover }}" readonly="readonly">
+                                    <span class="help-block form-error">{{ form.actualapprover.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-4">
+{#                                <div class="form-group col-sm-2 {{ form.vat.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_vat">VAT</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for vat in vat %}#}
+{#                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>#}
+{#                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group col-sm-2 {{ form.atc.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_atc">ATC</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for atc in atc %}#}
+{#                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>#}
+{#                                    <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group col-sm-2 {{ form.inputvattype.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for inputvattype in inputvattype %}#}
+{#                                            <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                <div class="form-group col-sm-2 {{ form.deferredvat.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_deferredvat">Deferred VAT</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">#}
+{#                                        {% for id,name in form.fields.deferredvat.choices %}#}
+{#                                            <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>#}
+{#                                </div>#}
+{#                                    <div class="form-group col-sm-8 padding-left-0 {{ form.currency.errors|yesno:'has-error,' }}">#}
+{#                                        <label class="control-label" for="id_currency">Currency</label>#}
+{#                                        <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">#}
+{#                                            <option value="">-- Select --</option>#}
+{#                                            {% for currency in currency %}#}
+{#                                                <option value="{{ currency.id }}" data-rate="{{ currency.fxrate|floatformat:2 }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}]&nbsp;&nbsp;&nbsp;{{ currency.description }}</option>#}
+{#                                            {% endfor %}#}
+{#                                        </select>#}
+{#                                        <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>#}
+{#                                    </div>#}
+{#                                    <div class="form-group col-sm-4 padding-right-0 {{ form.fxrate.errors|yesno:'has-error,' }}">#}
+{#                                        <label class="control-label" for="id_fxrate">FX Rate</label>#}
+{#                                        <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"#}
+{#                                               data-validation="required" value="{{ form.fxrate.value|floatformat:2 }}" style="background: white;">#}
+{#                                        <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>#}
+{#                                    </div>#}
+                                <div class="form-group col-sm-6">
                                     <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" style="height: 110px;" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical; background: white;"
+                                    <textarea data-fv-field="standard_content" rows="3" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical; background: white;"
                                               data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-6">
                                     <label class="control-label" for="id_remarks">Remarks</label>
-                                    <textarea data-fv-field="standard_content" style="height: 110px;" class="form-control input-sm" id="id_remarks" name="remarks" style="resize: vertical; background: white;">{{ form.remarks.value|default:'' }}</textarea>
+                                    <textarea data-fv-field="standard_content" rows="3" class="form-control input-sm" id="id_remarks" name="remarks" style="resize: vertical; background: white;">{{ form.remarks.value|default:'' }}</textarea>
                                     <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
                                 </div>
                             </div>
@@ -409,6 +415,7 @@
             //disabling of some elements from usercreate screen 08172017
             $("#id_payee").prop("readonly", true);
             $(".input-search-button").hide();
+            $("#id_requestor option:selected").siblings().attr('disabled','disabled');
             $("#id_department option:selected").siblings().attr('disabled','disabled');
             $("#id_employee option:selected").siblings().attr('disabled','disabled');
             $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');

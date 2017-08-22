@@ -5,11 +5,13 @@
         <div class="col-lg-12 form-group">
             <label class="col-sm-3 control-label" for="item_name">Item</label>
             <div class="col-sm-7">
-                <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
-                    <option value="">-- Select Item --</option>
-                    {% for invitem in invitem %}
-                        <option value="{{ invitem.id }}" data-code="{{ invitem.code }}" data-um="{{ invitem.unitofmeasure }}">{{ invitem.code }} | {{ invitem.description }}</option>
-                    {% endfor %}
+{#                <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">#}
+{#                    <option value="">-- Select Item --</option>#}
+{#                    {% for invitem in invitem %}#}
+{#                        <option value="{{ invitem.id }}" data-code="{{ invitem.code }}" data-um="{{ invitem.unitofmeasure }}">{{ invitem.code }} | {{ invitem.description }}</option>#}
+{#                    {% endfor %}#}
+{#                </select>#}
+                <select class="form-control input-sm ajaxselect2" required style="width: 100%" id="id_item_name" name="item_name">
                 </select>
                 <span class="help-block form-error"></span>
             </div>
@@ -36,7 +38,7 @@
     $(document).ready(function() {
         summary = $("#summary tbody");
         computeTotalRequestedQty();
-        resetItems();
+        //resetItems();
         $('.remarks-editor').wysihtml5({
             "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
             "emphasis": false, //Italics, bold, etc. Default true
@@ -80,7 +82,7 @@
                         var itemid = $("#id_item_name").val();
 
                         summary.append("<tr><td></td>" +
-                                "<td>" + $("option:selected", $("#id_item_name")).data('code') + "</td>" +
+                                "<td>" + response.itemcode + "</td>" +
                                 "<td>" +  invname[1] + "</td>" +
                                 "<td><div><div class='col-sm-11 row'><textarea class='form-control input-sm input-remarks' id='id_temp_remarks[" + response.itemno + "]' name='temp_remarks' form='form-b'>" + response.remarks + "</textarea></div>" +
                                 "<div class='col-sm-1'><button class='btn showRemarks' data-toggle='modal' data-target='#remarksModal' data-itemno='" + response.itemno + "'>...</button></div></div></td>" +
@@ -98,7 +100,7 @@
 
                         reorderItems();
                         computeTotalRequestedQty();
-                        resetItems();
+                        //resetItems();
                         callEventHandler(summary.find("tr").last().find('.remove_item').data('itemno'));
 
                         $('.shade').fadeOut();
@@ -145,7 +147,7 @@
                     elem.parent().parent().remove();
                     reorderItems();
                     computeTotalRequestedQty();
-                    resetItems();
+                    //resetItems();
                     $('.shade').fadeOut();
                 }
                 , error: function(response) {
@@ -194,13 +196,15 @@
             $("#totalprfquantity").text(totalPrfQuantity);
         }
 
-        function resetItems(){
-            $('#id_item_name').find('option').prop("disabled",false);
-            $('.remove_item').each(function(){
-                $('#id_item_name').find('option[value=' + $(this).data('itemid') + ']').prop("disabled", true);
-                $('#id_item_name').select2("destroy");
-                $('#id_item_name').select2();
-            });
-        }
+{#        function resetItems(){#}
+{#            $('#id_item_name').find('option').prop("disabled",false);#}
+{#            $('.remove_item').each(function(){#}
+{#                $('#id_item_name').find('option[value=' + $(this).data('itemid') + ']').prop("disabled", true);#}
+{#                $('#id_item_name').select2("destroy");#}
+{#                $('#id_item_name').select2();#}
+{#            });#}
+{#        }#}
+
+        ajaxselect2("inventoryitem_SI");
     });
 </script>

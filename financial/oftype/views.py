@@ -3,6 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
+from chartofaccount.models import Chartofaccount
 from oftype.models import Oftype
 
 @method_decorator(login_required, name='dispatch')
@@ -25,7 +26,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Oftype
     template_name = 'oftype/create.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'creditchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('oftype.add_oftype'):
@@ -44,12 +45,22 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Oftype
     template_name = 'oftype/edit.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'creditchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('oftype.change_oftype'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+
+        if self.request.POST.get('creditchartofaccount', False):
+            context['creditchartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
+        elif self.object.creditchartofaccount:
+            context['creditchartofaccount'] = Chartofaccount.objects.get(pk=self.object.creditchartofaccount.id,
+                                                                         isdeleted=0)
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)

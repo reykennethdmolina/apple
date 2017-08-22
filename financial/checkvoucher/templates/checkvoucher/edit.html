@@ -38,7 +38,26 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
-                    <h3 class="panel-title" style="padding:10px 10px 15px 25px;">UPDATE</h3>
+                    <h3 class="panel-title" style="padding:5px 10px 20px 25px;">UPDATE
+                        <div class="btn-group pull-right">
+                            <div class="shade"><div class="loader loader-sm two-color"></div></div>
+                            <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-search" aria-hidden="true"></i> Search
+                            </button>
+                            <button id="nav_stepleft" class="btn btn-default nav_btn small">
+                                <i class="icon fa-step-backward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_left" class="btn btn-default nav_btn small">
+                                <i class="icon fa-backward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_right" class="btn btn-default nav_btn small">
+                                <i class="icon fa-forward" aria-hidden="true"></i>
+                            </button>
+                            <button id="nav_stepright" class="btn btn-default nav_btn small">
+                                <i class="icon icon fa-step-forward" aria-hidden="true"></i>
+                            </button>
+						</div>
+                    </h3>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                     {{ form.errors }}
@@ -191,7 +210,7 @@
                                     <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.deferredvat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_deferredvat">Deferred?</label>
+                                    <label class="control-label" for="id_deferredvat">Deferred VAT</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
                                         {% for id,name in form.fields.deferredvat.choices %}
                                             <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
@@ -423,6 +442,7 @@
     </div>
 </div>
 <!-- Accounting Entry End -->
+{% include "checkvoucher/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

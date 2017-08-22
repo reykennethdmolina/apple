@@ -406,8 +406,9 @@ def savedetailtemp(request):
             'status': 'success',
             'itemno': request.POST['itemno'],
             'quantity': request.POST['id_quantity'],
+            'itemcode': detailtemp.invitem_code,
             'remarks': request.POST['id_remarks'],
-            'rfdetailid' : detailtemp.pk,
+            'rfdetailid': detailtemp.pk,
         }
     else:
         data = {
