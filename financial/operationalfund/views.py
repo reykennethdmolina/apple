@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
@@ -8,24 +8,16 @@ from branch.models import Branch
 from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
-from department.models import Department
-from employee.models import Employee
 from inputvattype.models import Inputvattype
 from oftype.models import Oftype
 from ofsubtype.models import Ofsubtype
 from supplier.models import Supplier
 from vat.models import Vat
 from wtax.models import Wtax
-from chartofaccount.models import Chartofaccount
-from bankaccount.models import Bankaccount
 from employee.models import Employee
-from customer.models import Customer
 from department.models import Department
-from unit.models import Unit
-from product.models import Product
 from inputvat.models import Inputvat
-from outputvat.models import Outputvat
-from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp
+from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
 from django.template.loader import render_to_string
@@ -33,7 +25,6 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
-from annoying.functions import get_object_or_None
 from endless_pagination.views import AjaxListView
 
 
@@ -593,6 +584,43 @@ class DeleteView(DeleteView):
         self.object.save()
 
         return HttpResponseRedirect('/operationalfund')
+
+
+@csrf_exempt
+def saveitemtemp(request):
+    if request.method == 'POST':
+        if request.POST['id_itemtemp']:  # if item already exists (update)
+            itemtemp = Ofitemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
+        else:  # if item does not exist (create)
+            itemtemp = Ofitemtemp()
+            itemtemp.enterby = request.user
+        itemtemp.item_counter = request.POST['itemno']
+        itemtemp.secretkey = request.POST['secretkey']
+        itemtemp.oftype = Oftype.objects.get(pk=request.POST['id_oftype'])
+        itemtemp.ofsubtype = Ofsubtype.objects.get(pk=request.POST['id_ofsubtype'])
+        if request.POST['id_payee'] == request.POST['id_hiddenpayee']:
+            itemtemp.payee = Supplier.objects.get(pk=request.POST['id_hiddenpayeeid'])
+            itemtemp.payee_code = itemtemp.payee.code
+            itemtemp.payee_name = itemtemp.payee.name
+        else:
+            itemtemp.payee_name = request.POST['id_payee']
+        itemtemp.amount = request.POST['id_amount'].replace(', ', '')
+        itemtemp.particulars = request.POST['id_particulars']
+        itemtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
+        itemtemp.fxrate = float(request.POST['id_fxrate'])
+        itemtemp.periodfrom = request.POST['id_periodfrom']
+        itemtemp.periodto = request.POST['id_periodto']
+        itemtemp.modifyby = request.user
+        itemtemp.save()
+        data = {
+            'status': 'success',
+            'itemtempid': itemtemp.pk,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
 
 
 @csrf_exempt
