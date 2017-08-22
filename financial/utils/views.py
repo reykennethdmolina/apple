@@ -111,7 +111,19 @@ def ajaxSelect(request):
 
             newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
             newtext = newtext.sub(q.upper(), text)
-            listitems.append({'text': newtext, 'id': data.id})
+            # listitems.append({'text': newtext, 'id': data.id}
+
+            if request.GET['table'] == "inventoryitem" \
+                    or request.GET['table'] == "inventoryitem_SV" \
+                    or request.GET['table'] == "inventoryitem_SI" \
+                    or request.GET['table'] == "inventoryitem_FA":
+                listitems.append({'text': newtext,
+                                  'id': data.id,
+                                  'um': data.unitofmeasure.id,
+                                  'code': data.code,
+                                  'type': data.inventoryitemclass.inventoryitemtype.code})
+            else:
+                listitems.append({'text': newtext, 'id': data.id})
 
         data = {
             'status': 'success',

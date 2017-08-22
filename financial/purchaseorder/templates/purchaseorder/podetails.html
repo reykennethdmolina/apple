@@ -6,15 +6,15 @@
             <div class="col-md-12 row">
                 <label class="col-sm-offset-2 col-sm-1 control-label" for="id_item_name">Item</label>
                 <div class="col-sm-7">
-                    <select class="form-control input-sm select2" required style="width: 100%" id="id_item_name" name="item_name">
-                        <option value="">-- Select Item --</option>
-                        {% for invitem in invitem %}
-                            <option value="{{ invitem.id }}" data-um="{{ invitem.unitofmeasure.id }}"
-                                    data-code="{{ invitem.code }}"
-                                    data-type="{{ invitem.inventoryitemclass.inventoryitemtype.code }}">
-                                {{ invitem.description }}
-                            </option>
-                        {% endfor %}
+                    <select class="form-control input-sm" required style="width: 100%" id="id_item_name" name="item_name">
+{#                        <option value="">-- Select Item --</option>#}
+{#                        {% for invitem in invitem %}#}
+{#                            <option value="{{ invitem.id }}" data-um="{{ invitem.unitofmeasure.id }}"#}
+{#                                    data-code="{{ invitem.code }}"#}
+{#                                    data-type="{{ invitem.inventoryitemclass.inventoryitemtype.code }}">#}
+{#                                {{ invitem.description }}#}
+{#                            </option>#}
+{#                        {% endfor %}#}
                     </select>
                     <span class="help-block form-error"></span>
                 </div><br><br><br>
@@ -116,6 +116,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         summary = $("#summary tbody");
+        var dataSelected = '';
 
         //unitofmeasure list
         unitofmeasure_list = "<select name='temp_item_um' form='form-b' id='id_temp_item_um' class='form-control input-sm tblSelectUnitOfMeasure' style='width:100%' required>";
@@ -152,11 +153,12 @@
         $('#id_branch').val(5).trigger('change');
 
         $('#id_item_name').select2().on("change", function(e) {
-            if($("#id_item_name option:selected").data('type') == 'FA'){
+            dataSelected = $('#id_item_name').select2('data')[0];
+            if(dataSelected.type == 'FA'){
                 $('#fixedasset').show();
                 $('#suppliesinventory').hide();
             }
-            else if($("#id_item_name option:selected").data('type') == 'SI'){
+            else if(dataSelected.type == 'SI'){
                 $('#suppliesinventory').show();
                 $('#fixedasset').hide();
             }
@@ -185,6 +187,9 @@
         $("#btn_detailsubmit").click(function(){
             if($('#id_supplier').val() == ''){
                 alert("Please select a supplier first.");
+            }
+            else if($('#id_vat').val() == ''){
+                alert("Please select VAT first.");
             }
             else {
                 $('.shade').fadeIn();
@@ -216,7 +221,7 @@
                         'id_department': $('#id_department').val(),
                         'id_employee': $('#id_employee').val(),
                         'id_itemid': $('#id_item_name').val(),
-                        'id_um': $("option:selected", $("#id_item_name")).data('um'),
+                        'id_um': dataSelected.um,
                         'id_vat': $("#id_vat").val(),
                         'id_quantity': qty,
                         'id_unitcost': unitCost,
@@ -237,8 +242,8 @@
                     },
                     success: function(response) {
                         $("#itemno").text(parseInt($("#itemno").text()) + 1);
-                        var um_selected = $('#id_item_name option:selected').data('um');
-                        var type_selected = $('#id_item_name option:selected').data('type');
+                        var um_selected = dataSelected.um;
+                        var type_selected = dataSelected.type;
 
                         summary.append("<tr class='small tblItemContainer'>" +
                                 "<td class='text-center tblItemCounter'></td>" +
@@ -246,7 +251,7 @@
                                     "<span style='cursor:pointer;font-size:15px;' class='remove_item' data-itemno='" + parseInt($("#itemno").text()) + 1 +
                                     "' data-itemid='" + $('#id_item_name').val() + "' data-podetailid='" + response.podetailid + "'>" +
                                         "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
-                                    "</span> &nbsp;&nbsp;" + $("option:selected", $("#id_item_name")).data('code') +
+                                    "</span> &nbsp;&nbsp;" + dataSelected.code +
                                 "</td>" +
                                 "<td class='tblItemName'>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
                                 "<td class='tblRemarks'>" +
@@ -910,6 +915,6 @@
             });
         }
 
-        //ajaxselect2("inventoryitem", "id_item_name");
+        ajaxselect2("inventoryitem", "id_item_name");
     });
 </script>
