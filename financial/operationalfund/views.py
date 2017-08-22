@@ -129,6 +129,9 @@ class CreateViewUser(CreateView):
             order_by('first_name')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['requestor'] = User.objects.filter(pk=self.request.user.id)
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+
         return context
 
     def form_valid(self, form):
