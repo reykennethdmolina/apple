@@ -79,17 +79,15 @@
                             <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
                         {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
-                            {% if data.ofstatus == 'F' or data.ofstatus == 'D' %}
-                                <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+{#                            {% if data.ofstatus == 'F' or data.ofstatus == 'D' %}#}
+                                <a href="{% url 'operationalfund:userupdate' data.pk %}" style="display: none;" class="btnUpdate userUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                 </a>
-                            {% else %}
-                                <a href="{% url 'operationalfund:cashierupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+{#                            {% else %}#}
+                                <a href="{% url 'operationalfund:cashierupdate' data.pk %}" style="display: none;" class="btnUpdate cashierUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                 </a>
-                            {% endif %}
-                        {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
-
+{#                            {% endif %}#}
                         {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
                         <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                             <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
@@ -124,15 +122,25 @@
             if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Approved"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-disapprove').show();
+                $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').hide();
+                $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').show();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved"){
                 $(this).show();
                 $(this).parent().siblings('.btn-approve').hide();
+                $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').show();
+                $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').hide();
+            }
+            else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "For Approval"){
+                $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').show();
+                $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').hide();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
                     $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-disapprove').hide();
+                $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').hide();
+                $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').show();
             }
         });
         $('.btn-disapprove').each(function() {
@@ -192,13 +200,21 @@
                                 .addClass('tdOfStatus')
                                 .addClass(statusClass);
                         btnResponse.hide();
-                        if(response.newofstatus == "Approved")  btnResponse.siblings('.btn-disapprove').show();
-                        else if(response.newofstatus == "Disapproved")  btnResponse.siblings('.btn-approve').show();
+                        if(response.newofstatus == "Approved"){
+                            btnResponse.siblings('.btn-disapprove').show();
+                            if($('#user_role').val() == 'C'){
+                                btnResponse.parent().parent().siblings('.action-btns-container').find('.userUpdate').hide();
+                                btnResponse.parent().parent().siblings('.action-btns-container').find('.cashierUpdate').show();
+                            }
+                        }
+                        else if(response.newofstatus == "Disapproved"){
+                            btnResponse.siblings('.btn-approve').show();
+                            if($('#user_role').val() == 'C'){
+                                btnResponse.parent().parent().siblings('.action-btns-container').find('.userUpdate').show();
+                                btnResponse.parent().parent().siblings('.action-btns-container').find('.cashierUpdate').hide();
+                            }
+                        }
                         btnResponse.parent().parent().siblings('.action-btns-container').find('.btnDelete').hide();
-                        if($('#user_role').val() == 'C' && response.newofstatus == "Approved")
-                            btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').show();
-                        else if($('#user_role').val() == 'C' && response.newofstatus == "Disapproved")
-                            btnResponse.parent().parent().siblings('.action-btns-container').find('.btnUpdate').hide();
                     },
                     error: function(response) {
                         console.debug(response);
