@@ -187,7 +187,7 @@ class CreateViewUser(CreateView):
             item.ofmain = self.object
             item.ofsubtype = itemtemp.ofsubtype
             item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
-            item.payee = Supplier.objects.get(pk=itemtemp.payee)
+            item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
             item.ofitemstatus = itemtemp.ofitemstatus
             item.save()
             itemtemp.delete()
