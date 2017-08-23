@@ -44,11 +44,8 @@ class Ofmain(models.Model):
     department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
     department_code = models.CharField(max_length=10)
     department_name = models.CharField(max_length=150)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                              MinValueValidator(1)], default=0.00)
-    approvedamount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                                      MinValueValidator(1)],
-                                         default=0.00)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    approvedamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
@@ -124,8 +121,7 @@ class Ofitem(models.Model):
     payee = models.ForeignKey('supplier.Supplier', related_name='ofitem_payee_id', null=True, blank=True)
     payee_code = models.CharField(max_length=25, null=True, blank=True)
     payee_name = models.CharField(max_length=150)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                              MinValueValidator(1)], default=0.00)
+    amount = models.DecimalField(decimal_places=2, max_digits=18)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='ofitem_vat_id', validators=[MinValueValidator(1)], null=True,
@@ -142,8 +138,8 @@ class Ofitem(models.Model):
     currency = models.ForeignKey('currency.Currency', related_name='ofitem_currency_id', default=1)
     fxrate = models.DecimalField(default=1.00, null=True, blank=True, decimal_places=5, max_digits=18)
     remarks = models.CharField(max_length=250, null=True, blank=True)
-    periodfrom = models.DateTimeField(null=True, blank=True)
-    periodto = models.DateTimeField(null=True, blank=True)
+    periodfrom = models.DateField(null=True, blank=True)
+    periodto = models.DateField(null=True, blank=True)
     OF_ITEM_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
@@ -330,12 +326,11 @@ class Ofitemtemp(models.Model):
     ofnum = models.CharField(max_length=10)
     ofdate = models.DateTimeField(blank=True, null=True)
     oftype = models.IntegerField(blank=True, null=True)
-    ofsubtype = models.IntegerField(blank=True, null=True)
+    ofsubtype = models.ForeignKey('ofsubtype.Ofsubtype', related_name='ofitemtemp_ofsubtype_id', null=True, blank=True)
     payee = models.IntegerField(blank=True, null=True)
     payee_code = models.CharField(max_length=25, null=True, blank=True)
     payee_name = models.CharField(max_length=150)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MaxValueValidator(1000),
-                                                                              MinValueValidator(1)], default=0.00)
+    amount = models.DecimalField(decimal_places=2, max_digits=18)
     particulars = models.TextField(null=True, blank=True)
     refnum = models.CharField(max_length=150, null=True, blank=True)
     vat = models.IntegerField(blank=True, null=True)
@@ -349,8 +344,8 @@ class Ofitemtemp(models.Model):
     currency = models.IntegerField(blank=True, null=True)
     fxrate = models.DecimalField(null=True, blank=True, decimal_places=5, max_digits=18)
     remarks = models.CharField(max_length=250, null=True, blank=True)
-    periodfrom = models.DateTimeField(null=True, blank=True)
-    periodto = models.DateTimeField(null=True, blank=True)
+    periodfrom = models.DateField(null=True, blank=True)
+    periodto = models.DateField(null=True, blank=True)
     OF_ITEM_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
