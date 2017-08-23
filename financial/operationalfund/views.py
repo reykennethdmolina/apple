@@ -411,10 +411,9 @@ class UpdateViewUser(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class UpdateViewCashier(UpdateView):
     model = Ofmain
-    template_name = 'operationalfund/cashierupdate.html'
-    fields = ['ofnum', 'ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars', 'creditterm', 'vat', 'atc',
-              'inputvattype', 'deferredvat', 'currency', 'fxrate', 'ofstatus', 'employee', 'department',
-              'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'vatrate', 'atcrate', 'requestor']
+    template_name = 'operationalfund/cashierupdate2.html'
+    fields = ['ofnum', 'ofdate', 'oftype', 'amount', 'refnum', 'particulars', 'creditterm', 'ofstatus', 'department',
+              'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'requestor']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -443,6 +442,38 @@ class UpdateViewCashier(UpdateView):
     # accounting entry starts here
     def get_initial(self):
         self.mysecretkey = generatekey(self)
+
+        # requested items
+        iteminfo = Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).order_by('item_counter')
+
+        for data in iteminfo:
+            detail = Ofitemtemp()
+            detail.item_counter = data.item_counter
+            detail.secretkey = self.mysecretkey
+            detail.ofmain = data.ofmain.id
+            detail.ofitem = data.id
+            detail.ofnum = data.ofnum
+            detail.ofdate = data.ofdate
+            detail.oftype = data.oftype.id
+            detail.ofsubtype = get_object_or_None(Ofsubtype, id=data.ofsubtype.id)
+            detail.payee = data.payee_id
+            detail.payee_code = data.payee_code
+            detail.payee_name = data.payee_name
+            detail.amount = data.amount
+            detail.particulars = data.particulars
+            detail.refnum = data.refnum
+            detail.vat = data.vat_id
+            detail.vatrate = data.vatrate
+            detail.inputvattype = data.inputvattype_id
+            detail.deferredvat = data.deferredvat
+            detail.currency = data.currency_id
+            detail.atc = data.atc_id
+            detail.fxrate = data.fxrate
+            detail.remarks = data.remarks
+            detail.periodfrom = data.periodfrom
+            detail.periodto = data.periodto
+            detail.save()
+        # requested items end
 
         detailinfo = Ofdetail.objects.filter(ofmain=self.object.pk).order_by('item_counter')
 
@@ -530,9 +561,9 @@ class UpdateViewCashier(UpdateView):
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
             User.objects.get(pk=self.object.actualapprover.id).last_name
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(
-            pk=self.object.id).payee is not None else ''
-        context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
+        # context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(
+        #     pk=self.object.id).payee is not None else ''
+        # context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
@@ -550,6 +581,9 @@ class UpdateViewCashier(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         # data for lookup
+
+        # requested items
+        context['itemtemp'] = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0, secretkey=self.mysecretkey).order_by('item_counter')
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -584,7 +618,7 @@ class UpdateViewCashier(UpdateView):
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
-            self.object.save(update_fields=['ofdate', 'oftype', 'ofsubtype', 'amount', 'refnum', 'particulars',
+            self.object.save(update_fields=['ofdate', 'ofsubtype', 'amount', 'refnum', 'particulars',
                                             'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
                                             'fxrate', 'branch', 'ofstatus', 'remarks', 'modifyby', 'modifydate',
                                             'vatrate', 'atcrate'])
