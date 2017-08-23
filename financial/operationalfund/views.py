@@ -26,6 +26,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
+from annoying.functions import get_object_or_None
 
 
 @method_decorator(login_required, name='dispatch')
@@ -50,7 +51,8 @@ class IndexView(AjaxListView):
         context = super(AjaxListView, self).get_context_data(**kwargs)
 
         context['listcount'] = Ofmain.objects.all().count()
-        context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).count()
+        context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).\
+            filter(isdeleted=0).count()
         context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
         context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
 
@@ -104,8 +106,8 @@ class DetailView(DetailView):
 @method_decorator(login_required, name='dispatch')
 class CreateViewUser(CreateView):
     model = Ofmain
-    template_name = 'operationalfund/usercreate2.html'
-    fields = ['ofdate', 'amount', 'particulars', 'designatedapprover']
+    template_name = 'operationalfund/usercreate.html'
+    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         # if not request.user.has_perm('operationalfund.add_ofmain') or \
@@ -115,6 +117,8 @@ class CreateViewUser(CreateView):
         return super(CreateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        self.mysecretkey = generatekey(self)
+
         context = super(CreateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
@@ -122,55 +126,80 @@ class CreateViewUser(CreateView):
         context['requestor'] = User.objects.filter(pk=self.request.user.id)
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['secretkey'] = self.mysecretkey
 
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        if float(self.request.POST['amount'])  <= 1000:
-            year = str(form.cleaned_data['ofdate'].year)
-            yearqs = Ofmain.objects.filter(ofnum__startswith=year)
+        year = str(form.cleaned_data['ofdate'].year)
+        yearqs = Ofmain.objects.filter(ofnum__startswith=year)
 
-            if yearqs:
-                ofnumlast = yearqs.latest('ofnum')
-                latestofnum = str(ofnumlast)
-                print "latest: " + latestofnum
+        if yearqs:
+            ofnumlast = yearqs.latest('ofnum')
+            latestofnum = str(ofnumlast)
+            print "latest: " + latestofnum
 
-                ofnum = year
-                last = str(int(latestofnum[4:]) + 1)
-                zero_addon = 6 - len(last)
-                for num in range(0, zero_addon):
-                    ofnum += '0'
-                ofnum += last
+            ofnum = year
+            last = str(int(latestofnum[4:]) + 1)
+            zero_addon = 6 - len(last)
+            for num in range(0, zero_addon):
+                ofnum += '0'
+            ofnum += last
 
-            else:
-                ofnum = year + '000001'
+        else:
+            ofnum = year + '000001'
 
-            print 'ofnum: ' + ofnum
-            print self.request.POST['payee']
-            print self.request.POST['hiddenpayee']
-            print self.request.POST['hiddenpayeeid']
-            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-                self.object.payee_code = self.object.payee.code
-                self.object.payee_name = self.object.payee.name
-            else:
-                self.object.payee_name = self.request.POST['payee']
+        print 'ofnum: ' + ofnum
 
-            self.object.ofnum = ofnum
-            self.object.enterby = self.request.user
-            self.object.modifyby = self.request.user
-            self.object.employee = Employee.objects.get(code='011161100')
-            self.object.employee_code = self.object.employee.code
-            self.object.employee_name = self.object.employee.firstname.strip(' \t\n\r') + ' ' + \
-                self.object.employee.lastname.strip(' \t\n\r')
-            self.object.department = self.object.employee.department
-            self.object.department_code = self.object.department.code
-            self.object.department_name = self.object.department.departmentname
-            self.object.save()
+        self.object.ofnum = ofnum
+        self.object.enterby = self.request.user
+        self.object.modifyby = self.request.user
+        self.object.requestor_username = self.object.requestor.username
+        self.object.requestor_name = self.object.requestor.first_name + ' ' + self.object.requestor.last_name
+        self.object.department = Department.objects.get(code='IT')  # for editing, should base on user
+        self.object.department_code = self.object.department.code
+        self.object.department_name = self.object.department.departmentname
+        self.object.save()
 
-        return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
+        # ----------------- START save ofitemtemp to ofitem START ---------------------
+        itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+            order_by('enterdate')
+        totalamount = 0
+        i = 1
+        for itemtemp in itemtemp:
+            item = Ofitem()
+            item.item_counter = i
+            item.ofnum = self.object.ofnum
+            item.ofdate = self.object.ofdate
+            item.payee_code = itemtemp.payee_code
+            item.payee_name = itemtemp.payee_name
+            item.amount = itemtemp.amount
+            item.particulars = itemtemp.particulars
+            item.refnum = itemtemp.refnum
+            item.fxrate = itemtemp.fxrate
+            item.periodfrom = itemtemp.periodfrom
+            item.periodto = itemtemp.periodto
+            item.currency = Currency.objects.get(pk=itemtemp.currency)
+            item.enterby = itemtemp.enterby
+            item.modifyby = itemtemp.modifyby
+            item.ofmain = self.object
+            item.ofsubtype = itemtemp.ofsubtype
+            item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
+            item.payee = Supplier.objects.get(pk=itemtemp.payee)
+            item.ofitemstatus = itemtemp.ofitemstatus
+            item.save()
+            itemtemp.delete()
+            totalamount += item.amount
+            i += 1
+        # ----------------- END save ofitemtemp to ofitem END ---------------------
+
+        self.object.amount = totalamount
+        self.object.save()
+
+        # return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
+        return HttpResponseRedirect('/operationalfund/')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -277,7 +306,7 @@ class CreateViewCashier(CreateView):
 class UpdateViewUser(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/userupdate.html'
-    fields = ['ofnum', 'ofdate', 'amount', 'particulars', 'designatedapprover']
+    fields = ['ofnum', 'ofdate', 'oftype', 'requestor', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -291,14 +320,52 @@ class UpdateViewUser(UpdateView):
                 raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
+
+        # requested items
+        iteminfo = Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).order_by('item_counter')
+
+        for data in iteminfo:
+            detail = Ofitemtemp()
+            detail.item_counter = data.item_counter
+            detail.secretkey = self.mysecretkey
+            detail.ofmain = data.ofmain.id
+            detail.ofitem = data.id
+            detail.ofnum = data.ofnum
+            detail.ofdate = data.ofdate
+            detail.oftype = data.oftype.id
+            detail.ofsubtype = get_object_or_None(Ofsubtype, id=data.ofsubtype.id)
+            detail.payee = data.payee_id
+            detail.payee_code = data.payee_code
+            detail.payee_name = data.payee_name
+            detail.amount = data.amount
+            detail.particulars = data.particulars
+            detail.refnum = data.refnum
+            detail.vat = data.vat_id
+            detail.vatrate = data.vatrate
+            detail.inputvattype = data.inputvattype_id
+            detail.deferredvat = data.deferredvat
+            detail.currency = data.currency_id
+            detail.atc = data.atc_id
+            detail.fxrate = data.fxrate
+            detail.remarks = data.remarks
+            detail.periodfrom = data.periodfrom
+            detail.periodto = data.periodto
+            detail.save()
+            # requested items end
+
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['payee'] = Ofmain.objects.get(
-            pk=self.object.id).payee.id if Ofmain.objects.get(
-            pk=self.object.id).payee is not None else ''
-        context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['requestor'] = User.objects.filter(pk=self.request.user.id)
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['secretkey'] = self.mysecretkey
+
+        context['savedoftype'] = self.object.oftype.code
         context['ofstatus'] = Ofmain.objects.get(pk=self.object.id).get_ofstatus_display()
         context['assignedcashier'] = Ofmain.objects.get(
             pk=self.object.id).receiveby.first_name + ' ' + Ofmain.objects.get(
@@ -317,6 +384,7 @@ class UpdateViewUser(UpdateView):
             pk=self.object.id).paymentreceivedby else None
         context['releasedate'] = Ofmain.objects.get(
             pk=self.object.id).releasedate if Ofmain.objects.get(pk=self.object.id).releasedate else None
+
         return context
 
     def form_valid(self, form):
@@ -589,32 +657,51 @@ class DeleteView(DeleteView):
 @csrf_exempt
 def saveitemtemp(request):
     if request.method == 'POST':
-        if request.POST['id_itemtemp']:  # if item already exists (update)
+        if request.POST['id_itemtemp'] != '':  # if item already exists (update)
             itemtemp = Ofitemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
         else:  # if item does not exist (create)
             itemtemp = Ofitemtemp()
             itemtemp.enterby = request.user
         itemtemp.item_counter = request.POST['itemno']
         itemtemp.secretkey = request.POST['secretkey']
-        itemtemp.oftype = Oftype.objects.get(pk=request.POST['id_oftype'])
+        itemtemp.oftype = request.POST['id_oftype']
         itemtemp.ofsubtype = Ofsubtype.objects.get(pk=request.POST['id_ofsubtype'])
         if request.POST['id_payee'] == request.POST['id_hiddenpayee']:
-            itemtemp.payee = Supplier.objects.get(pk=request.POST['id_hiddenpayeeid'])
-            itemtemp.payee_code = itemtemp.payee.code
-            itemtemp.payee_name = itemtemp.payee.name
+            itemtemp.payee = request.POST['id_hiddenpayeeid']
+            itemtemp.payee_code = Supplier.objects.get(pk=itemtemp.payee).code
+            itemtemp.payee_name = Supplier.objects.get(pk=itemtemp.payee).name
         else:
             itemtemp.payee_name = request.POST['id_payee']
-        itemtemp.amount = request.POST['id_amount'].replace(', ', '')
+        itemtemp.amount = request.POST['id_amount'].replace(',', '')
         itemtemp.particulars = request.POST['id_particulars']
-        itemtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
+        itemtemp.currency = request.POST['id_currency']
         itemtemp.fxrate = float(request.POST['id_fxrate'])
-        itemtemp.periodfrom = request.POST['id_periodfrom']
-        itemtemp.periodto = request.POST['id_periodto']
+        itemtemp.periodfrom = request.POST['id_periodfrom'] if request.POST['id_periodfrom'] != '' else None
+        itemtemp.periodto = request.POST['id_periodto'] if request.POST['id_periodto'] != '' else None
         itemtemp.modifyby = request.user
         itemtemp.save()
         data = {
             'status': 'success',
             'itemtempid': itemtemp.pk,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def deleteitemtemp(request):
+    if request.method == 'POST':
+        itemtemptodelete = Ofitemtemp.objects.get(pk=request.POST['id_itemtemp'])
+        if itemtemptodelete.ofmain is None:
+            itemtemptodelete.delete()
+        else:
+            itemtemptodelete.isdeleted = 1
+            itemtemptodelete.save()
+        data = {
+            'status': 'success',
         }
     else:
         data = {

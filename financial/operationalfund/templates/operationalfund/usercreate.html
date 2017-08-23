@@ -16,6 +16,29 @@
         .input-search {
             z-index: 99;
         }
+        /*.extra-fields{
+             display: none;
+        }*/
+        .rotate-up {
+            -webkit-transform: rotate(180deg);
+            -webkit-transition: -webkit-transform .5s;
+        }
+        .rotate-down {
+            -webkit-transform: rotate(0deg);
+            -webkit-transition: -webkit-transform .5s;
+        }
+        .rotate-icon{
+            display: inline-block;
+        }
+        .item_hidden{
+            display: none;
+        }
+        .select2-container--default .select2-results__option[aria-disabled=true] {
+            display: none;
+        }
+        .disabled-white{
+            background-color: white !important;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -25,41 +48,44 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">CREATE</h3>
                 </div>
-                    <form method="post" id="form-b">
-                        {% csrf_token %}
-                        <div class="row col-md-6 row-lg margin-left-10">
-                            <div class="form-group col-sm-6">
+                <form method="post" id="form-b">
+                    {% csrf_token %}
+                    <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
+                    <div class="row col-md-12 row-lg margin-left-10">
+                        <div class="row col-md-8 row-lg margin-left-10">
+                            <div class="form-group col-sm-3 margin-bottom-0">
                                 <label class="control-label" for="id_ofnum">Number</label>
                                 <input type="text" class="form-control input-sm" id="id_ofnum" name="ofnum" placeholder="OFxxxxxxx" value="{{ form.ofnum.value|default:'' }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.ofnum.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-6">
+                            <div class="form-group col-sm-3 margin-bottom-0">
                                 <label class="control-label" for="id_ofdate">Date</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.ofdate.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-12 {{ form.payee.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_payee">Payee</label>
-                                <div class="input-search">
-                                    <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;">
-                                    <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
-                                        <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                                <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee">
-                                <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid">
-                                <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
+                            <div class="form-group col-sm-6 {{ form.oftype.errors|yesno:'has-error,' }} margin-bottom-0">
+                                <label class="control-label" for="id_oftype">OF Type</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_oftype" name="oftype">
+                                    {% for data in oftype %}
+                                        <option value="{{ data.id }}" {% if form.oftype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} - {{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                </select>
+                                <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-6 {{ form.amount.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_amount">Amount</label>
-                                <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
-                                       maxlength="7" data-validation="required" value="{{ form.amount.value }}">
-                                <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
+                            <div class="form-group col-sm-12"></div>
+                            <div class="form-group col-sm-6 {{ form.requestor.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_requestor">Requestor</label>
+                                <select class="form-control input-sm select2" data-validation="required" id="id_requestor" name="requestor">
+                                    {% for data in requestor %}
+                                        <option value="{{ data.id }}" selected="selected">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.requestor.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_designatedapprover">Approver</label>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-{#                                    <option value="1">Rey Kenneth Molina</option>#}
                                     <option value="">-- Select --</option>
                                     {% for designatedapprover in designatedapprover %}
                                         <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
@@ -68,41 +94,109 @@
                                 <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                             </div>
                         </div>
-                        <div class="row col-md-6 row-lg margin-left-10">
-                            <div class="form-group col-sm-12">
-                                <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control" id="id_particulars" name="particulars" rows="5" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
-                                <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                        <div class="form-group col-sm-4 margin-bottom-0">
+                            <div class="panel">
+                                <br>
+                                <label class="control-label pull-right" style="margin-right: 20px">Total Amount:</label><br><br>
+                                <div class="pull-right" id="totalamount" style="margin-right: 20px">0.00</div><br><br>
                             </div>
-                            <button type="submit" class="btn btn-round btn-success floatright margin-right-20" id="validateButton">Submit</button>
+                            <button type="submit" class="btn btn-round btn-success floatright" id="validateButton">Submit</button>
                         </div>
-                        <div class="row row-lg margin-left-10">
-
+                    </div>
+                    <div class="row row-lg margin-left-10">
+                    </div>
+                    <div class="row row-lg margin-left-10">
+                    </div>
+                    </form>
+                </div>
+                <div class="col-sm-12">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h4>Request Details</h4><br>
+                            <table class="table item_table">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <div class="form-group col-sm-1 margin-bottom-0"></div>
+                                        <div class="form-group col-sm-3 margin-bottom-0">OF Subtype</div>
+                                        <div class="form-group col-sm-4 margin-bottom-0">Payee</div>
+                                        <div class="form-group col-sm-3 margin-bottom-0">Amount</div>
+                                        <div class="form-group col-sm-1 margin-bottom-0" style="text-align:right">
+                                            <a href="#_" id="item_add" style="font-size: 17px" class="pull-right">
+                                                <i class="icon fa-plus-square" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="warning">
+                                        <td>
+                                            <div class="form-group col-sm-1 margin-bottom-0 item_counter">1</div>
+                                            <div class="form-group col-sm-3 margin-bottom-0">
+                                                <select class="form-control input-sm item_input_ofsubtype" style="width: 100%;"></select>
+                                            </div>
+                                            <div class="form-group col-sm-4 margin-bottom-0">
+                                                <div class="input-search">
+                                                    <input type="text" data-validation="required" class="form-control input-sm input-payee" name="payee" style="text-transform:uppercase; background: white;"
+                                                        data-currency="1" data-fxrate="1.00">
+                                                    <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
+                                                        <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" class="form-control input-sm input-hiddenpayee" name="hiddenpayee">
+                                                <input type="hidden" class="form-control input-sm input-hiddenpayeeid" name="hiddenpayeeid">
+                                            </div>
+                                            <div class="form-group col-sm-2 margin-bottom-0">
+                                                <input type="text" class="form-control input-sm amount text-right input-amount" placeholder="0.00">
+                                            </div>
+                                            <div class="form-group col-sm-2 margin-bottom-0">
+                                                <div class="rotate-icon rotate-up">
+                                                    <a href="#_" style="font-size: 25px;vertical-align: top;" class="expand-fields"><i class="icon fa-sort-down" aria-hidden="true"></i></a>
+                                                </div>
+                                                <a href="#_" style="font-size: 17px" class="pull-right item_delete"><i class="icon fa-trash" aria-hidden="true"></i></a>
+                                                <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
+                                                <a href="#_" style="font-size: 17px" class="pull-right item_save" data-itemid=""><i class="icon fa-save" aria-hidden="true"></i></a>
+                                            </div>
+                                            <div class="extra-fields row col-sm-12">
+                                                <div class="form-group col-sm-1"></div>
+                                                <div class="form-group col-sm-10" style="height: 1px;"><hr></div>
+                                                <div class="form-group col-sm-1"></div>
+                                                <div class="form-group col-sm-12"></div>
+                                                <div class="form-group col-sm-1"></div>
+                                                <div class="form-group col-sm-6 padding-left-0">
+                                                    <div class="form-group col-sm-8">
+                                                        <label class="control-label"><small>Currency</small></label>
+                                                        <select class="form-control input-sm select-currency" name="currency">
+                                                            {% for data in currency %}
+                                                                <option value="{{ data.id }}" data-rate="{{ data.fxrate|floatformat:2 }}">[{{ data.symbol }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group col-sm-4">
+                                                        <label class="control-label"><small>FX Rate</small></label>
+                                                        <input type="text" class="form-control input-sm input-fxrate" value="1.00">
+                                                    </div>
+                                                    <div class="form-group col-sm-6">
+                                                        <label class="control-label"><small>Period From</small></label>
+                                                        <input type="text" class="form-control input-sm datepickerfrom_month datepicker-periodfrom disabled-white" readonly="readonly">
+                                                    </div>
+                                                    <div class="form-group col-sm-6">
+                                                        <label class="control-label"><small>Period To</small></label>
+                                                        <input type="text" class="form-control input-sm datepickerto_month datepicker-periodto disabled-white" readonly="readonly">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <label class="control-label"><small>Particulars</small></label>
+                                                    <textarea rows="5" class="form-control text-particulars input-sm"></textarea>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="row row-lg margin-left-10">
-
-                        </div>
-                        <div class="col-sm-12 margin-bottom-10">
-                            <div class="col-sm-6">
-
-                            </div>
-                            <div class="col-sm-6">
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Items</button>#}
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
-                            </div>
-                        </div>
-                        </form>
-{#                        <div class="col-sm-12" id="detailentry" style="display: none">#}
-{#                            <div class="panel panel-bordered">#}
-{#                                <div class="shade"><div class="loader two-color"></div></div>#}
-{#                                <div class="panel-body">#}
-{#                                    <h4>Requisition Form Details</h4>#}
-{#                                    <div id="detailsentryview">#}
-{#                                        {% include "requisitionform/rfdetails.html" %}#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
+                    </div>
                 </div>
             <div class="clearfix"></div>
             <div id="lookupModal" class="modal fade" role="dialog">
@@ -131,30 +225,12 @@
         </div>
     </div>
 </div>
-<div id="remarksModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"> <span id="modal-header-title">Remarks</span></h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                    <input type="hidden" id="remarks_itemno">
-                    <textarea name="remarks" id="id_modal_remarks" class="form-control remarks-editor" rows="10"></textarea>
-                    <br>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-info" id="save_remarks">Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="item-select" class="custom-alert danger">Please select an item.</div>
-<div id="item-quantity" class="custom-alert danger">Please enter requested quantity.</div>
-<div id="item-select-quantity" class="custom-alert danger">Please select an item and enter the requested quantity.</div>
+<div id="item-add-error" class="custom-alert danger">Complete current item first.</div>
+<div id="item-save-error" class="custom-alert danger">Complete item details first.</div>
+<div id="item-save-success" class="custom-alert success">Item successfully saved.</div>
+<div id="item-delete-success" class="custom-alert success">Item successfully deleted.</div>
+<div id="of-save-error" class="custom-alert danger">Operational fund should at least have one item.</div>
+<div id="oftype-change-error" class="custom-alert danger">Clear all items first.</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -162,30 +238,6 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/libs/js/wysihtml5-0.3.0_rc2.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $("#id_branch").val("{{ headoffice }}");
-
-            $('#id_payeelookup').on("change", function(e) {
-                $('#payeeconfirm').prop('disabled', false);
-            });
-
-            $('#payeeconfirm').click(function(){
-                if($('#id_payeelookup').val() == null){
-                    console.log("test");
-                    alert("Please select a payee first.");
-                    //$("#lookupModal .close").click() --> for manual closing of modal
-                }
-                else {
-                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();
-                    $('#id_payee').val(content);
-                    $('#id_hiddenpayee').val(content);
-                    $('#id_hiddenpayeeid').val($('#id_payeelookup').val());
-                    $("#lookupModal .close").click()
-                }
-            });
-        });
-    </script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
@@ -193,5 +245,270 @@
     <script type="text/javascript">
         $('.select2').select2({});
         ajaxselect2("supplier_payee");
+
+        var lastof = '';
+        var payeeIndex = 0;
+
+        //ofsubtype list
+        ofsubtype_list = "<option value=''>-- Select --</option>";
+        {% for data in ofsubtype %}
+            ofsubtype_list += "<option value='{{ data.id }}' data-oftype='{{ data.oftype.id }}'>{{ data.code }} - {{ data.description }}</option>";
+        {% endfor %}
+
+        $(document).ready(function() {
+            /** Prepare hidden field **/
+            $('.item_table tbody tr.warning').last().clone().prependTo('.item_table tbody');
+            $('.item_table tbody tr.warning').last().addClass('item_hidden');
+            initMaskMoney('amount');
+
+            /** Init first ofsubtype **/
+            $('.item_table tbody tr').find('.item_input_ofsubtype').html(ofsubtype_list);
+            $('.item_input_ofsubtype:eq(0)').select2();
+            $('.item_input_ofsubtype:eq(0)').find('option').prop( "disabled", true );
+            $('.item_input_ofsubtype:eq(0)').find('option[data-oftype=' + $('#id_oftype').val() + ']').prop( "disabled", false );
+            $('.item_input_ofsubtype:eq(0)').select2("destroy").select2().val('').trigger('change.select2');
+            initializeDateRange();
+
+            /** Onchange oftype **/
+            $(document).on('click', '.select2', function(e) {
+                lastof = $('#id_oftype option:selected').val();
+            });
+            $(document).on('change', '#id_oftype', function(e){
+                if($('.item_table tbody tr').length == $('.item_table tbody tr.warning').length) {
+                    assignSubtypeOption(1);
+                }
+                else{
+                    customAlert($('#oftype-change-error'));
+                    $('#id_oftype').val(lastof).trigger('change.select2');
+                }
+            });
+
+            /** Onclick input-search-button **/
+            $(document).on('click', '.input-search-button', function(){
+                payeeIndex = $(this).index('.input-search-button');
+            });
+
+            /** Onchange Payee Lookup **/
+            $('#id_payeelookup').on("change", function(e) {
+                $('#payeeconfirm').prop('disabled', false);
+            });
+
+            /** Onclick Payee Confirm **/
+            $('#payeeconfirm').click(function(){
+                if($('#id_payeelookup').val() == null){
+                    console.log("test");
+                    alert("Please select a payee first.");
+                }
+                else {
+                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();
+                    $('.input-payee:eq(' + payeeIndex + ')').val(content);
+                    $('.input-hiddenpayee:eq(' + payeeIndex + ')').val(content);
+                    $('.input-hiddenpayeeid:eq(' + payeeIndex + ')').val($('#id_payeelookup').val());
+
+                    $.ajax({
+                        url: "{% url 'supplier:getsupplierdata' %}",
+                        type: "post",
+                        data: {'supplierid': $('#id_payeelookup').val()
+                        },
+                        success: function(response) {
+                            $('.select-currency:eq(' + payeeIndex + ')').val(response.currency);
+                            $('.input-fxrate:eq(' + payeeIndex + ')').val((parseFloat(response.fxrate).toFixed(2)));
+                            $('.input-payee:eq(' + payeeIndex + ')').data('currency', response.currency).data('fxrate', parseFloat(response.fxrate).toFixed(2));
+                            $("#lookupModal .close").click();
+                        },
+                        error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            });
+
+            /** Show other fields **/
+            $(document).on('click', '.expand-fields', function(){
+                $(this).parent().parent().parent().find('.extra-fields').slideToggle(500);
+                if($(this).parent().hasClass('rotate-down')){
+                    $(this).parent().removeClass('rotate-down').addClass('rotate-up')
+                }
+                else{
+                    $(this).parent().removeClass('rotate-up').addClass('rotate-down')
+                }
+            });
+
+            /** Onchange currency show fx rate **/
+            $(document).on('change', '.select-currency', function(){
+                $(this).parent().siblings().find('.input-fxrate').val($(this).find(':selected').attr('data-rate'));
+            });
+
+            /** Add Item **/
+            $(document).on('click', '#item_add', function(){
+                if($('.item_table tbody tr.warning').length == 1){
+                    collapseFields();
+                    $('.item_hidden').last().clone().appendTo('.item_table tbody');
+                    $('.item_hidden:nth-last-child(2)').removeClass('item_hidden').find('.item_input_ofsubtype').select2();
+                    initMaskMoney('amount');
+                    itemRecount();
+                    assignSubtypeOption(2);
+                }
+                else{
+                    customAlert($('#item-add-error'));
+                }
+            });
+
+            /** Store Item **/
+            $(document).on('click', '.item_save', function(){
+                /* Some validations */
+                if($(this).parent().parent().find('.item_input_ofsubtype').val() == '' ||
+                        $(this).parent().parent().find('.input-payee').val() == '' ||
+                        $(this).parent().parent().find('.input-amount').val() == '' ||
+                        $(this).parent().parent().find('.select-currency').val() == '' ||
+                        $(this).parent().parent().find('.input-fxrate').val() == '' ||
+                        $(this).parent().parent().find('.input-fxrate').val() == '0.00' ||
+                        $(this).parent().parent().find('.text-particulars').val() == '0.00'){
+                    customAlert($('#item-save-error'));
+                }
+                else {
+                    if($('#id_oftype option:selected').text().indexOf("Cellphone Subsidy") >= 0){
+                        if($(this).parent().parent().find('.datepicker-periodfrom').val() == '' ||
+                                        $(this).parent().parent().find('.datepicker-periodto').val() == ''){
+                            customAlert($('#item-save-error'));
+                        }
+                        else {
+                            saveItem(this);
+                        }
+                    }
+                    else {
+                        saveItem(this);
+                    }
+                }
+            });
+
+            /** Delete Item **/
+            $(document).on('click', '.item_delete', function(){
+                var item = $(this).parent().parent().parent();
+                if(item.hasClass('warning')){
+                    /* quick delete */
+                    item.remove();
+                }
+                else{
+                    /* table delete */
+                    if(confirm('Are you sure you want to delete this item?')){
+                        /* Ajax delete */
+                        $.ajax({
+                            url: "{% url 'operationalfund:deleteitemtemp' %}",
+                            type: "post",
+                            data: {
+                                'id_itemtemp': $(this).siblings('.item_save').data('itemid')
+                            },
+                            success: function(response){
+                                item.remove();
+                                itemRecount();
+                                customAlert($('#item-delete-success'));
+                                computeTotalAmount();
+                            }, error: function(response) {
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
+            /** Store OF **/
+            $(document).on('click', '#validateButton', function(){
+                if($('.item_table tbody tr').length > $('.item_table tbody tr.warning').length){
+                    /* other validations */
+
+                    $("#form-b").submit();
+                }
+                else{
+                    customAlert($('#of-save-error'));
+                }
+            });
+
+            /** Onchange payee text **/
+            $(document).on('input', '.input-payee', function(){
+                if($(this).val() == $(this).parent().siblings('.input-hiddenpayee').val()){
+                    $(this).parent().parent().parent().find('.select-currency').val($(this).data('currency'));
+                    $(this).parent().parent().parent().find('.input-fxrate').val($(this).data('fxrate'));
+                }
+                else {
+                    $(this).parent().parent().parent().find('.select-currency').val("1");
+                    $(this).parent().parent().parent().find('.input-fxrate').val("1.00");
+                }
+            });
+
+            function itemRecount(){
+                var item_count = 1;
+                $('.item_counter').each(function(){
+                    $(this).html(item_count);
+                    item_count++;
+                })
+            }
+
+            function assignSubtypeOption(command){
+                initializeDateRange();
+                $('.item_input_ofsubtype:not(:last)').find('option').prop( "disabled", true );
+                $('.item_input_ofsubtype:not(:last)').find('option[data-oftype=' + $('#id_oftype').val() + ']').prop( "disabled", false );
+                if(command == 1){
+                    $('.item_input_ofsubtype:not(:last)').select2("destroy").select2().val('').trigger('change.select2');
+                }
+                else if(command == 2){
+                    $('.item_input_ofsubtype:not(:last)').select2("destroy").select2().trigger('change.select2');
+                }
+
+            }
+
+            function collapseFields(){
+                $('.rotate-icon:not(:last)').removeClass('rotate-up').addClass('rotate-down');
+
+                var transTime = 400;
+                $('.extra-fields:not(:last)').each(function(){
+                    $(this).slideUp(transTime);
+                    /* transTime = transTime + 200; */
+                });
+
+
+            }
+
+            function saveItem(saveButton){
+                $.ajax({
+                    url: "{% url 'operationalfund:saveitemtemp' %}",
+                    type: "post",
+                    data: {
+                        'id_itemtemp': $(saveButton).data('itemid'),
+                        'itemno': $(saveButton).parent().siblings('.item_counter').text(),
+                        'secretkey': $("#secretkey").val(),
+                        'id_oftype': $("#id_oftype").val(),
+                        'id_ofsubtype': $(saveButton).parent().parent().find('.item_input_ofsubtype').val(),
+                        'id_payee': $(saveButton).parent().parent().find('.input-payee').val(),
+                        'id_hiddenpayee': $(saveButton).parent().parent().find('.input-hiddenpayee').val(),
+                        'id_hiddenpayeeid': $(saveButton).parent().parent().find('.input-hiddenpayeeid').val(),
+                        'id_amount': $(saveButton).parent().parent().find('.input-amount').val(),
+                        'id_particulars': $(saveButton).parent().parent().find('.text-particulars').val(),
+                        'id_currency': $(saveButton).parent().parent().find('.select-currency').val(),
+                        'id_fxrate': $(saveButton).parent().parent().find('.input-fxrate').val(),
+                        'id_periodfrom': $(saveButton).parent().parent().find('.datepicker-periodfrom').val(),
+                        'id_periodto': $(saveButton).parent().parent().find('.datepicker-periodto').val()
+                    },
+                    success: function(response){
+                        $(saveButton).parent().parent().parent().removeClass('warning');
+                        customAlert($('#item-save-success'));
+                        computeTotalAmount();
+                        $(saveButton).data('itemid', response.itemtempid);
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+
+            function computeTotalAmount(){
+                var totalAmount = 0;
+                $('.item_save').each(function(){
+                    if($(this).parent().parent().find('.input-amount').val()){
+                        totalAmount += parseFloat($(this).parent().parent().find('.input-amount').val().replace( /,/g, ""));
+                    }
+                });
+                $('#totalamount').text(totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            }
+        });
     </script>
 {% endblock extra_js %}

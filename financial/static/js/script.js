@@ -33,7 +33,7 @@ $(".custom-alert").each(function(){
 });
 function customAlert(e){
     e.modal('show');
-    setTimeout(function() { e.modal('hide'); }, 2000);
+    setTimeout(function() { e.modal('hide'); }, 1000);
 }
 
 // Ajax paginate

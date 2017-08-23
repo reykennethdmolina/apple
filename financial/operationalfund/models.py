@@ -21,9 +21,9 @@ class Ofmain(models.Model):
     department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
     department_code = models.CharField(max_length=10)
     department_name = models.CharField(max_length=150)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00, null=True, blank=True)
     approvedamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    particulars = models.TextField()
+    particulars = models.TextField(null=True, blank=True)
     refnum = models.CharField(max_length=150, null=True, blank=True)
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ofmain_creditterm_id', null=True, blank=True)
     OF_STATUS_CHOICES = (
