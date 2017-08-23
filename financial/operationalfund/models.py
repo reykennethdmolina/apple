@@ -144,6 +144,12 @@ class Ofitem(models.Model):
     remarks = models.CharField(max_length=250, null=True, blank=True)
     periodfrom = models.DateTimeField(null=True, blank=True)
     periodto = models.DateTimeField(null=True, blank=True)
+    OF_ITEM_STATUS_CHOICES = (
+        ('F', 'For Approval'),
+        ('A', 'Approved'),
+        ('D', 'Disapproved'),
+    )
+    ofitemstatus = models.CharField(max_length=1, choices=OF_ITEM_STATUS_CHOICES, default='F')
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -345,6 +351,12 @@ class Ofitemtemp(models.Model):
     remarks = models.CharField(max_length=250, null=True, blank=True)
     periodfrom = models.DateTimeField(null=True, blank=True)
     periodto = models.DateTimeField(null=True, blank=True)
+    OF_ITEM_STATUS_CHOICES = (
+        ('F', 'For Approval'),
+        ('A', 'Approved'),
+        ('D', 'Disapproved'),
+    )
+    ofitemstatus = models.CharField(max_length=1, choices=OF_ITEM_STATUS_CHOICES, default='F')
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

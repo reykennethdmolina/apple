@@ -118,6 +118,13 @@
             $('.shade').fadeIn();
         });
 
+        $('.tdOfStatus').each(function() {
+            if($(this).find('b').text() == "In Process" || $(this).find('b').text() == "RELEASED"){
+                $(this).siblings('.action-btns-container').find('.userUpdate').hide();
+                $(this).siblings('.action-btns-container').find('.cashierUpdate').show();
+            }
+        });
+
         $('.btn-approve').each(function() {
             if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Approved"){
                 $(this).hide();
