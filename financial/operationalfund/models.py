@@ -7,33 +7,10 @@ import datetime
 
 
 class Ofmain(models.Model):
-    # -------------------columns for removal (remove after finishing CashierUpdate)----------------------------
-    ofsubtype = models.ForeignKey('ofsubtype.Ofsubtype', related_name='ofmain_ofsubtype_id', null=True, blank=True)
-    payee = models.ForeignKey('supplier.Supplier', related_name='ofmain_payee_id', null=True, blank=True)
-    payee_code = models.CharField(max_length=25, null=True, blank=True)
-    payee_name = models.CharField(max_length=150, null=True, blank=True)
-    vat = models.ForeignKey('vat.Vat', related_name='ofmain_vat_id', validators=[MinValueValidator(1)], null=True,
-                            blank=True)
-    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
-                                  blank=True)
-    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofmain_atc_id', validators=[MinValueValidator(1)],
-                            null=True, blank=True)
-    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
-                                  blank=True)
-    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofmain_inputvattype_id', null=True,
-                                     blank=True)
-    YESNO_CHOICES = (
-        ('Y', 'Yes'),
-        ('N', 'No'),
-    )
-    deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
-    currency = models.ForeignKey('currency.Currency', related_name='ofmain_currency_id', null=True, blank=True)
-    fxrate = models.DecimalField(null=True, blank=True, decimal_places=5, max_digits=18)
-    employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id', null=True,
-                                 blank=True)  # will just comment
-    employee_code = models.CharField(max_length=20, null=True, blank=True)  # will just comment
-    employee_name = models.CharField(max_length=150, null=True, blank=True)  # will just comment
-    # -------------------columns for removal (remove after finishing CashierUpdate)----------------------------
+    # employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id', null=True,
+    #                              blank=True)  # will stay as comment, don't remove
+    # employee_code = models.CharField(max_length=20, null=True, blank=True)  # will stay as comment, don't remove
+    # employee_name = models.CharField(max_length=150, null=True, blank=True)  # will stay as comment, don't remove
 
     ofnum = models.CharField(max_length=10, unique=True)
     ofdate = models.DateField()
@@ -127,6 +104,10 @@ class Ofitem(models.Model):
     vat = models.ForeignKey('vat.Vat', related_name='ofitem_vat_id', validators=[MinValueValidator(1)], null=True,
                             blank=True)
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
+                                  blank=True)
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='ofitem_atc_id', validators=[MinValueValidator(1)],
+                            null=True, blank=True)
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)], null=True,
                                   blank=True)
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ofitem_inputvattype_id', null=True,
                                      blank=True)
@@ -335,6 +316,8 @@ class Ofitemtemp(models.Model):
     refnum = models.CharField(max_length=150, null=True, blank=True)
     vat = models.IntegerField(blank=True, null=True)
     vatrate = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True, blank=True)
+    atc = models.IntegerField(blank=True, null=True)
+    atcrate = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True, blank=True)
     inputvattype = models.IntegerField(blank=True, null=True)
     YESNO_CHOICES = (
         ('Y', 'Yes'),
