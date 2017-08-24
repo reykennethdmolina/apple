@@ -463,7 +463,10 @@
                     $(this).find('.tblInputExpirationDate').css('background-color', '#eee');
                     if (index === total - 1) {
                         {% if pagetype != "update" %}
-                            $(this).find('.tblSelectEmployee option[value=' + $('#id_employee').val() + ']').attr('selected','selected');
+                            if($('#id_employee').val())
+                                $(this).find('.tblSelectEmployee option[value=' + $('#id_employee').val() + ']').attr('selected','selected');
+                            else
+                                $(this).find('.tblSelectEmployee').val('');
                         {% endif %}
                     }
                 }
