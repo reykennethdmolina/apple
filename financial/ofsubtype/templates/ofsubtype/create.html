@@ -25,16 +25,16 @@
                             </select>
                             <span class="help-block form-error">{{ form.oftype.errors.as_text }}</span>
                         </div>
+                        <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
+                            <label for="id_code" class="control-label">Code</label>
+                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
+                        </div>
                         <div class="form-group {{ form.debitchartofaccount.errors|yesno:'has-error,' }}">
                             <label for="id_debitchartofaccount" class="control-label">Debit Chart of Account</label>
                             <select name="debitchartofaccount" class="form-control ajaxselect2" id="id_debitchartofaccount" data-validation="required">
                             </select>
                             <span class="help-block form-error">{{ form.debitchartofaccount.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group {{ form.code.errors|yesno:'has-error,' }}">
-                            <label for="id_code" class="control-label">Code</label>
-                            <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
-                            <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
                             <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>

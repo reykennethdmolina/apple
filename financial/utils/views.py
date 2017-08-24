@@ -100,7 +100,7 @@ def ajaxSelect(request):
                     or request.GET['table'] == "chartofaccount_posting" \
                     or request.GET['table'] == "chartofaccount_arcode" \
                     or request.GET['table'] == "chartofaccount_revcode":
-                text = "[" + data.accountcode + "] - " + data.title
+                text = "[" + data.accountcode + "] - " + data.description
             elif request.GET['table'] == "department":
                 text = data.departmentname
             elif request.GET['table'] == "inventoryitem" \

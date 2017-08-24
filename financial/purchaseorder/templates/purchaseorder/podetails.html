@@ -846,9 +846,10 @@
                             }
                         }
 
-                        $('#id_supplier option:selected').siblings().prop("disabled", true);
-                        $('#id_supplier').select2("destroy");
-                        $('#id_supplier').select2();
+{#                        $('#id_supplier option:selected').siblings().prop("disabled", true);#}
+{#                        $('#id_supplier').select2("destroy");#}
+{#                        $('#id_supplier').select2();#}
+                        $('#id_supplier').next().find('.select2-selection__rendered').click(false);
 
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');
