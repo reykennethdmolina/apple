@@ -38,9 +38,13 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
 
-        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
-        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
-        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+        # context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
+        # context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
+        # context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+
+        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(accounttype='P')
+        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(accounttype='P')
+        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(accounttype='P')
 
         return context
 
@@ -67,9 +71,12 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
 
-        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
-        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
-        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+        # context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
+        # context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
+        # context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(accounttype='P')
+        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(accounttype='P')
+        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(accounttype='P')
 
         # if self.request.POST.get('debitchartofaccount', False):
         #     context['debitchartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
