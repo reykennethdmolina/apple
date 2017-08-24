@@ -30,14 +30,35 @@
                             <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" data-validation="required" readonly="readonly" value="{{ form.code.value|default:'' }}">
                             <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                         </div>
-                        <div class="form-group {{ form.debitchartofaccount.errors|yesno:'has-error,' }}">
-                            <label for="id_debitchartofaccount" class="control-label">Debit Chart of Account</label>
-                            <select name="debitchartofaccount" class="form-control ajaxselect2" id="id_debitchartofaccount" data-validation="required">
-                                {% if debitchartofaccount.id != None %}
-                                    <option value="{{ debitchartofaccount.id }}">[{{ debitchartofaccount.accountcode }}] - {{ debitchartofaccount.description }}</option>
-                                {% endif %}
+                        <div class="form-group {{ form.chartexpcostofsale.errors|yesno:'has-error,' }}">
+                            <label for="id_chartexpcostofsale" class="control-label">Cost of Sale - Chart of Account</label>
+                            <select name="chartexpcostofsale" class="form-control select2" id="id_chartexpcostofsale" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for data in chartexpcostofsale %}
+                                    <option value="{{ data.id }}" {% if form.chartexpcostofsale.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                {% endfor %}
                             </select>
-                            <span class="help-block form-error">{{ form.debitchartofaccount.errors.as_text }}</span>
+                            <span class="help-block form-error">{{ form.chartexpcostofsale.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.chartexpgenandadmin.errors|yesno:'has-error,' }}">
+                            <label for="id_chartexpgenandadmin" class="control-label">Gen & Admin - Chart of Account</label>
+                            <select name="chartexpgenandadmin" class="form-control select2" id="id_chartexpgenandadmin" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for data in chartexpgenandadmin %}
+                                    <option value="{{ data.id }}" {% if form.chartexpgenandadmin.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.chartexpgenandadmin.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.chartexpsellexp.errors|yesno:'has-error,' }}">
+                            <label for="id_chartexpsellexp" class="control-label">Selling Expense - Chart of Account</label>
+                            <select name="chartexpsellexp" class="form-control select2" id="id_chartexpsellexp" data-validation="required">
+                                <option value="">-- Select --</option>
+                                {% for data in chartexpsellexp %}
+                                    <option value="{{ data.id }}" {% if form.chartexpsellexp.value == data.id %}selected="selected"{% endif %}>[{{ data.accountcode }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.chartexpsellexp.errors.as_text }}</span>
                         </div>
                         <div class="form-group">
                             <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
@@ -62,7 +83,7 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(function(){
-            ajaxselect2("chartofaccount_posting");
+            $('.select2').select2({});
         });
     </script>
 {% endblock extra_js %}

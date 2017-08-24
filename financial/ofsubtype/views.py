@@ -27,7 +27,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Ofsubtype
     template_name = 'ofsubtype/create.html'
-    fields = ['code', 'description', 'oftype', 'debitchartofaccount']
+    fields = ['code', 'description', 'oftype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('ofsubtype.add_ofsubtype'):
@@ -37,6 +37,11 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
+
+        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
+        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
+        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+
         return context
 
     def form_valid(self, form):
@@ -51,7 +56,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Ofsubtype
     template_name = 'ofsubtype/edit.html'
-    fields = ['code', 'description', 'oftype', 'debitchartofaccount']
+    fields = ['code', 'description', 'oftype', 'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('ofsubtype.change_ofsubtype'):
@@ -62,17 +67,23 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['oftype'] = Oftype.objects.all().filter(isdeleted=0)
 
-        if self.request.POST.get('debitchartofaccount', False):
-            context['debitchartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
-        elif self.object.debitchartofaccount:
-            context['debitchartofaccount'] = Chartofaccount.objects.get(pk=self.object.debitchartofaccount.id, isdeleted=0)
+        context['chartexpcostofsale'] = Chartofaccount.objects.all().filter(main=5, clas=1).filter(accounttype='P')
+        context['chartexpgenandadmin'] = Chartofaccount.objects.all().filter(main=5, clas=2).filter(accounttype='P')
+        context['chartexpsellexp'] = Chartofaccount.objects.all().filter(main=5, clas=3).filter(accounttype='P')
+
+        # if self.request.POST.get('debitchartofaccount', False):
+        #     context['debitchartofaccount'] = Chartofaccount.objects.all().filter(accounttype='P')
+        # elif self.object.debitchartofaccount:
+        #     context['debitchartofaccount'] = Chartofaccount.objects.get(pk=self.object.debitchartofaccount.id, isdeleted=0)
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['description', 'oftype', 'debitchartofaccount', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'oftype',
+                                        'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp',
+                                        'modifyby', 'modifydate'])
         return HttpResponseRedirect('/ofsubtype')
 
 
