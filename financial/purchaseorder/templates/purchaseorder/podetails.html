@@ -324,8 +324,11 @@
                         filterDiscount();
                         filterExtraFields();
 
-                        $('#id_supplier option:selected').siblings().prop("disabled", true);
-                        $('#id_supplier').select2("destroy");
+{#                        $('#id_supplier option:selected').siblings().prop("disabled", true);#}
+{#                        $('#id_supplier').select2("destroy");#}
+{#                        $('#id_supplier').select2();#}
+                        var unblod_text = $('#id_supplier option:selected').text().replace('<B>', '').replace('</B>', '');
+                        $('#id_supplier option:selected').text(unblod_text);
                         $('#id_supplier').select2();
 
                         $("#id_item_name").val('').trigger('change.select2');
@@ -501,9 +504,10 @@
                     elem.parent().parent().remove();
                     reorderItems();
                     if($('.remove_item').length == 0){
-                        $('#id_supplier').find('option').prop("disabled",false);
-                        $('#id_supplier').select2("destroy");
-                        $('#id_supplier').select2();
+{#                        $('#id_supplier').find('option').prop("disabled",false);#}
+{#                        $('#id_supplier').select2("destroy");#}
+{#                        $('#id_supplier').select2();#}
+                        ajaxselect2("supplier", "id_supplier");
                     }
                     if(response.podatadeleted == 'true'){
                         $(".removeprf[data-prf='" + response.prfnum + "'").parent().remove();
@@ -848,8 +852,9 @@
 
 {#                        $('#id_supplier option:selected').siblings().prop("disabled", true);#}
 {#                        $('#id_supplier').select2("destroy");#}
-{#                        $('#id_supplier').select2();#}
-                        $('#id_supplier').next().find('.select2-selection__rendered').click(false);
+                        var unblod_text = $('#id_supplier option:selected').text().replace('<B>', '').replace('</B>', '');
+                        $('#id_supplier option:selected').text(unblod_text);
+                        $('#id_supplier').select2();
 
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');
