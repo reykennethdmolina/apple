@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load humanize %}
 {% block page-title %} Operational Fund Request {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
@@ -97,7 +98,7 @@
                         <div class="row col-md-8 row-lg margin-left-10">
                             <div class="form-group col-sm-3 margin-bottom-0">
                                 <label class="control-label" for="id_ofnum">Number</label>
-                                <input type="text" class="form-control input-sm" id="id_ofnum" name="ofnum" placeholder="OFxxxxxxx" value="OF-{{ savedoftype }}-{{ form.ofnum.value }}" readonly="readonly">
+                                <input type="text" class="form-control input-sm" id="id_ofnum" value="OF-{{ savedoftype }}-{{ ofnum }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.ofnum.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-3 margin-bottom-0">
@@ -140,7 +141,7 @@
                             <div class="panel">
                                 <br>
                                 <label class="control-label pull-right" style="margin-right: 20px">Total Amount:</label><br><br>
-                                <div class="pull-right" id="totalamount" style="margin-right: 20px">0.00</div><br><br>
+                                <div class="pull-right" id="totalamount" style="margin-right: 20px">{{ amount|floatformat:2|intcomma }}</div><br><br>
                             </div>
                             <button type="submit" class="btn btn-round btn-success floatright" id="validateButton">Submit</button>
                         </div>
@@ -175,23 +176,23 @@
                                     {% for itemtemp in itemtemp %}
                                         <tr>
                                             <td>
-                                                <div class="form-group col-sm-1 margin-bottom-0 item_counter">1</div>
+                                                <div class="form-group col-sm-1 margin-bottom-0 item_counter">{{ itemtemp.item_counter }}</div>
                                                 <div class="form-group col-sm-3 margin-bottom-0">
                                                     <select class="form-control input-sm item_input_ofsubtype" style="width: 100%;"></select>
                                                 </div>
                                                 <div class="form-group col-sm-4 margin-bottom-0">
                                                     <div class="input-search">
                                                         <input type="text" data-validation="required" class="form-control input-sm input-payee" name="payee" style="text-transform:uppercase; background: white;"
-                                                            data-currency="1" data-fxrate="1.00">
+                                                            data-currency="1" data-fxrate="1.00" value="{{ itemtemp.payee_name }}">
                                                         <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                                             <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
-                                                    <input type="hidden" class="form-control input-sm input-hiddenpayee" name="hiddenpayee">
-                                                    <input type="hidden" class="form-control input-sm input-hiddenpayeeid" name="hiddenpayeeid">
+                                                    <input type="hidden" class="form-control input-sm input-hiddenpayee" name="hiddenpayee" value="{% if itemtemp.payee %}{{ itemtemp.payee_name }}{% endif %}">
+                                                    <input type="hidden" class="form-control input-sm input-hiddenpayeeid" name="hiddenpayeeid" value="{{ itemtemp.payee|default:'' }}">
                                                 </div>
                                                 <div class="form-group col-sm-2 margin-bottom-0">
-                                                    <input type="text" class="form-control input-sm amount text-right input-amount" placeholder="0.00">
+                                                    <input type="text" class="form-control input-sm amount text-right input-amount" placeholder="0.00" value="{{ itemtemp.amount|floatformat:2|intcomma }}">
                                                 </div>
                                                 <div class="form-group col-sm-2 margin-bottom-0">
                                                     <div class="rotate-icon rotate-up">
@@ -199,7 +200,7 @@
                                                     </div>
                                                     <a href="#_" style="font-size: 17px" class="pull-right item_delete"><i class="icon fa-trash" aria-hidden="true"></i></a>
                                                     <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
-                                                    <a href="#_" style="font-size: 17px" class="pull-right item_save" data-itemid=""><i class="icon fa-save" aria-hidden="true"></i></a>
+                                                    <a href="#_" style="font-size: 17px" class="pull-right item_save" data-itemid="{{ itemtemp.id }}"><i class="icon fa-save" aria-hidden="true"></i></a>
                                                 </div>
                                                 <div class="extra-fields row col-sm-12">
                                                     <div class="form-group col-sm-1"></div>
@@ -212,26 +213,26 @@
                                                             <label class="control-label"><small>Currency</small></label>
                                                             <select class="form-control input-sm select-currency" name="currency">
                                                                 {% for data in currency %}
-                                                                    <option value="{{ data.id }}" data-rate="{{ data.fxrate|floatformat:2 }}">[{{ data.symbol }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>
+                                                                    <option value="{{ data.id }}" data-rate="{{ data.fxrate|floatformat:2 }}" {% if itemtemp.currency == data.id %}selected="selected"{% endif %}>[{{ data.symbol }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </div>
                                                         <div class="form-group col-sm-4">
                                                             <label class="control-label"><small>FX Rate</small></label>
-                                                            <input type="text" class="form-control input-sm input-fxrate" value="1.00">
+                                                            <input type="text" class="form-control input-sm input-fxrate" value="{{ itemtemp.fxrate }}">
                                                         </div>
                                                         <div class="form-group col-sm-6">
                                                             <label class="control-label"><small>Period From</small></label>
-                                                            <input type="text" class="form-control input-sm datepickerfrom_month datepicker-periodfrom disabled-white" readonly="readonly">
+                                                            <input type="text" class="form-control input-sm datepickerfrom_month datepicker-periodfrom disabled-white" readonly="readonly" value="{{ itemtemp.periodfrom|date:'Y-m-d'|default:'' }}">
                                                         </div>
                                                         <div class="form-group col-sm-6">
                                                             <label class="control-label"><small>Period To</small></label>
-                                                            <input type="text" class="form-control input-sm datepickerto_month datepicker-periodto disabled-white" readonly="readonly">
+                                                            <input type="text" class="form-control input-sm datepickerto_month datepicker-periodto disabled-white" readonly="readonly" value="{{ itemtemp.periodto|date:'Y-m-d'|default:'' }}">
                                                         </div>
                                                     </div>
                                                     <div class="form-group col-sm-4">
                                                         <label class="control-label"><small>Particulars</small></label>
-                                                        <textarea rows="5" class="form-control text-particulars input-sm"></textarea>
+                                                        <textarea rows="5" class="form-control text-particulars input-sm">{{ itemtemp.particulars }}</textarea>
                                                     </div>
                                                 </div>
                                             </td>
@@ -366,15 +367,23 @@
             /** Prepare hidden field **/
             $('.item_table tbody tr.warning').last().clone().prependTo('.item_table tbody');
             $('.item_table tbody tr.warning').last().addClass('item_hidden');
+            $('.item_table tbody tr.warning').first().remove();
+            collapseFields();
             initMaskMoney('amount');
 
-            /** Init first ofsubtype **/
+            /** Init ofsubtype **/
             $('.item_table tbody tr').find('.item_input_ofsubtype').html(ofsubtype_list);
-            $('.item_input_ofsubtype:eq(0)').select2();
-            $('.item_input_ofsubtype:eq(0)').find('option').prop( "disabled", true );
-            $('.item_input_ofsubtype:eq(0)').find('option[data-oftype=' + $('#id_oftype').val() + ']').prop( "disabled", false );
-            $('.item_input_ofsubtype:eq(0)').select2("destroy").select2().val('').trigger('change.select2');
+            $('.item_input_ofsubtype').select2();
+            $('.item_input_ofsubtype').find('option').prop( "disabled", true );
+            $('.item_input_ofsubtype').find('option[data-oftype=' + $('#id_oftype').val() + ']').prop( "disabled", false );
             initializeDateRange();
+
+            var i = 0;
+            {% for itemtemp in itemtemp %}
+                $('.item_input_ofsubtype:eq('+i+')').select2("destroy").select2().val('{{ itemtemp.ofsubtype.id }}').trigger('change.select2');
+                i++;
+            {% endfor %}
+
 
             /** Onchange oftype **/
             $(document).on('click', '.select2', function(e) {
@@ -552,7 +561,7 @@
             }
 
             function assignSubtypeOption(command){
-                initializeDateRange();
+{#                initializeDateRange();#}
                 $('.item_input_ofsubtype:not(:last)').find('option').prop( "disabled", true );
                 $('.item_input_ofsubtype:not(:last)').find('option[data-oftype=' + $('#id_oftype').val() + ']').prop( "disabled", false );
                 if(command == 1){

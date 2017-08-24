@@ -26,15 +26,15 @@
                 $(this).datepicker('setEndDate', minDate);
             });
         }
-        if ($(".datepickerfrom_month").val() != '' && $(".datepickerto_month").val() != '') {
-            $('.datepickerfrom_month').each(function () {
+        $('.datepickerfrom_month').each(function () {
+            if ($('.datepickerfrom_month:eq('+$(this).index('.datepickerfrom_month')+')').val() != '' && $('.datepickerto_month:eq('+$(this).index('.datepickerfrom_month')+')') != '') {
                 var datepickerto_month = $('.datepickerto_month:eq('+$(this).index('.datepickerfrom_month')+')');
                 var minDate = new Date($(this).val());
                 datepickerto_month.datepicker('setStartDate', minDate);
                 minDate = new Date(datepickerto_month.val());
                 $(this).datepicker('setEndDate', minDate);
-            });
-        }
+            }
+        });
     });
 }(window, document, jQuery);
 

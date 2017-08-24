@@ -306,7 +306,7 @@ class CreateViewCashier(CreateView):
 class UpdateViewUser(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/userupdate.html'
-    fields = ['ofnum', 'ofdate', 'oftype', 'requestor', 'designatedapprover']
+    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -357,6 +357,8 @@ class UpdateViewUser(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
+        context['ofnum'] = self.object.ofnum
+        context['amount'] = self.object.amount
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
@@ -385,25 +387,57 @@ class UpdateViewUser(UpdateView):
         context['releasedate'] = Ofmain.objects.get(
             pk=self.object.id).releasedate if Ofmain.objects.get(pk=self.object.id).releasedate else None
 
+        # requested items
+        context['itemtemp'] = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0, secretkey=self.mysecretkey).order_by('item_counter')
+
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
         if self.object.ofstatus != 'A' and self.object.ofstatus != 'I' and self.object.ofstatus != 'R':
-            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-                self.object.payee_code = self.object.payee.code
-                self.object.payee_name = self.object.payee.name
-            else:
-                self.object.payee = None
-                self.object.payee_code = None
-                self.object.payee_name = self.request.POST['payee']
-
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['ofdate', 'payee', 'payee_code', 'payee_name', 'amount', 'particulars',
-                                            'designatedapprover'])
+
+            # ----------------- START save ofitemtemp to ofitem START ---------------------
+            Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
+
+            itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+                order_by('item_counter')
+            totalamount = 0
+            i = 1
+            for itemtemp in itemtemp:
+                item = Ofitem()
+                item.item_counter = i
+                item.ofnum = self.object.ofnum
+                item.ofdate = self.object.ofdate
+                item.payee_code = itemtemp.payee_code
+                item.payee_name = itemtemp.payee_name
+                item.amount = itemtemp.amount
+                item.particulars = itemtemp.particulars
+                item.refnum = itemtemp.refnum
+                item.fxrate = itemtemp.fxrate
+                item.periodfrom = itemtemp.periodfrom
+                item.periodto = itemtemp.periodto
+                item.currency = Currency.objects.get(pk=itemtemp.currency)
+                item.enterby = itemtemp.enterby
+                item.modifyby = itemtemp.modifyby
+                item.ofmain = self.object
+                item.ofsubtype = itemtemp.ofsubtype
+                item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
+                item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
+                item.ofitemstatus = itemtemp.ofitemstatus
+                item.save()
+                itemtemp.delete()
+                totalamount += item.amount
+                i += 1
+
+            Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=2).delete()
+            # ----------------- END save ofitemtemp to ofitem END ---------------------
+
+            self.object.amount = totalamount
+            self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover',
+                                            'modifyby', 'modifydate'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
