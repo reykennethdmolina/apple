@@ -350,10 +350,12 @@ class UpdateViewUser(UpdateView):
             detail.deferredvat = data.deferredvat
             detail.currency = data.currency_id
             detail.atc = data.atc_id
+            detail.atcrate = data.atcrate
             detail.fxrate = data.fxrate
             detail.remarks = data.remarks
             detail.periodfrom = data.periodfrom
             detail.periodto = data.periodto
+            detail.ofitemstatus = data.ofitemstatus
             detail.save()
             # requested items end
 
@@ -448,7 +450,7 @@ class UpdateViewUser(UpdateView):
 class UpdateViewCashier(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/cashierupdate2.html'
-    fields = ['ofnum', 'ofdate', 'oftype', 'amount', 'refnum', 'particulars', 'creditterm', 'ofstatus', 'department',
+    fields = ['ofdate', 'oftype', 'amount', 'refnum', 'particulars', 'creditterm', 'ofstatus', 'department',
               'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'requestor']
 
     def dispatch(self, request, *args, **kwargs):
@@ -463,9 +465,7 @@ class UpdateViewCashier(UpdateView):
             self.object.receivedate = datetime.datetime.now()
             self.object.save(update_fields=['ofstatus', 'receiveby', 'receivedate'])
         elif self.object.ofstatus == 'R':
-            if self.object.oftype is None or self.object.ofsubtype is None or self.object.creditterm is None or \
-                    self.object.vat is None or self.object.atc is None or self.object.inputvattype is None or \
-                    self.object.currency is None:
+            if self.object.oftype is None or self.object.creditterm is None:
                 self.object.ofstatus = 'I'
                 self.object.releasedate = None
                 self.object.releaseby = None
@@ -504,10 +504,12 @@ class UpdateViewCashier(UpdateView):
             detail.deferredvat = data.deferredvat
             detail.currency = data.currency_id
             detail.atc = data.atc_id
+            detail.atcrate = data.atcrate
             detail.fxrate = data.fxrate
             detail.remarks = data.remarks
             detail.periodfrom = data.periodfrom
             detail.periodto = data.periodto
+            detail.ofitemstatus = data.ofitemstatus
             detail.save()
         # requested items end
 
@@ -594,6 +596,8 @@ class UpdateViewCashier(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
+        context['ofnum'] = self.object.ofnum
+        context['savedoftype'] = self.object.oftype.code
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
             User.objects.get(pk=self.object.actualapprover.id).last_name
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
@@ -652,24 +656,13 @@ class UpdateViewCashier(UpdateView):
         self.object = form.save(commit=False)
 
         if self.request.POST['originalofstatus'] != 'R':
-            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-                self.object.payee_code = self.object.payee.code
-                self.object.payee_name = self.object.payee.name
-            else:
-                self.object.payee = None
-                self.object.payee_code = None
-                self.object.payee_name = self.request.POST['payee']
-
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
-            self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+            # self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            # self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
-            self.object.save(update_fields=['ofdate', 'ofsubtype', 'amount', 'refnum', 'particulars',
-                                            'creditterm', 'vat', 'atc', 'inputvattype', 'deferredvat', 'currency',
-                                            'fxrate', 'branch', 'ofstatus', 'remarks', 'modifyby', 'modifydate',
-                                            'vatrate', 'atcrate'])
+            self.object.save(update_fields=['ofdate', 'refnum', 'particulars', 'creditterm', 'branch', 'ofstatus',
+                                            'remarks', 'modifyby', 'modifydate'])
 
             # revert status from RELEASED to In Process if no release date is saved
             if self.object.ofstatus == 'R' and self.object.releasedate is None:
@@ -689,6 +682,51 @@ class UpdateViewCashier(UpdateView):
                 self.object.paymentreceiveddate = None
                 self.object.save(update_fields=['releaseby', 'releasedate', 'paymentreceivedby', 'paymentreceiveddate'])
 
+            # of items saving starts here..
+            of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
+                                                           ofmain=self.object.pk).order_by('item_counter')
+            i = 0
+            for of_item in of_items_to_update:
+                update_item = Ofitem.objects.get(pk=of_item.ofitem)
+                update_item.refnum = self.object.refnum  # main reference number
+                update_item.deferredvat = self.request.POST.getlist('item_deferredvat')[i]
+                update_item.fxrate = self.request.POST.getlist('item_fxrate')[i]
+                update_item.remarks = self.request.POST.getlist('item_remarks')[i]
+                update_item.periodfrom = self.request.POST.getlist('item_periodfrom')[i] if self.request.POST.\
+                    getlist('item_periodfrom')[i] else None
+                update_item.periodto = self.request.POST.getlist('item_periodto')[i] if self.request.POST.\
+                    getlist('item_periodto')[i] else None
+                update_item.currency = get_object_or_None(Currency, id=int(self.request.POST.
+                                                                           getlist('item_currency')[i]))
+                update_item.inputvattype = get_object_or_None(Inputvattype, id=int(self.request.POST.
+                                                                                   getlist('item_inputvattype')[i]))
+                update_item.vat = get_object_or_None(Vat, id=int(self.request.POST.getlist('item_vat')[i]))
+                update_item.vatrate = Vat.objects.get(
+                    pk=int(self.request.POST.getlist('item_vat')[i])).rate if Vat.objects.get(
+                    pk=int(self.request.POST.getlist('item_vat')[i])) else None
+                update_item.atc = get_object_or_None(Ataxcode, id=int(self.request.POST.getlist('item_atc')[i]))
+                update_item.atcrate = Ataxcode.objects.get(
+                    pk=int(self.request.POST.getlist('item_atc')[i])).rate if Ataxcode.objects.get(
+                    pk=int(self.request.POST.getlist('item_atc')[i])) else None
+                update_item.ofitemstatus = self.request.POST.getlist('item_status')[i]
+                update_item.modifyby = self.request.user
+                update_item.modifydate = datetime.datetime.now()
+                update_item.save()
+                i += 1
+
+            # accounting entry starts here..
+            source = 'ofdetailtemp'
+            mainid = self.object.id
+            num = self.object.ofnum
+            secretkey = self.request.POST['secretkey']
+            updatedetail(source, mainid, num, secretkey, self.request.user)
+
+            # update approved amount in of main
+            approved_amount = Ofitem.objects.filter(isdeleted=0, ofmain=self.object,
+                                                    ofitemstatus='A').aggregate(Sum('amount'))
+            self.object.approvedamount = approved_amount['amount__sum']
+            self.object.save(update_fields=['approvedamount'])
+
         else:
             if self.request.POST['ofstatus'] == 'I':
                 self.object.ofstatus = 'I'
@@ -701,13 +739,6 @@ class UpdateViewCashier(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
-
-        # accounting entry starts here..
-        source = 'ofdetailtemp'
-        mainid = self.object.id
-        num = self.object.ofnum
-        secretkey = self.request.POST['secretkey']
-        updatedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 
@@ -886,6 +917,7 @@ def autoentry(request):
                 debit_chartofaccount = Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpcostofsale.id
             ofdetailtemp1 = Ofdetailtemp()
             ofdetailtemp1.item_counter = item_counter
+            ofdetailtemp1.of_date = main.ofdate
             ofdetailtemp1.secretkey = request.POST['secretkey']
             ofdetailtemp1.chartofaccount = debit_chartofaccount
             ofdetailtemp1.debitamount = data.amount
@@ -899,14 +931,11 @@ def autoentry(request):
         #
         # ######## START----------- Entry # 2 CREDIT (multiple entries) ------------START
         for data in items:
-            print "item"
-            print data.amount
-            print data.vatrate
             vat = float(data.amount) * (float(data.vatrate) / 100.0)
-            print vat
             if vat > 0:
                 ofdetailtemp2 = Ofdetailtemp()
                 ofdetailtemp2.item_counter = item_counter
+                ofdetailtemp2.of_date = main.ofdate
                 ofdetailtemp2.secretkey = request.POST['secretkey']
                 ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
                 ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id
@@ -922,6 +951,7 @@ def autoentry(request):
         # ######## START----------- Entry # 3 CREDIT (single entry) ------------START
         ofdetailtemp3 = Ofdetailtemp()
         ofdetailtemp3.item_counter = item_counter
+        ofdetailtemp3.of_date = main.ofdate
         ofdetailtemp3.secretkey = request.POST['secretkey']
         ofdetailtemp3.chartofaccount = Oftype.objects.get(pk=int(request.POST['oftype'])).creditchartofaccount_id
         ofdetailtemp3.bankaccount = Branch.objects.get(pk=int(request.POST['branch'])).bankaccount_id if Branch.objects.\
