@@ -44,7 +44,6 @@ class IndexView(AjaxListView):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(ofnum__icontains=keysearch) |
                                  Q(ofdate__icontains=keysearch) |
-                                 Q(payee_name__icontains=keysearch) |
                                  Q(amount__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
         return query
@@ -73,6 +72,24 @@ class IndexView(AjaxListView):
         # data for lookup
 
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ExportCVView(AjaxListView):
+    model = Ofmain
+    template_name = 'operationalfund/index_cv.html'
+    page_template = 'operationalfund/index_cv_list.html'
+    context_object_name = 'data_list'
+
+    def get_queryset(self):
+        query = Ofmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(ofnum__icontains=keysearch) |
+                                 Q(ofdate__icontains=keysearch) |
+                                 Q(amount__icontains=keysearch) |
+                                 Q(particulars__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')

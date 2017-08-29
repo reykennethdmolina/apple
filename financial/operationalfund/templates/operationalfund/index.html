@@ -38,14 +38,26 @@
 
                     {% if perms.operationalfund.change_ofmain and perms.operationalfund.is_cashier %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
-                            <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                            <i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Lookup
                         </button>
+                    {% endif %}
+
+                    {% if perms.checkvoucher.add_cvmain %}
+                        <a href="{% url 'operationalfund:exportcv' %}">
+                            <button class="btn btn-info btn-sm">
+                                <i class="icon fa-share-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Export to CV
+                            </button>
+                        </a>
                     {% endif %}
 
 {#                    {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}#}
 {#                        <a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a>#}
                     {% if perms.operationalfund.add_ofmain %}
-                        <a href="{% url 'operationalfund:usercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Request</button></a>
+                        <a href="{% url 'operationalfund:usercreate' %}">
+                            <button type="button" class="btn btn-success btn-sm waves-effect waves-light">
+                                <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New OF Request
+                            </button>
+                        </a>
                     {% endif  %}
                     <input type="hidden" value="{{ userrole }}" id="user_role">
                 </div>

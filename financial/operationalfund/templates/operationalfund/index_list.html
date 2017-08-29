@@ -8,7 +8,7 @@
             <th><span>ID</span></th>
             <th><span>Number</span></th>
             <th><span>Date</span></th>
-            <th><span>Amount</span></th>
+            <th class="text-right"><span>Amount</span></th>
             <th><span>OF Status</span></th>
             {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
                 {% if forapproval > 0 or perms.operationalfund.approve_allof %}

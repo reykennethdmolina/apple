@@ -5,6 +5,7 @@ from .import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^exportcv$', views.ExportCVView.as_view(), name='exportcv'),
     url(r'^(?P<pk>[0-9]+)/$', views.DetailView.as_view(), name='detail'),
     url(r'^usercreate/$', views.CreateViewUser.as_view(), name='usercreate'),
     url(r'^cashiercreate/$', views.CreateViewCashier.as_view(), name='cashiercreate'),

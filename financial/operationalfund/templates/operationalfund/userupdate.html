@@ -40,6 +40,12 @@
         .disabled-white{
             background-color: white !important;
         }
+        .badge{
+            margin-top: 3px;
+            color: transparent;
+            text-shadow: none;
+            padding: 3px 5px 3px;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -155,7 +161,19 @@
                 <div class="col-sm-12">
                     <div class="panel">
                         <div class="panel-body">
-                            <h4>Request Details</h4><br>
+                            <h4>
+                                Request Details
+                                <div class="pull-right">
+
+                                    <small>For Approval&nbsp;&nbsp;</small> <span class="badge badge-radius badge-default">1</span>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <small>Approved&nbsp;&nbsp;</small> <span class="badge badge-radius badge-success">1</span>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <small>Disapproved&nbsp;&nbsp;</small> <span class="badge badge-radius badge-danger">1</span>
+                                </div>
+                            </h4>
+
+                            <br>
                             <table class="table item_table">
                                 <thead>
                                 <tr>
@@ -201,6 +219,8 @@
                                                     <a href="#_" style="font-size: 17px" class="pull-right item_delete"><i class="icon fa-trash" aria-hidden="true"></i></a>
                                                     <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
                                                     <a href="#_" style="font-size: 17px" class="pull-right item_save" data-itemid="{{ itemtemp.id }}"><i class="icon fa-save" aria-hidden="true"></i></a>
+                                                    <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
+                                                    <span class="pull-right badge badge-radius badge-{% if itemtemp.ofitemstatus == 'F' %}default{% elif itemtemp.ofitemstatus == 'A' %}success{% else %}danger{% endif %}">1</span>
                                                 </div>
                                                 <div class="extra-fields row col-sm-12">
                                                     <div class="form-group col-sm-1"></div>
@@ -265,6 +285,8 @@
                                                 <a href="#_" style="font-size: 17px" class="pull-right item_delete"><i class="icon fa-trash" aria-hidden="true"></i></a>
                                                 <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
                                                 <a href="#_" style="font-size: 17px" class="pull-right item_save" data-itemid=""><i class="icon fa-save" aria-hidden="true"></i></a>
+                                                <div class="pull-right">&nbsp;&nbsp;&nbsp;</div>
+                                                <span class="pull-right badge badge-radius badge-default">1</span>
                                             </div>
                                             <div class="extra-fields row col-sm-12">
                                                 <div class="form-group col-sm-1"></div>
