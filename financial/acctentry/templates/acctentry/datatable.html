@@ -6,8 +6,8 @@
     <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.debitamount }}</td>
     <td class="text-align-right warning" style="border-right: 1px solid #e0e0e0">{{ temp.creditamount }}</td>
     <td class="actionrow">
-        <a href="#" class="detailedit" id="detailedit" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
-        <a href="#" class="detaildelete" id="detaildelete" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-remove" aria-hidden="true"></i></a>
+        <a href="#_" class="detailedit" id="detailedit" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-pencil" aria-hidden="true"></i></a>&nbsp;&nbsp;
+        <a href="#_" class="detaildelete" id="detaildelete" data-id="{{ temp.id }}" data-chartid="{{ temp.chartofaccount }}"><i class="icon fa-remove" aria-hidden="true"></i></a>
     </td>
 </tr>
 <tr>
@@ -25,8 +25,8 @@
                     {% if temp.employeecode %}
                     <td id="tdtarget_E{{ temp.id }}" {% if temp.employeebreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
                         <small><b>Employee</b></small><br>{% if temp.employeestatus == 'Y' %}
-{#                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>#}
-                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeename|default:'' }}</a>
+{#                            <a href="#_"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}</a>#}
+                            <a href="#_"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="E">{{ temp.employeename|default:'' }}</a>
                         {% else %}
 {#                            {{ temp.employeecode|default:'' }} - {{ temp.employeename|default:'' }}#}
                             {{ temp.employeename|default:'' }}
@@ -36,8 +36,8 @@
                     {% if temp.suppliercode %}
                     <td id="tdtarget_S{{ temp.id }}" {% if temp.supplierbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
                         <small><b>Supplier</b></small><br>{% if temp.supplierstatus == 'Y' %}
-{#                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>#}
-                            <a href="#"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliername|default:'' }}</a>
+{#                            <a href="#_"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}</a>#}
+                            <a href="#_"  data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="S">{{ temp.suppliername|default:'' }}</a>
                         {% else %}
 {#                            {{ temp.suppliercode|default:'' }} - {{ temp.suppliername|default:'' }}#}
                             {{ temp.suppliername|default:'' }}
@@ -47,8 +47,8 @@
                     {% if temp.customercode %}
                     <td id="tdtarget_C{{ temp.id }}" {% if temp.customerbreakstatus == 1 %} class="unbalancebreakdown" style="background-color:#f2dede" {% endif %}>
                         <small><b>Customer</b></small><br>{% if temp.customerstatus == 'Y' %}
-{#                            <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>#}
-                            <a href="#" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customername|default:'' }}</a>
+{#                            <a href="#_" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}</a>#}
+                            <a href="#_" data-target="#modal-row" data-backdrop="static" data-keyboard="false" data-toggle="modal" class="breakdown" data-id="{{ temp.id }}" data-chart="{{ temp.chartofaccount }}" data-type="C">{{ temp.customername|default:'' }}</a>
                         {% else %}
 {#                            {{ temp.customercode|default:'' }} - {{ temp.customername|default:'' }}#}
                             {{ temp.customername|default:'' }}

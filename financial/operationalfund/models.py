@@ -140,7 +140,7 @@ class Ofitem(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofitem_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofitem_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
@@ -200,7 +200,7 @@ class Ofdetail(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofdetail_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
     supplierbreakstatus = models.IntegerField(blank=True, null=True)
@@ -275,7 +275,7 @@ class Ofdetailbreakdown(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdown_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofdetailbreakdown_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     customerbreakstatus = models.IntegerField(blank=True, null=True)
     supplierbreakstatus = models.IntegerField(blank=True, null=True)
@@ -348,7 +348,7 @@ class Ofitemtemp(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofitemtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofitemtemp_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
@@ -411,7 +411,7 @@ class Ofdetailtemp(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofdetailtemp_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
@@ -478,7 +478,7 @@ class Ofdetailbreakdowntemp(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='ofdetailbreakdowntemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     postby = models.ForeignKey(User, related_name='ofdetailbreakdowntemp_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now())
+    postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:

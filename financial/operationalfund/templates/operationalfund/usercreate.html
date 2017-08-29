@@ -357,7 +357,7 @@
             /** Store Item **/
             $(document).on('click', '.item_save', function(){
                 /* Some validations */
-                if($(this).parent().parent().find('.item_input_ofsubtype').val() == '' ||
+                if($(this).parent().parent().find('.item_input_ofsubtype').val() == null ||
                         $(this).parent().parent().find('.input-payee').val() == '' ||
                         $(this).parent().parent().find('.input-amount').val() == '' ||
                         $(this).parent().parent().find('.select-currency').val() == '' ||

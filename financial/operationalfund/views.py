@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from ataxcode.models import Ataxcode
 from branch.models import Branch
+from chartofaccount.models import Chartofaccount
 from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
@@ -27,6 +28,7 @@ from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
 from annoying.functions import get_object_or_None
+import json
 
 
 @method_decorator(login_required, name='dispatch')
@@ -617,7 +619,19 @@ class UpdateViewCashier(UpdateView):
         # data for lookup
 
         # requested items
-        context['itemtemp'] = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0, secretkey=self.mysecretkey).order_by('item_counter')
+        itemtemp = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0, secretkey=self.mysecretkey).\
+            order_by('item_counter')
+
+        payeedetails = []
+        for data in itemtemp:
+            payee = get_object_or_None(Supplier, pk=data.payee)
+            payeedetails.append({
+                'vat': payee.vat_id if payee else '',
+                'atc': payee.atc_id if payee else '',
+                'inputvattype': payee.inputvattype_id if payee else '',
+                'deferredvat': payee.deferredvat if payee else ''
+            })
+        context['itemtempwithpayeedetails'] = zip(itemtemp, payeedetails)
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -779,76 +793,159 @@ def deleteitemtemp(request):
 
 
 @csrf_exempt
+def updateitemtemp(request):
+    if request.method == 'POST':
+        items = json.loads(request.POST['temp_items'])
+
+        item_zip = zip(items[0]['id'], items[0]['vat'], items[0]['atc'], items[0]['inputvattype'],
+                       items[0]['deferredvat'], items[0]['remarks'], items[0]['currency'], items[0]['fxrate'],
+                       items[0]['itemstatus'])
+
+        for z_id, z_vat, z_atc, z_inputvattype, z_deferredvat, z_remarks, z_currency, z_fxrate, z_itemstatus in item_zip:
+            item_to_update = Ofitemtemp.objects.get(pk=z_id)
+            item_to_update.vat = int(z_vat) if z_vat else None
+            item_to_update.vatrate = Vat.objects.get(pk=int(z_vat)).rate if z_vat else None
+            item_to_update.atc = int(z_atc) if z_atc else None
+            item_to_update.atcrate = Ataxcode.objects.get(pk=int(z_atc)).rate if z_atc else None
+            item_to_update.inputvattype = int(z_inputvattype) if z_inputvattype else None
+            item_to_update.deferredvat = z_deferredvat
+            item_to_update.remarks = z_remarks
+            item_to_update.currency = int(z_currency) if z_currency else None
+            item_to_update.fxrate = float(z_fxrate) if z_fxrate else None
+            item_to_update.ofitemstatus = z_itemstatus
+            item_to_update.modifyby = request.user
+            item_to_update.modifydate = datetime.datetime.now()
+            item_to_update.save()
+
+        data = {
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def autoentry(request):
     if request.method == 'POST':
         # set isdeleted=2 for existing detailtemp data
         data_table = validatetable(request.POST['table'])
         updateallquery(request.POST['table'], request.POST['ofnum'])
         deleteallquery(request.POST['table'], request.POST['secretkey'])
-        vatamount = float(request.POST['amount']) * (float(request.POST['vatrate'])/100)
+        # set isdeleted=2 for existing detailtemp data
 
-        if request.POST['oftype'] == "Petty Cash":
-            # Entries: Cash In Bank (C), Input VAT (if VAT rate > 0.00) (C), Chart of Account assigned to OF Subtype (D)
-            # Cash In Bank
+        main = Ofmain.objects.get(ofnum=request.POST['ofnum'])
+        items = Ofitemtemp.objects.filter(isdeleted=0, secretkey=request.POST['secretkey'], ofitemstatus='A').\
+            order_by('item_counter')
+        item_counter = 1
+        total_amount = 0
+        total_vat = 0
+
+        # START-------------------- Operational Fund Automatic Entries ----------------------START
+        # Entries:
+        #   1. DEBIT: Chart of Account based on OF Subtype (multiple entries)
+        #   2. CREDIT: Chart of Account based on VAT (multiple entries)
+        #   3. CREDIT: Chart of Account based on OF Type (single entry)
+        #
+        # Entry # 1 DEBIT (multiple entries)
+        #   - Loop through the approved items in OFITEMTEMP
+        #   - Get the Requestor's Department
+        #   - Get the Expense Chart of Account of Department
+        #   - Get the Debit Chart of Account of the selected OF Subtype which has the Account Code that matches the
+        #           first two characters of the Account Code of the Department's Chart of Account
+        #   - Debit Amount = amount of the item
+        #
+        # Entry # 2 CREDIT (multiple entries)
+        #   - Loop through the approved items in OFITEMTEMP
+        #   - The entry will only be created if the VAT of the item is greater than 0
+        #   - Get the Input VAT Chart of Account from the Parameter table
+        #   - Input VAT = first Input VAT entry that matches the Input VAT Type of the item
+        #   - Credit Amount = VAT amount (amount * vatrate/100)
+        #
+        # Entry # 3 CREDIT (single entry)
+        #   - Get the Credit Chart of Account of the selected OF Type
+        #   - Bank Account = assigned bank account of the selected branch
+        #   - Credit Amount = total amount - total VAT amount
+        #
+        # ######## START----------- Entry # 1 DEBIT (multiple entries) ------------START
+        department_expchartofaccount_accountcode_prefix = str(Chartofaccount.objects.get(pk=Department.objects.get(
+            pk=main.department.id).expchartofaccount_id).accountcode)[:2]
+        for data in items:
+            if str(Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpcostofsale.
+                    accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                debit_chartofaccount = Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpcostofsale.id
+            elif str(Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpgenandadmin.
+                     accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                debit_chartofaccount = Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpgenandadmin.id
+            elif str(Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpsellexp.
+                     accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                debit_chartofaccount = Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpsellexp.id
+            else:
+                debit_chartofaccount = Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpcostofsale.id
             ofdetailtemp1 = Ofdetailtemp()
-            ofdetailtemp1.item_counter = 1
+            ofdetailtemp1.item_counter = item_counter
             ofdetailtemp1.secretkey = request.POST['secretkey']
-            ofdetailtemp1.of_num = ''
-            ofdetailtemp1.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
-            ofdetailtemp1.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank_id
-            ofdetailtemp1.bankaccount = Branch.objects.get(id=request.POST['branch']).bankaccount_id if Branch.objects.\
-                get(id=request.POST['branch']).bankaccount else Companyparameter.objects.\
-                get(code='PDI').def_bankaccount_id
-            ofdetailtemp1.creditamount = float(request.POST['amount']) - vatamount
-            ofdetailtemp1.balancecode = 'C'
+            ofdetailtemp1.chartofaccount = debit_chartofaccount
+            ofdetailtemp1.debitamount = data.amount
+            ofdetailtemp1.balancecode = 'D'
             ofdetailtemp1.enterby = request.user
             ofdetailtemp1.modifyby = request.user
             ofdetailtemp1.save()
-
-            # Input VAT (if vatamount > 0.00)
-            if vatamount > 0:
+            total_amount += data.amount
+            item_counter += 1
+        # ######## END----------- Entry # 1 DEBIT (multiple entries) ------------END
+        #
+        # ######## START----------- Entry # 2 CREDIT (multiple entries) ------------START
+        for data in items:
+            print "item"
+            print data.amount
+            print data.vatrate
+            vat = float(data.amount) * (float(data.vatrate) / 100.0)
+            print vat
+            if vat > 0:
                 ofdetailtemp2 = Ofdetailtemp()
-                ofdetailtemp2.item_counter = 2
+                ofdetailtemp2.item_counter = item_counter
                 ofdetailtemp2.secretkey = request.POST['secretkey']
-                ofdetailtemp2.of_num = ''
-                ofdetailtemp2.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
                 ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
-                inputvat = Inputvat.objects.filter(inputvattype=request.POST['inputvattype']).first()
-                ofdetailtemp2.inputvat = inputvat.id
-                ofdetailtemp2.creditamount = vatamount
+                ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id
+                ofdetailtemp2.creditamount = vat
                 ofdetailtemp2.balancecode = 'C'
                 ofdetailtemp2.enterby = request.user
                 ofdetailtemp2.modifyby = request.user
                 ofdetailtemp2.save()
+                total_vat += vat
+                item_counter += 1
+        # ######## END----------- Entry # 2 CREDIT (multiple entries) ------------END
+        #
+        # ######## START----------- Entry # 3 CREDIT (single entry) ------------START
+        ofdetailtemp3 = Ofdetailtemp()
+        ofdetailtemp3.item_counter = item_counter
+        ofdetailtemp3.secretkey = request.POST['secretkey']
+        ofdetailtemp3.chartofaccount = Oftype.objects.get(pk=int(request.POST['oftype'])).creditchartofaccount_id
+        ofdetailtemp3.bankaccount = Branch.objects.get(pk=int(request.POST['branch'])).bankaccount_id if Branch.objects.\
+            get(pk=int(request.POST['branch'])).bankaccount else Companyparameter.objects.get(code='PDI').\
+            def_bankaccount_id
+        ofdetailtemp3.creditamount = float(total_amount) - total_vat
+        ofdetailtemp3.balancecode = 'C'
+        ofdetailtemp3.enterby = request.user
+        ofdetailtemp3.modifyby = request.user
+        ofdetailtemp3.save()
+        # ######## END----------- Entry # 3 CREDIT (single entry) ------------END
+        # END-------------------- Operational Fund Automatic Entries ----------------------END
 
-            # Chart of Account assigned to OF Subtype
-            ofdetailtemp3 = Ofdetailtemp()
-            ofdetailtemp3.item_counter = 3 if vatamount > 0 else 2
-            ofdetailtemp3.secretkey = request.POST['secretkey']
-            ofdetailtemp3.of_num = ''
-            ofdetailtemp3.of_date = Ofmain.objects.get(ofnum=request.POST['ofnum']).ofdate
-            ofdetailtemp3.chartofaccount = Ofsubtype.objects.get(id=request.POST['ofsubtype']).debitchartofaccount_id
-            ofdetailtemp3.debitamount = float(request.POST['amount'])
-            ofdetailtemp3.balancecode = 'D'
-            ofdetailtemp3.enterby = request.user
-            ofdetailtemp3.modifyby = request.user
-            ofdetailtemp3.save()
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
 
-            context = {
-                'tabledetailtemp': data_table['str_detailtemp'],
-                'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
-                'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
-                'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
-            }
-
-            data = {
-                'datatable': render_to_string('acctentry/datatable.html', context),
-                'status': 'success'
-            }
-        else:
-            data = {
-                'status': 'error',
-            }
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
+        }
     else:
         data = {
             'status': 'error',
