@@ -333,7 +333,7 @@
         </div>
     </div>
 </div>
-<div id="item-add-error" class="custom-alert danger">Complete current item first.</div>
+<div id="item-add-error" class="custom-alert danger">Complete unsaved item first.</div>
 <div id="item-save-error" class="custom-alert danger">Complete item details first.</div>
 <div id="item-save-success" class="custom-alert success">Item successfully saved.</div>
 <div id="item-delete-success" class="custom-alert success">Item successfully deleted.</div>
@@ -431,6 +431,8 @@
                             $('.input-fxrate:eq(' + payeeIndex + ')').val((parseFloat(response.fxrate).toFixed(2)));
                             $('.input-payee:eq(' + payeeIndex + ')').data('currency', response.currency).data('fxrate', parseFloat(response.fxrate).toFixed(2));
                             $("#lookupModal .close").click();
+
+                            $('.input-payee:eq(' + payeeIndex + ')').closest('tr').addClass('warning');
                         },
                         error: function(response) {
                             console.debug(response);
@@ -552,6 +554,17 @@
                 }
             });
 
+            /** Onchange all **/
+            $(document).on('change', '.item_input_ofsubtype, ' +
+                                     '.input-payee, .input-amount, ' +
+                                     '.select-currency, ' +
+                                     '.input-fxrate, ' +
+                                     '.datepicker-periodfrom, ' +
+                                     '.datepicker-periodto, ' +
+                                     '.text-particulars', function(e){
+                $(this).closest('tr').addClass('warning');
+            });
+
             function itemRecount(){
                 var item_count = 1;
                 $('.item_counter').each(function(){
@@ -619,7 +632,7 @@
             function computeTotalAmount(){
                 var totalAmount = 0;
                 $('.item_save').each(function(){
-                    if($(this).parent().parent().find('.input-amount').val()){
+                    if($(this).parent().parent().find('.input-amount').val() && !$(this).closest('tr').hasClass('warning')){
                         totalAmount += parseFloat($(this).parent().parent().find('.input-amount').val().replace( /,/g, ""));
                     }
                 });
