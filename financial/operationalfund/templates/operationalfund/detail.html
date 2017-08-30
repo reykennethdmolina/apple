@@ -78,23 +78,23 @@
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Type</b></span>
+                                                <span class="text-info row col-md-2 margin-right-80"><b>Requested&nbsp;Amount</b></span>
+                                                <span class="text-info row col-md-3"><b>: </b></span>
+                                                <span>{{ object.amount|floatformat:2|intcomma }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-1 margin-right-60"><b>Type</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>{{ object.oftype.description|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-1 margin-right-60"><b>Subtype</b></span>
+                                                <span class="text-info row col-md-2 margin-right-80"><b>Approved&nbsp;Amount</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.ofsubtype.description|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Amount</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.amount|floatformat:2|intcomma }}</span>
+                                                <span>{{ object.approvedamount|floatformat:2|intcomma }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -109,7 +109,7 @@
                                                 <br>
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Employee</b></span>
                                                 <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
-                                                <span><b>{{ object.employee_name }}</b></span>
+                                                <span><b>{{ object.requestor_name }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -117,13 +117,6 @@
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Department</b></span>
                                                 <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
                                                 <span><b>{{ object.department_name }}</b></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Payee</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
-                                                <span><b>{{ object.payee_name }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -140,50 +133,7 @@
                                                 <span><b>{{ object.branch.description }}</b></span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <br>
-                                                <span class="text-info row col-md-2 margin-right-80"><b>VAT</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{% if object.vat %}{{ object.vat.description }}&nbsp;({{ object.vatrate }}%){% else %}N/A{% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <br>
-                                                <span class="text-info row col-md-1 margin-right-60"><b>ATC</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{% if object.atc %}{{ object.atc.code }}&nbsp;({{ object.atcrate }}%){% else %}N/A{% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Input&nbsp;VAT&nbsp;Type</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.inputvattype.description|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-1 margin-right-60"><b>Currency</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{% if object.currency %}{{ object.currency.description }}&nbsp;({{ object.currency.symbol }}){% else %}N/A{% endif %}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Deferred?</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.get_deferredvat_display|upper|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info row row col-md-1 margin-right-60"><b>FX&nbsp;Rate</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.fxrate|floatformat:2|intcomma|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
+
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-2 margin-right-80"><b>Credit&nbsp;Terms</b></span>
@@ -413,8 +363,8 @@
                                                     </button>
                                                 </a>
                                             {% endif %}
-                                            {% if perms.purchaseorder.delete_pomain and object.postatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
-                                                <a href="{% url 'purchaseorder:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                            {% if perms.operationalfund.delete_ofmain and object.ofstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                                <a href="{% url 'operationalfund:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_trash" aria-hidden="true"></i>
                                                     </button>
