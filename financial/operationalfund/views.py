@@ -335,11 +335,11 @@ class UpdateViewUser(UpdateView):
         # if not request.user.has_perm('operationalfund.change_ofmain') or self.object.isdeleted == 1 or \
         #         request.user.has_perm('operationalfund.is_cashier'):
         #     if not request.user.username == 'admin':
+        # elif request.user.has_perm('operationalfund.is_cashier'):  ---> put before elif if needed
         if not request.user.has_perm('operationalfund.change_ofmain'):
             raise Http404
-        elif request.user.has_perm('operationalfund.is_cashier'):
-            if self.object.ofstatus != 'F' and self.object.ofstatus != 'D' and request.user.username != 'admin':
-                raise Http404
+        elif self.object.ofstatus != 'F' and self.object.ofstatus != 'D' and request.user.username != 'admin':
+            raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -469,7 +469,7 @@ class UpdateViewUser(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class UpdateViewCashier(UpdateView):
     model = Ofmain
-    template_name = 'operationalfund/cashierupdate2.html'
+    template_name = 'operationalfund/cashierupdate.html'
     fields = ['ofdate', 'oftype', 'amount', 'refnum', 'particulars', 'creditterm', 'ofstatus', 'department',
               'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'requestor']
 
@@ -759,6 +759,18 @@ class UpdateViewCashier(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+
+            # items remarks save
+            of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
+                                                           ofmain=self.object.pk).order_by('item_counter')
+            i = 0
+            for of_item in of_items_to_update:
+                update_item = Ofitem.objects.get(pk=of_item.ofitem)
+                update_item.remarks = self.request.POST.getlist('item_remarks')[i]
+                update_item.modifyby = self.request.user
+                update_item.modifydate = datetime.datetime.now()
+                update_item.save()
+                i += 1
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 

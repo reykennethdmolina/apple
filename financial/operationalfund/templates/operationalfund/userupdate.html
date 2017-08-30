@@ -407,6 +407,16 @@
             {% endfor %}
 
 
+            if ($('#id_oftype option:selected').text().toLowerCase().indexOf("cellphone subsidy") >= 0){
+                $('.datepicker-periodfrom').parent().show();
+                $('.datepicker-periodto').parent().show();
+            }
+            else {
+                $('.datepicker-periodfrom').parent().hide();
+                $('.datepicker-periodto').parent().hide();
+            }
+
+
             /** Onchange oftype **/
             $(document).on('click', '.select2', function(e) {
                 lastof = $('#id_oftype option:selected').val();
@@ -605,7 +615,14 @@
                 else if(command == 2){
                     $('.item_input_ofsubtype:not(:last)').select2("destroy").select2().trigger('change.select2');
                 }
-
+                if ($('#id_oftype option:selected').text().toLowerCase().indexOf("cellphone subsidy") >= 0){
+                    $('.datepicker-periodfrom').parent().show();
+                    $('.datepicker-periodto').parent().show();
+                }
+                else {
+                    $('.datepicker-periodfrom').parent().hide();
+                    $('.datepicker-periodto').parent().hide();
+                }
             }
 
             function collapseFields(){
