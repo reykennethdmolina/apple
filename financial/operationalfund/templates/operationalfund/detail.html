@@ -301,7 +301,7 @@
                                                 <div class="form-group col-sm-1 margin-bottom-0"></div>
                                                 <div class="form-group col-sm-3 margin-bottom-0">OF Subtype</div>
                                                 <div class="form-group col-sm-4 margin-bottom-0">Payee</div>
-                                                <div class="form-group col-sm-3 margin-bottom-0">Amount</div>
+                                                <div class="form-group col-sm-2 margin-bottom-0" style="text-align: right">Amount</div>
                                                 <div class="form-group col-sm-1 margin-bottom-0" style="text-align:right"></div>
                                             </th>
                                         </tr>
@@ -313,7 +313,7 @@
                                                         <div class="form-group col-sm-1 margin-bottom-0 item_counter">{{ itemtemp.item_counter }}</div>
                                                         <div class="form-group col-sm-3 margin-bottom-0">{{ itemtemp.ofsubtype.description }}</div>
                                                         <div class="form-group col-sm-4 margin-bottom-0">{{ itemtemp.payee_name }}</div>
-                                                        <div class="form-group col-sm-2 margin-bottom-0">{{ itemtemp.amount|floatformat:2|intcomma }}</div>
+                                                        <div class="form-group col-sm-2 margin-bottom-0" style="text-align: right">{{ itemtemp.amount|floatformat:2|intcomma }}</div>
                                                         <div class="form-group col-sm-2 margin-bottom-0">
                                                             <div class="rotate-icon rotate-up">
                                                                 <a href="#_" style="font-size: 25px;vertical-align: top;" class="expand-fields"><i class="icon fa-sort-down" aria-hidden="true"></i></a>
@@ -326,31 +326,49 @@
                                                             <div class="form-group col-sm-1"></div>
                                                             <div class="form-group col-sm-12"></div>
                                                             <div class="form-group col-sm-1"></div>
-                                                            <div class="form-group col-sm-6 padding-left-0">
-                                                                <div class="form-group col-sm-6">
+                                                            <div class="form-group col-sm-10 padding-left-0">
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>VAT</small></label><br>
+                                                                    {{ itemtemp.vat.code|default:' N/A ' }}
+                                                                </div>
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>ATax Code</small></label><br>
+                                                                    {{ itemtemp.atc.code|default:' N/A ' }}
+                                                                </div>
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>Input VAT Type</small></label><br>
+                                                                    {{ itemtemp.inputvattype.description|default:' N/A ' }}
+                                                                </div>
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>Deferred VAT</small></label><br>
+                                                                    {{ itemtemp.get_deferredvat_display|default:' N/A ' }}
+                                                                </div>
+                                                                <div class="form-group col-sm-4">
                                                                     <label class="control-label"><small>Currency</small></label><br>
                                                                     [{{ itemtemp.currency.symbol }}]&nbsp;&nbsp;&nbsp;{{ itemtemp.currency.description }}
                                                                 </div>
-                                                                <div class="form-group col-sm-6">
+                                                                <div class="form-group col-sm-4">
                                                                     <label class="control-label"><small>FX Rate</small></label><br>
                                                                     {{ itemtemp.fxrate }}
                                                                 </div>
-                                                                <div class="form-group col-sm-6">
-                                                                    <label class="control-label"><small>Period From</small></label><br>
-                                                                    {{ itemtemp.periodfrom|date:'Y-m-d'|default:' - ' }}
+                                                                {% if itemtemp.oftype.code == 'CSV' %}
+                                                                    <div class="form-group col-sm-4">
+                                                                        <label class="control-label"><small>Period From</small></label><br>
+                                                                        {{ itemtemp.periodfrom|date:'Y-m-d'|default:' N/A ' }}
+                                                                    </div>
+                                                                    <div class="form-group col-sm-4">
+                                                                        <label class="control-label"><small>Period To</small></label><br>
+                                                                        {{ itemtemp.periodto|date:'Y-m-d'|default:' N/A ' }}
+                                                                    </div>
+                                                                {% endif %}
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>Particulars</small></label><br>
+                                                                    <code>{{ itemtemp.particulars }}</code>
                                                                 </div>
-                                                                <div class="form-group col-sm-6">
-                                                                    <label class="control-label"><small>Period To</small></label><br>
-                                                                    {{ itemtemp.periodto|date:'Y-m-d'|default:' - ' }}
+                                                                <div class="form-group col-sm-4">
+                                                                    <label class="control-label"><small>Cashier Remarks</small></label><br>
+                                                                    <code>{{ itemtemp.remarks|default:' N/A ' }}</code>
                                                                 </div>
-                                                            </div>
-                                                            <div class="form-group col-sm-4">
-                                                                <label class="control-label"><small>Particulars</small></label><br>
-                                                                <code>{{ itemtemp.particulars }}</code>
-                                                            </div>
-                                                            <div class="form-group col-sm-4">
-                                                                <label class="control-label"><small>Cashier Remarks</small></label><br>
-                                                                <code>{{ itemtemp.remarks|default:' - ' }}</code>
                                                             </div>
                                                         </div>
                                                     </td>
