@@ -713,18 +713,22 @@ class UpdateViewCashier(UpdateView):
                     getlist('item_periodfrom')[i] else None
                 update_item.periodto = self.request.POST.getlist('item_periodto')[i] if self.request.POST.\
                     getlist('item_periodto')[i] else None
-                update_item.currency = get_object_or_None(Currency, id=int(self.request.POST.
-                                                                           getlist('item_currency')[i]))
-                update_item.inputvattype = get_object_or_None(Inputvattype, id=int(self.request.POST.
-                                                                                   getlist('item_inputvattype')[i]))
-                update_item.vat = get_object_or_None(Vat, id=int(self.request.POST.getlist('item_vat')[i]))
-                update_item.vatrate = Vat.objects.get(
-                    pk=int(self.request.POST.getlist('item_vat')[i])).rate if Vat.objects.get(
-                    pk=int(self.request.POST.getlist('item_vat')[i])) else None
-                update_item.atc = get_object_or_None(Ataxcode, id=int(self.request.POST.getlist('item_atc')[i]))
-                update_item.atcrate = Ataxcode.objects.get(
-                    pk=int(self.request.POST.getlist('item_atc')[i])).rate if Ataxcode.objects.get(
-                    pk=int(self.request.POST.getlist('item_atc')[i])) else None
+                if self.request.POST.getlist('item_currency')[i]:
+                    update_item.currency = get_object_or_None(Currency, id=int(self.request.POST.
+                                                                               getlist('item_currency')[i]))
+                if self.request.POST.getlist('item_inputvattype')[i]:
+                    update_item.inputvattype = get_object_or_None(Inputvattype, id=int(self.request.POST.
+                                                                                       getlist('item_inputvattype')[i]))
+                if self.request.POST.getlist('item_vat')[i]:
+                    update_item.vat = get_object_or_None(Vat, id=int(self.request.POST.getlist('item_vat')[i]))
+                    update_item.vatrate = Vat.objects.get(
+                        pk=int(self.request.POST.getlist('item_vat')[i])).rate if Vat.objects.get(
+                        pk=int(self.request.POST.getlist('item_vat')[i])) else None
+                if self.request.POST.getlist('item_atc')[i]:
+                    update_item.atc = get_object_or_None(Ataxcode, id=int(self.request.POST.getlist('item_atc')[i]))
+                    update_item.atcrate = Ataxcode.objects.get(
+                        pk=int(self.request.POST.getlist('item_atc')[i])).rate if Ataxcode.objects.get(
+                        pk=int(self.request.POST.getlist('item_atc')[i])) else None
                 update_item.ofitemstatus = self.request.POST.getlist('item_status')[i]
                 update_item.modifyby = self.request.user
                 update_item.modifydate = datetime.datetime.now()
@@ -901,35 +905,38 @@ def autoentry(request):
             order_by('item_counter')
         item_counter = 1
         total_amount = 0
-        total_vat = 0
+        gross_amount = 0
 
         # START-------------------- Operational Fund Automatic Entries ----------------------START
         # Entries:
-        #   1. DEBIT: Chart of Account based on OF Subtype (multiple entries)
-        #   2. CREDIT: Chart of Account based on VAT (multiple entries)
-        #   3. CREDIT: Chart of Account based on OF Type (single entry)
+        #   1. DEBIT Entries: Chart of Account based on OF Subtype containing gross amount and
+        #       Chart of Account based on VAT containing VAT amount
+        #   2. CREDIT Entry: Chart of Account based on OF Type
         #
-        # Entry # 1 DEBIT (multiple entries)
+        # DEBIT Entries:
         #   - Loop through the approved items in OFITEMTEMP
+        #   - Create new Ofdetailtemp() object
         #   - Get the Requestor's Department
         #   - Get the Expense Chart of Account of Department
         #   - Get the Debit Chart of Account of the selected OF Subtype which has the Account Code that matches the
-        #           first two characters of the Account Code of the Department's Chart of Account
-        #   - Debit Amount = amount of the item
-        #
-        # Entry # 2 CREDIT (multiple entries)
-        #   - Loop through the approved items in OFITEMTEMP
-        #   - The entry will only be created if the VAT of the item is greater than 0
+        #       first two characters of the Account Code of the Department's Chart of Account
+        #   - Debit Amount = amount of the item * (1 + vatrate/100)
+        #   - Increment item_counter
+        #   - Save Ofdetailtemp()
+        #   - Create new Ofdetailtemp() object
         #   - Get the Input VAT Chart of Account from the Parameter table
         #   - Input VAT = first Input VAT entry that matches the Input VAT Type of the item
-        #   - Credit Amount = VAT amount (amount * vatrate/100)
+        #   - Debit Amount = VAT amount (amount * vatrate/100)
+        #   - Increment item_counter
+        #   - Save Ofdetailtemp()
+        #   - Compute total_amount
         #
-        # Entry # 3 CREDIT (single entry)
+        # CREDIT Entry:
         #   - Get the Credit Chart of Account of the selected OF Type
         #   - Bank Account = assigned bank account of the selected branch
-        #   - Credit Amount = total amount - total VAT amount
+        #   - Credit Amount = total_amount
         #
-        # ######## START----------- Entry # 1 DEBIT (multiple entries) ------------START
+        # ######## START----------- DEBIT entries ------------START
         department_expchartofaccount_accountcode_prefix = str(Chartofaccount.objects.get(pk=Department.objects.get(
             pk=main.department.id).expchartofaccount_id).accountcode)[:2]
         for data in items:
@@ -949,35 +956,32 @@ def autoentry(request):
             ofdetailtemp1.of_date = main.ofdate
             ofdetailtemp1.secretkey = request.POST['secretkey']
             ofdetailtemp1.chartofaccount = debit_chartofaccount
-            ofdetailtemp1.debitamount = data.amount
+            gross_amount = float(data.amount) / (1 + (float(data.vatrate) / 100.0))
+            ofdetailtemp1.debitamount = gross_amount
             ofdetailtemp1.balancecode = 'D'
             ofdetailtemp1.enterby = request.user
             ofdetailtemp1.modifyby = request.user
             ofdetailtemp1.save()
-            total_amount += data.amount
             item_counter += 1
-        # ######## END----------- Entry # 1 DEBIT (multiple entries) ------------END
+
+            ofdetailtemp2 = Ofdetailtemp()
+            ofdetailtemp2.item_counter = item_counter
+            ofdetailtemp2.of_date = main.ofdate
+            ofdetailtemp2.secretkey = request.POST['secretkey']
+            ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
+            ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id
+            ofdetailtemp2.vat = Vat.objects.get(pk=data.vat).id
+            ofdetailtemp2.debitamount = gross_amount * (float(data.vatrate) / 100.0)
+            ofdetailtemp2.balancecode = 'D'
+            ofdetailtemp2.enterby = request.user
+            ofdetailtemp2.modifyby = request.user
+            ofdetailtemp2.save()
+            item_counter += 1
+
+            total_amount += data.amount
+        # ######## END----------- DEBIT entries ------------END
         #
-        # ######## START----------- Entry # 2 CREDIT (multiple entries) ------------START
-        for data in items:
-            vat = float(data.amount) * (float(data.vatrate) / 100.0)
-            if vat > 0:
-                ofdetailtemp2 = Ofdetailtemp()
-                ofdetailtemp2.item_counter = item_counter
-                ofdetailtemp2.of_date = main.ofdate
-                ofdetailtemp2.secretkey = request.POST['secretkey']
-                ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
-                ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id
-                ofdetailtemp2.creditamount = vat
-                ofdetailtemp2.balancecode = 'C'
-                ofdetailtemp2.enterby = request.user
-                ofdetailtemp2.modifyby = request.user
-                ofdetailtemp2.save()
-                total_vat += vat
-                item_counter += 1
-        # ######## END----------- Entry # 2 CREDIT (multiple entries) ------------END
-        #
-        # ######## START----------- Entry # 3 CREDIT (single entry) ------------START
+        # ######## START----------- CREDIT entry ------------START
         ofdetailtemp3 = Ofdetailtemp()
         ofdetailtemp3.item_counter = item_counter
         ofdetailtemp3.of_date = main.ofdate
@@ -986,12 +990,12 @@ def autoentry(request):
         ofdetailtemp3.bankaccount = Branch.objects.get(pk=int(request.POST['branch'])).bankaccount_id if Branch.objects.\
             get(pk=int(request.POST['branch'])).bankaccount else Companyparameter.objects.get(code='PDI').\
             def_bankaccount_id
-        ofdetailtemp3.creditamount = float(total_amount) - total_vat
+        ofdetailtemp3.creditamount = float(total_amount)
         ofdetailtemp3.balancecode = 'C'
         ofdetailtemp3.enterby = request.user
         ofdetailtemp3.modifyby = request.user
         ofdetailtemp3.save()
-        # ######## END----------- Entry # 3 CREDIT (single entry) ------------END
+        # ######## END----------- CREDIT entry ------------END
         # END-------------------- Operational Fund Automatic Entries ----------------------END
 
         context = {
