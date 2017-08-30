@@ -775,11 +775,12 @@
                     success: function(response){
                         $("#datatable").html(response['datatable']);
                         alert("Auto-entry Successful");
+                        $('.shade').fadeOut();
                     }, error: function(response) {
                         console.debug(response);
+                        $('.shade').fadeOut();
                     }
                 });
-                $('.shade').fadeOut();
             }
 
             $("#manualbutton").unbind().click(function (){
