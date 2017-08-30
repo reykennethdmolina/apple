@@ -24,7 +24,7 @@
         {% for data in data_list %}
         <tr>
             <td>{{ data.id }}</td>
-            <td>{{ data.ofnum }}</td>
+            <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
             <td>{{ data.ofdate|date:"Y-m-d" }}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
             <td class="tdOfStatus
