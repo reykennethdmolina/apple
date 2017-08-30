@@ -78,17 +78,14 @@ class IndexView(AjaxListView):
 class ExportCVView(AjaxListView):
     model = Ofmain
     template_name = 'operationalfund/index_cv.html'
-    page_template = 'operationalfund/index_cv_list.html'
+    # page_template = 'operationalfund/index_cv_list.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
         query = Ofmain.objects.all().filter(isdeleted=0)
-        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
-            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(ofnum__icontains=keysearch) |
-                                 Q(ofdate__icontains=keysearch) |
-                                 Q(amount__icontains=keysearch) |
-                                 Q(particulars__icontains=keysearch))
+        # if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+        #     keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+        query = query[0:100]
         return query
 
 

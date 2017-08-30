@@ -1,4 +1,6 @@
 {% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
 {% load staticfiles %}
 {% block page-title %} Export to CV {% endblock page-title %}
 {% block extra_css %}
@@ -158,10 +160,80 @@
             <div class="col-md-12">
                 <div class="page-wrap">
                     <br>
-                    {% block content %}
-                        <div class="endless_page_template">
-                        {% include page_template %}</div>
-                    {% endblock %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width:5%;">
+                                    <div class="checkbox checkbox-primary" style="margin-bottom: -5px;">
+                                        <input type="checkbox" id="checkbox0" class="item-check-all">
+                                        <label for="checkbox0"></label>
+                                    </div>
+                                </th>
+                                <th><span>OF Number</span></th>
+                                <th><span>Date</span></th>
+                                <th><span>Employee</span></th>
+                                <th class="text-center"><span>Type</span></th>
+                                <th class="text-center"><span>Subtype</span></th>
+                                <th><span>Payee</span></th>
+                                <th class="text-right"><span>Amount</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            <tr>
+                                <td>
+                                    <div class="checkbox checkbox-primary">
+                                        <input type="checkbox" id="checkbox1" class="item-check-all">
+                                        <label for="checkbox1"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label for="checkbox1">2017000006</label>
+                                </td>
+                                <td>2017-08-08</td>
+                                <td>Grace Villanueva</td>
+                                <td class="text-center">PCV</td>
+                                <td class="text-center">TT</td>
+                                <td>COMPUTER NETWORKING CAREER & TRAINING CENTER, INC.</td>
+                                <td class="text-right">23,000.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="checkbox checkbox-primary">
+                                        <input type="checkbox" id="checkbox1" class="item-check-all">
+                                        <label for="checkbox1"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label for="checkbox1">2017000006</label>
+                                </td>
+                                <td>2017-08-08</td>
+                                <td>Grace Villanueva</td>
+                                <td class="text-center">PCV</td>
+                                <td class="text-center">REP</td>
+                                <td>DELICIOSO FINE FOODS, INC.</td>
+                                <td class="text-right">3,000.00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="checkbox checkbox-primary">
+                                        <input type="checkbox" id="checkbox1" class="item-check-all">
+                                        <label for="checkbox1"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label for="checkbox1">2017000005</label>
+                                </td>
+                                <td>2017-08-08</td>
+                                <td>Grace Villanueva</td>
+                                <td class="text-center">PCV</td>
+                                <td class="text-center">ME</td>
+                                <td>A-5 MOTOR PARTS SERVICE CENTER</td>
+                                <td class="text-right">250.00</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -193,6 +265,12 @@
             if(search_code == 13 && $(':focus').attr('id') == "searchFilter"){
                 $('#searchBtn').trigger('click');
             }
+        });
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
         });
 	});
     </script>
