@@ -119,6 +119,9 @@ class DetailView(DetailView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         # data for lookup
 
+        # requested items
+        context['itemtemp'] = Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).order_by('item_counter')
+
         return context
 
 
