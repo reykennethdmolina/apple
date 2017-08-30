@@ -28,6 +28,7 @@ from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
 from annoying.functions import get_object_or_None
+from easy_pdf.views import PDFTemplateView
 import json
 
 
@@ -800,6 +801,26 @@ class DeleteView(DeleteView):
         return HttpResponseRedirect('/operationalfund')
 
 
+@method_decorator(login_required, name='dispatch')
+class UserPdf(PDFTemplateView):
+    model = Ofmain
+    template_name = 'operationalfund/userpdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['ofmain'] = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        # context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0,
+        #                                                 status='A').order_by('item_counter')
+        #
+        # printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        # printedprf.print_ctr += 1
+        # printedprf.save()
+
+        return context
+
+
 @csrf_exempt
 def saveitemtemp(request):
     if request.method == 'POST':
@@ -905,7 +926,6 @@ def autoentry(request):
             order_by('item_counter')
         item_counter = 1
         total_amount = 0
-        gross_amount = 0
 
         # START-------------------- Operational Fund Automatic Entries ----------------------START
         # Entries:
