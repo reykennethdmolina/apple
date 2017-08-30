@@ -678,7 +678,7 @@ class UpdateViewCashier(UpdateView):
             # self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             # self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
-            self.object.save(update_fields=['ofdate', 'refnum', 'particulars', 'creditterm', 'branch', 'ofstatus',
+            self.object.save(update_fields=['refnum', 'particulars', 'creditterm', 'branch', 'ofstatus',
                                             'remarks', 'modifyby', 'modifydate'])
 
             # revert status from RELEASED to In Process if no release date is saved

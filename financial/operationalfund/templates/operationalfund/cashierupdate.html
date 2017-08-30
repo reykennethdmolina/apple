@@ -91,7 +91,7 @@
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label" for="id_ofdate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                    <input type="text" class="form-control input-sm date-yyyymmdd" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.ofdate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.oftype.errors|yesno:'has-error,' }}">
@@ -231,7 +231,7 @@
                                                             <select class="form-control input-sm select-vat" name="item_vat" form="form-b">
                                                                 <option value="">-- Select --</option>
                                                                 {% for data in vat %}
-                                                                    <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.vat %} {% if itemtemp.vat == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.vat == data.id %}selected="selected"{% endif %} {% endif %}>{{ data.code }}</option>
+                                                                    <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.vat %} {% if itemtemp.vat == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.vat == data.id %}selected="selected"{% endif %} {% endif %}>[{{ data.code }}] {{ data.description }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </div>
@@ -269,7 +269,7 @@
                                                             <code>{{ itemtemp.particulars }}</code>
                                                         </div>
                                                         <div class="form-group col-sm-12 margin-bottom-0"></div>
-                                                        <div class="form-group col-sm-4">
+                                                        <div class="form-group col-sm-4" style="display: none">
                                                             <label class="control-label"><small>Currency</small></label>
                                                             <select class="form-control input-sm select-currency" name="item_currency" form="form-b">
                                                                 {% for data in currency %}
@@ -277,7 +277,7 @@
                                                                 {% endfor %}
                                                             </select>
                                                         </div>
-                                                        <div class="form-group col-sm-2">
+                                                        <div class="form-group col-sm-2" style="display: none">
                                                             <label class="control-label"><small>FX Rate</small></label>
                                                             <input type="text" style="background: white;" class="form-control input-sm input-fxrate" name="item_fxrate" form="form-b" value="{{ itemtemp.fxrate|floatformat:2 }}">
                                                         </div>
