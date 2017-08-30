@@ -86,7 +86,7 @@
                                 </a>
 {#                            {% endif %}#}
                         {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
-                        <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                        <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate userUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                             <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
                         {% endif %}
@@ -162,21 +162,6 @@
                 $(this).parent().siblings('.btn-approve').hide();
             }
         });
-{#        $('.btnDelete').each(function() {#}
-{#            if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() != "For Approval"){#}
-{#                $(this).hide();#}
-{#            }#}
-{#        });#}
-{#        {% if perms.operationalfund.is_cashier %}#}
-{#            $('.btnUpdate').each(function() {#}
-{#                if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "For Approval" ||#}
-{#                    $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved")#}
-{#                {#}
-{#                    $(this).hide();#}
-{#                    $(this).parent().find('.btnDelete').hide();#}
-{#                }#}
-{#            });#}
-{#        {% endif %}#}
         $('.btn-approve, .btn-disapprove').on('click', function(){
             if (confirm('Are you sure?')) {
                 var btnResponse = $(this);
