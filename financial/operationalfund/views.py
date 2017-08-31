@@ -811,13 +811,42 @@ class UserPdf(PDFTemplateView):
 
         context['ofmain'] = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
-        # context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0,
-        #                                                 status='A').order_by('item_counter')
-        #
-        # printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-        # printedprf.print_ctr += 1
-        # printedprf.save()
+        context['items'] = Ofitem.objects.filter(ofmain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
 
+        context['pagesize'] = 'Letter'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedof = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedof.print_ctr += 1
+        # printedof.save()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class CashierPdf(PDFTemplateView):
+    model = Ofmain
+    template_name = 'operationalfund/cashierpdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['ofmain'] = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['approveditems'] = Ofitem.objects.filter(ofmain=self.kwargs['pk'], isdeleted=0, ofitemstatus='A').\
+            order_by('item_counter')
+        context['detail'] = Ofdetail.objects.filter(isdeleted=0). \
+            filter(ofmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ofdetail.objects.filter(isdeleted=0). \
+            filter(ofmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ofdetail.objects.filter(isdeleted=0). \
+            filter(ofmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['pagesize'] = 'Letter'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedof = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedof.print_ctr += 1
+        # printedof.save()
         return context
 
 

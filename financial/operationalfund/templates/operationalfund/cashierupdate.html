@@ -240,7 +240,7 @@
                                                             <select class="form-control input-sm select-atc" name="item_atc" form="form-b">
                                                                 <option value="">-- Select --</option>
                                                                 {% for data in atc %}
-                                                                    <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.atc %} {% if itemtemp.atc == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.atc == data.id %}selected="selected"{% endif %} {% endif %}>{{ data.code }}</option>
+                                                                    <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.atc %} {% if itemtemp.atc == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.atc == data.id %}selected="selected"{% endif %} {% endif %}>[{{ data.code }}] {{ data.description }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </div>

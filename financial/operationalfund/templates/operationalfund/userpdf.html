@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
     {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
     <meta charset="UTF-8">
     <title>Operational Fund Request</title>
     <style>
         @page {
+            size: {{ pagesize }};
             margin: 1cm;
+            margin-top: 0.5cm;
+            margin-bottom: 0.5cm;
             @frame footer {
                 -pdf-frame-content: footerPage;
                 bottom: 1cm;
@@ -19,7 +24,7 @@
                 bottom: 0cm;
                 margin-left: 1cm;
                 margin-right: 1cm;
-                height: 8cm;
+                height: 5cm;
             }
         }
         body{
@@ -39,13 +44,22 @@
         .arial{
             font-family: 'arial';
         }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -5px;
+            margin-bottom: -5px;
+        }
     </style>
 </head>
 <body>
 <br><br>
 <table>
     <tr>
-        <td></td>
+        <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
         <td width="500px">
             <p class="title center">OPERATIONAL FUND REQUEST</p>
         </td>
@@ -68,109 +82,106 @@
         <td colspan="3">
             <table>
                 <tr>
-                    <td>
-                        <b></b>
-                    </td>
-{#                    <td>#}
-{#                        <b>Name :</b>{{ ofmain.requestor_name }}</td>#}
-{#                        <b>Department :</b>{{ ofmain.department_name }}</td>#}
-{#                    <td>#}
-{#                        <b>PRF Date &nbsp;&nbsp;&nbsp;&nbsp;:</b> October 3, 2016<br>#}
-{#                        <b>PRF Type &nbsp;&nbsp;&nbsp;:</b> MSRF<br>#}
-{#                        <b>Branch &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :</b> LAGUNA<br>#}
-{#                    </td>#}
+                    <td width="15%"><b>Name</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ ofmain.requestor_name }}</td>
+                    <td width="10%"><b>Date</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ ofmain.ofdate|date:'Y-m-d' }}</td>
+                </tr>
+                <tr>
+                    <td width="15%"><b>Department</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ ofmain.department_name }}</td>
+                    <td width="10%"><b>Type</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ ofmain.oftype.description }}</td>
                 </tr>
             </table>
         </td>
     </tr>
+    <tr><td></td></tr>
+    <tr><td><b>REQUEST DETAILS</b></td></tr>
+</table>
+<table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black;"><b><i></i></b></td>
+        <td><b><i>OF Subtype</i></b></td>
+        <td><b><i>Payee</i></b></td>
+        <td><b><i>Particulars</i></b></td>
+        {% if ofmain.oftype.code == 'CSV' %}
+            <td><b><i>Period From</i></b></td>
+            <td><b><i>Period To</i></b></td>
+        {% endif %}
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    {% for data in items %}
+        <tr style="padding-top: 5px;">
+            <td width="5%">{{ data.item_counter }}</td>
+            <td>{{ data.ofsubtype.code }} - {{ data.ofsubtype.description }}</td>
+            <td width="50%">{{ data.payee_name }}</td>
+            <td>{{ data.particulars }}</td>
+            {% if ofmain.oftype.code == 'CSV' %}
+                <td>{{ data.periodfrom|date:'Y-m-d' }}</td>
+                <td>{{ data.periodto|date:'Y-m-d' }}</td>
+            {% endif %}
+            <td align="right" style="padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
 </table>
 <br>
-<table>
-    <tr class="center" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;"><b><i>Item Code</i></b></td>
-        <td style="width: 400px"><b><i>Description</i></b></td>
-        <td><b><i>RF Number</i></b></td>
-        <td><b><i>UM</i></b></td>
-        <td><b><i>Quantity</i></b></td>
-        <td><b><i>CS Cost</i></b></td>
-        <td style="border-right: 2px solid black;"><b><i>Amount (PHP)</i></b></td>
-    </tr>
-    <tr style="padding-top: 5px;">
-        <td>02BK050003</td>
-        <td>PAPER, BOOK 35# 50GSM 25" W SAMPLE</td>
-        <td>0000001</td>
-        <td>KG</td>
-        <td align="right">1,000.00000</td>
-        <td align="right">7.00000</td>
-        <td align="right">7,000.00</td>
-    </tr>
-</table>
+<div class="right" style="padding-right: 10px;">
+    <b>TOTAL AMOUNT: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ ofmain.amount|floatformat:2|intcomma }}</b>
+</div>
 <div id="footerContent">
-    <table style="border-top: 2px solid black; border-bottom: 2px solid black; text-align: right;padding: 5px; padding-bottom: 0px; font-weight: bold;">
-        <tr>
-            <td style="border-left: 2px solid black;"></td>
-            <td style="border-right: 2px solid black;width: 600px">
-                <table>
-                    <tr>
-                        <td width="400px" align="left" style="padding-right: 0px;">
-                            VATable Purchases<br>
-                            VAT Amount<br>
-                            VAT Exempt Purchases<br>
-                            Zero-Rated Purchases<hr>
-                        </td>
-                        <td width="50px" style="padding-left: 0px; padding-right: 0px;">
-                            :<br>
-                            :<br>
-                            :<br>
-                            :<hr>
-                        </td>
-                        <td style="padding-left: 0px;">
-                            6,250.00<br>
-                            750.00<br>
-                            0.00<br>
-                            0.00<hr>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left" style="padding-right: 0px;">Total Amount</td>
-                        <td style="padding-left: 0px; padding-right: 0px;">:</td>
-                        <td style="padding-left: 0px;">7,000.00</td>
-                    </tr>
-                </table>
+    <table style="margin-top: 3px;">
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="6" style="border-right: 2px solid black;"></td>
+        </tr>
+        <tr style="padding: 5px; padding-bottom: 0px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Approved by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">{{ ofmain.designatedapprover.first_name }}&nbsp;{{ ofmain.designatedapprover.last_name }}</div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="20%"><b>Received by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">&nbsp;</div>
+                <i>Signature over printed name</i>
             </td>
         </tr>
-    </table>
-    <table style="margin-top: 3px;">
-        <tr style="border-top: 2px solid black;border-bottom: 2px solid black;padding: 5px; padding-bottom: 0px;">
-            <td style="border-left: 2px solid black;">
-                <b>Requested by: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>RICARDO R. GONZALES
-                <br>
-                <b>Date Requested: &nbsp;&nbsp;</b>10/03/2016
+        <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Date approved</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">&nbsp;</div>
             </td>
-            <td style="border-right: 2px solid black;">
-                <b>Canvassed by: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>RICARDO R. GONZALES
-                <br>
-                <b>Date Canvassed: &nbsp;&nbsp;</b>10/03/2016
+            <td width="20%"><b>Date received</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">&nbsp;</div>
             </td>
         </tr>
     </table>
     <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
         <tr>
             <td>
-                Permit to Use (PTU) No.: 1108-05700016 CAS<br>
-                Date Issued: 07/22/2008<br>
-                Valid Until: 07/21/2018<br>
-                Series of 0000001 to 9999999<br>
-                <b>THIS DOCUMENT IS NOT VALID FOR CLAIM OF INPUT TAX</b><br>
-                <b>THIS DOCUMENT SHALL BE VALID FOR FIVE (5) YEARS FROM THE DATE OF PERMIT TO USE</b>
+                {{ parameter.report_footer1 }} {{ request.user }}<br>
+                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b>
             </td>
             <td style="margin-left: 30px;width: 600px;">
-                Software Provider: Philippine Daily Inquirer<br>
-                1098 Chino Roces Avenue corner Yague and Mascardo Streets, Makati City<br>
-                VAT REG TIN: 000-803-607-00000<br>
-                Accreditation No.: 1108-057-00016 CAS<br>
-                Date Issued: 10/03/2016<br>
-                Valid Until: 10/02/2021
+                {{ parameter.report_footer7 }}<br>
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}
             </td>
         </tr>
     </table>

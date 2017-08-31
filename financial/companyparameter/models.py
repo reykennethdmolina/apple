@@ -43,6 +43,21 @@ class Companyparameter(models.Model):
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 
+    # report footers
+    report_footer1 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer2 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer3 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer4 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer5 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer6 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer7 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer8 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer9 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer10 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer11 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer12 = models.CharField(max_length=250, blank=True, null=True)
+    # report footers
+
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')
     enterdate = models.DateTimeField(auto_now_add=True)

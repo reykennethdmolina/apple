@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^releaseof/$', views.releaseof, name='releaseof'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^(?P<pk>[0-9]+)/userpdf/$', views.UserPdf.as_view(), name='userpdf'),
+    url(r'^(?P<pk>[0-9]+)/cashierpdf/$', views.CashierPdf.as_view(), name='cashierpdf'),
     # url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     # url(r'^savedetailtemp/$', views.savedetailtemp, name='savedetailtemp'),
     # url(r'^deletedetailtemp/$', views.deletedetailtemp, name='deletedetailtemp'),
