@@ -27,7 +27,7 @@
             display: inline-block;
         }
         @page {
-{#            background-image: url({{ logo | get64 }});#}
+            background-image: url({{ logo | get64 }});
             size: {{ pagesize }};
             margin: 1cm;
             @frame footer {
@@ -51,7 +51,7 @@
 </div>
 
 <div class="align-left">
-    {#<img id="logo" src="{{ logo | get64 }}"/><br>#}
+    <img id="logo" src="{{ logo | get64 }}"/><br>
     <span class="title">{{ companyparameter.description }}</span><br>
     {{ companyparameter.address1 }}<br>
     {{ companyparameter.address2 }}<br>

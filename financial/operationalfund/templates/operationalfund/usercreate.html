@@ -163,9 +163,12 @@
                                                 <div class="form-group col-sm-10" style="height: 1px;"><hr></div>
                                                 <div class="form-group col-sm-1"></div>
                                                 <div class="form-group col-sm-12"></div>
-                                                <div class="form-group col-sm-1"></div>
-                                                <div class="form-group col-sm-6 padding-left-0">
-                                                    <div class="form-group col-sm-8" style="display:none">
+                                                <div class="form-group col-sm-10 col-sm-offset-1">
+                                                    <label class="control-label"><small>Particulars</small></label>
+                                                    <textarea rows="2" class="form-control text-particulars input-sm"></textarea>
+                                                </div>
+                                                <div class="form-group col-sm-10 col-sm-offset-1 padding-left-0">
+                                                    <div class="form-group col-sm-4" style="display:none">
                                                         <label class="control-label"><small>Currency</small></label>
                                                         <select class="form-control input-sm select-currency" name="currency">
                                                             {% for data in currency %}
@@ -173,22 +176,18 @@
                                                             {% endfor %}
                                                         </select>
                                                     </div>
-                                                    <div class="form-group col-sm-4" style="display:none">
+                                                    <div class="form-group col-sm-2" style="display:none">
                                                         <label class="control-label"><small>FX Rate</small></label>
                                                         <input type="text" class="form-control input-sm input-fxrate" value="1.00">
                                                     </div>
-                                                    <div class="form-group col-sm-6">
+                                                    <div class="form-group col-sm-3">
                                                         <label class="control-label"><small>Period From</small></label>
                                                         <input type="text" class="form-control input-sm datepickerfrom_month datepicker-periodfrom disabled-white" readonly="readonly">
                                                     </div>
-                                                    <div class="form-group col-sm-6">
+                                                    <div class="form-group col-sm-3">
                                                         <label class="control-label"><small>Period To</small></label>
                                                         <input type="text" class="form-control input-sm datepickerto_month datepicker-periodto disabled-white" readonly="readonly">
                                                     </div>
-                                                </div>
-                                                <div class="form-group col-sm-4">
-                                                    <label class="control-label"><small>Particulars</small></label>
-                                                    <textarea rows="5" class="form-control text-particulars input-sm"></textarea>
                                                 </div>
                                             </div>
                                         </td>
