@@ -112,62 +112,131 @@ class ReportResultView(PDFTemplateView):
     # def get_queryset(self):
     def get_context_data(self, **kwargs):
         context = super(ReportResultView, self).get_context_data(**kwargs)
-        query = Ofmain.objects.all().filter(isdeleted=0)
 
-        if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
-            query = query.filter(ofnum__gte=int(key_data))
-        if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
-            query = query.filter(ofnum__lte=int(key_data))
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) != 'd':
+            query = Ofmain.objects.all().filter(isdeleted=0)
 
-        if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
-            query = query.filter(ofdate__gte=key_data)
-        if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
-            query = query.filter(ofdate__lte=key_data)
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofnum__lte=int(key_data))
 
-        if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
-            query = query.filter(amount__gte=float(key_data.replace(',','')))
-        if self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name))
-            query = query.filter(amount__lte=float(key_data.replace(',','')))
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofdate__lte=key_data)
 
-        if self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name))
-            query = query.filter(oftype=int(key_data))
-        if self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name))
-            query = query.filter(branch=int(key_data))
-        if self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name))
-            query = query.filter(ofstatus=str(key_data))
+            if self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name))
+                query = query.filter(oftype=int(key_data))
+            if self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name))
+                query = query.filter(branch=int(key_data))
+            if self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name))
+                query = query.filter(ofstatus=str(key_data))
 
-        if self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name))
-            query = query.filter(requestor=int(key_data))
-        if self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name))
-            query = query.filter(department=int(key_data))
-        if self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
+            if self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name))
+                query = query.filter(requestor=int(key_data))
+            if self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name))
+                query = query.filter(department=int(key_data))
+            if self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name))
+                query = query.filter(Q(actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
 
-        if self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name))
-            if key_data != 'null':
-                key_data = key_data.split(",")
-                query = query.order_by(*key_data)
+            if self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.order_by(*key_data)
+        else:
+            query = Ofitem.objects.all().filter(isdeleted=0)
 
-        if self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name):
-            key_data = str(self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name))
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofnum__lte=int(key_data))
 
-            if key_data == 'd':
-                query = query.reverse()
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofdate__lte=key_data)
+
+            if self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__oftype=int(key_data))
+            if self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__branch=int(key_data))
+            if self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofstatus=str(key_data))
+
+            if self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__requestor=int(key_data))
+            if self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__department=int(key_data))
+            if self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name))
+                query = query.filter(Q(ofmain__actualapprover=int(key_data)), Q(ofmain__designatedapprover=int(key_data)))
+
+            if self.request.COOKIES.get('rep_f_subtype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_subtype_' + self.request.resolver_match.app_name))
+                query = query.filter(ofsubtype=int(key_data))
+            if self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name))
+                query = query.filter(Q(payee_code__icontains=key_data) | Q(payee_name__icontains=key_data))
+            if self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitemstatus=str(key_data))
+            if self.request.COOKIES.get('rep_f_vat_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_vat_' + self.request.resolver_match.app_name))
+                query = query.filter(vat=int(key_data))
+            if self.request.COOKIES.get('rep_f_inputvattype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_inputvattype_' + self.request.resolver_match.app_name))
+                query = query.filter(inputvattype=int(key_data))
+            if self.request.COOKIES.get('rep_f_atc_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_atc_' + self.request.resolver_match.app_name))
+                query = query.filter(atc=int(key_data))
+            if self.request.COOKIES.get('rep_f_deferred_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_deferred_' + self.request.resolver_match.app_name))
+                query = query.filter(deferredvat=str(key_data))
+
+            if self.request.COOKIES.get('rep_f_order2_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_order2_' + self.request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.order_by(*key_data)
+
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name):
+            if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(amount__gte=float(key_data.replace(',', '')))
+            if self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name))
+                query = query.filter(amount__lte=float(key_data.replace(',', '')))
+
+            if self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name))
+
+                if key_data == 'd':
+                    query = query.reverse()
 
         context['data_list'] = query
+        context['report'] = ('d', 's')[self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) != 'd']
+        context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
 
         return context
 

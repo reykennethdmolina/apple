@@ -48,6 +48,8 @@
         #iframe{
             width: 100%;
             height: 900px;
+            position: relative;
+            z-index: 100;
 {#            zoom: 0.15;#}
 {#            -moz-transform:scale(0.75);#}
 {#            -moz-transform-origin: 0 0;#}
@@ -57,7 +59,7 @@
 {#            -webkit-transform-origin: 0 0;#}
         }
         #iframe_preview{
-            width: 815px;
+{#            width: 815px;#}
             padding: 40px;
             margin: auto;
         }
@@ -66,6 +68,9 @@
             margin-top: -40px;
         }
         #fil_detailed{
+            display: none;
+        }
+        #rep_f_order_holder, #rep_f_order2_holder{
             display: none;
         }
     </style>
@@ -82,7 +87,7 @@
                                 <i class="icon fa-print" aria-hidden="true"></i>&nbsp;&nbsp;Print
                             </a>
                             <div id="rep_f_keyword">
-                                <b>Filter results...</b>
+                                <b>MORE FILTERS...</b>
                             </div>
                         </h3>
                         <div class="panel-actions">
@@ -95,9 +100,33 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                                <div class="form-group col-sm-7">
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label small">Report Type</label>
+                                    <select class="form-control input-sm" id="rep_f_report">
+                                        <option value="s">Summary</option>
+                                        <option value="d">Detailed</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <label class="control-label small">Print Orientation</label>
+                                    <select class="form-control input-sm" id="rep_f_orientation">
+                                        <option value="p">Portrait</option>
+                                        <option value="l">Landscape</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-6" id="rep_f_order_holder">
                                     <label class="control-label small">Order By</label>
                                     <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order">
+                                        <option value="amount">Amount</option>
+                                        <option value="ofdate">Date</option>
+                                        <option value="ofnum">OF Number</option>
+                                        <option value="oftype">Status</option>
+                                        <option value="type">Type</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-6" id="rep_f_order2_holder">
+                                    <label class="control-label small">Order By</label>
+                                    <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order2">
                                         <option value="amount">Amount</option>
                                         <option value="ofdate">Date</option>
                                         <option value="ofnum">OF Number</option>
@@ -109,15 +138,8 @@
                                     <label class="control-label small">&nbsp;</label>
                                     <select class="form-control input-sm" id="rep_f_asc">
                                         <option value=""> -- </option>
-                                        <option value="a">Asc</option>
-                                        <option value="d">Desc</option>
-                                    </select>
-                                </div>
-                                <div class="form-group col-sm-2 col-sm-offset-1">
-                                    <label class="control-label small">Report Type</label>
-                                    <select class="form-control input-sm" id="rep_f_report">
-                                        <option value="s">Summary</option>
-                                        <option value="d">Detailed</option>
+                                        <option value="a">Ascending</option>
+                                        <option value="d">Descending</option>
                                     </select>
                                 </div>
                             </div>
@@ -225,7 +247,7 @@
                             <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_detailed">
                                 <div class="form-group col-sm-2">
                                     <label class="control-label small">Item Subtype</label>
-                                    <select class="form-control input-sm" id="rep_f_ofsubtype">
+                                    <select class="form-control input-sm" id="rep_f_subtype">
                                         <option value="">-- Select --</option>
                                         {% for data in ofsubtype %}
                                             <option value="{{ data.id }}">{{ data.description }}</option>
@@ -238,7 +260,7 @@
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label small">Item Status</label>
-                                    <select class="form-control input-sm" id="rep_f_ofitemstatus">
+                                    <select class="form-control input-sm" id="rep_f_itemstatus">
                                         <option value="">-- Select --</option>
                                         <option value="f">For Approval</option>
                                         <option value="a">Approved</option>
@@ -256,7 +278,7 @@
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <label class="control-label small">Item Input VAT Type</label>
-                                    <select class="form-control input-sm" id="rep_f_inputvat">
+                                    <select class="form-control input-sm" id="rep_f_inputvattype">
                                         <option value="">-- Select --</option>
                                         {% for data in inputvattype %}
                                             <option value="{{ data.id }}">{{ data.description }}</option>
@@ -290,7 +312,7 @@
             </div>
             <div class="col-md-12" style="text-align: center">
                 <div id="iframe_preview" class="panel">
-                    <div class="shade"><div class="loader two-color"></div></div>
+                    <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
                     <iframe id="iframe" src="{% url 'operationalfund:reportresult' %}" frameborder="0" scrolling="no"></iframe>
                 </div>
             </div>
@@ -312,12 +334,11 @@
     $(function () {
         $('.select2').select2({});
 
-        $('#iframe').on('load', function(){
-            resizeIframe(document.getElementById("iframe"));
-        });
+        // $('#iframe').on('load', function(){
+        //     resizeIframe(document.getElementById("iframe"));
+        // });
 
 	    $('#rep_b_search').on('click', function(){
-	        $('.shade').fadeIn();
 	        setCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}', $('#rep_f_numfrom').val());
 	        setCookie('rep_f_numto_{{ request.resolver_match.app_name }}', $('#rep_f_numto').val());
 	        setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
@@ -330,15 +351,27 @@
 	        setCookie('rep_f_employee_{{ request.resolver_match.app_name }}', $('#rep_f_employee').val());
 	        setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
 	        setCookie('rep_f_approver_{{ request.resolver_match.app_name }}', $('#rep_f_approver').val());
+
 	        setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
+	        setCookie('rep_f_order2_{{ request.resolver_match.app_name }}', $('#rep_f_order2').val());
 	        setCookie('rep_f_asc_{{ request.resolver_match.app_name }}', $('#rep_f_asc').val());
 	        setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
+	        setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
 
-            $('#iframe').attr('src', function(i, val) {return val;});
-            if($('#iframe')){
-                resizeIframe(document.getElementById("iframe"));
-                $('.shade').fadeOut();
-            }
+	        setCookie('rep_f_subtype_{{ request.resolver_match.app_name }}', $('#rep_f_subtype').val());
+	        setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
+	        setCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}', $('#rep_f_itemstatus').val());
+	        setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
+	        setCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_inputvattype').val());
+	        setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
+	        setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
+
+            $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
+            // $('#iframe').attr('src', function(i, val) {return val;});
+            // if($('#iframe')){
+            //     resizeIframe(document.getElementById("iframe"));
+            //     $('.shade').fadeOut();
+            // }
 	    });
 
         $('#rep_b_print').on('click', function(){
@@ -348,10 +381,25 @@
         $('#rep_f_report').on('change', function(){
             if($('#rep_f_report').val() == 'd'){
                 $('#fil_detailed').show();
+
+                $('#rep_f_order2_holder').show();
+                $('#rep_f_order_holder').hide();
             }
             else{
                 $('#fil_detailed').hide();
+
+                $('#rep_f_order2_holder').hide();
+                $('#rep_f_order_holder').show();
             }
+        });
+
+        $("#rep_f_order, #rep_f_order2").on("select2:select", function (evt) {
+            var element = evt.params.data.element;
+            var $element = $(element);
+
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
         });
 
         // assign values
@@ -367,25 +415,41 @@
         $('#rep_f_employee').val(getCookie('rep_f_employee_{{ request.resolver_match.app_name }}'));
         $('#rep_f_department').val(getCookie('rep_f_department_{{ request.resolver_match.app_name }}'));
         $('#rep_f_approver').val(getCookie('rep_f_approver_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}'));
+
+        $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}').split(',')).select2();
+        $('#rep_f_order2').val(getCookie('rep_f_order2_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_asc').val(getCookie('rep_f_asc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
+
+        $('#rep_f_subtype').val(getCookie('rep_f_subtype_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_payee').val(getCookie('rep_f_payee_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_itemstatus').val(getCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_vat').val(getCookie('rep_f_vat_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_inputvattype').val(getCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_atc').val(getCookie('rep_f_atc_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_deferred').val(getCookie('rep_f_deferred_{{ request.resolver_match.app_name }}'));
 
         $(document).ready(function(){
             if($('#rep_f_report').val() == 'd'){
                 $('#fil_detailed').show();
-                //reset values
+
+                $('#rep_f_order2_holder').show();
+                $('#rep_f_order_holder').hide();
             }
             else{
                 $('#fil_detailed').hide();
+
+                $('#rep_f_order2_holder').hide();
+                $('#rep_f_order_holder').show();
             }
         });
 
 
-        function resizeIframe(obj) {
+        // function resizeIframe(obj) {
             // $('#iframe').css({'height':'auto'});
             // obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
-        }
+        // }
 	});
     </script>
 {% endblock extra_js %}
