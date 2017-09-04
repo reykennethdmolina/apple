@@ -170,7 +170,7 @@
                                             <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.ofstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_ofstatus">OF Status</label>
@@ -267,7 +267,16 @@
                                                             </select>
                                                         </div>
                                                         <div class="col-sm-12"></div>
-                                                        <div class="form-group col-sm-3">
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="control-label"><small>Cashier Remarks</small></label>
+                                                            <textarea id="" class="form-control textarea-remarks input-sm" name="item_remarks" form="form-b">{{ itemtemp.remarks|default:'' }}</textarea>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="control-label"><small>Particulars</small></label><br>
+                                                            <code>{{ itemtemp.particulars }}</code>
+                                                        </div>
+                                                        <div class="col-sm-12"></div>
+                                                        <div class="form-group col-sm-4">
                                                             <label class="control-label"><small>Input VAT Type</small></label>
                                                             <select class="form-control input-sm select-inputvattype" name="item_inputvattype" form="form-b">
                                                                 <option value="">-- Select --</option>
@@ -283,14 +292,8 @@
                                                                 <option value="N" {% if itemtemp.deferredvat %} {% if itemtemp.deferredvat == 'N' %}selected="selected"{% endif %} {% else %} {% if payeedetails.deferredvat == 'N' %}selected="selected"{% endif %} {% endif %}>No</option>
                                                             </select>
                                                         </div>
-                                                        <div class="form-group col-sm-6">
-                                                            <label class="control-label"><small>Cashier Remarks</small></label>
-                                                            <textarea id="" class="form-control textarea-remarks input-sm" name="item_remarks" form="form-b">{{ itemtemp.remarks|default:'' }}</textarea>
-                                                        </div>
-                                                        <div class="form-group col-sm-6">
-                                                            <label class="control-label"><small>Particulars</small></label><br>
-                                                            <code>{{ itemtemp.particulars }}</code>
-                                                        </div>
+
+
                                                         <div class="form-group col-sm-12 margin-bottom-0"></div>
                                                         <div class="form-group col-sm-4" style="display: none">
                                                             <label class="control-label"><small>Currency</small></label>

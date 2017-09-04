@@ -237,7 +237,24 @@ class ReportResultView(PDFTemplateView):
         context['data_list'] = query
         context['report'] = ('d', 's')[self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) != 'd']
         context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
+        if context['orientation'] == 'portrait':
+            context['margin_left'] = '1'
+            context['margin_right'] = '1'
+            context['page_width'] = '19.5'
+            context['header_top'] = '1'
+            context['header_height'] = '2'
+            context['content_top'] = '2.5'
+            context['content_height'] = '23.5'
+            context['footer_left'] = '0.5'
+            context['footer_top'] = '26'
+            context['footer_height'] = '5'
+            context['footer_right'] = '0.5'
+            context['table_width'] = '725'
+
+        context['test_range'] = range(1, 50)
         return context
 
 
@@ -388,10 +405,15 @@ class CreateViewCashier(CreateView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         # data for lookup
 
@@ -768,10 +790,15 @@ class UpdateViewCashier(UpdateView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         # data for lookup
 

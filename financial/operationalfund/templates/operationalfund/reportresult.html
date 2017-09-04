@@ -5,97 +5,182 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Operational Fund - Report</title>
+    <title>Operational Fund Request</title>
     <style>
         @page {
-            size: 'Letter' {{ orientation }};
-            margin: 1cm;
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: {{ margin_left }}cm;
+                width: {{ page_width }}cm;
+                top: {{ header_top }}cm;
+                height: {{ header_height }}cm;
+            }
+            @frame content_frame {
+                left: {{ margin_left }}cm;
+                width: {{ page_width }}cm;
+                top: {{ content_top }}cm;
+                height: {{ content_height }}cm;
+                right: {{ margin_right }}cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: {{ margin_left }}cm;
+                width: {{ page_width }}cm;
+                top: {{ footer_top }}cm;
+                height: {{ footer_height }}cm;
+            }
         }
         body{
+            font-size: 12px;
             font-family: 'Times New Roman';
-            font-size: 10px;
         }
-        table{
-            width: 725px;
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .arial{
+            font-family: 'arial';
         }
         td{
-{#            padding-right: 5px;#}
-            padding-top: 2px;
-            padding-bottom: 2px;
             vertical-align: top;
+        }
+        td:last-child, th:last-child{
+            padding-right: 10px;
         }
     </style>
 </head>
 <body>
-    {% if report == 's' %}
-        <table id="table_summary">
-        <thead>
-            <tr>
-                <th style="width: 20%; text-align: left"><span>OF Number</span></th>
-                <th style="width: 20%; text-align: left"><span>Date</span></th>
-                <th style="width: 30%; text-align: left"><span>Requestor</span></th>
-                <th style="width: 10%; text-align: left"><span>Status</span></th>
-                <th style="width: 20%; text-align: right"><span>Amount</span></th>
-            </tr>
-        </thead>
-        <tbody class="small">
-            {% for data in data_list %}
-                <tr>
-                    <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
-                    <td>{{ data.ofdate|date:'d/m/Y' }}</td>
-                    <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
-                    <td>{{ data.get_ofstatus_display }}</td>
-                    <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        </table>
-    {% elif report == 'd' %}
-        <div style="text-align: right">
-            <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services<br>
-            <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(D) Disapproved
-        </div>
-        <br>
-        <table id="table_detailed">
-        <thead>
-            <tr>
-                <th style="width: 11%; text-align: left"><span>OF Number</span></th>
-                <th style="width: 7%; text-align: left"><span>Date</span></th>
-                <th style="width: 13%; text-align: left"><span>Requestor</span></th>
 
-                <th style="width: 7%; text-align: left"><span>Subtype</span></th>
-                <th style="width: 29%; text-align: left"><span>Payee</span></th>
-                <th style="width: 7%; text-align: center"><span>VAT</span></th>
-                <th style="width: 7%; text-align: center"><span>ATC</span></th>
-                <th style="width: 7%; text-align: center"><span>In/VAT</span></th>
-                <th style="width: 5%; text-align: center"><span>Status</span></th>
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center">OPERATIONAL FUND</p>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+</div>
 
-                <th style="width: 7%; text-align: right"><span>Amount</span></th>
+<div id="footer_content">
+    ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    <table class="arial" style="font-size: 8.4px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }} {{ request.user }}<br>
+                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b>
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                {{ parameter.report_footer7 }}<br>
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: right">
+        {%block page_foot%}
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        {%endblock%}
+    </div>
+</div>
+
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <span class="title">{{ parameter.description|upper }}</span><br>
+            {{ parameter.address1 }}<br>
+            {{ parameter.address2 }}<br>
+            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            VAT REG TIN: {{ parameter.tinnum }}
+        </td>
+    </tr>
+</table>
+<br>
+{% if report == 's' %}
+    <table id="table_summary">
+    <thead>
+        <tr>
+            <th style="width: 20%; text-align: left"><span>OF Number</span></th>
+            <th style="width: 20%; text-align: left"><span>Date</span></th>
+            <th style="width: 30%; text-align: left"><span>Requestor</span></th>
+            <th style="width: 10%; text-align: left"><span>Status</span></th>
+            <th style="width: 20%; text-align: right"><span>Amount</span></th>
+        </tr>
+    </thead>
+    <tbody class="small">
+        {% for data in data_list %}
+            <tr>
+                <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                <td>{{ data.ofdate|date:'d/m/Y' }}</td>
+                <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
+                <td>{{ data.get_ofstatus_display }}</td>
+                <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
             </tr>
-        </thead>
-        <tbody class="small">
-            {% for data in data_list %}
-                <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey;"{% endifchanged %}>
-                    <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
-                        OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}
-                    </td>
-                    <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
-                        {{ data.ofmain.ofdate|date:'d/m/Y' }}
-                    </td>
-                    <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
-                        {{ data.ofmain.requestor.first_name }}&nbsp;{{ data.ofmain.requestor.last_name }}
-                    </td>
-                    <td>{{ data.ofsubtype.code }}</td>
-                    <td>{{ data.payee.code }} - {{ data.payee.name }}</td>
-                    <td style="text-align: center">{{ data.vat.code|default:'-' }}</td>
-                    <td style="text-align: center">{{ data.atc.code|default:'-' }}</td>
-                    <td style="text-align: center">{{ data.inputvattype.code|default:'-' }}</td>
-                    <td style="text-align: center">{{ data.ofitemstatus }}</td>
-                    <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        </table>
-    {% endif %}
+        {% endfor %}
+    </tbody>
+    </table>
+{% elif report == 'd' %}
+    <div style="text-align: right">
+        <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services<br>
+        <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(D) Disapproved
+    </div>
+    <br>
+    <table id="table_detailed">
+    <thead>
+        <tr>
+            <th style="width: 11%; text-align: left"><span>OF Number</span></th>
+            <th style="width: 7%; text-align: left"><span>Date</span></th>
+            <th style="width: 13%; text-align: left"><span>Requestor</span></th>
+
+            <th style="width: 7%; text-align: left"><span>Subtype</span></th>
+            <th style="width: 29%; text-align: left"><span>Payee</span></th>
+            <th style="width: 7%; text-align: center"><span>VAT</span></th>
+            <th style="width: 7%; text-align: center"><span>ATC</span></th>
+            <th style="width: 7%; text-align: center"><span>In/VAT</span></th>
+            <th style="width: 5%; text-align: center"><span>Status</span></th>
+
+            <th style="width: 7%; text-align: right"><span>Amount</span></th>
+        </tr>
+    </thead>
+    <tbody class="small">
+        {% for data in data_list %}
+            <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey;"{% endifchanged %}>
+                <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
+                    OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}
+                </td>
+                <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
+                    {{ data.ofmain.ofdate|date:'d/m/Y' }}
+                </td>
+                <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
+                    {{ data.ofmain.requestor.first_name }}&nbsp;{{ data.ofmain.requestor.last_name }}
+                </td>
+                <td>{{ data.ofsubtype.code }}</td>
+                <td>{{ data.payee.code }} - {{ data.payee.name }}</td>
+                <td style="text-align: center">{{ data.vat.code|default:'-' }}</td>
+                <td style="text-align: center">{{ data.atc.code|default:'-' }}</td>
+                <td style="text-align: center">{{ data.inputvattype.code|default:'-' }}</td>
+                <td style="text-align: center">{{ data.ofitemstatus }}</td>
+                <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endif %}
 </body>
 </html>
