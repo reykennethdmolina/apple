@@ -235,15 +235,16 @@
                                                                 {% endfor %}
                                                             </select>
                                                         </div>
-                                                        <div class="form-group col-sm-4">
+                                                        <div class="form-group col-sm-9">
                                                             <label class="control-label"><small>ATax Code</small></label>
-                                                            <select class="form-control input-sm select-atc" name="item_atc" form="form-b">
+                                                            <select class="form-control input-sm select2 select-atc" name="item_atc" form="form-b">
                                                                 <option value="">-- Select --</option>
                                                                 {% for data in atc %}
                                                                     <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.atc %} {% if itemtemp.atc == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.atc == data.id %}selected="selected"{% endif %} {% endif %}>[{{ data.code }}] {{ data.description }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </div>
+                                                        <div class="col-sm-12"></div>
                                                         <div class="form-group col-sm-3">
                                                             <label class="control-label"><small>Input VAT Type</small></label>
                                                             <select class="form-control input-sm select-inputvattype" name="item_inputvattype" form="form-b">

@@ -68,7 +68,8 @@ class Ofmain(models.Model):
     paymentreceiveddate = models.DateTimeField(null=True, blank=True)
     branch = models.ForeignKey('branch.Branch', related_name='ofmain_branch_id', default=5)
     isdeleted = models.IntegerField(default=0)
-    print_ctr = models.IntegerField(default=0)
+    print_ctr1 = models.IntegerField(default=0)   # user
+    print_ctr2 = models.IntegerField(default=0)   # cashier
 
     class Meta:
         db_table = 'ofmain'

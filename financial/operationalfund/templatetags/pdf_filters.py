@@ -15,3 +15,4 @@ def get64(url):
         return 'data:image/jpg;base64,' + base64.b64encode(image.read())
 
     return url
+
