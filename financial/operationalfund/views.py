@@ -305,8 +305,7 @@ class CreateViewUser(CreateView):
         self.object.amount = totalamount
         self.object.save()
 
-        # return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
-        return HttpResponseRedirect('/operationalfund/')
+        return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
 
 @method_decorator(login_required, name='dispatch')
