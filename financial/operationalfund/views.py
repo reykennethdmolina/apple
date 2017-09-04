@@ -61,15 +61,10 @@ class IndexView(AjaxListView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         # data for lookup
 
@@ -193,15 +188,10 @@ class DetailView(DetailView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         # data for lookup
 
         # requested items
@@ -329,15 +319,10 @@ class CreateViewCashier(CreateView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         # data for lookup
 
@@ -714,15 +699,10 @@ class UpdateViewCashier(UpdateView):
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         # data for lookup
 

@@ -69,23 +69,6 @@
 									</div>
                                 </div>
                                 <div class="form-group col-sm-4 margin-bottom-0">
-                                    <label class="control-label small">OF Subtype</label>
-                                    <select class="form-control input-sm" id="cache_ofsubtype">
-                                        <option value="">-- Select --</option>
-                                        {% for data in ofsubtype %}
-                                            <option value="{{ data.id }}">{{ data.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-12 margin-bottom-10">
-                            <div class="row">
-                                <div class="form-group col-sm-8 margin-bottom-0">
-                                    <label class="control-label small">Payee</label>
-                                    <input type="text" class="form-control input-sm" id="cache_payee_name">
-                                </div>
-                                <div class="form-group col-sm-4 margin-bottom-0">
                                     <label class="control-label small">Branch</label>
                                     <select class="form-control input-sm" id="cache_branch">
                                         <option value="">-- Select --</option>
@@ -98,7 +81,7 @@
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10">
                             <div class="row">
-                                <div class="form-group col-sm-8 margin-bottom-10">
+                                <div class="form-group col-sm-8 margin-bottom-0">
                                     <label class="control-label small">Amount</label><br>
                                     <div class="input-daterange">
 										<div class="input-group">
@@ -111,7 +94,7 @@
 										</div>
 									</div>
                                 </div>
-                                <div class="form-group col-sm-4 margin-bottom-10">
+                                <div class="form-group col-sm-4 margin-bottom-0">
                                     <label class="control-label small">OF Status</label>
                                     <select class="form-control input-sm" id="cache_ofstatus">
                                         <option value="">-- Select --</option>
@@ -128,84 +111,52 @@
                 </div>
                 <div class="tabContent" id="tabContent2">
                     <div class="row">
-                        <div class="form-group col-sm-6 margin-bottom-15">
-                            <label class="control-label small">Employee</label>
-                            <select class="form-control input-sm select2 cache_select1" id="cache_employee">
-                                <option value="">-- Select --</option>
-                                {% for data in employee %}
-                                    <option value="{{ data.id }}">{{ data.lastname }}, {{ data.firstname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-6 margin-bottom-15">
-                            <label class="control-label small">Department</label>
-                            <select class="form-control input-sm select2 cache_select1" id="cache_department">
-                                <option value="">-- Select --</option>
-                                {% for data in department %}
-                                    <option value="{{ data.id }}">[{{ data.code }}] {{ data.departmentname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">VAT</label>
-                            <select class="form-control input-sm" id="cache_vat">
-                                <option value="">-- Select --</option>
-                                {% for data in vat %}
-                                    <option value="{{ data.id }}">{{ data.code }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">Terms</label>
-                            <select class="form-control input-sm" id="cache_creditterm">
-                                <option value="">-- Select --</option>
-                                {% for data in creditterm %}
-                                    <option value="{{ data.id }}">{{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-6 margin-bottom-15">
-                            <label class="control-label small">ATC</label>
-                            <select class="form-control input-sm" id="cache_atc">
-                                <option value="">-- Select --</option>
-                                {% for data in atc %}
-                                    <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">Input VAT Type</label>
-                            <select class="form-control input-sm" id="cache_inputvattype">
-                                <option value="">-- Select --</option>
-                                {% for data in inputvattype %}
-                                    <option value="{{ data.id }}">{{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">Deferred (Y/N)</label>
-                            <select class="form-control input-sm" id="cache_deferredvat">
-                                <option value="">-- Select --</option>
-                                <option value="Y">Yes</option>
-                                <option value="N">No</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">Currency</label>
-                            <select class="form-control input-sm" id="cache_currency">
-                                <option value="">-- Select --</option>
-                                {% for data in currency %}
-                                    <option value="{{ data.id }}">{{ data.symbol }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group col-sm-3 margin-bottom-15">
-                            <label class="control-label small">Reference No.</label>
-                            <input type="text" class="form-control input-sm" id="cache_refnum">
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-6 margin-bottom-0">
+                                    <label class="control-label small">Employee</label>
+                                    <select class="form-control input-sm select2 cache_select1" id="cache_employee">
+                                        <option value="">-- Select --</option>
+                                        {% for data in employee %}
+                                            <option value="{{ data.id }}">{{ data.lastname }}, {{ data.firstname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-6 margin-bottom-0">
+                                    <label class="control-label small">Department</label>
+                                    <select class="form-control input-sm select2 cache_select1" id="cache_department">
+                                        <option value="">-- Select --</option>
+                                        {% for data in department %}
+                                            <option value="{{ data.id }}">[{{ data.code }}] {{ data.departmentname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10">
-                            <label class="control-label small">Particulars</label>
-                            <input type="text" class="form-control input-sm" id="cache_particulars">
+                            <div class="row">
+                                <div class="form-group col-sm-6 margin-bottom-0">
+                                    <label class="control-label small">Terms</label>
+                                    <select class="form-control input-sm" id="cache_creditterm">
+                                        <option value="">-- Select --</option>
+                                        {% for data in creditterm %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-6 margin-bottom-0">
+                                    <label class="control-label small">Reference No.</label>
+                                    <input type="text" class="form-control input-sm" id="cache_refnum">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-12 margin-bottom-0">
+                                    <label class="control-label small">Particulars</label>
+                                    <input type="text" class="form-control input-sm" id="cache_particulars">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,21 +201,14 @@
                         JSON.parse(retrieveFilters)[0]['fil_ofnum_to'],
                         JSON.parse(retrieveFilters)[0]['fil_ofdate_from'],
                         JSON.parse(retrieveFilters)[0]['fil_ofdate_to'],
-                        JSON.parse(retrieveFilters)[0]['fil_payee_name'],
                         JSON.parse(retrieveFilters)[0]['fil_amount_from'],
                         JSON.parse(retrieveFilters)[0]['fil_amount_to'],
                         JSON.parse(retrieveFilters)[0]['fil_oftype'],
-                        JSON.parse(retrieveFilters)[0]['fil_ofsubtype'],
                         JSON.parse(retrieveFilters)[0]['fil_branch'],
                         JSON.parse(retrieveFilters)[0]['fil_ofstatus'],
                         JSON.parse(retrieveFilters)[0]['fil_employee'],
                         JSON.parse(retrieveFilters)[0]['fil_department'],
-                        JSON.parse(retrieveFilters)[0]['fil_vat'],
                         JSON.parse(retrieveFilters)[0]['fil_creditterm'],
-                        JSON.parse(retrieveFilters)[0]['fil_atc'],
-                        JSON.parse(retrieveFilters)[0]['fil_inputvattype'],
-                        JSON.parse(retrieveFilters)[0]['fil_deferredvat'],
-                        JSON.parse(retrieveFilters)[0]['fil_currency'],
                         JSON.parse(retrieveFilters)[0]['fil_refnum'],
                         JSON.parse(retrieveFilters)[0]['fil_particulars']
                 );
@@ -284,21 +228,14 @@
                     'cache_ofnum_to': $("#cache_ofnum_to").val(),
                     'cache_ofdate_from': $("#cache_ofdate_from").val(),
                     'cache_ofdate_to': $("#cache_ofdate_to").val(),
-                    'cache_payee_name': $("#cache_payee_name").val(),
                     'cache_amount_from': $("#cache_amount_from").val(),
                     'cache_amount_to': $("#cache_amount_to").val(),
                     'cache_oftype': $("#cache_oftype").val(),
-                    'cache_ofsubtype': $("#cache_ofsubtype").val(),
                     'cache_branch': $("#cache_branch").val(),
                     'cache_ofstatus': $("#cache_ofstatus").val(),
                     'cache_employee': $("#cache_employee").val(),
                     'cache_department': $("#cache_department").val(),
-                    'cache_vat': $("#cache_vat").val(),
                     'cache_creditterm': $("#cache_creditterm").val(),
-                    'cache_atc': $("#cache_atc").val(),
-                    'cache_inputvattype': $("#cache_inputvattype").val(),
-                    'cache_deferredvat': $("#cache_deferredvat").val(),
-                    'cache_currency': $("#cache_currency").val(),
                     'cache_refnum': $("#cache_refnum").val(),
                     'cache_particulars': $("#cache_particulars").val(),
                     'table': main_table
@@ -319,21 +256,14 @@
                                 fil_ofnum_to: $("#cache_ofnum_to").val(),
                                 fil_ofdate_from: $("#cache_ofdate_from").val(),
                                 fil_ofdate_to: $("#cache_ofdate_to").val(),
-                                fil_payee_name: $("#cache_payee_name").val(),
                                 fil_amount_from: $("#cache_amount_from").val(),
                                 fil_amount_to: $("#cache_amount_to").val(),
                                 fil_oftype: $("#cache_oftype").val(),
-                                fil_ofsubtype: $("#cache_ofsubtype").val(),
                                 fil_branch: $("#cache_branch").val(),
                                 fil_ofstatus: $("#cache_ofstatus").val(),
                                 fil_employee: $("#cache_employee").val(),
                                 fil_department: $("#cache_department").val(),
-                                fil_vat: $("#cache_vat").val(),
                                 fil_creditterm: $("#cache_creditterm").val(),
-                                fil_atc: $("#cache_atc").val(),
-                                fil_inputvattype: $("#cache_inputvattype").val(),
-                                fil_deferredvat: $("#cache_deferredvat").val(),
-                                fil_currency: $("#cache_currency").val(),
                                 fil_refnum: $("#cache_refnum").val(),
                                 fil_particulars: $("#cache_particulars").val()
                             });
@@ -356,29 +286,21 @@
         }
 
         // fill form from cache function
-        function cachedfillform(fil_ofnum_from, fil_ofnum_to, fil_ofdate_from, fil_ofdate_to, fil_payee_name, fil_amount_from,
-                                fil_amount_to, fil_oftype, fil_ofsubtype, fil_branch, fil_ofstatus, fil_employee,
-                                fil_department, fil_vat, fil_creditterm, fil_atc, fil_inputvattype, fil_deferredvat,
-                                fil_currency, fil_refnum, fil_particulars){
+        function cachedfillform(fil_ofnum_from, fil_ofnum_to, fil_ofdate_from, fil_ofdate_to, fil_amount_from,
+                                fil_amount_to, fil_oftype, fil_branch, fil_ofstatus, fil_employee,
+                                fil_department, fil_creditterm, fil_refnum, fil_particulars){
             $("#cache_ofnum_from").val(fil_ofnum_from);
             $("#cache_ofnum_to").val(fil_ofnum_to);
             $("#cache_ofdate_from").val(fil_ofdate_from);
             $("#cache_ofdate_to").val(fil_ofdate_to);
-            $("#cache_payee_name").val(fil_payee_name);
             $("#cache_amount_from").val(fil_amount_from);
             $("#cache_amount_to").val(fil_amount_to);
             $("#cache_oftype").val(fil_oftype);
-            $("#cache_ofsubtype").val(fil_ofsubtype);
             $("#cache_branch").val(fil_branch);
             $("#cache_ofstatus").val(fil_ofstatus);
             $("#cache_employee").val(fil_employee);
             $("#cache_department").val(fil_department);
-            $("#cache_vat").val(fil_vat);
             $("#cache_creditterm").val(fil_creditterm);
-            $("#cache_atc").val(fil_atc);
-            $("#cache_inputvattype").val(fil_inputvattype);
-            $("#cache_deferredvat").val(fil_deferredvat);
-            $("#cache_currency").val(fil_currency);
             $("#cache_refnum").val(fil_refnum);
             $("#cache_particulars").val(fil_particulars);
         }

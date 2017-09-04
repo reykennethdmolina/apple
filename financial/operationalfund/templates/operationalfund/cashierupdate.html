@@ -77,7 +77,7 @@
                             </button>
 						</div>
                     </h3>
-                    <div style="padding-top: 10px; padding-right: 10px;">
+                    <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
                         {% if perms.operationalfund.delete_ofmain and object.ofstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                         <a href="{% url 'operationalfund:delete' object.id %}" class="floatright">
                             <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
