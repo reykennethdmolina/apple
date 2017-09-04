@@ -85,8 +85,8 @@
                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                 </a>
 {#                            {% endif %}#}
-                        {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 %}
-                        <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate userUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                        {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 and not perms.operationalfund.is_cashier %}
+                        <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate userUpdate_user" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                             <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
                         {% endif %}
@@ -113,13 +113,6 @@
         $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
         $('.endless_page_link').on('click', function () {
             $('.shade').fadeIn();
-        });
-
-        $('.tdOfStatus').each(function() {
-            if($(this).find('b').text() == "In Process" || $(this).find('b').text() == "RELEASED"){
-                $(this).siblings('.action-btns-container').find('.userUpdate').hide();
-                $(this).siblings('.action-btns-container').find('.cashierUpdate').show();
-            }
         });
 
         $('.btn-approve').each(function() {

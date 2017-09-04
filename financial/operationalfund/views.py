@@ -422,8 +422,8 @@ class UpdateViewUser(UpdateView):
         # elif request.user.has_perm('operationalfund.is_cashier'):  ---> put before elif if needed
         if not request.user.has_perm('operationalfund.change_ofmain'):
             raise Http404
-        elif self.object.ofstatus != 'F' and self.object.ofstatus != 'D' and request.user.username != 'admin':
-            raise Http404
+        # elif self.object.ofstatus != 'F' and self.object.ofstatus != 'D' and request.user.username != 'admin':
+        #     raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -895,14 +895,15 @@ class UserPdf(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(PDFTemplateView, self).get_context_data(**kwargs)
 
-        context['ofmain'] = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['ofmain'] = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['items'] = Ofitem.objects.filter(ofmain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
 
         context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
-        printedof = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedof = Ofmain.objects.get(Q(pk=self.kwargs['pk']), Q(isdeleted=0), (Q(status='A') | Q(status='C')))
         printedof.print_ctr1 += 1
         printedof.save()
         return context
@@ -912,6 +913,11 @@ class UserPdf(PDFTemplateView):
 class CashierPdf(PDFTemplateView):
     model = Ofmain
     template_name = 'operationalfund/cashierpdf.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.has_perm('operationalfund.is_cashier'):
+            raise Http404
+        return super(PDFTemplateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(PDFTemplateView, self).get_context_data(**kwargs)
@@ -928,6 +934,7 @@ class CashierPdf(PDFTemplateView):
             filter(ofmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
         context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedof = Ofmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
