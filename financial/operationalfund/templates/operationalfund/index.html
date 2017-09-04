@@ -42,6 +42,12 @@
                         </button>
                     {% endif %}
 
+                    <a href="{% url 'operationalfund:report' %}">
+                        <button class="btn btn-info btn-sm">
+                            <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
+                        </button>
+                    </a>
+
                     {% if perms.checkvoucher.add_cvmain %}
                         <a href="{% url 'operationalfund:exportcv' %}">
                             <button class="btn btn-info btn-sm">

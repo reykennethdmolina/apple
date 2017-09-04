@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        @page {
+            size: 'Letter';
+            margin: 1cm;
+        }
+        body{
+            font-family: 'Times New Roman';
+            font-size: 12px;
+        }
+        table{
+            width: 725px;
+        }
+        td{
+            padding-right: 5px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+    </style>
+    <script src="{% static 'financial-layout/assets/js/global/jquery.min.js' %}"></script>
+</head>
+<body>
+    <table>
+    <thead>
+        <tr>
+            <th style="width: 20%; text-align: left"><span>OF Number</span></th>
+            <th style="width: 10%; text-align: left"><span>Date</span></th>
+            <th style="width: 8%; text-align: left"><span>Type</span></th>
+            <th style="width: 20%; text-align: left"><span>Requestor</span></th>
+            <th style="width: 20%; text-align: left"><span>Approver</span></th>
+            <th style="width: 11%; text-align: left"><span>Status</span></th>
+            <th style="width: 11%; text-align: right"><span>Amount</span></th>
+        </tr>
+    </thead>
+    <tbody class="small">
+        {% for data in data_list %}
+            <tr>
+                <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                <td>{{ data.ofdate|date:'d/m/Y' }}</td>
+                <td>{{ data.oftype.code }}</td>
+                <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
+                {% if data.actualapprover %}
+                    <td>{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}</td>
+                {% else %}
+                    <td>{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}</td>
+                {% endif %}
+                <td>{{ data.get_ofstatus_display }}</td>
+                <td style="text-align: right">{{ data.amount }}</td>
+            </tr>
+        {% endfor %}
+    {% for data in data_list %}
+            <tr>
+                <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                <td>{{ data.ofdate|date:'d/m/Y' }}</td>
+                <td>{{ data.oftype.code }}</td>
+                <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
+                {% if data.actualapprover %}
+                    <td>{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}</td>
+                {% else %}
+                    <td>{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}</td>
+                {% endif %}
+                <td>{{ data.get_ofstatus_display }}</td>
+                <td style="text-align: right">{{ data.amount }}</td>
+            </tr>
+        {% endfor %}
+    {% for data in data_list %}
+            <tr>
+                <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                <td>{{ data.ofdate|date:'d/m/Y' }}</td>
+                <td>{{ data.oftype.code }}</td>
+                <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
+                {% if data.actualapprover %}
+                    <td>{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}</td>
+                {% else %}
+                    <td>{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}</td>
+                {% endif %}
+                <td>{{ data.get_ofstatus_display }}</td>
+                <td style="text-align: right">{{ data.amount }}</td>
+            </tr>
+        {% endfor %}
+    {% for data in data_list %}
+            <tr>
+                <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                <td>{{ data.ofdate|date:'d/m/Y' }}</td>
+                <td>{{ data.oftype.code }}</td>
+                <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
+                {% if data.actualapprover %}
+                    <td>{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}</td>
+                {% else %}
+                    <td>{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}</td>
+                {% endif %}
+                <td>{{ data.get_ofstatus_display }}</td>
+                <td style="text-align: right">{{ data.amount }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</body>
+</html>

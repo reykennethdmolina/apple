@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
@@ -27,6 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
+from easy_pdf.views import PDFTemplateView
 from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
 import json
@@ -79,7 +80,6 @@ class IndexView(AjaxListView):
 class ExportCVView(AjaxListView):
     model = Ofmain
     template_name = 'operationalfund/index_cv.html'
-    # page_template = 'operationalfund/index_cv_list.html'
     context_object_name = 'data_list'
 
     def get_queryset(self):
@@ -88,6 +88,93 @@ class ExportCVView(AjaxListView):
         #     keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
         query = query[0:100]
         return query
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Ofmain
+    template_name = 'operationalfund/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('description')
+        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('description')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['user'] = User.objects.filter(is_active=1).order_by('first_name')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+
+        return context
+
+class ReportResultView(PDFTemplateView):
+    model = Ofmain
+    template_name = 'operationalfund/reportresult.html'
+    # context_object_name = 'data_list'
+
+    # def get_queryset(self):
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        query = Ofmain.objects.all().filter(isdeleted=0)
+
+        if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+            query = query.filter(ofnum__gte=int(key_data))
+        if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+            query = query.filter(ofnum__lte=int(key_data))
+
+        if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+            query = query.filter(ofdate__gte=key_data)
+        if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+            query = query.filter(ofdate__lte=key_data)
+
+        if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
+            query = query.filter(amount__gte=float(key_data.replace(',','')))
+        if self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name))
+            query = query.filter(amount__lte=float(key_data.replace(',','')))
+
+        if self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name))
+            query = query.filter(oftype=int(key_data))
+        if self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name))
+            query = query.filter(branch=int(key_data))
+        if self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name))
+            query = query.filter(ofstatus=str(key_data))
+
+        if self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name))
+            query = query.filter(requestor=int(key_data))
+        if self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name))
+            query = query.filter(department=int(key_data))
+        if self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
+
+        if self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+        if self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name):
+            key_data = str(self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name))
+
+            if key_data == 'd':
+                query = query.reverse()
+
+        context['data_list'] = query
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
