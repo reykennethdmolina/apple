@@ -254,7 +254,20 @@ class ReportResultView(PDFTemplateView):
             context['footer_right'] = '0.5'
             context['table_width'] = '725'
 
-        context['test_range'] = range(1, 50)
+        elif context['orientation'] == 'landscape':
+            context['margin_left'] = '1'
+            context['margin_right'] = '1'
+            context['page_width'] = '27.5'
+            context['header_top'] = '1'
+            context['header_height'] = '2'
+            context['content_top'] = '2.5'
+            context['content_height'] = '15'
+            context['footer_left'] = '0.5'
+            context['footer_top'] = '18.5'
+            context['footer_height'] = '5'
+            context['footer_right'] = '0.5'
+            context['table_width'] = '820'
+
         return context
 
 

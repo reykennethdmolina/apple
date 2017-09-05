@@ -31,8 +31,8 @@
             }
         }
         body{
-            font-size: 12px;
-            font-family: 'Times New Roman';
+            font-size: 11px;
+            font-family: 'Arial';
         }
         .title{
             font-size: 16px;
@@ -75,7 +75,6 @@
 </div>
 
 <div id="footer_content">
-    ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     <table>
     <tr style="border-top: 2px solid black;padding: 5px; padding-bottom: 0px;">
         <td width="20%" style="border-left: 2px solid black;"><b>Approved by</b></td>
@@ -131,7 +130,7 @@
 <table>
     <tr><td colspan="3"></td></tr>
     <tr>
-        <td colspan="3">
+        <td colspan="3" style="line-height: 15px;">
             <span class="title">{{ parameter.description|upper }}</span><br>
             {{ parameter.address1 }}<br>
             {{ parameter.address2 }}<br>
@@ -142,6 +141,7 @@
     <tr><td colspan="3"></td></tr>
     <tr>
         <td colspan="3">
+            <br>
             <table>
                 <tr>
                     <td width="15%"><b>Name</b></td>

@@ -32,8 +32,8 @@
             }
         }
         body{
-            font-size: 12px;
-            font-family: 'Times New Roman';
+            font-size: 11px;
+            font-family: 'Arial';
         }
         .title{
             font-size: 16px;
@@ -71,7 +71,6 @@
 </div>
 
 <div id="footer_content">
-    ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     <table class="arial" style="font-size: 8.4px;">
         <tr>
             <td>
@@ -102,7 +101,7 @@
 <table>
     <tr><td colspan="3"></td></tr>
     <tr>
-        <td colspan="3">
+        <td colspan="3" style="line-height: 15px;">
             <span class="title">{{ parameter.description|upper }}</span><br>
             {{ parameter.address1 }}<br>
             {{ parameter.address2 }}<br>
@@ -150,8 +149,8 @@
 
             <th style="width: 7%; text-align: left"><span>Subtype</span></th>
             <th style="width: 29%; text-align: left"><span>Payee</span></th>
-            <th style="width: 7%; text-align: center"><span>VAT</span></th>
-            <th style="width: 7%; text-align: center"><span>ATC</span></th>
+            <th style="width: 7%; text-align: left"><span>VAT</span></th>
+            <th style="width: 7%; text-align: left"><span>ATC</span></th>
             <th style="width: 7%; text-align: center"><span>In/VAT</span></th>
             <th style="width: 5%; text-align: center"><span>Status</span></th>
 
@@ -160,7 +159,7 @@
     </thead>
     <tbody class="small">
         {% for data in data_list %}
-            <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey;"{% endifchanged %}>
+            <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
                 <td {% ifchanged data.ofmain.ofnum %}{% else %}style="color:white"{% endifchanged %}>
                     OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}
                 </td>
@@ -172,8 +171,8 @@
                 </td>
                 <td>{{ data.ofsubtype.code }}</td>
                 <td>{{ data.payee.code }} - {{ data.payee.name }}</td>
-                <td style="text-align: center">{{ data.vat.code|default:'-' }}</td>
-                <td style="text-align: center">{{ data.atc.code|default:'-' }}</td>
+                <td style="text-align: left">{{ data.vat.code|default:'-' }}</td>
+                <td style="text-align: left">{{ data.atc.code|default:'-' }}</td>
                 <td style="text-align: center">{{ data.inputvattype.code|default:'-' }}</td>
                 <td style="text-align: center">{{ data.ofitemstatus }}</td>
                 <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
