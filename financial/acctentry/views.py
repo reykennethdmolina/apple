@@ -24,7 +24,7 @@ from wtax.models import Wtax
 from ataxcode.models import Ataxcode
 from journalvoucher.models import Jvmain, Jvdetailtemp, Jvdetailbreakdowntemp, Jvdetail, Jvdetailbreakdown
 from accountspayable.models import Apmain, Apdetailtemp, Apdetailbreakdowntemp, Apdetail, Apdetailbreakdown
-from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, Ofdetail, Ofdetailbreakdown
+from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, Ofdetail, Ofdetailbreakdown, Ofitem
 from checkvoucher.models import Cvmain, Cvdetailtemp, Cvdetailbreakdowntemp, Cvdetail, Cvdetailbreakdown
 from annoying.functions import get_object_or_None
 
@@ -1408,6 +1408,10 @@ def updatedetail(source, mainid, num, secretkey, by_user):
 
             # detail.jv_date = row.jv_date
             exec("detail." + data_table['sal'] + "_date = row." + data_table['sal'] + "_date")
+
+            # for OF only (save ofitem)
+            if data_table['sal'] == 'of':
+                detail.ofitem = get_object_or_None(Ofitem, pk=row.ofitem)
 
             detail.item_counter = counter
             detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)

@@ -716,6 +716,7 @@ class UpdateViewCashier(UpdateView):
             detail.ofdetail = drow.pk
             detail.item_counter = drow.item_counter
             detail.of_date = drow.of_date
+            detail.ofitem = drow.ofitem_id
             detail.chartofaccount = drow.chartofaccount_id
             detail.bankaccount = drow.bankaccount_id
             detail.employee = drow.employee_id
@@ -917,6 +918,8 @@ class UpdateViewCashier(UpdateView):
             num = self.object.ofnum
             secretkey = self.request.POST['secretkey']
             updatedetail(source, mainid, num, secretkey, self.request.user)
+
+            # saved_ofdetail = Ofdetail.objects.filter(ofmain=self.object.pk)
 
             # update approved amount in of main
             approved_amount = Ofitem.objects.filter(isdeleted=0, ofmain=self.object,
@@ -1185,6 +1188,7 @@ def autoentry(request):
             ofdetailtemp1 = Ofdetailtemp()
             ofdetailtemp1.item_counter = item_counter
             ofdetailtemp1.of_date = main.ofdate
+            ofdetailtemp1.ofitem = data.ofitem
             ofdetailtemp1.secretkey = request.POST['secretkey']
             ofdetailtemp1.chartofaccount = debit_chartofaccount
             gross_amount = float(data.amount) / (1 + (float(data.vatrate) / 100.0))
@@ -1198,6 +1202,7 @@ def autoentry(request):
             ofdetailtemp2 = Ofdetailtemp()
             ofdetailtemp2.item_counter = item_counter
             ofdetailtemp2.of_date = main.ofdate
+            ofdetailtemp2.ofitem = data.ofitem
             ofdetailtemp2.secretkey = request.POST['secretkey']
             ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
             ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id

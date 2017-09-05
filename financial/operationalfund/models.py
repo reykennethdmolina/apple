@@ -167,6 +167,7 @@ class Ofdetail(models.Model):
     ofmain = models.ForeignKey('operationalfund.Ofmain', related_name='ofmain_ofdetail_id', null=True, blank=True)
     of_num = models.CharField(max_length=10)
     of_date = models.DateTimeField()
+    ofitem = models.ForeignKey('operationalfund.Ofitem', related_name='ofitem_ofdetail_id', null=True, blank=True)
     chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='chartofaccount_ofdetail_id')
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='bankaccount_ofdetail_id', null=True,
                                     blank=True)
@@ -377,6 +378,7 @@ class Ofdetailtemp(models.Model):
     ofdetail = models.CharField(max_length=10, null=True, blank=True)
     of_num = models.CharField(max_length=10)
     of_date = models.DateTimeField(blank=True, null=True)
+    ofitem = models.CharField(max_length=10, null=True, blank=True)
     chartofaccount = models.IntegerField(blank=True, null=True)
     bankaccount = models.IntegerField(blank=True, null=True)
     department = models.IntegerField(blank=True, null=True)
