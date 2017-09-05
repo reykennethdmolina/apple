@@ -27,7 +27,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
-from easy_pdf.views import PDFTemplateView
 from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
 import json

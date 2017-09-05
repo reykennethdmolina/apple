@@ -7,6 +7,7 @@ from ataxcode.models import Ataxcode
 from bankaccount.models import Bankaccount
 from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
+from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
 from inputvattype.models import Inputvattype
@@ -21,6 +22,7 @@ from endless_pagination.views import AjaxListView
 from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
+from easy_pdf.views import PDFTemplateView
 import datetime
 
 
@@ -411,6 +413,33 @@ class DeleteView(DeleteView):
         self.object.save()
 
         return HttpResponseRedirect('/checkvoucher')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Cvmain
+    template_name = 'checkvoucher/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedcv.print_ctr += 1
+        printedcv.save()
+        return context
 
 
 @csrf_exempt

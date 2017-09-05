@@ -58,6 +58,28 @@
                             </button>
 						</div>
                     </h3>
+                    <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                        {% if perms.checkvoucher.delete_cvmain and object.cvstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                        <a href="{% url 'checkvoucher:delete' object.id %}" class="floatright">
+                            <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                            </button>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'checkvoucher:pdf' object.id %}" target="_blank" class="floatright">
+                            <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                            </button>
+                        </a>
+                        <a href="{% url 'checkvoucher:detail' object.id %}" class="floatright">
+                            <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                            </button>
+                        </a>
+                    </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                     {{ form.errors }}
@@ -178,28 +200,28 @@
                                     <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_vat">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
+                                    <label class="control-label" for="id_vat" style="display: block;">VAT</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat"  style="width: 65%; display: inline-block;" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for vat in vat %}
                                             <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span id="vatrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
                                     <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.atc.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_atc">ATC</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">
+                                <div class="form-group col-sm-5 {{ form.atc.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_atc" style="display: block;">ATC</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_atc" name="atc" style="width: 80%; display: inline-block;" data-atcrate="RATE: {{ form.atcrate.value|floatformat:2 }}%">
                                         <option value="">-- Select --</option>
                                         {% for atc in atc %}
-                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>{{ atc.code }}</option>
+                                            <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atc.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>
                                         {% endfor %}
                                     </select>
-                                    <span id="atcrate" class="text-success small floatright"><strong>RATE</strong></span>
+                                    <span id="atcrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
                                     <span class="help-block form-error">{{ form.atc.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-2 {{ form.inputvattype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
                                         <option value="">-- Select --</option>
@@ -209,7 +231,7 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.deferredvat.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-2 {{ form.deferredvat.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_deferredvat">Deferred VAT</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
                                         {% for id,name in form.fields.deferredvat.choices %}
@@ -218,7 +240,6 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-12"></div>
                                 <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_designatedapprover">Approver</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
