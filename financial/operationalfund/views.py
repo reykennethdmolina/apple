@@ -30,6 +30,7 @@ from endless_pagination.views import AjaxListView
 from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
 import json
+from pprint import pprint
 
 
 @method_decorator(login_required, name='dispatch')
@@ -103,6 +104,7 @@ class ReportView(ListView):
 
         return context
 
+
 class ReportResultView(PDFTemplateView):
     model = Ofmain
     template_name = 'operationalfund/reportresult.html'
@@ -111,8 +113,11 @@ class ReportResultView(PDFTemplateView):
     # def get_queryset(self):
     def get_context_data(self, **kwargs):
         context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = "OF Report"
+        context['report'] = ['s', self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)] [self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)]
 
-        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) != 'd':
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's':
+            context['report_type'] = "OF Summary Report"
             query = Ofmain.objects.all().filter(isdeleted=0)
 
             if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
@@ -154,7 +159,8 @@ class ReportResultView(PDFTemplateView):
                 if key_data != 'null':
                     key_data = key_data.split(",")
                     query = query.order_by(*key_data)
-        else:
+        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
+            context['report_type'] = "OF Detailed Report"
             query = Ofitem.objects.all().filter(isdeleted=0)
 
             if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
@@ -218,8 +224,40 @@ class ReportResultView(PDFTemplateView):
                 if key_data != 'null':
                     key_data = key_data.split(",")
                     query = query.order_by(*key_data)
+        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s':
+            context['report_type'] = "OF Accounting Entry - Summary Report"
+            query = Ofdetail.objects.all().filter(isdeleted=0)
 
-        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name):
+            query = query.values('chartofaccount__title',
+                                 'bankaccount__accountnumber',
+                                 'department__departmentname',
+                                 'employee__firstname',
+                                 'supplier__name',
+                                 'customer__name',
+                                 'branch__description',
+                                 'product__description',
+                                 'inputvat__description',
+                                 'outputvat__description',
+                                 'vat__description',
+                                 'wtax__description',
+                                 'ataxcode__code')\
+                         .annotate(Sum('debitamount'), Sum('creditamount'))\
+                         .order_by('chartofaccount__title',
+                                   'bankaccount__accountnumber',
+                                   'department__departmentname',
+                                   'employee__firstname',
+                                   'supplier__name',
+                                   'customer__name',
+                                   'branch__description',
+                                   'product__description',
+                                   'inputvat__description',
+                                   'outputvat__description',
+                                   '-vat__description',
+                                   'wtax__description',
+                                   'ataxcode__code')
+
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's' \
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
             if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
                 query = query.filter(amount__gte=float(key_data.replace(',', '')))
@@ -234,7 +272,7 @@ class ReportResultView(PDFTemplateView):
                     query = query.reverse()
 
         context['data_list'] = query
-        context['report'] = ('d', 's')[self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) != 'd']
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')

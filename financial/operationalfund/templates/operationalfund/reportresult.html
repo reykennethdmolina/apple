@@ -5,7 +5,7 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Operational Fund Request</title>
+    <title>Operational Fund - Report</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
@@ -53,6 +53,9 @@
         }
         td:last-child, th:last-child{
             padding-right: 10px;
+        }
+        #table_ae_summary td{
+            min-width: 1px;
         }
     </style>
 </head>
@@ -111,6 +114,8 @@
     </tr>
 </table>
 <br>
+<h2>{{ report_type }}</h2>
+
 {% if report == 's' %}
     <table id="table_summary">
     <thead>
@@ -170,7 +175,7 @@
                     {{ data.ofmain.requestor.first_name }}&nbsp;{{ data.ofmain.requestor.last_name }}
                 </td>
                 <td>{{ data.ofsubtype.code }}</td>
-                <td>{{ data.payee.code }} - {{ data.payee.name }}</td>
+                <td>{{ data.payee_name|upper }}</td>
                 <td style="text-align: left">{{ data.vat.code|default:'-' }}</td>
                 <td style="text-align: left">{{ data.atc.code|default:'-' }}</td>
                 <td style="text-align: center">{{ data.inputvattype.code|default:'-' }}</td>
@@ -179,6 +184,68 @@
             </tr>
         {% endfor %}
     </tbody>
+    </table>
+{% elif report == 'a_s' %}
+    <table id="table_ae_summary">
+        <thead>
+            <tr>
+                <th style="text-align:left">Title</th>
+                <th style="text-align:left">Details</th>
+                <th style="text-align:right">Debit</th>
+                <th style="text-align:right">Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for data in data_list %}
+            <tr {% ifchanged data.chartofaccount__title %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+                <td {% ifchanged data.chartofaccount__title %}{% else %}style="color:white"{% endifchanged %} style="width: 30%">{{ data.chartofaccount__title|default:'' }}</td>
+                <td style="width: 50%">
+                    <table>
+                        <tr>
+                            {% if data.bankaccount__accountnumber %}
+                                <td {% ifchanged data.bankaccount__accountnumber %}{% else %}style="color:white"{% endifchanged %}>Bank Acct. No. {{ data.bankaccount__accountnumber }}</td>
+                            {% endif %}
+                            {% if data.department__departmentname %}
+                                <td {% ifchanged data.department__departmentname %}{% else %}style="color:white"{% endifchanged %}>{{ data.department__departmentname }}</td>
+                            {% endif %}
+                            {% if data.employee__firstname %}
+                                <td {% ifchanged data.employee__firstname %}{% else %}style="color:white"{% endifchanged %}>{{ data.employee__firstname }}</td>
+                            {% endif %}
+                            {% if data.supplier__name %}
+                                <td {% ifchanged data.supplier__name %}{% else %}style="color:white"{% endifchanged %}>{{ data.supplier__name }}</td>
+                            {% endif %}
+                            {% if data.customer__name %}
+                                <td {% ifchanged data.customer__name %}{% else %}style="color:white"{% endifchanged %}>{{ data.customer__name }}</td>
+                            {% endif %}
+                            {% if data.branch__description %}
+                                <td {% ifchanged data.branch__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.branch__description }}</td>
+                            {% endif %}
+                            {% if data.product__description %}
+                                <td {% ifchanged data.product__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.product__description }}</td>
+                            {% endif %}
+                            {% if data.inputvat__description %}
+                                <td {% ifchanged data.inputvat__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.inputvat__description }}</td>
+                            {% endif %}
+                            {% if data.outputvat__description %}
+                                <td {% ifchanged data.outputvat__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.outputvat__description }}</td>
+                            {% endif %}
+                            {% if data.vat__description or data.inputvat__description %}
+                                <td {% ifchanged data.vat__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.vat__description|default:'---' }}</td>
+                            {% endif %}
+                            {% if data.wtax__description %}
+                                <td {% ifchanged data.wtax__description %}{% else %}style="color:white"{% endifchanged %}>{{ data.wtax__description }}</td>
+                            {% endif %}
+                            {% if data.ataxcode__code %}
+                                <td {% ifchanged data.ataxcode__code %}{% else %}style="color:white"{% endifchanged %}>{{ data.ataxcode__code }}</td>
+                            {% endif %}
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 10%; text-align: right">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
+                <td style="width: 10%; text-align: right">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
     </table>
 {% endif %}
 </body>
