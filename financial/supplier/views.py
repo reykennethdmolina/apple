@@ -212,6 +212,7 @@ def getSupplierData(request):
             'bankaccount': supplier.bankaccount_id if supplier.bankaccount_id != 0 else '',
             'bankbranchdisburse': supplier.bankbranchdisburse_id if supplier.bankbranchdisburse_id != 0 else '',
             'duedate': datetime.datetime.now().date() + datetime.timedelta(days=supplier.creditterm.daysdue),
+            'tin': supplier.tin,
         }
     else:
         data = {

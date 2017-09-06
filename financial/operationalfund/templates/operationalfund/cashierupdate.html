@@ -268,8 +268,8 @@
                                                         </div>
                                                         <div class="col-sm-12"></div>
                                                         <div class="form-group col-sm-8 div-supplier"
-                                                             {% if payeedetails.vatrate == None %}
-                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == None %}
+                                                             {% if payeedetails.vat == '' %}
+                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == '' %}
                                                                     style="display: none;"
                                                                 {% endif %}
                                                              {% endif %}>
@@ -284,8 +284,8 @@
                                                             </select>
                                                         </div>
                                                         <div class="form-group col-sm-4 div-tin"
-                                                            {% if payeedetails.vatrate == None %}
-                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == None %}
+                                                            {% if payeedetails.vat == '' %}
+                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == '' %}
                                                                     style="display: none;"
                                                                 {% endif %}
                                                              {% endif %}>
@@ -561,6 +561,7 @@
                 }
             });
 
+
             /**************************** **/
             /** Requested Items ends here **/
             /**************************** **/
@@ -722,12 +723,6 @@
                }
             });
 
-            $(document).ready(function() {
-                $("#importprfselect2").select2({
-                    dropdownParent: $("#myModal")
-                });
-            });
-
             // Accounting entry start
             $.ajax({
                 url: "{% url 'acctentry:maccountingentry' %}",
@@ -802,6 +797,42 @@
                     }
                 }
             });
+
+            /** load supplier ATC, Input VAT Type and TIN if the fields are null yet **/
+            $('.select-supplier').each(function(){
+                if($(this).val() != ''){
+                    getSupplierData($(this).val(), $(this), 'onload');
+                }
+            });
+
+            $(document).on('select2:select', '.select-supplier', function(){
+                if($(this).val() != ''){
+                    getSupplierData($(this).val(), $(this), 'onchange');
+                }
+            });
+
+            function getSupplierData(supplierid, supplierselect, supplierevent){
+                $.ajax({
+                    url: "{% url 'supplier:getsupplierdata' %}",
+                    type: "post",
+                    data: {'supplierid': supplierid
+                    },
+                    success: function(response) {
+                        if(supplierselect.parent().parent().find('.select-atc').val() == '' || supplierevent == 'onchange'){
+                            response.atc ? supplierselect.parent().parent().find('.select-atc').val(response.atc).trigger('change') : supplierselect.parent().parent().find('.select-atc').val('').trigger('change');
+                        }
+                        if(supplierselect.parent().parent().find('.select-inputvattype').val() == '' || supplierevent == 'onchange'){
+                            response.inputvattype ? supplierselect.parent().parent().find('.select-inputvattype').val(response.inputvattype) : supplierselect.parent().parent().find('.select-inputvattype').val('');
+                        }
+                        if(supplierselect.parent().parent().find('.input-tin').val() == '' || supplierevent == 'onchange'){
+                            response.tin ? supplierselect.parent().parent().find('.input-tin').val(response.tin) : supplierselect.parent().parent().find('.input-tin').val('');
+                        }
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
 
             function updateItemTemp(){
                 var item_details_to_update = [];
