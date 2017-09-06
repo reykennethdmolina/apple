@@ -258,8 +258,8 @@
                                                             </select>
                                                         </div>
                                                         <div class="form-group col-sm-9">
-                                                            <label class="control-label"><small>ATax Code</small></label>
-                                                            <select class="form-control input-sm select2 select-atc" name="item_atc" form="form-b">
+                                                            <label class="control-label"><small>ATAX Code</small></label>
+                                                            <select class="form-control input-sm select-atc select2" name="item_atc" form="form-b">
                                                                 <option value="">-- Select --</option>
                                                                 {% for data in atc %}
                                                                     <option value="{{ data.id }}" data-rate="{{ data.rate }}" {% if itemtemp.atc %} {% if itemtemp.atc == data.id %}selected="selected"{% endif %} {% else %} {% if payeedetails.atc == data.id %}selected="selected"{% endif %} {% endif %}>[{{ data.code }}] {{ data.description }}</option>
@@ -267,6 +267,31 @@
                                                             </select>
                                                         </div>
                                                         <div class="col-sm-12"></div>
+                                                        <div class="form-group col-sm-8 div-supplier"
+                                                             {% if payeedetails.vatrate == None %}
+                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == None %}
+                                                                    style="display: none;"
+                                                                {% endif %}
+                                                             {% endif %}>
+                                                            <label class="control-label"><small>Supplier</small></label>
+                                                            <select class="form-control input-sm ajaxselect2 select-supplier" name="item_supplier" form="form-b">
+                                                                <option value=""></option>
+                                                                {% if itemtemp.supplier != None %}
+                                                                    <option value="{{ itemtemp.supplier }}" selected="selected">{{ itemtemp.supplier_name }}</option>
+                                                                {% elif itemtemp.payee != None %}
+                                                                    <option value="{{ itemtemp.payee }}" selected="selected">{{ itemtemp.payee_name }}</option>
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group col-sm-4 div-tin"
+                                                            {% if payeedetails.vatrate == None %}
+                                                                {% if itemtemp.vatrate == 0 or itemtemp.vatrate == None %}
+                                                                    style="display: none;"
+                                                                {% endif %}
+                                                             {% endif %}>
+                                                            <label class="control-label"><small>TIN</small></label>
+                                                            <input type="text" class="form-control input-sm input-tin" name="item_tin" value="{{ itemtemp.tin|default:'' }}" form="form-b">
+                                                        </div>
                                                         <div class="form-group col-sm-6">
                                                             <label class="control-label"><small>Cashier Remarks</small></label>
                                                             <textarea id="" class="form-control textarea-remarks input-sm" name="item_remarks" form="form-b">{{ itemtemp.remarks|default:'' }}</textarea>
@@ -292,9 +317,7 @@
                                                                 <option value="N" {% if itemtemp.deferredvat %} {% if itemtemp.deferredvat == 'N' %}selected="selected"{% endif %} {% else %} {% if payeedetails.deferredvat == 'N' %}selected="selected"{% endif %} {% endif %}>No</option>
                                                             </select>
                                                         </div>
-
-
-                                                        <div class="form-group col-sm-12 margin-bottom-0"></div>
+{#                                                        <div class="form-group col-sm-12 margin-bottom-0"></div>#}
                                                         <div class="form-group col-sm-4" style="display: none">
                                                             <label class="control-label"><small>Currency</small></label>
                                                             <select class="form-control input-sm select-currency" name="item_currency" form="form-b">
@@ -464,6 +487,17 @@
     <script type="text/javascript">
         var released = 0;
         $(document).ready(function() {
+            ajaxselect2("supplier_payee");
+{#            $('.select-supplier').each(function(){#}
+{#                $(this).append()#}
+{#            });#}
+{#            var supp_c = 0;#}
+{#            {% for itemtemp, payeedetails in itemtempwithpayeedetails %}#}
+{#                alert('{{ itemtemp.supplier.id }}');#}
+{#                $('.select-supplier:eq('+ supp_c +')').append("<option value='{{ itemtemp.supplier.id }}' selected='selected'>{{ itemtemp.supplier_name }}</option>");#}
+{#                supp_c += 1;#}
+{#            {% endfor %}#}
+
             /****************************** **/
             /** Requested Items starts here **/
             /****************************** **/
@@ -513,6 +547,19 @@
                 });
                 $('#item-total').text(sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             }
+
+            $(document).on('change', '.select-vat', function(){
+                if($(this).find('option:selected').data('rate') != '0'){
+                    $(this).parent().siblings('.div-supplier').show();
+                    $(this).parent().siblings('.div-tin').show();
+                }
+                else {
+                    $(this).parent().siblings('.div-supplier').hide();
+                    $(this).parent().siblings('.div-tin').hide();
+                    $(this).parent().siblings('.div-supplier').find('.select-supplier').val('').trigger('change');
+                    $(this).parent().siblings('.div-tin').find('.input-tin').val('');
+                }
+            });
 
             /**************************** **/
             /** Requested Items ends here **/
@@ -720,6 +767,16 @@
                             valid = false;
                         }
                     });
+                    $('.select-supplier:visible').each(function(){
+                       if($(this).val() == ''){
+                           valid = false;
+                       }
+                    });
+                    $('.input-tin:visible').each(function(){
+                       if($(this).val() == ''){
+                           valid = false;
+                       }
+                    });
                     if(valid){
                         if($(".detaildelete")[0]) {
                             if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")) {
@@ -741,7 +798,7 @@
                         }
                     }
                     else {
-                        alert("Please complete details of the items first. (VAT, Input VAT Type)");
+                        alert("Please complete details of the items first. (VAT, Input VAT Type, Supplier, TIN)");
                     }
                 }
             });
@@ -752,7 +809,7 @@
 
                 item_details_to_update.push({
                     id : [], vat: [], atc: [], inputvattype: [], deferredvat: [],
-                    remarks: [], currency: [], fxrate: [], itemstatus: []
+                    remarks: [], currency: [], fxrate: [], itemstatus: [], supplier: [], tin: []
                 });
 
                 $(".item-check").each(function(){
@@ -765,6 +822,8 @@
                     item_details_to_update[0].currency.push($(this).parent().parent().parent().find('.select-currency').val());
                     item_details_to_update[0].fxrate.push($(this).parent().parent().parent().find('.input-fxrate').val());
                     item_details_to_update[0].itemstatus.push($(this).is(':checked') ? 'A' : 'D');
+                    item_details_to_update[0].supplier.push($(this).parent().parent().parent().find('.select-supplier').val());
+                    item_details_to_update[0].tin.push($(this).parent().parent().parent().find('.input-tin').val());
                 });
 
                 var items = JSON.stringify(item_details_to_update);
@@ -844,7 +903,16 @@
                 if (checkbreakdownstatus) {
                     alert('You have unbalance various entry. Please review your entry!');
                 }
-
+                $('.select-supplier:visible').each(function(){
+                    if($(this).val() == ''){
+                        alert("All supplier fields must have values.");
+                    }
+                });
+                $('.input-tin:visible').each(function(){
+                    if($(this).val() == ''){
+                        alert("All TIN fields must have values.");
+                    }
+                });
                 if($("#id_ofstatus").val() == 'R' && released == 0 && $("#id_originalofstatus").val() != 'R'){
                     event.preventDefault();
                     $("#releaseModal").modal('show');
@@ -864,9 +932,10 @@
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/custom-masks.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/form-mask/validate-masks.js' %}"></script>
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-        ajaxselect2("supplier_payee");
     </script>
 {% endblock extra_js %}

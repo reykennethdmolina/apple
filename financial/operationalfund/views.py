@@ -571,6 +571,10 @@ class UpdateViewUser(UpdateView):
             detail.payee = data.payee_id
             detail.payee_code = data.payee_code
             detail.payee_name = data.payee_name
+            detail.supplier = data.supplier.id if data.supplier else None
+            detail.supplier_code = data.supplier_code
+            detail.supplier_name = data.supplier_name
+            detail.tin = data.tin
             detail.amount = data.amount
             detail.particulars = data.particulars
             detail.refnum = data.refnum
@@ -725,6 +729,10 @@ class UpdateViewCashier(UpdateView):
             detail.payee = data.payee_id
             detail.payee_code = data.payee_code
             detail.payee_name = data.payee_name
+            detail.supplier = data.supplier.id if data.supplier else None
+            detail.supplier_code = data.supplier_code
+            detail.supplier_name = data.supplier_name
+            detail.tin = data.tin
             detail.amount = data.amount
             detail.particulars = data.particulars
             detail.refnum = data.refnum
@@ -832,9 +840,6 @@ class UpdateViewCashier(UpdateView):
         context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
             User.objects.get(pk=self.object.actualapprover.id).last_name
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
-        # context['payee'] = Ofmain.objects.get(pk=self.object.id).payee.id if Ofmain.objects.get(
-        #     pk=self.object.id).payee is not None else ''
-        # context['payee_name'] = Ofmain.objects.get(pk=self.object.id).payee_name
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
@@ -860,12 +865,20 @@ class UpdateViewCashier(UpdateView):
         payeedetails = []
         for data in itemtemp:
             payee = get_object_or_None(Supplier, pk=data.payee)
-            payeedetails.append({
-                'vat': payee.vat_id if payee else '',
-                'atc': payee.atc_id if payee else '',
-                'inputvattype': payee.inputvattype_id if payee else '',
-                'deferredvat': payee.deferredvat if payee else ''
-            })
+            if data.supplier:
+                payeedetails.append({
+                    'vat': '',
+                    'atc': '',
+                    'inputvattype': '',
+                    'deferredvat': ''
+                })
+            else:
+                payeedetails.append({
+                    'vat': payee.vat_id if payee else '',
+                    'atc': payee.atc_id if payee else '',
+                    'inputvattype': payee.inputvattype_id if payee else '',
+                    'deferredvat': payee.deferredvat if payee else ''
+                })
         context['itemtempwithpayeedetails'] = zip(itemtemp, payeedetails)
 
         # accounting entry starts here
@@ -943,6 +956,22 @@ class UpdateViewCashier(UpdateView):
                     update_item.atcrate = Ataxcode.objects.get(
                         pk=int(self.request.POST.getlist('item_atc')[i])).rate if Ataxcode.objects.get(
                         pk=int(self.request.POST.getlist('item_atc')[i])) else None
+                if self.request.POST.getlist('item_supplier')[i]:
+                    update_item.supplier = get_object_or_None(Supplier, id=int(self.request.POST.getlist('item_supplier')[i]))
+                    update_item.supplier_code = Supplier.objects.get(
+                        pk=int(self.request.POST.getlist('item_supplier')[i])).code if Supplier.objects.get(
+                        pk=int(self.request.POST.getlist('item_supplier')[i])) else None
+                    update_item.supplier_name = Supplier.objects.get(
+                        pk=int(self.request.POST.getlist('item_supplier')[i])).name if Supplier.objects.get(
+                        pk=int(self.request.POST.getlist('item_supplier')[i])) else None
+                else:
+                    update_item.supplier = None
+                    update_item.supplier_code = None
+                    update_item.supplier_name = None
+                if self.request.POST.getlist('item_tin')[i]:
+                    update_item.tin = self.request.POST.getlist('item_tin')[i]
+                else:
+                    update_item.tin = None
                 update_item.ofitemstatus = self.request.POST.getlist('item_status')[i]
                 update_item.modifyby = self.request.user
                 update_item.modifydate = datetime.datetime.now()
@@ -1135,9 +1164,10 @@ def updateitemtemp(request):
 
         item_zip = zip(items[0]['id'], items[0]['vat'], items[0]['atc'], items[0]['inputvattype'],
                        items[0]['deferredvat'], items[0]['remarks'], items[0]['currency'], items[0]['fxrate'],
-                       items[0]['itemstatus'])
+                       items[0]['itemstatus'], items[0]['supplier'], items[0]['tin'])
 
-        for z_id, z_vat, z_atc, z_inputvattype, z_deferredvat, z_remarks, z_currency, z_fxrate, z_itemstatus in item_zip:
+        for z_id, z_vat, z_atc, z_inputvattype, z_deferredvat, z_remarks, z_currency, z_fxrate, z_itemstatus, \
+                z_supplier, z_tin in item_zip:
             item_to_update = Ofitemtemp.objects.get(pk=z_id)
             item_to_update.vat = int(z_vat) if z_vat else None
             item_to_update.vatrate = Vat.objects.get(pk=int(z_vat)).rate if z_vat else None
@@ -1149,6 +1179,10 @@ def updateitemtemp(request):
             item_to_update.currency = int(z_currency) if z_currency else None
             item_to_update.fxrate = float(z_fxrate) if z_fxrate else None
             item_to_update.ofitemstatus = z_itemstatus
+            item_to_update.supplier = int(z_supplier) if z_supplier else None
+            item_to_update.supplier_code = Supplier.objects.get(pk=int(z_supplier)).code if z_supplier else None
+            item_to_update.supplier_name = Supplier.objects.get(pk=int(z_supplier)).name if z_supplier else None
+            item_to_update.tin = z_tin
             item_to_update.modifyby = request.user
             item_to_update.modifydate = datetime.datetime.now()
             item_to_update.save()
