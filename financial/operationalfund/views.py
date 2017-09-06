@@ -227,6 +227,11 @@ class ReportResultView(PDFTemplateView):
             context['report_type'] = "OF Accounting Entry - Summary Report"
             query = Ofdetail.objects.all().filter(isdeleted=0)
 
+            if self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'd':
+                query = query.filter(balancecode='D')
+            elif self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'c':
+                query = query.filter(balancecode='C')
+
             query = query.values('chartofaccount__title',
                                  'bankaccount__accountnumber',
                                  'department__departmentname',

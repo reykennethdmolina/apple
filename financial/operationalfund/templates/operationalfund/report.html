@@ -50,16 +50,8 @@
             height: 900px;
             position: relative;
             z-index: 100;
-{#            zoom: 0.15;#}
-{#            -moz-transform:scale(0.75);#}
-{#            -moz-transform-origin: 0 0;#}
-{#            -o-transform: scale(0.75);#}
-{#            -o-transform-origin: 0 0;#}
-{#            -webkit-transform: scale(0.75);#}
-{#            -webkit-transform-origin: 0 0;#}
         }
         #iframe_preview{
-{#            width: 815px;#}
             padding: 40px;
             margin: auto;
         }
@@ -70,7 +62,7 @@
         #fil_detailed{
             display: none;
         }
-        #rep_f_order_holder, #rep_f_order2_holder{
+        #rep_f_order_holder, #rep_f_order2_holder, #rep_f_asc_holder, #rep_f_balancecode_holder{
             display: none;
         }
         .form-group {
@@ -138,7 +130,7 @@
                                     <option value="type">Type</option>
                                 </select>
                             </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-2" id="rep_f_asc_holder">
                                 <label class="control-label small">&nbsp;</label>
                                 <select class="form-control input-sm" id="rep_f_asc">
                                     <option value=""> -- </option>
@@ -146,9 +138,76 @@
                                     <option value="d">Descending</option>
                                 </select>
                             </div>
+                            <div class="form-group col-sm-2 col-sm-offset-6" id="rep_f_balancecode_holder" style="border-left: 1px solid #e0e0e0">
+                                <label class="control-label small">Balance Code</label><br>
+                                <select class="form-control input-sm" id="rep_f_balancecode">
+                                    <option value="a">All</option>
+                                    <option value="d">Debit</option>
+                                    <option value="c">Credit</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_detailed">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Item Subtype</label>
+                                <select class="form-control input-sm" id="rep_f_subtype">
+                                    <option value="">-- Select --</option>
+                                    {% for data in ofsubtype %}
+                                        <option value="{{ data.id }}">{{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Item Payee</label>
+                                <input type="text" class="form-control input-sm" id="rep_f_payee">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Item Status</label>
+                                <select class="form-control input-sm" id="rep_f_itemstatus">
+                                    <option value="">-- Select --</option>
+                                    <option value="f">For Approval</option>
+                                    <option value="a">Approved</option>
+                                    <option value="d">Dispproved</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Item VAT</label>
+                                <select class="form-control input-sm" id="rep_f_vat">
+                                    <option value="">-- Select --</option>
+                                    {% for data in vat %}
+                                        <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Item Input VAT Type</label>
+                                <select class="form-control input-sm" id="rep_f_inputvattype">
+                                    <option value="">-- Select --</option>
+                                    {% for data in inputvattype %}
+                                        <option value="{{ data.id }}">{{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-1">
+                                <label class="control-label small">Item ATC</label>
+                                <select class="form-control input-sm" id="rep_f_atc" style="width: 100%">
+                                    <option value="">--</option>
+                                    {% for data in atc %}
+                                        <option value="{{ data.id }}">{{ data.code }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-1">
+                                <label class="control-label small">Deferred</label>
+                                <select class="form-control input-sm" id="rep_f_deferred">
+                                    <option value="">--</option>
+                                    <option value="y">Yes</option>
+                                    <option value="n">No</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0">
+                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_summary">
                             <div class="form-group col-sm-4">
                                 <label class="control-label small">OF Num</label>
                                 <div class="input-daterange">
@@ -246,67 +305,6 @@
                                 </select>
                             </div>
                         </div>
-
-
-                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_detailed">
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Subtype</label>
-                                <select class="form-control input-sm" id="rep_f_subtype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in ofsubtype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Payee</label>
-                                <input type="text" class="form-control input-sm" id="rep_f_payee">
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Status</label>
-                                <select class="form-control input-sm" id="rep_f_itemstatus">
-                                    <option value="">-- Select --</option>
-                                    <option value="f">For Approval</option>
-                                    <option value="a">Approved</option>
-                                    <option value="d">Dispproved</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item VAT</label>
-                                <select class="form-control input-sm" id="rep_f_vat">
-                                    <option value="">-- Select --</option>
-                                    {% for data in vat %}
-                                        <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Input VAT Type</label>
-                                <select class="form-control input-sm" id="rep_f_inputvattype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in inputvattype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-1">
-                                <label class="control-label small">Item ATC</label>
-                                <select class="form-control input-sm" id="rep_f_atc" style="width: 100%">
-                                    <option value="">--</option>
-                                    {% for data in atc %}
-                                        <option value="{{ data.id }}">{{ data.code }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-1">
-                                <label class="control-label small">Deferred</label>
-                                <select class="form-control input-sm" id="rep_f_deferred">
-                                    <option value="">--</option>
-                                    <option value="y">Yes</option>
-                                    <option value="n">No</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -368,6 +366,8 @@
                 setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
                 setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
 
+                setCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}', $('#rep_f_balancecode').val());
+
                 $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
             }
             else{
@@ -380,18 +380,7 @@
         });
 
         $('#rep_f_report').on('change', function(){
-            if($('#rep_f_report').val() == 'd'){
-                $('#fil_detailed').show();
-
-                $('#rep_f_order2_holder').show();
-                $('#rep_f_order_holder').hide();
-            }
-            else{
-                $('#fil_detailed').hide();
-
-                $('#rep_f_order2_holder').hide();
-                $('#rep_f_order_holder').show();
-            }
+            checkReportType();
         });
 
         $("#rep_f_order, #rep_f_order2").on("select2:select", function (evt) {
@@ -401,6 +390,10 @@
             $element.detach();
             $(this).append($element);
             $(this).trigger("change");
+        });
+
+        $(document).ready(function(){
+            checkReportType();
         });
 
         // assign values
@@ -431,20 +424,34 @@
         $('#rep_f_atc').val(getCookie('rep_f_atc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_deferred').val(getCookie('rep_f_deferred_{{ request.resolver_match.app_name }}'));
 
-        $(document).ready(function(){
-            if($('#rep_f_report').val() == 'd'){
+        $('#rep_f_balancecode').val(getCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}'));
+
+        function checkReportType(){
+            if($('#rep_f_report').val() == 'a_s'){
                 $('#fil_detailed').show();
 
+                $('#rep_f_balancecode_holder').show();
+                $('#rep_f_order2_holder').hide();
+                $('#rep_f_order_holder').hide();
+                $('#rep_f_asc_holder').hide();
+            }
+            else if($('#rep_f_report').val() == 'd'){
+                $('#fil_detailed').show();
+
+                $('#rep_f_balancecode_holder').hide();
                 $('#rep_f_order2_holder').show();
                 $('#rep_f_order_holder').hide();
+                $('#rep_f_asc_holder').show();
             }
             else{
                 $('#fil_detailed').hide();
 
+                $('#rep_f_balancecode_holder').hide();
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').show();
+                $('#rep_f_asc_holder').show();
             }
-        });
+        }
 	});
     </script>
 {% endblock extra_js %}
