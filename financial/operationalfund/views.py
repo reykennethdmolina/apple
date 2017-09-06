@@ -320,7 +320,7 @@ class ReportResultView(PDFTemplateView):
 class DetailView(DetailView):
     model = Ofmain
     template_name = 'operationalfund/detail.html'
-
+ 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['detail'] = Ofdetail.objects.filter(isdeleted=0).\
