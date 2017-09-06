@@ -229,6 +229,7 @@
 <div id="item-save-success" class="custom-alert success">Item successfully saved.</div>
 <div id="item-delete-success" class="custom-alert success">Item successfully deleted.</div>
 <div id="of-save-error" class="custom-alert danger">Operational fund should at least have one item.</div>
+<div id="of-save-amount-error" class="custom-alert danger">Petty Cash Amount should not exceed to 1000.00</div>
 <div id="oftype-change-error" class="custom-alert danger">Clear all items first.</div>
 {% endblock page-content %}
 {% block extra_js %}
@@ -423,12 +424,17 @@
             /** Store OF **/
             $(document).on('click', '#validateButton', function(){
                 if($('.item_table tbody tr').length > $('.item_table tbody tr.warning').length){
-                    /* other validations */
-
-                    $("#form-b").submit();
+                    if(parseFloat($('#totalamount').text().replace(',','')) <= 1000 || $('#id_oftype').val() != 1){
+                        $("#form-b").submit();
+                    }
+                    else{
+                        customAlert($('#of-save-amount-error'));
+                        event.preventDefault();
+                    }
                 }
                 else{
                     customAlert($('#of-save-error'));
+                    event.preventDefault();
                 }
             });
 

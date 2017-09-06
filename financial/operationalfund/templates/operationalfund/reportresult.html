@@ -137,8 +137,18 @@
                 <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
             </tr>
         {% endfor %}
+        <tr><td colspan="5"></td></tr>
+        <tr>
+            <td colspan="4"><b>Total</b></td>
+            <td style="text-align: right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
+        </tr>
     </tbody>
     </table>
+
+
+
+
+
 {% elif report == 'd' %}
     <div style="text-align: right">
         <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services<br>
@@ -175,7 +185,13 @@
                     {{ data.ofmain.requestor.first_name }}&nbsp;{{ data.ofmain.requestor.last_name }}
                 </td>
                 <td>{{ data.ofsubtype.code }}</td>
-                <td>{{ data.payee_name|upper }}</td>
+                <td>
+                    {% if data.supplier_name != None %}
+                        {{ data.supplier_name|upper }}
+                    {% else %}
+                        {{ data.payee_name|upper }}
+                    {% endif %}
+                </td>
                 <td style="text-align: left">{{ data.vat.code|default:'-' }}</td>
                 <td style="text-align: left">{{ data.atc.code|default:'-' }}</td>
                 <td style="text-align: center">{{ data.inputvattype.code|default:'-' }}</td>
@@ -183,8 +199,19 @@
                 <td style="text-align: right">{{ data.amount|floatformat:2|intcomma }}</td>
             </tr>
         {% endfor %}
+        <tr><td colspan="10"></td></tr>
+        <tr>
+            <td colspan="9"><b>Total</b></td>
+            <td style="text-align: right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
+        </tr>
     </tbody>
     </table>
+
+
+
+
+
+
 {% elif report == 'a_s' %}
     <table id="table_ae_summary">
         <thead>
@@ -245,6 +272,12 @@
                 <td style="width: 10%; text-align: right">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
             </tr>
         {% endfor %}
+        <tr><td colspan="4"></td></tr>
+        <tr>
+            <td colspan="2"><b>Total</b></td>
+            <td style="text-align: right"><b>{{ report_total.debitamount__sum|floatformat:2|intcomma }}</b></td>
+            <td style="text-align: right"><b>{{ report_total.creditamount__sum|floatformat:2|intcomma }}</b></td>
+        </tr>
         </tbody>
     </table>
 {% endif %}

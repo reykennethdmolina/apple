@@ -323,6 +323,7 @@
         <div class="clearfix"></div>
     </div>
 </div>
+<div id="report-search-error" class="custom-alert danger">Select Report Type first.</div>
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -337,44 +338,41 @@
     $(function () {
         $('.select2').select2({});
 
-        // $('#iframe').on('load', function(){
-        //     resizeIframe(document.getElementById("iframe"));
-        // });
-
 	    $('#rep_b_search').on('click', function(){
-	        setCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}', $('#rep_f_numfrom').val());
-	        setCookie('rep_f_numto_{{ request.resolver_match.app_name }}', $('#rep_f_numto').val());
-	        setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
-	        setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
-	        setCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_amountfrom').val());
-	        setCookie('rep_f_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_amountto').val());
-	        setCookie('rep_f_oftype_{{ request.resolver_match.app_name }}', $('#rep_f_oftype').val());
-	        setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
-	        setCookie('rep_f_ofstatus_{{ request.resolver_match.app_name }}', $('#rep_f_ofstatus').val());
-	        setCookie('rep_f_employee_{{ request.resolver_match.app_name }}', $('#rep_f_employee').val());
-	        setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
-	        setCookie('rep_f_approver_{{ request.resolver_match.app_name }}', $('#rep_f_approver').val());
 
-	        setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
-	        setCookie('rep_f_order2_{{ request.resolver_match.app_name }}', $('#rep_f_order2').val());
-	        setCookie('rep_f_asc_{{ request.resolver_match.app_name }}', $('#rep_f_asc').val());
-	        setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
-	        setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
+            if($('#rep_f_report').val() != ''){
+                setCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}', $('#rep_f_numfrom').val());
+                setCookie('rep_f_numto_{{ request.resolver_match.app_name }}', $('#rep_f_numto').val());
+                setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
+                setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
+                setCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_amountfrom').val());
+                setCookie('rep_f_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_amountto').val());
+                setCookie('rep_f_oftype_{{ request.resolver_match.app_name }}', $('#rep_f_oftype').val());
+                setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
+                setCookie('rep_f_ofstatus_{{ request.resolver_match.app_name }}', $('#rep_f_ofstatus').val());
+                setCookie('rep_f_employee_{{ request.resolver_match.app_name }}', $('#rep_f_employee').val());
+                setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
+                setCookie('rep_f_approver_{{ request.resolver_match.app_name }}', $('#rep_f_approver').val());
 
-	        setCookie('rep_f_subtype_{{ request.resolver_match.app_name }}', $('#rep_f_subtype').val());
-	        setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
-	        setCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}', $('#rep_f_itemstatus').val());
-	        setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
-	        setCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_inputvattype').val());
-	        setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
-	        setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
+                setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
+                setCookie('rep_f_order2_{{ request.resolver_match.app_name }}', $('#rep_f_order2').val());
+                setCookie('rep_f_asc_{{ request.resolver_match.app_name }}', $('#rep_f_asc').val());
+                setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
+                setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
 
-            $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
-            // $('#iframe').attr('src', function(i, val) {return val;});
-            // if($('#iframe')){
-            //     resizeIframe(document.getElementById("iframe"));
-            //     $('.shade').fadeOut();
-            // }
+                setCookie('rep_f_subtype_{{ request.resolver_match.app_name }}', $('#rep_f_subtype').val());
+                setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
+                setCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}', $('#rep_f_itemstatus').val());
+                setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
+                setCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_inputvattype').val());
+                setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
+                setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
+
+                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
+            }
+            else{
+                customAlert($('#report-search-error'));
+            }
 	    });
 
         $('#rep_b_print').on('click', function(){
@@ -447,12 +445,6 @@
                 $('#rep_f_order_holder').show();
             }
         });
-
-
-        // function resizeIframe(obj) {
-            // $('#iframe').css({'height':'auto'});
-            // obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
-        // }
 	});
     </script>
 {% endblock extra_js %}

@@ -108,15 +108,14 @@ class ReportView(ListView):
 class ReportResultView(PDFTemplateView):
     model = Ofmain
     template_name = 'operationalfund/reportresult.html'
-    # context_object_name = 'data_list'
 
-    # def get_queryset(self):
     def get_context_data(self, **kwargs):
         context = super(ReportResultView, self).get_context_data(**kwargs)
         context['report_type'] = "OF Report"
-        context['report'] = ['s', self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)] [self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)]
+        context['report_total'] = 0
 
-        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's':
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's'\
+                or str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
             context['report_type'] = "OF Summary Report"
             query = Ofmain.objects.all().filter(isdeleted=0)
 
@@ -256,8 +255,11 @@ class ReportResultView(PDFTemplateView):
                                    'wtax__description',
                                    'ataxcode__code')
 
+            context['report_total'] = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
         if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's' \
-                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd'\
+                or str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
             if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
                 query = query.filter(amount__gte=float(key_data.replace(',', '')))
@@ -271,8 +273,14 @@ class ReportResultView(PDFTemplateView):
                 if key_data == 'd':
                     query = query.reverse()
 
+            context['report_total'] = query.aggregate(Sum('amount'))
+
+        if str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
+            context['report'] = 's'
+        else:
+            context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+
         context['data_list'] = query
-        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
