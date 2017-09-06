@@ -111,11 +111,11 @@ class ReportResultView(PDFTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ReportResultView, self).get_context_data(**kwargs)
-        context['report_type'] = "OF Report"
+        context['report_type'] = ''
         context['report_total'] = 0
+        query = ''
 
-        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's'\
-                or str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's':
             context['report_type'] = "OF Summary Report"
             query = Ofmain.objects.all().filter(isdeleted=0)
 
@@ -258,8 +258,7 @@ class ReportResultView(PDFTemplateView):
             context['report_total'] = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
         if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's' \
-                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd'\
-                or str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
             if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
                 query = query.filter(amount__gte=float(key_data.replace(',', '')))
@@ -273,13 +272,9 @@ class ReportResultView(PDFTemplateView):
                 if key_data == 'd':
                     query = query.reverse()
 
-            context['report_total'] = query.aggregate(Sum('amount'))
+            context['report_total'] = query.aggregate(Sum('amount'))\
 
-        if str(self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)) == 'null':
-            context['report'] = 's'
-        else:
-            context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
-
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
         context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
@@ -320,7 +315,7 @@ class ReportResultView(PDFTemplateView):
 class DetailView(DetailView):
     model = Ofmain
     template_name = 'operationalfund/detail.html'
- 
+
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['detail'] = Ofdetail.objects.filter(isdeleted=0).\
