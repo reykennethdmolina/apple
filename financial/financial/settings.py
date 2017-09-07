@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     'operationalfund',
     'endless_pagination',
     'checkvoucher',
+    'replenish_pcv',
 ]
 
 MIDDLEWARE_CLASSES = [

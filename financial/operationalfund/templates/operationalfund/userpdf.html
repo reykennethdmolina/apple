@@ -187,7 +187,7 @@
         <tr style="padding-top: 5px;">
             <td width="5%">{{ data.item_counter }}</td>
             <td>{{ data.ofsubtype.code }} - {{ data.ofsubtype.description }}</td>
-            <td width="50%">{% if data.supplier_name %}{{ data.supplier_name }}{% else %}{{ data.payee_name }}{% endif %}</td>
+            <td width="50%">{% if data.supplier_name %}{{ data.supplier_name|upper }}{% else %}{{ data.payee_name|upper }}{% endif %}</td>
             <td>{{ data.particulars }}</td>
             {% if ofmain.oftype.code == 'CSV' %}
                 <td>{{ data.periodfrom|date:'Y-m-d' }}</td>

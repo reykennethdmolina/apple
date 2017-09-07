@@ -71,6 +71,14 @@ class Ofmain(models.Model):
     print_ctr1 = models.IntegerField(default=0)   # user
     print_ctr2 = models.IntegerField(default=0)   # cashier
 
+    # pcv replenishment fields
+    reppcvmain = models.ForeignKey('replenish_pcv.Reppcvmain', related_name='ofmain_reppcvmain_id', null=True,
+                                   blank=True)
+    reppcvdetail = models.ForeignKey('replenish_pcv.Reppcvdetail', related_name='ofmain_reppcvdetail_id', null=True,
+                                     blank=True)
+    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='ofmain_cvmain_id', null=True, blank=True)
+    # pcv replenishment fields
+
     class Meta:
         db_table = 'ofmain'
         ordering = ['-pk']

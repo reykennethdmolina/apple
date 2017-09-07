@@ -262,7 +262,7 @@
                                                     <td>
                                                         <div class="form-group col-sm-1 margin-bottom-0 item_counter">{{ itemtemp.item_counter }}</div>
                                                         <div class="form-group col-sm-3 margin-bottom-0">{{ itemtemp.ofsubtype.description }}</div>
-                                                        <div class="form-group col-sm-4 margin-bottom-0">{{ itemtemp.payee_name }}</div>
+                                                        <div class="form-group col-sm-4 margin-bottom-0">{% if itemtemp.supplier_name %}{{ itemtemp.supplier_name|upper }}{% else %}{{ itemtemp.payee_name|upper }}{% endif %}</div>
                                                         <div class="form-group col-sm-2 margin-bottom-0" style="text-align: right">{{ itemtemp.amount|floatformat:2|intcomma }}</div>
                                                         <div class="form-group col-sm-2 margin-bottom-0">
                                                             <div class="rotate-icon rotate-up">
@@ -319,6 +319,12 @@
                                                                     <label class="control-label"><small>Cashier Remarks</small></label><br>
                                                                     <code>{{ itemtemp.remarks|default:' N/A ' }}</code>
                                                                 </div>
+                                                                {% if itemtemp.vatrate > 0 %}
+                                                                    <div class="form-group col-sm-4">
+                                                                        <label class="control-label"><small>Payee TIN</small></label><br>
+                                                                        {{ itemtemp.tin|default:' N/A ' }}
+                                                                    </div>
+                                                                {% endif %}
                                                             </div>
                                                         </div>
                                                     </td>

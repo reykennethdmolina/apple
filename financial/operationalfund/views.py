@@ -863,6 +863,7 @@ class UpdateViewCashier(UpdateView):
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
+        context['replenished'] = 'False' if self.object.reppcvmain is None else 'True'
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
@@ -885,7 +886,8 @@ class UpdateViewCashier(UpdateView):
         payeedetails = []
         for data in itemtemp:
             payee = get_object_or_None(Supplier, pk=data.payee)
-            if data.supplier:
+            print data.supplier_name
+            if data.supplier and data.vatrate > 0:
                 payeedetails.append({
                     'vat': '',
                     'atc': '',
@@ -1014,29 +1016,30 @@ class UpdateViewCashier(UpdateView):
             self.object.save(update_fields=['approvedamount'])
 
         else:
-            if self.request.POST['ofstatus'] == 'I':
-                self.object.ofstatus = 'I'
-                self.object.releasedate = None
-                self.object.releaseby = None
-                self.object.paymentreceivedby = None
-                self.object.paymentreceiveddate = None
-                self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
-                                                'paymentreceiveddate'])
-            self.object.modifyby = self.request.user
-            self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+            if self.object.reppcvmain is None:
+                if self.request.POST['ofstatus'] == 'I':
+                    self.object.ofstatus = 'I'
+                    self.object.releasedate = None
+                    self.object.releaseby = None
+                    self.object.paymentreceivedby = None
+                    self.object.paymentreceiveddate = None
+                    self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
+                                                    'paymentreceiveddate'])
+                self.object.modifyby = self.request.user
+                self.object.modifydate = datetime.datetime.now()
+                self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
-            # items remarks save
-            of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
-                                                           ofmain=self.object.pk).order_by('item_counter')
-            i = 0
-            for of_item in of_items_to_update:
-                update_item = Ofitem.objects.get(pk=of_item.ofitem)
-                update_item.remarks = self.request.POST.getlist('item_remarks')[i]
-                update_item.modifyby = self.request.user
-                update_item.modifydate = datetime.datetime.now()
-                update_item.save()
-                i += 1
+                # items remarks save
+                of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
+                                                               ofmain=self.object.pk).order_by('item_counter')
+                i = 0
+                for of_item in of_items_to_update:
+                    update_item = Ofitem.objects.get(pk=of_item.ofitem)
+                    update_item.remarks = self.request.POST.getlist('item_remarks')[i]
+                    update_item.modifyby = self.request.user
+                    update_item.modifydate = datetime.datetime.now()
+                    update_item.save()
+                    i += 1
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 
