@@ -62,7 +62,7 @@
         #fil_detailed{
             display: none;
         }
-        #rep_f_order_holder, #rep_f_order2_holder, #rep_f_asc_holder, #rep_f_balancecode_holder{
+        #rep_f_order_holder, #rep_f_order2_holder, #rep_f_asc_holder, .rep_f_ae_holder, #rep_f_amount_holder{
             display: none;
         }
         .form-group {
@@ -100,7 +100,7 @@
                                     <option value="s">Summary</option>
                                     <option value="d">Detailed</option>
                                     <option value="a_s">Accounting Entry - Summary</option>
-{#                                    <option value="a_d">Accounting Entry - Detailed</option>#}
+                                    <option value="a_d">Accounting Entry - Detailed</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2">
@@ -138,13 +138,39 @@
                                     <option value="d">Descending</option>
                                 </select>
                             </div>
-                            <div class="form-group col-sm-2 col-sm-offset-6" id="rep_f_balancecode_holder" style="border-left: 1px solid #e0e0e0">
+                            <div class="form-group col-sm-2 rep_f_ae_holder" style="border-left: 1px solid #e0e0e0">
                                 <label class="control-label small">Balance Code</label><br>
                                 <select class="form-control input-sm" id="rep_f_balancecode">
                                     <option value="a">All</option>
                                     <option value="d">Debit</option>
                                     <option value="c">Credit</option>
                                 </select>
+                            </div>
+                            <div class="form-group col-sm-3 rep_f_ae_holder">
+                                <label class="control-label small">Debit Amount</label><br>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">min</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_debit_amountfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">max</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_debit_amountto">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3 rep_f_ae_holder">
+                                <label class="control-label small">Credit Amount</label><br>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">min</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_credit_amountfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">max</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_credit_amountto">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_detailed">
@@ -253,7 +279,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-sm-4">
+                            <div class="form-group col-sm-4" id="rep_f_amount_holder">
                                 <label class="control-label small">Amount</label><br>
                                 <div class="input-daterange">
                                     <div class="input-group">
@@ -367,6 +393,10 @@
                 setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
 
                 setCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}', $('#rep_f_balancecode').val());
+                setCookie('rep_f_debit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_debit_amountfrom').val());
+                setCookie('rep_f_debit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_debit_amountto').val());
+                setCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountfrom').val());
+                setCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountto').val());
 
                 $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
             }
@@ -425,30 +455,47 @@
         $('#rep_f_deferred').val(getCookie('rep_f_deferred_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_balancecode').val(getCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_debit_amountfrom').val(getCookie('rep_f_debit_amountfrom_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_debit_amountto').val(getCookie('rep_f_debit_amountto_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_credit_amountfrom').val(getCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_credit_amountto').val(getCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}'));
 
         function checkReportType(){
-            if($('#rep_f_report').val() == 'a_s'){
+            if($('#rep_f_report').val() == 'a_s' || $('#rep_f_report').val() == 'a_d'){
+
+                $('.rep_f_ae_holder').hide();
+
+                if($('#rep_f_report').val() == 'a_s') $('#rep_f_balancecode').parent().show();
+                else $('.rep_f_ae_holder').show();
+
                 $('#fil_detailed').show();
 
-                $('#rep_f_balancecode_holder').show();
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').hide();
+
+                $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').hide();
             }
             else if($('#rep_f_report').val() == 'd'){
                 $('#fil_detailed').show();
 
-                $('#rep_f_balancecode_holder').hide();
+                $('.rep_f_ae_holder').hide();
+
                 $('#rep_f_order2_holder').show();
                 $('#rep_f_order_holder').hide();
+
+                $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();
             }
             else{
                 $('#fil_detailed').hide();
 
-                $('#rep_f_balancecode_holder').hide();
+                $('.rep_f_ae_holder').hide();
+
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').show();
+
+                $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();
             }
         }

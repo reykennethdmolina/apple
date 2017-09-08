@@ -31,6 +31,7 @@ from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
 import json
 from pprint import pprint
+from utils.mixins import ReportContentMixin
 
 
 @method_decorator(login_required, name='dispatch')
@@ -105,7 +106,7 @@ class ReportView(ListView):
         return context
 
 
-class ReportResultView(PDFTemplateView):
+class ReportResultView(ReportContentMixin, PDFTemplateView):
     model = Ofmain
     template_name = 'operationalfund/reportresult.html'
 
@@ -201,7 +202,8 @@ class ReportResultView(PDFTemplateView):
                 query = query.filter(ofsubtype=int(key_data))
             if self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name))
-                query = query.filter(Q(payee_code__icontains=key_data) | Q(payee_name__icontains=key_data))
+                query = query.filter(Q(payee_code__icontains=key_data) | Q(payee_name__icontains=key_data)
+                                     | Q(supplier_code__icontains=key_data) | Q(supplier_name__icontains=key_data))
             if self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name))
                 query = query.filter(ofitemstatus=str(key_data))
@@ -223,44 +225,138 @@ class ReportResultView(PDFTemplateView):
                 if key_data != 'null':
                     key_data = key_data.split(",")
                     query = query.order_by(*key_data)
-        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s':
-            context['report_type'] = "OF Accounting Entry - Summary Report"
+        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s'\
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_d':
             query = Ofdetail.objects.all().filter(isdeleted=0)
+
+            if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_d':
+                if self.request.COOKIES.get('rep_f_debit_amountfrom_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_debit_amountfrom_' + self.request.resolver_match.app_name))
+                    query = query.filter(debitamount__gte=float(key_data.replace(',', '')))
+                if self.request.COOKIES.get('rep_f_debit_amountto_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_debit_amountto_' + self.request.resolver_match.app_name))
+                    query = query.filter(debitamount__lte=float(key_data.replace(',', '')))
+
+                if self.request.COOKIES.get('rep_f_credit_amountfrom_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_credit_amountfrom_' + self.request.resolver_match.app_name))
+                    query = query.filter(creditamount__gte=float(key_data.replace(',', '')))
+                if self.request.COOKIES.get('rep_f_credit_amountto_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_credit_amountto_' + self.request.resolver_match.app_name))
+                    query = query.filter(creditamount__lte=float(key_data.replace(',', '')))
 
             if self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'd':
                 query = query.filter(balancecode='D')
             elif self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'c':
                 query = query.filter(balancecode='C')
 
-            query = query.values('chartofaccount__title',
-                                 'bankaccount__accountnumber',
-                                 'department__departmentname',
-                                 'employee__firstname',
-                                 'supplier__name',
-                                 'customer__name',
-                                 'branch__description',
-                                 'product__description',
-                                 'inputvat__description',
-                                 'outputvat__description',
-                                 'vat__description',
-                                 'wtax__description',
-                                 'ataxcode__code')\
-                         .annotate(Sum('debitamount'), Sum('creditamount'))\
-                         .order_by('chartofaccount__title',
-                                   'bankaccount__accountnumber',
-                                   'department__departmentname',
-                                   'employee__firstname',
-                                   'supplier__name',
-                                   'customer__name',
-                                   'branch__description',
-                                   'product__description',
-                                   'inputvat__description',
-                                   'outputvat__description',
-                                   '-vat__description',
-                                   'wtax__description',
-                                   'ataxcode__code')
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofnum__lte=int(key_data))
+
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofdate__lte=key_data)
+
+            if self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_oftype_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__oftype=int(key_data))
+            if self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_branch_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__branch=int(key_data))
+            if self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_ofstatus_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__ofstatus=str(key_data))
+
+            if self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_employee_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__requestor=int(key_data))
+            if self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_department_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__department=int(key_data))
+            if self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_approver_' + self.request.resolver_match.app_name))
+                query = query.filter(Q(ofmain__actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
+
+            if self.request.COOKIES.get('rep_f_subtype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_subtype_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__ofsubtype=int(key_data))
+            if self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name))
+                query = query.filter(Q(ofitem__payee_code__icontains=key_data) | Q(ofitem__payee_name__icontains=key_data)
+                                     | Q(ofitem__supplier_code__icontains=key_data) | Q(ofitem__supplier_name__icontains=key_data))
+            if self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__ofitemstatus=str(key_data))
+            if self.request.COOKIES.get('rep_f_vat_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_vat_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__vat=int(key_data))
+            if self.request.COOKIES.get('rep_f_inputvattype_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_inputvattype_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__inputvattype=int(key_data))
+            if self.request.COOKIES.get('rep_f_atc_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_atc_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__atc=int(key_data))
+            if self.request.COOKIES.get('rep_f_deferred_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_deferred_' + self.request.resolver_match.app_name))
+                query = query.filter(ofitem__deferredvat=str(key_data))
 
             context['report_total'] = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
+            if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s':
+                context['report_type'] = "OF Accounting Entry - Summary Report"
+
+                query = query.values('chartofaccount__accountcode',
+                                     'chartofaccount__title',
+                                     'chartofaccount__description',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     'vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')\
+                             .annotate(Sum('debitamount'), Sum('creditamount'))\
+                             .order_by('chartofaccount__accountcode',
+                                       'bankaccount__accountnumber',
+                                       'department__departmentname',
+                                       'employee__firstname',
+                                       'supplier__name',
+                                       'customer__name',
+                                       'branch__description',
+                                       'product__description',
+                                       'inputvat__description',
+                                       'outputvat__description',
+                                       '-vat__description',
+                                       'wtax__description',
+                                       'ataxcode__code')
+            else:
+                context['report_type'] = "OF Accounting Entry - Detailed Report"
+
+                query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('chartofaccount__accountcode',
+                                                                                         'bankaccount__accountnumber',
+                                                                                         'department__departmentname',
+                                                                                         'employee__firstname',
+                                                                                         'supplier__name',
+                                                                                         'customer__name',
+                                                                                         'branch__description',
+                                                                                         'product__description',
+                                                                                         'inputvat__description',
+                                                                                         'outputvat__description',
+                                                                                         '-vat__description',
+                                                                                         'wtax__description',
+                                                                                         'ataxcode__code',
+                                                                                         'of_num')
 
         if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's' \
                 or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
@@ -281,37 +377,11 @@ class ReportResultView(PDFTemplateView):
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
-        context['orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
-        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
-        if context['orientation'] == 'portrait':
-            context['margin_left'] = '1'
-            context['margin_right'] = '1'
-            context['page_width'] = '19.5'
-            context['header_top'] = '1'
-            context['header_height'] = '2'
-            context['content_top'] = '2.5'
-            context['content_height'] = '23.5'
-            context['footer_left'] = '0.5'
-            context['footer_top'] = '26'
-            context['footer_height'] = '5'
-            context['footer_right'] = '0.5'
-            context['table_width'] = '725'
-
-        elif context['orientation'] == 'landscape':
-            context['margin_left'] = '1'
-            context['margin_right'] = '1'
-            context['page_width'] = '27.5'
-            context['header_top'] = '1'
-            context['header_height'] = '2'
-            context['content_top'] = '2.5'
-            context['content_height'] = '15'
-            context['footer_left'] = '0.5'
-            context['footer_top'] = '18.5'
-            context['footer_height'] = '5'
-            context['footer_right'] = '0.5'
-            context['table_width'] = '820'
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "OPERATIONAL FUND"
+        context['rc_title'] = "OPERATIONAL FUND"
 
         return context
 
