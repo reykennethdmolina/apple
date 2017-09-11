@@ -94,6 +94,29 @@ class CreateView(ListView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Reppcvmain
+    template_name = 'replenish_pcv/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['reppcvmain'] = Reppcvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['reppcvdetail'] = Reppcvdetail.objects.filter(reppcvmain=self.kwargs['pk'], isdeleted=0).\
+            order_by('ofmain_id')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedreppcv = Reppcvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedreppcv.print_ctr += 1
+        printedreppcv.save()
+        return context
+
+
 @csrf_exempt
 def replenish(request):
     if request.method == 'POST':
@@ -145,3 +168,29 @@ def replenish(request):
     else:
         print "Something went wrong in saving REPPCV."
     return redirect('/replenish_pcv/')
+
+
+@csrf_exempt
+def fetch_details(request):
+    if request.method == 'POST':
+        details = Reppcvdetail.objects.filter(isdeleted=0, reppcvmain__reppcvnum=request.POST['reppcvnum'])
+
+        details_list = []
+
+        for data in details:
+            details_list.append([data.id,
+                                 'OF-' + data.ofmain.oftype.code + '-' + data.ofmain.ofnum,
+                                 data.ofmain.ofdate,
+                                 data.amount,
+                                 ])
+
+        data = {
+            'status': 'success',
+            'detail': details_list
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)

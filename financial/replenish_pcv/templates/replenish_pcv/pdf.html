@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>Petty Cash Replenishment</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 2.5cm;
+                height: 21cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 23cm;
+                height: 5cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -5px;
+            margin-bottom: -5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center">PETTY CASH REPLENISHMENT</p>
+            </td>
+            <td>
+                <p class="title right">{{ reppcvmain.reppcvnum }}</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer_content">
+    <table>
+    <tr style="border-top: 2px solid black;padding: 5px; padding-bottom: 0px;">
+        <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+        <td width="5%"><b>:</b></td>
+        <td align="center" style="margin-right: 20px;">
+            <div class="sign_here">{{ reppcvmain.enterby.first_name }}&nbsp;{{ reppcvmain.enterby.last_name }}</div>
+        </td>
+        <td width="20%">&nbsp;</td>
+        <td width="5%">&nbsp;</td>
+        <td align="center" style="margin-right: 20px;border-right: 2px solid black;">&nbsp;</td>
+    </tr>
+    <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+        <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+        <td width="5%"><b>:</b></td>
+        <td align="center" style="margin-right: 20px;">
+            <div class="sign_here">{{ reppcvmain.enterdate|date:'Y-m-d' }}</div>
+        </td>
+        <td width="20%">&nbsp;</td>
+        <td width="5%">&nbsp;</td>
+        <td align="center" style="margin-right: 20px;border-right: 2px solid black;">&nbsp;</td>
+    </tr>
+</table>
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }} {{ request.user }}<br>
+                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b>
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                {{ parameter.report_footer7 }}<br>
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: right">
+        {%block page_foot%}
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        {%endblock%}
+    </div>
+</div>
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3" style="line-height: 15px;">
+            <span class="title">{{ parameter.description|upper }}</span><br>
+            {{ parameter.address1 }}<br>
+            {{ parameter.address2 }}<br>
+            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            VAT REG TIN: {{ parameter.tinnum }}
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <br>
+            <table>
+                <tr>
+                    <td width="10%"><b>Date</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ reppcvmain.reppcvdate|date:'Y-m-d' }}</td>
+                    <td width="15%"><b>CV Number</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ reppcvmain.cvmain.cvnum|default:'N/A' }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+    <tr><td><b>ITEMS</b></td></tr>
+</table>
+<table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black;"><b><i></i></b></td>
+        <td><b><i>OF Number</i></b></td>
+        <td><b><i>OF Date</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    {% for data in reppcvdetail %}
+        <tr style="padding-top: 5px;">
+            <td width="5%">{{ forloop.counter }}</td>
+            <td width="35%">{{ data.ofmain.ofnum }}</td>
+            <td width="30%">{{ data.ofmain.ofdate|date:'Y-m-d' }}</td>
+            <td width="30%" align="right" style="padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="3" align="right" style="padding-top: 8px;"><b>TOTAL:</b></td>
+        <td style="text-align: right; padding-right: 5px; padding-top: 8px;"><b>{{ reppcvmain.amount|floatformat:2|intcomma }}</b></td>
+    </tr>
+</table>
+</body>
+</html>
