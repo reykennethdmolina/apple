@@ -187,7 +187,7 @@
             {% for data in data_list %}
                 <tr {% ifchanged data.chartofaccount.description %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
                     <td {% ifchanged data.chartofaccount.description %}{% else %}style="color:white"{% endifchanged %} style="width: 20%">{{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}</td>
-                    <td style="width: 37%">
+                    <td style="width: 34%">
                         <table>
                             <tr>
                                 {% if data.bankaccount.accountnumber %}
@@ -238,9 +238,9 @@
                             -
                         {% endif %}
                     </td>
-                    <td style="width: 5%;">{{ data.of_date|date:'d/m/Y' }}</td>
-                    <td class="right" style="width: 6%;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
-                    <td class="right" style="width: 6%;">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
+                    <td style="width: 6%;">{{ data.of_date|date:'d/m/Y' }}</td>
+                    <td class="right" style="width: 7%;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
+                    <td class="right" style="width: 7%;">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="4"></td></tr>
