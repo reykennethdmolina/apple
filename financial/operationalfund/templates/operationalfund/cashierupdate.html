@@ -920,6 +920,8 @@
                            'ofnum': $("#id_ofnum").val().slice(-10),
                            'oftype': $("#id_oftype").val(),
                            'branch': $("#id_branch").val(),
+                           'department': $("#id_department").val(),
+                           'employee': '709',
                            'table': "ofdetailtemp"},
                     success: function(response){
                         $("#datatable").html(response['datatable']);

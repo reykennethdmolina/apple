@@ -1361,6 +1361,9 @@ def autoentry(request):
             ofdetailtemp1.enterby = request.user
             ofdetailtemp1.modifyby = request.user
             ofdetailtemp1.save()
+            chart_of_account1 = Chartofaccount.objects.get(pk=debit_chartofaccount)
+            getacctgentrydetails(chart_of_account1, ofdetailtemp1, data, int(request.POST['branch']),
+                                 int(request.POST['department']), int(request.POST['employee']))
             item_counter += 1
 
             ofdetailtemp2 = Ofdetailtemp()
@@ -1369,13 +1372,14 @@ def autoentry(request):
             ofdetailtemp2.ofitem = data.ofitem
             ofdetailtemp2.secretkey = request.POST['secretkey']
             ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
-            ofdetailtemp2.inputvat = Inputvat.objects.filter(inputvattype=data.inputvattype).first().id
-            ofdetailtemp2.vat = Vat.objects.get(pk=data.vat).id
             ofdetailtemp2.debitamount = gross_amount * (float(data.vatrate) / 100.0)
             ofdetailtemp2.balancecode = 'D'
             ofdetailtemp2.enterby = request.user
             ofdetailtemp2.modifyby = request.user
             ofdetailtemp2.save()
+            chart_of_account2 = Chartofaccount.objects.get(pk=Companyparameter.objects.get(code='PDI').coa_inputvat_id)
+            getacctgentrydetails(chart_of_account2, ofdetailtemp2, data, int(request.POST['branch']),
+                                 int(request.POST['department']), int(request.POST['employee']))
             item_counter += 1
 
             total_amount += data.amount
@@ -1387,14 +1391,15 @@ def autoentry(request):
         ofdetailtemp3.of_date = main.ofdate
         ofdetailtemp3.secretkey = request.POST['secretkey']
         ofdetailtemp3.chartofaccount = Oftype.objects.get(pk=int(request.POST['oftype'])).creditchartofaccount_id
-        ofdetailtemp3.bankaccount = Branch.objects.get(pk=int(request.POST['branch'])).bankaccount_id if Branch.objects.\
-            get(pk=int(request.POST['branch'])).bankaccount else Companyparameter.objects.get(code='PDI').\
-            def_bankaccount_id
         ofdetailtemp3.creditamount = float(total_amount)
         ofdetailtemp3.balancecode = 'C'
         ofdetailtemp3.enterby = request.user
         ofdetailtemp3.modifyby = request.user
         ofdetailtemp3.save()
+        chart_of_account3 = Chartofaccount.objects.get(pk=Oftype.objects.get(pk=int(request.POST['oftype'])).
+                                                       creditchartofaccount_id)
+        getacctgentrydetails(chart_of_account3, ofdetailtemp3, data, int(request.POST['branch']),
+                             int(request.POST['department']), int(request.POST['employee']))
         # ######## END----------- CREDIT entry ------------END
         # END-------------------- Operational Fund Automatic Entries ----------------------END
 
@@ -1479,3 +1484,36 @@ def releaseof(request):
             'status': 'error',
         }
     return JsonResponse(data)
+
+
+@csrf_exempt
+def getacctgentrydetails(chartofaccount, ofdetailtemp, ofitemtemp, branch, department, employee):
+    if chartofaccount.ataxcode_enable == 'Y':
+        ofdetailtemp.ataxcode = ofitemtemp.atc
+    if chartofaccount.bankaccount_enable == 'Y':
+        ofdetailtemp.bankaccount = Branch.objects.get(pk=branch).bankaccount_id if Branch.objects.get(pk=branch).\
+            bankaccount else Companyparameter.objects.get(code='PDI').def_bankaccount_id
+    if chartofaccount.branch_enable == 'Y':
+        ofdetailtemp.branch = branch
+    if chartofaccount.customer_enable == 'Y':
+        ofdetailtemp.customer = None
+    if chartofaccount.department_enable == 'Y':
+        ofdetailtemp.department = department
+    if chartofaccount.employee_enable == 'Y':
+        ofdetailtemp.employee = employee
+    if chartofaccount.inputvat_enable == 'Y':
+        ofdetailtemp.inputvat = Inputvat.objects.filter(inputvattype=ofitemtemp.inputvattype).first().id
+    if chartofaccount.outputvat_enable == 'Y':
+        ofdetailtemp.outputvat = None
+    if chartofaccount.product_enable == 'Y':
+        ofdetailtemp.product = None
+    if chartofaccount.supplier_enable == 'Y':
+        ofdetailtemp.supplier = ofitemtemp.supplier
+    if chartofaccount.unit_enable == 'Y':
+        ofdetailtemp.unit = None
+    if chartofaccount.vat_enable == 'Y':
+        ofdetailtemp.vat = ofitemtemp.vat
+    if chartofaccount.wtax_enable == 'Y':
+        ofdetailtemp.wtax = None
+
+    ofdetailtemp.save()
