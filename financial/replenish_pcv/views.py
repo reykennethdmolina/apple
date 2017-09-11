@@ -105,6 +105,8 @@ class Pdf(PDFTemplateView):
         context['reppcvmain'] = Reppcvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         context['reppcvdetail'] = Reppcvdetail.objects.filter(reppcvmain=self.kwargs['pk'], isdeleted=0).\
             order_by('ofmain_id')
+        context['ofitem'] = Ofitem.objects.filter(isdeleted=0, status='A', ofmain__reppcvmain=self.kwargs['pk'],
+                                                  ofitemstatus='A')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
         context['pagesize'] = 'Letter'
@@ -181,6 +183,7 @@ def fetch_details(request):
             details_list.append([data.id,
                                  'OF-' + data.ofmain.oftype.code + '-' + data.ofmain.ofnum,
                                  data.ofmain.ofdate,
+                                 data.ofmain.particulars,
                                  data.amount,
                                  ])
 
