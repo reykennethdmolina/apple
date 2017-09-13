@@ -23,7 +23,7 @@
             <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
             <td>{{ data.cvmain.cvnum|default:'N/A' }}</td>
             <td>{{ data.cvmain.cvdate|date:'Y-m-d'|default:'N/A' }}</td>
-            <td>{% if data.enterdate <= data.cvmain.enterdate  %}{{ data.enterdate|timesince:data.cvmain.enterdate }}{% else %}N/A{% endif %}</td>
+            <td>{% if data.enterdate <= data.cvmain.enterdate  %}{{ data.enterdate|timesince:data.cvmain.enterdate }}{% else %}{{ data.enterdate|timesince }}{% endif %}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
             <td style="width: 115px; text-align: center;">
                 <div class="iconlist-wrap auto-0">
