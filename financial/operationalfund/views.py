@@ -106,6 +106,7 @@ class ReportView(ListView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
 class ReportResultView(ReportContentMixin, PDFTemplateView):
     model = Ofmain
     template_name = 'operationalfund/reportresult.html'
@@ -289,7 +290,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
             if self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_payee_' + self.request.resolver_match.app_name))
                 query = query.filter(Q(ofitem__payee_code__icontains=key_data) | Q(ofitem__payee_name__icontains=key_data)
-                                     | Q(ofitem__supplier_code__icontains=key_data) | Q(ofitem__supplier_name__icontains=key_data))
+                                     | Q(supplier__code__icontains=key_data) | Q(supplier__name__icontains=key_data))
             if self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name):
                 key_data = str(self.request.COOKIES.get('rep_f_itemstatus_' + self.request.resolver_match.app_name))
                 query = query.filter(ofitem__ofitemstatus=str(key_data))
@@ -319,6 +320,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
                                      'employee__firstname',
                                      'supplier__name',
                                      'customer__name',
+                                     'unit__description',
                                      'branch__description',
                                      'product__description',
                                      'inputvat__description',
@@ -333,6 +335,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
                                        'employee__firstname',
                                        'supplier__name',
                                        'customer__name',
+                                       'unit__description',
                                        'branch__description',
                                        'product__description',
                                        'inputvat__description',
@@ -349,6 +352,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
                                                                                          'employee__firstname',
                                                                                          'supplier__name',
                                                                                          'customer__name',
+                                                                                         'unit__description',
                                                                                          'branch__description',
                                                                                          'product__description',
                                                                                          'inputvat__description',

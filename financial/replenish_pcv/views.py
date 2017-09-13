@@ -1,4 +1,5 @@
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from utils.mixins import ReportContentMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
@@ -116,6 +117,225 @@ class Pdf(PDFTemplateView):
         printedreppcv = Reppcvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedreppcv.print_ctr += 1
         printedreppcv.save()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Ofmain
+    template_name = 'replenish_pcv/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Ofmain
+    template_name = 'replenish_pcv/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+        query = ''
+
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's':
+            context['report_type'] = "Petty Cash Replenishment Summary Report"
+            query = Reppcvmain.objects.all().filter(isdeleted=0)
+
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(reppcvnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(reppcvnum__lte=int(key_data))
+
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(reppcvdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(reppcvdate__lte=key_data)
+
+            if self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name))
+                if key_data == 'req':
+                    query = query.filter(cvmain__isnull=True)
+                elif key_data == 'rep':
+                    query = query.filter(cvmain__isnull=False)
+
+            if self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_order_' + self.request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.order_by(*key_data)
+        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
+            context['report_type'] = "Petty Cash Replenishment Detailed Report"
+            defaultorder = ['ofmain__reppcvmain__reppcvnum', 'ofmain__reppcvmain__cvmain__cvnum',
+                            'ofmain__ofnum', 'ofsubtype__description']
+
+            query = Ofitem.objects.all().filter(isdeleted=0,
+                                                ofitemstatus='A',
+                                                ofmain__isnull=False,
+                                                ofmain__reppcvdetail__isnull=False,
+                                                ofmain__reppcvmain__isnull=False)
+
+            if self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name))
+                if key_data == 'req':
+                    query = query.filter(ofmain__reppcvmain__cvmain__isnull=True)
+                elif key_data == 'rep':
+                    query = query.filter(ofmain__reppcvmain__cvmain__isnull=False)
+
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvnum__lte=int(key_data))
+
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvdate__lte=key_data)
+
+            if self.request.COOKIES.get('rep_f_order2_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_order2_' + self.request.resolver_match.app_name))
+                if key_data != 'null':
+                    defaultorder = key_data.split(",")
+
+            query = query.order_by(*defaultorder)
+
+        elif self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s'\
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_d':
+            query = Ofdetail.objects.all().filter(isdeleted=0, ofmain__reppcvmain__isnull=False)
+
+            if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_d':
+                if self.request.COOKIES.get('rep_f_debit_amountfrom_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_debit_amountfrom_' + self.request.resolver_match.app_name))
+                    query = query.filter(debitamount__gte=float(key_data.replace(',', '')))
+                if self.request.COOKIES.get('rep_f_debit_amountto_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_debit_amountto_' + self.request.resolver_match.app_name))
+                    query = query.filter(debitamount__lte=float(key_data.replace(',', '')))
+
+                if self.request.COOKIES.get('rep_f_credit_amountfrom_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_credit_amountfrom_' + self.request.resolver_match.app_name))
+                    query = query.filter(creditamount__gte=float(key_data.replace(',', '')))
+                if self.request.COOKIES.get('rep_f_credit_amountto_' + self.request.resolver_match.app_name):
+                    key_data = str(self.request.COOKIES.get('rep_f_credit_amountto_' + self.request.resolver_match.app_name))
+                    query = query.filter(creditamount__lte=float(key_data.replace(',', '')))
+
+            if self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvnum__gte=int(key_data))
+            if self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_numto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvnum__lte=int(key_data))
+
+            if self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_datefrom_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvdate__gte=key_data)
+            if self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_dateto_' + self.request.resolver_match.app_name))
+                query = query.filter(ofmain__reppcvmain__reppcvdate__lte=key_data)
+
+            if self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_status_' + self.request.resolver_match.app_name))
+                if key_data == 'req':
+                    query = query.filter(ofmain__reppcvmain__cvmain__isnull=True)
+                elif key_data == 'rep':
+                    query = query.filter(ofmain__reppcvmain__cvmain__isnull=False)
+
+            if self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'd':
+                query = query.filter(balancecode='D')
+            elif self.request.COOKIES.get('rep_f_balancecode_' + self.request.resolver_match.app_name) == 'c':
+                query = query.filter(balancecode='C')
+
+            context['report_total'] = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
+            if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'a_s':
+                context['report_type'] = "Petty Cash Replenishment Accounting Entry - Summary Report"
+
+                query = query.values('chartofaccount__accountcode',
+                                     'chartofaccount__title',
+                                     'chartofaccount__description',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'unit__description',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     'vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')\
+                             .annotate(Sum('debitamount'), Sum('creditamount'))\
+                             .order_by('chartofaccount__accountcode',
+                                       'bankaccount__accountnumber',
+                                       'department__departmentname',
+                                       'employee__firstname',
+                                       'supplier__name',
+                                       'customer__name',
+                                       'unit__description',
+                                       'branch__description',
+                                       'product__description',
+                                       'inputvat__description',
+                                       'outputvat__description',
+                                       '-vat__description',
+                                       'wtax__description',
+                                       'ataxcode__code')
+            else:
+                context['report_type'] = "Petty Cash Replenishment Accounting Entry - Detailed Report"
+
+                query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('chartofaccount__accountcode',
+                                                                                         'bankaccount__accountnumber',
+                                                                                         'department__departmentname',
+                                                                                         'employee__firstname',
+                                                                                         'supplier__name',
+                                                                                         'customer__name',
+                                                                                         'unit__description',
+                                                                                         'branch__description',
+                                                                                         'product__description',
+                                                                                         'inputvat__description',
+                                                                                         'outputvat__description',
+                                                                                         '-vat__description',
+                                                                                         'wtax__description',
+                                                                                         'ataxcode__code',
+                                                                                         'of_num')
+
+        if self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 's' \
+                or self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name) == 'd':
+            if self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_amountfrom_' + self.request.resolver_match.app_name))
+                query = query.filter(amount__gte=float(key_data.replace(',', '')))
+            if self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_amountto_' + self.request.resolver_match.app_name))
+                query = query.filter(amount__lte=float(key_data.replace(',', '')))
+
+            if self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name):
+                key_data = str(self.request.COOKIES.get('rep_f_asc_' + self.request.resolver_match.app_name))
+
+                if key_data == 'd':
+                    query = query.reverse()
+
+            context['report_total'] = query.aggregate(Sum('amount'))
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "Petty Cash Replenishment"
+        context['rc_title'] = "Petty Cash Replenishment"
+
         return context
 
 

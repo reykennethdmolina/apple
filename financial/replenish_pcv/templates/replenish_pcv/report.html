@@ -2,7 +2,7 @@
 {% load endless %}
 {% load humanize %}
 {% load staticfiles %}
-{% block page-title %}<div style="line-height: 25px;">Operational Fund<br><small>Report</small></div>{% endblock page-title %}
+{% block page-title %}<div style="line-height: 25px;">Petty Cash Replenishment<br><small>Report</small></div>{% endblock page-title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
@@ -55,14 +55,11 @@
             margin-left: -40px;
             margin-top: -40px;
         }
-        #fil_detailed{
-            display: none;
-        }
-        #rep_f_order_holder, #rep_f_order2_holder, #rep_f_asc_holder, .rep_f_ae_holder, #rep_f_amount_holder{
-            display: none;
-        }
         .form-group {
             margin-bottom: 10px;
+        }
+        #rep_f_order_holder, #rep_f_order2_holder{
+            display: none;
         }
     </style>
 {% endblock extra_css %}
@@ -110,20 +107,19 @@
                                 <label class="control-label small">Order By</label>
                                 <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order">
                                     <option value="amount">Amount</option>
-                                    <option value="ofdate">Date</option>
-                                    <option value="ofnum">OF Number</option>
-                                    <option value="oftype">Status</option>
-                                    <option value="type">Type</option>
+                                    <option value="reppcvdate">Date</option>
+                                    <option value="reppcvnum">R.PCV Number Number</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-6" id="rep_f_order2_holder">
                                 <label class="control-label small">Order By</label>
                                 <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order2">
+                                    <option value="ofmain__reppcvmain__reppcvnum">R.PCV Number</option>
+                                    <option value="ofsubtype__description">R.PCV Date</option>
+                                    <option value="ofmain__reppcvmain__cvmain__cvnum">CV Number</option>
+                                    <option value="ofmain__ofnum">OF Number</option>
+                                    <option value="ofsubtype__description">OF Subtype</option>
                                     <option value="amount">Amount</option>
-                                    <option value="ofdate">Date</option>
-                                    <option value="ofnum">OF Number</option>
-                                    <option value="oftype">Status</option>
-                                    <option value="type">Type</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2" id="rep_f_asc_holder">
@@ -169,69 +165,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_detailed">
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Subtype</label>
-                                <select class="form-control input-sm" id="rep_f_subtype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in ofsubtype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Payee</label>
-                                <input type="text" class="form-control input-sm" id="rep_f_payee">
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Status</label>
-                                <select class="form-control input-sm" id="rep_f_itemstatus">
-                                    <option value="">-- Select --</option>
-                                    <option value="f">For Approval</option>
-                                    <option value="a">Approved</option>
-                                    <option value="d">Dispproved</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item VAT</label>
-                                <select class="form-control input-sm" id="rep_f_vat">
-                                    <option value="">-- Select --</option>
-                                    {% for data in vat %}
-                                        <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Item Input VAT Type</label>
-                                <select class="form-control input-sm" id="rep_f_inputvattype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in inputvattype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-1">
-                                <label class="control-label small">Item ATC</label>
-                                <select class="form-control input-sm" id="rep_f_atc" style="width: 100%">
-                                    <option value="">--</option>
-                                    {% for data in atc %}
-                                        <option value="{{ data.id }}">{{ data.code }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-1">
-                                <label class="control-label small">Deferred</label>
-                                <select class="form-control input-sm" id="rep_f_deferred">
-                                    <option value="">--</option>
-                                    <option value="y">Yes</option>
-                                    <option value="n">No</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_summary">
+                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0">
                             <div class="form-group col-sm-4">
-                                <label class="control-label small">OF Num</label>
+                                <label class="control-label small">Replenish PCV Num</label>
                                 <div class="input-daterange">
                                     <div class="input-group">
                                         <span class="input-group-addon input-sm">from</span>
@@ -243,26 +179,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Employee</label>
-                                <select class="form-control input-sm" id="rep_f_employee">
-                                    <option value="">-- Select --</option>
-                                    {% for data in user %}
-                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
                             <div class="form-group col-sm-3">
-                                <label class="control-label small">Department</label>
-                                <select class="form-control input-sm" id="rep_f_department">
-                                    <option value="">-- Select --</option>
-                                    {% for data in department %}
-                                        <option value="{{ data.id }}">[{{ data.code }}] {{ data.departmentname }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-3">
-                                <label class="control-label small">OF Date</label><br>
+                                <label class="control-label small">Replenish PCV Date</label><br>
                                 <div class="input-daterange datarange">
                                     <div class="input-group">
                                         <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
@@ -274,7 +192,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="form-group col-sm-4" id="rep_f_amount_holder">
                                 <label class="control-label small">Amount</label><br>
                                 <div class="input-daterange">
@@ -288,42 +205,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Approver</label>
-                                <select class="form-control input-sm" id="rep_f_approver">
-                                    <option value="">-- Select --</option>
-                                    {% for data in user %}
-                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">OF Type</label>
-                                <select class="form-control input-sm" id="rep_f_oftype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in oftype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">OF Status</label>
-                                <select class="form-control input-sm" id="rep_f_ofstatus">
-                                    <option value="">-- Select --</option>
-                                    <option value="F">For Approval</option>
-                                    <option value="A">Approved</option>
-                                    <option value="D">Disapproved</option>
-                                    <option value="I">In Process</option>
-                                    <option value="R">Released</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Branch</label>
-                                <select class="form-control input-sm" id="rep_f_branch">
-                                    <option value="">-- Select --</option>
-                                    {% for data in branch %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
+                            <div class="form-group col-sm-1">
+                                <label class="control-label small">Status</label>
+                                <select class="form-control input-sm" id="rep_f_status">
+                                    <option value="all">All</option>
+                                    <option value="req">Requested</option>
+                                    <option value="rep">Replenished</option>
                                 </select>
                             </div>
                         </div>
@@ -337,7 +224,7 @@
         <div class="col-md-12" style="text-align: center">
             <div id="iframe_preview" class="panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
-                <iframe id="iframe" src="{% url 'operationalfund:reportresult' %}" frameborder="0" scrolling="no"></iframe>
+                <iframe id="iframe" src="{% url 'replenish_pcv:reportresult' %}" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -367,12 +254,7 @@
                 setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
                 setCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_amountfrom').val());
                 setCookie('rep_f_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_amountto').val());
-                setCookie('rep_f_oftype_{{ request.resolver_match.app_name }}', $('#rep_f_oftype').val());
-                setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
-                setCookie('rep_f_ofstatus_{{ request.resolver_match.app_name }}', $('#rep_f_ofstatus').val());
-                setCookie('rep_f_employee_{{ request.resolver_match.app_name }}', $('#rep_f_employee').val());
-                setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
-                setCookie('rep_f_approver_{{ request.resolver_match.app_name }}', $('#rep_f_approver').val());
+                setCookie('rep_f_status_{{ request.resolver_match.app_name }}', $('#rep_f_status').val());
 
                 setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
                 setCookie('rep_f_order2_{{ request.resolver_match.app_name }}', $('#rep_f_order2').val());
@@ -380,34 +262,18 @@
                 setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
                 setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
 
-                setCookie('rep_f_subtype_{{ request.resolver_match.app_name }}', $('#rep_f_subtype').val());
-                setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
-                setCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}', $('#rep_f_itemstatus').val());
-                setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
-                setCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_inputvattype').val());
-                setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
-                setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
-
                 setCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}', $('#rep_f_balancecode').val());
                 setCookie('rep_f_debit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_debit_amountfrom').val());
                 setCookie('rep_f_debit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_debit_amountto').val());
                 setCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountfrom').val());
                 setCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountto').val());
 
-                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'operationalfund:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
+                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'replenish_pcv:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
             }
             else{
                 customAlert($('#report-search-error'));
             }
 	    });
-
-        $('#rep_b_print').on('click', function(){
-           document.getElementById("iframe").contentWindow.print();
-        });
-
-        $('#rep_f_report').on('change', function(){
-            checkReportType();
-        });
 
         $("#rep_f_order, #rep_f_order2").on("select2:select", function (evt) {
             var element = evt.params.data.element;
@@ -416,6 +282,14 @@
             $element.detach();
             $(this).append($element);
             $(this).trigger("change");
+        });
+
+        $('#rep_b_print').on('click', function(){
+           document.getElementById("iframe").contentWindow.print();
+        });
+
+        $('#rep_f_report').on('change', function(){
+            checkReportType();
         });
 
         $(document).ready(function(){
@@ -429,26 +303,13 @@
         $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountfrom').val(getCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountto').val(getCookie('rep_f_amountto_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_oftype').val(getCookie('rep_f_oftype_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_branch').val(getCookie('rep_f_branch_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_ofstatus').val(getCookie('rep_f_ofstatus_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_employee').val(getCookie('rep_f_employee_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_department').val(getCookie('rep_f_department_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_approver').val(getCookie('rep_f_approver_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_status').val(getCookie('rep_f_status_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_order2').val(getCookie('rep_f_order2_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_asc').val(getCookie('rep_f_asc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
         $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
-
-        $('#rep_f_subtype').val(getCookie('rep_f_subtype_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_payee').val(getCookie('rep_f_payee_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_itemstatus').val(getCookie('rep_f_itemstatus_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_vat').val(getCookie('rep_f_vat_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_inputvattype').val(getCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_atc').val(getCookie('rep_f_atc_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_deferred').val(getCookie('rep_f_deferred_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_balancecode').val(getCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}'));
         $('#rep_f_debit_amountfrom').val(getCookie('rep_f_debit_amountfrom_{{ request.resolver_match.app_name }}'));
@@ -457,41 +318,31 @@
         $('#rep_f_credit_amountto').val(getCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}'));
 
         function checkReportType(){
-            if($('#rep_f_report').val() == 'a_s' || $('#rep_f_report').val() == 'a_d'){
-
+            if($('#rep_f_report').val() == 'a_d' || $('#rep_f_report').val() == 'a_s'){
                 $('.rep_f_ae_holder').hide();
 
                 if($('#rep_f_report').val() == 'a_s') $('#rep_f_balancecode').parent().show();
                 else $('.rep_f_ae_holder').show();
 
-                $('#fil_detailed').show();
-
+                $('#rep_f_amount_holder').hide();
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').hide();
-
-                $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').hide();
             }
             else if($('#rep_f_report').val() == 'd'){
-                $('#fil_detailed').show();
-
                 $('.rep_f_ae_holder').hide();
 
+                $('#rep_f_amount_holder').show();
                 $('#rep_f_order2_holder').show();
                 $('#rep_f_order_holder').hide();
-
-                $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();
             }
             else{
-                $('#fil_detailed').hide();
-
                 $('.rep_f_ae_holder').hide();
 
+                $('#rep_f_amount_holder').show();
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').show();
-
-                $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();
             }
         }

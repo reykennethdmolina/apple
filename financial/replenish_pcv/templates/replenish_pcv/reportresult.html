@@ -16,20 +16,20 @@
         <table id="table_summary">
         <thead>
             <tr>
-                <th class="left" style="width: 20%;"><span>OF Number</span></th>
+                <th class="left" style="width: 20%;"><span>Rep PCV Num</span></th>
                 <th class="left" style="width: 20%;"><span>Date</span></th>
-                <th class="left" style="width: 30%;"><span>Requestor</span></th>
-                <th class="left" style="width: 10%;"><span>Status</span></th>
+                <th class="left" style="width: 20%;"><span>CV Num</span></th>
+                <th class="left" style="width: 20%;"><span>Entered By</span></th>
                 <th class="right" style="width: 20%;"><span>Amount</span></th>
             </tr>
         </thead>
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
-                    <td>{{ data.ofdate|date:'Y-m-d' }}</td>
-                    <td>{{ data.requestor.first_name }}&nbsp;{{ data.requestor.last_name }}</td>
-                    <td>{{ data.get_ofstatus_display }}</td>
+                    <td>{{ data.reppcvnum }}</td>
+                    <td>{{ data.reppcvdate|date:'d/m/Y' }}</td>
+                    <td>{{ data.cvmain.cvnum|default:'-' }}</td>
+                    <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
@@ -43,31 +43,44 @@
 
 
     {% elif report == 'd' %}
-        <div class="right">
-            <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services<br>
-            <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(D) Disapproved
-        </div>
         <br>
         <table id="table_detailed">
         <thead>
             <tr>
-                <th class="left" style="width: 11%;"><span>OF Number</span></th>
-                <th class="left" style="width: 7%;"><span>Date</span></th>
-                <th class="left" style="width: 13%;"><span>Requestor</span></th>
-
-                <th class="left" style="width: 7%;"><span>Subtype</span></th>
-                <th class="left" style="width: 33%;"><span>Payee</span></th>
-                <th class="left" style="width: 5%;"><span>VAT</span></th>
-                <th class="left" style="width: 5%;"><span>ATC</span></th>
-                <th class="center" style="width: 5%;"><span>In/VAT</span></th>
-                <th class="center" style="width: 5%;"><span>Status</span></th>
-
+                <th class="left" style="width: 7%;"><span>R.PCV Num</span></th>
+                <th class="left" style="width: 7%;"><span>R.PCV Date</span></th>
+                <th class="left" style="width: 7%;"><span>CV Num</span></th>
+                <th class="left" style="width: 7%;"><span>CV Date</span></th>
+                <th class="left" style="width: 13%;"><span>OF Num</span></th>
+                <th class="left" style="width: 7%;"><span>OF Date</span></th>
+                <th class="left" style="width: 15%;"><span>OF Subtype</span></th>
+                <th class="left" style="width: 28%;"><span>Payee</span></th>
                 <th class="right" style="width: 9%;"><span>Amount</span></th>
             </tr>
         </thead>
         <tbody class="small">
             {% for data in data_list %}
-                <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+                <tr {% ifchanged data.ofmain.reppcvmain.reppcvnum %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+                    <td>
+                        {% ifchanged data.ofmain.reppcvmain.reppcvnum %}
+                            {{ data.ofmain.reppcvmain.reppcvnum }}
+                        {% endifchanged %}
+                    </td>
+                    <td>
+                        {% ifchanged data.ofmain.reppcvmain.reppcvnum %}
+                            {{ data.ofmain.reppcvmain.reppcvdate|date:'Y-m-d' }}
+                        {% endifchanged %}
+                    </td>
+                    <td>
+                        {% ifchanged data.ofmain.reppcvmain.reppcvnum %}
+                            {{ data.ofmain.reppcvmain.cvmain.cvnum|default:'-' }}
+                        {% endifchanged %}
+                    </td>
+                    <td>
+                        {% ifchanged data.ofmain.reppcvmain.reppcvnum %}
+                            {{ data.ofmain.reppcvmain.cvmain.cvdate|date:'Y-m-d'|default:'-' }}
+                        {% endifchanged %}
+                    </td>
                     <td>
                         {% ifchanged data.ofmain.ofnum %}
                             OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}
@@ -75,15 +88,14 @@
                     </td>
                     <td>
                         {% ifchanged data.ofmain.ofnum %}
-                            {{ data.ofmain.ofdate|date:'Y-m-d' }}
+                            {{ data.ofmain.ofdate|date:'d/m/Y' }}
                         {% endifchanged %}
                     </td>
                     <td>
-                        {% ifchanged data.ofmain.ofnum %}
-                            {{ data.ofmain.requestor.first_name }}&nbsp;{{ data.ofmain.requestor.last_name }}
+                        {% ifchanged data.ofsubtype.description and data.ofmain.ofnum %}
+                            {{ data.ofsubtype.description }}
                         {% endifchanged %}
                     </td>
-                    <td>{{ data.ofsubtype.code }}</td>
                     <td>
                         {% if data.supplier_name != None %}
                             {{ data.supplier_name|upper }}
@@ -91,22 +103,16 @@
                             {{ data.payee_name|upper }}
                         {% endif %}
                     </td>
-                    <td class="left">{{ data.vat.code|default:'-' }}</td>
-                    <td class="left">{{ data.atc.code|default:'-' }}</td>
-                    <td class="center">{{ data.inputvattype.code|default:'-' }}</td>
-                    <td class="center">{{ data.ofitemstatus }}</td>
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="10"></td></tr>
+            <tr><td colspan="9"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="9"><b>Total</b></td>
+                <td colspan="8"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
             </tr>
         </tbody>
         </table>
-
-
     {% elif report == 'a_s' %}
         <table id="table_ae_summary">
             <thead>
