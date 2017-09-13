@@ -58,9 +58,11 @@
                             </button>
 						</div>
                         <div class="btn-group pull-right padding-right-10">
-                            <button class="btn btn-info small" data-toggle='modal' data-target='#repPCVModal'>
-                                Petty Cash Replenishment
-                            </button>
+                            <a href="{% url 'checkvoucher:create' %}?import_modal=true" class="floatright">
+                                <button class="btn btn-info small">
+                                    Import Petty Cash Replenishment
+                                </button>
+                            </a>
 						</div>
                     </h3>
                     <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
@@ -82,6 +84,12 @@
                             <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
                             waves-light get_report">
                                 <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                            </button>
+                        </a>
+                        <a class="floatright">
+                            <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report" data-toggle='modal' data-target='#repPCVModal'>
+                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View PCV Replenishments
                             </button>
                         </a>
                     </div>
@@ -114,6 +122,21 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.cvtype.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-3 {{ form.cvsubtype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_cvtype">CV Subtype</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_cvsubtype" name="cvsubtype">
+                                        <option value="">-- Select --</option>
+                                        {% for cvsubtype in cvsubtype %}
+                                            <option value="{{ cvsubtype.id }}" {% if form.cvsubtype.value|add:"0" == cvsubtype.id %} selected="selected" {% endif %}>{{ cvsubtype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.cvtype.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label" for="id_refap">Reference&nbsp;AP</label>
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
+                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
+                                </div>
                                 <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
                                         <div class="input-search">
@@ -132,22 +155,7 @@
                                     <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid" value="{{ payee }}">
                                     <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_branch">Branch</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
-                                        <option value="">-- Select --</option>
-                                        {% for branch in branch %}
-                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_refap">Reference&nbsp;AP</label>
-                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
-                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-5">
                                     <label class="control-label" for="id_bankaccount">Bank Account</label>
                                     <select id="id_bankaccount" class="form-control input-sm select2" data-validation="required" name="bankaccount">
                                         <option value="">-- Select --</option>
@@ -172,6 +180,16 @@
                                     <input type="text" style="background: white;" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_branch">Branch</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                                        <option value="">-- Select --</option>
+                                        {% for branch in branch %}
+                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                </div>
                                 <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_checknum">Check Number</label>
                                     <input type="text" style="background: white;" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
@@ -187,6 +205,11 @@
                                     <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
                                            maxlength="26" data-validation="required" value="{{ form.amount.value|floatformat:'2'|intcomma }}" style="background: white;">
                                     <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
+                                </div>
+                                <div class="form-group col-sm-5">
+                                    <label class="control-label" for="id_refap">Amount&nbsp;in&nbsp;Words</label>
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
+                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_currency">Currency</label>
@@ -254,6 +277,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div class="col-sm-12"></div>
                                 <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_cvstatus">CV Status</label>
 {#                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">#}
@@ -294,7 +318,7 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-6">
+                                <div class="form-group col-sm-9">
                                     <label class="control-label" for="id_particulars">Particulars</label>
                                     <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical; background-color: white;"
                                               rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>

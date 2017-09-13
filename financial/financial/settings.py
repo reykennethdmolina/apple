@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     'endless_pagination',
     'checkvoucher',
     'replenish_pcv',
+    'cvsubtype',
 ]
 
 MIDDLEWARE_CLASSES = [

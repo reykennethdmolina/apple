@@ -13,6 +13,7 @@ from companyparameter.models import Companyparameter
 from currency.models import Currency
 from inputvattype.models import Inputvattype
 from cvtype.models import Cvtype
+from cvsubtype.models import Cvsubtype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from supplier.models import Supplier
@@ -52,6 +53,7 @@ class IndexView(AjaxListView):
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
@@ -85,6 +87,7 @@ class DetailView(DetailView):
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
@@ -102,7 +105,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Cvmain
     template_name = 'checkvoucher/create.html'
-    fields = ['cvdate', 'cvtype', 'amount', 'refnum', 'particulars', 'vat', 'atc', 'checknum', 'checkdate',
+    fields = ['cvdate', 'cvtype', 'cvsubtype', 'amount', 'refnum', 'particulars', 'vat', 'atc', 'checknum', 'checkdate',
               'inputvattype', 'deferredvat', 'currency', 'fxrate', 'branch', 'bankaccount', 'disbursingbranch',
               'designatedapprover']
 
@@ -120,6 +123,7 @@ class CreateView(CreateView):
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
@@ -200,7 +204,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Cvmain
     template_name = 'checkvoucher/edit.html'
-    fields = ['cvnum', 'cvdate', 'cvtype', 'amount', 'refnum', 'particulars', 'vat', 'atc', 'bankaccount',
+    fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'refnum', 'particulars', 'vat', 'atc', 'bankaccount',
               'disbursingbranch', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
               'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover']
 
@@ -315,6 +319,7 @@ class UpdateView(UpdateView):
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
@@ -357,7 +362,7 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
-            self.object.save(update_fields=['cvdate', 'cvtype', 'amount', 'refnum', 'particulars', 'vat', 'atc',
+            self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'refnum', 'particulars', 'vat', 'atc',
                                             'bankaccount', 'disbursingbranch', 'inputvattype', 'deferredvat',
                                             'currency', 'fxrate', 'cvstatus', 'remarks', 'branch', 'checknum',
                                             'checkdate', 'vatrate', 'atcrate'])

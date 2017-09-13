@@ -10,6 +10,7 @@ class Cvmain(models.Model):
     cvnum = models.CharField(max_length=10, unique=True)
     cvdate = models.DateField()
     cvtype = models.ForeignKey('cvtype.Cvtype', related_name='cvmain_cvtype_id', null=True, blank=True)
+    cvsubtype = models.ForeignKey('cvsubtype.Cvsubtype', related_name='cvmain_cvsubtype_id', null=True, blank=True)
     CV_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
