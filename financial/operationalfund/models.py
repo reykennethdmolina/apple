@@ -31,7 +31,7 @@ class Ofmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('R', 'RELEASED'),
+        ('R', 'Released'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
     designatedapprover = models.ForeignKey(User, default=2, related_name='ofmain_designated_approver')

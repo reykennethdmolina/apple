@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load humanize %}
 {% block page-title %} Check Voucher {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
@@ -31,6 +32,9 @@
         .input-search {
             z-index: 99;
         }
+        .checkbox label::before {
+            margin-left: auto;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -41,6 +45,11 @@
                         <div class="btn-group pull-right">
                             <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
                                 <i class="icon fa-search" aria-hidden="true"></i> Search
+                            </button>
+						</div>
+                        <div class="btn-group pull-right padding-right-10">
+                            <button class="btn btn-info small" data-toggle='modal' data-target='#repPCVModal'>
+                                Petty Cash Replenishment
                             </button>
 						</div>
                     </h3>
@@ -73,7 +82,7 @@
                                     <label class="control-label" for="id_payee">Payee</label>
                                         <div class="input-search">
                                             <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
-                                                    data-creditterm="0" data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"
+                                                    data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"
                                                     data-currency="0" data-fxrate="0.00" data-bankaccount="" data-disbursingbranch="">
                                                 <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
                                                     <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
@@ -229,7 +238,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                             </div>
                         </div>
                     </form>
@@ -237,6 +246,7 @@
                     <!-- Accounting Entry Start -->
                     <div class="col-sm-12" id="entryview" style="display: none">
                         <div class="panel panel-bordered">
+                            <div class="shade"><div class="loader two-color"></div></div>
                             <div class="panel-body">
                                 <h4>Manual Accounting Entry</h4>
                                 <div id="waitingbar" class="animatebar-bar progress-bar-success" style="width: 95%;">
@@ -284,6 +294,64 @@
                 </div>
                 </div>
             <div class="clearfix"></div>
+            <div id="repPCVModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Requests for Petty Cash Replenishment</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <table class="table table-hover small">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                                        <input type="checkbox" id="checkbox0" class="item-check-all"
+                                                               name="pcv_checkbox_all">
+                                                        <label style="margin-left: 10px;" for="checkbox0"><b>Number</b></label>
+                                                    </div>
+                                                </th>
+                                                <th><span>Date</span></th>
+                                                <th><span>Requestor</span></th>
+                                                <th class="text-right"><span>Amount</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for data in reppcvmain %}
+                                            <tr>
+                                                <td>
+                                                    <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                                        <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
+                                                               name="pcv_checkbox" value="{{ data.id }}" form="form-b">
+                                                        <label style="margin-left: 10px;" for="checkbox{{ data.id }}">{{ data.reppcvnum }}</label>
+                                                    </div>
+                                                </td>
+                                                <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
+                                                <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
+                                                <td style="text-align: right;" class="item-amount">{{ data.amount|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <thead>
+                                            <tr>
+                                                <th class="text-right" colspan="3" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
+                                                <th class="text-right" id="totalamount" style="border-bottom: none"><b>0.00</b></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="importreppcvconfirm" disabled="disabled">Import</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="lookupModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -326,6 +394,8 @@
         </div>
     </div>
 </div>
+<div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
+<div id="check-pcvrep-error" class="custom-alert danger">Please check at least one request for Petty Cash replenishment.</div>
 <!-- Accounting Entry End -->
 {% include "checkvoucher/search.html" %}
 {% endblock page-content %}
@@ -335,6 +405,22 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $(document).on('change', '.item-check', function(){
+                if($('.item-check:checked').length == $('.item-check').length)
+                    $('.item-check-all').prop('checked', true);
+                else
+                    $('.item-check-all').prop('checked', false);
+                computeItemTotal();
+            });
+            $(document).on('change', '.item-check-all', function(){
+                if ($('.item-check-all').is(':checked')){
+                    $('.item-check').prop('checked', true);
+                }
+                else{
+                    $('.item-check').prop('checked', false);
+                }
+                computeItemTotal();
+            });
 
             <!-- Accounting Entry Start -->
             $("#manualbutton").unbind().click(function (){
@@ -404,7 +490,6 @@
                         data: {'supplierid': $('#id_payeelookup').val()
                         },
                         success: function(response) {
-                            $('#id_creditterm').val(response.creditterm);
                             $('#id_vat').val(response.vat);
                             $('#id_atc').val(response.atc);
                             $('#id_inputvattype').val(response.inputvattype);
@@ -416,7 +501,6 @@
                             $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');
                             $('#id_disbursingbranch').val(response.bankbranchdisburse);
 
-                            $('#id_payee').data('creditterm', response.creditterm);
                             $('#id_payee').data('vat', response.vat);
                             $('#id_payee').data('atc', response.atc);
                             $('#id_payee').data('inputvattype', response.inputvattype);
@@ -440,7 +524,6 @@
 
             $('#id_payee').on('input', function() {
                 if($('#id_payee').val() == $('#id_hiddenpayee').val()){
-                    $('#id_creditterm').val($(this).data('creditterm'));
                     $('#id_vat').val($(this).data('vat'));
                     $('#id_atc').val($(this).data('atc'));
                     $('#id_inputvattype').val($(this).data('inputvattype'));
@@ -453,7 +536,6 @@
                     $('#id_disbursingbranch').val($(this).data('disbursingbranch'));
                 }
                 else {
-                    $('#id_creditterm').val("");
                     $('#id_vat').val("");
                     $('#id_atc').val("");
                     $('#id_inputvattype').val("");
@@ -492,12 +574,62 @@
                 $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
             });
 
-            $("#importbutton").click(function(){
-                $('#importprfpreview tbody').empty();
-                $("#importprfselect2").val('').trigger('change.select2');
-                $('#checkUncheckAll').remove();
-                $('#iconChecked').remove();
+            $("#importreppcvconfirm").click(function(){
+                if(confirm("Are you sure you want to import the selected PCV replenishment requests? You cannot undo " +
+                                "this action once the Check Voucher is submitted.")){
+                    importRepPCVWithAutoEntry();
+                }
             });
+
+            $("#autobutton").click(function(){
+                if($('.item-check:checked').length == 0){
+                    customAlert($('#check-pcvrep-error'));
+                }
+                else {
+                    importRepPCVWithAutoEntry();
+                }
+            });
+
+            function importRepPCVWithAutoEntry(){
+                var refnos = "";
+                var data = {'checked_reppcvmain[]': [],
+                            'secretkey': $("#secretkey").val(),
+                            'table': "cvdetailtemp",
+                            'csrfmiddlewaretoken': "{{csrf_token}}"};
+                $('.item-check:checked').each(function(){
+                    refnos += $("label[for='"+this.id+"']").text() + ", ";
+                    data['checked_reppcvmain[]'].push($(this).val());
+                });
+
+                $("#id_cvtype option:contains('NON-AP')").attr('selected', 'selected');
+                $("#id_refnum").val(refnos.substring(0, refnos.length-2));
+                $("#id_particulars").text("Petty Cash Voucher Replenishment No.(s) " + refnos.substring(0,
+                                refnos.length-2));
+                $("#id_amount").val($("#totalamount").text());
+                $("#repPCVModal .close").click();
+
+                $('.shade').fadeIn();
+                $.ajax({
+                    url: "{% url 'checkvoucher:importreppcv' %}",
+                    type: "post",
+                    data: data,
+                    success: function(response){
+                        $('#id_branch').val(response.branch);
+                        $('#id_vat').val(response.vat);
+                        $('#id_atc').val(response.atc);
+                        $('#id_inputvattype').val(response.inputvattype);
+                        $('#id_deferredvat').val(response.deferredvat);
+                        showRate("#id_vat", "vatrate", "RATE");
+                        showRate("#id_atc", "atcrate", "RATE");
+                        $("#datatable").html(response['datatable']);
+                        customAlert($('#autoentry-success'));
+                        $('.shade').fadeOut();
+                    }, error: function(response) {
+                        console.debug(response);
+                        $('.shade').fadeOut();
+                    }
+                });
+            }
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
@@ -505,6 +637,22 @@
                 $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
                 if($(field + " option:selected").text() == "-- Select --"){
                     $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+                }
+            }
+
+            function computeItemTotal(){
+                var sum = 0;
+                $('.item-check:checkbox:checked').each(function() {
+                    sum += Number($(this).parent().parent().parent().find('.item-amount').text().replace( /,/g, ""));
+                });
+                $('#totalamount').text(sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+
+                if(sum > 0.00){
+                    $('#importreppcvconfirm').prop('disabled', false);
+                }
+                else
+                {
+                    $('#importreppcvconfirm').prop('disabled', true);
                 }
             }
 

@@ -29,7 +29,7 @@
                         <div class="form-group col-sm-6">
                             <label class="control-label col-sm-4">Current&nbsp;Status:</label>
                             <label class="control-label col-sm-8
-                                {% if ofstatus == 'Approved' or ofstatus == 'RELEASED' %} text-success
+                                {% if ofstatus == 'Approved' or ofstatus == 'Released' %} text-success
                                 {% elif ofstatus == 'Disapproved' %} text-danger
                                 {% elif ofstatus == 'For Approval' or ofstatus == 'In Process' %} text-info
                                 {% endif %}">{{ ofstatus }}</label>
@@ -207,7 +207,7 @@
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-wysihtml5-0.0.2/bootstrap-wysihtml5-0.0.2.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            {% if ofstatus == 'Approved' or ofstatus == 'In Process' or ofstatus == 'RELEASED' %}
+            {% if ofstatus == 'Approved' or ofstatus == 'In Process' or ofstatus == 'Released' %}
                 $("#id_ofdate").prop("readonly", true);
                 $("#id_ofdate").datepicker("destroy");
                 $("#id_ofdate").removeClass("datepicker").removeAttr('id');

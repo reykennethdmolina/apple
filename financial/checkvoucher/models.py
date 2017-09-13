@@ -15,7 +15,7 @@ class Cvmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('R', 'RELEASED'),
+        ('R', 'Released'),
     )
     cvstatus = models.CharField(max_length=1, choices=CV_STATUS_CHOICES, default='F')
     payee = models.ForeignKey('supplier.Supplier', related_name='cvmain_payee_id', null=True, blank=True)

@@ -3,18 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
+    validatetable, deleteallquery
 from ataxcode.models import Ataxcode
 from bankaccount.models import Bankaccount
 from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
 from companyparameter.models import Companyparameter
-from creditterm.models import Creditterm
 from currency.models import Currency
 from inputvattype.models import Inputvattype
 from cvtype.models import Cvtype
+from operationalfund.models import Ofmain, Ofitem, Ofdetail
+from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from supplier.models import Supplier
 from vat.models import Vat
-from . models import Cvmain
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -24,6 +26,7 @@ from acctentry.views import generatekey, querystmtdetail, querytotaldetail, save
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
 import datetime
+from pprint import pprint
 
 
 @method_decorator(login_required, name='dispatch')
@@ -109,6 +112,7 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=None).order_by('enterdate')
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
@@ -170,6 +174,20 @@ class CreateView(CreateView):
         num = self.object.cvnum
         secretkey = self.request.POST['secretkey']
         savedetail(source, mainid, num, secretkey, self.request.user)
+
+        # save cvmain in reppcvmain, reppcvdetail, ofmain
+        for i in range(len(self.request.POST.getlist('pcv_checkbox'))):
+            reppcvmain = Reppcvmain.objects.get(pk=int(self.request.POST.getlist('pcv_checkbox')[i]))
+            reppcvmain.cvmain = self.object
+            reppcvmain.save()
+            reppcvdetail = Reppcvdetail.objects.filter(reppcvmain=reppcvmain)
+            for data in reppcvdetail:
+                data.cvmain = self.object
+                data.save()
+                ofmain = Ofmain.objects.get(reppcvdetail=data)
+                ofmain.cvmain = self.object
+                ofmain.save()
+        # save cvmain in reppcvmain, reppcvdetail, ofmain
 
         return HttpResponseRedirect('/checkvoucher/' + str(self.object.id) + '/update')
 
@@ -512,4 +530,119 @@ def release(request):
         }
     return JsonResponse(data)
 
+
+@csrf_exempt
+def importreppcv(request):
+    if request.method == 'POST':
+        first_ofmain = Ofmain.objects.filter(reppcvmain=request.POST.getlist('checked_reppcvmain[]')[0], isdeleted=0,
+                                             status='A').first()
+        first_ofitem = Ofitem.objects.filter(ofmain=first_ofmain.id, isdeleted=0, status='A').first()
+
+        ofdetail = Ofdetail.objects.filter(ofmain__reppcvmain__in=set(request.POST.getlist('checked_reppcvmain[]'))).\
+            order_by('ofmain', 'item_counter')
+        # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
+        ofdetail = ofdetail.values('chartofaccount__accountcode',
+                                   'chartofaccount__id',
+                                   'chartofaccount__title',
+                                   'chartofaccount__description',
+                                   'bankaccount__id',
+                                   'bankaccount__accountnumber',
+                                   'department__id',
+                                   'department__departmentname',
+                                   'employee__id',
+                                   'employee__firstname',
+                                   'supplier__id',
+                                   'supplier__name',
+                                   'customer__id',
+                                   'customer__name',
+                                   'branch__id',
+                                   'branch__description',
+                                   'product__id',
+                                   'product__description',
+                                   'unit__id',
+                                   'unit__description',
+                                   'inputvat__id',
+                                   'inputvat__description',
+                                   'outputvat__id',
+                                   'outputvat__description',
+                                   'vat__id',
+                                   'vat__description',
+                                   'wtax__id',
+                                   'wtax__description',
+                                   'ataxcode__id',
+                                   'ataxcode__code',
+                                   'balancecode') \
+                           .annotate(Sum('debitamount'), Sum('creditamount')) \
+                           .order_by('-chartofaccount__accountcode',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     '-vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')
+
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'cvnum' in request.POST:
+            if request.POST['cvnum']:
+                updateallquery(request.POST['table'], request.POST['cvnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        i = 1
+        for detail in ofdetail:
+            cvdetailtemp = Cvdetailtemp()
+            cvdetailtemp.item_counter = i
+            cvdetailtemp.secretkey = request.POST['secretkey']
+            cvdetailtemp.cv_date = datetime.datetime.now()
+            cvdetailtemp.chartofaccount = detail['chartofaccount__id']
+            cvdetailtemp.bankaccount = detail['bankaccount__id']
+            cvdetailtemp.department = detail['department__id']
+            cvdetailtemp.employee = detail['employee__id']
+            cvdetailtemp.supplier = detail['supplier__id']
+            cvdetailtemp.customer = detail['customer__id']
+            cvdetailtemp.unit = detail['unit__id']
+            cvdetailtemp.branch = detail['branch__id']
+            cvdetailtemp.product = detail['product__id']
+            cvdetailtemp.inputvat = detail['inputvat__id']
+            cvdetailtemp.outputvat = detail['outputvat__id']
+            cvdetailtemp.vat = detail['vat__id']
+            cvdetailtemp.wtax = detail['wtax__id']
+            cvdetailtemp.ataxcode = detail['ataxcode__id']
+            cvdetailtemp.debitamount = detail['debitamount__sum']
+            cvdetailtemp.creditamount = detail['creditamount__sum']
+            cvdetailtemp.balancecode = detail['balancecode']
+            cvdetailtemp.enterby = request.user
+            cvdetailtemp.modifyby = request.user
+            cvdetailtemp.save()
+            i += 1
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+            'branch': first_ofmain.branch_id,
+            'vat': first_ofitem.vat_id,
+            'atc': first_ofitem.atc_id,
+            'inputvattype': first_ofitem.inputvattype_id,
+            'deferredvat': first_ofitem.deferredvat
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
 

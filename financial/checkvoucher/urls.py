@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^release/$', views.release, name='release'),
+    url(r'^importreppcv/$', views.importreppcv, name='importreppcv'),
 ]

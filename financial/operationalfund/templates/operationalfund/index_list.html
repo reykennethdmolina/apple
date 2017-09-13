@@ -133,7 +133,7 @@
                 $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').hide();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-disapprove').hide();
                 $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').hide();
@@ -150,7 +150,7 @@
                 $(this).parent().siblings('.btn-approve').show();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "RELEASED"){
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-approve').hide();
             }
