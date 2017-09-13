@@ -79,6 +79,10 @@ class DetailView(DetailView):
         context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0).\
             filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).order_by('enterdate')
+        cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).aggregate(Sum('amount'))
+        context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
+
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
