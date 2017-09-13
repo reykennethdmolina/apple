@@ -203,3 +203,26 @@ div.has-error ul.select2-choices {
 .select2-dropdown{
     z-index: 999999 !important;
 }
+
+#datatable{
+    font-size: 13px;
+}
+#breaktabledata, #datatablebreakdown{
+    font-size: 12px;
+}
+#datatable td, #datatablebreakdown td{
+    padding: 8px;
+}
+table#breaktabledata>tbody>tr>td{
+    border: none;
+    height: 30px;
+    padding: 21px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+.actionrow{
+    text-align: right;
+    background-color: white;
+    border: 2px solid white !important;
+    border-left: 1px solid #e0e0e0 !important;
+}

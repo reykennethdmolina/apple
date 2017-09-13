@@ -31,9 +31,10 @@ $(".custom-alert").each(function(){
                     "</div>");
     $(this).remove();
 });
-function customAlert(e){
+function customAlert(e, duration){
+    var def_duration = duration >= 0 ? duration : 1000;
     e.modal('show');
-    setTimeout(function() { e.modal('hide'); }, 1000);
+    setTimeout(function() { e.modal('hide'); }, def_duration);
 }
 
 // Ajax paginate
