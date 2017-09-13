@@ -474,6 +474,10 @@ class Pdf(PDFTemplateView):
         context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0). \
             filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.kwargs['pk']).order_by('enterdate')
+        cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.kwargs['pk']).aggregate(Sum('amount'))
+        context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
+
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"

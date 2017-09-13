@@ -20,7 +20,7 @@
                 left: 1cm;
                 width: 19.5cm;
                 top: 2.5cm;
-                height: 20cm;
+                height: 19.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
@@ -85,7 +85,7 @@
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">
                     {% if cvmain.actualapprover %}
-                        SGD&nbsp;
+                        SGD
                     {% endif %}
                     {{ cvmain.enterby.first_name }}&nbsp;{{ cvmain.enterby.last_name }}
                 </div>
@@ -96,7 +96,7 @@
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
                     {% if cvmain.actualapprover and cvmain.approverresponse == 'A' %}
-                        SGD&nbsp;{{ cvmain.actualapprover.first_name }}&nbsp;{{ cvmain.actualapprover.last_name }}
+                        SGD {{ cvmain.actualapprover.first_name }}&nbsp;{{ cvmain.actualapprover.last_name }}
                     {% else %}
                         {{ cvmain.designatedapprover.first_name }}&nbsp;{{ cvmain.designatedapprover.last_name }}
                     {% endif %}
@@ -216,10 +216,10 @@
                 <tr>
                     <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.refnum }}</td>
+                    <td>{{ cvmain.inputvattype.description }}</td>
                     <td width="25%"><b>Deferred&nbsp;VAT</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>N/A</td>
+                    <td>{{ cvmain.get_deferredvat_display }}</td></td>
                 </tr>
                 <tr>
                     <td width="25%"><b>VAT</b></td>
@@ -234,6 +234,29 @@
     </tr>
     <tr><td></td></tr>
 </table>
+{% if reppcvmain %}
+    <b>PETTY CASH REPLENISHMENTS</b>
+    <table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+        <td style="padding-left: 5px;"><b><i>Rep. PCV Number</i></b></td>
+        <td><b><i>Rep. PCV Date</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    {% for data in reppcvmain %}
+        <tr>
+            <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+            <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvnum }}</td>
+            <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvdate|date:'Y-m-d' }}</td>
+            <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+        <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ reppcv_total_amount|floatformat:2|intcomma }}</b></td>
+    </tr>
+</table><br>
+{% endif %}
             <b>ACCOUNTING ENTRIES</b>
 <table style="padding-left: 5px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
@@ -281,69 +304,69 @@
                 <table style="padding-bottom: -5px;">
                     {% if detail.bankaccount %}
                         <tr>
-                            <td width="30%">Account no.</td>
+                            <td width="30%">Account no.:</td>
                             <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>
                         </tr>
                     {% endif %}
                     {% if detail.department %}
                         <tr>
-                            <td width="30%">Department</td>
+                            <td width="30%">Department:</td>
                             <td width="70%">{{ detail.department.departmentname }}</td>
                         </tr>
                     {% endif %}
                     {% if detail.employee %}
                         <tr>
-                            <td width="30%">Employee</td>
+                            <td width="30%">Employee:</td>
                             <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
                         </tr>{% endif %}
                     {% if detail.supplier %}
                         <tr>
-                            <td width="30%">Supplier</td>
+                            <td width="30%">Supplier:</td>
                             <td width="70%">{{ detail.supplier.name }}</td>
                         </tr>{% endif %}
                     {% if detail.customer %}
                         <tr>
-                            <td width="30%">Customer</td>
+                            <td width="30%">Customer:</td>
                             <td width="70%">{{ detail.customer.name }}</td>
                         </tr>{% endif %}
                     {% if detail.unit %}
                         <tr>
-                            <td width="30%">Unit</td>
+                            <td width="30%">Unit:</td>
                             <td width="70%">{{ detail.unit.description }}</td>
                         </tr>{% endif %}
                     {% if detail.branch %}
                         <tr>
-                            <td width="30%">Branch</td>
+                            <td width="30%">Branch:</td>
                             <td width="70%">{{ detail.branch.description }}</td>
                         </tr>{% endif %}
                     {% if detail.product %}
                         <tr>
-                            <td width="30%">Product</td>
+                            <td width="30%">Product:</td>
                             <td width="70%">{{ detail.product.description }}</td>
                         </tr>{% endif %}
                     {% if detail.inputvat %}
                         <tr>
-                            <td width="30%">Input VAT</td>
+                            <td width="30%">Input VAT:</td>
                             <td width="70%">{{ detail.inputvat.description }}</td>
                         </tr>{% endif %}
                     {% if detail.outputvat %}
                         <tr>
-                            <td width="30%">Ouptut VAT</td>
+                            <td width="30%">Ouptut VAT:</td>
                             <td width="70%">{{ detail.outputvat.description }}</td>
                         </tr>{% endif %}
                     {% if detail.vat %}
                         <tr>
-                            <td width="30%">VAT</td>
+                            <td width="30%">VAT:</td>
                             <td width="70%">{{ detail.vat.description }}</td>
                         </tr>{% endif %}
                     {% if detail.wtax %}
                         <tr>
-                            <td width="30%">WTax</td>
+                            <td width="30%">WTax:</td>
                             <td width="70%">{{ detail.wtax.description }}</td>
                         </tr>{% endif %}
                     {% if detail.ataxcode %}
                         <tr>
-                            <td width="30%">ATax</td>
+                            <td width="30%">ATax:</td>
                             <td width="70%">{{ detail.ataxcode.description }}</td>
                         </tr>{% endif %}
                 </table>
