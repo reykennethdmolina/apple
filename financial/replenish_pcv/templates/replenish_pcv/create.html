@@ -27,7 +27,7 @@
             <div class="col-md-12">
                 <div class="page-wrap form-material">
                     {% block content %}
-                        <form action=""></form>
+                        {% if data_list %}
                         <div class="col-md-10 col-md-offset-1">
                             <form method="get" id="filter" class="row">
                                 <div class="col-md-5">
@@ -97,6 +97,9 @@
                                 <input type="submit" id="replenishButton" value="Submit for Replenishment" class="btn btn-round btn-success btn-sm">
                             </form>
                         </div>
+                        {% else %}
+                            There are no petty cash vouchers for replenishment.
+                        {% endif %}
                     {% endblock %}
                 </div>
             </div>
@@ -138,18 +141,18 @@
         });
 
         $(document).on('click', '#replenishButton', function(){
-            if(confirm("Are you sure you would like to replenish the PCVs?")){
-                if($('.item-check:checked').length == 0){
+            if($('.item-check:checked').length == 0){
                 customAlert($('#checked-items-error'));
                 event.preventDefault();
-                }
-                else {
-                    alert("Request for PCV Replesnishment submitted.");
-                    $("#form-replenish").submit();
-                }
             }
             else {
-                event.preventDefault();
+                if(confirm("Are you sure you would like to replenish the PCVs?")){
+                    alert("Request for PCV Replenishment submitted.");
+                    $("#form-replenish").submit();
+                }
+                else {
+                    event.preventDefault();
+                }
             }
         });
 

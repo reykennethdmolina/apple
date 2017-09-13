@@ -304,6 +304,9 @@ class UpdateView(UpdateView):
         context['responsedate'] = Cvmain.objects.get(pk=self.object.id).responsedate
         context['releaseby'] = Cvmain.objects.get(pk=self.object.id).releaseby
         context['releasedate'] = Cvmain.objects.get(pk=self.object.id).releasedate
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).order_by('enterdate')
+        cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).aggregate(Sum('amount'))
+        context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
@@ -429,6 +432,23 @@ class DeleteView(DeleteView):
         self.object.status = 'C'
         self.object.cvstatus = 'D'
         self.object.save()
+
+        # remove references in reppcvmain, reppcvdetail, ofmain
+        reppcvmain = Reppcvmain.objects.filter(cvmain=self.object.id)
+        for data in reppcvmain:
+            data.cvmain = None
+            data.save()
+
+        reppcvdetail = Reppcvdetail.objects.filter(cvmain=self.object.id)
+        for data in reppcvdetail:
+            data.cvmain = None
+            data.save()
+
+        ofmain = Ofmain.objects.filter(cvmain=self.object.id)
+        for data in ofmain:
+            data.cvmain = None
+            data.save()
+        # remove references in reppcvmain, reppcvdetail, ofmain
 
         return HttpResponseRedirect('/checkvoucher')
 
