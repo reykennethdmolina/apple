@@ -92,6 +92,19 @@
 <a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
 <script>
     $(function () {
+        var temp_param = '0';
+
+        if($_GET('id') != null){
+            $("#detailsModal").modal('show');
+
+            $('#reppcv_number').text($_GET('number'));
+            $('#reppcv_date').text($_GET('date'));
+            $('#pdflink').attr('href', String($('#pdflink').attr('href')).replace(temp_param + '/pdf/', $_GET('id') + '/pdf/'));
+            temp_param = $_GET('id');
+
+            fetchDetails($_GET('number'));
+        }
+
         $('.shade').remove();
         $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
         $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
@@ -99,18 +112,20 @@
             $('.shade').fadeIn();
         });
 
-        var temp_param = '0';
-
         $('.linkDetail').on('click', function () {
             $('#reppcv_number').text($(this).data('number'));
             $('#reppcv_date').text($(this).data('date'));
             $('#pdflink').attr('href', String($('#pdflink').attr('href')).replace(temp_param + '/pdf/', $(this).data('id') + '/pdf/'));
             temp_param = $(this).data('id');
 
+            fetchDetails($(this).data('number'));
+        });
+
+        function fetchDetails(reppcvnum){
             $.ajax({
                 url: "{% url 'replenish_pcv:fetch_details' %}",
                 type: "post",
-                data: {'reppcvnum': $('#reppcv_number').text()
+                data: {'reppcvnum': reppcvnum
                 },
                 success: function(response){
                     $('#reppcvdetails').html('');
@@ -130,6 +145,6 @@
                     console.debug(response);
                 }
             });
-        });
+        }
     });
 </script>

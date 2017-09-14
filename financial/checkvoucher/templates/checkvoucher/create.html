@@ -343,7 +343,7 @@
                                                     <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
                                                         <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
                                                                name="pcv_checkbox" value="{{ data.id }}" form="form-b">
-                                                        <label style="margin-left: 10px;" for="checkbox{{ data.id }}">{{ data.reppcvnum }}</label>
+                                                        <label style="margin-left: 10px;" for="checkbox{{ data.id }}"><a href="{% url 'replenish_pcv:index' %}?id={{ data.id }}&number={{ data.reppcvnum }}&date={{ data.reppcvdate|date:"Y-m-d" }}" target="_blank">{{ data.reppcvnum }}</a></label>
                                                     </div>
                                                 </td>
                                                 <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
