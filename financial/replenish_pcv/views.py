@@ -276,9 +276,11 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
                                      'outputvat__description',
                                      'vat__description',
                                      'wtax__description',
-                                     'ataxcode__code')\
+                                     'ataxcode__code',
+                                     'balancecode')\
                              .annotate(Sum('debitamount'), Sum('creditamount'))\
-                             .order_by('chartofaccount__accountcode',
+                             .order_by('-balancecode',
+                                       '-chartofaccount__accountcode',
                                        'bankaccount__accountnumber',
                                        'department__departmentname',
                                        'employee__firstname',
@@ -295,7 +297,8 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
             else:
                 context['report_type'] = "Petty Cash Replenishment Accounting Entry - Detailed Report"
 
-                query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('chartofaccount__accountcode',
+                query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
+                                                                                         '-chartofaccount__accountcode',
                                                                                          'bankaccount__accountnumber',
                                                                                          'department__departmentname',
                                                                                          'employee__firstname',

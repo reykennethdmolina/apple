@@ -131,86 +131,109 @@
                                 {% if data.bankaccount__accountnumber %}
                                     <td>
                                         {% ifchanged data.bankaccount__accountnumber %}
-                                            Bank Acct. No. {{ data.bankaccount__accountnumber }}</td>
+                                            Bank Acct. No. {{ data.bankaccount__accountnumber }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.department__departmentname %}
                                     <td>
                                         {% ifchanged data.department__departmentname %}
-                                            {{ data.department__departmentname }}</td>
+                                            {{ data.department__departmentname }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.employee__firstname %}
                                     <td>
                                         {% ifchanged data.employee__firstname %}
-                                            {{ data.employee__firstname }}</td>
+                                            {% ifchanged data.employee__lastname %}
+                                                {{ data.employee__firstname }} {{ data.employee__lastname }}
+                                            {% endifchanged %}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.supplier__name %}
                                     <td>
                                         {% ifchanged data.supplier__name %}
-                                            {{ data.supplier__name }}</td>
+                                            {{ data.supplier__name }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.customer__name %}
                                     <td>
                                         {% ifchanged data.customer__name %}
-                                            {{ data.customer__name }}</td>
+                                            {{ data.customer__name }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.unit__description %}
                                     <td>
                                         {% ifchanged data.unit__description %}
-                                            {{ data.unit__description }}</td>
+                                            {{ data.unit__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.branch__description %}
                                     <td>
                                         {% ifchanged data.branch__description %}
-                                            {{ data.branch__description }}</td>
+                                            {{ data.branch__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.product__description %}
                                     <td>
                                         {% ifchanged data.product__description %}
-                                            {{ data.product__description }}</td>
+                                            {{ data.product__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.inputvat__description %}
                                     <td>
                                         {% ifchanged data.inputvat__description %}
-                                            {{ data.inputvat__description }}</td>
+                                            {{ data.inputvat__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.outputvat__description %}
                                     <td>
                                         {% ifchanged data.outputvat__description %}
-                                            {{ data.outputvat__description }}</td>
+                                            {{ data.outputvat__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.vat__description or data.inputvat.description %}
                                     <td>
                                         {% ifchanged data.vat__description %}
-                                            {{ data.vat__description|default:'---' }}</td>
+                                            {{ data.vat__description|default:'---' }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.wtax__description %}
                                     <td>
                                         {% ifchanged data.wtax__description %}
-                                            {{ data.wtax__description }}</td>
+                                            {{ data.wtax__description }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                                 {% if data.ataxcode__code %}
                                     <td>
                                         {% ifchanged data.ataxcode__code %}
-                                            {{ data.ataxcode__code }}</td>
+                                            {{ data.ataxcode__code }}
                                         {% endifchanged %}
+                                    </td>
                                 {% endif %}
                             </tr>
                         </table>
                     </td>
-                    <td class="right" style="width: 10%;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
-                    <td class="right" style="width: 10%;">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
+                    <td class="right" style="width: 10%;">
+                        {% if data.balancecode == 'D' %}
+                            {{ data.debitamount__sum|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
+                    <td class="right" style="width: 10%;">
+                        {% if data.balancecode == 'C' %}
+                            {{ data.creditamount__sum|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             <tr><td colspan="4"></td></tr>
@@ -253,11 +276,8 @@
                                     <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>
                                 {% endif %}
                                 {% if data.employee.firstname %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.employee.firstname %}{% else %}{% endifchanged %}>{{ data.employee.firstname }}</td>
+                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.employee.firstname %}{% else %}{% endifchanged %}>{{ data.employee.firstname }} {{ data.employee.lastname }}</td>
                                 {% endif %}
-{#                                {% if data.supplier.name %}#}
-{#                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.supplier.name %}{% else %}{% endifchanged %}>{{ data.supplier.name }}</td>#}
-{#                                {% endif %}#}
                                 {% if data.customer.name %}
                                     <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.customer.name %}{% else %}{% endifchanged %}>{{ data.customer.name }}</td>
                                 {% endif %}
@@ -298,8 +318,16 @@
                         {% endif %}
                     </td>
                     <td style="width: 6%;">{{ data.of_date|date:'Y-m-d' }}</td>
-                    <td class="right" style="width: 7%;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
-                    <td class="right" style="width: 7%;">{{ data.creditamount__sum|floatformat:2|intcomma }}</td>
+                    <td class="right" style="width: 7%;">
+                        {% if data.balancecode == 'D' %}
+                            {{ data.debitamount__sum|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
+                    <td class="right" style="width: 7%;">
+                        {% if data.balancecode == 'C' %}
+                            {{ data.creditamount__sum|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             <tr><td colspan="4"></td></tr>

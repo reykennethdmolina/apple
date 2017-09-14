@@ -1,6 +1,6 @@
 import re
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 # add models here
@@ -308,3 +308,35 @@ def ajaxSearch(request):
         }
 
     return JsonResponse(data)
+
+
+# @csrf_exempt
+# def exportxls(rows, columns, queryset):
+#     import xlwt
+#     response = HttpResponse(content_type='application/ms-excel')
+#     response['Content-Disposition'] = 'attachment; filename=mymodel.xls'
+#     wb = xlwt.Workbook(encoding='utf-8')
+#     ws = wb.add_sheet("MyModel")
+#     row_num = 0
+#     font_style = xlwt.XFStyle()
+#     font_style.font.bold = True
+#
+#     for col_num in xrange(len(columns)):
+#         ws.write(row_num, col_num, columns[col_num][0], font_style)
+#         ws.col(col_num).width = columns[col_num][1]
+#
+#     font_style = xlwt.XFStyle()
+#     font_style.alignment.wrap = 1
+#
+#     for obj in queryset:
+#         row_num += 1
+#         row = [
+#             obj.pk,
+#             obj.title,
+#             obj.description,
+#         ]
+#         for col_num in xrange(len(row)):
+#             ws.write(row_num, col_num, row[col_num], font_style)
+#
+#     wb.save(response)
+#     return response

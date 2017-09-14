@@ -2,7 +2,7 @@
 {% load endless %}
 {% load humanize %}
 {% load staticfiles %}
-{% block page-title %}<div style="line-height: 25px;">Petty Cash Replenishment<br><small>Report</small></div>{% endblock page-title %}
+{% block page-title %}<div style="line-height: 25px;">Petty Cash Replenishment<br><small><small>Report</small></small></div>{% endblock page-title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
@@ -309,7 +309,7 @@
         $('#rep_f_order2').val(getCookie('rep_f_order2_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_asc').val(getCookie('rep_f_asc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
+{#        $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));#}
 
         $('#rep_f_balancecode').val(getCookie('rep_f_balancecode_{{ request.resolver_match.app_name }}'));
         $('#rep_f_debit_amountfrom').val(getCookie('rep_f_debit_amountfrom_{{ request.resolver_match.app_name }}'));
@@ -321,8 +321,14 @@
             if($('#rep_f_report').val() == 'a_d' || $('#rep_f_report').val() == 'a_s'){
                 $('.rep_f_ae_holder').hide();
 
-                if($('#rep_f_report').val() == 'a_s') $('#rep_f_balancecode').parent().show();
-                else $('.rep_f_ae_holder').show();
+                if($('#rep_f_report').val() == 'a_s'){
+                    $('#rep_f_balancecode').parent().show();
+                    $('#rep_f_orientation').val('p');
+                }
+                else{
+                    $('.rep_f_ae_holder').show();
+                    $('#rep_f_orientation').val('l');
+                }
 
                 $('#rep_f_amount_holder').hide();
                 $('#rep_f_order2_holder').hide();
@@ -336,6 +342,8 @@
                 $('#rep_f_order2_holder').show();
                 $('#rep_f_order_holder').hide();
                 $('#rep_f_asc_holder').show();
+
+                $('#rep_f_orientation').val('l');
             }
             else{
                 $('.rep_f_ae_holder').hide();
@@ -344,6 +352,8 @@
                 $('#rep_f_order2_holder').hide();
                 $('#rep_f_order_holder').show();
                 $('#rep_f_asc_holder').show();
+
+                $('#rep_f_orientation').val('p');
             }
         }
 	});
