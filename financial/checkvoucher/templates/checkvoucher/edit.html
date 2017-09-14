@@ -200,6 +200,16 @@
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.checkdate.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_designatedapprover">Approver</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
+                                        <option value="">-- Select --</option>
+                                        {% for designatedapprover in designatedapprover %}
+                                            <option value="{{ designatedapprover.id }}" {% if actualapprover %} {% if actualapprover|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% else %} {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-12"></div>
                                 <div class="form-group col-sm-3 {{ form.amount.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_amount">Amount</label>
                                     <input type="text" class="form-control input-sm amount text-right" id="id_amount" name="amount"
@@ -207,9 +217,9 @@
                                     <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-5">
-                                    <label class="control-label" for="id_refap">Amount&nbsp;in&nbsp;Words</label>
-                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
-                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
+                                    <label class="control-label" for="id_amountinwords">Amount&nbsp;in&nbsp;Words</label>
+                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_amountinwords" name="amountinwords" readonly="readonly" value="{{ form.amountinwords.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.amountinwords.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_currency">Currency</label>
@@ -268,16 +278,6 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_designatedapprover">Approver</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
-                                        <option value="">-- Select --</option>
-                                        {% for designatedapprover in designatedapprover %}
-                                            <option value="{{ designatedapprover.id }}" {% if actualapprover %} {% if actualapprover|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% else %} {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %} {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-sm-12"></div>
                                 <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_cvstatus">CV Status</label>
 {#                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">#}
@@ -895,6 +895,11 @@
                     $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
                 }
             }
+
+            $("#id_amount").on('keyup', function(){
+                var words = toWords($(this).val());
+                $("#id_amountinwords").val(words);
+            });
 
             $(document).ready(function() {
                 $("#importprfselect2").select2({

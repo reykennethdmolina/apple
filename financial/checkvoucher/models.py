@@ -43,6 +43,7 @@ class Cvmain(models.Model):
     disbursingbranch = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
                                          related_name='cvmain_bankbranchdisburse_id')
     amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)
+    amountinwords = models.CharField(max_length=500, null=True, blank=True)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
     designatedapprover = models.ForeignKey(User, default=2, related_name='cvmain_designated_approver')
