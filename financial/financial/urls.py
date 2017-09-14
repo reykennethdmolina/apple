@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^agenttype/', include('agenttype.urls', app_name='agenttype', namespace='agenttype')),
     url(r'^agent/', include('agent.urls', app_name='agent', namespace='agent')),
     url(r'^replenish_pcv/', include('replenish_pcv.urls', app_name='replenish_pcv', namespace='replenish_pcv')),
+    url(r'^cvsubtype/', include('cvsubtype.urls', app_name='cvsubtype', namespace='cvsubtype')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),
