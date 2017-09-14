@@ -78,6 +78,16 @@
 						</div>
                     </h3>
                     <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                            <div class="form-group col-sm-6">
+                                {% if requested == 'True' %}
+                                    <label class="control-label col-sm-4">PCV&nbsp;Replenishment:</label>
+                                    <label id="currentstatus" class="control-label col-sm-8">{{ reppcvnum }}, {{ reppcvdate|date:'Y-m-d' }}</label>
+                                {% endif %}
+                                {% if replenished == 'True' %}
+                                    <label class="control-label col-sm-4">Check&nbsp;Voucher:</label>
+                                    <label id="currentstatus" class="control-label col-sm-8">{{ cvnum }}, {{ cvdate|date:'Y-m-d' }}</label>
+                                {% endif %}
+                            </div>
                         {% if perms.operationalfund.delete_ofmain and object.ofstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                         <a href="{% url 'operationalfund:delete' object.id %}" class="floatright">
                             <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
@@ -200,7 +210,7 @@
                         </div>
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
-                                {% if replenished == 'False' %}
+                                {% if requested == 'False' %}
                                     <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                                 {% endif %}
                             </div>
@@ -628,7 +638,7 @@
                 $(".actionrowhead").hide();
                 $(".actionrow").hide();
 
-                {% if replenished == 'True' %}
+                {% if requested == 'True' %}
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
                 {% endif %}

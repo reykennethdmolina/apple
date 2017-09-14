@@ -937,7 +937,12 @@ class UpdateViewCashier(UpdateView):
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
-        context['replenished'] = 'False' if self.object.reppcvmain is None else 'True'
+        context['requested'] = 'False' if self.object.reppcvmain is None else 'True'
+        context['reppcvnum'] = self.object.reppcvmain.reppcvnum if self.object.reppcvmain else 'N/A'
+        context['reppcvdate'] = self.object.reppcvmain.reppcvdate if self.object.reppcvmain else 'N/A'
+        context['replenished'] = 'False' if self.object.cvmain is None else 'True'
+        context['cvnum'] = self.object.cvmain.cvnum if self.object.cvmain else 'N/A'
+        context['cvdate'] = self.object.cvmain.cvdate if self.object.cvmain else 'N/A'
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
