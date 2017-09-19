@@ -298,6 +298,7 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['savedcvsubtype'] = Cvmain.objects.get(pk=self.object.id).cvsubtype.code
         # context['payee'] = Cvmain.objects.get(pk=self.object.id).payee.id if Cvmain.objects.get(
         #     pk=self.object.id).payee is not None else ''
         # context['payee_name'] = Cvmain.objects.get(pk=self.object.id).payee_name

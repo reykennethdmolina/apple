@@ -86,12 +86,14 @@
                                 <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
                             </button>
                         </a>
-                        <a class="floatright">
-                            <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
-                            waves-light get_report" data-toggle='modal' data-target='#repPCVModal'>
-                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View PCV Replenishments
-                            </button>
-                        </a>
+                        {% if savedcvsubtype == 'PCR' %}
+                            <a class="floatright">
+                                <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                                waves-light get_report" data-toggle='modal' data-target='#repPCVModal'>
+                                    <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View PCV Replenishments
+                                </button>
+                            </a>
+                        {% endif %}
                     </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
