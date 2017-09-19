@@ -27,7 +27,7 @@
             {% for data in data_list %}
                 <tr>
                     <td>{{ data.reppcvnum }}</td>
-                    <td>{{ data.reppcvdate|date:'d/m/Y' }}</td>
+                    <td>{{ data.reppcvdate|date:'Y-m-d' }}</td>
                     <td>{{ data.cvmain.cvnum|default:'-' }}</td>
                     <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
@@ -88,7 +88,7 @@
                     </td>
                     <td>
                         {% ifchanged data.ofmain.ofnum %}
-                            {{ data.ofmain.ofdate|date:'d/m/Y' }}
+                            {{ data.ofmain.ofdate|date:'Y-m-d' }}
                         {% endifchanged %}
                     </td>
                     <td>

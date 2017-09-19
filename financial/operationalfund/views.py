@@ -1546,123 +1546,6 @@ def reportresultquery(request):
 
 
 @csrf_exempt
-def reportresultxls(request):
-
-    queryset, report_type, report_total = reportresultquery(request)
-
-    columns = []
-    report_type = report_type if report_type != '' else 'OF Report'
-
-    # amount placement
-    amount_placement = 0
-    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        amount_placement = 4
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        amount_placement = 9
-
-    # header
-    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        columns = [
-            (u"OF Number", 6000),
-            (u"Date", 3000),
-            (u"Requestor", 8000),
-            (u"Status", 3000),
-            (u"Amount", 6000),
-        ]
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        columns = [
-            (u"OF Number", 6000),
-            (u"Date", 3000),
-            (u"Requestor", 8000),
-            (u"Subtype", 3000),
-            (u"Payee", 20000),
-            (u"VAT", 3000),
-            (u"ATC", 3000),
-            (u"In/VAT", 3000),
-            (u"Status", 3000),
-            (u"Amount", 6000),
-        ]
-
-    import xlwt
-    response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=' + report_type + '.xls'
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet(report_type)
-    row_num = 0
-
-    for col_num in xrange(len(columns)):
-        style = xlwt.XFStyle()
-        style.font.bold = True
-        style.alignment.horz = xlwt.Alignment.HORZ_RIGHT if col_num == amount_placement else xlwt.Alignment.HORZ_LEFT
-
-        ws.write(row_num, col_num, columns[col_num][0], style)
-        ws.col(col_num).width = columns[col_num][1]
-
-    for obj in queryset:
-        row_num += 1
-
-        # content
-        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-            row = [
-                "OF-" + obj.oftype.code + "-" + obj.ofnum,
-                DateFormat(obj.ofdate).format('Y-m-d'),
-                obj.requestor.first_name + " " + obj.requestor.last_name,
-                obj.get_ofstatus_display(),
-                obj.amount,
-            ]
-        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-            str_payee = obj.supplier_name if obj.supplier_name is not None else obj.payee_name
-            str_atc = obj.atc.code if obj.atc else ''
-            str_vat = obj.vat.code if obj.vat else ''
-            str_inputvattype = obj.inputvattype.code if obj.inputvattype else ''
-
-            row = [
-                "OF-" + obj.ofmain.oftype.code + "-" + obj.ofmain.ofnum,
-                DateFormat(obj.ofmain.ofdate).format('Y-m-d'),
-                obj.ofmain.requestor.first_name + " " + obj.ofmain.requestor.last_name,
-                obj.ofsubtype.code,
-                str_payee.upper(),
-                str_vat,
-                str_atc,
-                str_inputvattype,
-                obj.get_ofitemstatus_display(),
-                obj.amount,
-            ]
-
-        for col_num in xrange(len(row)):
-            if col_num == amount_placement:
-                style = xlwt.XFStyle()
-                style.num_format_str = '#,##0.00'
-                ws.write(row_num, col_num, row[col_num], style)
-            else:
-                ws.write(row_num, col_num, row[col_num])
-
-
-    # totals
-    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        row = [
-            "", "", "",
-            "Total", report_total['amount__sum'],
-
-        ]
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        row = [
-            "", "", "", "", "", "", "", "",
-            "Total", report_total['amount__sum'],
-
-        ]
-    row_num += 1
-    for col_num in xrange(len(row)):
-        style = xlwt.XFStyle()
-        style.font.bold = True
-        style.num_format_str = '#,##0.00' if col_num == amount_placement else 'general'
-        ws.write(row_num, col_num, row[col_num], style)
-
-    wb.save(response)
-    return response
-
-
-@csrf_exempt
 def reportresultxlsx(request):
     # imports and workbook config
     import xlsxwriter
@@ -1694,6 +1577,8 @@ def reportresultxlsx(request):
         amount_placement = 9
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 14
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        amount_placement = 15
 
     # config: header
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
@@ -1731,7 +1616,26 @@ def reportresultxlsx(request):
         worksheet.write('L2', 'VAT', bold)
         worksheet.write('M2', 'WTAX', bold)
         worksheet.write('N2', 'ATAX Code', bold)
-
+        row += 1
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
+        worksheet.merge_range('B1:M1', 'Details', bold_center)
+        worksheet.merge_range('N1:N2', 'Payee', bold)
+        worksheet.merge_range('O1:O2', 'Date', bold)
+        worksheet.merge_range('P1:P2', 'Debit', bold_right)
+        worksheet.merge_range('Q1:Q2', 'Credit', bold_right)
+        worksheet.write('B2', 'Bank Account', bold)
+        worksheet.write('C2', 'Department', bold)
+        worksheet.write('D2', 'Employee', bold)
+        worksheet.write('E2', 'Customer', bold)
+        worksheet.write('F2', 'Unit', bold)
+        worksheet.write('G2', 'Branch', bold)
+        worksheet.write('H2', 'Product', bold)
+        worksheet.write('I2', 'Input VAT', bold)
+        worksheet.write('J2', 'Output VAT', bold)
+        worksheet.write('K2', 'VAT', bold)
+        worksheet.write('L2', 'WTAX', bold)
+        worksheet.write('M2', 'ATAX Code', bold)
         row += 1
 
     for obj in queryset:
@@ -1786,10 +1690,43 @@ def reportresultxlsx(request):
                 obj['debitamount__sum'],
                 obj['creditamount__sum'],
             ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+            str_firstname = obj.employee.firstname if obj.employee is not None else ''
+            str_lastname = obj.employee.lastname if obj.employee is not None else ''
+            if obj.supplier is not None:
+                str_payee = obj.supplier.name
+            elif obj.ofitem is not None:
+                if obj.ofitem.payee is not None:
+                    str_payee = obj.ofitem.payee_name
+                else:
+                    str_payee = ''
+            else:
+                str_payee = ''
 
+            data = [
+                obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
+                obj.bankaccount.accountnumber if obj.bankaccount is not None else '',
+                obj.department.departmentname if obj.department is not None else '',
+                str_firstname + " " + str_lastname,
+                obj.customer.name if obj.customer is not None else '',
+                obj.unit.description if obj.unit is not None else '',
+                obj.branch.description if obj.branch is not None else '',
+                obj.product.description if obj.product is not None else '',
+                obj.inputvat.description if obj.inputvat is not None else '',
+                obj.outputvat.description if obj.outputvat is not None else '',
+                obj.vat.description if obj.vat is not None else '',
+                obj.wtax.description if obj.wtax is not None else '',
+                obj.ataxcode.code if obj.ataxcode is not None else '',
+                str_payee,
+                DateFormat(obj.of_date).format('Y-m-d'),
+                obj.debitamount__sum,
+                obj.creditamount__sum,
+            ]
+
+        temp_amount_placement = amount_placement
         for col_num in xrange(len(data)):
-            if col_num == amount_placement:
-                amount_placement += 1
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
                 worksheet.write_number(row, col_num, data[col_num], money_format)
             else:
                 worksheet.write(row, col_num, data[col_num])
@@ -1808,6 +1745,11 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         data = [
             "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
             "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
         ]
 

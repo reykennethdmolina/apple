@@ -32,14 +32,28 @@
             margin-left: 110px;
             height: 21px;
         }
-        #rep_b_print{
+{#        #rep_b_print{#}
+{#            position: absolute;#}
+{#            padding: 15px;#}
+{#            margin: -12px;#}
+{#            color: white;#}
+{#            font-size: 15px;#}
+{#            padding-left: 44px;#}
+{#            padding-right: 44px;#}
+{#        }#}
+        #rep_b_print, #rep_b_xls{
             position: absolute;
             padding: 15px;
             margin: -12px;
             color: white;
             font-size: 15px;
-            padding-left: 44px;
-            padding-right: 44px;
+            padding-left: 20px;
+            padding-right: 12px;
+        }
+        #rep_b_xls{
+            padding-left: 20px;
+            padding-right: 12px;
+            margin-left: 41px;
         }
         #iframe{
             width: 100%;
@@ -48,7 +62,7 @@
             z-index: 100;
         }
         #iframe_preview{
-            padding: 40px;
+            padding: 10px;
             margin: auto;
         }
         .shade{
@@ -71,17 +85,18 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <a href="#_" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
-                            <i class="icon fa-print" aria-hidden="true"></i>&nbsp;&nbsp;Print
+                            <i class="icon fa-print" aria-hidden="true"></i>
                         </a>
-                        <div id="rep_f_keyword">
-                            <b>MORE FILTERS...</b>
-                        </div>
+                        <a href="{% url 'replenish_pcv:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
+                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                        <div id="rep_f_keyword"></div>
                     </h3>
                     <div class="panel-actions">
                         <a class="btn btn-panel btn-info waves-effect waves-dark" id="rep_b_search" style="padding-left: 23px;padding-right: 23px;margin-right: -3px;">
                             <i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search
                         </a>
-                        <a class="btn btn-panel btn-success icon_minus-06 waves-effect waves-dark" data-toggle="panel-collapse" aria-hidden="true" style="padding: 16.5px"></a>
+                        <a class="btn btn-panel btn-info icon_minus-06 waves-effect waves-dark" data-toggle="panel-collapse" aria-hidden="true" style="padding: 16.5px"></a>
                     </div>
                 </div>
                 <div class="panel-body" style="padding: 20px;">
