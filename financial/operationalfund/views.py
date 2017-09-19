@@ -679,12 +679,24 @@ class UpdateViewCashier(UpdateView):
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
         context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
-        context['requested'] = 'False' if self.object.reppcvmain is None else 'True'
+
+        # for PCVs
+        context['pcv_requested'] = 'False' if self.object.reppcvmain is None else 'True'
         context['reppcvnum'] = self.object.reppcvmain.reppcvnum if self.object.reppcvmain else 'N/A'
         context['reppcvdate'] = self.object.reppcvmain.reppcvdate if self.object.reppcvmain else 'N/A'
-        context['replenished'] = 'False' if self.object.cvmain is None else 'True'
+        context['pcv_replenished'] = 'False' if self.object.cvmain is None else 'True'
         context['cvnum'] = self.object.cvmain.cvnum if self.object.cvmain else 'N/A'
         context['cvdate'] = self.object.cvmain.cvdate if self.object.cvmain else 'N/A'
+        # for PCVs
+
+        # for RFVs
+        context['rfv_requested'] = 'False' if self.object.reprfvmain is None else 'True'
+        context['reprfvnum'] = self.object.reprfvmain.reprfvnum if self.object.reprfvmain else 'N/A'
+        context['reprfvdate'] = self.object.reprfvmain.reprfvdate if self.object.reprfvmain else 'N/A'
+        context['rfv_replenished'] = 'False' if self.object.apmain is None else 'True'
+        context['apnum'] = self.object.apmain.apnum if self.object.apmain else 'N/A'
+        context['apdate'] = self.object.apmain.apdate if self.object.apmain else 'N/A'
+        # for RFVs
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
