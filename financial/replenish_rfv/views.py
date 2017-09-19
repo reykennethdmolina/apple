@@ -84,6 +84,31 @@ class CreateView(ListView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Reprfvmain
+    template_name = 'replenish_rfv/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['reprfvmain'] = Reprfvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['reprfvdetail'] = Reprfvdetail.objects.filter(reprfvmain=self.kwargs['pk'], isdeleted=0).\
+            order_by('ofmain_id')
+        context['ofitem'] = Ofitem.objects.filter(isdeleted=0, status='A', ofmain__reprfvmain=self.kwargs['pk'],
+                                                  ofitemstatus='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedreprfv = Reprfvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedreprfv.print_ctr += 1
+        printedreprfv.save()
+        return context
+
+
 @csrf_exempt
 def replenish(request):
     if request.method == 'POST':
@@ -125,7 +150,7 @@ def replenish(request):
             newreprfvdetail.reprfvmain = newreprfv
             total_amount += newreprfvdetail.amount
             newreprfvdetail.save()
-            data.newreprfvdetail = newreprfvdetail
+            data.reprfvdetail = newreprfvdetail
             data.reprfvmain = newreprfv
             data.save()
 

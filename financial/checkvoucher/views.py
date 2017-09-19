@@ -159,14 +159,9 @@ class CreateView(CreateView):
 
         print 'cvnum: ' + cvnum
         print self.request.POST['payee']
-        print self.request.POST['hiddenpayee']
-        print self.request.POST['hiddenpayeeid']
-        if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-            self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-            self.object.payee_code = self.object.payee.code
-            self.object.payee_name = self.object.payee.name
-        else:
-            self.object.payee_name = self.request.POST['payee']
+        self.object.payee = Supplier.objects.get(pk=self.request.POST['payee'])
+        self.object.payee_code = self.object.payee.code
+        self.object.payee_name = self.object.payee.name
 
         self.object.cvnum = cvnum
         self.object.enterby = self.request.user
@@ -303,9 +298,9 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['payee'] = Cvmain.objects.get(pk=self.object.id).payee.id if Cvmain.objects.get(
-            pk=self.object.id).payee is not None else ''
-        context['payee_name'] = Cvmain.objects.get(pk=self.object.id).payee_name
+        # context['payee'] = Cvmain.objects.get(pk=self.object.id).payee.id if Cvmain.objects.get(
+        #     pk=self.object.id).payee is not None else ''
+        # context['payee_name'] = Cvmain.objects.get(pk=self.object.id).payee_name
         context['originalcvstatus'] = Cvmain.objects.get(pk=self.object.id).cvstatus
         context['actualapprover'] = None if Cvmain.objects.get(pk=self.object.id).actualapprover is None else Cvmain.objects.get(pk=self.object.id).actualapprover.id
         context['approverremarks'] = Cvmain.objects.get(pk=self.object.id).approverremarks
@@ -316,6 +311,11 @@ class UpdateView(UpdateView):
         cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).aggregate(Sum('amount'))
         context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
         context['cvnum'] = self.object.cvnum
+
+        if self.request.POST.get('payee', False):
+            context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
+        elif self.object.payee:
+            context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
 
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
@@ -349,14 +349,14 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
 
         if self.request.POST['originalcvstatus'] != 'R':
-            if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
-                self.object.payee = Supplier.objects.get(pk=self.request.POST['hiddenpayeeid'])
-                self.object.payee_code = self.object.payee.code
-                self.object.payee_name = self.object.payee.name
-            else:
-                self.object.payee = None
-                self.object.payee_code = None
-                self.object.payee_name = self.request.POST['payee']
+            # if self.request.POST['payee'] == self.request.POST['hiddenpayee']:
+            self.object.payee = Supplier.objects.get(pk=self.request.POST['payee'])
+            self.object.payee_code = self.object.payee.code
+            self.object.payee_name = self.object.payee.name
+            # else:
+            #     self.object.payee = None
+            #     self.object.payee_code = None
+            #     self.object.payee_name = self.request.POST['payee']
 
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
@@ -365,7 +365,7 @@ class UpdateView(UpdateView):
             self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
                                             'bankaccount', 'disbursingbranch', 'inputvattype', 'deferredvat',
                                             'currency', 'fxrate', 'cvstatus', 'remarks', 'branch', 'checknum',
-                                            'checkdate', 'vatrate', 'atcrate'])
+                                            'checkdate', 'vatrate', 'atcrate', 'payee', 'payee_code', 'payee_name'])
 
             if self.object.cvstatus == 'F':
                 print "heyy F"
@@ -673,6 +673,62 @@ def importreppcv(request):
             'atc': first_ofitem.atc_id,
             'inputvattype': first_ofitem.inputvattype_id,
             'deferredvat': first_ofitem.deferredvat
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def manualcvautoentry(request):
+    # auto-entry for manually created CVs
+    # credit side: CASH IN BANK (get from parameter file)
+    #              Bank account: get from main; if none, get bank account of branch
+    if request.method == 'POST':
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'cvnum' in request.POST:
+            if request.POST['cvnum']:
+                updateallquery(request.POST['table'], request.POST['cvnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        # insert Cash In Bank acctg entry in cvdetailtemp
+        cvdetailtemp = Cvdetailtemp()
+        cvdetailtemp.item_counter = 1
+        cvdetailtemp.secretkey = request.POST['secretkey']
+        cvdetailtemp.cv_date = datetime.datetime.now()
+        cvdetailtemp.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank.id
+        if request.POST['bankaccount']:
+            bank_account = int(request.POST['bankaccount'])
+        elif request.POST['branch']:
+            if Branch.objects.get(pk=int(request.POST['branch'])).bankaccount:
+                bank_account = Branch.objects.get(pk=int(request.POST['branch'])).bankaccount.id
+            else:
+                bank_account = Companyparameter.objects.get(code='PDI').def_bankaccount.id
+        else:
+            bank_account = Companyparameter.objects.get(code='PDI').def_bankaccount.id
+        cvdetailtemp.bankaccount = bank_account
+        cvdetailtemp.creditamount = request.POST['amount'].replace(',', '')
+        cvdetailtemp.balancecode = 'C'
+        cvdetailtemp.enterby = request.user
+        cvdetailtemp.modifyby = request.user
+        cvdetailtemp.save()
+        # insert Cash In Bank acctg entry in cvdetailtemp
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
         }
     else:
         data = {

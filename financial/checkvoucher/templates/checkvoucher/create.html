@@ -95,16 +95,18 @@
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
-                                        <div class="input-search">
-                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"
-                                                    data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"
-                                                    data-currency="0" data-fxrate="0.00" data-bankaccount="" data-disbursingbranch="">
-                                                <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>
-                                                    <i class="icon fa-ellipsis-h" aria-hidden="true"></i>
-                                                </button>
-                                        </div>
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee">
-                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid">
+{#                                        <div class="input-search">#}
+{#                                            <input type="text" data-validation="required" class="form-control input-sm" id="id_payee" name="payee" style="text-transform:uppercase;"#}
+{#                                                    data-vat="0" data-atc="0" data-inputvattype="0" data-deferredvat="N"#}
+{#                                                    data-currency="0" data-fxrate="0.00" data-bankaccount="" data-disbursingbranch="">#}
+{#                                                <button type="button" class="input-search-button" data-toggle='modal' data-target='#lookupModal'>#}
+{#                                                    <i class="icon fa-ellipsis-h" aria-hidden="true"></i>#}
+{#                                                </button>#}
+{#                                        </div>#}
+{#                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayee" name="hiddenpayee">#}
+{#                                    <input type="hidden" class="form-control input-sm" id="id_hiddenpayeeid" name="hiddenpayeeid">#}
+                                    <select class="form-control input-sm select2" id="id_payee" name="payee">
+                                    </select>
                                     <span class="help-block form-error">{{ form.payee.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-5">
@@ -372,29 +374,29 @@
                     </div>
                 </div>
             </div>
-            <div id="lookupModal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Payee Lookup</h4>
-                        </div>
-                        <div class="modal-body" style="overflow:hidden;">
-                            <div class="row">
-                                <div class="form-group col-md-12">
-                                    <select class="form-control input-sm ajaxselect2 col-sm-12" style="width: 565px;"
-                                            id="id_payeelookup" name="payeelookup">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-info" id="payeeconfirm" disabled="disabled">Confirm</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{#            <div id="lookupModal" class="modal fade" role="dialog">#}
+{#                <div class="modal-dialog">#}
+{#                    <div class="modal-content">#}
+{#                        <div class="modal-header">#}
+{#                            <button type="button" class="close" data-dismiss="modal">&times;</button>#}
+{#                            <h4 class="modal-title">Payee Lookup</h4>#}
+{#                        </div>#}
+{#                        <div class="modal-body" style="overflow:hidden;">#}
+{#                            <div class="row">#}
+{#                                <div class="form-group col-md-12">#}
+{#                                    <select class="form-control input-sm ajaxselect2 col-sm-12" style="width: 565px;"#}
+{#                                            id="id_payeelookup" name="payeelookup">#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-info" id="payeeconfirm" disabled="disabled">Confirm</button>#}
+{#                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
         </div>
     </div>
 </div>
@@ -415,6 +417,8 @@
     </div>
 </div>
 <div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
+<div id="required-amount-error" class="custom-alert danger">Amount is required.</div>
+<div id="required-fields-error" class="custom-alert danger">Bank Account or Branch field must have a value.</div>
 <div id="check-pcvrep-error" class="custom-alert danger">Please check at least one request for Petty Cash replenishment.</div>
 <div id="zero-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must not be zero.</div>
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
@@ -511,85 +515,118 @@
 
             $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
 
-            $('#id_payeelookup').on("change", function(e) {
-                $('#payeeconfirm').prop('disabled', false);
+            $('#id_payee').on('change', function(e){
+                $.ajax({
+                    url: "{% url 'supplier:getsupplierdata' %}",
+                    type: "post",
+                    data: {'supplierid': $('#id_payee').val()
+                    },
+                    success: function(response) {
+                        $('#id_vat').val(response.vat);
+                        $('#id_atc').val(response.atc);
+                        $('#id_inputvattype').val(response.inputvattype);
+                        $('#id_deferredvat').val(response.deferredvat);
+                        $('#id_currency').val(response.currency);
+                        $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
+                        showRate("#id_vat", "vatrate", "RATE");
+                        showRate("#id_atc", "atcrate", "RATE");
+                        $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');
+                        $('#id_disbursingbranch').val(response.bankbranchdisburse);
+
+{#                        $('#id_payee').data('vat', response.vat);#}
+{#                        $('#id_payee').data('atc', response.atc);#}
+{#                        $('#id_payee').data('inputvattype', response.inputvattype);#}
+{#                        $('#id_payee').data('deferredvat', response.deferredvat);#}
+{#                        $('#id_payee').data('currency', response.currency);#}
+{#                        $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));#}
+{#                        $('#id_payee').data('bankaccount', response.bankaccount);#}
+{#                        $('#id_payee').data('disbursingbranch', response.bankbranchdisburse);#}
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
             });
 
-            $('#payeeconfirm').click(function(){
-                if($('#id_payeelookup').val() == null){
-                    console.log("test");
-                    alert("Please select a payee first.");
-                }
-                else {
-                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();
-                    $('#id_payee').val(content);
-                    $('#id_hiddenpayee').val(content);
-                    $('#id_hiddenpayeeid').val($('#id_payeelookup').val());
+{#            $('#id_payeelookup').on("change", function(e) {#}
+{#                $('#payeeconfirm').prop('disabled', false);#}
+{#            });#}
 
-                    $.ajax({
-                        url: "{% url 'supplier:getsupplierdata' %}",
-                        type: "post",
-                        data: {'supplierid': $('#id_payeelookup').val()
-                        },
-                        success: function(response) {
-                            $('#id_vat').val(response.vat);
-                            $('#id_atc').val(response.atc);
-                            $('#id_inputvattype').val(response.inputvattype);
-                            $('#id_deferredvat').val(response.deferredvat);
-                            $('#id_currency').val(response.currency);
-                            $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));
-                            showRate("#id_vat", "vatrate", "RATE");
-                            showRate("#id_atc", "atcrate", "RATE");
-                            $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');
-                            $('#id_disbursingbranch').val(response.bankbranchdisburse);
-
-                            $('#id_payee').data('vat', response.vat);
-                            $('#id_payee').data('atc', response.atc);
-                            $('#id_payee').data('inputvattype', response.inputvattype);
-                            $('#id_payee').data('deferredvat', response.deferredvat);
-                            $('#id_payee').data('currency', response.currency);
-                            $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));
-                            $('#id_payee').data('bankaccount', response.bankaccount);
-                            $('#id_payee').data('disbursingbranch', response.bankbranchdisburse);
-                        },
-                        error: function(response) {
-                            console.debug(response);
-                        }
-                    });
-
-                    $("#lookupModal .close").click();
-                }
-            });
+{#            $('#payeeconfirm').click(function(){#}
+{#                if($('#id_payeelookup').val() == null){#}
+{#                    console.log("test");#}
+{#                    alert("Please select a payee first.");#}
+{#                }#}
+{#                else {#}
+{#                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();#}
+{#                    $('#id_payee').val(content);#}
+{#                    $('#id_hiddenpayee').val(content);#}
+{#                    $('#id_hiddenpayeeid').val($('#id_payeelookup').val());#}
+{##}
+{#                    $.ajax({#}
+{#                        url: "{% url 'supplier:getsupplierdata' %}",#}
+{#                        type: "post",#}
+{#                        data: {'supplierid': $('#id_payeelookup').val()#}
+{#                        },#}
+{#                        success: function(response) {#}
+{#                            $('#id_vat').val(response.vat);#}
+{#                            $('#id_atc').val(response.atc);#}
+{#                            $('#id_inputvattype').val(response.inputvattype);#}
+{#                            $('#id_deferredvat').val(response.deferredvat);#}
+{#                            $('#id_currency').val(response.currency);#}
+{#                            $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));#}
+{#                            showRate("#id_vat", "vatrate", "RATE");#}
+{#                            showRate("#id_atc", "atcrate", "RATE");#}
+{#                            $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');#}
+{#                            $('#id_disbursingbranch').val(response.bankbranchdisburse);#}
+{##}
+{#                            $('#id_payee').data('vat', response.vat);#}
+{#                            $('#id_payee').data('atc', response.atc);#}
+{#                            $('#id_payee').data('inputvattype', response.inputvattype);#}
+{#                            $('#id_payee').data('deferredvat', response.deferredvat);#}
+{#                            $('#id_payee').data('currency', response.currency);#}
+{#                            $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));#}
+{#                            $('#id_payee').data('bankaccount', response.bankaccount);#}
+{#                            $('#id_payee').data('disbursingbranch', response.bankbranchdisburse);#}
+{#                        },#}
+{#                        error: function(response) {#}
+{#                            console.debug(response);#}
+{#                        }#}
+{#                    });#}
+{##}
+{#                    $("#lookupModal .close").click();#}
+{#                }#}
+{#            });#}
 
             if($("#id_ofstatus option:selected").text() == "For Approval")
                 $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
 
-            $('#id_payee').on('input', function() {
-                if($('#id_payee').val() == $('#id_hiddenpayee').val()){
-                    $('#id_vat').val($(this).data('vat'));
-                    $('#id_atc').val($(this).data('atc'));
-                    $('#id_inputvattype').val($(this).data('inputvattype'));
-                    $('#id_deferredvat').val($(this).data('deferredvat'));
-                    $('#id_currency').val($(this).data('currency'));
-                    $('#id_fxrate').val($(this).data('fxrate'));
-                    showRate("#id_vat", "vatrate", "RATE");
-                    showRate("#id_atc", "atcrate", "RATE");
-                    $('#id_bankaccount').val($(this).data('bankaccount')).trigger('change.select2');
-                    $('#id_disbursingbranch').val($(this).data('disbursingbranch'));
-                }
-                else {
-                    $('#id_vat').val("");
-                    $('#id_atc').val("");
-                    $('#id_inputvattype').val("");
-                    $('#id_deferredvat').val("N");
-                    $('#id_currency').val("1");
-                    $('#id_fxrate').val("1.00");
-                    showRate("#id_vat", "vatrate", "RATE");
-                    showRate("#id_atc", "atcrate", "RATE");
-                    $('#id_bankaccount').val("").trigger('change.select2');
-                    $('#id_disbursingbranch').val("");
-                }
-            });
+{#            $('#id_payee').on('input', function() {#}
+{#                if($('#id_payee').val() == $('#id_hiddenpayee').val()){#}
+{#                    $('#id_vat').val($(this).data('vat'));#}
+{#                    $('#id_atc').val($(this).data('atc'));#}
+{#                    $('#id_inputvattype').val($(this).data('inputvattype'));#}
+{#                    $('#id_deferredvat').val($(this).data('deferredvat'));#}
+{#                    $('#id_currency').val($(this).data('currency'));#}
+{#                    $('#id_fxrate').val($(this).data('fxrate'));#}
+{#                    showRate("#id_vat", "vatrate", "RATE");#}
+{#                    showRate("#id_atc", "atcrate", "RATE");#}
+{#                    $('#id_bankaccount').val($(this).data('bankaccount')).trigger('change.select2');#}
+{#                    $('#id_disbursingbranch').val($(this).data('disbursingbranch'));#}
+{#                }#}
+{#                else {#}
+{#                    $('#id_vat').val("");#}
+{#                    $('#id_atc').val("");#}
+{#                    $('#id_inputvattype').val("");#}
+{#                    $('#id_deferredvat').val("N");#}
+{#                    $('#id_currency').val("1");#}
+{#                    $('#id_fxrate').val("1.00");#}
+{#                    showRate("#id_vat", "vatrate", "RATE");#}
+{#                    showRate("#id_atc", "atcrate", "RATE");#}
+{#                    $('#id_bankaccount').val("").trigger('change.select2');#}
+{#                    $('#id_disbursingbranch').val("");#}
+{#                }#}
+{#            });#}
 
             $("#id_cvstatus").change(function(){
               if($(this).val() == 'R'){
@@ -619,61 +656,105 @@
             $("#importreppcvconfirm").click(function(){
                 if(confirm("Are you sure you want to import the selected PCV replenishment requests? You cannot undo " +
                                 "this action once the Check Voucher is submitted.")){
-                    importRepPCVWithAutoEntry();
+                    autoEntry('pcv_import');
                 }
             });
 
             $("#autobutton").click(function(){
                 if($('.item-check:checked').length == 0){
-                    customAlert($('#check-pcvrep-error'));
+                    //customAlert($('#check-pcvrep-error'));
+
+                    //this means CV is created manually, check if bank account or branch has value
+                    if($('#id_bankaccount').val() == '' && $('#id_branch').val() == '') {
+                        customAlert($('#required-fields-error'));
+                    }
+                    else if($('#id_amount').val() == '' || $('#id_amount').val() == '0.00'){
+                        customAlert($('#required-amount-error'));
+                    }
+                    else {
+                        autoEntry('manual');
+                    }
                 }
                 else {
-                    importRepPCVWithAutoEntry();
+                    autoEntry('pcv_import');
                 }
             });
 
-            function importRepPCVWithAutoEntry(){
-                var refnos = "";
-                var data = {'checked_reppcvmain[]': [],
-                            'secretkey': $("#secretkey").val(),
-                            'table': "cvdetailtemp",
-                            'csrfmiddlewaretoken': "{{csrf_token}}"};
-                $('.item-check:checked').each(function(){
-                    refnos += $("label[for='"+this.id+"']").text() + ", ";
-                    data['checked_reppcvmain[]'].push($(this).val());
-                });
+            function autoEntry(create_method){
+                if(create_method == 'pcv_import'){
+                    var refnos = "";
+                    var data = {'checked_reppcvmain[]': [],
+                                'secretkey': $("#secretkey").val(),
+                                'table': "cvdetailtemp",
+                                'csrfmiddlewaretoken': "{{csrf_token}}"};
+                    $('.item-check:checked').each(function(){
+                        refnos += $("label[for='"+this.id+"']").text() + ", ";
+                        data['checked_reppcvmain[]'].push($(this).val());
+                    });
 
-                $("#id_cvtype option:contains('NON-AP')").attr('selected', 'selected');
-                $("#id_cvsubtype option:contains('Petty Cash Replenishment')").attr('selected', 'selected');
-                $("#id_refnum").val(refnos.substring(0, refnos.length-2));
-                $("#id_particulars").text("Petty Cash Voucher Replenishment No.(s) " + refnos.substring(0,
-                                refnos.length-2));
-                $("#id_amount").val($("#totalamount").text()).prop("readonly", true);
-                var words = toWords($("#id_amount").val());
-                $("#id_amountinwords").val(words);
-                $("#repPCVModal .close").click();
+                    $("#id_cvtype option:contains('NON-AP')").attr('selected', 'selected');
+                    $("#id_cvsubtype option:contains('Petty Cash Replenishment')").attr('selected', 'selected');
+                    $("#id_refnum").val(refnos.substring(0, refnos.length-2));
+                    $("#id_particulars").text("Petty Cash Voucher Replenishment No.(s) " + refnos.substring(0,
+                                    refnos.length-2));
+                    $("#id_amount").val($("#totalamount").text()).prop("readonly", true);
+                    var words = toWords($("#id_amount").val());
+                    $("#id_amountinwords").val(words);
+                    $("#repPCVModal .close").click();
 
-                $('.shade').fadeIn();
-                $.ajax({
-                    url: "{% url 'checkvoucher:importreppcv' %}",
-                    type: "post",
-                    data: data,
-                    success: function(response){
-                        $('#id_branch').val(response.branch);
-                        $('#id_vat').val(response.vat);
-                        $('#id_atc').val(response.atc);
-                        $('#id_inputvattype').val(response.inputvattype);
-                        $('#id_deferredvat').val(response.deferredvat);
-                        showRate("#id_vat", "vatrate", "RATE");
-                        showRate("#id_atc", "atcrate", "RATE");
-                        $("#datatable").html(response['datatable']);
-                        customAlert($('#autoentry-success'));
-                        $('.shade').fadeOut();
-                    }, error: function(response) {
-                        console.debug(response);
-                        $('.shade').fadeOut();
-                    }
-                });
+                    $('.shade').fadeIn();
+                    $.ajax({
+                        url: "{% url 'checkvoucher:importreppcv' %}",
+                        type: "post",
+                        data: data,
+                        success: function(response){
+                            $('#id_branch').val(response.branch);
+                            $('#id_vat').val(response.vat);
+                            $('#id_atc').val(response.atc);
+                            $('#id_inputvattype').val(response.inputvattype);
+                            $('#id_deferredvat').val(response.deferredvat);
+                            showRate("#id_vat", "vatrate", "RATE");
+                            showRate("#id_atc", "atcrate", "RATE");
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+                            $("#autobutton").hide();
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
+                else if(create_method == 'manual'){
+                    $('.shade').fadeIn();
+                    $.ajax({
+                        url: "{% url 'checkvoucher:manualcvautoentry' %}",
+                        type: "post",
+                        data: {'bankaccount': $("#id_bankaccount").val(),
+                               'branch': $("#id_branch").val(),
+                               'amount': $("#id_amount").val(),
+                               'secretkey': $("#secretkey").val(),
+                               'table': "cvdetailtemp",
+                               'csrfmiddlewaretoken': "{{csrf_token}}"
+                        },
+                        success: function(response){
+{#                            $('#id_branch').val(response.branch);#}
+{#                            $('#id_vat').val(response.vat);#}
+{#                            $('#id_atc').val(response.atc);#}
+{#                            $('#id_inputvattype').val(response.inputvattype);#}
+{#                            $('#id_deferredvat').val(response.deferredvat);#}
+{#                            showRate("#id_vat", "vatrate", "RATE");#}
+{#                            showRate("#id_atc", "atcrate", "RATE");#}
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+{#                            $("#autobutton").hide();#}
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
             }
 
             function showRate(field, rateSpan, defaultText){
@@ -714,6 +795,7 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-        ajaxselect2("supplier_payee");
+{#        ajaxselect2("supplier_payee");#}
+        ajaxselect2("supplier_payee", "id_payee");
     </script>
 {% endblock extra_js %}
