@@ -23,9 +23,6 @@ urlpatterns = [
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
     url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
-    # url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     # url(r'^savedetailtemp/$', views.savedetailtemp, name='savedetailtemp'),
     # url(r'^deletedetailtemp/$', views.deletedetailtemp, name='deletedetailtemp'),
-    # url(r'^page/(?P<command>[\w\-]+)/(?P<current>[0-9]+)/(?P<limit>[0-9]+)/(?P<search>[\w\-]+)/$', views.paginate,
-    #     name='paginate'),
 ]
