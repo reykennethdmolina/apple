@@ -1,0 +1,150 @@
+{% load endless %}
+{% load humanize %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th><span>ID</span></th>
+            <th><span>Number</span></th>
+            <th><span>Date</span></th>
+            <th><span>AP Number</span></th>
+            <th><span>AP Date</span></th>
+            <th><span>Turn-Around Time</span></th>
+            <th class="text-right"><span>Amount</span></th>
+            <th class="text-center"><span>Action</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in data_list %}
+        <tr>
+            <td>{{ data.id }}</td>
+            <td>{{ data.reprfvnum }}</td>
+            <td>{{ data.reprfvdate|date:"Y-m-d" }}</td>
+            <td>{{ data.apmain.apnum|default:'N/A' }}</td>
+            <td>{{ data.apmain.apdate|date:'Y-m-d'|default:'N/A' }}</td>
+            <td>{% if data.enterdate <= data.apmain.enterdate  %}{{ data.enterdate|timesince:data.apmain.enterdate }}{% else %}{{ data.enterdate|timesince }}{% endif %}</td>
+            <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+            <td style="width: 115px; text-align: center;">
+                <div class="iconlist-wrap auto-0">
+                    <a href="" data-toggle="modal" data-id="{{ data.id }}" data-number="{{ data.reprfvnum }}" data-date="{{ data.reprfvdate|date:"Y-m-d" }}" data-target="#detailsModal" class="linkDetail">View Details</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<div id="detailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">RFV Replenishment Details</h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <div class="form-group col-md-6 row">
+                            <label class="control-label">Number:&nbsp;&nbsp;&nbsp;&nbsp;<span id="reprfv_number"></span></label>
+                        </div>
+                        <div class="form-group col-md-6 row">
+                            <label class="control-label">Date:&nbsp;&nbsp;&nbsp;&nbsp;<span id="reprfv_date"></span></label>
+                        </div>
+                        <div class="form-group col-md-1 row">
+                            <a href="{% url 'replenish_pcv:pdf' 0 %}" style="text-align: right" target="_blank" id="pdflink">
+                                <button type="button" class="btn btn-info btn-sm waves-effect waves-light"
+                                        style="line-height: 0.5px; font-size: 10px;padding-right: 10px;">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
+                                </button>
+                            </a>
+                        </div>
+                        <br>
+                        <table class="col-md-12 table-bordered small" id="reprfvdetailspreview">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center; padding-bottom: 5px; padding-top: 5px;"><b>OF No.</b></th>
+                                    <th style="text-align: center; padding-bottom: 5px; padding-top: 5px;"><b>OF Date</b></th>
+                                    <th style="text-align: center; padding-bottom: 5px; padding-top: 5px;"><b>Particulars</b></th>
+                                    <th style="text-align: center; padding-bottom: 5px; padding-top: 5px;"><b>Amount</b></th>
+                                </tr>
+                            </thead>
+                            <tbody id="reprfvdetails"></tbody>
+                            <thead>
+                                <tr>
+                                    <th style="border-left: none; border-right: none; text-align: right; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;" colspan="3"><b>TOTAL:</b></th>
+                                    <th style="border-left: none; border-right: none; text-align: right; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;"><b><span id="reprfv_totalamount">0.00</span></b></th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        var temp_param = '0';
+
+        if($_GET('id') != null){
+            $("#detailsModal").modal('show');
+
+            $('#reprfv_number').text($_GET('number'));
+            $('#reprfv_date').text($_GET('date'));
+            $('#pdflink').attr('href', String($('#pdflink').attr('href')).replace(temp_param + '/pdf/', $_GET('id') + '/pdf/'));
+            temp_param = $_GET('id');
+
+            fetchDetails($_GET('number'));
+        }
+
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+
+        $('.linkDetail').on('click', function () {
+            $('#reprfv_number').text($(this).data('number'));
+            $('#reprfv_date').text($(this).data('date'));
+            $('#pdflink').attr('href', String($('#pdflink').attr('href')).replace(temp_param + '/pdf/', $(this).data('id') + '/pdf/'));
+            temp_param = $(this).data('id');
+
+            fetchDetails($(this).data('number'));
+        });
+
+        function fetchDetails(reprfvnum){
+            $.ajax({
+                url: "{% url 'replenish_rfv:fetch_details' %}",
+                type: "post",
+                data: {'reprfvnum': reprfvnum
+                },
+                success: function(response){
+                    $('#reprfvdetails').html('');
+                    var total_amount = 0;
+                    for(var i=0; i<response.detail.length; i++){
+                        $('#reprfvdetails').append('<tr>' +
+                                    '<td width="25%" style="text-align: center; padding: 5px;">' + response.detail[i][1] + '</td>' +
+                                    '<td width="15%" style="text-align: center; padding: 5px;">' + response.detail[i][2] + '</td>' +
+                                    '<td width="35%" style="text-align: left; padding: 5px;">' + response.detail[i][3] + '</td>' +
+                                    '<td width="25%" style="text-align: right; padding-right: 10px; padding: 5px;">' + parseFloat(response.detail[i][4]).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</td>' +
+                            '</tr>');
+                        total_amount += parseFloat(response.detail[i][4]);
+                    }
+                    total_amount = total_amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    $('#reprfv_totalamount').text(total_amount) ;
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
+    });
+</script>

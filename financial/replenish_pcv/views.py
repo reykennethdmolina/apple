@@ -1,40 +1,18 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import ListView
 from utils.mixins import ReportContentMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
-from django.http import HttpResponseRedirect, Http404
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from . models import Reppcvmain, Reppcvdetail
-from ataxcode.models import Ataxcode
-from branch.models import Branch
-from chartofaccount.models import Chartofaccount
 from companyparameter.models import Companyparameter
-from creditterm.models import Creditterm
-from currency.models import Currency
-from inputvattype.models import Inputvattype
 from oftype.models import Oftype
-from ofsubtype.models import Ofsubtype
-from supplier.models import Supplier
-from vat.models import Vat
-from wtax.models import Wtax
-from employee.models import Employee
-from department.models import Department
-from inputvat.models import Inputvat
 from operationalfund. models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
-    validatetable, deleteallquery
-from django.template.loader import render_to_string
-from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 from endless_pagination.views import AjaxListView
-from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
-import json
-from pprint import pprint
-from dateutil.relativedelta import relativedelta
 
 
 @method_decorator(login_required, name='dispatch')
@@ -53,17 +31,6 @@ class IndexView(AjaxListView):
                                  Q(cvmain__cvnum__icontains=keysearch) |
                                  Q(amount__icontains=keysearch))
         return query
-
-    def get_context_data(self, **kwargs):
-        context = super(AjaxListView, self).get_context_data(**kwargs)
-
-        context['listcount'] = Ofmain.objects.all().count()
-        context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).\
-            filter(isdeleted=0).count()
-        context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
-        context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
-
-        return context
 
 
 @method_decorator(login_required, name='dispatch')

@@ -264,6 +264,8 @@ def ajaxSearch(request):
                 items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
             if request.POST['cache_cvtype']:
                 items = items.filter(cvtype=int(request.POST['cache_cvtype']))
+            if request.POST['cache_cvsubtype']:
+                items = items.filter(cvsubtype=int(request.POST['cache_cvsubtype']))
             if request.POST['cache_branch']:
                 items = items.filter(branch=int(request.POST['cache_branch']))
             if request.POST['cache_cvstatus']:

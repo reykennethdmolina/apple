@@ -18,7 +18,7 @@
             <tr>
                 <td>{{ data.id }}</td>
                 <td>{{ data.apnum }}</td>
-                <td>{{ data.apdate }}</td>
+                <td>{{ data.apdate|date:'Y-m-d' }}</td>
                 <td>{{ data.get_aptype_display }}</td>
                 <td>{{ data.get_apstatus_display }}</td>
                 <td style="width: 150px; padding-left: 30px">

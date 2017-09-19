@@ -79,6 +79,14 @@ class Ofmain(models.Model):
     cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='ofmain_cvmain_id', null=True, blank=True)
     # pcv replenishment fields
 
+    # rfv replenishment fields
+    reprfvmain = models.ForeignKey('replenish_rfv.Reprfvmain', related_name='ofmain_reprfvmain_id', null=True,
+                                   blank=True)
+    reprfvdetail = models.ForeignKey('replenish_rfv.Reprfvdetail', related_name='ofmain_reprfvdetail_id', null=True,
+                                     blank=True)
+    apmain = models.ForeignKey('accountspayable.Apmain', related_name='ofmain_apmain_id', null=True, blank=True)
+    # rfv replenishment fields
+
     class Meta:
         db_table = 'ofmain'
         ordering = ['-pk']

@@ -69,10 +69,10 @@
 									</div>
                                 </div>
                                 <div class="form-group col-sm-4 margin-bottom-10">
-                                    <label class="control-label small">Branch</label>
-                                    <select class="form-control input-sm" id="cache_branch">
+                                    <label class="control-label small">CV Subtype</label>
+                                    <select class="form-control input-sm" id="cache_cvsubtype">
                                         <option value="">-- Select --</option>
-                                        {% for data in branch %}
+                                        {% for data in cvsubtype %}
                                             <option value="{{ data.id }}">{{ data.description }}</option>
                                         {% endfor %}
                                     </select>
@@ -81,13 +81,22 @@
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10">
                             <div class="row">
-                                <div class="form-group col-sm-8 margin-bottom-10">
+                                <div class="form-group col-sm-4 margin-bottom-10">
                                     <label class="control-label small">Payee</label>
                                     <input type="text" class="form-control input-sm" id="cache_payee_name">
                                 </div>
                                 <div class="form-group col-sm-4 margin-bottom-10">
                                     <label class="control-label small">Check No.</label>
                                     <input type="text" class="form-control input-sm" id="cache_checknum">
+                                </div>
+                                <div class="form-group col-sm-4 margin-bottom-10">
+                                    <label class="control-label small">Branch</label>
+                                    <select class="form-control input-sm" id="cache_branch">
+                                        <option value="">-- Select --</option>
+                                        {% for data in branch %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -250,6 +259,7 @@
                         JSON.parse(retrieveFilters)[0]['fil_cvnum_from'],
                         JSON.parse(retrieveFilters)[0]['fil_cvnum_to'],
                         JSON.parse(retrieveFilters)[0]['fil_cvtype'],
+                        JSON.parse(retrieveFilters)[0]['fil_cvsubtype'],
                         JSON.parse(retrieveFilters)[0]['fil_cvdate_from'],
                         JSON.parse(retrieveFilters)[0]['fil_cvdate_to'],
                         JSON.parse(retrieveFilters)[0]['fil_branch'],
@@ -283,6 +293,7 @@
                     'cache_cvnum_from': $("#cache_cvnum_from").val(),
                     'cache_cvnum_to': $("#cache_cvnum_to").val(),
                     'cache_cvtype': $("#cache_cvtype").val(),
+                    'cache_cvsubtype': $("#cache_cvsubtype").val(),
                     'cache_cvdate_from': $("#cache_cvdate_from").val(),
                     'cache_cvdate_to': $("#cache_cvdate_to").val(),
                     'cache_branch': $("#cache_branch").val(),
@@ -317,6 +328,7 @@
                                 fil_cvnum_from: $("#cache_cvnum_from").val(),
                                 fil_cvnum_to: $("#cache_cvnum_to").val(),
                                 fil_cvtype: $("#cache_cvtype").val(),
+                                fil_cvsubtype: $("#cache_cvsubtype").val(),
                                 fil_cvdate_from: $("#cache_cvdate_from").val(),
                                 fil_cvdate_to: $("#cache_cvdate_to").val(),
                                 fil_branch: $("#cache_branch").val(),
@@ -354,13 +366,14 @@
         }
 
         // fill form from cache function
-        function cachedfillform(fil_cvnum_from, fil_cvnum_to, fil_cvtype, fil_cvdate_from, fil_cvdate_to, fil_branch,
-                                fil_payee_name, fil_checknum, fil_amount_from, fil_amount_to, fil_cvstatus, fil_refnum,
-                                fil_currency, fil_vat, fil_atc, fil_inputvattype, fil_deferredvat, fil_bankaccount,
-                                fil_disbursingbranch, fil_particulars){
+        function cachedfillform(fil_cvnum_from, fil_cvnum_to, fil_cvtype, fil_cvsubtype, fil_cvdate_from, fil_cvdate_to,
+                                fil_branch, fil_payee_name, fil_checknum, fil_amount_from, fil_amount_to, fil_cvstatus,
+                                fil_refnum, fil_currency, fil_vat, fil_atc, fil_inputvattype, fil_deferredvat,
+                                fil_bankaccount, fil_disbursingbranch, fil_particulars){
             $("#cache_cvnum_from").val(fil_cvnum_from);
             $("#cache_cvnum_to").val(fil_cvnum_to);
             $("#cache_cvtype").val(fil_cvtype);
+            $("#cache_cvsubtype").val(fil_cvsubtype);
             $("#cache_cvdate_from").val(fil_cvdate_from);
             $("#cache_cvdate_to").val(fil_cvdate_to);
             $("#cache_branch").val(fil_branch);

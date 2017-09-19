@@ -131,6 +131,7 @@ INSTALLED_APPS = [
     'checkvoucher',
     'replenish_pcv',
     'cvsubtype',
+    'replenish_rfv',
 ]
 
 MIDDLEWARE_CLASSES = [
