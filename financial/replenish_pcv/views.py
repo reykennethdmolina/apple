@@ -113,7 +113,6 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
-
             
         # pdf config
         context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
