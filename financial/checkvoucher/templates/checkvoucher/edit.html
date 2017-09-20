@@ -578,12 +578,9 @@
         $(document).ready(function() {
             var approved = $('#id_cvstatus').val() != 'F';
             var approverResponse = "";
-            var defaultOfType = "Expenses";
-            var defaulyOfSubtype = "CASH ADVANCE";
             var released = $('#id_cvstatus').val() == 'R';
 
-            $("#id_oftype option:contains(" + defaultOfType + ")").attr('selected', 'selected');
-            $("#id_ofsubtype option:contains(" + defaulyOfSubtype + ")").attr('selected', 'selected');
+            $("#id_cvsubtype option:selected").siblings().attr('disabled','disabled');
 
             if($('#id_fxrate').val() == 0.00)
                 $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
@@ -596,6 +593,7 @@
                 $("#id_checkdate").datepicker("destroy");
                 $("#id_checkdate").removeClass("datepicker").removeAttr('id');
                 $("#id_cvtype option:selected").siblings().attr('disabled','disabled');
+                $("#id_cvsubtype option:selected").siblings().attr('disabled','disabled');
                 $("#id_branch option:selected").siblings().attr('disabled','disabled');
                 $("#id_bankaccount option:selected").siblings().attr('disabled','disabled');
                 $("#id_disbursingbranch option:selected").siblings().attr('disabled','disabled');
@@ -896,41 +894,80 @@
             $("#autobutton").click(function(){
                 if($('.item-amount').length == 0){
                     //customAlert($('#check-pcvrep-error'), 1500);
-                    //check if bank account has value
+                    //this means CV is created manually, check if bank account or branch has value
+                    if($('#id_bankaccount').val() == '' && $('#id_branch').val() == '') {
+                        customAlert($('#required-fields-error'));
+                    }
+                    else if($('#id_amount').val() == '' || $('#id_amount').val() == '0.00'){
+                        customAlert($('#required-amount-error'));
+                    }
+                    else {
+                        if($(".detaildelete")[0]) {
+                            if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")) {
+                                autoEntry('manual');
+                            }
+                        }
+                        else {
+                            autoEntry('manual');
+                        }
+                    }
                 }
                 else {
-                    if(confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")){
-                        autoEntry();
-                    }
+                    autoEntry('pcv_import');
                 }
             });
 
-            function autoEntry(){
-                var data = {'checked_reppcvmain[]': [],
-                            'cvnum': $("#id_cvnum").val(),
-                            'secretkey': $("#secretkey").val(),
-                            'table': "cvdetailtemp",
-                            'csrfmiddlewaretoken': "{{csrf_token}}"};
-                $('.item-reppcvnum').each(function(){
-                    data['checked_reppcvmain[]'].push($(this).data('id'));
-                });
+            function autoEntry(create_method){
+                if(create_method == 'pcv_import'){
+                    var data = {'checked_reppcvmain[]': [],
+                                'cvnum': $("#id_cvnum").val(),
+                                'secretkey': $("#secretkey").val(),
+                                'table': "cvdetailtemp",
+                                'csrfmiddlewaretoken': "{{csrf_token}}"};
+                    $('.item-reppcvnum').each(function(){
+                        data['checked_reppcvmain[]'].push($(this).data('id'));
+                    });
 
-                $("#repPCVModal .close").click();
+                    $("#repPCVModal .close").click();
 
-                $('.shade').fadeIn();
-                $.ajax({
-                    url: "{% url 'checkvoucher:importreppcv' %}",
-                    type: "post",
-                    data: data,
-                    success: function(response){
-                        $("#datatable").html(response['datatable']);
-                        customAlert($('#autoentry-success'));
-                        $('.shade').fadeOut();
-                    }, error: function(response) {
-                        console.debug(response);
-                        $('.shade').fadeOut();
-                    }
-                });
+                    $('.shade').fadeIn();
+                    $.ajax({
+                        url: "{% url 'checkvoucher:importreppcv' %}",
+                        type: "post",
+                        data: data,
+                        success: function(response){
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
+                else if(create_method == 'manual'){
+                    $('.shade').fadeIn();
+                    $.ajax({
+                        url: "{% url 'checkvoucher:manualcvautoentry' %}",
+                        type: "post",
+                        data: {'bankaccount': $("#id_bankaccount").val(),
+                               'branch': $("#id_branch").val(),
+                               'amount': $("#id_amount").val(),
+                               'cvnum': $("#id_cvnum").val(),
+                               'secretkey': $("#secretkey").val(),
+                               'table': "cvdetailtemp",
+                               'csrfmiddlewaretoken': "{{csrf_token}}"
+                        },
+                        success: function(response){
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
             }
 
             function revertCVStatus(){

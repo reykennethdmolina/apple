@@ -437,6 +437,9 @@
                 $("#repPCVModal").modal('show');
             }
 
+            $("#id_cvsubtype option:contains('Manual Check Voucher')").attr('selected', 'selected');
+            $("#id_cvsubtype option:selected").siblings().attr('disabled', 'disabled');
+
             $(document).on('change', '.item-check', function(){
                 if($('.item-check:checked').length == $('.item-check').length)
                     $('.item-check-all').prop('checked', true);
@@ -508,11 +511,6 @@
                 //events after clicking submit
             });
 
-            var defaultOfType = "Expenses";
-            var defaulyOfSubtype = "CASH ADVANCE";
-            $("#id_oftype option:contains(" + defaultOfType + ")").attr('selected', 'selected');
-            $("#id_ofsubtype option:contains(" + defaulyOfSubtype + ")").attr('selected', 'selected');
-
             $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
 
             $('#id_payee').on('change', function(e){
@@ -532,15 +530,6 @@
                         showRate("#id_atc", "atcrate", "RATE");
                         $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');
                         $('#id_disbursingbranch').val(response.bankbranchdisburse);
-
-{#                        $('#id_payee').data('vat', response.vat);#}
-{#                        $('#id_payee').data('atc', response.atc);#}
-{#                        $('#id_payee').data('inputvattype', response.inputvattype);#}
-{#                        $('#id_payee').data('deferredvat', response.deferredvat);#}
-{#                        $('#id_payee').data('currency', response.currency);#}
-{#                        $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));#}
-{#                        $('#id_payee').data('bankaccount', response.bankaccount);#}
-{#                        $('#id_payee').data('disbursingbranch', response.bankbranchdisburse);#}
                     },
                     error: function(response) {
                         console.debug(response);
@@ -548,92 +537,14 @@
                 });
             });
 
-{#            $('#id_payeelookup').on("change", function(e) {#}
-{#                $('#payeeconfirm').prop('disabled', false);#}
-{#            });#}
-
-{#            $('#payeeconfirm').click(function(){#}
-{#                if($('#id_payeelookup').val() == null){#}
-{#                    console.log("test");#}
-{#                    alert("Please select a payee first.");#}
-{#                }#}
-{#                else {#}
-{#                    var content = $('#id_payeelookup option:selected').text().replace(/(<([^>]+)>)/ig,"").toUpperCase();#}
-{#                    $('#id_payee').val(content);#}
-{#                    $('#id_hiddenpayee').val(content);#}
-{#                    $('#id_hiddenpayeeid').val($('#id_payeelookup').val());#}
-{##}
-{#                    $.ajax({#}
-{#                        url: "{% url 'supplier:getsupplierdata' %}",#}
-{#                        type: "post",#}
-{#                        data: {'supplierid': $('#id_payeelookup').val()#}
-{#                        },#}
-{#                        success: function(response) {#}
-{#                            $('#id_vat').val(response.vat);#}
-{#                            $('#id_atc').val(response.atc);#}
-{#                            $('#id_inputvattype').val(response.inputvattype);#}
-{#                            $('#id_deferredvat').val(response.deferredvat);#}
-{#                            $('#id_currency').val(response.currency);#}
-{#                            $('#id_fxrate').val(parseFloat(response.fxrate).toFixed(2));#}
-{#                            showRate("#id_vat", "vatrate", "RATE");#}
-{#                            showRate("#id_atc", "atcrate", "RATE");#}
-{#                            $('#id_bankaccount').val(response.bankaccount).trigger('change.select2');#}
-{#                            $('#id_disbursingbranch').val(response.bankbranchdisburse);#}
-{##}
-{#                            $('#id_payee').data('vat', response.vat);#}
-{#                            $('#id_payee').data('atc', response.atc);#}
-{#                            $('#id_payee').data('inputvattype', response.inputvattype);#}
-{#                            $('#id_payee').data('deferredvat', response.deferredvat);#}
-{#                            $('#id_payee').data('currency', response.currency);#}
-{#                            $('#id_payee').data('fxrate', parseFloat(response.fxrate).toFixed(2));#}
-{#                            $('#id_payee').data('bankaccount', response.bankaccount);#}
-{#                            $('#id_payee').data('disbursingbranch', response.bankbranchdisburse);#}
-{#                        },#}
-{#                        error: function(response) {#}
-{#                            console.debug(response);#}
-{#                        }#}
-{#                    });#}
-{##}
-{#                    $("#lookupModal .close").click();#}
-{#                }#}
-{#            });#}
-
             if($("#id_ofstatus option:selected").text() == "For Approval")
                 $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
-
-{#            $('#id_payee').on('input', function() {#}
-{#                if($('#id_payee').val() == $('#id_hiddenpayee').val()){#}
-{#                    $('#id_vat').val($(this).data('vat'));#}
-{#                    $('#id_atc').val($(this).data('atc'));#}
-{#                    $('#id_inputvattype').val($(this).data('inputvattype'));#}
-{#                    $('#id_deferredvat').val($(this).data('deferredvat'));#}
-{#                    $('#id_currency').val($(this).data('currency'));#}
-{#                    $('#id_fxrate').val($(this).data('fxrate'));#}
-{#                    showRate("#id_vat", "vatrate", "RATE");#}
-{#                    showRate("#id_atc", "atcrate", "RATE");#}
-{#                    $('#id_bankaccount').val($(this).data('bankaccount')).trigger('change.select2');#}
-{#                    $('#id_disbursingbranch').val($(this).data('disbursingbranch'));#}
-{#                }#}
-{#                else {#}
-{#                    $('#id_vat').val("");#}
-{#                    $('#id_atc').val("");#}
-{#                    $('#id_inputvattype').val("");#}
-{#                    $('#id_deferredvat').val("N");#}
-{#                    $('#id_currency').val("1");#}
-{#                    $('#id_fxrate').val("1.00");#}
-{#                    showRate("#id_vat", "vatrate", "RATE");#}
-{#                    showRate("#id_atc", "atcrate", "RATE");#}
-{#                    $('#id_bankaccount').val("").trigger('change.select2');#}
-{#                    $('#id_disbursingbranch').val("");#}
-{#                }#}
-{#            });#}
 
             $("#id_cvstatus").change(function(){
               if($(this).val() == 'R'){
                   if($('#id_cvdate').val() != '' && $('#id_cvtype').val() != '' && $('#id_payee').val() != ''){
                       alert("completely filled up");
                   }
-{#                  $("#releaseModal").modal('show');#}
               }
             });
 
@@ -662,8 +573,6 @@
 
             $("#autobutton").click(function(){
                 if($('.item-check:checked').length == 0){
-                    //customAlert($('#check-pcvrep-error'));
-
                     //this means CV is created manually, check if bank account or branch has value
                     if($('#id_bankaccount').val() == '' && $('#id_branch').val() == '') {
                         customAlert($('#required-fields-error'));
@@ -693,7 +602,9 @@
                     });
 
                     $("#id_cvtype option:contains('NON-AP')").attr('selected', 'selected');
+                    $("#id_cvsubtype option:contains('Petty Cash Replenishment')").removeAttr('disabled');
                     $("#id_cvsubtype option:contains('Petty Cash Replenishment')").attr('selected', 'selected');
+                    $("#id_cvsubtype option:selected").siblings().attr('disabled', 'disabled');
                     $("#id_refnum").val(refnos.substring(0, refnos.length-2));
                     $("#id_particulars").text("Petty Cash Voucher Replenishment No.(s) " + refnos.substring(0,
                                     refnos.length-2));
@@ -738,16 +649,8 @@
                                'csrfmiddlewaretoken': "{{csrf_token}}"
                         },
                         success: function(response){
-{#                            $('#id_branch').val(response.branch);#}
-{#                            $('#id_vat').val(response.vat);#}
-{#                            $('#id_atc').val(response.atc);#}
-{#                            $('#id_inputvattype').val(response.inputvattype);#}
-{#                            $('#id_deferredvat').val(response.deferredvat);#}
-{#                            showRate("#id_vat", "vatrate", "RATE");#}
-{#                            showRate("#id_atc", "atcrate", "RATE");#}
                             $("#datatable").html(response['datatable']);
                             customAlert($('#autoentry-success'));
-{#                            $("#autobutton").hide();#}
                             $('.shade').fadeOut();
                         }, error: function(response) {
                             console.debug(response);

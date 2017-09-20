@@ -120,7 +120,6 @@ class CreateView(CreateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
         context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=None).order_by('enterdate')
-
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
         context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
