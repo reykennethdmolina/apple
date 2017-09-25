@@ -1,7 +1,7 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
@@ -28,6 +28,8 @@ from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
 import datetime
 from pprint import pprint
+from django.utils.dateformat import DateFormat
+from utils.mixins import ReportContentMixin
 
 
 @method_decorator(login_required, name='dispatch')
@@ -494,6 +496,50 @@ class Pdf(PDFTemplateView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Ofmain
+    template_name = 'checkvoucher/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('description')
+        context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('description')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Ofmain
+    template_name = 'checkvoucher/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        query, context['report_type'], context['report_total'], context['pcv'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "CHECK VOUCHER"
+        context['rc_title'] = "CHECK VOUCHER"
+
+        return context
+
+
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
@@ -736,3 +782,558 @@ def manualcvautoentry(request):
         }
     return JsonResponse(data)
 
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+    report_total = ''
+    pcv = 'hide'
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
+       or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+
+        if request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name):
+            subtype = str(request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name))
+        else:
+            subtype = ''
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
+                or (request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd'
+                    and (subtype == '' or subtype == '2')):
+            if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+                report_type = "CV Detailed"
+            else:
+                report_type = "CV Summary"
+
+            query = Cvmain.objects.all().filter(isdeleted=0)
+
+            if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+                query = query.filter(cvnum__gte=int(key_data))
+            if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+                query = query.filter(cvnum__lte=int(key_data))
+
+            if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+                query = query.filter(cvdate__gte=key_data)
+            if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+                query = query.filter(cvdate__lte=key_data)
+
+            if request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name))
+                query = query.filter(cvtype=int(key_data))
+            if request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name))
+                query = query.filter(cvsubtype=int(key_data))
+            if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
+                query = query.filter(cvstatus=str(key_data))
+
+            if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+                query = query.filter(branch=int(key_data))
+            if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
+                query = query.filter(Q(payee_code__icontains=key_data) | Q(payee_name__icontains=key_data))
+            if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+                query = query.filter(Q(checknum__icontains=key_data))
+            if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
+                query = query.filter(Q(refnum__icontains=key_data))
+            if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
+                query = query.filter(currency=int(key_data))
+
+            if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
+                query = query.filter(vat=int(key_data))
+            if request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name))
+                query = query.filter(inputvattype=int(key_data))
+            if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
+                query = query.filter(atc=int(key_data))
+            if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
+                query = query.filter(deferredvat=str(key_data))
+            if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
+                query = query.filter(bankaccount=int(key_data))
+            if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
+                query = query.filter(disbursingbranch=int(key_data))
+            if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(amount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name))
+                query = query.filter(amount__lte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.order_by(*key_data)
+
+            report_total = query.aggregate(Sum('amount'))\
+
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            report_type = "CV Detailed"
+            pcv = "show"
+
+            query = Reppcvmain.objects.all().filter(isdeleted=0)
+
+            if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvnum__gte=int(key_data))
+            if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvnum__lte=int(key_data))
+
+            if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvdate__gte=key_data)
+            if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvdate__lte=key_data)
+
+            if request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvtype=int(key_data))
+            if request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvsubtype=int(key_data))
+            if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__cvstatus=str(key_data))
+
+            if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__branch=int(key_data))
+            if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
+                query = query.filter(Q(cvmain__payee_code__icontains=key_data) | Q(cvmain__payee_name__icontains=key_data))
+            if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+                query = query.filter(Q(cvmain__checknum__icontains=key_data))
+            if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
+                query = query.filter(Q(cvmain__refnum__icontains=key_data))
+            if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__currency=int(key_data))
+
+            if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__vat=int(key_data))
+            if request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__inputvattype=int(key_data))
+            if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__atc=int(key_data))
+            if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__deferredvat=str(key_data))
+            if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__bankaccount=int(key_data))
+            if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__disbursingbranch=int(key_data))
+
+            if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__amount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__amount__lte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    for n,data in enumerate(key_data):
+                        key_data[n] = "cvmain__" + data
+                    query = query.order_by(*key_data)
+                else:
+                    query = query.order_by('cvmain')
+
+            report_total = query.aggregate(Sum('cvmain__amount'))
+
+        if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+            if key_data == 'd':
+                query = query.reverse()
+
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s'\
+            or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        query = Cvdetail.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+            if request.COOKIES.get('rep_f_debit_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_debit_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(debitamount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_debit_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_debit_amountto_' + request.resolver_match.app_name))
+                query = query.filter(debitamount__lte=float(key_data.replace(',', '')))
+
+            if request.COOKIES.get('rep_f_credit_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_credit_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(creditamount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_credit_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_credit_amountto_' + request.resolver_match.app_name))
+                query = query.filter(creditamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_balancecode_' + request.resolver_match.app_name) == 'd':
+            query = query.filter(balancecode='D')
+        elif request.COOKIES.get('rep_f_balancecode_' + request.resolver_match.app_name) == 'c':
+            query = query.filter(balancecode='C')
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_cvtype_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvtype=int(key_data))
+        if request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_cvsubtype_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvsubtype=int(key_data))
+        if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__cvstatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__branch=int(key_data))
+        if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
+            query = query.filter(Q(cvmain__payee_code__icontains=key_data) | Q(cvmain__payee_name__icontains=key_data))
+        if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+            query = query.filter(Q(cvmain__checknum__icontains=key_data))
+        if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
+            query = query.filter(Q(cvmain__refnum__icontains=key_data))
+        if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__currency=int(key_data))
+
+        if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__vat=int(key_data))
+        if request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_inputvattype_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__inputvattype=int(key_data))
+        if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__atc=int(key_data))
+        if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__deferredvat=str(key_data))
+        if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__bankaccount=int(key_data))
+        if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__disbursingbranch=int(key_data))
+
+        if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__amount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__amount__lte=float(key_data.replace(',', '')))
+
+        report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+            report_type = "CV Acctg Entry - Summary"
+
+            query = query.values('chartofaccount__accountcode',
+                                 'chartofaccount__title',
+                                 'chartofaccount__description',
+                                 'bankaccount__accountnumber',
+                                 'department__departmentname',
+                                 'employee__firstname',
+                                 'employee__lastname',
+                                 'supplier__name',
+                                 'customer__name',
+                                 'unit__description',
+                                 'branch__description',
+                                 'product__description',
+                                 'inputvat__description',
+                                 'outputvat__description',
+                                 'vat__description',
+                                 'wtax__description',
+                                 'ataxcode__code',
+                                 'balancecode')\
+                         .annotate(Sum('debitamount'), Sum('creditamount'))\
+                         .order_by('-balancecode',
+                                   '-chartofaccount__accountcode',
+                                   'bankaccount__accountnumber',
+                                   'department__departmentname',
+                                   'employee__firstname',
+                                   'supplier__name',
+                                   'customer__name',
+                                   'unit__description',
+                                   'branch__description',
+                                   'product__description',
+                                   'inputvat__description',
+                                   'outputvat__description',
+                                   '-vat__description',
+                                   'wtax__description',
+                                   'ataxcode__code')
+        else:
+            report_type = "CV Acctg Entry - Detailed"
+
+            query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
+                                                                                     '-chartofaccount__accountcode',
+                                                                                     'bankaccount__accountnumber',
+                                                                                     'department__departmentname',
+                                                                                     'employee__firstname',
+                                                                                     'supplier__name',
+                                                                                     'customer__name',
+                                                                                     'unit__description',
+                                                                                     'branch__description',
+                                                                                     'product__description',
+                                                                                     'inputvat__description',
+                                                                                     'outputvat__description',
+                                                                                     '-vat__description',
+                                                                                     'wtax__description',
+                                                                                     'ataxcode__code',
+                                                                                     'cv_num')
+
+    return query, report_type, report_total, pcv
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_total = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'OF Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        amount_placement = 4
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        amount_placement = 9
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        amount_placement = 14
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        amount_placement = 15
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'OF Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Requestor', bold)
+        worksheet.write('D1', 'Status', bold)
+        worksheet.write('E1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        worksheet.write('A1', 'OF Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Requestor', bold)
+        worksheet.write('D1', 'Subtype', bold)
+        worksheet.write('E1', 'Payee', bold)
+        worksheet.write('F1', 'VAT', bold)
+        worksheet.write('G1', 'ATC', bold)
+        worksheet.write('H1', 'In/VAT', bold)
+        worksheet.write('I1', 'Status', bold)
+        worksheet.write('J1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
+        worksheet.merge_range('B1:N1', 'Details', bold_center)
+        worksheet.merge_range('O1:O2', 'Debit', bold_right)
+        worksheet.merge_range('P1:P2', 'Credit', bold_right)
+        worksheet.write('B2', 'Bank Account', bold)
+        worksheet.write('C2', 'Department', bold)
+        worksheet.write('D2', 'Employee', bold)
+        worksheet.write('E2', 'Supplier', bold)
+        worksheet.write('F2', 'Customer', bold)
+        worksheet.write('G2', 'Unit', bold)
+        worksheet.write('H2', 'Branch', bold)
+        worksheet.write('I2', 'Product', bold)
+        worksheet.write('J2', 'Input VAT', bold)
+        worksheet.write('K2', 'Output VAT', bold)
+        worksheet.write('L2', 'VAT', bold)
+        worksheet.write('M2', 'WTAX', bold)
+        worksheet.write('N2', 'ATAX Code', bold)
+        row += 1
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
+        worksheet.merge_range('B1:M1', 'Details', bold_center)
+        worksheet.merge_range('N1:N2', 'Payee', bold)
+        worksheet.merge_range('O1:O2', 'Date', bold)
+        worksheet.merge_range('P1:P2', 'Debit', bold_right)
+        worksheet.merge_range('Q1:Q2', 'Credit', bold_right)
+        worksheet.write('B2', 'Bank Account', bold)
+        worksheet.write('C2', 'Department', bold)
+        worksheet.write('D2', 'Employee', bold)
+        worksheet.write('E2', 'Customer', bold)
+        worksheet.write('F2', 'Unit', bold)
+        worksheet.write('G2', 'Branch', bold)
+        worksheet.write('H2', 'Product', bold)
+        worksheet.write('I2', 'Input VAT', bold)
+        worksheet.write('J2', 'Output VAT', bold)
+        worksheet.write('K2', 'VAT', bold)
+        worksheet.write('L2', 'WTAX', bold)
+        worksheet.write('M2', 'ATAX Code', bold)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            data = [
+                "OF-" + obj.oftype.code + "-" + obj.ofnum,
+                DateFormat(obj.ofdate).format('Y-m-d'),
+                obj.requestor.first_name + " " + obj.requestor.last_name,
+                obj.get_ofstatus_display(),
+                obj.amount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            str_payee = obj.supplier_name if obj.supplier_name is not None else obj.payee_name
+            str_atc = obj.atc.code if obj.atc else ''
+            str_vat = obj.vat.code if obj.vat else ''
+            str_inputvattype = obj.inputvattype.code if obj.inputvattype else ''
+
+            data = [
+                "OF-" + obj.ofmain.oftype.code + "-" + obj.ofmain.ofnum,
+                DateFormat(obj.ofdate).format('Y-m-d'),
+                obj.ofmain.requestor.first_name + " " + obj.ofmain.requestor.last_name,
+                obj.ofsubtype.code,
+                str_payee.upper(),
+                str_vat,
+                str_atc,
+                str_inputvattype,
+                obj.get_ofitemstatus_display(),
+                obj.amount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+            str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
+            str_lastname = obj['employee__lastname'] if obj['employee__lastname'] is not None else ''
+
+            data = [
+                obj['chartofaccount__accountcode'] + " - " + obj['chartofaccount__description'],
+                obj['bankaccount__accountnumber'],
+                obj['department__departmentname'],
+                str_firstname + " " + str_lastname,
+                obj['supplier__name'],
+                obj['customer__name'],
+                obj['unit__description'],
+                obj['branch__description'],
+                obj['product__description'],
+                obj['inputvat__description'],
+                obj['outputvat__description'],
+                obj['vat__description'],
+                obj['wtax__description'],
+                obj['ataxcode__code'],
+                obj['debitamount__sum'],
+                obj['creditamount__sum'],
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+            str_firstname = obj.employee.firstname if obj.employee is not None else ''
+            str_lastname = obj.employee.lastname if obj.employee is not None else ''
+            if obj.supplier is not None:
+                str_payee = obj.supplier.name
+            elif obj.ofitem is not None:
+                if obj.ofitem.payee is not None:
+                    str_payee = obj.ofitem.payee_name
+                else:
+                    str_payee = ''
+            else:
+                str_payee = ''
+
+            data = [
+                obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
+                obj.bankaccount.accountnumber if obj.bankaccount is not None else '',
+                obj.department.departmentname if obj.department is not None else '',
+                str_firstname + " " + str_lastname,
+                obj.customer.name if obj.customer is not None else '',
+                obj.unit.description if obj.unit is not None else '',
+                obj.branch.description if obj.branch is not None else '',
+                obj.product.description if obj.product is not None else '',
+                obj.inputvat.description if obj.inputvat is not None else '',
+                obj.outputvat.description if obj.outputvat is not None else '',
+                obj.vat.description if obj.vat is not None else '',
+                obj.wtax.description if obj.wtax is not None else '',
+                obj.ataxcode.code if obj.ataxcode is not None else '',
+                str_payee,
+                DateFormat(obj.of_date).format('Y-m-d'),
+                obj.debitamount__sum,
+                obj.creditamount__sum,
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        data = [
+            "", "", "",
+            "Total", report_total['amount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        data = [
+            "", "", "", "", "", "", "", "",
+            "Total", report_total['amount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response

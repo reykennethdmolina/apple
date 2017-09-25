@@ -76,20 +76,6 @@ class IndexView(AjaxListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ExportCVView(AjaxListView):
-    model = Ofmain
-    template_name = 'operationalfund/index_cv.html'
-    context_object_name = 'data_list'
-
-    def get_queryset(self):
-        query = Ofmain.objects.all().filter(isdeleted=0)
-        # if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
-        #     keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-        query = query[0:100]
-        return query
-
-
-@method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Ofmain
     template_name = 'operationalfund/report.html'

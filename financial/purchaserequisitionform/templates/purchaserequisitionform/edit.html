@@ -83,7 +83,7 @@
                                 <label class="control-label" for="id_inventoryitemtype">Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype" data-toggle="tooltip" data-placement="left" data-original-title="To select a new type, remove all items below." {% if object.prfstatus == 'A' %}readOnly="readOnly"{% endif %}>
                                     {% for inventoryitemtype in inventoryitemtype %}
-                                        <option value="{{ inventoryitemtype.id }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
+                                        <option value="{{ inventoryitemtype.id }}"  data-code="{{ inventoryitemtype.code }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.inventoryitemtype.errors.as_text }}</span>
