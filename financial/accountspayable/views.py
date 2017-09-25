@@ -12,16 +12,7 @@ from inputvattype.models import Inputvattype
 from creditterm.models import Creditterm
 from currency.models import Currency
 from aptype.models import Aptype
-from chartofaccount.models import Chartofaccount
-from bankaccount.models import Bankaccount
-from employee.models import Employee
-from customer.models import Customer
-from department.models import Department
-from unit.models import Unit
-from product.models import Product
-from inputvat.models import Inputvat
-from outputvat.models import Outputvat
-from wtax.models import Wtax
+from django.contrib.auth.models import User
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
@@ -125,7 +116,7 @@ class CreateView(CreateView):
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
-              'currency', 'fxrate']
+              'currency', 'fxrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('accountspayable.add_apmain'):
@@ -140,6 +131,8 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0)
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = 0
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
 
         #lookup
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -175,8 +168,7 @@ class CreateView(CreateView):
         bankbranchdisburseobject = Bankbranchdisburse.objects.get(pk=self.request.POST['bankbranchdisburse'], isdeleted=0)
 
         self.object.apnum = apnum
-        self.object.apstatus = 'V'
-        self.object.fxrate = 1
+        self.object.apstatus = 'F'
         self.object.vatcode = vatobject.code
         self.object.vatrate = vatobject.rate
         self.object.ataxcode = ataxobject.code
@@ -205,10 +197,10 @@ class UpdateView(UpdateView):
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
-              'currency', 'fxrate']
+              'currency', 'fxrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('customer.change_apmain'):
+        if not request.user.has_perm('accountspayable.change_apmain'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
@@ -313,6 +305,9 @@ class UpdateView(UpdateView):
         context['apnum'] = self.object.apnum
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = self.object.pk
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
+        context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -330,21 +325,54 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.enterby = self.request.user
-        self.object.modifyby = self.request.user
-        self.object.save(update_fields=['apdate', 'aptype', 'payee', 'branch',
-                                        'bankbranchdisburse', 'vat', 'atax',
-                                        'inputvattype', 'creditterm', 'duedate',
-                                        'refno', 'deferred', 'particulars',
-                                        'currency'])
+        if self.request.POST['originalapstatus'] != 'R':
+            self.object = form.save(commit=False)
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['apdate', 'aptype', 'payee', 'branch',
+                                            'bankbranchdisburse', 'vat', 'atax',
+                                            'inputvattype', 'creditterm', 'duedate',
+                                            'refno', 'deferred', 'particulars',
+                                            'currency', 'fxrate', 'designatedapprover',
+                                            'modifyby', 'modifydate', 'apstatus'])
 
-        # accounting entry starts here..
-        source = 'apdetailtemp'
-        mainid = self.object.id
-        num = self.object.apnum
-        secretkey = self.request.POST['secretkey']
-        updatedetail(source, mainid, num, secretkey, self.request.user)
+            if self.object.apstatus == 'F':
+                self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
+                self.object.save(update_fields=['designatedapprover'])
+
+            # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
+            # remove approval details if APSTATUS is not APPROVED/DISAPPROVED
+            # if self.object.apstatus == 'A' or self.object.apstatus == 'D':
+            #     if self.object.responsedate is None or self.object.approverresponse is None or self.object.\
+            #             actualapprover is None:
+            #         print self.object.responsedate
+            #         print self.object.approverresponse
+            #         print self.object.actualapprover
+            #         self.object.responsedate = None
+            #         self.object.approverremarks = None
+            #         self.object.approverresponse = None
+            #         self.object.actualapprover = None
+            #         self.object.cvstatus = 'F'
+            #         self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+            #                                         'actualapprover', 'cvstatus'])
+            # elif self.object.cvstatus == 'F':
+            #     self.object.responsedate = None
+            #     self.object.approverremarks = None
+            #     self.object.approverresponse = None
+            #     self.object.actualapprover = None
+            #     self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+            #                                     'actualapprover'])
+
+            # accounting entry starts here..
+            source = 'apdetailtemp'
+            mainid = self.object.id
+            num = self.object.apnum
+            secretkey = self.request.POST['secretkey']
+            updatedetail(source, mainid, num, secretkey, self.request.user)
+        else:
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 

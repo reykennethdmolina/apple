@@ -364,13 +364,13 @@ class UpdateView(UpdateView):
             self.object.modifydate = datetime.datetime.now()
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
-            self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
-                                            'bankaccount', 'disbursingbranch', 'inputvattype', 'deferredvat',
-                                            'currency', 'fxrate', 'cvstatus', 'remarks', 'branch', 'checknum',
-                                            'checkdate', 'vatrate', 'atcrate', 'payee', 'payee_code', 'payee_name'])
+            self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum',
+                                            'particulars', 'vat', 'atc', 'bankaccount', 'disbursingbranch',
+                                            'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
+                                            'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'payee',
+                                            'payee_code', 'payee_name', 'modifyby', 'modifydate'])
 
             if self.object.cvstatus == 'F':
-                print "heyy F"
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
                 self.object.save(update_fields=['designatedapprover'])
 
@@ -409,17 +409,16 @@ class UpdateView(UpdateView):
                 self.object.releasedate = None
                 self.object.save(update_fields=['releaseby', 'releasedate'])
 
+            # accounting entry starts here..
+            source = 'cvdetailtemp'
+            mainid = self.object.id
+            num = self.object.cvnum
+            secretkey = self.request.POST['secretkey']
+            updatedetail(source, mainid, num, secretkey, self.request.user)
         else:
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
-
-        # accounting entry starts here..
-        source = 'cvdetailtemp'
-        mainid = self.object.id
-        num = self.object.cvnum
-        secretkey = self.request.POST['secretkey']
-        updatedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/checkvoucher/' + str(self.object.id) + '/update')
 
