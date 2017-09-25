@@ -13,6 +13,7 @@ from creditterm.models import Creditterm
 from currency.models import Currency
 from aptype.models import Aptype
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
@@ -308,6 +309,8 @@ class UpdateView(UpdateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
+        context['actualapprover'] = None if Apmain.objects.get(
+            pk=self.object.id).actualapprover is None else Apmain.objects.get(pk=self.object.id).actualapprover.id
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -327,9 +330,11 @@ class UpdateView(UpdateView):
     def form_valid(self, form):
         if self.request.POST['originalapstatus'] != 'R':
             self.object = form.save(commit=False)
+            self.object.payee = Supplier.objects.get(pk=self.request.POST['payee'])
+            self.object.payeecode = self.object.payee.code
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['apdate', 'aptype', 'payee', 'branch',
+            self.object.save(update_fields=['apdate', 'aptype', 'payee', 'payeecode', 'branch',
                                             'bankbranchdisburse', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars',
@@ -342,26 +347,38 @@ class UpdateView(UpdateView):
 
             # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
             # remove approval details if APSTATUS is not APPROVED/DISAPPROVED
-            # if self.object.apstatus == 'A' or self.object.apstatus == 'D':
-            #     if self.object.responsedate is None or self.object.approverresponse is None or self.object.\
-            #             actualapprover is None:
-            #         print self.object.responsedate
-            #         print self.object.approverresponse
-            #         print self.object.actualapprover
-            #         self.object.responsedate = None
-            #         self.object.approverremarks = None
-            #         self.object.approverresponse = None
-            #         self.object.actualapprover = None
-            #         self.object.cvstatus = 'F'
-            #         self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
-            #                                         'actualapprover', 'cvstatus'])
-            # elif self.object.cvstatus == 'F':
-            #     self.object.responsedate = None
-            #     self.object.approverremarks = None
-            #     self.object.approverresponse = None
-            #     self.object.actualapprover = None
-            #     self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
-            #                                     'actualapprover'])
+            if self.object.apstatus == 'A' or self.object.apstatus == 'D':
+                if self.object.responsedate is None or self.object.approverresponse is None or self.object.\
+                        actualapprover is None:
+                    print self.object.responsedate
+                    print self.object.approverresponse
+                    print self.object.actualapprover
+                    self.object.responsedate = None
+                    self.object.approverremarks = None
+                    self.object.approverresponse = None
+                    self.object.actualapprover = None
+                    self.object.apstatus = 'F'
+                    self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+                                                    'actualapprover', 'apstatus'])
+            elif self.object.apstatus == 'F':
+                self.object.responsedate = None
+                self.object.approverremarks = None
+                self.object.approverresponse = None
+                self.object.actualapprover = None
+                self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+                                                'actualapprover'])
+
+            # revert status from RELEASED to Approved if no release date is saved
+            # remove release details if APSTATUS is not RELEASED
+            if self.object.apstatus == 'R' and self.object.releasedate is None:
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.apstatus = 'A'
+                self.object.save(update_fields=['releaseby', 'releasedate', 'apstatus'])
+            elif self.object.apstatus != 'R':
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.save(update_fields=['releaseby', 'releasedate'])
 
             # accounting entry starts here..
             source = 'apdetailtemp'
@@ -375,6 +392,102 @@ class UpdateView(UpdateView):
             self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Apmain
+    template_name = 'accountspayable/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('accountspayable.delete_apmain') or self.object.status == 'O' \
+                or self.object.apstatus == 'A' or self.object.apstatus == 'I' or self.object.apstatus == 'R':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.apstatus = 'D'
+        self.object.save()
+
+        return HttpResponseRedirect('/accountspayable')
+
+
+@csrf_exempt
+def approve(request):
+    if request.method == 'POST':
+        ap_for_approval = Apmain.objects.get(apnum=request.POST['apnum'])
+        if request.user.has_perm('accountspayable.approve_allap') or \
+                request.user.has_perm('accountspayable.approve_assignedap'):
+            if request.user.has_perm('accountspayable.approve_allap') or \
+                    (request.user.has_perm('accountspayable.approve_assignedap') and
+                             ap_for_approval.designatedapprover == request.user):
+                print "back to in-process = " + str(request.POST['backtoinprocess'])
+                if request.POST['originalapstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+                    ap_for_approval.apstatus = request.POST['approverresponse']
+                    ap_for_approval.isdeleted = 0
+                    if request.POST['approverresponse'] == 'D':
+                        ap_for_approval.status = 'C'
+                    else:
+                        ap_for_approval.status = 'A'
+                    ap_for_approval.approverresponse = request.POST['approverresponse']
+                    ap_for_approval.responsedate = request.POST['responsedate']
+                    ap_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+                    ap_for_approval.approverremarks = request.POST['approverremarks']
+                    ap_for_approval.releaseby = None
+                    ap_for_approval.releasedate = None
+                    ap_for_approval.save()
+                    data = {
+                        'status': 'success',
+                        'apnum': ap_for_approval.apnum,
+                        'newapstatus': ap_for_approval.apstatus,
+                    }
+                else:
+                    data = {
+                        'status': 'error',
+                    }
+            else:
+                data = {
+                    'status': 'error',
+                }
+        else:
+            data = {
+                'status': 'error',
+            }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def release(request):
+    if request.method == 'POST':
+        ap_for_release = Apmain.objects.get(apnum=request.POST['apnum'])
+        if ap_for_release.apstatus != 'F' and ap_for_release.apstatus != 'D':
+            ap_for_release.releaseby = User.objects.get(pk=request.POST['releaseby'])
+            ap_for_release.releasedate = request.POST['releasedate']
+            ap_for_release.apstatus = 'R'
+            ap_for_release.save()
+            data = {
+                'status': 'success',
+            }
+        else:
+            data = {
+                'status': 'error',
+            }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
 
 
 def comments():

@@ -40,7 +40,7 @@
                             </a>
                             {% endif %}
                             {% if perms.accountspayable.delete_apmain and data.isdeleted == 0 and data.status == 'A' and data.apstatus != 'A' and data.apstatus != 'I' and data.apstatus != 'R' %}
-                            <a href="{% url 'checkvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                            <a href="{% url 'accountspayable:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
 {#                            <a href="{% url 'accountspayable:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">#}
                                 <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
                             </a>

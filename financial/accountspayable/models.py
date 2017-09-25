@@ -31,8 +31,8 @@ class Apmain(models.Model):
     aptype = models.ForeignKey('aptype.Aptype', related_name='aptype_apmain_id')
     apstatus = models.CharField(max_length=1, choices=AP_STATUS_CHOICES, default='F')
 
-    payee = models.ForeignKey('supplier.Supplier', related_name='ap_supplier_id')
-    payeecode = models.CharField(max_length=10)
+    payee = models.ForeignKey('supplier.Supplier', related_name='apmain_payee_id', null=True, blank=True)
+    payeecode = models.CharField(max_length=25, null=True, blank=True)
 
     branch = models.ForeignKey('branch.Branch', related_name='ap_branch_id')
 
@@ -72,6 +72,10 @@ class Apmain(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='ap_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
+    postby = models.ForeignKey(User, related_name='apmain_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
+    releaseby = models.ForeignKey(User, related_name='apmain_release', null=True, blank=True)
+    releasedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:

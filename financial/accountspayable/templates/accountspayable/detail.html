@@ -49,19 +49,19 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">AP Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.aptype.code }} - {{ object.aptype.description }}</span>
+                                            <span class="detail-profile">[{{ object.aptype.code }}]&nbsp;&nbsp;{{ object.aptype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Payee&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.payee.code }} - {{ object.payee.name }}</span>
+                                            <span class="detail-profile">[{{ object.payee.code }}]&nbsp;&nbsp;{{ object.payee.name }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Branch&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.branch }} - {{ object.branch.description }}</span>
+                                            <span class="detail-profile">[{{ object.branch }}]&nbsp;&nbsp;{{ object.branch.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -73,13 +73,13 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">VAT&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.vat }} - {{ object.vat.description }}</span>
+                                            <span class="detail-profile">{{ object.vat.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">ATC&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.atax.code }}({{ object.atax.rate }})</span>
+                                            <span class="detail-profile">{{ object.atax.code }}&nbsp;({{ object.atax.rate }}%)</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -91,7 +91,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Input VAT Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.inputvattype.code }} - {{ object.inputvattype.description }}</span>
+                                            <span class="detail-profile">{{ object.inputvattype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -115,7 +115,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Deferred&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.deferred }}</span>
+                                            <span class="detail-profile">{{ object.get_deferred_display }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -128,17 +128,18 @@
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">AP Status&nbsp;: </span>
                                             <span class="detail-profile
-                                                {% if object.apstatus == 'V' %}
-                                                    text-success
-                                                {% endif %}"><b>
+                                                {% if object.apstatus == 'F' %} text-primary
+                                                {% elif object.apstatus == 'A' or object.apstatus == 'R' %} text-success
+                                                {% elif object.apstatus == 'D' %} text-danger
+                                                {% endif %} "><b>
                                                     {{ object.get_apstatus_display }}
                                             </b></span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
-                                            <span class="detail-profile text-left">{{ object.particulars }}</span>
+                                            <span class="text-info row col-md-1" style="margin-right: 85px;"><b>Particulars&nbsp;:</b></span>
+                                            <span class="row col-md-10">{{ object.particulars|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -173,13 +174,13 @@
                                 </button>
                             </a>
                             {% endif %}
-{#                            {% if perms.accountspayable.delete_apmain %}#}
-{#                            <a href="{% url 'accountspayable:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">#}
-{#                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">#}
-{#                                    <i class="icon_trash" aria-hidden="true"></i>#}
-{#                                </button>#}
-{#                            </a>#}
-{#                            {% endif %}#}
+                            {% if perms.accountspayable.delete_apmain and object.status == 'A' and object.apstatus == 'F' %}
+                            <a href="{% url 'accountspayable:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                    <i class="icon_trash" aria-hidden="true"></i>
+                                </button>
+                            </a>
+                            {% endif %}
                             </div>
                         </div>
                     </div>
