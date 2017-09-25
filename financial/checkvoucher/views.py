@@ -98,7 +98,7 @@ class DetailView(DetailView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
-        # data for lookups
+        # data for lookup
 
         return context
 
