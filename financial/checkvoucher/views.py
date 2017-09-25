@@ -884,7 +884,7 @@ def reportresultquery(request):
             report_type = "CV Detailed"
             pcv = "show"
 
-            query = Reppcvmain.objects.all().filter(isdeleted=0)
+            query = Reppcvmain.objects.all().filter(isdeleted=0).exclude(cvmain__isnull=True)
 
             if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
@@ -961,7 +961,7 @@ def reportresultquery(request):
                 else:
                     query = query.order_by('cvmain')
 
-            report_total = query.aggregate(Sum('cvmain__amount'))
+            report_total = query.values('cvmain').annotate(Sum('amount')).aggregate(Sum('cvmain__amount'))
 
         if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
@@ -1132,7 +1132,7 @@ def reportresultxlsx(request):
     workbook = xlsxwriter.Workbook(output)
 
     # query and default variables
-    queryset, report_type, report_total = reportresultquery(request)
+    queryset, report_type, report_total, pcv = reportresultquery(request)
     report_type = report_type if report_type != '' else 'OF Report'
     worksheet = workbook.add_worksheet(report_type)
     bold = workbook.add_format({'bold': 1})
@@ -1147,9 +1147,9 @@ def reportresultxlsx(request):
     # config: placement
     amount_placement = 0
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        amount_placement = 4
+        amount_placement = 6
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        amount_placement = 9
+        amount_placement = 13 if pcv == 'show' else 11
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 14
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -1157,22 +1157,45 @@ def reportresultxlsx(request):
 
     # config: header
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        worksheet.write('A1', 'OF Number', bold)
+        worksheet.write('A1', 'CV Number', bold)
         worksheet.write('B1', 'Date', bold)
-        worksheet.write('C1', 'Requestor', bold)
-        worksheet.write('D1', 'Status', bold)
-        worksheet.write('E1', 'Amount', bold_right)
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        worksheet.write('A1', 'OF Number', bold)
-        worksheet.write('B1', 'Date', bold)
-        worksheet.write('C1', 'Requestor', bold)
+        worksheet.write('C1', 'Type', bold)
         worksheet.write('D1', 'Subtype', bold)
         worksheet.write('E1', 'Payee', bold)
-        worksheet.write('F1', 'VAT', bold)
-        worksheet.write('G1', 'ATC', bold)
-        worksheet.write('H1', 'In/VAT', bold)
-        worksheet.write('I1', 'Status', bold)
-        worksheet.write('J1', 'Amount', bold_right)
+        worksheet.write('F1', 'Status', bold)
+        worksheet.write('G1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        if pcv == 'show':
+            worksheet.merge_range('A1:A2', 'CV Number', bold)
+            worksheet.merge_range('B1:B2', 'Date', bold)
+            worksheet.merge_range('C1:C2', 'Type', bold)
+            worksheet.merge_range('D1:D2', 'Subtype', bold)
+            worksheet.merge_range('E1:E2', 'Payee', bold)
+            worksheet.merge_range('F1:F2', 'Check No.', bold)
+            worksheet.merge_range('G1:G2', 'Check Date', bold)
+            worksheet.merge_range('H1:H2', 'VAT', bold)
+            worksheet.merge_range('I1:I2', 'ATC', bold)
+            worksheet.merge_range('J1:J2', 'In/VAT', bold)
+            worksheet.merge_range('K1:K2', 'Status', bold)
+            worksheet.merge_range('L1:N1', 'Replenished PCV', bold_center)
+            worksheet.merge_range('O1:O2', 'Amount', bold_right)
+            worksheet.write('L2', 'Rep PCV Number', bold)
+            worksheet.write('M2', 'Date', bold)
+            worksheet.write('N2', 'Rep PCV Amount', bold_right)
+            row += 1
+        else:
+            worksheet.write('A1', 'CV Number', bold)
+            worksheet.write('B1', 'Date', bold)
+            worksheet.write('C1', 'Type', bold)
+            worksheet.write('D1', 'Subtype', bold)
+            worksheet.write('E1', 'Payee', bold)
+            worksheet.write('F1', 'Check No.', bold)
+            worksheet.write('G1', 'Check Date', bold)
+            worksheet.write('H1', 'VAT', bold)
+            worksheet.write('I1', 'ATC', bold)
+            worksheet.write('J1', 'In/VAT', bold)
+            worksheet.write('K1', 'Status', bold)
+            worksheet.write('L1', 'Amount', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:A2', 'Chart of Account', bold)
         worksheet.merge_range('B1:N1', 'Details', bold_center)
@@ -1219,30 +1242,48 @@ def reportresultxlsx(request):
         # config: content
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
             data = [
-                "OF-" + obj.oftype.code + "-" + obj.ofnum,
-                DateFormat(obj.ofdate).format('Y-m-d'),
-                obj.requestor.first_name + " " + obj.requestor.last_name,
-                obj.get_ofstatus_display(),
+                obj.cvnum,
+                DateFormat(obj.cvdate).format('Y-m-d'),
+                obj.cvtype.description if obj.cvtype else '',
+                obj.cvsubtype.description if obj.cvsubtype else '',
+                obj.payee_name,
+                obj.get_cvstatus_display(),
                 obj.amount,
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-            str_payee = obj.supplier_name if obj.supplier_name is not None else obj.payee_name
-            str_atc = obj.atc.code if obj.atc else ''
-            str_vat = obj.vat.code if obj.vat else ''
-            str_inputvattype = obj.inputvattype.code if obj.inputvattype else ''
-
-            data = [
-                "OF-" + obj.ofmain.oftype.code + "-" + obj.ofmain.ofnum,
-                DateFormat(obj.ofdate).format('Y-m-d'),
-                obj.ofmain.requestor.first_name + " " + obj.ofmain.requestor.last_name,
-                obj.ofsubtype.code,
-                str_payee.upper(),
-                str_vat,
-                str_atc,
-                str_inputvattype,
-                obj.get_ofitemstatus_display(),
-                obj.amount,
-            ]
+            if pcv == 'show':
+                data = [
+                    obj.cvmain.cvnum,
+                    DateFormat(obj.cvmain.cvdate).format('Y-m-d'),
+                    obj.cvmain.cvtype.description if obj.cvmain.cvtype else '',
+                    obj.cvmain.cvsubtype.description if obj.cvmain.cvsubtype else '',
+                    obj.cvmain.payee_name,
+                    obj.cvmain.checknum,
+                    DateFormat(obj.cvmain.checkdate).format('Y-m-d'),
+                    obj.cvmain.vat.code if obj.cvmain.vat else '',
+                    obj.cvmain.atc.code if obj.cvmain.atc else '',
+                    obj.cvmain.inputvattype.description if obj.cvmain.inputvattype else '',
+                    obj.cvmain.get_cvstatus_display(),
+                    'PCV-' + obj.reppcvnum,
+                    DateFormat(obj.reppcvdate).format('Y-m-d'),
+                    obj.amount,
+                    obj.cvmain.amount,
+                ]
+            else:
+                data = [
+                    obj.cvnum,
+                    DateFormat(obj.cvdate).format('Y-m-d'),
+                    obj.cvtype.description if obj.cvtype else '',
+                    obj.cvsubtype.description if obj.cvsubtype else '',
+                    obj.payee_name,
+                    obj.checknum,
+                    DateFormat(obj.checkdate).format('Y-m-d'),
+                    obj.vat.code if obj.vat else '',
+                    obj.atc.code if obj.atc else '',
+                    obj.inputvattype.description if obj.inputvattype else '',
+                    obj.get_cvstatus_display(),
+                    obj.amount,
+                ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
             str_lastname = obj['employee__lastname'] if obj['employee__lastname'] is not None else ''
@@ -1268,15 +1309,6 @@ def reportresultxlsx(request):
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
             str_firstname = obj.employee.firstname if obj.employee is not None else ''
             str_lastname = obj.employee.lastname if obj.employee is not None else ''
-            if obj.supplier is not None:
-                str_payee = obj.supplier.name
-            elif obj.ofitem is not None:
-                if obj.ofitem.payee is not None:
-                    str_payee = obj.ofitem.payee_name
-                else:
-                    str_payee = ''
-            else:
-                str_payee = ''
 
             data = [
                 obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
@@ -1292,8 +1324,8 @@ def reportresultxlsx(request):
                 obj.vat.description if obj.vat is not None else '',
                 obj.wtax.description if obj.wtax is not None else '',
                 obj.ataxcode.code if obj.ataxcode is not None else '',
-                str_payee,
-                DateFormat(obj.of_date).format('Y-m-d'),
+                obj.supplier.name if obj.supplier is not None else '',
+                DateFormat(obj.cv_date).format('Y-m-d'),
                 obj.debitamount__sum,
                 obj.creditamount__sum,
             ]
@@ -1309,14 +1341,20 @@ def reportresultxlsx(request):
     # config: totals
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
         data = [
-            "", "", "",
+            "", "", "", "", "",
             "Total", report_total['amount__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        data = [
-            "", "", "", "", "", "", "", "",
-            "Total", report_total['amount__sum'],
-        ]
+        if pcv == 'show':
+            data = [
+                "", "", "", "", "", "", "", "", "", "", "", "", "",
+                "Total", report_total['cvmain__amount__sum'],
+            ]
+        else:
+            data = [
+                "", "", "", "", "", "", "", "", "", "",
+                "Total", report_total['amount__sum'],
+            ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         data = [
             "", "", "", "", "", "", "", "", "", "", "", "", "",
