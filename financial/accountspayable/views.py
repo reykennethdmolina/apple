@@ -9,6 +9,7 @@ from bankbranchdisburse.models import Bankbranchdisburse
 from vat.models import Vat
 from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
+from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
 from aptype.models import Aptype
@@ -416,6 +417,33 @@ class DeleteView(DeleteView):
         self.object.save()
 
         return HttpResponseRedirect('/accountspayable')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Apmain
+    template_name = 'accountspayable/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['apmain'] = Apmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Apdetail.objects.filter(isdeleted=0). \
+            filter(apmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Apdetail.objects.filter(isdeleted=0). \
+            filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0). \
+            filter(apmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedap = Apmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedap.print_ctr += 1
+        printedap.save()
+        return context
 
 
 @csrf_exempt

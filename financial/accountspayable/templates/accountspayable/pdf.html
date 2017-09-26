@@ -5,7 +5,7 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Check Voucher</title>
+    <title>Accounts Payable</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
@@ -65,10 +65,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">CHECK VOUCHER</p>
+                <p class="title center">ACCOUNTS PAYABLE</p>
             </td>
             <td>
-                <p class="title right">{{ cvmain.cvnum }}</p>
+                <p class="title right">{{ apmain.apnum }}</p>
             </td>
         </tr>
     </table>
@@ -84,10 +84,10 @@
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">
-                    {% if cvmain.actualapprover %}
+                    {% if apmain.actualapprover %}
                         SGD
                     {% endif %}
-                    {{ cvmain.enterby.first_name }}&nbsp;{{ cvmain.enterby.last_name }}
+                    {{ apmain.enterby.first_name }}&nbsp;{{ apmain.enterby.last_name }}
                 </div>
                 <i>Signature over printed name</i>
             </td>
@@ -95,10 +95,10 @@
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if cvmain.actualapprover and cvmain.approverresponse == 'A' %}
-                        SGD {{ cvmain.actualapprover.first_name }}&nbsp;{{ cvmain.actualapprover.last_name }}
+                    {% if apmain.actualapprover and apmain.approverresponse == 'A' %}
+                        SGD {{ apmain.actualapprover.first_name }}&nbsp;{{ apmain.actualapprover.last_name }}
                     {% else %}
-                        {{ cvmain.designatedapprover.first_name }}&nbsp;{{ cvmain.designatedapprover.last_name }}
+                        {{ apmain.designatedapprover.first_name }}&nbsp;{{ apmain.designatedapprover.last_name }}
                     {% endif %}
                 </div>
                 <i>Signature over printed name</i>
@@ -108,14 +108,14 @@
             <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                <div class="sign_here">{{ cvmain.enterdate|date:'Y-m-d' }}</div>
+                <div class="sign_here">{{ apmain.enterdate|date:'Y-m-d' }}</div>
             </td>
             <td width="20%"><b>Date approved</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if cvmain.actualapprover and cvmain.approverresponse == 'A' %}
-                        {{ cvmain.responsedate|date:'Y-m-d' }}
+                    {% if apmain.actualapprover and apmain.approverresponse == 'A' %}
+                        {{ apmain.responsedate|date:'Y-m-d' }}
                     {% else %}
                         &nbsp;
                     {% endif %}
@@ -168,103 +168,64 @@
                 <tr>
                     <td width="25%"><b>Date</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvdate|date:'Y-m-d' }}</td>
+                    <td>{{ apmain.apdate|date:'Y-m-d' }}</td>
                     <td width="25%"><b>Type</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvtype.description }}</td>
-                </tr>
-                <tr>
-                    <td width="25%"><b>Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.branch.description }}</td>
-                    <td width="25%"><b>Subtype</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvsubtype.description }}</td>
+                    <td>{{ apmain.aptype.description }}</td>
                 </tr>
                 <tr>
                     <td width="25%"><b>Ref.&nbsp;No.</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.refnum }}</td>
-                    <td width="25%"><b>Ref.&nbsp;AP</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>N/A</td>
-                </tr>
-                <tr>
-                    <td width="65%"><b>Bank&nbsp;Account</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.bankaccount.code }} [{{ cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
-                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.disbursingbranch.branch }}] {{ cvmain.disbursingbranch.bank.code }}, {{ cvmain.disbursingbranch.address1 }}</td>
-                </tr>
-                <tr>
-                    <td width="25%"><b>Check&nbsp;No.</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.checknum }}</td>
-                    <td width="25%"><b>Check&nbsp;Date</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.checkdate|date:'Y-m-d' }}</td>
-                </tr>
-                <tr>
-                    <td width="25%"><b>Amount</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.currency.symbol }}&nbsp;{{ cvmain.amount|floatformat:2|intcomma }}</td>
+                    <td>{{ apmain.refno }}</td>
                     <td width="25%"><b>Payee</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.payee_name }}</td>
+                    <td>{{ apmain.payee.name }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Branch</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.branch.description }}</td>
+                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>[{{ apmain.bankbranchdisburse.branch }}] {{ apmain.bankbranchdisburse.bank.code }}, {{ apmain.bankbranchdisburse.address1 }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Credit&nbsp;Terms</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.creditterm.description }}</td>
+                    <td width="25%"><b>Due&nbsp;Date</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.duedate|date:'Y-m-d' }}</td>
                 </tr>
                 <tr>
                     <td width="25%"><b>VAT</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.vat.code }}]&nbsp;{{ cvmain.vat.description }}</td>
+                    <td>[{{ apmain.vat.code }}]&nbsp;{{ apmain.vat.description }}</td>
                     <td width="25%"><b>ATC</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
+                    <td>[{{ apmain.atax.code }}]&nbsp;{{ apmain.ataxrate }}%</td>
                 </tr>
                 <tr>
                     <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.inputvattype.description }}</td>
+                    <td>{{ apmain.inputvattype.description }}</td>
                     <td width="25%"><b>Deferred&nbsp;VAT</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.get_deferredvat_display }}</td></td>
+                    <td>{{ apmain.get_deferred_display }}</td></td>
                 </tr>
                 <tr>
                     <td width="25%"><b>Status</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.get_cvstatus_display }}</td>
+                    <td>{{ apmain.get_apstatus_display }}</td>
                     <td width="25%"><b>Particulars</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.particulars }}</td>
+                    <td>{{ apmain.particulars }}</td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr><td></td></tr>
 </table>
-{% if reppcvmain %}
-    <b>PETTY CASH REPLENISHMENTS</b>
-    <table>
-    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black; padding-left: 5px;"></td>
-        <td style="padding-left: 5px;"><b><i>Rep. PCV Number</i></b></td>
-        <td><b><i>Rep. PCV Date</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
-    </tr>
-    {% for data in reppcvmain %}
-        <tr>
-            <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
-            <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvnum }}</td>
-            <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reppcvdate|date:'Y-m-d' }}</td>
-            <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
-        </tr>
-    {% endfor %}
-        <tr>
-        <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
-        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ reppcv_total_amount|floatformat:2|intcomma }}</b></td>
-    </tr>
-</table><br>
-{% endif %}
             <b>ACCOUNTING ENTRIES</b>
 <table style="padding-left: 5px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">

@@ -77,6 +77,7 @@ class Apmain(models.Model):
     releaseby = models.ForeignKey(User, related_name='apmain_release', null=True, blank=True)
     releasedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
+    print_ctr = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'apmain'
