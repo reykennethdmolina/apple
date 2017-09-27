@@ -118,6 +118,7 @@ urlpatterns = [
     url(r'^accountspayable/', include('accountspayable.urls', app_name='accountspayable', namespace='accountspayable')),
     url(r'^bankbranchdisburse/', include('bankbranchdisburse.urls', app_name='bankbranchdisburse', namespace='bankbranchdisburse')),
     url(r'^utils/', include('utils.urls', app_name='utils', namespace='utils')),
+    url(r'^cashdisbursement/', include('cashdisbursement.urls', app_name='cashdisbursement', namespace='cashdisbursement')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

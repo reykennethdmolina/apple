@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     'replenish_pcv',
     'cvsubtype',
     'replenish_rfv',
+    'cashdisbursement',
 ]
 
 MIDDLEWARE_CLASSES = [

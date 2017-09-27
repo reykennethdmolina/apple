@@ -497,7 +497,7 @@ class Pdf(PDFTemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
-    model = Ofmain
+    model = Cvmain
     template_name = 'checkvoucher/report.html'
 
     def get_context_data(self, **kwargs):

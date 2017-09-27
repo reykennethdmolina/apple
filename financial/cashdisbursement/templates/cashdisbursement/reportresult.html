@@ -1,0 +1,106 @@
+{% extends 'reports/base-cashdisbursement.html' %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        td{
+            vertical-align: top;
+        }
+        .italic{
+            font-style: italic;
+        }
+        .arial{
+            font-family: Arial;
+            font-size: 13px;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    {% if report == 's' %}
+        <table>
+            <thead>
+            <tr style="border-top: 2px solid black; border-bottom: 2px solid black; padding-top: 5px;">
+                <th style="width: 15%; vertical-align: bottom" class="italic left">Account No.</th>
+                <th style="width: 65%; vertical-align: bottom" class="italic">Account Title</th>
+                <th style="width: 20%; vertical-align: bottom" class="italic center">Debit</th>
+                <th style="width: 20%; vertical-align: bottom" class="italic center">Credit</th>
+            </tr>
+            </thead>
+            <tbody class="arial">
+                <tr><td colspan="4"></td></tr>
+                {% for data in data_list %}
+                    <tr>
+                        <td>{{ data.chartofaccount__accountcode|slice:':6' }}</td>
+                        <td>{{ data.chartofaccount__description }}</td>
+                        <td class="right">
+                            {% if data.debitamount__sum > 0.00 %}
+                                {{ data.debitamount__sum|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                        <td class="right">
+                            {% if data.creditamount__sum > 0.00 %}
+                                {{ data.creditamount__sum|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="2" class="center" style="letter-spacing: 3"><b>total</b></td>
+                    <td class="right">
+                        <div style="border-top: 1.5px solid black; border-bottom: 1.5px solid black; padding-top: 5px; padding-bottom: -5px" class="right">
+                            {{ report_total.debitamount__sum|floatformat:2|intcomma }}
+                        </div>
+                    </td>
+                    <td class="right">
+                        <div style="margin-left: 20px; border-top: 1.5px solid black; border-bottom: 1.5px solid black; padding-top: 5px; padding-bottom: -5px" class="right">
+                            {{ report_total.creditamount__sum|floatformat:2|intcomma }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% elif report == 'b' %}
+        <table>
+            <thead>
+            <tr style="border-top: 2px solid black; border-bottom: 2px solid black; padding-top: 5px;">
+                <th style="width: 15%; vertical-align: bottom" class="italic left">Bank Acct.</th>
+                <th style="width: 65%; vertical-align: bottom" class="italic">Bank Description</th>
+                <th style="width: 20%; vertical-align: bottom" class="italic center">Debit</th>
+                <th style="width: 20%; vertical-align: bottom" class="italic center">Credit</th>
+            </tr>
+            </thead>
+            <tbody class="arial">
+                <tr><td colspan="4"></td></tr>
+                {% for data in data_list %}
+                    <tr>
+                        <td>{{ data.bankaccount__code }}</td>
+                        <td>{{ data.bankaccount__bank__code }} {{ data.bankaccount__run_code }}A</td>
+                        <td class="right">
+                            {% if data.debitamount__sum > 0.00 %}
+                                {{ data.debitamount__sum|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                        <td class="right">
+                            {% if data.creditamount__sum > 0.00 %}
+                                {{ data.creditamount__sum|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="2" class="center" style="letter-spacing: 3"><b>total</b></td>
+                    <td class="right">
+                        <div style="border-top: 1.5px solid black; border-bottom: 1.5px solid black; padding-top: 5px; padding-bottom: -5px" class="right">
+                            {{ report_total.debitamount__sum|floatformat:2|intcomma }}
+                        </div>
+                    </td>
+                    <td class="right">
+                        <div style="margin-left: 20px; border-top: 1.5px solid black; border-bottom: 1.5px solid black; padding-top: 5px; padding-bottom: -5px" class="right">
+                            {{ report_total.creditamount__sum|floatformat:2|intcomma }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock main_content %}
