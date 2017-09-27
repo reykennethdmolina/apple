@@ -74,12 +74,18 @@
                             </button>
                         </a>
                         {% endif %}
-                        <a href="{% url 'checkvoucher:pdf' object.id %}" target="_blank" class="floatright">
-                            <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
-                            waves-light get_report">
-                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        <div class="btn-group floatright">
+                            <button type="button" class="btn btn-round btn-sm btn-info waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print</button>
+                            <button type="button" class="btn btn-round btn-sm btn-info dropdown-toggle waves-effect waves-light" id="ColorDropdown3" data-toggle="dropdown" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Info</span>
                             </button>
-                        </a>
+                            <ul class="dropdown-menu dropdown-menu-info" style="font-size: 12px;" aria-labelledby="ColorDropdown3" role="menu">
+                                <li><a href="{% url 'checkvoucher:pdf' object.id %}" target="_blank" class=" waves-effect waves-light">Transaction</a></li>
+                                <li><a href="{% url 'checkvoucher:voucher' object.id %}" target="_blank" class=" waves-effect waves-light">Voucher</a></li>
+                                <li><a href="javascript:void(0)" class=" waves-effect waves-light">Pre-printed Voucher</a></li>
+                            </ul>
+                        </div>
                         <a href="{% url 'checkvoucher:detail' object.id %}" class="floatright">
                             <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
                             waves-light get_report">

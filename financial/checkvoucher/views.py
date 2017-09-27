@@ -496,6 +496,41 @@ class Pdf(PDFTemplateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class Voucher(PDFTemplateView):
+    model = Cvmain
+    template_name = 'checkvoucher/pdfvoucher.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['cvmain'] = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Cvdetail.objects.filter(isdeleted=0). \
+            filter(cvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['convertedamount'] = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0).amount * Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0).fxrate
+
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.kwargs['pk']).order_by(
+            'enterdate')
+        cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.kwargs['pk']).aggregate(
+            Sum('amount'))
+        context['reppcv_total_amount'] = cv_main_aggregate['amount__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedcv = Cvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedcv.print_ctr += 1
+        printedcv.save()
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Cvmain
     template_name = 'checkvoucher/report.html'

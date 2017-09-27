@@ -24,6 +24,28 @@
                         </button>
                     </div>
                 </h3>
+                <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                    {% if perms.accountspayable.delete_apmain and object.apstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                    <a href="{% url 'accountspayable:delete' object.id %}" class="floatright">
+                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                        </button>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'accountspayable:pdf' object.id %}" target="_blank" class="floatright">
+                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        </button>
+                    </a>
+                    <a href="{% url 'accountspayable:detail' object.id %}" class="floatright">
+                        <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                        </button>
+                    </a>
+                </div>
                 <div class="panel-body" id="ap_panel">
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
