@@ -18,7 +18,8 @@ from apsubtype.models import Apsubtype
 from aptype.models import Aptype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
-from bankaccount.models import Bankaccountfrom django.contrib.auth.models import User
+from bankaccount.models import Bankaccount
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
@@ -643,13 +644,6 @@ def importreprfv(request):
             'status': 'error',
         }
     return JsonResponse(data)
-
-
-def comments():
-    print 123
-    # copy po format for vat field
-    # clear cache based on condition
-    # cache api
 
 
 @method_decorator(login_required, name='dispatch')
