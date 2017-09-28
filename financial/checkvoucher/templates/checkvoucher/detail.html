@@ -30,6 +30,10 @@
         .widgett {
             margin-bottom: 10px;
         }
+        li.active
+        {
+            font-size: 12px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -333,15 +337,15 @@
                                     </div>
                                     <div class="master-degree">
                                         <div class="iconlist">
-                                            {% if perms.purchaseorder.change_pomain and object.isdeleted == 0 %}
-                                                <a href="{% url 'purchaseorder:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                            {% if perms.checkvoucher.change_cvmain and object.isdeleted == 0 %}
+                                                <a href="{% url 'checkvoucher:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_pencil" aria-hidden="true"></i>
                                                     </button>
                                                 </a>
                                             {% endif %}
-                                            {% if perms.purchaseorder.delete_pomain and object.postatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
-                                                <a href="{% url 'purchaseorder:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                            {% if perms.checkvoucher.delete_cvmain and object.cvstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                                <a href="{% url 'checkvoucher:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_trash" aria-hidden="true"></i>
                                                     </button>

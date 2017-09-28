@@ -409,7 +409,7 @@
                                         <tbody>
                                             {% for data in reppcvmain %}
                                             <tr>
-                                                <td class="item-reppcvnum" data-id="{{ data.id }}">{{ data.reppcvnum }}</td>
+                                                <td class="item-reppcvnum" data-id="{{ data.id }}"><a href="{% url 'replenish_pcv:index' %}?id={{ data.id }}&number={{ data.reppcvnum }}&date={{ data.reppcvdate|date:"Y-m-d" }}" target="_blank">{{ data.reppcvnum }}</a></td>
                                                 <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
                                                 <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
                                                 <td style="text-align: right;" class="item-amount">{{ data.amount|floatformat:2|intcomma }}</td>

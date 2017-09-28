@@ -232,6 +232,29 @@
     </tr>
     <tr><td></td></tr>
 </table>
+{% if reprfvmain %}
+    <b>REVOLVING FUND REPLENISHMENTS</b>
+    <table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+        <td style="padding-left: 5px;"><b><i>Rep. RFV Number</i></b></td>
+        <td><b><i>Rep. RFV Date</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    {% for data in reprfvmain %}
+        <tr>
+            <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+            <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvnum }}</td>
+            <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.reprfvdate|date:'Y-m-d' }}</td>
+            <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+        <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ reprfv_total_amount|floatformat:2|intcomma }}</b></td>
+    </tr>
+</table><br>
+{% endif %}
             <b>ACCOUNTING ENTRIES</b>
 <table style="padding-left: 5px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">

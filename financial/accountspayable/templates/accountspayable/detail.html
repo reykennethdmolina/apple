@@ -11,13 +11,17 @@
         {
             width: 70%;
         }
+        li.active
+        {
+            font-size: 12px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
 {% load humanize %}
 <div class="page-content container-fluid page">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-9">
             <!-- Start Profile Tab Section -->
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
@@ -72,7 +76,19 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Disbursing Branch&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.bankbranchdisburse.branch }}</span>
+                                            <span class="detail-profile">[{{ object.bankbranchdisburse.branch }}] {{ object.bankbranchdisburse.bank.code }}, {{ object.bankbranchdisburse.address1 }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">AP Status&nbsp;: </span>
+                                            <span class="detail-profile
+                                                {% if object.apstatus == 'F' %} text-primary
+                                                {% elif object.apstatus == 'A' or object.apstatus == 'R' %} text-success
+                                                {% elif object.apstatus == 'D' %} text-danger
+                                                {% endif %} "><b>
+                                                    {{ object.get_apstatus_display }}
+                                            </b></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -89,19 +105,7 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Disbursing Branch&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.bankbranchdisburse.branch }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Input VAT Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.inputvattype.description }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Terms&nbsp;: </span>
+                                            <span class="text-name-profile text-info">Credit Terms&nbsp;: </span>
                                             <span class="detail-profile">{{ object.creditterm.description }}</span>
                                         </div>
                                     </div>
@@ -109,6 +113,12 @@
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Due date&nbsp;: </span>
                                             <span class="detail-profile">{{ object.duedate|date:'Y-m-d' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Input VAT Type&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.inputvattype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -131,18 +141,6 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">AP Status&nbsp;: </span>
-                                            <span class="detail-profile
-                                                {% if object.apstatus == 'F' %} text-primary
-                                                {% elif object.apstatus == 'A' or object.apstatus == 'R' %} text-success
-                                                {% elif object.apstatus == 'D' %} text-danger
-                                                {% endif %} "><b>
-                                                    {{ object.get_apstatus_display }}
-                                            </b></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Particulars&nbsp;: </span>
                                             <span class="detail-profile">{{ object.particulars }}</span>
                                         </div>
@@ -154,42 +152,97 @@
                 </div>
             </div>
         </div>
-        {% include "acctentry/datatabledetail.html" %}
-        <div class="col-md-3">
-            <div class="right-box-profile">
-                <h4 class="skill-title">Activity Logs</h4>
-                <div class="panel">
-                    <div class="panel-body small">
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Created&nbsp;By:</span>
-                            <div class="univer-profile">{{ object.enterby }}</div>
-                            <div class="univer-profile">{{ object.enterdate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Modified&nbsp;By:</span>
-                            <div class="univer-profile">{{ object.modifyby }}</div>
-                            <div class="univer-profile">{{ object.modifydate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <div class="iconlist">
-                            {% if perms.accountspayable.change_apmain %}
-                            <a href="{% url 'accountspayable:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_pencil" aria-hidden="true"></i>
-                                </button>
-                            </a>
-                            {% endif %}
-                            {% if perms.accountspayable.delete_apmain and object.status == 'A' and object.apstatus == 'F' %}
-                            <a href="{% url 'accountspayable:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_trash" aria-hidden="true"></i>
-                                </button>
-                            </a>
-                            {% endif %}
+        <div class="row col-md-3">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Revolving Fund Replenishment</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                        <div class="panel-body">
+                                    <div class="master-degree small">
+                                        {% if reprfvmain %}
+                                            {% for data in reprfvmain %}
+                                                <table>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Number:</b></td>
+                                                        <td width="70%" align="right">{{ data.reprfvnum }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Date:</b></td>
+                                                        <td width="70%" align="right">{{ data.reprfvdate|date:'Y-m-d' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Amount:</b></td>
+                                                        <td width="70%" align="right">{{ data.amount|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                </table><br>
+                                            {% endfor %}
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="30%" class="text-info"><b>TOTAL:</b></td>
+                                                    <td width="70%" align="right" style="padding-right: 5px;"><b>{{ reprfv_total_amount|floatformat:2|intcomma }}</b></td>
+                                                </tr>
+                                            </table>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        {% include "acctentry/datatabledetail.html" %}
+        <div class="col-md-3">
+            <div class="right-box-profile">
+                <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Activity Log</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Created&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.enterby }}</div>
+                                        <div class="univer-profile">{{ object.enterdate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Modified&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.modifyby }}</div>
+                                        <div class="univer-profile">{{ object.modifydate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <div class="iconlist">
+                                            {% if perms.accountspayable.change_apmain and object.isdeleted == 0 %}
+                                                <a href="{% url 'accountspayable:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_pencil" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                            {% if perms.accountspayable.delete_apmain and object.apstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                                <a href="{% url 'accountspayable:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>

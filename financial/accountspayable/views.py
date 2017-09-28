@@ -89,6 +89,10 @@ class DetailView(DetailView):
         context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0).\
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=self.object.id).order_by('enterdate')
+        ap_main_aggregate = Reprfvmain.objects.filter(isdeleted=0, apmain=self.object.id).aggregate(Sum('amount'))
+        context['reprfv_total_amount'] = ap_main_aggregate['amount__sum']
+
         #lookup
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
@@ -470,6 +474,10 @@ class Pdf(PDFTemplateView):
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0). \
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=self.kwargs['pk']).order_by('enterdate')
+        ap_main_aggregate = Reprfvmain.objects.filter(isdeleted=0, apmain=self.kwargs['pk']).aggregate(Sum('amount'))
+        context['reprfv_total_amount'] = ap_main_aggregate['amount__sum']
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'
