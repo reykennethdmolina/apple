@@ -16,6 +16,7 @@ class ReportContentMixin(ContextMixin):
         # should be altered in views
         context['rc_pagesize'] = "letter"
         context['rc_font'] = 'arial'
+        context['rc_fontsize'] = '9px'
         context['rc_orientation'] = "portrait"
         context['rc_headtitle'] = "Reports"
         context['rc_title'] = "Reports"

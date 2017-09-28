@@ -11,5 +11,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^release/$', views.release, name='release'),
-    url(r'^importreprfv/$', views.importreprfv, name='importreprfv'),
+    url(r'^importreprfv/$', views.importreprfv, name='importreprfv'),    url(r'^report/$', views.ReportView.as_view(), name='report'),
+    url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
+    url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
 ]

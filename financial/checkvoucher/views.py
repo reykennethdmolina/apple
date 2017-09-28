@@ -1167,7 +1167,7 @@ def reportresultxlsx(request):
 
     # query and default variables
     queryset, report_type, report_total, pcv = reportresultquery(request)
-    report_type = report_type if report_type != '' else 'OF Report'
+    report_type = report_type if report_type != '' else 'CV Report'
     worksheet = workbook.add_worksheet(report_type)
     bold = workbook.add_format({'bold': 1})
     bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
