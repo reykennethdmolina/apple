@@ -169,25 +169,33 @@
                     <td width="25%"><b>Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.apdate|date:'Y-m-d' }}</td>
-                    <td width="25%"><b>Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.aptype.description }}</td>
-                </tr>
-                <tr>
                     <td width="25%"><b>Ref.&nbsp;No.</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.refno }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Type</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.aptype.description }}</td>
+                    <td width="25%"><b>Subtype</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.apsubtype.description }}</td>
+                </tr>
+                <tr>
                     <td width="25%"><b>Payee</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.payee.name }}</td>
-                </tr>
-                <tr>
                     <td width="25%"><b>Branch</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.branch.description }}</td>
+                </tr>
+                <tr>
                     <td width="25%"><b>Disbursing&nbsp;Branch</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>[{{ apmain.bankbranchdisburse.branch }}] {{ apmain.bankbranchdisburse.bank.code }}, {{ apmain.bankbranchdisburse.address1 }}</td>
+                    <td width="25%"><b>Status</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ apmain.get_apstatus_display }}</td>
                 </tr>
                 <tr>
                     <td width="25%"><b>Credit&nbsp;Terms</b></td>
@@ -213,13 +221,11 @@
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.get_deferred_display }}</td></td>
                 </tr>
+                <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td width="25%"><b>Status</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.get_apstatus_display }}</td>
                     <td width="25%"><b>Particulars</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.particulars }}</td>
+                    <td colspan="4">{{ apmain.particulars }}</td>
                 </tr>
             </table>
         </td>

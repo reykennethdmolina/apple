@@ -3,6 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 
 
 # Create your models here.
@@ -36,6 +37,7 @@ class Apmain(models.Model):
     payeecode = models.CharField(max_length=25, null=True, blank=True)
 
     branch = models.ForeignKey('branch.Branch', related_name='ap_branch_id')
+    amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)
 
     vat = models.ForeignKey('vat.Vat', related_name='ap_vat_id', null=True, blank=True)
     vatcode = models.CharField(max_length=10, null=True, blank=True)

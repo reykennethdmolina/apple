@@ -22,12 +22,11 @@
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
-
-                    {% if perms.accountspayable.change_apmain %}
-                        <button class="btn btn-info btn-sm pull-right" data-toggle='modal' data-target='#searchModal'>
-                            <i class="icon fa-search" aria-hidden="true"></i> Search
-                        </button>
-                    {% endif %}
+                        <a href="{% url 'accountspayable:pdf' object.id %}" target="_blank" class="floatright">
+                            <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
+                            </button>
+                        </a>
                 </ul>
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
@@ -50,6 +49,12 @@
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">AP Type&nbsp;: </span>
                                             <span class="detail-profile">[{{ object.aptype.code }}]&nbsp;&nbsp;{{ object.aptype.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">AP Subtype&nbsp;: </span>
+                                            <span class="detail-profile">[{{ object.apsubtype.code }}]&nbsp;&nbsp;{{ object.apsubtype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -136,10 +141,10 @@
                                             </b></span>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-info row col-md-1" style="margin-right: 85px;"><b>Particulars&nbsp;:</b></span>
-                                            <span class="row col-md-10">{{ object.particulars|default:'N/A' }}</span>
+                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.particulars }}</span>
                                         </div>
                                     </div>
                                 </div>

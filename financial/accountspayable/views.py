@@ -195,6 +195,17 @@ class CreateView(CreateView):
                 ofmain.save()
         # save apmain in reprfvmain, reprfvdetail, ofmain
 
+        totaldebitamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
+            Sum('debitamount'))
+        totalcreditamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
+            Sum('creditamount'))
+
+        if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
+            self.object.amount = totaldebitamount['debitamount__sum']
+            self.object.save(update_fields=['amount'])
+        else:
+            print "Debit and Credit amounts are not equal. AP Amount is not saved."
+
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 
 
@@ -399,6 +410,18 @@ class UpdateView(UpdateView):
             num = self.object.apnum
             secretkey = self.request.POST['secretkey']
             updatedetail(source, mainid, num, secretkey, self.request.user)
+
+            totaldebitamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
+                Sum('debitamount'))
+            totalcreditamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
+                Sum('creditamount'))
+
+            if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
+                self.object.amount = totaldebitamount['debitamount__sum']
+                self.object.save(update_fields=['amount'])
+            else:
+                print "Debit and Credit amounts are not equal. AP Amount is not saved."
+
         else:
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
