@@ -3,6 +3,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
+from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
+    validatetable, deleteallquery
 from supplier.models import Supplier
 from branch.models import Branch
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -12,7 +14,10 @@ from inputvattype.models import Inputvattype
 from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
+from apsubtype.models import Apsubtype
 from aptype.models import Aptype
+from operationalfund.models import Ofmain, Ofitem, Ofdetail
+from replenish_rfv.models import Reprfvmain, Reprfvdetail
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
@@ -114,7 +119,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Apmain
     template_name = 'accountspayable/create.html'
-    fields = ['apdate', 'aptype', 'payee', 'branch',
+    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
@@ -132,9 +137,11 @@ class CreateView(CreateView):
             context['payee'] = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0)
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
+        context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
 
         #lookup
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -188,6 +195,20 @@ class CreateView(CreateView):
         secretkey = self.request.POST['secretkey']
         savedetail(source, mainid, num, secretkey, self.request.user)
 
+        # save apmain in reprfvmain, reprfvdetail, ofmain
+        for i in range(len(self.request.POST.getlist('rfv_checkbox'))):
+            reprfvmain = Reprfvmain.objects.get(pk=int(self.request.POST.getlist('rfv_checkbox')[i]))
+            reprfvmain.apmain = self.object
+            reprfvmain.save()
+            reprfvdetail = Reprfvdetail.objects.filter(reprfvmain=reprfvmain)
+            for data in reprfvdetail:
+                data.apmain = self.object
+                data.save()
+                ofmain = Ofmain.objects.get(reprfvdetail=data)
+                ofmain.apmain = self.object
+                ofmain.save()
+        # save apmain in reprfvmain, reprfvdetail, ofmain
+
         return HttpResponseRedirect('/accountspayable/' + str(self.object.id) + '/update')
 
 
@@ -195,7 +216,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Apmain
     template_name = 'accountspayable/edit.html'
-    fields = ['apdate', 'aptype', 'payee', 'branch',
+    fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars',
@@ -306,12 +327,17 @@ class UpdateView(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0)
         context['apnum'] = self.object.apnum
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
+        context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
         context['actualapprover'] = None if Apmain.objects.get(
             pk=self.object.id).actualapprover is None else Apmain.objects.get(pk=self.object.id).actualapprover.id
+        context['savedapsubtype'] = Apmain.objects.get(pk=self.object.id).apsubtype.code
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=self.object.id).order_by('enterdate')
+        ap_main_aggregate = Reprfvmain.objects.filter(isdeleted=0, apmain=self.object.id).aggregate(Sum('amount'))
+        context['reprfv_total_amount'] = ap_main_aggregate['amount__sum']
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -335,7 +361,7 @@ class UpdateView(UpdateView):
             self.object.payeecode = self.object.payee.code
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['apdate', 'aptype', 'payee', 'payeecode', 'branch',
+            self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'branch',
                                             'bankbranchdisburse', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars',
@@ -511,6 +537,122 @@ def release(request):
             data = {
                 'status': 'error',
             }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def importreprfv(request):
+    if request.method == 'POST':
+        first_ofmain = Ofmain.objects.filter(reprfvmain=request.POST.getlist('checked_reprfvmain[]')[0], isdeleted=0,
+                                             status='A').first()
+        first_ofitem = Ofitem.objects.filter(ofmain=first_ofmain.id, isdeleted=0, status='A').first()
+
+        ofdetail = Ofdetail.objects.filter(ofmain__reprfvmain__in=set(request.POST.getlist('checked_reprfvmain[]'))).\
+            order_by('ofmain', 'item_counter')
+        # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
+        ofdetail = ofdetail.values('chartofaccount__accountcode',
+                                   'chartofaccount__id',
+                                   'chartofaccount__title',
+                                   'chartofaccount__description',
+                                   'bankaccount__id',
+                                   'bankaccount__accountnumber',
+                                   'department__id',
+                                   'department__departmentname',
+                                   'employee__id',
+                                   'employee__firstname',
+                                   'supplier__id',
+                                   'supplier__name',
+                                   'customer__id',
+                                   'customer__name',
+                                   'branch__id',
+                                   'branch__description',
+                                   'product__id',
+                                   'product__description',
+                                   'unit__id',
+                                   'unit__description',
+                                   'inputvat__id',
+                                   'inputvat__description',
+                                   'outputvat__id',
+                                   'outputvat__description',
+                                   'vat__id',
+                                   'vat__description',
+                                   'wtax__id',
+                                   'wtax__description',
+                                   'ataxcode__id',
+                                   'ataxcode__code',
+                                   'balancecode') \
+                           .annotate(Sum('debitamount'), Sum('creditamount')) \
+                           .order_by('-chartofaccount__accountcode',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     '-vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')
+
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'apnum' in request.POST:
+            if request.POST['apnum']:
+                updateallquery(request.POST['table'], request.POST['apnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        i = 1
+        for detail in ofdetail:
+            apdetailtemp = Apdetailtemp()
+            apdetailtemp.item_counter = i
+            apdetailtemp.secretkey = request.POST['secretkey']
+            apdetailtemp.ap_date = datetime.datetime.now()
+            apdetailtemp.chartofaccount = detail['chartofaccount__id']
+            apdetailtemp.bankaccount = detail['bankaccount__id']
+            apdetailtemp.department = detail['department__id']
+            apdetailtemp.employee = detail['employee__id']
+            apdetailtemp.supplier = detail['supplier__id']
+            apdetailtemp.customer = detail['customer__id']
+            apdetailtemp.unit = detail['unit__id']
+            apdetailtemp.branch = detail['branch__id']
+            apdetailtemp.product = detail['product__id']
+            apdetailtemp.inputvat = detail['inputvat__id']
+            apdetailtemp.outputvat = detail['outputvat__id']
+            apdetailtemp.vat = detail['vat__id']
+            apdetailtemp.wtax = detail['wtax__id']
+            apdetailtemp.ataxcode = detail['ataxcode__id']
+            apdetailtemp.debitamount = detail['debitamount__sum']
+            apdetailtemp.creditamount = detail['creditamount__sum']
+            apdetailtemp.balancecode = detail['balancecode']
+            apdetailtemp.enterby = request.user
+            apdetailtemp.modifyby = request.user
+            apdetailtemp.save()
+            i += 1
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+            'branch': first_ofmain.branch_id,
+            'vat': first_ofitem.vat_id,
+            'atc': first_ofitem.atc_id,
+            'inputvattype': first_ofitem.inputvattype_id,
+            'deferredvat': first_ofitem.deferredvat
+        }
     else:
         data = {
             'status': 'error',

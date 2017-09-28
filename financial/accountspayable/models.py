@@ -29,6 +29,7 @@ class Apmain(models.Model):
     apprefix = models.CharField(default='AP', max_length=5)
     apdate = models.DateField()
     aptype = models.ForeignKey('aptype.Aptype', related_name='aptype_apmain_id')
+    apsubtype = models.ForeignKey('apsubtype.Apsubtype', related_name='apsubtype_apmain_id')
     apstatus = models.CharField(max_length=1, choices=AP_STATUS_CHOICES, default='F')
 
     payee = models.ForeignKey('supplier.Supplier', related_name='apmain_payee_id', null=True, blank=True)
