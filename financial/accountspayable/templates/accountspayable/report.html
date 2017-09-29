@@ -116,7 +116,7 @@
                                     <option value="apdate">Date</option>
                                     <option value="aptype">Type</option>
                                     <option value="apsubtype">Subtype</option>
-                                    <option value="payee_name">Payee</option>
+                                    <option value="payee">Payee</option>
                                     <option value="amount">Amount</option>
                                 </select>
                             </div>
@@ -245,10 +245,6 @@
                                 <input type="text" class="form-control input-sm" id="rep_f_payee">
                             </div>
                             <div class="form-group col-sm-2">
-                                <label class="control-label small">Check no.</label>
-                                <input type="text" class="form-control input-sm" id="rep_f_check">
-                            </div>
-                            <div class="form-group col-sm-2">
                                 <label class="control-label small">Reference no.</label>
                                 <input type="text" class="form-control input-sm" id="rep_f_ref">
                             </div>
@@ -279,7 +275,7 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group col-sm-1">
+                            <div class="form-group col-sm-2">
                                 <label class="control-label small">Deferred</label>
                                 <select class="form-control input-sm" id="rep_f_deferred">
                                     <option value="">--</option>
@@ -287,7 +283,7 @@
                                     <option value="n">No</option>
                                 </select>
                             </div>
-                            <div class="form-group col-sm-1">
+                            <div class="form-group col-sm-2">
                                 <label class="control-label small">Currency</label>
                                 <select class="form-control input-sm" id="rep_f_currency">
                                     <option value="">--</option>
@@ -296,16 +292,7 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Bank Account</label>
-                                <select id="rep_f_bank" class="form-control input-sm">
-                                    <option value="">-- Select --</option>
-                                    {% for bankaccount in bankaccount %}
-                                        <option value="{{ bankaccount.id }}">{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.bankbranch.description }}]</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-4">
                                 <label class="control-label small">Disbursing Branch</label>
                                 <select class="form-control input-sm" id="rep_f_disburse">
                                     <option value="">-- Select --</option>
@@ -360,14 +347,12 @@
                 setCookie('rep_f_apstatus_{{ request.resolver_match.app_name }}', $('#rep_f_apstatus').val());
                 setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
                 setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
-                setCookie('rep_f_check_{{ request.resolver_match.app_name }}', $('#rep_f_check').val());
                 setCookie('rep_f_ref_{{ request.resolver_match.app_name }}', $('#rep_f_ref').val());
                 setCookie('rep_f_currency_{{ request.resolver_match.app_name }}', $('#rep_f_currency').val());
                 setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
                 setCookie('rep_f_atc_{{ request.resolver_match.app_name }}', $('#rep_f_atc').val());
                 setCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_inputvattype').val());
                 setCookie('rep_f_deferred_{{ request.resolver_match.app_name }}', $('#rep_f_deferred').val());
-                setCookie('rep_f_bank_{{ request.resolver_match.app_name }}', $('#rep_f_bank').val());
                 setCookie('rep_f_disburse_{{ request.resolver_match.app_name }}', $('#rep_f_disburse').val());
 
                 setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
@@ -428,14 +413,12 @@
         $('#rep_f_apstatus').val(getCookie('rep_f_apstatus_{{ request.resolver_match.app_name }}'));
         $('#rep_f_branch').val(getCookie('rep_f_branch_{{ request.resolver_match.app_name }}'));
         $('#rep_f_payee').val(getCookie('rep_f_payee_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_check').val(getCookie('rep_f_check_{{ request.resolver_match.app_name }}'));
         $('#rep_f_ref').val(getCookie('rep_f_ref_{{ request.resolver_match.app_name }}'));
         $('#rep_f_currency').val(getCookie('rep_f_currency_{{ request.resolver_match.app_name }}'));
         $('#rep_f_vat').val(getCookie('rep_f_vat_{{ request.resolver_match.app_name }}'));
         $('#rep_f_atc').val(getCookie('rep_f_atc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_inputvattype').val(getCookie('rep_f_inputvattype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_deferred').val(getCookie('rep_f_deferred_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_bank').val(getCookie('rep_f_bank_{{ request.resolver_match.app_name }}'));
         $('#rep_f_disburse').val(getCookie('rep_f_disburse_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}').split(',')).select2();

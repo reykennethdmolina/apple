@@ -553,7 +553,7 @@ class ReportView(ListView):
 
 @method_decorator(login_required, name='dispatch')
 class ReportResultView(ReportContentMixin, PDFTemplateView):
-    model = Ofmain
+    model = Cvmain
     template_name = 'checkvoucher/reportresult.html'
 
     def get_context_data(self, **kwargs):

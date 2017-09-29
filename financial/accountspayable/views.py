@@ -692,7 +692,6 @@ class ReportView(ListView):
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
         context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
 
         return context
@@ -775,13 +774,13 @@ def reportresultquery(request):
                 query = query.filter(branch=int(key_data))
             if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-                query = query.filter(Q(payee_code__icontains=key_data) | Q(payee_name__icontains=key_data))
-            if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
-                key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
-                query = query.filter(Q(checknum__icontains=key_data))
+                query = query.filter(Q(payeecode__icontains=key_data) | Q(payee__name__icontains=key_data))
+            # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+            #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+            #     query = query.filter(Q(checknum__icontains=key_data))
             if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
-                query = query.filter(Q(refnum__icontains=key_data))
+                query = query.filter(Q(refno__icontains=key_data))
             if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
                 query = query.filter(currency=int(key_data))
@@ -794,16 +793,13 @@ def reportresultquery(request):
                 query = query.filter(inputvattype=int(key_data))
             if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
-                query = query.filter(atc=int(key_data))
+                query = query.filter(atax=int(key_data))
             if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
-                query = query.filter(deferredvat=str(key_data))
-            if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
-                key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
-                query = query.filter(bankaccount=int(key_data))
+                query = query.filter(deferred=str(key_data))
             if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
-                query = query.filter(disbursingbranch=int(key_data))
+                query = query.filter(bankbranchdisburse=int(key_data))
             if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
                 query = query.filter(amount__gte=float(key_data.replace(',', '')))
@@ -853,13 +849,13 @@ def reportresultquery(request):
                 query = query.filter(apmain__branch=int(key_data))
             if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-                query = query.filter(Q(apmain__payee_code__icontains=key_data) | Q(apmain__payee_name__icontains=key_data))
-            if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
-                key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
-                query = query.filter(Q(apmain__checknum__icontains=key_data))
+                query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payee__name__icontains=key_data))
+            # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+            #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+            #     query = query.filter(Q(apmain__checknum__icontains=key_data))
             if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
-                query = query.filter(Q(apmain__refnum__icontains=key_data))
+                query = query.filter(Q(apmain__refno__icontains=key_data))
             if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
                 query = query.filter(apmain__currency=int(key_data))
@@ -872,16 +868,13 @@ def reportresultquery(request):
                 query = query.filter(apmain__inputvattype=int(key_data))
             if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
-                query = query.filter(apmain__atc=int(key_data))
+                query = query.filter(apmain__atax=int(key_data))
             if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
-                query = query.filter(apmain__deferredvat=str(key_data))
-            if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
-                key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
-                query = query.filter(apmain__bankaccount=int(key_data))
+                query = query.filter(apmain__deferred=str(key_data))
             if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
-                query = query.filter(apmain__disbursingbranch=int(key_data))
+                query = query.filter(apmain__bankbranchdisburse=int(key_data))
 
             if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
@@ -959,13 +952,13 @@ def reportresultquery(request):
             query = query.filter(apmain__branch=int(key_data))
         if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-            query = query.filter(Q(apmain__payee_code__icontains=key_data) | Q(apmain__payee_name__icontains=key_data))
-        if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
-            key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
-            query = query.filter(Q(apmain__checknum__icontains=key_data))
+            query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payee__name__icontains=key_data))
+        # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
+        #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
+        #     query = query.filter(Q(apmain__checknum__icontains=key_data))
         if request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_ref_' + request.resolver_match.app_name))
-            query = query.filter(Q(apmain__refnum__icontains=key_data))
+            query = query.filter(Q(apmain__refno__icontains=key_data))
         if request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_currency_' + request.resolver_match.app_name))
             query = query.filter(apmain__currency=int(key_data))
@@ -978,16 +971,13 @@ def reportresultquery(request):
             query = query.filter(apmain__inputvattype=int(key_data))
         if request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_atc_' + request.resolver_match.app_name))
-            query = query.filter(apmain__atc=int(key_data))
+            query = query.filter(apmain__atax=int(key_data))
         if request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_deferred_' + request.resolver_match.app_name))
-            query = query.filter(apmain__deferredvat=str(key_data))
-        if request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name):
-            key_data = str(request.COOKIES.get('rep_f_bank_' + request.resolver_match.app_name))
-            query = query.filter(apmain__bankaccount=int(key_data))
+            query = query.filter(apmain__deferred=str(key_data))
         if request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_disburse_' + request.resolver_match.app_name))
-            query = query.filter(apmain__disbursingbranch=int(key_data))
+            query = query.filter(apmain__bankbranchdisburse=int(key_data))
 
         if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
@@ -1087,7 +1077,7 @@ def reportresultxlsx(request):
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
         amount_placement = 6
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-        amount_placement = 13 if rfv == 'show' else 11
+        amount_placement = 11 if rfv == 'show' else 9
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 14
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -1109,17 +1099,15 @@ def reportresultxlsx(request):
             worksheet.merge_range('C1:C2', 'Type', bold)
             worksheet.merge_range('D1:D2', 'Subtype', bold)
             worksheet.merge_range('E1:E2', 'Payee', bold)
-            worksheet.merge_range('F1:F2', 'Check No.', bold)
-            worksheet.merge_range('G1:G2', 'Check Date', bold)
-            worksheet.merge_range('H1:H2', 'VAT', bold)
-            worksheet.merge_range('I1:I2', 'ATC', bold)
-            worksheet.merge_range('J1:J2', 'In/VAT', bold)
-            worksheet.merge_range('K1:K2', 'Status', bold)
-            worksheet.merge_range('L1:N1', 'Replenished RFV', bold_center)
-            worksheet.merge_range('O1:O2', 'Amount', bold_right)
-            worksheet.write('L2', 'Rep RFV Number', bold)
-            worksheet.write('M2', 'Date', bold)
-            worksheet.write('N2', 'Rep RFV Amount', bold_right)
+            worksheet.merge_range('F1:F2', 'VAT', bold)
+            worksheet.merge_range('G1:G2', 'ATC', bold)
+            worksheet.merge_range('H1:H2', 'In/VAT', bold)
+            worksheet.merge_range('I1:I2', 'Status', bold)
+            worksheet.merge_range('J1:L1', 'Replenished RFV', bold_center)
+            worksheet.merge_range('M1:M2', 'Amount', bold_right)
+            worksheet.write('J2', 'Rep RFV Number', bold)
+            worksheet.write('K2', 'Date', bold)
+            worksheet.write('L2', 'Rep RFV Amount', bold_right)
             row += 1
         else:
             worksheet.write('A1', 'AP Number', bold)
@@ -1127,13 +1115,11 @@ def reportresultxlsx(request):
             worksheet.write('C1', 'Type', bold)
             worksheet.write('D1', 'Subtype', bold)
             worksheet.write('E1', 'Payee', bold)
-            worksheet.write('F1', 'Check No.', bold)
-            worksheet.write('G1', 'Check Date', bold)
-            worksheet.write('H1', 'VAT', bold)
-            worksheet.write('I1', 'ATC', bold)
-            worksheet.write('J1', 'In/VAT', bold)
-            worksheet.write('K1', 'Status', bold)
-            worksheet.write('L1', 'Amount', bold_right)
+            worksheet.write('F1', 'VAT', bold)
+            worksheet.write('G1', 'ATC', bold)
+            worksheet.write('H1', 'In/VAT', bold)
+            worksheet.write('I1', 'Status', bold)
+            worksheet.write('J1', 'Amount', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:A2', 'Chart of Account', bold)
         worksheet.merge_range('B1:N1', 'Details', bold_center)
@@ -1184,7 +1170,7 @@ def reportresultxlsx(request):
                 DateFormat(obj.apdate).format('Y-m-d'),
                 obj.aptype.description if obj.aptype else '',
                 obj.apsubtype.description if obj.apsubtype else '',
-                obj.payee_name,
+                obj.payee.name,
                 obj.get_apstatus_display(),
                 obj.amount,
             ]
@@ -1195,11 +1181,9 @@ def reportresultxlsx(request):
                     DateFormat(obj.apmain.apdate).format('Y-m-d'),
                     obj.apmain.aptype.description if obj.apmain.aptype else '',
                     obj.apmain.apsubtype.description if obj.apmain.apsubtype else '',
-                    obj.apmain.payee_name,
-                    obj.apmain.checknum,
-                    DateFormat(obj.apmain.checkdate).format('Y-m-d'),
+                    obj.apmain.payee.name,
                     obj.apmain.vat.code if obj.apmain.vat else '',
-                    obj.apmain.atc.code if obj.apmain.atc else '',
+                    obj.apmain.atax.code if obj.apmain.atax else '',
                     obj.apmain.inputvattype.description if obj.apmain.inputvattype else '',
                     obj.apmain.get_apstatus_display(),
                     'RFV-' + obj.reprfvnum,
@@ -1213,11 +1197,9 @@ def reportresultxlsx(request):
                     DateFormat(obj.apdate).format('Y-m-d'),
                     obj.aptype.description if obj.aptype else '',
                     obj.apsubtype.description if obj.apsubtype else '',
-                    obj.payee_name,
-                    obj.checknum,
-                    DateFormat(obj.checkdate).format('Y-m-d'),
+                    obj.payee.name,
                     obj.vat.code if obj.vat else '',
-                    obj.atc.code if obj.atc else '',
+                    obj.atax.code if obj.atax else '',
                     obj.inputvattype.description if obj.inputvattype else '',
                     obj.get_apstatus_display(),
                     obj.amount,
@@ -1285,7 +1267,7 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         if rfv == 'show':
             data = [
-                "", "", "", "", "", "", "", "", "", "", "", "", "",
+                "", "", "", "", "", "", "", "", "", "", "",
                 "Total", report_total['apmain__amount__sum'],
             ]
         else:
