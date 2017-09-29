@@ -40,6 +40,7 @@ class IndexView(AjaxListView):
 
     # pagination and search
     page_template = 'accountspayable/index_list.html'
+
     def get_queryset(self):
         query = Apmain.objects.all().filter(isdeleted=0)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
@@ -53,12 +54,6 @@ class IndexView(AjaxListView):
                                  Q(refno__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
         return query
-
-    # def render_to_response(self, context, **response_kwargs):
-    #     response = super(IndexView, self).render_to_response(context, **response_kwargs)
-    #     response.set_cookie('keysearch_' + self.request.resolver_match.app_name, 'qwe')
-    #     print self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name)
-    #     return response
 
     def get_context_data(self, **kwargs):
         context = super(AjaxListView, self).get_context_data(**kwargs)

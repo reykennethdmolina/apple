@@ -39,13 +39,17 @@
         .rotate-icon{
             display: inline-block;
         }
+        li.active
+        {
+            font-size: 12px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
 <div class="page-content container-fluid page">
     <div class="row">
         <div class="row col-md-12">
-            <div class="col-md-12">
+            <div class="col-md-9">
                 <!-- Start Profile Tab Section -->
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <div class="pull-right">
@@ -59,7 +63,7 @@
                     <div class="tab-content padding-top-0">
                         <div class="tab-pane active" id="profiles" role="tabpanel">
                             <div class="panel top-profile skill-profile margin-bottom-25">
-                                <div class="panel-body">
+                                <div class="panel-body small">
                                     <!-- <h4 class="list-title">Personal Information</h4> -->
                                     <div class="row">
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -73,7 +77,7 @@
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-1 margin-right-60"><b>Date</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.ofdate }}</span>
+                                                <span>{{ object.ofdate|date:'Y-m-d' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -108,44 +112,36 @@
                                             <div class="first-name-profile">
                                                 <br>
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Employee</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 15px;"><b>: </b></span>
                                                 <span><b>{{ object.requestor_name }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Department</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 15px;"><b>: </b></span>
                                                 <span><b>{{ object.department_name }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Particulars</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 15px;"><b>: </b></span>
                                                 <span><b>{{ object.particulars }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Branch</b></span>
-                                                <span class="text-info row col-md-1" style="margin-right: 25px;"><b>: </b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 15px;"><b>: </b></span>
                                                 <span><b>{{ object.branch.description }}</b></span>
                                             </div>
                                         </div>
-
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="first-name-profile">
-                                                <span class="text-info row col-md-2 margin-right-80"><b>Credit&nbsp;Terms</b></span>
-                                                <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.creditterm.description|default:'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="first-name-profile">
-                                                <span class="text-info col-md-1 margin-right-60"></span>
-                                                <span class="text-info row col-md-3"></span>
-                                                <span>&nbsp;</span>
+                                                <span class="text-info row col-md-1" style="margin-right: 78px;"><b>Credit&nbsp;Terms</b></span>
+                                                <span class="text-info row col-md-1" style="margin-right: 15px;"><b>: </b></span>
+                                                <span><b>{{ object.creditterm.description|default:'N/A' }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -176,7 +172,7 @@
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-2 margin-right-80"><b>{% if object.approverresponse == 'D' %}Disapproval{% else %}Approval{% endif %}&nbsp;Date</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.responsedate|date:'F j, Y'|default:'N/A' }}</span>
+                                                <span>{{ object.responsedate|date:'Y-m-d'|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -190,7 +186,7 @@
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-2 margin-right-80"><b>Release&nbsp;Date</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span>{{ object.releasedate|date:'F j, Y'|default:'N/A' }}</span>
+                                                <span>{{ object.releasedate|date:'Y-m-d'|default:'N/A' }}</span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -213,6 +209,55 @@
                                                              {% endif %}"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-md-3">
+                <div class="col-md-12">
+                    <div class="nav-tabs nav-tabs-animate border-profile">
+                        <ul class="nav nav-tabs nav-profile">
+                            <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Replenishment</a></li>
+                        </ul>
+                        <div class="tab-content padding-top-0">
+                            <div class="tab-pane active" id="profiles" role="tabpanel">
+                                <div class="panel top-profile skill-profile margin-bottom-25">
+                                            <div class="panel-body small">
+                                        {% if object.oftype.code == 'PCV' %}
+                                            <div class="master-degree">
+                                                <span class="degree-name text-info">PCV&nbsp;Replenishment:</span>
+                                                {% if object.reppcvmain %}
+                                                    <div class="univer-profile">{{ object.reppcvmain.reppcvnum }}, {{ object.reppcvmain.reppcvdate|date:'Y-m-d' }}</div>
+                                                {% else %}<div class="univer-profile">N/A</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="master-degree">
+                                                <span class="degree-name text-info">Check&nbsp;Voucher:</span>
+                                                {% if object.cvmain %}
+                                                <div class="univer-profile">{{ object.cvmain.cvnum }}, {{ object.cvmain.cvdate|date:'Y-m-d' }}</div>
+                                                {% else %}<div class="univer-profile">N/A</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                        {% if object.oftype.code == 'RFV' %}
+                                            <div class="master-degree">
+                                                <span class="degree-name text-info">RFV&nbsp;Replenishment:</span>
+                                                {% if object.reprfvmain %}
+                                                <div class="univer-profile">{{ object.reprfvmain.reprfvnum }}, {{ object.reprfvmain.reprfvdate|date:'Y-m-d' }}</div>
+                                                {% else %}<div class="univer-profile">N/A</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="master-degree">
+                                                <span class="degree-name text-info">AP&nbsp;Voucher:</span>
+                                                {% if object.apmain %}
+                                                <div class="univer-profile">{{ object.apmain.apnum }}, {{ object.apmain.apdate|date:'Y-m-d' }}</div>
+                                                {% else %}<div class="univer-profile">N/A</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -349,7 +394,7 @@
                     <div class="tab-content padding-top-0">
                         <div class="tab-pane active" id="profiles" role="tabpanel">
                             <div class="panel top-profile skill-profile margin-bottom-25">
-                                        <div class="panel-body">
+                                <div class="panel-body small">
                                     <div class="master-degree">
                                         <span class="degree-name text-info">Created&nbsp;By:</span>
                                         <div class="univer-profile">{{ object.enterby }}</div>
