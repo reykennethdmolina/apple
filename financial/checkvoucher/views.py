@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -528,6 +528,11 @@ class Voucher(PDFTemplateView):
         printedcv.print_ctr += 1
         printedcv.save()
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class PrePrintedVoucher(TemplateView):
+    template_name = 'checkvoucher/preprintedvoucher.html'
 
 
 @method_decorator(login_required, name='dispatch')
