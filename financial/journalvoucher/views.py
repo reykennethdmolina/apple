@@ -9,25 +9,58 @@ from jvtype.models import Jvtype
 from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
-from journalvoucher.models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp
+from . models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
 
 
-@method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Jvmain
     template_name = 'journalvoucher/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'journalvoucher/index_list.html'
+
     def get_queryset(self):
-        return Jvmain.objects.all().order_by('pk')
+        query = Jvmain.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(jvnum__icontains=keysearch) |
+                                 Q(jvdate__icontains=keysearch) |
+                                 Q(jvtype__description__icontains=keysearch) |
+                                 Q(department__departmentname__icontains=keysearch))
+        return query
 
     def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
-        context['date'] = datetime.datetime.now()
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        #lookup
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('description')
+        context['pk'] = 0
+
         return context
+
+
+# @method_decorator(login_required, name='dispatch')
+# class IndexView(ListView):
+#     model = Jvmain
+#     template_name = 'journalvoucher/index2.html'
+#     context_object_name = 'data_list'
+#
+#     def get_queryset(self):
+#         return Jvmain.objects.all().order_by('pk')
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(IndexView, self).get_context_data(**kwargs)
+#         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+#         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
+#         context['date'] = datetime.datetime.now()
+#         return context
 
 
 @method_decorator(login_required, name='dispatch')
