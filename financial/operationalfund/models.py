@@ -87,6 +87,9 @@ class Ofmain(models.Model):
     apmain = models.ForeignKey('accountspayable.Apmain', related_name='ofmain_apmain_id', null=True, blank=True)
     # rfv replenishment fields
 
+    # cellphone subsidy vouchers
+    jvmain = models.ForeignKey('journalvoucher.Jvmain', related_name='ofmain_jvmain_id', null=True, blank=True)
+
     class Meta:
         db_table = 'ofmain'
         ordering = ['-pk']

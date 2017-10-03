@@ -92,6 +92,9 @@
                                 {% elif savedoftype == 'RFV' and rfv_replenished == 'True' %}
                                     <label class="control-label col-sm-4">AP&nbsp;Voucher:</label>
                                     <label id="currentstatus" class="control-label col-sm-8">{{ apnum }}, {{ apdate|date:'Y-m-d' }}</label>
+                                {% elif savedoftype == 'CSV' and csv_replenished == 'True' %}
+                                    <label class="control-label col-sm-4">Journal&nbsp;Voucher:</label>
+                                    <label id="currentstatus" class="control-label col-sm-8">{{ jvnum }}, {{ jvdate|date:'Y-m-d' }}</label>
                                 {% endif %}
                             </div>
                         {% if perms.operationalfund.delete_ofmain and object.ofstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
@@ -648,6 +651,9 @@
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
                 {% elif savedoftype == 'RFV' and rfv_requested == 'True' %}
+                    $("#id_remarks").prop("readonly", true);
+                    $(".textarea-remarks").prop("readonly", true);
+                {% elif savedoftype == 'CSV' and csv_replenished == 'True' %}
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
                 {% endif %}

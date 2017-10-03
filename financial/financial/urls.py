@@ -75,6 +75,7 @@ urlpatterns = [
     url(r'^cvsubtype/', include('cvsubtype.urls', app_name='cvsubtype', namespace='cvsubtype')),
     url(r'^replenish_rfv/', include('replenish_rfv.urls', app_name='replenish_rfv', namespace='replenish_rfv')),
     url(r'^apsubtype/', include('apsubtype.urls', app_name='apsubtype', namespace='apsubtype')),
+    url(r'^jvsubtype/', include('jvsubtype.urls', app_name='jvsubtype', namespace='jvsubtype')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

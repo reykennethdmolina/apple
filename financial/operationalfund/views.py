@@ -684,6 +684,12 @@ class UpdateViewCashier(UpdateView):
         context['apdate'] = self.object.apmain.apdate if self.object.apmain else 'N/A'
         # for RFVs
 
+        # for CSVs
+        context['csv_replenished'] = 'False' if self.object.jvmain is None else 'True'
+        context['jvnum'] = self.object.jvmain.jvnum if self.object.jvmain else 'N/A'
+        context['jvdate'] = self.object.jvmain.jvdate if self.object.jvmain else 'N/A'
+        # for CSVs
+
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')

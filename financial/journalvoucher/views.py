@@ -1,11 +1,12 @@
 import datetime
 from django.db.models import Sum
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from jvtype.models import Jvtype
+from jvsubtype.models import Jvsubtype
 from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
@@ -13,6 +14,7 @@ from . models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetail
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 
 class IndexView(AjaxListView):
@@ -46,23 +48,6 @@ class IndexView(AjaxListView):
         return context
 
 
-# @method_decorator(login_required, name='dispatch')
-# class IndexView(ListView):
-#     model = Jvmain
-#     template_name = 'journalvoucher/index2.html'
-#     context_object_name = 'data_list'
-#
-#     def get_queryset(self):
-#         return Jvmain.objects.all().order_by('pk')
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(IndexView, self).get_context_data(**kwargs)
-#         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
-#         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
-#         context['date'] = datetime.datetime.now()
-#         return context
-
-
 @method_decorator(login_required, name='dispatch')
 class DetailView(DetailView):
     model = Jvmain
@@ -84,7 +69,8 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Jvmain
     template_name = 'journalvoucher/create.html'
-    fields = ['jvdate', 'jvtype', 'refnum', 'particular', 'branch', 'currency', 'department']
+    fields = ['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency', 'department',
+              'designatedapprover']
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -93,6 +79,9 @@ class CreateView(CreateView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
         return context
 
     def form_valid(self, form):
@@ -123,8 +112,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Jvmain
     template_name = 'journalvoucher/edit.html'
-    fields = ['jvnum', 'jvdate', 'refnum', 'jvtype',
-              'particular', 'branch', 'currency', 'department']
+    fields = ['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency', 'department',
+              'designatedapprover', 'jvstatus']
 
     def get_initial(self):
         self.mysecretkey = generatekey(self)
@@ -217,6 +206,9 @@ class UpdateView(UpdateView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
+        context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+            order_by('first_name')
 
         contextdatatable = {
             # to be used by accounting entry on load
@@ -233,8 +225,8 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['jvtype', 'refnum', 'modifyby', 'particular',
-                                        'branch', 'currency', 'department', 'modifydate'])
+        self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency',
+                                        'department', 'designatedapprover', 'jvstatus'])
 
         # accounting entry starts here..
         source = 'jvdetailtemp'

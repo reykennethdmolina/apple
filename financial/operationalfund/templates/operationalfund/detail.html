@@ -258,6 +258,15 @@
                                                 {% endif %}
                                             </div>
                                         {% endif %}
+                                        {% if object.oftype.code == 'CSV' %}
+                                            <div class="master-degree">
+                                                <span class="degree-name text-info">Journal&nbsp;Voucher:</span>
+                                                {% if object.jvmain %}
+                                                <div class="univer-profile">{{ object.jvmain.jvnum }}, {{ object.jvmain.jvdate|date:'Y-m-d' }}</div>
+                                                {% else %}<div class="univer-profile">N/A</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

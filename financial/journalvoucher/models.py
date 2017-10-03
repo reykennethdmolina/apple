@@ -10,6 +10,7 @@ class Jvmain(models.Model):
     jvprefix = models.CharField(default='JV', max_length=5)
     jvdate = models.DateTimeField()
     jvtype = models.ForeignKey('jvtype.Jvtype', related_name='jvtype_jvmain_id')
+    jvsubtype = models.ForeignKey('jvsubtype.Jvsubtype', related_name='jvsubtype_jvmain_id')
     refnum = models.CharField(max_length=150, blank=True, null=True)
     currency = models.ForeignKey('currency.Currency', related_name='currency_jvmain_id')
     branch = models.ForeignKey('branch.Branch', related_name='branch_jvmain_id')
@@ -53,6 +54,7 @@ class Jvmain(models.Model):
     releaseby = models.ForeignKey(User, related_name='jvmain_release', null=True, blank=True)
     releasedate = models.DateTimeField(null=True, blank=True)
     print_ctr = models.IntegerField(default=0)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
 
     class Meta:
         db_table = 'jvmain'

@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} AP Subtype {% endblock page-title %}
+{% block page-title %} JV Subtype {% endblock page-title %}
 
 {% block page-content %}
 <div class="page-content container-fluid page">
@@ -59,15 +59,15 @@
                         </div>
                         <div class="master-degree">
                             <div class="iconlist">
-                            {% if perms.apsubtype.change_apsubtype %}
-                            <a href="{% url 'apsubtype:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            {% if perms.jvsubtype.change_jvsubtype %}
+                            <a href="{% url 'jvsubtype:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_pencil" aria-hidden="true"></i>
                                 </button>
                             </a>
                             {% endif %}
-                            {% if perms.apsubtype.delete_apsubtype %}
-                            <a href="{% url 'apsubtype:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                            {% if perms.jvsubtype.delete_jvsubtype %}
+                            <a href="{% url 'jvsubtype:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                                 <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                     <i class="icon_trash" aria-hidden="true"></i>
                                 </button>
