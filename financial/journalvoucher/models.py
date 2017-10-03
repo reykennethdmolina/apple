@@ -59,7 +59,9 @@ class Jvmain(models.Model):
     class Meta:
         db_table = 'jvmain'
         ordering = ['-pk']
-        permissions = (("view_jvmain", "Can view jvmain"),)
+        permissions = (("view_journalvoucher", "Can view journalvoucher"),
+                       ("approve_assignedjv", "Can approve assigned jv"),
+                       ("approve_alljv", "Can approve all jv"),)
 
     def get_absolute_url(self):
         return reverse('jvmain:detail', kwargs={'pk': self.pk})

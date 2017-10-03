@@ -3,8 +3,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
-    validatetable, deleteallquery
+from acctentry.views import updateallquery, validatetable, deleteallquery, generatekey, querystmtdetail, \
+    querytotaldetail, savedetail, updatedetail
 from supplier.models import Supplier
 from branch.models import Branch
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -18,13 +18,10 @@ from apsubtype.models import Apsubtype
 from aptype.models import Aptype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
-from bankaccount.models import Bankaccount
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from . models import Apmain, Apdetail, Apdetailtemp, Apdetailbreakdown, Apdetailbreakdowntemp
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
-from annoying.functions import get_object_or_None
 from endless_pagination.views import AjaxListView
 from django.db.models import Q, Sum
 from easy_pdf.views import PDFTemplateView

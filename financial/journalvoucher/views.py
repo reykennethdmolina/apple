@@ -3,15 +3,18 @@ from django.db.models import Sum
 from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
 from jvtype.models import Jvtype
 from jvsubtype.models import Jvsubtype
 from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
+from operationalfund.models import Ofmain, Ofdetail, Ofitem
 from . models import Jvmain, Jvdetail, Jvdetailtemp, Jvdetailbreakdown, Jvdetailbreakdowntemp
-from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
+from acctentry.views import updateallquery, validatetable, deleteallquery, generatekey, querystmtdetail, \
+    querytotaldetail, savedetail, updatedetail
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -82,6 +85,8 @@ class CreateView(CreateView):
         context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None).\
+            exclude(releasedate=None).order_by('id')   # released CSVs that do not have JVs yet
         return context
 
     def form_valid(self, form):
@@ -105,7 +110,25 @@ class CreateView(CreateView):
         secretkey = self.request.POST['secretkey']
         savedetail(source, mainid, num, secretkey, self.request.user)
 
-        return HttpResponseRedirect('/journalvoucher/create')
+        # save jvmain in ofmain
+        for i in range(len(self.request.POST.getlist('csv_checkbox'))):
+            ofmain = Ofmain.objects.get(pk=int(self.request.POST.getlist('csv_checkbox')[i]))
+            ofmain.jvmain = self.object
+            ofmain.save()
+        # save jvmain in ofmain
+
+        totaldebitamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+            Sum('debitamount'))
+        totalcreditamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+            Sum('creditamount'))
+
+        if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
+            self.object.amount = totaldebitamount['debitamount__sum']
+            self.object.save(update_fields=['amount'])
+        else:
+            print "Debit and Credit amounts are not equal. JV Amount is not saved."
+
+        return HttpResponseRedirect('/journalvoucher/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -209,6 +232,8 @@ class UpdateView(UpdateView):
         context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
+        context['jvnum'] = self.object.jvnum
+        context['originaljvstatus'] = Jvmain.objects.get(pk=self.object.id).jvstatus
 
         contextdatatable = {
             # to be used by accounting entry on load
@@ -236,3 +261,117 @@ class UpdateView(UpdateView):
         updatedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')
+
+
+@csrf_exempt
+def importrepcsv(request):
+    if request.method == 'POST':
+        first_ofmain = Ofmain.objects.filter(id=request.POST.getlist('checked_repcsvmain[]')[0],
+                                             isdeleted=0,
+                                             status='A').first()
+
+        ofdetail = Ofdetail.objects.filter(
+            ofmain__in=set(request.POST.getlist('checked_repcsvmain[]'))). \
+            order_by('ofmain', 'item_counter')
+        # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
+        ofdetail = ofdetail.values('chartofaccount__accountcode',
+                                   'chartofaccount__id',
+                                   'chartofaccount__title',
+                                   'chartofaccount__description',
+                                   'bankaccount__id',
+                                   'bankaccount__accountnumber',
+                                   'department__id',
+                                   'department__departmentname',
+                                   'employee__id',
+                                   'employee__firstname',
+                                   'supplier__id',
+                                   'supplier__name',
+                                   'customer__id',
+                                   'customer__name',
+                                   'branch__id',
+                                   'branch__description',
+                                   'product__id',
+                                   'product__description',
+                                   'unit__id',
+                                   'unit__description',
+                                   'inputvat__id',
+                                   'inputvat__description',
+                                   'outputvat__id',
+                                   'outputvat__description',
+                                   'vat__id',
+                                   'vat__description',
+                                   'wtax__id',
+                                   'wtax__description',
+                                   'ataxcode__id',
+                                   'ataxcode__code',
+                                   'balancecode') \
+            .annotate(Sum('debitamount'), Sum('creditamount')) \
+            .order_by('-chartofaccount__accountcode',
+                      'bankaccount__accountnumber',
+                      'department__departmentname',
+                      'employee__firstname',
+                      'supplier__name',
+                      'customer__name',
+                      'branch__description',
+                      'product__description',
+                      'inputvat__description',
+                      'outputvat__description',
+                      '-vat__description',
+                      'wtax__description',
+                      'ataxcode__code')
+
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'jvnum' in request.POST:
+            if request.POST['jvnum']:
+                updateallquery(request.POST['table'], request.POST['jvnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        i = 1
+        for detail in ofdetail:
+            jvdetailtemp = Jvdetailtemp()
+            jvdetailtemp.item_counter = i
+            jvdetailtemp.secretkey = request.POST['secretkey']
+            jvdetailtemp.jv_date = datetime.datetime.now()
+            jvdetailtemp.chartofaccount = detail['chartofaccount__id']
+            jvdetailtemp.bankaccount = detail['bankaccount__id']
+            jvdetailtemp.department = detail['department__id']
+            jvdetailtemp.employee = detail['employee__id']
+            jvdetailtemp.supplier = detail['supplier__id']
+            jvdetailtemp.customer = detail['customer__id']
+            jvdetailtemp.unit = detail['unit__id']
+            jvdetailtemp.branch = detail['branch__id']
+            jvdetailtemp.product = detail['product__id']
+            jvdetailtemp.inputvat = detail['inputvat__id']
+            jvdetailtemp.outputvat = detail['outputvat__id']
+            jvdetailtemp.vat = detail['vat__id']
+            jvdetailtemp.wtax = detail['wtax__id']
+            jvdetailtemp.ataxcode = detail['ataxcode__id']
+            jvdetailtemp.debitamount = detail['debitamount__sum']
+            jvdetailtemp.creditamount = detail['creditamount__sum']
+            jvdetailtemp.balancecode = detail['balancecode']
+            jvdetailtemp.enterby = request.user
+            jvdetailtemp.modifyby = request.user
+            jvdetailtemp.save()
+            i += 1
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+            'branch': first_ofmain.branch_id
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
