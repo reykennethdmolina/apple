@@ -127,7 +127,9 @@
                                         <td style="width: 36%; vertical-align: top">&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description|default:'-' }}</td>
                                         <td style="width: 25%; vertical-align: top">
                                             {% if data.bankaccount %}
-                                                {{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.run_code }}A<br>
+                                                {{ data.bankaccount.code }}
+                                                {{ data.bankaccount.bank.code }}
+                                                {{ data.bankaccount.bankaccounttype.code }}A<br>
                                             {% endif %}
                                             {% if data.department %}
                                                 {{ data.department.code }}<br>
@@ -183,7 +185,9 @@
                                         <td style="vertical-align: top">&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description|default:'-' }}</td>
                                         <td style="vertical-align: top">
                                             {% if data.bankaccount %}
-                                                {{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.run_code }}A<br>
+                                                {{ data.bankaccount.code }}
+                                                {{ data.bankaccount.bank.code }}
+                                                {{ data.bankaccount.bankaccounttype.code }}A<br>
                                             {% endif %}
                                             {% if data.department %}
                                                 {{ data.department.code }}<br>
@@ -270,7 +274,10 @@
                 {% for data in data_list %}
                     <tr>
                         <td>{{ data.bankaccount__code }}</td>
-                        <td>{{ data.bankaccount__bank__code }} {{ data.bankaccount__run_code }}A</td>
+                        <td>
+                            {{ data.bankaccount__bank__code }}
+                            {{ data.bankaccount__bankaccounttype__code }}A
+                        </td>
                         <td class="right">
                             {% if data.debitamount__sum > 0.00 %}
                                 {{ data.debitamount__sum|floatformat:2|intcomma }}

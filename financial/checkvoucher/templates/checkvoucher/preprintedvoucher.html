@@ -1,5 +1,5 @@
 {% load staticfiles %}
-
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,45 +27,167 @@
             font-size: 24px;
             font-family: "Times New Roman";
         }
+        td{
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
-<div class="main-items" style="margin-top: 120px; margin-left: 165px;">**RODA MARIE DADOR**</div>
-<div class="main-items" style="margin-top: 167px; margin-left: 165px; font-style: italic">TWENTY THOUSAND PESOS ONLY</div>
-<div class="main-items" style="margin-top: 65px; margin-left: 950px;">09/20/2017</div>
-<div class="main-items" style="margin-top: 115px; right: 0; margin-right: 130px;">20,000.00</div>
+<div class="main-items" style="margin-top: 120px; margin-left: 165px;">{{ chart.0.cvmain.payee_name }}</div>
+<div class="main-items" style="margin-top: 167px; margin-left: 165px; font-style: italic">{{ chart.0.cvmain.amountinwords }}</div>
+<div class="main-items" style="margin-top: 65px; margin-left: 950px;">{{ chart.0.cvmain.checkdate|date:'m/d/Y' }}</div>
+<div class="main-items" style="margin-top: 115px; right: 0; margin-right: 130px;">{{ chart.0.cvmain.amount|floatformat|intcomma:2 }}</div>
 
-<div style="margin-top: 477px; margin-left: 155px;">**RODA MARIE DADOR**</div>
-<div style="margin-top: 477px; margin-left: 1045px;">09/20/2017</div>
+<div style="margin-top: 477px; margin-left: 155px;">{{ chart.0.cvmain.payee_name }}</div>
+<div style="margin-top: 477px; margin-left: 1045px;">{{ chart.0.cvmain.cvdate|date:'m/d/Y' }}</div>
 
-<div style="margin-top: 528px; margin-left: 155px;">P51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;P5B CA 133-332-00007-8</div>
-<div style="margin-top: 528px; margin-left: 850px;">312-1233-555-00000</div>
+<div style="margin-top: 528px; margin-left: 155px;">
+    {{ chart.0.cvmain.bankaccount.code }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {{ chart.0.cvmain.bankaccount.bank.code }}
+    {{ chart.0.cvmain.bankaccount.bankaccounttype.code }}A
+    {{ chart.0.cvmain.bankaccount.accountnumber }}
+</div>
+<div style="margin-top: 528px; margin-left: 850px;">{{ chart.0.cvmain.refnum }}</div>
 
-<div style="margin-top: 555px; margin-left: 155px;">0000047165</div>
-<div style="margin-top: 555px; margin-left: 410px;">09/20/2017</div>
-<div style="margin-top: 555px; right: 0; margin-right: 510px;">20,000.00</div>
-<div style="margin-top: 555px; right: 0; margin-right: 340px;">.00</div>
-<div style="margin-top: 555px; right: 0; margin-right: 170px;">.00</div>
+<div style="margin-top: 555px; margin-left: 155px;">{{ chart.0.cvmain.checknum }}</div>
+<div style="margin-top: 555px; margin-left: 410px;">{{ chart.0.cvmain.checkdate|date:'m/d/Y' }}</div>
+<div style="margin-top: 555px; right: 0; margin-right: 510px;">
+    {% if chart.0.cvmain.currency.symbol == 'PHP' %}
+        {{ chart.0.cvmain.amount|floatformat|intcomma:2 }}
+    {% else %}
+        0.00
+    {% endif %}
+</div>
+<div style="margin-top: 555px; right: 0; margin-right: 340px;">
+    {% if chart.0.cvmain.currency.symbol != 'PHP' %}
+        {{ chart.0.cvmain.amount|floatformat|intcomma:2 }}
+    {% else %}
+        0.00
+    {% endif %}
+</div>
+<div style="margin-top: 555px; right: 0; margin-right: 170px;">
+    {% if chart.0.cvmain.currency.symbol == 'PHP' %}
+        0.00
+    {% else %}
+        {{ chart.0.cvmain.fxrate }}
+    {% endif %}
+</div>
 
-<div style="margin-top: 608px; margin-left: 155px; max-width: 970px;">REPRESENTATION EXPENSE FOR THE MONTH OF AUG. 2017</div>
+<div style="margin-top: 608px; margin-left: 155px; max-width: 970px;">{{ chart.0.cvmain.particulars }}</div>
 
-<div style="margin-top: 800px; margin-left: 10px;">532050<br><br>111200</div>
-<div style="margin-top: 800px; margin-left: 150px;">REPRESENTATION<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CASH IN BANK</div>
-<div style="margin-top: 800px; margin-left: 530px;">AC-D HO<br><br>P51</div>
-<div style="margin-top: 800px; margin-left: 640px;">CLASSIFIED AD5-DAILY<br><br>P56 CA</div>
-<div style="margin-top: 800px; right: 0; margin-right: 250px;">20,000.00</div>
-<div style="margin-top: 800px; right: 0; margin-right: 105px;">20,000.00</div>
+<div style="margin-top: 800px; margin-left: 10px; width: 91%">
+    <table>
+        {% for data in chart  %}
+            <tr>
+                <td style="width: 10%">{{ data.chartofaccount.accountcode|slice:':6' }}</td>
+                <td style="width: 29%">{% if data.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}{{ data.chartofaccount.description }}</td>
+                <td style="width: 39%">
+                    <table style="width: 100%">
+                        {% if data.bankaccount %}
+                            <tr>
+                                <td style="width: 25%">{{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.bankaccounttype.code }}A</td>
+                                <td style="width: 75%">{{ data.bankaccount.bank.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.department %}
+                            <tr>
+                                <td style="width: 25%">{{ data.department.code }}</td>
+                                <td style="width: 75%">{{ data.department.departmentname }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.employee %}
+                            <tr>
+                                <td style="width: 25%">{{ data.employee.code }}</td>
+                                <td style="width: 75%">{{ data.employee.firstname }} {{ data.employee.middlename }} {{ data.employee.lastname }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.supplier %}
+                            <tr>
+                                <td style="width: 25%">{{ data.supplier.code }}</td>
+                                <td style="width: 75%">{{ data.supplier.name }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.customer %}
+                            <tr>
+                                <td style="width: 25%">{{ data.customer.code }}</td>
+                                <td style="width: 75%">{{ data.customer.name }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.unit %}
+                            <tr>
+                                <td style="width: 25%">{{ data.unit.code }}</td>
+                                <td style="width: 75%">{{ data.unit.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.branch %}
+                            <tr>
+                                <td style="width: 25%">{{ data.branch.code }}</td>
+                                <td style="width: 75%">{{ data.branch.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.product %}
+                            <tr>
+                                <td style="width: 25%">{{ data.product.code }}</td>
+                                <td style="width: 75%">{{ data.product.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.inputvat %}
+                            <tr>
+                                <td style="width: 25%">{{ data.inputvat.code }}</td>
+                                <td style="width: 75%">{{ data.inputvat.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.outputvat %}
+                            <tr>
+                                <td style="width: 25%">{{ data.outputvat.code }}</td>
+                                <td style="width: 75%">{{ data.outputvat.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.vat %}
+                            <tr>
+                                <td style="width: 25%">{{ data.vat.code }}</td>
+                                <td style="width: 75%">{{ data.vat.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.wtax %}
+                            <tr>
+                                <td style="width: 25%">{{ data.wtax.code }}</td>
+                                <td style="width: 75%">{{ data.wtax.description }}</td>
+                            </tr>
+                        {% endif %}
+                        {% if data.ataxcode %}
+                            <tr>
+                                <td style="width: 25%">{{ data.ataxcode.code }}</td>
+                                <td style="width: 75%">{{ data.ataxcode.code }}({{ data.ataxcode.rate }})</td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </td>
+                <td style="width: 11%" align="right">
+                    {% if data.debitamount > 0.00 %}
+                        {{ data.debitamount|floatformat:2|intcomma }}
+                    {% endif %}
+                </td>
+                <td style="width: 11%" align="right">
+                    {% if data.creditamount > 0.00 %}
+                        {{ data.creditamount|floatformat:2|intcomma }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
 
 <div style="margin-top: 1400px; margin-left: 300px; letter-spacing: 15px;">total</div>
 <div style="margin-top: 1400px; right: 0; margin-right: 250px; width: 135px; padding-top: 5px; padding-bottom: 5px; padding-right: 3px; border-top: 2px solid; border-bottom: 2px solid; text-align: right;">
-    20,000.00
+    {{ total.debitamount__sum|floatformat:2|intcomma }}
 </div>
 <div style="margin-top: 1400px; right: 0; margin-right: 105px; width: 135px; padding-top: 5px; padding-bottom: 5px; padding-right: 3px; border-top: 2px solid; border-bottom: 2px solid; text-align: right;">
-    20,000.00
+    {{ total.creditamount__sum|floatformat:2|intcomma }}
 </div>
 
-<div class="main-items" style="margin-top: 1605px; margin-left: 930px;">17-206775</div>
+<div class="main-items" style="margin-top: 1605px; margin-left: 930px;">{{ chart.0.cv_num }}</div>
 
-{#<img src="{% static 'images/check-test.jpg' %}">#}
+<img src="{% static 'images/check-test.jpg' %}">
 </body>
 </html>

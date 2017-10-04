@@ -52,7 +52,7 @@
                         <ul class="dropdown-menu dropdown-menu-info" style="font-size: 12px;" aria-labelledby="ColorDropdown3" role="menu">
                             <li><a href="{% url 'checkvoucher:pdf' object.id %}" target="_blank" class=" waves-effect waves-light">Transaction</a></li>
                             <li><a href="{% url 'checkvoucher:voucher' object.id %}" target="_blank" class=" waves-effect waves-light">Voucher</a></li>
-                            <li><a href="javascript:void(0)" class=" waves-effect waves-light">Pre-printed Voucher</a></li>
+                            <li><a href="{% url 'checkvoucher:preprintedvoucher' object.id %}" target="_blank" class=" waves-effect waves-light">Pre-printed Voucher</a></li>
                         </ul>
                     </div>
                 </div>

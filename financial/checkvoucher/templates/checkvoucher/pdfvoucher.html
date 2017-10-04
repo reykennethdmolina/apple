@@ -121,7 +121,12 @@
                 <tr>
                     <td width="25%"><b>Bank&nbsp;Account</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.bankaccount.code }}&nbsp;{{ cvmain.bankaccount.bank.code }}&nbsp;{{ cvmain.bankaccount.run_code }}A&nbsp;{{ cvmain.bankaccount.accountnumber }}</td>
+                    <td>
+                        {{ cvmain.bankaccount.code }}&nbsp;
+                        {{ cvmain.bankaccount.bank.code }}&nbsp;
+                        {{ cvmain.bankaccount.bankaccounttype.code }}A&nbsp;
+                        {{ cvmain.bankaccount.accountnumber }}
+                    </td>
                     <td width="25%"><b>Ref.&nbsp;No.</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ cvmain.refnum }}</td>
@@ -201,7 +206,9 @@
                     {% if detail.bankaccount %}
                         <tr>
                             <td width="30%" {% if detail.balancecode == 'C' %}style="padding-left: 15px;"{% endif %}>{{ detail.bankaccount.code }}</td>
-                            <td width="70%" {% if detail.balancecode == 'C' %}style="padding-left: 15px;"{% endif %}>{{ detail.bankaccount.bank.code }} {{ detail.bankaccount.run_code }}A</td>
+                            <td width="70%" {% if detail.balancecode == 'C' %}style="padding-left: 15px;"{% endif %}>
+                                {{ detail.bankaccount.bank.code }} {{ detail.bankaccount.bankaccounttype.code }}A
+                            </td>
                         </tr>
                     {% endif %}
                     {% if detail.department %}

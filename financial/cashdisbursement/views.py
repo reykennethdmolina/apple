@@ -106,7 +106,7 @@ def reportresultquery(request):
 
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
-        query = query.values('bankaccount__code', 'bankaccount__bank__code', 'bankaccount__run_code')\
+        query = query.values('bankaccount__code', 'bankaccount__bank__code', 'bankaccount__bankaccounttype__code')\
                      .annotate(Sum('debitamount'), Sum('creditamount'))\
                      .order_by('bankaccount__code')
 
@@ -220,7 +220,7 @@ def reportresultxlsx(request):
                 obj.cvmain.amount,
                 obj.chartofaccount.accountcode,
                 obj.chartofaccount.description,
-                obj.bankaccount.code + " " + obj.bankaccount.bank.code + " " + obj.bankaccount.run_code + "A" if obj.bankaccount else '',
+                obj.bankaccount.code + " " + obj.bankaccount.bank.code + " " + obj.bankaccount.bankaccounttype.code + "A" if obj.bankaccount else '',
                 obj.department.code if obj.department else '',
                 obj.employee.code if obj.employee else '',
                 obj.supplier.code if obj.supplier else '',
@@ -239,7 +239,7 @@ def reportresultxlsx(request):
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'b':
             data = [
                 obj['bankaccount__code'],
-                obj['bankaccount__bank__code'] + " " + obj['bankaccount__run_code'] + "A",
+                obj['bankaccount__bank__code'] + " " + obj['bankaccount__bankaccounttype__code'] + "A",
                 obj['debitamount__sum'],
                 obj['creditamount__sum'],
             ]

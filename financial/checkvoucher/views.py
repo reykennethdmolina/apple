@@ -534,6 +534,16 @@ class Voucher(PDFTemplateView):
 class PrePrintedVoucher(TemplateView):
     template_name = 'checkvoucher/preprintedvoucher.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        query = Cvdetail.objects.filter(isdeleted=0).filter(cvmain=self.kwargs['pk'])
+
+        context['chart'] = query.order_by('-balancecode','chartofaccount')
+        context['total'] = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
