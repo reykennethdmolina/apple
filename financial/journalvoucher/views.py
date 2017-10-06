@@ -78,7 +78,7 @@ class CreateView(CreateView):
     model = Jvmain
     template_name = 'journalvoucher/create.html'
     fields = ['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency', 'department',
-              'designatedapprover']
+              'designatedapprover', 'fxrate']
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
@@ -141,7 +141,7 @@ class UpdateView(UpdateView):
     model = Jvmain
     template_name = 'journalvoucher/edit.html'
     fields = ['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency', 'department',
-              'designatedapprover', 'jvstatus']
+              'designatedapprover', 'jvstatus', 'fxrate']
 
     def get_initial(self):
         self.mysecretkey = generatekey(self)
@@ -262,7 +262,7 @@ class UpdateView(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch',
-                                            'currency', 'department', 'designatedapprover', 'jvstatus'])
+                                            'currency', 'department', 'designatedapprover', 'jvstatus', 'fxrate'])
 
             if self.object.jvstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
