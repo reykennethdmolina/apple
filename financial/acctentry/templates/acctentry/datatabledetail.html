@@ -54,79 +54,79 @@
                                                     <tr>
                                                         <td width="5%"></td>
                                                         {% if detail.bankaccount %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Account no.</b></small><br>
                                                             {{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.department %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Department</b></small><br>
                                                             {{ detail.department.departmentname }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.employee %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Employee</b></small><br>
                                                             {{ detail.employee.firstname }} {{ detail.employee.lastname }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.supplier %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Supplier</b></small><br>
                                                             {{ detail.supplier.name }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.customer %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Customer</b></small><br>
                                                             {{ detail.customer.name }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.unit %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Unit</b></small><br>
                                                             {{ detail.unit.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.branch %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Branch</b></small><br>
                                                             {{ detail.branch.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.product %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Product/b></small><br>
                                                             {{ detail.product.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.inputvat %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Input VAT</b></small><br>
                                                             {{ detail.inputvat.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.outputvat %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>Output VAT</b></small><br>
                                                             {{ detail.outputvat.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.vat %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>VAT</b></small><br>
                                                             {{ detail.vat.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.wtax %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>WTax</b></small><br>
                                                             {{ detail.wtax.description }}
                                                         </td>
                                                         {% endif %}
                                                         {% if detail.ataxcode %}
-                                                        <td>
+                                                        <td style="vertical-align: top">
                                                             <small><b>ATax</b></small><br>
                                                             {{ detail.ataxcode.description }}
                                                         </td>

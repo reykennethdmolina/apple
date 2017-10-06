@@ -6,11 +6,6 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
-{#        .iconlist {#}
-{#            text-align: left;#}
-{#            margin-left: 40px;#}
-{#            margin-right: 40px;#}
-{#        }#}
         .btns-icon{
             padding: 2px;
             margin: auto;
@@ -37,11 +32,11 @@
                     </div>
                     <!-- pagination and search end -->
 
-{#                    {% if perms.accountspayable.change_apmain %}#}
-{#                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>#}
-{#                            <i class="icon fa-search" aria-hidden="true"></i> Lookup#}
-{#                        </button>#}
-{#                    {% endif %}#}
+                    {% if perms.journalvoucher.change_jvmain %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                        </button>
+                    {% endif %}
                     {% if perms.journalvoucher.add_jvmain %}
                         <a href="{% url 'journalvoucher:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Journal Voucher</button></a>
                     {% endif %}
@@ -62,7 +57,7 @@
         </div>
     </div>
 </div>
-{#{% include "accountspayable/search.html" %}#}
+{% include "journalvoucher/search.html" %}
 {% endblock page-content %}
 {% load staticfiles %}
 {% block extra_js %}

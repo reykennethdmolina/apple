@@ -166,76 +166,81 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%"><b>Date</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvdate|date:'Y-m-d' }}</td>
-                    <td width="25%"><b>Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvtype.description }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Date</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.cvdate|date:'Y-m-d' }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Type</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.cvtype.description }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.branch.description }}</td>
-                    <td width="25%"><b>Subtype</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.cvsubtype.description }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Branch</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.branch.description }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Subtype</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.cvsubtype.description }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Ref.&nbsp;No.</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.refnum }}</td>
-                    <td width="25%"><b>Ref.&nbsp;AP</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>N/A</td>
+                    <td width="25%" style="vertical-align: top"><b>Ref.&nbsp;No.</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.refnum }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Ref.&nbsp;AP</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">N/A</td>
                 </tr>
                 <tr>
                     <td width="65%"><b>Bank&nbsp;Account</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.bankaccount.code }} [{{ cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
-                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.disbursingbranch.branch }}] {{ cvmain.disbursingbranch.bank.code }}, {{ cvmain.disbursingbranch.address1 }}</td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.bankaccount.code }} [{{ cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
+                    <td width="25%" style="vertical-align: top"><b>Disbursing&nbsp;Branch</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">[{{ cvmain.disbursingbranch.branch }}] {{ cvmain.disbursingbranch.bank.code }}, {{ cvmain.disbursingbranch.address1 }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Check&nbsp;No.</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.checknum }}</td>
-                    <td width="25%"><b>Check&nbsp;Date</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.checkdate|date:'Y-m-d' }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Check&nbsp;No.</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.checknum }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Check&nbsp;Date</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.checkdate|date:'Y-m-d' }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Amount</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.currency.symbol }}&nbsp;{{ cvmain.amount|floatformat:2|intcomma }}</td>
-                    <td width="25%"><b>Payee</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.payee_name }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Amount</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.currency.symbol }}&nbsp;{{ cvmain.amount|floatformat:2|intcomma }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Amount in words</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.amountinwords }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>VAT</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.vat.code }}]&nbsp;{{ cvmain.vat.description }}</td>
-                    <td width="25%"><b>ATC</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
+                    <td width="25%" style="vertical-align: top"><b>Payee</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.payee_name }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.particulars }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.inputvattype.description }}</td>
-                    <td width="25%"><b>Deferred&nbsp;VAT</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.get_deferredvat_display }}</td></td>
+                    <td width="25%" style="vertical-align: top"><b>VAT</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">[{{ cvmain.vat.code }}]&nbsp;{{ cvmain.vat.description }}</td>
+                    <td width="25%" style="vertical-align: top"><b>ATC</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">[{{ cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Status</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.get_cvstatus_display }}</td>
-                    <td width="25%"><b>Particulars</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ cvmain.particulars }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Input&nbsp;VAT&nbsp;Type</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.inputvattype.description }}</td>
+                    <td width="25%" style="vertical-align: top"><b>Deferred&nbsp;VAT</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.get_deferredvat_display }}</td>
+                </tr>
+                <tr>
+                    <td width="25%" style="vertical-align: top"><b>Status</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ cvmain.get_cvstatus_display }}</td>
                 </tr>
             </table>
         </td>

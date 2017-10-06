@@ -31,11 +31,11 @@
 									</div>
                                 </div>
                                 <div class="form-group col-sm-4 margin-bottom-0">
-                                    <label class="control-label small">Branch</label>
-                                    <select class="form-control input-sm" id="cache_branch">
+                                    <label class="control-label small">Disbursing Branch</label>
+                                    <select class="form-control input-sm" id="cache_disbursingbranch">
                                         <option value="">-- Select --</option>
-                                        {% for data in branch %}
-                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% for data in bankbranchdisburse %}
+                                            <option value="{{ data.id }}">{{ data.branch }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -56,13 +56,24 @@
 										</div>
 									</div>
                                 </div>
-                                <div class="form-group col-sm-4 margin-bottom-0">
-                                    <label class="control-label small">Disbursing Branch</label>
-                                    <select class="form-control input-sm" id="cache_disbursingbranch">
-                                        <option value="">-- Select --</option>
-                                        {% for data in bankbranchdisburse %}
-                                            <option value="{{ data.id }}">{{ data.branch }}</option>
+                                <div class="form-group col-sm-2 margin-bottom-0">
+                                    <label class="control-label small">Branch</label>
+                                    <select class="form-control input-sm" id="cache_branch">
+                                        <option value="">--</option>
+                                        {% for data in branch %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
                                         {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-2 margin-bottom-0">
+                                    <label class="control-label small">AP Status</label>
+                                    <select class="form-control input-sm" id="cache_apstatus">
+                                        <option value="">--</option>
+                                        <option value="F">For Approval</option>
+                                        <option value="A">Approved</option>
+                                        <option value="D">Disapproved</option>
+                                        <option value="I">In Process</option>
+                                        <option value="R">Released</option>
                                     </select>
                                 </div>
                             </div>
@@ -75,14 +86,18 @@
                             <label class="control-label small">AP Type</label>
                             <select class="form-control input-sm" id="cache_aptype">
                                 <option value="">--</option>
-                                <option value="PO">PO</option>
+                                {% for data in aptype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-2 margin-bottom-0">
-                            <label class="control-label small">AP Status</label>
-                            <select class="form-control input-sm" id="cache_apstatus">
+                        <div class="form-group col-sm-2 margin-bottom-10">
+                            <label class="control-label small">AP Subtype</label>
+                            <select class="form-control input-sm" id="cache_apsubtype">
                                 <option value="">--</option>
-                                <option value="V">Verified</option>
+                                {% for data in apsubtype %}
+                                    <option value="{{ data.id }}">{{ data.code }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -200,6 +215,7 @@
                         JSON.parse(retrieveFilters)[0]['fil_apdate_to'],
                         JSON.parse(retrieveFilters)[0]['fil_payee'],
                         JSON.parse(retrieveFilters)[0]['fil_aptype'],
+                        JSON.parse(retrieveFilters)[0]['fil_apsubtype'],
                         JSON.parse(retrieveFilters)[0]['fil_apstatus'],
                         JSON.parse(retrieveFilters)[0]['fil_branch'],
                         JSON.parse(retrieveFilters)[0]['fil_disbursingbranch'],
@@ -231,6 +247,7 @@
                     'cache_apdate_to': $("#cache_apdate_to").val(),
                     'cache_payee': $("#cache_payee").val(),
                     'cache_aptype': $("#cache_aptype").val(),
+                    'cache_apsubtype': $("#cache_apsubtype").val(),
                     'cache_apstatus': $("#cache_apstatus").val(),
                     'cache_branch': $("#cache_branch").val(),
                     'cache_disbursingbranch': $("#cache_disbursingbranch").val(),
@@ -263,6 +280,7 @@
                                 fil_apdate_to: $('#cache_apdate_to').val(),
                                 fil_payee: $('#cache_payee').val(),
                                 fil_aptype: $('#cache_aptype').val(),
+                                fil_apsubtype: $('#cache_apsubtype').val(),
                                 fil_apstatus: $('#cache_apstatus').val(),
                                 fil_branch: $('#cache_branch').val(),
                                 fil_disbursingbranch: $('#cache_disbursingbranch').val(),
@@ -295,7 +313,7 @@
         }
 
         // fill form from cache function
-        function cachedfillform(fil_apnum_from, fil_apnum_to, fil_apdate_from, fil_apdate_to, fil_payee, fil_aptype,
+        function cachedfillform(fil_apnum_from, fil_apnum_to, fil_apdate_from, fil_apdate_to, fil_payee, fil_aptype, fil_apsubtype,
                                 fil_apstatus, fil_branch, fil_disbursingbranch, fil_vat, fil_atc, fil_inputvattype,
                                 fil_terms, fil_deferred, fil_particulars, fil_duedate_from, fil_duedate_to, fil_refno){
             $('#cache_apnum_from').val(fil_apnum_from);
@@ -304,6 +322,7 @@
             $('#cache_apdate_to').val(fil_apdate_to);
             $('#cache_payee').val(fil_payee);
             $('#cache_aptype').val(fil_aptype);
+            $('#cache_apsubtype').val(fil_apsubtype);
             $('#cache_apstatus').val(fil_apstatus);
             $('#cache_branch').val(fil_branch);
             $('#cache_disbursingbranch').val(fil_disbursingbranch);

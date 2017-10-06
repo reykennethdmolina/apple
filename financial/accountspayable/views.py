@@ -56,6 +56,8 @@ class IndexView(AjaxListView):
         context = super(AjaxListView, self).get_context_data(**kwargs)
 
         #lookup
+        context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
@@ -86,6 +88,8 @@ class DetailView(DetailView):
         context['reprfv_total_amount'] = ap_main_aggregate['amount__sum']
 
         #lookup
+        context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
@@ -126,6 +130,8 @@ class CreateView(CreateView):
         context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
 
         #lookup
+        context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')

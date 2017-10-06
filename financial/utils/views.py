@@ -10,6 +10,7 @@ from employee.models import Employee
 from department.models import Department
 from customer.models import Customer
 from accountspayable.models import Apmain
+from journalvoucher.models import Jvmain
 from inventoryitem.models import Inventoryitem
 from operationalfund.models import Ofmain
 from checkvoucher.models import Cvmain
@@ -164,6 +165,8 @@ def ajaxSearch(request):
                 items = items.filter(payee=int(request.POST['cache_payee']))
             if request.POST['cache_aptype']:
                 items = items.filter(aptype=str(request.POST['cache_aptype']))
+            if request.POST['cache_apsubtype']:
+                items = items.filter(apsubtype=str(request.POST['cache_apsubtype']))
             if request.POST['cache_apstatus']:
                 items = items.filter(apstatus=str(request.POST['cache_apstatus']))
             if request.POST['cache_branch']:
@@ -191,6 +194,34 @@ def ajaxSearch(request):
                 items = items.filter(duedate__gte=request.POST['cache_duedate_from'])
             elif request.POST['cache_duedate_from']:
                 items = items.filter(duedate__lte=request.POST['cache_duedate_to'])
+
+        elif request.POST['table'] == "jvmain":
+            items = Jvmain.objects.all().filter(isdeleted=0).order_by('pk')
+
+            if request.POST['cache_jvnum_from']:
+                items = items.filter(jvnum__gte=int(request.POST['cache_jvnum_from']))
+            if request.POST['cache_jvnum_to']:
+                items = items.filter(jvnum__lte=int(request.POST['cache_jvnum_to']))
+            if request.POST['cache_jvdate_from']:
+                items = items.filter(jvdate__gte=request.POST['cache_jvdate_from'])
+            if request.POST['cache_jvdate_to']:
+                items = items.filter(jvdate__lte=request.POST['cache_jvdate_to'])
+            if request.POST['cache_jvtype']:
+                items = items.filter(jvtype=str(request.POST['cache_jvtype']))
+            if request.POST['cache_jvsubtype']:
+                items = items.filter(jvsubtype=str(request.POST['cache_jvsubtype']))
+            if request.POST['cache_refnum']:
+                items = items.filter(refnum__icontains=str(request.POST['cache_refnum']))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_department']:
+                items = items.filter(department=int(request.POST['cache_department']))
+            if request.POST['cache_jvstatus']:
+                items = items.filter(jvstatus=str(request.POST['cache_jvstatus']))
+            if request.POST['cache_currency']:
+                items = items.filter(currency=int(request.POST['cache_currency']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particular__icontains=str(request.POST['cache_particulars']))
 
         elif request.POST['table'] == "ofmain":
             items = Ofmain.objects.all().filter(isdeleted=0).order_by('pk')
@@ -295,6 +326,8 @@ def ajaxSearch(request):
         for data in items:
             if request.POST['table'] == "apmain":
                 listitems.append({'text': data.apnum, 'id': data.id})
+            elif request.POST['table'] == "jvmain":
+                listitems.append({'text': data.jvnum, 'id': data.id})
             elif request.POST['table'] == "ofmain":
                 listitems.append({'text': data.ofnum, 'id': data.id})
             elif request.POST['table'] == "cvmain":

@@ -44,10 +44,11 @@ class IndexView(AjaxListView):
         context = super(AjaxListView, self).get_context_data(**kwargs)
 
         #lookup
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('description')
+        context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('description')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
         context['pk'] = 0
 
         return context
@@ -92,6 +93,10 @@ class CreateView(CreateView):
             order_by('first_name')
         context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None).\
             exclude(releasedate=None).order_by('id')   # released CSVs that do not have JVs yet
+
+        #lookup
+        context['pk'] = 0
+
         return context
 
     def form_valid(self, form):
@@ -254,6 +259,9 @@ class UpdateView(UpdateView):
             'datatemptotal': querytotaldetail('jvdetailtemp', self.mysecretkey),
         }
         context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
+
+        #lookup
+        context['pk'] = 0
         return context
 
     def form_valid(self, form):
