@@ -1,6 +1,7 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Journal Voucher {% endblock page-title %}
 {% block extra_css %}
+    {% include "accountspayable/createcss.html" %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />

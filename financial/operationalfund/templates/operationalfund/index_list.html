@@ -12,9 +12,9 @@
             <th><span>OF Status</span></th>
             {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
                 {% if forapproval > 0 or perms.operationalfund.approve_allof %}
-                    {% if canbeapproved > 0 %}
+{#                    {% if canbeapproved > 0 %}#}
                         <th class="text-center"><span>Approval</span></th>
-                    {% endif %}
+{#                    {% endif %}#}
                 {% endif %}
             {% endif %}
             <th class="text-center"><span>Action</span></th>
@@ -37,7 +37,7 @@
             </td>
             {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
                 {% if forapproval > 0 or perms.operationalfund.approve_allof %}
-                    {% if canbeapproved > 0 %}
+{#                    {% if canbeapproved > 0 %}#}
                         <td style="width: 100px;">
                             <div class="text-center">
                                 {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
@@ -52,7 +52,7 @@
                                 {% endif %}
                             </div>
                         </td>
-                    {% endif %}
+{#                    {% endif %}#}
                 {% endif %}
 {#              <td style="width: 100px;">#}
 {#                  <div class="text-center">#}
@@ -138,12 +138,13 @@
                 $(this).parent().siblings('.btn-disapprove').hide();
                 $(this).parent().parent().siblings('.action-btns-container').find('.userUpdate').hide();
                 $(this).parent().parent().siblings('.action-btns-container').find('.cashierUpdate').show();
+                $(this).parent().html(' - ')
             }
         });
         $('.btn-disapprove').each(function() {
             if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Approved"){
                 $(this).show();
-                $(this).parent().siblings('.btn-disapprove').hide();
+                $(this).parent().siblings('.btn-approve').hide();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Disapproved"){
                 $(this).hide();
@@ -153,6 +154,7 @@
                     $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-approve').hide();
+                $(this).parent().html(' - ')
             }
         });
         $('.btn-approve, .btn-disapprove').on('click', function(){

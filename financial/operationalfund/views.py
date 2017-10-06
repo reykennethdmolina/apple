@@ -200,7 +200,7 @@ class CreateViewUser(CreateView):
             aggregate(Sum('amount'))
         print total_amount['amount__sum']
         if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'PCV' or \
-                total_amount['amount__sum'] < 1000.00:
+                total_amount['amount__sum'] <= 1000.00:
             self.object.ofnum = ofnum
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user

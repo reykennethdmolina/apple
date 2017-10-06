@@ -1,6 +1,7 @@
 {% extends 'base-form.html' %}
 {% block page-title %} Journal Voucher {% endblock page-title %}
 {% block extra_css %}
+    {% include "journalvoucher/createcss.html" %}
     <style>
         .text-name-profile.text-info
         {
@@ -10,28 +11,31 @@
         {
             width: 70%;
         }
+        li.active
+        {
+            font-size: 12px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
 {% load humanize %}
 <div class="page-content container-fluid page">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-9">
             <!-- Start Profile Tab Section -->
             <div class="nav-tabs nav-tabs-animate border-profile">
-                <div class="pull-right">
-                    <a href="{% url 'purchaserequisitionform:pdf' object.id %}" target="_blank"><button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
-                        <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
-                    </button></a>
-                </div>
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
+                        <a href="{% url 'journalvoucher:pdf' object.id %}" target="_blank" class="floatright">
+                            <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
+                            </button>
+                        </a>
                 </ul>
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">
                         <div class="panel top-profile skill-profile margin-bottom-25">
                             <div class="panel-body small">
-                                <!-- <h4 class="list-title">Personal Information</h4> -->
                                 <div class="row">
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
@@ -47,45 +51,159 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Type&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.jvtype.code }} - {{ object.jvtype.description }}</span>
+                                            <span class="text-name-profile text-info">JV Type&nbsp;: </span>
+                                            <span class="detail-profile">[{{ object.jvtype.code }}]&nbsp;&nbsp;{{ object.jvtype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Currency&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.currency.symbol }} - {{ object.currency.description }}</span>
+                                            <span class="text-name-profile text-info">JV Subtype&nbsp;: </span>
+                                            <span class="detail-profile">[{{ object.jvsubtype.code }}]&nbsp;&nbsp;{{ object.jvsubtype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Reference Number&nbsp;: </span>
+                                            <span class="text-name-profile text-info">Ref Num.&nbsp;: </span>
                                             <span class="detail-profile">{{ object.refnum }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Branch&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.branch.code }} - {{ object.branch.description }}</span>
+                                            <span class="detail-profile">[{{ object.branch }}]&nbsp;&nbsp;{{ object.branch.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Amount&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.amount|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Currency&nbsp;: </span>
+                                            <span class="detail-profile">[{{ object.currency.symbol }}]&nbsp;&nbsp;{{ object.currency.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">FX Rate&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.fxrate|floatformat:2|default:'1.00' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Department&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.department.code }} - {{ object.department.description }}</span>
+                                            <span class="detail-profile">[{{ object.department.code }}] {{ object.department.departmentname }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.particular }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">&nbsp;</div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">JV Status&nbsp;: </span>
+                                            <span class="detail-profile
+                                                {% if object.jvstatus == 'F' %} text-primary
+                                                {% elif object.jvstatus == 'A' or object.jvstatus == 'R' %} text-success
+                                                {% elif object.jvstatus == 'D' %} text-danger
+                                                {% endif %} "><b>
+                                                    {{ object.get_jvstatus_display }}
+                                            </b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Approver&nbsp;: </span>
+                                            <span class="detail-profile">{% if object.actualapprover %}{{ object.actualapprover.first_name }}&nbsp;{{ object.actualapprover.last_name }}
+                                                {% else %}{{ object.designatedapprover.first_name }}&nbsp;{{ object.designatedapprover.last_name }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Response Date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.responsedate|date:'Y-m-d'|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Remarks&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.approverremarks|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Release Date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.releasedate|date:'Y-m-d'|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Status&nbsp;: </span>
-                                            <span class="detail-profile text-success"><b>{{ object.get_status_display }}</b></span>
+                                            <span class="detail-profile
+                                                {% if object.status == 'F' %} text-primary
+                                                {% elif object.status == 'A' or object.status == 'R' %} text-success
+                                                {% elif object.status == 'D' %} text-danger
+                                                {% endif %} "><b>
+                                                    {{ object.get_status_display }}
+                                            </b></span>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Particular&nbsp;: </span>
-                                            <span class="detail-profile text-left">{{ object.particular }}</span>
+                                            <span class="text-name-profile text-info">Released by&nbsp;: </span>
+                                            <span class="detail-profile">{% if object.releaseby %}{{ object.releaseby.first_name }}&nbsp;{{ object.releaseby.last_name }}{% else %}N/A{% endif %}</span>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-3">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Cellphone Subsidy Vouchers</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                        <div class="panel-body">
+                                    <div class="master-degree small">
+                                        {% if ofcsvmain %}
+                                            {% for data in ofcsvmain %}
+                                                <table>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Number:</b></td>
+                                                        <td width="70%" align="right">{{ data.ofnum }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Date:</b></td>
+                                                        <td width="70%" align="right">{{ data.ofdate|date:'Y-m-d' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td width="30%" class="text-info"><b>Amount:</b></td>
+                                                        <td width="70%" align="right">{{ data.approvedamount|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                </table><br>
+                                            {% endfor %}
+                                            <table width="100%">
+                                                <tr>
+                                                    <td width="30%" class="text-info"><b>TOTAL:</b></td>
+                                                    <td width="70%" align="right" style="padding-right: 5px;"><b>{{ repcsv_total_amount|floatformat:2|intcomma }}</b></td>
+                                                </tr>
+                                            </table>
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -97,41 +215,59 @@
         {% include "acctentry/datatabledetail.html" %}
         <div class="col-md-3">
             <div class="right-box-profile">
-                <h4 class="skill-title">Activity Logs</h4>
-                <div class="panel">
-                    <div class="panel-body small">
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Created&nbsp;By:</span>
-                            <div class="univer-profile">{{ object.enterby }}</div>
-                            <div class="univer-profile">{{ object.enterdate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Modified&nbsp;By:</span>
-                            <div class="univer-profile">{{ object.modifyby }}</div>
-                            <div class="univer-profile">{{ object.modifydate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <div class="iconlist">
-                            {% if perms.journalvoucher.change_jvmain %}
-                            <a href="{% url 'journalvoucher:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_pencil" aria-hidden="true"></i>
-                                </button>
-                            </a>
-                            {% endif %}
-                            {% if perms.journalvoucher.delete_jvmain %}
-                            <a href="{% url 'journalvoucher:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_trash" aria-hidden="true"></i>
-                                </button>
-                            </a>
-                            {% endif %}
+                <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Activity Log</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Created&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.enterby }}</div>
+                                        <div class="univer-profile">{{ object.enterdate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Modified&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.modifyby }}</div>
+                                        <div class="univer-profile">{{ object.modifydate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <div class="iconlist">
+                                            {% if perms.journalvoucher.change_jvmain and object.isdeleted == 0 %}
+                                                <a href="{% url 'journalvoucher:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_pencil" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                            {% if perms.journalvoucher.delete_jvmain and object.jvstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                                <a href="{% url 'journalvoucher:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
+{% include "accountspayable/search.html" %}
 {% endblock page-content %}
+{% load staticfiles %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+{% endblock extra_js %}

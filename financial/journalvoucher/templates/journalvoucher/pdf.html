@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>Journal Voucher</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 19.5cm;
+                top: 2.5cm;
+                height: 19.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 19.5cm;
+                top: 22cm;
+                height: 6cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center">JOURNAL VOUCHER</p>
+            </td>
+            <td>
+                <p class="title right">{{ jvmain.jvnum }}</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer_content">
+    <table>
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="6" style="border-right: 2px solid black;"></td>
+        </tr>
+        <tr style="padding: 5px; padding-bottom: 0px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">
+                    {% if jvmain.actualapprover %}
+                        SGD
+                    {% endif %}
+                    {{ jvmain.enterby.first_name }}&nbsp;{{ jvmain.enterby.last_name }}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="20%"><b>Approved by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if jvmain.actualapprover and jvmain.approverresponse == 'A' %}
+                        SGD {{ jvmain.actualapprover.first_name }}&nbsp;{{ jvmain.actualapprover.last_name }}
+                    {% else %}
+                        {{ jvmain.designatedapprover.first_name }}&nbsp;{{ jvmain.designatedapprover.last_name }}
+                    {% endif %}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+        <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+            <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">{{ jvmain.enterdate|date:'Y-m-d' }}</div>
+            </td>
+            <td width="20%"><b>Date approved</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if jvmain.actualapprover and jvmain.approverresponse == 'A' %}
+                        {{ jvmain.responsedate|date:'Y-m-d' }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }} {{ request.user }}<br>
+                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b>
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                {{ parameter.report_footer7 }}<br>
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: right">
+        {%block page_foot%}
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        {%endblock%}
+    </div>
+</div>
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3" style="line-height: 15px;">
+            <span class="title">{{ parameter.description|upper }}</span><br>
+            {{ parameter.address1 }}<br>
+            {{ parameter.address2 }}<br>
+            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            VAT REG TIN: {{ parameter.tinnum }}
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <br>
+            <table>
+                <tr>
+                    <td width="25%"><b>Date</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.jvdate|date:'Y-m-d' }}</td>
+                    <td width="25%"><b>Ref.&nbsp;No.</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.refnum }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Type</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.jvtype.description }}</td>
+                    <td width="25%"><b>Subtype</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.jvsubtype.description }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Branch</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.branch.description }}</td>
+                    <td width="25%"><b>Department</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.department.departmentname }}</td>
+                </tr>
+                <tr>
+                    <td width="25%"><b>Amount</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.currency.symbol }}&nbsp;{{ jvmain.amount|floatformat:2|intcomma }}</td>
+                    <td width="25%"><b>Status</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ jvmain.get_jvstatus_display }}</td>
+                </tr>
+                <tr><td>&nbsp;</td></tr>
+                <tr>
+                    <td width="25%"><b>Particulars</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td colspan="4">{{ jvmain.particular }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+</table>
+{% if ofmain %}
+    <b>CELLPHONE SUBSIDY VOUCHERS</b>
+    <table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+        <td style="padding-left: 5px;"><b><i>OF Number</i></b></td>
+        <td><b><i>OF Date</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
+    </tr>
+    {% for data in ofmain %}
+        <tr>
+            <td width="5%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+            <td width="35%" style="padding-top: 5px; padding-left: 5px;">{{ data.ofnum }}</td>
+            <td width="30%" style="padding-top: 5px; padding-left: 5px;">{{ data.ofdate|date:'Y-m-d' }}</td>
+            <td width="30%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.approvedamount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+        <td colspan="3" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ ofcsvmain_total_amount|floatformat:2|intcomma }}</b></td>
+    </tr>
+</table><br>
+{% endif %}
+            <b>ACCOUNTING ENTRIES</b>
+<table style="padding-left: 5px;">
+    <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>
+        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>
+    </tr>
+    <tr class="left" style="border-bottom: 2px solid black;">
+        <td style="border-left: 2px solid black;">
+            <table>
+                <tr>
+                    <td style="width: 30%"><b><i>Acct Code</i></b></td>
+                    <td style="width: 70%"><b><i>Acct Title</i></b></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td style="width: 30%"><b><i>Detail</i></b></td>
+                    <td style="width: 70%"><b><i>Description</i></b></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td style="width: 50%; text-align: right;"><b><i>Debit</i></b></td>
+                    <td style="width: 50%; text-align: right; border-right: 2px solid black; padding-right: 5px;"><b><i>Credit</i></b></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    {% for detail in detail %}
+        <tr style="padding-top: 5px;">
+            <td>
+                <table style="padding-bottom: -5px;">
+                    <tr>
+                        <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>
+                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table style="padding-bottom: -5px;">
+                    {% if detail.bankaccount %}
+                        <tr>
+                            <td width="30%">Account no.:</td>
+                            <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>
+                        </tr>
+                    {% endif %}
+                    {% if detail.department %}
+                        <tr>
+                            <td width="30%">Department:</td>
+                            <td width="70%">{{ detail.department.departmentname }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if detail.employee %}
+                        <tr>
+                            <td width="30%">Employee:</td>
+                            <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
+                        </tr>{% endif %}
+                    {% if detail.supplier %}
+                        <tr>
+                            <td width="30%">Supplier:</td>
+                            <td width="70%">{{ detail.supplier.name }}</td>
+                        </tr>{% endif %}
+                    {% if detail.customer %}
+                        <tr>
+                            <td width="30%">Customer:</td>
+                            <td width="70%">{{ detail.customer.name }}</td>
+                        </tr>{% endif %}
+                    {% if detail.unit %}
+                        <tr>
+                            <td width="30%">Unit:</td>
+                            <td width="70%">{{ detail.unit.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.branch %}
+                        <tr>
+                            <td width="30%">Branch:</td>
+                            <td width="70%">{{ detail.branch.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.product %}
+                        <tr>
+                            <td width="30%">Product:</td>
+                            <td width="70%">{{ detail.product.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.inputvat %}
+                        <tr>
+                            <td width="30%">Input VAT:</td>
+                            <td width="70%">{{ detail.inputvat.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.outputvat %}
+                        <tr>
+                            <td width="30%">Ouptut VAT:</td>
+                            <td width="70%">{{ detail.outputvat.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.vat %}
+                        <tr>
+                            <td width="30%">VAT:</td>
+                            <td width="70%">{{ detail.vat.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.wtax %}
+                        <tr>
+                            <td width="30%">WTax:</td>
+                            <td width="70%">{{ detail.wtax.description }}</td>
+                        </tr>{% endif %}
+                    {% if detail.ataxcode %}
+                        <tr>
+                            <td width="30%">ATax:</td>
+                            <td width="70%">{{ detail.ataxcode.description }}</td>
+                        </tr>{% endif %}
+                </table>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td style="width: 50%; text-align: right;">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}</td>
+                        <td style="width: 50%; text-align: right; padding-right: 5px;">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
+    <tr style="padding-top: 5px;">
+        <td colspan="2" align="right"><b>TOTAL:</b></td>
+        <td>
+            <table style="padding-top: 2.5px;">
+                <tr>
+                    <td style="width: 50%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
+                    <td style="width: 50%; text-align: right; padding-right: 5px;"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

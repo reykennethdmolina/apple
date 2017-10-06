@@ -42,9 +42,9 @@
                             </a>
                             {% endif %}
                             {% if perms.journalvoucher.delete_jvmain and data.isdeleted == 0 and data.status == 'A' and data.jvstatus != 'A' and data.jvstatus != 'I' and data.jvstatus != 'R' %}
-{#                            <a href="{% url 'journalvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">#}
-{#                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>#}
-{#                            </a>#}
+                            <a href="{% url 'journalvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                            </a>
                             {% endif %}
                         </div>
                     </div>

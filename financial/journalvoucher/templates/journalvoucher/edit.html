@@ -4,6 +4,7 @@
 {% block page-title %} Journal Voucher {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    {% include "accountspayable/createcss.html" %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
@@ -38,30 +39,30 @@
                 </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
                     {% if perms.journalvoucher.delete_jvmain and object.jvstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
-{#                    <a href="{% url 'journalvoucher:delete' object.id %}" class="floatright">#}
-{#                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect#}
-{#                        waves-light get_report">#}
-{#                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel#}
-{#                        </button>#}
-{#                    </a>#}
+                    <a href="{% url 'journalvoucher:delete' object.id %}" class="floatright">
+                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                        </button>
+                    </a>
                     {% endif %}
-{#                    <a href="{% url 'journalvoucher:pdf' object.id %}" target="_blank" class="floatright">#}
-{#                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect#}
-{#                        waves-light get_report">#}
-{#                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print#}
-{#                        </button>#}
-{#                    </a>#}
+                    <a href="{% url 'journalvoucher:pdf' object.id %}" target="_blank" class="floatright">
+                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        </button>
+                    </a>
                     <a href="{% url 'journalvoucher:detail' object.id %}" class="floatright">
                         <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
                         waves-light get_report">
                             <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
                         </button>
                     </a>
-                    {% if savedapsubtype == 'RFR' %}
+                    {% if savedjvsubtype == 'CSV' %}
                         <a class="floatright">
                             <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
-                            waves-light get_report" data-toggle='modal' data-target='#repRFVModal'>
-                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View RFV Replenishments
+                            waves-light get_report" data-toggle='modal' data-target='#repCSVModal'>
+                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View Cellphone Subsidy Vouchers
                             </button>
                         </a>
                     {% endif %}
@@ -72,6 +73,9 @@
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="row">
                             <div class="form-group col-sm-2">
+                                <input type="hidden" id="id_originaljvstatus" name="originaljvstatus"
+                                       value="{{ originaljvstatus }}" data-actualstatus="{{ originaljvstatus }}">
+                                        <!-- change actualstatus data attribute upon ajax status change -->
                                 <label class="control-label" for="id_jvnum">Number</label>
                                 <input type="text" class="form-control input-sm" id="id_jvnum" name="jvnum" placeholder="JVxxxxxxx" value="{{ jvnum }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
@@ -102,7 +106,7 @@
                             </div>
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_refnum">Reference #</label>
-                                <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
+                                <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" style="background: white;" value="{{ form.refnum.value|default:'' }}">
                                 <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
@@ -181,11 +185,11 @@
                             </div>
                             <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_apnum">FX Rate</label>
-                                <input type="text" class="form-control input-sm disabled-white text-right" id="id_fxrate" name="fxrate" value="1.00">
+                                <input type="text" class="form-control input-sm disabled-white text-right" id="id_fxrate" name="fxrate" style="background: white;" value="1.00">
                             </div>
                             <div class="form-group col-sm-7">
                                 <label class="control-label" for="id_particular">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particular" name="particular" rows="2" data-validation="required">{{ form.particular.value|default:'' }}</textarea>
+                                <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particular" name="particular" rows="2" style="background: white;" data-validation="required">{{ form.particular.value|default:'' }}</textarea>
                             </div>
                         </div>
                         <div class="row">
@@ -224,7 +228,7 @@
                                             <th width="55%">Title</th>
                                             <th width="10%" style="text-align: right;">Debit&nbsp;</th>
                                             <th width="10%" style="text-align: right;">Credit&nbsp;</th>
-                                            <th width="15%"></th>
+                                            <th width="15%" class="actionrowhead"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="datatable">
@@ -257,7 +261,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Cellphone Subsidy Vouchers Replenishment</h4>
+                <h4 class="modal-title">Imported Cellphone Subsidy Vouchers</h4>
             </div>
             <div class="modal-body" style="overflow:hidden;">
                 <div class="row">
@@ -266,13 +270,7 @@
                         <table class="table table-hover small">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
-                                            <input type="checkbox" id="checkbox0" class="item-check-all"
-                                                   name="csv_checkbox_all">
-                                            <label style="margin-left: 10px;" for="checkbox0"><b>Number</b></label>
-                                        </div>
-                                    </th>
+                                    <th><span>Number</span></th>
                                     <th><span>Date</span></th>
                                     <th><span>Requestor</span></th>
                                     <th class="text-right"><span>Amount</span></th>
@@ -281,13 +279,7 @@
                             <tbody>
                                 {% for data in ofcsvmain %}
                                 <tr>
-                                    <td>
-                                        <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
-                                            <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
-                                                   name="csv_checkbox" value="{{ data.id }}" form="form-b">
-                                            <label style="margin-left: 10px;" for="checkbox{{ data.id }}"><a href="{% url 'operationalfund:detail' data.id %}" target="_blank">{{ data.ofnum }}</a></label>
-                                        </div>
-                                    </td>
+                                    <td class="item-reprfvnum" data-id="{{ data.id }}"><a href="{% url 'operationalfund:detail' data.id %}" target="_blank">{{ data.ofnum }}</a></td>
                                     <td>{{ data.ofdate|date:"Y-m-d" }}</td>
                                     <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
                                     <td style="text-align: right;" class="item-amount">{{ data.approvedamount|floatformat:2|intcomma }}</td>
@@ -297,19 +289,80 @@
                             <thead>
                                 <tr>
                                     <th class="text-right" colspan="3" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
-                                    <th class="text-right" id="totalamount" style="border-bottom: none"><b>0.00</b></th>
+                                    <th class="text-right" id="totalamount" style="border-bottom: none"><b>{{ repcsv_total_amount|floatformat:2|intcomma }}</b></th>
                                 </tr>
                             </thead>
                         </table>
                         {% else %}
-                            There are no pending Cellphone Subsidy Vouchers for replenishment.
+                            There are no imported Cellphone Subsidy Vouchers.
                         {% endif %}
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-info" id="importrepcsvconfirm" disabled="disabled">Import</button>
+{#                <button type="button" class="btn btn-info" id="importrepcsvconfirm" disabled="disabled">Import</button>#}
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="approvalModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="approvedisapprove"></span></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="hidden" id="id_main">
+                    <input type="hidden" id="id_type">
+                    <input type="hidden" id="id_responseselect">
+                    <label class="control-label" for="id_approverremarks">Remarks:</label>
+                    <textarea name="approverremarks" id="id_approverremarks" class="form-control input-sm" rows="3">{{ form.approverremarks.value.strip }}</textarea>
+                    <br>
+                    <label class="control-label" for="id_responsedate"></label>
+                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week"
+                           readonly="readonly" style="padding: 5px 10px; background: white" id="id_responsedate" name="responsedate"
+                           value="{% if form.responsedate.value %}{{ form.responsedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" disabled="disabled" id="approveconfirm">Confirm</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="approveclose">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="releaseModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">JV Release Details</h4>
+            </div>
+            <div class="modal-body" style="overflow:hidden;">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="control-label" for="id_employeelookup">Released By:</label>
+                        <select class="form-control input-sm select2 col-sm-12" id="id_releaseby"
+                                name="releaseby" style="width: 565px; margin-bottom: 20px;">
+                            <option value="">-- Select --</option>
+                                {% for designatedapprover in designatedapprover %}
+                                    <option value="{{ designatedapprover.id }}" {% if request.user.id == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                {% endfor %}
+                        </select>
+                        <br><br><br>
+                        <label class="control-label" for="id_releasedate">Released On:</label>
+                        <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
+                               style="padding: 5px 10px; background: white" id="id_releasedate" name="releasedate"
+                               value="{% if form.releasedate.value %}{{ form.releasedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" id="releaseconfirm">Confirm</button>
+                <button type="button" class="btn btn-default" id="releaseclose" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -331,6 +384,12 @@
     </div>
 </div>
 <div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
+<div id="approve-success" class="custom-alert success">APV #{{ apnum }} has been tagged as APPROVED.</div>
+<div id="disapprove-success" class="custom-alert success">APV #{{ apnum }} has been tagged as DISAPPROVED.</div>
+<div id="release-success" class="custom-alert success">APV #{{ apnum }} has been tagged as RELEASED.</div>
+<div id="zero-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must not be zero.</div>
+<div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
+<div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -348,6 +407,30 @@
             $("#id_currency").change(function(){
                 $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
             });
+
+            if($('#id_originaljvstatus').val() == 'R'){
+                $("#id_jvdate").prop("readonly", true);
+                $("#id_jvdate").datepicker("destroy");
+                $("#id_jvdate").removeClass("datepicker").removeAttr('id');
+                $("#id_jvtype option:selected").siblings().attr('disabled','disabled');
+                $("#id_jvsubtype option:selected").siblings().attr('disabled','disabled');
+                $("#id_refnum").prop("readonly", true);
+                $("#id_branch option:selected").siblings().attr('disabled','disabled');
+                $("#id_department option:selected").siblings().attr('disabled','disabled');
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+                $("#id_currency option:selected").siblings().attr('disabled','disabled');
+                $("#id_fxrate").prop("readonly", true);
+                $("#id_particular").prop("readonly", true);
+
+                $("#autobutton").hide();
+                $("#manualbutton").hide();
+                $(".actionrowhead").hide();
+                $(".actionrow").hide();
+            }
+
+            if($('#id_originaljvstatus').val() != 'F'){
+                $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
+            }
 
             $("#manualbutton").unbind().click(function (){
                 $("#entryview").show();
@@ -387,7 +470,7 @@
             });
 
             $("#importrepcsvconfirm").click(function(){
-                if(confirm("Are you sure you want to import the selected CSV items for replenishment? You cannot undo " +
+                if(confirm("Are you sure you want to import the selected CSV items? You cannot undo " +
                                 "this action once the Journal Voucher is submitted.")){
                     autoEntry('csv_import');
                 }
@@ -424,11 +507,11 @@
                     $("#id_jvtype option").filter(function(){
                         return $(this).text() == 'NO JV TYPE';
                     }).attr('selected', 'selected');
-                    $("#id_jvsubtype option:contains('Cellphone Subsidy Replenishment')").removeAttr('disabled');
-                    $("#id_jvsubtype option:contains('Cellphone Subsidy Replenishment')").attr('selected', 'selected');
+                    $("#id_jvsubtype option:contains('Cellphone Subsidy Voucher')").removeAttr('disabled');
+                    $("#id_jvsubtype option:contains('Cellphone Subsidy Voucher')").attr('selected', 'selected');
                     $("#id_jvsubtype option:selected").siblings().attr('disabled', 'disabled');
                     $("#id_refnum").val(refnos.substring(0, refnos.length-2));
-                    $("#id_particular").text("Cellphone Subsidy Voucher Replenishment No.(s) " + refnos.substring(0,
+                    $("#id_particular").text("Cellphone Subsidy Voucher No.(s) " + refnos.substring(0,
                                     refnos.length-2));
                     $("#repCSVModal .close").click();
 
@@ -450,6 +533,154 @@
                     });
                 }
             }
+
+            $("#id_jvstatus").change(function(){
+                if($(this).val() == 'A' || $(this).val() == 'D' || $(this).val() == 'R'){
+                    var valid = true;
+                    var blankRequiredFields = "";
+                    $("[data-validation='required']").each(function(){
+                        if($(this).val() == ''){
+                            valid = false;
+                            blankRequiredFields += "\n*" + $('label[for="' + this.id + '"]').html();
+                        }
+                    });
+                    if(!valid){
+                        alert("Please fill-up the following required fields to proceed: " +
+                            blankRequiredFields);
+                        revertJVStatus();
+                    }
+                    else {
+                        var valid2 = true;
+                        if (($(this).val() == 'A') || $(this).val() == 'R'){
+                            var total_creditamount = $("#total_creditamount").text().replace(',', '');
+                            var total_debitamount = $("#total_debitamount").text().replace(',', '');
+
+                            if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
+                                customAlert($('#zero-debit-credit-error'));
+                                valid2 = false;
+                                revertJVStatus();
+                            }
+                            if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                                customAlert($('#not-equal-debit-credit-error'));
+                                valid2 = false;
+                                revertJVStatus();
+                            }
+                            var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+                            if (checkbreakdownstatus) {
+                                customAlert($('#unbalanced-entries-error'));
+                                valid2 = false;
+                                revertJVStatus();
+                            }
+                        }
+                        if(valid2){
+                            if (($(this).val() == 'A') || $(this).val() == 'D') {
+                                if ($(this).val() == 'A') {
+                                    $("#approvedisapprove").text("Approve Journal Voucher");
+                                    $("label[for='id_responsedate']").text("Approved On:");
+                                    approverResponse = "APPROVED";
+                                }
+                                else if ($(this).val() == 'D') {
+                                    $("#approvedisapprove").text("Disapprove Journal Voucher");
+                                    $("label[for='id_responsedate']").text("Disapproved On:");
+                                    approverResponse = "DISAPPROVED";
+                                }
+                                $("#approvalModal").modal('show');
+                            }
+                            else if ($(this).val() == 'R') {
+                                $("#releaseModal").modal('show');
+                                $("#id_releaseby option:selected").siblings().attr('disabled', 'disabled');
+                            }
+                        }
+                    }
+                }
+
+            });
+
+            $("#approvalModal").on("hidden.bs.modal", function (){revertJVStatus();});
+
+            $("#releaseModal").on("hidden.bs.modal", function (){revertJVStatus();});
+
+            $('#id_approverremarks, #id_responsedate').on('input', function(){
+                if($('#id_approverremarks').val() == '' || $('#id_responsedate').val() == '')
+                    $('#approveconfirm').prop('disabled', true);
+                else
+                    $('#approveconfirm').prop('disabled', false);
+            });
+
+            $('#approveconfirm').click(function(){
+                if($('#id_approverremarks').val() != '' && $('#id_responsedate').val() != ''){
+                    if (confirm('Are you sure you want to tag this JV transaction as ' + approverResponse + '?')){
+                        $.ajax({
+                            url: "{% url 'journalvoucher:approve' %}",
+                            type: "post",
+                            data: {'jvnum': $('#id_jvnum').val(),
+                                   'approverremarks': $('#id_approverremarks').val(),
+                                   'responsedate': $('#id_responsedate').val(),
+                                   'approverresponse': approverResponse == 'APPROVED' ? 'A' : approverResponse == 'DISAPPROVED' ? 'D' : '',
+                                   'originaljvstatus': $('#id_originaljvstatus').val(),
+                                   'backtoinprocess': $('#id_originaljvstatus').val() == 'R' && approverResponse == 'APPROVED' ? 1 : 0
+                            },
+                            success: function(response) {
+                                if(approverResponse == 'APPROVED')
+                                    customAlert($('#approve-success'));
+                                if(approverResponse == 'DISAPPROVED')
+                                    customAlert($('#disapprove-success'));
+                                $("#approvalModal .close").click();
+                                approved = true;
+                                $('#id_originaljvstatus').data('actualstatus', response.newjvstatus);
+                            },
+                            error: function(response) {
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
+            $('#releaseconfirm').click(function(){
+                if($('#id_releaseby').val() != '' && $('#id_releasedate').val() != ''){
+                    if (confirm('Are you sure you want to tag this JV transaction as RELEASED?')){
+                        $.ajax({
+                            url: "{% url 'journalvoucher:release' %}",
+                            type: "post",
+                            data: {'jvnum': $('#id_jvnum').val(),
+                                   'releaseby': $('#id_releaseby').val(),
+                                   'releasedate': $('#id_releasedate').val()
+                            },
+                            success: function(){
+                                customAlert($('#release-success'));
+                                $("#releaseModal .close").click();
+                                released = true;
+                                $('#id_originaljvstatus').data('actualstatus', 'R');
+                            },
+                            error: function(response){
+                                console.debug(response);
+                            }
+                        });
+                    }
+                }
+            });
+
+            function revertJVStatus(){
+                $('#id_jvstatus').val($('#id_originaljvstatus').data('actualstatus'));
+            }
+
+            $("#validateButton").on('click', function() {
+                var total_creditamount = $("#total_creditamount").text().replace(',','');
+                var total_debitamount = $("#total_debitamount").text().replace(',','');
+                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
+                    alert('Debit and Credit amount must not be zero');
+                    return false;
+                }
+                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                    alert('Debit and Credit amount be equal');
+                    return false;
+                }
+                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+                if (checkbreakdownstatus) {
+                    alert('You have unbalance various entry. Please review your entry!');
+                }
+            });
 
             $("#validateButton").on('click', function() {
                 var total_creditamount = $("#total_creditamount").text().replace(',','');

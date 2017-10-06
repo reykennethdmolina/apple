@@ -4,6 +4,7 @@
 {% block page-title %} Journal Voucher {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    {% include "journalvoucher/createcss.html" %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
@@ -196,7 +197,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Cellphone Subsidy Vouchers Replenishment</h4>
+                <h4 class="modal-title">Cellphone Subsidy Vouchers</h4>
             </div>
             <div class="modal-body" style="overflow:hidden;">
                 <div class="row">
@@ -241,7 +242,7 @@
                             </thead>
                         </table>
                         {% else %}
-                            There are no pending Cellphone Subsidy Vouchers for replenishment.
+                            There are no Cellphone Subsidy Vouchers for importation.
                         {% endif %}
                     </div>
                 </div>
@@ -327,7 +328,7 @@
             });
 
             $("#importrepcsvconfirm").click(function(){
-                if(confirm("Are you sure you want to import the selected CSV items for replenishment? You cannot undo " +
+                if(confirm("Are you sure you want to import the selected CSV items? You cannot undo " +
                                 "this action once the Journal Voucher is submitted.")){
                     autoEntry('csv_import');
                 }
@@ -364,11 +365,11 @@
                     $("#id_jvtype option").filter(function(){
                         return $(this).text() == 'NO JV TYPE';
                     }).attr('selected', 'selected');
-                    $("#id_jvsubtype option:contains('Cellphone Subsidy Replenishment')").removeAttr('disabled');
-                    $("#id_jvsubtype option:contains('Cellphone Subsidy Replenishment')").attr('selected', 'selected');
+                    $("#id_jvsubtype option:contains('Cellphone Subsidy Voucher')").removeAttr('disabled');
+                    $("#id_jvsubtype option:contains('Cellphone Subsidy Voucher')").attr('selected', 'selected');
                     $("#id_jvsubtype option:selected").siblings().attr('disabled', 'disabled');
                     $("#id_refnum").val(refnos.substring(0, refnos.length-2));
-                    $("#id_particular").text("Cellphone Subsidy Voucher Replenishment No.(s) " + refnos.substring(0,
+                    $("#id_particular").text("Cellphone Subsidy Voucher No.(s) " + refnos.substring(0,
                                     refnos.length-2));
                     $("#repCSVModal .close").click();
 

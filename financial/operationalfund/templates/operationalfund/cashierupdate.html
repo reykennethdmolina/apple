@@ -118,14 +118,18 @@
                             </button>
                         </a>
                     </div>
+                    <div>&nbsp;</div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-12">
                             <div class="row-lg">
                                 <div class="form-group  col-sm-2">
+{#                                    <input type="hidden" id="id_originalofstatus" name="originalofstatus"#}
+{#                                           value="{{ originalofstatus }}">#}
                                     <input type="hidden" id="id_originalofstatus" name="originalofstatus"
-                                           value="{{ originalofstatus }}">
+                                       value="{{ originalofstatus }}" data-actualstatus="{{ originalofstatus }}">
+                                        <!-- change actualstatus data attribute upon ajax status change -->
                                     <label class="control-label" for="id_ofnum">Number</label>
                                     <input type="text" class="form-control input-sm" id="id_ofnum" name="ofnum" placeholder="OFxxxxxxx" value="OF-{{ savedoftype }}-{{ ofnum }}" readonly="readonly">
                                     <span class="help-block form-error">{{ form.ofnum.errors.as_text }}</span>
@@ -650,12 +654,15 @@
                 {% if savedoftype == 'PCV' and pcv_requested == 'True' %}
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
+                    $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
                 {% elif savedoftype == 'RFV' and rfv_requested == 'True' %}
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
+                    $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
                 {% elif savedoftype == 'CSV' and csv_replenished == 'True' %}
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
+                    $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
                 {% endif %}
             }
 
@@ -763,6 +770,7 @@
                                 customAlert($('#release-success'));
                                 $("#releaseModal .close").click();
                                 released = 1;
+                                $('#id_originalofstatus').data('actualstatus', 'R');
                             },
                             error: function(response) {
                                 console.debug(response);
@@ -780,6 +788,10 @@
                     $("#id_releasedate").removeClass("datepicker").removeAttr('id');
                     $('#releaseconfirm').prop('disabled', true);
                }
+            });
+
+            $("#releaseModal").on("hidden.bs.modal", function (){
+                $('#id_ofstatus').val($('#id_originalofstatus').data('actualstatus'));
             });
 
             // Accounting entry start

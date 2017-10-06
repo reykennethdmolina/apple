@@ -1,13 +1,14 @@
 import datetime
 from django.db.models import Sum
-from django.views.generic import DetailView, CreateView, UpdateView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from jvtype.models import Jvtype
 from jvsubtype.models import Jvsubtype
+from companyparameter.models import Companyparameter
 from currency.models import Currency
 from branch.models import Branch
 from department.models import Department
@@ -17,6 +18,7 @@ from acctentry.views import updateallquery, validatetable, deleteallquery, gener
     querytotaldetail, savedetail, updatedetail
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
+from easy_pdf.views import PDFTemplateView
 from django.contrib.auth.models import User
 
 
@@ -64,6 +66,9 @@ class DetailView(DetailView):
             filter(jvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Jvdetail.objects.filter(isdeleted=0).\
             filter(jvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+        context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).order_by('enterdate')
+        jv_main_aggregate = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).aggregate(Sum('amount'))
+        context['repcsv_total_amount'] = jv_main_aggregate['amount__sum']
 
         return context
 
@@ -234,6 +239,11 @@ class UpdateView(UpdateView):
             order_by('first_name')
         context['jvnum'] = self.object.jvnum
         context['originaljvstatus'] = Jvmain.objects.get(pk=self.object.id).jvstatus
+        context['savedjvsubtype'] = Jvmain.objects.get(pk=self.object.id).jvsubtype.code
+        context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).order_by('enterdate')
+        jv_main_aggregate = Ofmain.objects.filter(isdeleted=0, jvmain=self.object.id).aggregate(Sum('amount'))
+        context['repcsv_total_amount'] = jv_main_aggregate['amount__sum']
+        context['originaljvstatus'] = Jvmain.objects.get(pk=self.object.id).jvstatus
 
         contextdatatable = {
             # to be used by accounting entry on load
@@ -247,20 +257,140 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.modifyby = self.request.user
-        self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency',
-                                        'department', 'designatedapprover', 'jvstatus'])
+        if self.request.POST['originaljvstatus'] != 'R':
+            self.object = form.save(commit=False)
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch',
+                                            'currency', 'department', 'designatedapprover', 'jvstatus'])
 
-        # accounting entry starts here..
-        source = 'jvdetailtemp'
-        mainid = self.object.id
-        num = self.object.jvnum
-        secretkey = self.request.POST['secretkey']
-        updatedetail(source, mainid, num, secretkey, self.request.user)
+            if self.object.jvstatus == 'F':
+                self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
+                self.object.save(update_fields=['designatedapprover'])
+
+            # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
+            # remove approval details if JVSTATUS is not APPROVED/DISAPPROVED
+            if self.object.jvstatus == 'A' or self.object.jvstatus == 'D':
+                if self.object.responsedate is None or self.object.approverresponse is None or self.object. \
+                        actualapprover is None:
+                    print self.object.responsedate
+                    print self.object.approverresponse
+                    print self.object.actualapprover
+                    self.object.responsedate = None
+                    self.object.approverremarks = None
+                    self.object.approverresponse = None
+                    self.object.actualapprover = None
+                    self.object.jvstatus = 'F'
+                    self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+                                                    'actualapprover', 'jvstatus'])
+            elif self.object.jvstatus == 'F':
+                self.object.responsedate = None
+                self.object.approverremarks = None
+                self.object.approverresponse = None
+                self.object.actualapprover = None
+                self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+                                                'actualapprover'])
+
+            # revert status from RELEASED to Approved if no release date is saved
+            # remove release details if JVSTATUS is not RELEASED
+            if self.object.jvstatus == 'R' and self.object.releasedate is None:
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.jvstatus = 'A'
+                self.object.save(update_fields=['releaseby', 'releasedate', 'jvstatus'])
+            elif self.object.jvstatus != 'R':
+                self.object.releaseby = None
+                self.object.releasedate = None
+                self.object.save(update_fields=['releaseby', 'releasedate'])
+
+            # accounting entry starts here..
+            source = 'jvdetailtemp'
+            mainid = self.object.id
+            num = self.object.jvnum
+            secretkey = self.request.POST['secretkey']
+            updatedetail(source, mainid, num, secretkey, self.request.user)
+
+            totaldebitamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+                Sum('debitamount'))
+            totalcreditamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+                Sum('creditamount'))
+
+            if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
+                self.object.amount = totaldebitamount['debitamount__sum']
+                self.object.save(update_fields=['amount'])
+            else:
+                print "Debit and Credit amounts are not equal. JV Amount is not saved."
+
+        else:
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
 
         return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Jvmain
+    template_name = 'journalvoucher/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('journalvoucher.delete_jvmain') or self.object.status == 'O' \
+                or self.object.jvstatus == 'A' or self.object.jvstatus == 'I' or self.object.jvstatus == 'R':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.jvstatus = 'D'
+        self.object.save()
+
+        # remove reference in ofmain
+        ofmain = Ofmain.objects.filter(jvmain=self.object.id)
+        for data in ofmain:
+            data.jvmain = None
+            data.save()
+        # remove reference in ofmain
+
+        return HttpResponseRedirect('/journalvoucher')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Jvmain
+    template_name = 'journalvoucher/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['jvmain'] = Jvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Jvdetail.objects.filter(isdeleted=0). \
+            filter(jvmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Jvdetail.objects.filter(isdeleted=0). \
+            filter(jvmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Jvdetail.objects.filter(isdeleted=0). \
+            filter(jvmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['ofmain'] = Ofmain.objects.filter(isdeleted=0, jvmain=self.kwargs['pk']).order_by(
+            'enterdate')
+        jv_main_aggregate = Ofmain.objects.filter(isdeleted=0, jvmain=self.kwargs['pk']).aggregate(
+            Sum('amount'))
+        context['ofcsvmain_total_amount'] = jv_main_aggregate['amount__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedjv = Jvmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedjv.print_ctr += 1
+        printedjv.save()
+        return context
 
 
 @csrf_exempt
@@ -369,6 +499,78 @@ def importrepcsv(request):
             'status': 'success',
             'branch': first_ofmain.branch_id
         }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def approve(request):
+    if request.method == 'POST':
+        jv_for_approval = Jvmain.objects.get(jvnum=request.POST['jvnum'])
+        if request.user.has_perm('journalvoucher.approve_alljv') or \
+                request.user.has_perm('journalvoucher.approve_assignedjv'):
+            if request.user.has_perm('journalvoucher.approve_alljv') or \
+                    (request.user.has_perm('journalvoucher.approve_assignedjv') and
+                             jv_for_approval.designatedapprover == request.user):
+                print "back to in-process = " + str(request.POST['backtoinprocess'])
+                if request.POST['originaljvstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+                    jv_for_approval.jvstatus = request.POST['approverresponse']
+                    jv_for_approval.isdeleted = 0
+                    if request.POST['approverresponse'] == 'D':
+                        jv_for_approval.status = 'C'
+                    else:
+                        jv_for_approval.status = 'A'
+                    jv_for_approval.approverresponse = request.POST['approverresponse']
+                    jv_for_approval.responsedate = request.POST['responsedate']
+                    jv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+                    jv_for_approval.approverremarks = request.POST['approverremarks']
+                    jv_for_approval.releaseby = None
+                    jv_for_approval.releasedate = None
+                    jv_for_approval.save()
+                    data = {
+                        'status': 'success',
+                        'jvnum': jv_for_approval.jvnum,
+                        'newjvstatus': jv_for_approval.jvstatus,
+                    }
+                else:
+                    data = {
+                        'status': 'error',
+                    }
+            else:
+                data = {
+                    'status': 'error',
+                }
+        else:
+            data = {
+                'status': 'error',
+            }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def release(request):
+    if request.method == 'POST':
+        jv_for_release = Jvmain.objects.get(jvnum=request.POST['jvnum'])
+        if jv_for_release.jvstatus != 'F' and jv_for_release.jvstatus != 'D':
+            jv_for_release.releaseby = User.objects.get(pk=request.POST['releaseby'])
+            jv_for_release.releasedate = request.POST['releasedate']
+            jv_for_release.jvstatus = 'R'
+            jv_for_release.save()
+            data = {
+                'status': 'success',
+            }
+        else:
+            data = {
+                'status': 'error',
+            }
     else:
         data = {
             'status': 'error',

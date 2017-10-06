@@ -13,6 +13,7 @@ class Jvmain(models.Model):
     jvsubtype = models.ForeignKey('jvsubtype.Jvsubtype', related_name='jvsubtype_jvmain_id')
     refnum = models.CharField(max_length=150, blank=True, null=True)
     currency = models.ForeignKey('currency.Currency', related_name='currency_jvmain_id')
+    fxrate = models.DecimalField(default=1.00, null=True, blank=True, decimal_places=5, max_digits=18)
     branch = models.ForeignKey('branch.Branch', related_name='branch_jvmain_id')
     department = models.ForeignKey('department.Department', related_name='department_jvmain_id', null=True, blank=True)
     particular = models.TextField()

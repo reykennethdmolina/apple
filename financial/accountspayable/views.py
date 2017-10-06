@@ -447,6 +447,23 @@ class DeleteView(DeleteView):
         self.object.apstatus = 'D'
         self.object.save()
 
+        # remove references in reprfvmain, reprfvdetail, ofmain
+        reprfvmain = Reprfvmain.objects.filter(apmain=self.object.id)
+        for data in reprfvmain:
+            data.apmain = None
+            data.save()
+
+        reprfvdetail = Reprfvdetail.objects.filter(apmain=self.object.id)
+        for data in reprfvdetail:
+            data.apmain = None
+            data.save()
+
+        ofmain = Ofmain.objects.filter(apmain=self.object.id)
+        for data in ofmain:
+            data.apmain = None
+            data.save()
+        # remove references in reprfvmain, reprfvdetail, ofmain
+
         return HttpResponseRedirect('/accountspayable')
 
 
