@@ -10,7 +10,7 @@ class Ormain(models.Model):
     ornum = models.CharField(max_length=10, unique=True)
     ordate = models.DateField()
     ortype = models.ForeignKey('ortype.Ortype', related_name='ormain_ortype_id')
-    # orsubtype = models.ForeignKey('orsubtype.Orsubtype', related_name='ormain_orsubtype_id')
+    orsubtype = models.ForeignKey('orsubtype.Orsubtype', related_name='ormain_orsubtype_id')
     prnum = models.CharField(max_length=10, null=True, blank=True)
     prdate = models.DateField(null=True, blank=True)
     OR_STATUS_CHOICES = (
@@ -36,8 +36,8 @@ class Ormain(models.Model):
     customer_zipcode = models.CharField(max_length=20, blank=True, null=True)
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     amountinwords = models.CharField(max_length=500, null=True, blank=True)
-    # outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='ormain_outvattype_id', null=True,
-    # blank=True)
+    outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='ormain_outvattype_id', null=True,
+                                      blank=True)
     YESNO_CHOICES = (
         ('Y', 'Yes'),
         ('N', 'No'),
@@ -51,6 +51,8 @@ class Ormain(models.Model):
                              blank=True)
     wtaxrate = models.IntegerField(default=0, null=True, blank=True)
     wtaxamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    currency = models.ForeignKey('currency.Currency', related_name='ormain_currency_id', default=1)
+    fxrate = models.DecimalField(default=1.00, decimal_places=5, max_digits=18)
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='ormain_bankaccount_id', null=True,
                                     blank=True)
     particulars = models.TextField(null=True, blank=True)
@@ -120,7 +122,7 @@ class Oritem(models.Model):
     bankbranch = models.ForeignKey('bankbranch.Bankbranch', related_name='oritem_bankbranch_id', null=True, blank=True)
     checknum = models.CharField(max_length=150, null=True, blank=True)
     checkdate = models.DateTimeField(null=True, blank=True)
-    # creditcard = models.ForeignKey('creditcard.Creditcard', related_name='oritem_creditcard_id', null=True, blank=True)
+    creditcard = models.ForeignKey('creditcard.Creditcard', related_name='oritem_creditcard_id', null=True, blank=True)
     creditcardnum = models.CharField(max_length=150, null=True, blank=True)
     authnum = models.CharField(max_length=150, null=True, blank=True)
     expirydate = models.DateTimeField(null=True, blank=True)
@@ -310,7 +312,7 @@ class Oritemtemp(models.Model):
     bankbranch = models.IntegerField(blank=True, null=True)
     checknum = models.CharField(max_length=150, null=True, blank=True)
     checkdate = models.DateTimeField(null=True, blank=True)
-    # creditcard = models.IntegerField(blank=True, null=True)
+    creditcard = models.IntegerField(blank=True, null=True)
     creditcardnum = models.CharField(max_length=150, null=True, blank=True)
     authnum = models.CharField(max_length=150, null=True, blank=True)
     expirydate = models.DateTimeField(null=True, blank=True)
