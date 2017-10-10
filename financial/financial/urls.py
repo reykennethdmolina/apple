@@ -121,6 +121,9 @@ urlpatterns = [
     url(r'^bankbranchdisburse/', include('bankbranchdisburse.urls', app_name='bankbranchdisburse', namespace='bankbranchdisburse')),
     url(r'^utils/', include('utils.urls', app_name='utils', namespace='utils')),
     url(r'^cashdisbursement/', include('cashdisbursement.urls', app_name='cashdisbursement', namespace='cashdisbursement')),
+    url(r'^outputvattype/', include('outputvattype.urls', app_name='outputvattype', namespace='outputvattype')),
+    url(r'^orsubtype/', include('orsubtype.urls', app_name='orsubtype', namespace='orsubtype')),
+    url(r'^creditcard/', include('creditcard.urls', app_name='creditcard', namespace='creditcard')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

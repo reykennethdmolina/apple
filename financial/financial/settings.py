@@ -135,6 +135,9 @@ INSTALLED_APPS = [
     'cashdisbursement',
     'apsubtype',
     'jvsubtype',
+    'outputvattype',
+    'orsubtype',
+    'creditcard',
 ]
 
 MIDDLEWARE_CLASSES = [
