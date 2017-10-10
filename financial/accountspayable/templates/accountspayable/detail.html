@@ -81,14 +81,33 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">AP Status&nbsp;: </span>
-                                            <span class="detail-profile
-                                                {% if object.apstatus == 'F' %} text-primary
-                                                {% elif object.apstatus == 'A' or object.apstatus == 'R' %} text-success
-                                                {% elif object.apstatus == 'D' %} text-danger
-                                                {% endif %} "><b>
-                                                    {{ object.get_apstatus_display }}
-                                            </b></span>
+                                            <span class="text-name-profile text-info">Reference No.&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.refno }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Amount&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.amount|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.particulars }}</span>
+                                        </div>
+                                    </div>
+                                    <div>&nbsp;</div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Credit Terms&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.creditterm.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Due date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.duedate|date:'Y-m-d' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -105,26 +124,8 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Credit Terms&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.creditterm.description }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Due date&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.duedate|date:'Y-m-d' }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Input VAT Type&nbsp;: </span>
                                             <span class="detail-profile">{{ object.inputvattype.description }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Ref No.&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.refno }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -135,14 +136,71 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Currency / FX Rate&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.currency.description }} <br> {{ object.fxrate }}</span>
+                                            <span class="text-name-profile text-info">Currency&nbsp;: </span>
+                                            <span class="detail-profile">[{{ object.currency.symbol }}]&nbsp;{{ object.currency.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Particulars&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.particulars }}</span>
+                                            <span class="text-name-profile text-info">FX Rate&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.fxrate|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+                                    <div>&nbsp;</div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">AP Status&nbsp;: </span>
+                                            <span class="detail-profile
+                                                {% if object.apstatus == 'F' %} text-primary
+                                                {% elif object.apstatus == 'A' or object.apstatus == 'R' %} text-success
+                                                {% elif object.apstatus == 'D' %} text-danger
+                                                {% endif %} "><b>
+                                                    {{ object.get_apstatus_display }}
+                                            </b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Approver&nbsp;: </span>
+                                            <span class="detail-profile">
+                                                {% if object.actualapprover %}
+                                                    {{ object.actualapprover.first_name }}&nbsp;{{ object.actualapprover.last_name }}
+                                                {% else %}
+                                                    {{ object.designatedapprover.first_name }}&nbsp;{{ object.designatedapprover.last_name }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Response Date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.responsedate|date:'Y-m-d'|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Remarks&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.approverremarks|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Release Date&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.releasedate|date:'Y-m-d'|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Status&nbsp;: </span>
+                                            <span class="detail-profile {% if object.status == 'A' %} text-success
+                                                         {% else %} text-danger
+                                                         {% endif %}"><b>{{ object.get_status_display }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Released by&nbsp;: </span>
+                                            <span class="detail-profile">{% if object.releaseby %}{{ object.releaseby.first_name }}&nbsp;{{ object.releaseby.last_name }}{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
                                 </div>
