@@ -1,9 +1,9 @@
 import datetime
 from django.db.models import Sum
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from jvtype.models import Jvtype
@@ -20,6 +20,9 @@ from endless_pagination.views import AjaxListView
 from django.db.models import Q
 from easy_pdf.views import PDFTemplateView
 from django.contrib.auth.models import User
+from utils.mixins import ReportContentMixin
+import datetime
+from django.utils.dateformat import DateFormat
 
 
 class IndexView(AjaxListView):
@@ -585,3 +588,538 @@ def release(request):
         }
     return JsonResponse(data)
 
+
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Jvmain
+    template_name = 'journalvoucher/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('description')
+        context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('description')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['user'] = User.objects.filter(is_active=1).order_by('first_name')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Jvmain
+    template_name = 'journalvoucher/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        query, context['report_type'], context['report_total'], context['csv'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "JOURNAL VOUCHER"
+        context['rc_title'] = "JOURNAL VOUCHER"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+    report_total = ''
+    csv = 'hide'
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
+       or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+
+        if request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name):
+            subtype = str(request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name))
+        else:
+            subtype = ''
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
+                or (request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd'
+                    and (subtype == '' or subtype == '2')):
+            if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+                report_type = "JV Detailed"
+            else:
+                report_type = "JV Summary"
+
+            query = Jvmain.objects.all().filter(isdeleted=0)
+
+            if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+                query = query.filter(jvnum__gte=int(key_data))
+            if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+                query = query.filter(jvnum__lte=int(key_data))
+
+            if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+                query = query.filter(jvdate__gte=key_data)
+            if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+                query = query.filter(jvdate__lte=key_data)
+
+            if request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name))
+                query = query.filter(jvtype=int(key_data))
+            if request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name))
+                query = query.filter(jvsubtype=int(key_data))
+            if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+                query = query.filter(branch=int(key_data))
+            if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
+                query = query.filter(jvstatus=str(key_data))
+
+            if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+                query = query.filter(department=int(key_data))
+            if request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name))
+                query = query.filter(Q(actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
+
+            if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(amount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name))
+                query = query.filter(amount__lte=float(key_data.replace(',', '')))
+
+            if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.order_by(*key_data)
+
+            report_total = query.aggregate(Sum('amount'))\
+
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            report_type = "JV Detailed"
+            csv = "show"
+
+            query = Ofmain.objects.all().filter(isdeleted=0).exclude(jvmain=None)
+
+            if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvnum__gte=int(key_data))
+            if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvnum__lte=int(key_data))
+
+            if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvdate__gte=key_data)
+            if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvdate__lte=key_data)
+
+            if request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvtype=int(key_data))
+            if request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvsubtype=int(key_data))
+            if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__branch=int(key_data))
+            if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__jvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__department=int(key_data))
+            if request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name))
+                query = query.filter(Q(jvmain__actualapprover=int(key_data)), Q(jvmain__designatedapprover=int(key_data)))
+
+            if request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__amount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_amountto_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__amount__lte=float(key_data.replace(',', '')))
+
+            if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    for n,data in enumerate(key_data):
+                        key_data[n] = "jvmain__" + data
+                    query = query.order_by(*key_data)
+                else:
+                    query = query.order_by('jvmain')
+
+            report_total = query.values('jvmain').annotate(Sum('amount')).aggregate(Sum('jvmain__amount'))
+
+        if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+            if key_data == 'd':
+                query = query.reverse()
+
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s'\
+            or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        query = Jvdetail.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+            if request.COOKIES.get('rep_f_debit_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_debit_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(debitamount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_debit_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_debit_amountto_' + request.resolver_match.app_name))
+                query = query.filter(debitamount__lte=float(key_data.replace(',', '')))
+
+            if request.COOKIES.get('rep_f_credit_amountfrom_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_credit_amountfrom_' + request.resolver_match.app_name))
+                query = query.filter(creditamount__gte=float(key_data.replace(',', '')))
+            if request.COOKIES.get('rep_f_credit_amountto_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_credit_amountto_' + request.resolver_match.app_name))
+                query = query.filter(creditamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_balancecode_' + request.resolver_match.app_name) == 'd':
+            query = query.filter(balancecode='D')
+        elif request.COOKIES.get('rep_f_balancecode_' + request.resolver_match.app_name) == 'c':
+            query = query.filter(balancecode='C')
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_jvtype_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvtype=int(key_data))
+        if request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_jvsubtype_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvsubtype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__branch=int(key_data))
+        if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__jvstatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__department=int(key_data))
+        if request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name))
+            query = query.filter(Q(jvmain__actualapprover=int(key_data)), Q(designatedapprover=int(key_data)))
+
+        report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+            report_type = "JV Acctg Entry - Summary"
+
+            query = query.values('chartofaccount__accountcode',
+                                 'chartofaccount__title',
+                                 'chartofaccount__description',
+                                 'bankaccount__accountnumber',
+                                 'department__departmentname',
+                                 'employee__firstname',
+                                 'employee__lastname',
+                                 'supplier__name',
+                                 'customer__name',
+                                 'unit__description',
+                                 'branch__description',
+                                 'product__description',
+                                 'inputvat__description',
+                                 'outputvat__description',
+                                 'vat__description',
+                                 'wtax__description',
+                                 'ataxcode__code',
+                                 'balancecode')\
+                         .annotate(Sum('debitamount'), Sum('creditamount'))\
+                         .order_by('-balancecode',
+                                   '-chartofaccount__accountcode',
+                                   'bankaccount__accountnumber',
+                                   'department__departmentname',
+                                   'employee__firstname',
+                                   'supplier__name',
+                                   'customer__name',
+                                   'unit__description',
+                                   'branch__description',
+                                   'product__description',
+                                   'inputvat__description',
+                                   'outputvat__description',
+                                   '-vat__description',
+                                   'wtax__description',
+                                   'ataxcode__code')
+        else:
+            report_type = "JV Acctg Entry - Detailed"
+
+            query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
+                                                                                     '-chartofaccount__accountcode',
+                                                                                     'bankaccount__accountnumber',
+                                                                                     'department__departmentname',
+                                                                                     'employee__firstname',
+                                                                                     'supplier__name',
+                                                                                     'customer__name',
+                                                                                     'unit__description',
+                                                                                     'branch__description',
+                                                                                     'product__description',
+                                                                                     'inputvat__description',
+                                                                                     'outputvat__description',
+                                                                                     '-vat__description',
+                                                                                     'wtax__description',
+                                                                                     'ataxcode__code',
+                                                                                     'jv_num')
+
+    return query, report_type, report_total, csv
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_total, csv = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'JV Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        amount_placement = 5
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        amount_placement = 9 if csv == 'show' else 7
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        amount_placement = 14
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        amount_placement = 15
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'JV Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Type', bold)
+        worksheet.write('D1', 'Subtype', bold)
+        worksheet.write('E1', 'Status', bold)
+        worksheet.write('F1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        if csv == 'show':
+            worksheet.merge_range('A1:A2', 'JV Number', bold)
+            worksheet.merge_range('B1:B2', 'Date', bold)
+            worksheet.merge_range('C1:C2', 'Type', bold)
+            worksheet.merge_range('D1:D2', 'Subtype', bold)
+            worksheet.merge_range('E1:E2', 'Branch', bold)
+            worksheet.merge_range('F1:F2', 'Department.', bold)
+            worksheet.merge_range('G1:G2', 'Status', bold)
+            worksheet.merge_range('H1:J1', 'Operational Fund', bold_center)
+            worksheet.merge_range('K1:K2', 'Amount', bold_right)
+            worksheet.write('H2', 'OF Number', bold)
+            worksheet.write('I2', 'Date', bold)
+            worksheet.write('J2', 'OF Amount', bold_right)
+            row += 1
+        else:
+            worksheet.write('A1', 'JV Number', bold)
+            worksheet.write('B1', 'Date', bold)
+            worksheet.write('C1', 'Type', bold)
+            worksheet.write('D1', 'Subtype', bold)
+            worksheet.write('E1', 'Branch', bold)
+            worksheet.write('F1', 'Department', bold)
+            worksheet.write('G1', 'Status', bold)
+            worksheet.write('H1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
+        worksheet.merge_range('B1:N1', 'Details', bold_center)
+        worksheet.merge_range('O1:O2', 'Debit', bold_right)
+        worksheet.merge_range('P1:P2', 'Credit', bold_right)
+        worksheet.write('B2', 'Bank Account', bold)
+        worksheet.write('C2', 'Department', bold)
+        worksheet.write('D2', 'Employee', bold)
+        worksheet.write('E2', 'Supplier', bold)
+        worksheet.write('F2', 'Customer', bold)
+        worksheet.write('G2', 'Unit', bold)
+        worksheet.write('H2', 'Branch', bold)
+        worksheet.write('I2', 'Product', bold)
+        worksheet.write('J2', 'Input VAT', bold)
+        worksheet.write('K2', 'Output VAT', bold)
+        worksheet.write('L2', 'VAT', bold)
+        worksheet.write('M2', 'WTAX', bold)
+        worksheet.write('N2', 'ATAX Code', bold)
+        row += 1
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
+        worksheet.merge_range('B1:N1', 'Details', bold_center)
+        worksheet.merge_range('O1:O2', 'Date', bold)
+        worksheet.merge_range('P1:P2', 'Debit', bold_right)
+        worksheet.merge_range('Q1:Q2', 'Credit', bold_right)
+        worksheet.write('B2', 'Bank Account', bold)
+        worksheet.write('C2', 'Department', bold)
+        worksheet.write('D2', 'Employee', bold)
+        worksheet.write('E2', 'Supplier', bold)
+        worksheet.write('F2', 'Customer', bold)
+        worksheet.write('G2', 'Unit', bold)
+        worksheet.write('H2', 'Branch', bold)
+        worksheet.write('I2', 'Product', bold)
+        worksheet.write('J2', 'Input VAT', bold)
+        worksheet.write('K2', 'Output VAT', bold)
+        worksheet.write('L2', 'VAT', bold)
+        worksheet.write('M2', 'WTAX', bold)
+        worksheet.write('N2', 'ATAX Code', bold)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            data = [
+                obj.jvnum,
+                DateFormat(obj.jvdate).format('Y-m-d'),
+                obj.jvtype.description if obj.jvtype else '',
+                obj.jvsubtype.description if obj.jvsubtype else '',
+                obj.get_jvstatus_display(),
+                obj.amount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            if csv == 'show':
+                data = [
+                    obj.jvmain.jvnum,
+                    DateFormat(obj.jvmain.jvdate).format('Y-m-d'),
+                    obj.jvmain.jvtype.description if obj.jvmain.jvtype else '',
+                    obj.jvmain.jvsubtype.description if obj.jvmain.jvsubtype else '',
+                    obj.jvmain.branch.description,
+                    obj.jvmain.department.departmentname,
+                    obj.jvmain.get_jvstatus_display(),
+                    'OF-' + obj.ofnum,
+                    DateFormat(obj.ofdate).format('Y-m-d'),
+                    obj.amount,
+                    obj.jvmain.amount,
+                ]
+            else:
+                data = [
+                    obj.jvnum,
+                    DateFormat(obj.jvdate).format('Y-m-d'),
+                    obj.jvtype.description if obj.jvtype else '',
+                    obj.jvsubtype.description if obj.jvsubtype else '',
+                    obj.branch.description,
+                    obj.department.departmentname,
+                    obj.get_cvstatus_display(),
+                    obj.amount,
+                ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+            str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
+            str_lastname = obj['employee__lastname'] if obj['employee__lastname'] is not None else ''
+
+            data = [
+                obj['chartofaccount__accountcode'] + " - " + obj['chartofaccount__description'],
+                obj['bankaccount__accountnumber'],
+                obj['department__departmentname'],
+                str_firstname + " " + str_lastname,
+                obj['supplier__name'],
+                obj['customer__name'],
+                obj['unit__description'],
+                obj['branch__description'],
+                obj['product__description'],
+                obj['inputvat__description'],
+                obj['outputvat__description'],
+                obj['vat__description'],
+                obj['wtax__description'],
+                obj['ataxcode__code'],
+                obj['debitamount__sum'],
+                obj['creditamount__sum'],
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+            str_firstname = obj.employee.firstname if obj.employee is not None else ''
+            str_lastname = obj.employee.lastname if obj.employee is not None else ''
+
+            data = [
+                obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
+                obj.bankaccount.accountnumber if obj.bankaccount is not None else '',
+                obj.department.departmentname if obj.department is not None else '',
+                str_firstname + " " + str_lastname,
+                obj.supplier.name if obj.supplier is not None else '',
+                obj.customer.name if obj.customer is not None else '',
+                obj.unit.description if obj.unit is not None else '',
+                obj.branch.description if obj.branch is not None else '',
+                obj.product.description if obj.product is not None else '',
+                obj.inputvat.description if obj.inputvat is not None else '',
+                obj.outputvat.description if obj.outputvat is not None else '',
+                obj.vat.description if obj.vat is not None else '',
+                obj.wtax.description if obj.wtax is not None else '',
+                obj.ataxcode.code if obj.ataxcode is not None else '',
+                DateFormat(obj.jv_date).format('Y-m-d'),
+                obj.debitamount__sum,
+                obj.creditamount__sum,
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        data = [
+            "", "", "", "",
+            "Total", report_total['amount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        if csv == 'show':
+            data = [
+                "", "", "", "", "", "", "", "", "",
+                "Total", report_total['jvmain__amount__sum'],
+            ]
+        else:
+            data = [
+                "", "", "", "", "", "",
+                "Total", report_total['amount__sum'],
+            ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response

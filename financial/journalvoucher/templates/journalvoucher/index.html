@@ -31,12 +31,16 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
-
                     {% if perms.journalvoucher.change_jvmain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
                             <i class="icon fa-search" aria-hidden="true"></i> Lookup
                         </button>
                     {% endif %}
+                    <a href="{% url 'journalvoucher:report' %}">
+                        <button class="btn btn-info btn-sm">
+                            <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
+                        </button>
+                    </a>
                     {% if perms.journalvoucher.add_jvmain %}
                         <a href="{% url 'journalvoucher:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Journal Voucher</button></a>
                     {% endif %}
