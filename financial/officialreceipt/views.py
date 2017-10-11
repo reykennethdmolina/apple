@@ -24,6 +24,7 @@ from customer.models import Customer
 from ortype.models import Ortype
 from orsubtype.models import Orsubtype
 from outputvattype.models import Outputvattype
+from paytype.models import Paytype
 from vat.models import Vat
 from wtax.models import Wtax
 from django.template.loader import render_to_string
@@ -130,11 +131,11 @@ class CreateView(CreateView):
 
         print 'ornum: ' + ornum
         self.object.ornum = ornum
-        self.object.customer = Customer.objects.get(pk=self.request.POST['customer'])
+        self.object.customer = Customer.objects.get(pk=int(self.request.POST['customer']))
         self.object.customer_code = self.object.customer.code
         self.object.customer_name = self.object.customer.name
-        self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
-        self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
+        self.object.vatrate = Vat.objects.get(pk=int(self.request.POST['vat'])).rate
+        self.object.wtaxrate = Wtax.objects.get(pk=int(self.request.POST['wtax'])).rate
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -173,3 +174,45 @@ class CreateView(CreateView):
 
         return HttpResponseRedirect('/officialreceipt/')
         # return HttpResponseRedirect('/officialreceipt/' + str(self.object.id) + '/update')
+
+
+@csrf_exempt
+def saveitem(request):
+    if request.method == 'POST':
+        if request.POST['id_itemtemp'] != '':  # if item already exists, update
+            itemtemp = Oritemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
+        else:  # if item does not exist, create
+            itemtemp = Oritemtemp()
+            itemtemp.enterby = request.user
+            itemtemp.enterdate = datetime.datetime.now()
+        itemtemp.item_counter = request.POST['item_counter']
+        itemtemp.secretkey = request.POST['secretkey']
+        itemtemp.paytype = request.POST['paytype']
+        itemtemp.amount = request.POST['amount']
+        itemtemp.modifyby = request.user
+        itemtemp.modifydate = datetime.datetime.now()
+
+        paytype = Paytype.objects.get(pk=int(request.POST['paytype']))
+        if paytype.code == 'CHK':  # if paytype is CHECK
+            itemtemp.bank = request.POST['bank']
+            itemtemp.bankbranch = request.POST['bankbranch']
+            itemtemp.checknum = request.POST['checknum']
+            itemtemp.checkdate = request.POST['checkdate']
+        elif paytype.code == 'CC':  # if paytype is CREDIT CARD
+            itemtemp.creditcard = request.POST['creditcard']
+            itemtemp.creditcardnum = request.POST['creditcardnum']
+            itemtemp.authnum = request.POST['authnum']
+            itemtemp.expirydate = request.POST['expirydate']
+        elif paytype.code == 'EXD':  # if paytype is EXDEAL
+            itemtemp.remarks = request.POST['remarks']
+
+        itemtemp.save()
+        data = {
+            'status': 'success',
+            'itemtempid': itemtemp.pk,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
