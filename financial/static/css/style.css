@@ -226,3 +226,7 @@ table#breaktabledata>tbody>tr>td{
     border: 2px solid white !important;
     border-left: 1px solid #e0e0e0 !important;
 }
+
+.disabled-white{
+    background-color: white !important;
+}

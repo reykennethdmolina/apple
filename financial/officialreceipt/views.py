@@ -33,6 +33,9 @@ import datetime
 from pprint import pprint
 from django.utils.dateformat import DateFormat
 from utils.mixins import ReportContentMixin
+from collector.models import Collector
+from agent.models import Agent
+from product.models import Product
 
 
 @method_decorator(login_required, name='dispatch')
@@ -92,12 +95,14 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['collector'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
+        context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')
+        context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')
+        context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
+        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
 
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
-        context['orsubtype'] = Orsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')

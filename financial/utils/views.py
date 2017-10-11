@@ -14,6 +14,7 @@ from journalvoucher.models import Jvmain
 from inventoryitem.models import Inventoryitem
 from operationalfund.models import Ofmain
 from checkvoucher.models import Cvmain
+from agent.models import Agent
 
 
 @csrf_exempt
@@ -35,6 +36,16 @@ def ajaxSelect(request):
 
         elif request.GET['table'] == "customer" or request.GET['table'] == "customer_notmultiple":
             items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "agency":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+        elif request.GET['table'] == "client":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+        elif request.GET['table'] == "agent":
+            items = Agent.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "chartofaccount":
@@ -97,6 +108,10 @@ def ajaxSelect(request):
             elif request.GET['table'] == "customer" \
                     or request.GET['table'] == "customer_notmultiple":
                 text = data.name
+            elif request.GET['table'] == "agency" \
+                    or request.GET['table'] == "client" \
+                    or request.GET['table'] == "agent":
+                text = "[" + data.code + "] " + data.name
             elif request.GET['table'] == "chartofaccount" \
                     or request.GET['table'] == "chartofaccount_posting" \
                     or request.GET['table'] == "chartofaccount_arcode" \
