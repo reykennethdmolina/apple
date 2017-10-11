@@ -79,11 +79,9 @@ class IndexView(AjaxListView):
 class CreateView(CreateView):
     model = Ormain
     template_name = 'officialreceipt/create.html'
-    fields = ['ordate', 'ortype', 'orsubtype', 'collector', 'branch', 'customer', 'customer_address1',
-              'customer_address2', 'customer_address3', 'customer_telno1', 'customer_telno2', 'customer_celno',
-              'customer_faxno', 'customer_tin', 'customer_zipcode', 'amount', 'amountinwords', 'outputvattype',
-              'deferredvat', 'vat', 'wtax', 'currency', 'fxrate', 'bankaccount', 'particulars', 'comments',
-              'government', 'designatedapprover']
+    fields = ['ordate', 'ortype', 'collector', 'branch', 'amount', 'amountinwords', 'outputvattype', 'deferredvat',
+              'vat', 'wtax', 'currency', 'fxrate', 'bankaccount', 'particulars', 'remarks', 'government',
+              'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.add_ormain'):
