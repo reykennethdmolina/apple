@@ -24,6 +24,7 @@ class Ormain(models.Model):
     collector = models.ForeignKey('collector.Collector', related_name='ormain_collector_id')
     branch = models.ForeignKey('branch.Branch', related_name='ormain_branch_id')
     customer = models.ForeignKey('customer.Customer', related_name='ormain_customer_id')
+    customer_code = models.CharField(max_length=25)
     customer_name = models.CharField(max_length=250)
     customer_address1 = models.CharField(max_length=250)
     customer_address2 = models.CharField(max_length=250, blank=True, null=True)
