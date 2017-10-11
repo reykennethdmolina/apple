@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
-from . models import Ormain, Oritem, Oritemtemp, Ordetail, Ordetailtemp, Ordetailbreakdown, Ordetailbreakdowntemp
+from . models import Ormain, Ordetail, Ordetailtemp, Ordetailbreakdown, Ordetailbreakdowntemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
 from bankaccount.models import Bankaccount
@@ -161,10 +161,6 @@ class CreateView(CreateView):
         self.object.totalsale = non_vat_amount + self.object.vatamount + self.object.wtaxamount
         self.object.save()
 
-        # save oritemtemp to oritem
-
-        # delete oritemtemp
-
         # save ordetailtemp to ordetail
         # source = 'ordetailtemp'
         # mainid = self.object.id
@@ -175,44 +171,3 @@ class CreateView(CreateView):
         return HttpResponseRedirect('/officialreceipt/')
         # return HttpResponseRedirect('/officialreceipt/' + str(self.object.id) + '/update')
 
-
-@csrf_exempt
-def saveitem(request):
-    if request.method == 'POST':
-        if request.POST['id_itemtemp'] != '':  # if item already exists, update
-            itemtemp = Oritemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
-        else:  # if item does not exist, create
-            itemtemp = Oritemtemp()
-            itemtemp.enterby = request.user
-            itemtemp.enterdate = datetime.datetime.now()
-        itemtemp.item_counter = request.POST['item_counter']
-        itemtemp.secretkey = request.POST['secretkey']
-        itemtemp.paytype = request.POST['paytype']
-        itemtemp.amount = request.POST['amount']
-        itemtemp.modifyby = request.user
-        itemtemp.modifydate = datetime.datetime.now()
-
-        paytype = Paytype.objects.get(pk=int(request.POST['paytype']))
-        if paytype.code == 'CHK':  # if paytype is CHECK
-            itemtemp.bank = request.POST['bank']
-            itemtemp.bankbranch = request.POST['bankbranch']
-            itemtemp.checknum = request.POST['checknum']
-            itemtemp.checkdate = request.POST['checkdate']
-        elif paytype.code == 'CC':  # if paytype is CREDIT CARD
-            itemtemp.creditcard = request.POST['creditcard']
-            itemtemp.creditcardnum = request.POST['creditcardnum']
-            itemtemp.authnum = request.POST['authnum']
-            itemtemp.expirydate = request.POST['expirydate']
-        elif paytype.code == 'EXD':  # if paytype is EXDEAL
-            itemtemp.remarks = request.POST['remarks']
-
-        itemtemp.save()
-        data = {
-            'status': 'success',
-            'itemtempid': itemtemp.pk,
-        }
-    else:
-        data = {
-            'status': 'error',
-        }
-    return JsonResponse(data)

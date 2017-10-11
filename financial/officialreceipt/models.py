@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 import datetime
 
@@ -10,33 +10,28 @@ class Ormain(models.Model):
     ornum = models.CharField(max_length=10, unique=True)
     ordate = models.DateField()
     ortype = models.ForeignKey('ortype.Ortype', related_name='ormain_ortype_id')
-    orsubtype = models.ForeignKey('orsubtype.Orsubtype', related_name='ormain_orsubtype_id')
+    OR_SOURCE_CHOICES = (
+        ('A', 'Advertising'),
+        ('C', 'Circulation'),
+    )
+    orsource = models.CharField(max_length=1, choices=OR_SOURCE_CHOICES)
     prnum = models.CharField(max_length=10, null=True, blank=True)
     prdate = models.DateField(null=True, blank=True)
-    OR_STATUS_CHOICES = (
-        ('F', 'For Approval'),
-        ('A', 'Approved'),
-        ('D', 'Disapproved'),
-        ('R', 'Released'),
-    )
-    orstatus = models.CharField(max_length=1, choices=OR_STATUS_CHOICES, default='F')
-    adtype = models.ForeignKey('adtype.Adtype', related_name='ormain_adtype_id', null=True, blank=True)
     collector = models.ForeignKey('collector.Collector', related_name='ormain_collector_id')
+    collector_code = models.CharField(max_length=25)
+    collector_name = models.CharField(max_length=250)
     branch = models.ForeignKey('branch.Branch', related_name='ormain_branch_id')
-    customer = models.ForeignKey('customer.Customer', related_name='ormain_customer_id')
-    customer_code = models.CharField(max_length=25)
-    customer_name = models.CharField(max_length=250)
-    customer_address1 = models.CharField(max_length=250)
-    customer_address2 = models.CharField(max_length=250, blank=True, null=True)
-    customer_address3 = models.CharField(max_length=250, blank=True, null=True)
-    customer_telno1 = models.CharField(max_length=20)
-    customer_telno2 = models.CharField(max_length=20, blank=True, null=True)
-    customer_celno = models.CharField(max_length=20, blank=True, null=True)
-    customer_faxno = models.CharField(max_length=20, blank=True, null=True)
-    customer_tin = models.CharField(max_length=20, blank=True, null=True)
-    customer_zipcode = models.CharField(max_length=20, blank=True, null=True)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    amountinwords = models.CharField(max_length=500, null=True, blank=True)
+    PAYEE_TYPE_CHOICES = (
+        ('AG', 'Agency'),
+        ('C', 'Client'),
+        ('A', 'Agent'),
+    )
+    payee_type = models.CharField(max_length=2, choices=PAYEE_TYPE_CHOICES)
+    agency = models.ForeignKey('customer.Customer', related_name='ormain_agency_id', null=True, blank=True)
+    client = models.ForeignKey('customer.Customer', related_name='ormain_client_id', null=True, blank=True)
+    agent = models.ForeignKey('agent.Agent', related_name='ormain_agent_id', null=True, blank=True)
+    payee_code = models.CharField(max_length=25)
+    payee_name = models.CharField(max_length=250)
     outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='ormain_outvattype_id', null=True,
                                       blank=True)
     YESNO_CHOICES = (
@@ -44,6 +39,8 @@ class Ormain(models.Model):
         ('N', 'No'),
     )
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, null=True, blank=True, default='N')
+    currency = models.ForeignKey('currency.Currency', related_name='ormain_currency_id', default=1)
+    fxrate = models.DecimalField(default=1.00, decimal_places=5, max_digits=18)
     vat = models.ForeignKey('vat.Vat', related_name='ormain_vat_id', validators=[MinValueValidator(1)], null=True,
                             blank=True)
     vatrate = models.IntegerField(default=0, null=True, blank=True)
@@ -52,16 +49,26 @@ class Ormain(models.Model):
                              blank=True)
     wtaxrate = models.IntegerField(default=0, null=True, blank=True)
     wtaxamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    currency = models.ForeignKey('currency.Currency', related_name='ormain_currency_id', default=1)
-    fxrate = models.DecimalField(default=1.00, decimal_places=5, max_digits=18)
+    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    amountinwords = models.CharField(max_length=500, null=True, blank=True)
+    particulars = models.TextField(null=True, blank=True)
+    remarks = models.TextField(null=True, blank=True)
+    OR_STATUS_CHOICES = (
+        ('F', 'For Approval'),
+        ('A', 'Approved'),
+        ('D', 'Disapproved'),
+        ('R', 'Released'),
+    )
+    orstatus = models.CharField(max_length=1, choices=OR_STATUS_CHOICES, default='F')
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='ormain_bankaccount_id', null=True,
                                     blank=True)
-    particulars = models.TextField(null=True, blank=True)
+    product = models.ForeignKey('product.Product', related_name='ormain_product_id')
+    product_code = models.CharField(max_length=25)
+    product_name = models.CharField(max_length=250)
     vatablesale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     vatexemptsale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     vatzeroratedsale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     totalsale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    comments = models.CharField(max_length=250, null=True, blank=True)
     GOVT_CHOICES = (
         ('G', 'Government'),
         ('NG', 'Non-Government'),
@@ -76,7 +83,7 @@ class Ormain(models.Model):
     )
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    approverremarks = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -111,56 +118,6 @@ class Ormain(models.Model):
 
     def __unicode__(self):
         return self.ornum
-
-
-class Oritem(models.Model):
-    item_counter = models.IntegerField()
-    ormain = models.ForeignKey('officialreceipt.Ormain', related_name='oritem_ormain_id', null=True, blank=True)
-    ornum = models.CharField(max_length=10)
-    ordate = models.DateTimeField()
-    paytype = models.ForeignKey('paytype.Paytype', related_name='oritem_paytype_id')
-    bank = models.ForeignKey('bank.Bank', related_name='oritem_bank_id', null=True, blank=True)
-    bankbranch = models.ForeignKey('bankbranch.Bankbranch', related_name='oritem_bankbranch_id', null=True, blank=True)
-    checknum = models.CharField(max_length=150, null=True, blank=True)
-    checkdate = models.DateTimeField(null=True, blank=True)
-    creditcard = models.ForeignKey('creditcard.Creditcard', related_name='oritem_creditcard_id', null=True, blank=True)
-    creditcardnum = models.CharField(max_length=150, null=True, blank=True)
-    authnum = models.CharField(max_length=150, null=True, blank=True)
-    expirydate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    STATUS_CHOICES = (
-        ('A', 'Active'),
-        ('I', 'Inactive'),
-        ('C', 'Cancelled'),
-        ('O', 'Posted'),
-        ('P', 'Printed'),
-    )
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
-    enterby = models.ForeignKey(User, default=1, related_name='oritem_enter')
-    enterdate = models.DateTimeField(auto_now_add=True)
-    modifyby = models.ForeignKey(User, default=1, related_name='oritem_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='oritem_post', null=True, blank=True)
-    postdate = models.DateTimeField(null=True, blank=True)
-    isdeleted = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = 'oritem'
-        ordering = ['-pk']
-        # permissions = (("view_jvmain", "Can view jvmain"),)
-
-    def get_absolute_url(self):
-        return reverse('oritem:detail', kwargs={'pk': self.pk})
-
-    def __str__(self):
-        return self.pk
-
-    def __unicode__(self):
-        return unicode(self.pk)
-
-    def status_verbose(self):
-        return dict(Oritem.STATUS_CHOICES)[self.status]
 
 
 class Ordetail(models.Model):
@@ -299,58 +256,6 @@ class Ordetailbreakdown(models.Model):
 
     def status_verbose(self):
         return dict(Ordetailbreakdown.STATUS_CHOICES)[self.status]
-
-
-class Oritemtemp(models.Model):
-    item_counter = models.IntegerField()
-    secretkey = models.CharField(max_length=255, null=True, blank=True)
-    ormain = models.CharField(max_length=10, null=True, blank=True)
-    oritem = models.CharField(max_length=10, null=True, blank=True)
-    ornum = models.CharField(max_length=10, null=True, blank=True)
-    ordate = models.DateTimeField(blank=True, null=True)
-    paytype = models.IntegerField(blank=True, null=True)
-    bank = models.IntegerField(blank=True, null=True)
-    bankbranch = models.IntegerField(blank=True, null=True)
-    checknum = models.CharField(max_length=150, null=True, blank=True)
-    checkdate = models.DateTimeField(null=True, blank=True)
-    creditcard = models.IntegerField(blank=True, null=True)
-    creditcardnum = models.CharField(max_length=150, null=True, blank=True)
-    authnum = models.CharField(max_length=150, null=True, blank=True)
-    expirydate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
-    STATUS_CHOICES = (
-        ('A', 'Active'),
-        ('I', 'Inactive'),
-        ('C', 'Cancelled'),
-        ('O', 'Posted'),
-        ('P', 'Printed'),
-    )
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
-    enterby = models.ForeignKey(User, default=1, related_name='oritemtemp_enter')
-    enterdate = models.DateTimeField(auto_now_add=True)
-    modifyby = models.ForeignKey(User, default=1, related_name='oritemtemp_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, related_name='oritemtemp_post', null=True, blank=True)
-    postdate = models.DateTimeField(null=True, blank=True)
-    isdeleted = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = 'oritemtemp'
-        ordering = ['-pk']
-        # permissions = (("view_jvmain", "Can view jvmain"),)
-
-    def get_absolute_url(self):
-        return reverse('oritemtemp:detail', kwargs={'pk': self.pk})
-
-    def __str__(self):
-        return self.pk
-
-    def __unicode__(self):
-        return unicode(self.pk)
-
-    def status_verbose(self):
-        return dict(Oritemtemp.STATUS_CHOICES)[self.status]
 
 
 class Ordetailtemp(models.Model):
