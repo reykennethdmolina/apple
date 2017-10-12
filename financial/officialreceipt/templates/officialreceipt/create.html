@@ -35,6 +35,15 @@
             margin-top: 10px;
             margin-bottom: 15px;
         }
+        .select2-results__option {
+            font-size: 12px;
+        }
+        .class-adv {
+            display: none;
+        }
+        .class-cir {
+            display: none;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -48,17 +57,16 @@
                     <div class="col-sm-12">
                         <div class="form-group col-sm-2">
                             <label class="control-label" for="id_ornum">Number</label>
-                            <input type="text" class="form-control input-sm disabled-white" placeholder="JVxxxxxxx" disabled="disabled">
+                            <input type="text" class="form-control input-sm" style="background: white;" placeholder="ORxxxxxxx" disabled="disabled">
                         </div>
                         <div class="form-group col-sm-2 {{ form.ordate.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_prdate">Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_prdate" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ordate.value %}{{ form.ordate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <label class="control-label" for="id_ordate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_ordate" name="ordate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ordate.value %}{{ form.ordate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.ordate.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.ortype.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_ortype">OR Type</label>
                             <select class="form-control input-sm" data-validation="required" id="id_ortype" name="ortype">
-                                <option value="">-- Select --</option>
                                 {% for data in ortype %}
                                     <option value="{{ data.id }}" {% if form.ortype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                 {% endfor %}
@@ -66,9 +74,8 @@
                             <span class="help-block form-error">{{ form.ortype.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.orsource.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_orsource">OR Source</label>
+                            <label class="control-label" for="id_orsource">AR Type</label>
                             <select class="form-control input-sm" data-validation="required" id="id_orsource" name="orsource">
-                                <option value="">-- Select --</option>
                                 <option value="A" {% if form.orsource.value == "A" %} selected="selected" {% endif %}>Advertising</option>
                                 <option value="C" {% if form.orsource.value == "C" %} selected="selected" {% endif %}>Circulation</option>
                             </select>
@@ -76,12 +83,12 @@
                         </div>
                         <div class="form-group col-sm-2 {{ form.prnum.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prnum">PR #</label>
-                            <input type="text" class="form-control input-sm" id="id_prnum" name="prnum" placeholder="PR #" value="{{ form.prnum.value|default:'' }}">
+                            <input type="text" class="form-control input-sm" id="id_prnum" name="prnum" placeholder="PR #" value="{{ form.prnum.value|default:'' }}" disabled="disabled" style="background: white;">
                             <span class="help-block form-error">{{ form.prnum.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.prdate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prdate">PR Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_prdate" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_prdate" disabled="disabled" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.ortype.errors.as_text }}</span>
                         </div>
                         <div class="col-md-12"><hr></div>
@@ -108,25 +115,27 @@
                             <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.payee_type.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_payee_type">Payee Type</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_payee_type" name="payee_type">
-                                <option value="AG" {% if form.orsource.value == "AG" %} selected="selected" {% endif %}>Agency</option>
-                                <option value="C" {% if form.orsource.value == "C" %} selected="selected" {% endif %}>Client</option>
-                                <option value="A" {% if form.orsource.value == "A" %} selected="selected" {% endif %}>Agent</option>
+                            <label class="control-label">Payee Type</label>
+                            <select class="form-control input-sm class-adv payee-type" data-validation="required" id="id_payee_adv" name="payee_adv">
+                                <option value="AG" {% if form.payee_type.value == "AG" %} selected="selected" {% endif %}>Agency</option>
+                                <option value="C" {% if form.payee_type.value == "C" %} selected="selected" {% endif %}>Client</option>
+                            </select>
+                            <select class="form-control input-sm class-cir payee-type" data-validation="required" id="id_payee_cir" name="payee_cir">
+                                <option value="A" {% if form.payee_type.value == "A" %} selected="selected" {% endif %}>Agent</option>
                             </select>
                             <span class="help-block form-error">{{ form.payee_type.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 payee_options">
+                        <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_agency">
                             <label class="control-label" for="id_agency">Agency</label>
                             <select class="form-control input-sm" id="id_agency" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.agency.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 payee_options">
+                        <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_client">
                             <label class="control-label" for="id_client">Client</label>
                             <select class="form-control input-sm" id="id_client" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.client.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 payee_options">
+                        <div class="form-group col-sm-4 payee_options class-cir" id="payee_options_agent">
                             <label class="control-label" for="id_agent">Agent</label>
                             <select class="form-control input-sm" id="id_agent" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.agent.errors.as_text }}</span>
@@ -137,7 +146,7 @@
                     <div class="col-md-8">
                         <div class="form-group col-sm-12 {{ form.amount.errors|yesno:'has-error,' }}" style="min-height: 115px;">
                             <label class="control-label" for="id_amount">Amount</label>
-                            <input type="text" class="form-control input-sm" id="id_amount" readonly="readonly" style="background-color: transparent" value="{{ form.amount.value|default:'' }}"><br>
+                            <input type="text" class="form-control input-sm amount" id="id_amount" style="background-color: transparent; text-align: right;" value="{{ form.amount.value|default:'' }}"><br>
                             <div style="text-align: right; margin-top: -15px;"><code>One Hundred Thirty Five Thousand Three Hundred Eighty Five Pesos and 98/100 Only</code></div>
                             <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                         </div>
@@ -221,59 +230,61 @@
                     </div>
                     <div class="col-md-12"><hr></div>
                     <!--------------------------------------------------------------------------------------------->
-                    <div class="form-group col-sm-3 {{ form.particulars.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_particulars">Particulars</label>
-                        <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="1"></textarea>
-                        <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-3 {{ form.remarks.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_remarks">Remarks</label>
-                        <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="1"></textarea>
-                        <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-2 {{ form.orstatus.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_orstatus">OR Status</label>
-                        <input type="text" disabled="disabled" value="For Approval" class="form-control input-sm disabled-white">
-                        <span class="help-block form-error">{{ form.orstatus.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label class="control-label" for="id_bankaccount">Bank Account</label>
-                        <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
-                            <option value="">-- Select --</option>
-                            {% for data in bankaccount %}
-                                <option value="{{ data.id }}" {% if form.bankaccount.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} [{{ data.bank.description }} - {{ data.bankaccounttype.description }}, {{ data.bankbranch.description }}]</option>
-                            {% endfor %}
-                        </select>
-                        <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_designatedapprover">Approver</label>
-                        <select id="id_designatedapprover" class="form-control input-sm select2" name="designatedapprover">
-                            <option value="">-- Select --</option>
-                            {% for data in designatedapprover %}
-                                <option value="{{ data.id }}" {% if form.designatedapprover.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-4 {{ form.product.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_product">Product</label>
-                        <select id="id_product" class="form-control input-sm select2" name="product">
-                            <option value="">-- Select --</option>
-                            {% for data in product %}
-                                <option value="{{ data.id }}" {% if form.product.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
-                    </div>
-                    <div class="form-group col-sm-4 {{ form.government.errors|yesno:'has-error,' }}">
-                        <label class="control-label" for="id_government">Government ?</label>
-                        <select id="id_government" class="form-control input-sm select2" name="government">
-                            {% for id,name in form.fields.government.choices %}
-                                <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
+                    <div class="col-md-12">
+                        <div class="form-group col-sm-3 {{ form.particulars.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="1"></textarea>
+                            <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-3 {{ form.remarks.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_remarks">Remarks</label>
+                            <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="1"></textarea>
+                            <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-2 {{ form.orstatus.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_orstatus">OR Status</label>
+                            <input type="text" disabled="disabled" value="For Approval" class="form-control input-sm disabled-white">
+                            <span class="help-block form-error">{{ form.orstatus.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label" for="id_bankaccount">Bank Account</label>
+                            <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
+                                <option value="">-- Select --</option>
+                                {% for data in bankaccount %}
+                                    <option value="{{ data.id }}" {% if form.bankaccount.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} [{{ data.bank.description }} - {{ data.bankaccounttype.description }}, {{ data.bankbranch.description }}]</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_designatedapprover">Approver</label>
+                            <select id="id_designatedapprover" class="form-control input-sm select2" name="designatedapprover">
+                                <option value="">-- Select --</option>
+                                {% for data in designatedapprover %}
+                                    <option value="{{ data.id }}" {% if form.designatedapprover.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.product.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_product">Product</label>
+                            <select id="id_product" class="form-control input-sm select2" name="product">
+                                <option value="">-- Select --</option>
+                                {% for data in product %}
+                                    <option value="{{ data.id }}" {% if form.product.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.government.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_government">Government ?</label>
+                            <select id="id_government" class="form-control input-sm select2" name="government">
+                                {% for id,name in form.fields.government.choices %}
+                                    <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
+                        </div>
                     </div>
                 </form>
                 <!-- End Simple Form Validation -->
@@ -287,6 +298,8 @@
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
@@ -295,18 +308,51 @@
         ajaxselect2("client", "id_client");
         ajaxselect2("agent", "id_agent");
 
+        displayPayeeDropdowns();
         setPayeeOptions();
 
-        $('#id_payee_type').on('change', function(){
+        $('#id_orsource').on('change', function(){
+            displayPayeeDropdowns();
+        });
+
+        $('.payee-type').on('change', function(){
             setPayeeOptions();
         });
+        $("#id_branch option").filter(function(){
+            return $(this).text() == 'HEAD OFFICE';
+        }).attr('selected', 'selected');
+
+
+        function displayPayeeDropdowns(){
+            if($('#id_orsource').val() == 'A'){
+                $('.class-adv').not('.class-agency').show();
+                $('.class-adv').not('.class-client').show();
+                $('.class-cir').hide();
+            }
+            else if($('#id_orsource').val() == 'C'){
+                $('.class-cir').not('.class-agent').show();
+                $('.class-adv').hide();
+            }
+            setPayeeOptions();
+        }
 
         function setPayeeOptions(){
             $('.payee_options').hide();
-            if($('#id_payee_type').val() == 'AG') $('.payee_options').hide().eq(0).show();
-            else if($('#id_payee_type').val() == 'C') $('.payee_options').hide().eq(1).show();
-            else $('.payee_options').hide().eq(2).show();
+            if($('#id_orsource').val() == 'A'){
+                e = $('#id_payee_adv');
+                $('.class-cir').hide();
+            }
+            else if($('#id_orsource').val() == 'C'){
+                e = $('#id_payee_cir');
+                $('.class-adv').hide();
+            }
+
+
+            if(e.val() == 'AG')            $('#payee_options_agency').show();
+            else if(e.val() == 'C')        $('#payee_options_client').show();
+            else if(e.val() == 'A')        $('#payee_options_agent').show();
         }
+
     });
     </script>
 {% endblock extra_js %}
