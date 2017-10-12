@@ -44,6 +44,10 @@
         .class-cir {
             display: none;
         }
+        .amount_display{
+            height: 25px;
+            margin-left: 40px;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -144,31 +148,16 @@
                         <!--------------------------------------------------------------------------------------------->
                     </div>
                     <div class="col-md-8">
-                        <div class="form-group col-sm-12 {{ form.amount.errors|yesno:'has-error,' }}" style="min-height: 115px;">
+                        <div class="form-group col-sm-3 {{ form.amount.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_amount">Amount</label>
-                            <input type="text" class="form-control input-sm amount" id="id_amount" style="background-color: transparent; text-align: right;" value="{{ form.amount.value|default:'' }}"><br>
-                            <div style="text-align: right; margin-top: -15px;"><code>One Hundred Thirty Five Thousand Three Hundred Eighty Five Pesos and 98/100 Only</code></div>
+                            <input type="text" class="form-control input-sm amount" id="id_amount" style="text-align: right;" value="{{ form.amount.value|default:'' }}">
                             <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-10 {{ form.outputvattype.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_outputvattype">Output VAT Type</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_outputvattype" name="outputvattype">
-                                <option value="">-- Select --</option>
-                                {% for data in outputvattype %}
-                                    <option value="{{ data.id }}" {% if form.outputvattype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.outputvattype.errors.as_text }}</span>
+                        <div class="form-group col-sm-9">
+                            <label class="control-label">&nbsp;</label>
+                            <input type="text" class="form-control input-sm" readonly="readonly" style="background-color: transparent;" value="One Hundred Thirty Five Thousand Three Hundred Eighty Five Pesos and 98/100 Only">
                         </div>
-                        <div class="form-group col-sm-2 {{ form.deferredvat.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_deferredvat">Deferred VAT</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
-                                {% for id,name in form.fields.deferredvat.choices %}
-                                    <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
-                        </div>
+                        <div class="col-md-12"></div>
                         <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_vat">VAT</label>
                             <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
@@ -179,7 +168,17 @@
                             </select>
                             <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-2 padding-top-30"><span id="vatrate" class="text-success small"><strong>RATE</strong></span></div>
+                        <div class="form-group col-sm-2 padding-top-30"><span id="vatrate" class="text-success small small"><strong>RATE: 00.00%</strong></span></div>
+                        <div class="form-group col-sm-6 {{ form.outputvattype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_outputvattype">Output VAT Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_outputvattype" name="outputvattype">
+                                <option value="">-- Select --</option>
+                                {% for data in outputvattype %}
+                                    <option value="{{ data.id }}" {% if form.outputvattype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.outputvattype.errors.as_text }}</span>
+                        </div>
                         <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_wtax">WTAX</label>
                             <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
@@ -190,7 +189,16 @@
                             </select>
                             <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-2 padding-top-30"><span id="wtaxrate" class="text-success small"><strong>RATE</strong></span></div>
+                        <div class="form-group col-sm-2 padding-top-30"><span id="wtaxrate" class="text-success small small"><strong>RATE: 00.00%</strong></span></div>
+                        <div class="form-group col-sm-3 {{ form.deferredvat.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_deferredvat">Deferred VAT</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
+                                {% for id,name in form.fields.deferredvat.choices %}
+                                    <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
+                        </div>
                     </div>
                     <div class="col-md-4">
                         <div class="widgett widgett-article widgett-shadow">
@@ -198,28 +206,27 @@
                                 <table class="vattable">
                                     <tr>
                                         <td><small>VATable&nbsp;Sale:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
-                                        <td><small>VAT-Exempt&nbsp;Purchase:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td><small>VAT-Exempt&nbsp;Sale:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
-                                        <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Purchase:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Sale:</small></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
-                                    <tr><td colspan="0"><br></td></tr>
                                     <tr>
                                         <td><small><b>Total&nbsp;Sale:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small><b>Add&nbsp;VAT:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small><b>Total&nbsp;Payment:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td colspan="2" style="text-align: right; padding-right: 0px; padding-top: 10px;"><code>Noted: 1% w/tax -------> 121.24</code></td>
@@ -231,20 +238,15 @@
                     <div class="col-md-12"><hr></div>
                     <!--------------------------------------------------------------------------------------------->
                     <div class="col-md-12">
-                        <div class="form-group col-sm-3 {{ form.particulars.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_particulars">Particulars</label>
-                            <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="1"></textarea>
-                            <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-3 {{ form.remarks.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_remarks">Remarks</label>
-                            <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="1"></textarea>
-                            <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-2 {{ form.orstatus.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_orstatus">OR Status</label>
-                            <input type="text" disabled="disabled" value="For Approval" class="form-control input-sm disabled-white">
-                            <span class="help-block form-error">{{ form.orstatus.errors.as_text }}</span>
+                        <div class="form-group col-sm-4 {{ form.product.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_product">Product</label>
+                            <select id="id_product" class="form-control input-sm select2" name="product">
+                                <option value="">-- Select --</option>
+                                {% for data in product %}
+                                    <option value="{{ data.id }}" {% if form.product.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4">
                             <label class="control-label" for="id_bankaccount">Bank Account</label>
@@ -256,7 +258,21 @@
                             </select>
                             <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-4 {{ form.particulars.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="1"></textarea>
+                            <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-3 {{ form.government.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_government">Government ?</label>
+                            <select id="id_government" class="form-control input-sm select2" name="government">
+                                {% for id,name in form.fields.government.choices %}
+                                    <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_designatedapprover">Approver</label>
                             <select id="id_designatedapprover" class="form-control input-sm select2" name="designatedapprover">
                                 <option value="">-- Select --</option>
@@ -266,24 +282,15 @@
                             </select>
                             <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 {{ form.product.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_product">Product</label>
-                            <select id="id_product" class="form-control input-sm select2" name="product">
-                                <option value="">-- Select --</option>
-                                {% for data in product %}
-                                    <option value="{{ data.id }}" {% if form.product.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
+                        <div class="form-group col-sm-2 {{ form.orstatus.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_orstatus">OR Status</label>
+                            <input type="text" disabled="disabled" value="For Approval" class="form-control input-sm disabled-white">
+                            <span class="help-block form-error">{{ form.orstatus.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 {{ form.government.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_government">Government ?</label>
-                            <select id="id_government" class="form-control input-sm select2" name="government">
-                                {% for id,name in form.fields.government.choices %}
-                                    <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
+                        <div class="form-group col-sm-4 {{ form.remarks.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_remarks">Remarks</label>
+                            <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="1"></textarea>
+                            <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
                         </div>
                     </div>
                 </form>
