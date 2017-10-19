@@ -155,7 +155,7 @@
                                     <select class="form-control input-sm select2" data-validation="required" id="id_requestor" name="requestor">
                                         <option value="">-- Select --</option>
                                         {% for requestor in requestor %}
-                                            <option value="{{ requestor.id }}" {% if form.requestor.value|add:0 == requestor.id %} selected="selected" {% endif %}>{{ requestor.first_name }} {{ requestor.last_name }}</option>
+                                            <option value="{{ requestor.id }}" {% if form.requestor.value|add:0 == requestor.id %} selected="selected" {% endif %}>{{ requestor.firstname }} {{ requestor.lastname }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.requestor.errors.as_text }}</span>

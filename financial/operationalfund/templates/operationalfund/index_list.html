@@ -40,7 +40,7 @@
 {#                    {% if canbeapproved > 0 %}#}
                         <td style="width: 100px;">
                             <div class="text-center">
-                                {% if perms.operationalfund.approve_allof or data.designatedapprover.username == user.get_username %}
+                                {% if perms.operationalfund.approve_allof or data.designatedapprover == user_employee %}
                                     <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
                                         data-ofid={{ data.id }} data-response="A" data-toggle="tooltip" data-placement="left"
                                         data-trigger="hover" data-original-title="Click to Approve" aria-describedby="tooltip850155">

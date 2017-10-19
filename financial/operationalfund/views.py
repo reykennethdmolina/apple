@@ -60,8 +60,9 @@ class IndexView(AjaxListView):
         context['listcount'] = Ofmain.objects.all().count()
         context['canbeapproved'] = Ofmain.objects.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='D')).\
             filter(isdeleted=0).count()
-        context['forapproval'] = Ofmain.objects.filter(designatedapprover=self.request.user).count()
+        context['forapproval'] = Ofmain.objects.filter(designatedapprover=Employee.objects.get(user=self.request.user)).count()
         context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
+        context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
@@ -163,10 +164,10 @@ class CreateViewUser(CreateView):
         self.mysecretkey = generatekey(self)
 
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['requestor'] = User.objects.filter(pk=self.request.user.id)
+        context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['secretkey'] = self.mysecretkey
@@ -201,51 +202,56 @@ class CreateViewUser(CreateView):
         print total_amount['amount__sum']
         if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'PCV' or \
                 total_amount['amount__sum'] <= 1000.00:
-            self.object.ofnum = ofnum
-            self.object.enterby = self.request.user
-            self.object.modifyby = self.request.user
-            self.object.requestor_username = self.object.requestor.username
-            self.object.requestor_name = self.object.requestor.first_name + ' ' + self.object.requestor.last_name
-            self.object.department = Department.objects.get(code='IT')  # for editing, should base on user
-            self.object.department_code = self.object.department.code
-            self.object.department_name = self.object.department.departmentname
-            self.object.save()
+            if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'CSV' or \
+                            total_amount['amount__sum'] <= self.object.requestor.cellphone_subsidize_amount:
+                self.object.ofnum = ofnum
+                self.object.enterby = self.request.user
+                self.object.modifyby = self.request.user
+                self.object.requestor_code = self.object.requestor.code
+                self.object.requestor_name = self.object.requestor.firstname + ' ' + self.object.requestor.lastname
+                if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
+                    self.object.department = Department.objects.get(code=self.object.requestor.department.code)
+                    self.object.department_code = self.object.department.code
+                    self.object.department_name = self.object.department.departmentname
+                self.object.save()
 
-            # ----------------- START save ofitemtemp to ofitem START ---------------------
-            itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
-                order_by('enterdate')
-            totalamount = 0
-            i = 1
-            for itemtemp in itemtemp:
-                item = Ofitem()
-                item.item_counter = i
-                item.ofnum = self.object.ofnum
-                item.ofdate = self.object.ofdate
-                item.payee_code = itemtemp.payee_code
-                item.payee_name = itemtemp.payee_name
-                item.amount = itemtemp.amount
-                item.particulars = itemtemp.particulars
-                item.refnum = itemtemp.refnum
-                item.fxrate = itemtemp.fxrate
-                item.periodfrom = itemtemp.periodfrom
-                item.periodto = itemtemp.periodto
-                item.currency = Currency.objects.get(pk=itemtemp.currency)
-                item.enterby = itemtemp.enterby
-                item.modifyby = itemtemp.modifyby
-                item.ofmain = self.object
-                item.ofsubtype = itemtemp.ofsubtype
-                item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
-                item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
-                item.ofitemstatus = itemtemp.ofitemstatus
-                item.save()
-                itemtemp.delete()
-                totalamount += item.amount
-                i += 1
-            # ----------------- END save ofitemtemp to ofitem END ---------------------
+                # ----------------- START save ofitemtemp to ofitem START ---------------------
+                itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+                    order_by('enterdate')
+                totalamount = 0
+                i = 1
+                for itemtemp in itemtemp:
+                    item = Ofitem()
+                    item.item_counter = i
+                    item.ofnum = self.object.ofnum
+                    item.ofdate = self.object.ofdate
+                    item.payee_code = itemtemp.payee_code
+                    item.payee_name = itemtemp.payee_name
+                    item.amount = itemtemp.amount
+                    item.particulars = itemtemp.particulars
+                    item.refnum = itemtemp.refnum
+                    item.fxrate = itemtemp.fxrate
+                    item.periodfrom = itemtemp.periodfrom
+                    item.periodto = itemtemp.periodto
+                    item.currency = Currency.objects.get(pk=itemtemp.currency)
+                    item.enterby = itemtemp.enterby
+                    item.modifyby = itemtemp.modifyby
+                    item.ofmain = self.object
+                    item.ofsubtype = itemtemp.ofsubtype
+                    item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
+                    item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
+                    item.ofitemstatus = itemtemp.ofitemstatus
+                    item.save()
+                    itemtemp.delete()
+                    totalamount += item.amount
+                    i += 1
+                # ----------------- END save ofitemtemp to ofitem END ---------------------
 
-            self.object.amount = totalamount
-            self.object.save()
-            return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
+                self.object.amount = totalamount
+                self.object.save()
+                return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
+            else:
+                return HttpResponseRedirect('/operationalfund/usercreate/')
         else:
             return HttpResponseRedirect('/operationalfund/usercreate/')
 
@@ -413,13 +419,17 @@ class UpdateViewUser(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['ofnum'] = self.object.ofnum
         context['amount'] = self.object.amount
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        # context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
+        #     order_by('first_name')
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
-        context['requestor'] = User.objects.filter(pk=self.request.user.id)
+        # context['requestor'] = User.objects.filter(pk=self.request.user.id)
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['secretkey'] = self.mysecretkey
+
+        context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
 
         context['savedoftype'] = self.object.oftype.code
         context['ofstatus'] = Ofmain.objects.get(pk=self.object.id).get_ofstatus_display()
@@ -427,8 +437,8 @@ class UpdateViewUser(UpdateView):
             pk=self.object.id).receiveby.first_name + ' ' + Ofmain.objects.get(
             pk=self.object.id).receiveby.last_name if Ofmain.objects.get(pk=self.object.id).receiveby else None
         context['actualapprover'] = Ofmain.objects.get(
-            pk=self.object.id).actualapprover.first_name + ' ' + Ofmain.objects.get(
-            pk=self.object.id).actualapprover.last_name if Ofmain.objects.get(
+            pk=self.object.id).actualapprover.firstname + ' ' + Ofmain.objects.get(
+            pk=self.object.id).actualapprover.lastname if Ofmain.objects.get(
             pk=self.object.id).actualapprover else None
         context['responsedate'] = Ofmain.objects.get(
             pk=self.object.id).responsedate if Ofmain.objects.get(pk=self.object.id).responsedate else None
@@ -455,49 +465,59 @@ class UpdateViewUser(UpdateView):
         print total_amount['amount__sum']
         if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'PCV' or \
                 total_amount['amount__sum'] < 1000.00:
-            if self.object.ofstatus != 'A' and self.object.ofstatus != 'I' and self.object.ofstatus != 'R':
-                self.object.modifyby = self.request.user
-                self.object.modifydate = datetime.datetime.now()
+            if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'CSV' or total_amount['amount__sum'] <= \
+                    self.object.requestor.cellphone_subsidize_amount:
+                if self.object.ofstatus != 'A' and self.object.ofstatus != 'I' and self.object.ofstatus != 'R':
+                    self.object.modifyby = self.request.user
+                    self.object.modifydate = datetime.datetime.now()
+                    self.object.requestor_code = self.object.requestor.code
+                    self.object.requestor_name = self.object.requestor.firstname + ' ' + self.object.requestor.lastname
+                    if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
+                        self.object.department = Department.objects.get(code=self.object.requestor.department.code)
+                        self.object.department_code = self.object.department.code
+                        self.object.department_name = self.object.department.departmentname
 
-                # ----------------- START save ofitemtemp to ofitem START ---------------------
-                Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
+                    # ----------------- START save ofitemtemp to ofitem START ---------------------
+                    Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
 
-                itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
-                    order_by('item_counter')
-                totalamount = 0
-                i = 1
-                for itemtemp in itemtemp:
-                    item = Ofitem()
-                    item.item_counter = i
-                    item.ofnum = self.object.ofnum
-                    item.ofdate = self.object.ofdate
-                    item.payee_code = itemtemp.payee_code
-                    item.payee_name = itemtemp.payee_name
-                    item.amount = itemtemp.amount
-                    item.particulars = itemtemp.particulars
-                    item.refnum = itemtemp.refnum
-                    item.fxrate = itemtemp.fxrate
-                    item.periodfrom = itemtemp.periodfrom
-                    item.periodto = itemtemp.periodto
-                    item.currency = Currency.objects.get(pk=itemtemp.currency)
-                    item.enterby = itemtemp.enterby
-                    item.modifyby = itemtemp.modifyby
-                    item.ofmain = self.object
-                    item.ofsubtype = itemtemp.ofsubtype
-                    item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
-                    item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
-                    item.ofitemstatus = itemtemp.ofitemstatus
-                    item.save()
-                    itemtemp.delete()
-                    totalamount += item.amount
-                    i += 1
+                    itemtemp = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+                        order_by('item_counter')
+                    totalamount = 0
+                    i = 1
+                    for itemtemp in itemtemp:
+                        item = Ofitem()
+                        item.item_counter = i
+                        item.ofnum = self.object.ofnum
+                        item.ofdate = self.object.ofdate
+                        item.payee_code = itemtemp.payee_code
+                        item.payee_name = itemtemp.payee_name
+                        item.amount = itemtemp.amount
+                        item.particulars = itemtemp.particulars
+                        item.refnum = itemtemp.refnum
+                        item.fxrate = itemtemp.fxrate
+                        item.periodfrom = itemtemp.periodfrom
+                        item.periodto = itemtemp.periodto
+                        item.currency = Currency.objects.get(pk=itemtemp.currency)
+                        item.enterby = itemtemp.enterby
+                        item.modifyby = itemtemp.modifyby
+                        item.ofmain = self.object
+                        item.ofsubtype = itemtemp.ofsubtype
+                        item.oftype = Oftype.objects.get(pk=itemtemp.oftype)
+                        item.payee = get_object_or_None(Supplier, id=itemtemp.payee)
+                        item.ofitemstatus = itemtemp.ofitemstatus
+                        item.save()
+                        itemtemp.delete()
+                        totalamount += item.amount
+                        i += 1
 
-                Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=2).delete()
-                # ----------------- END save ofitemtemp to ofitem END ---------------------
+                    Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=2).delete()
+                    # ----------------- END save ofitemtemp to ofitem END ---------------------
 
-                self.object.amount = totalamount
-                self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover',
-                                                'modifyby', 'modifydate'])
+                    self.object.amount = totalamount
+                    self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover',
+                                                    'modifyby', 'modifydate', 'requestor', 'requestor_code',
+                                                    'requestor_name', 'department', 'department_code',
+                                                    'department_name'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
@@ -659,11 +679,11 @@ class UpdateViewCashier(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['ofnum'] = self.object.ofnum
         context['savedoftype'] = self.object.oftype.code
-        context['actualapprover'] = User.objects.get(pk=self.object.actualapprover.id).first_name + ' ' + \
-            User.objects.get(pk=self.object.actualapprover.id).last_name
+        context['actualapprover'] = Employee.objects.get(pk=self.object.actualapprover.id).firstname + ' ' + \
+            Employee.objects.get(pk=self.object.actualapprover.id).lastname
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['originalofstatus'] = 'A' if self.object.creditterm is None else Ofmain.objects.get(pk=self.object.id).ofstatus
-        context['requestor'] = User.objects.filter(pk=self.object.requestor.id)
+        context['requestor'] = Employee.objects.filter(pk=self.object.requestor.id)
         context['requestordepartment'] = Department.objects.filter(pk=self.object.department.id).order_by('departmentname')
 
         # for PCVs
@@ -1194,7 +1214,7 @@ def approve(request):
                         of_for_approval.status = 'A'
                     of_for_approval.approverresponse = request.POST['response']
                     of_for_approval.responsedate = datetime.datetime.now()
-                    of_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+                    of_for_approval.actualapprover = get_object_or_None(Employee, user=request.user)
                     of_for_approval.save()
                     data = {
                         'status': 'success',

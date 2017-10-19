@@ -78,7 +78,7 @@
                                             <div class="first-name-profile">
                                                 <span class="text-info row col-md-2 margin-right-80"><b>Number</b></span>
                                                 <span class="text-info row col-md-3"><b>: </b></span>
-                                                <span><b>{{ object.ofnum }}</b></span>
+                                                <span><b>OF-{{ object.oftype.code }}-{{ object.ofnum }}</b></span>
                                             </div>
                                         </div>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -170,9 +170,9 @@
                                                 <span class="text-info row col-md-3"><b>: </b></span>
                                                 <span>
                                                     {% if object.actualapprover %}
-                                                        {{ object.actualapprover.first_name }}&nbsp;{{ object.actualapprover.last_name }}
+                                                        {{ object.actualapprover.firstname }}&nbsp;{{ object.actualapprover.lastname }}
                                                     {% else %}
-                                                        {{ object.designatedapprover.first_name }}&nbsp;{{ object.designatedapprover.last_name }}
+                                                        {{ object.designatedapprover.firstname }}&nbsp;{{ object.designatedapprover.lastname }}
                                                     {% endif %}</span>
                                             </div>
                                         </div>

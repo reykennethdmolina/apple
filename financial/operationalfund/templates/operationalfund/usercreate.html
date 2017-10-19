@@ -71,24 +71,32 @@
                                     {% endfor %}
                                 </select>
                                 </select>
-                                <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.oftype.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-12"></div>
                             <div class="form-group col-sm-6 {{ form.requestor.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_requestor">Requestor</label>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_requestor" name="requestor">
+                                    <option value="">-- Select --</option>
                                     {% for data in requestor %}
-                                        <option value="{{ data.id }}" selected="selected">{{ data.first_name }} {{ data.last_name }}</option>
+                                        <option value="{{ data.id }}" data-amount={{ data.cellphone_subsidize_amount }}
+                                                {% if form.requestor.value != None %}
+                                                    {% if form.requestor.value|add:0 == data.id %}selected="selected"{% endif %}
+                                                {% else %}
+                                                    {% if user_employee.id|add:0 == data.id %}selected="selected"{% endif %}
+                                                {% endif %}>
+                                            {{ data.firstname }} {{ data.lastname }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.requestor.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-6 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_designatedapprover">Approver</label>
+                                <label class="control-label" for="id_designatedapprover">Designated Approver</label>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>
                                     {% for designatedapprover in designatedapprover %}
-                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.firstname }} {{ designatedapprover.lastname }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
@@ -230,6 +238,7 @@
 <div id="item-delete-success" class="custom-alert success">Item successfully deleted.</div>
 <div id="of-save-error" class="custom-alert danger">Operational fund should at least have one item.</div>
 <div id="of-save-amount-error" class="custom-alert danger">Petty Cash Amount should not exceed 1000.00.</div>
+<div id="of-save-amount-error2" class="custom-alert danger">Cellphone subsidy amount limit exceeded.</div>
 <div id="oftype-change-error" class="custom-alert danger">Clear all items first.</div>
 {% endblock page-content %}
 {% block extra_js %}
@@ -256,6 +265,12 @@
         {% endfor %}
 
         $(document).ready(function() {
+            if($("#id_oftype option:selected").text().indexOf("Cellphone Subsidy") >= 0){
+                $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
+                $("#id_requestor").select2();
+            }
+
+
             /** Prepare hidden field **/
             $('.item_table tbody tr.warning').last().clone().prependTo('.item_table tbody');
             $('.item_table tbody tr.warning').last().addClass('item_hidden');
@@ -285,6 +300,14 @@
             $(document).on('change', '#id_oftype', function(e){
                 if($('.item_table tbody tr').length == $('.item_table tbody tr.warning').length) {
                     assignSubtypeOption(1);
+                    $("#id_requestor").val('').trigger('change');
+                    if($("#id_oftype option:selected").text().indexOf("Cellphone Subsidy") >= 0){
+                        $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
+                    }
+                    else {
+                        $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
+                    }
+                    $("#id_requestor").select2();
                 }
                 else{
                     customAlert($('#oftype-change-error'));
@@ -425,7 +448,13 @@
             $(document).on('click', '#validateButton', function(){
                 if($('.item_table tbody tr').length > $('.item_table tbody tr.warning').length){
                     if(parseFloat($('#totalamount').text().replace(',','')) <= 1000 || $('#id_oftype').val() != 1){
-                        $("#form-b").submit();
+                        if(parseFloat($('#totalamount').text().replace(',','')) <= parseFloat($('#id_requestor option:selected').data('amount')) || $('#id_oftype').val() != 3){
+                            $("#form-b").submit();
+                        }
+                        else {
+                            customAlert($('#of-save-amount-error2'));
+                            event.preventDefault();
+                        }
                     }
                     else{
                         customAlert($('#of-save-amount-error'));
