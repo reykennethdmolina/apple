@@ -355,7 +355,7 @@
             givenAmount = parseFloat($('#id_amount').val().replace(',',''));
             vatRate = parseFloat($('#id_vat option:selected').data('rate'));
             wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
-            console.log($('#id_wtax option:selected').data('rate'))
+            console.log($('#id_wtax option:selected').data('rate'));
             grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
