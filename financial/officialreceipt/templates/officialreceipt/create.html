@@ -131,17 +131,17 @@
                         </div>
                         <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_agency">
                             <label class="control-label" for="id_agency">Agency</label>
-                            <select class="form-control input-sm" id="id_agency" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_agency" name="agency" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.agency.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_client">
                             <label class="control-label" for="id_client">Client</label>
-                            <select class="form-control input-sm" id="id_client" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_client" name="client" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.client.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4 payee_options class-cir" id="payee_options_agent">
                             <label class="control-label" for="id_agent">Agent</label>
-                            <select class="form-control input-sm" id="id_agent" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_agent" name="agent" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.agent.errors.as_text }}</span>
                         </div>
                         <div class="col-md-12"><hr></div>
@@ -155,15 +155,15 @@
                         </div>
                         <div class="form-group col-sm-9">
                             <label class="control-label">&nbsp;</label>
-                            <input type="text" class="form-control input-sm" readonly="readonly" style="background-color: transparent;" value="One Hundred Thirty Five Thousand Three Hundred Eighty Five Pesos and 98/100 Only">
+                            <input type="text" class="form-control input-sm" id="id_amountinwords" readonly="readonly" style="background-color: transparent;" value="{{ form.amountinwords.value|default:'' }}">
                         </div>
                         <div class="col-md-12"></div>
                         <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_vat">VAT</label>
                             <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
-                                <option value="">-- Select --</option>
+                                <option value="" data-rate="0">-- Select --</option>
                                 {% for data in vat %}
-                                    <option value="{{ data.id }}" {% if form.vat.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                    <option value="{{ data.id }}" data-code="{{ data.code }}" data-rate="{{ data.rate|floatformat:2 }}" {% if form.vat.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
@@ -182,9 +182,9 @@
                         <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_wtax">WTAX</label>
                             <select class="form-control input-sm" data-validation="required" id="id_wtax" name="wtax">
-                                <option value="">-- Select --</option>
+                                <option value="" data-rate="0">-- Select --</option>
                                 {% for data in wtax %}
-                                    <option value="{{ data.id }}" {% if form.wtax.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                    <option value="{{ data.id }}" data-code="{{ data.code }}" data-rate="{{ data.rate|floatformat:2 }}" {% if form.wtax.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.wtax.errors.as_text }}</span>
@@ -206,30 +206,30 @@
                                 <table class="vattable">
                                     <tr>
                                         <td><small>VATable&nbsp;Sale:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_vatable" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small>VAT-Exempt&nbsp;Sale:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_vatexempt" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Sale:</small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_vatzero" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small><b>Total&nbsp;Sale:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_totalsale" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small><b>Add&nbsp;VAT:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
                                         <td><small><b>Total&nbsp;Payment:</b></small></td>
-                                        <td class="form-group form-material"><input type="text" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="2" style="text-align: right; padding-right: 0px; padding-top: 10px;"><code>Noted: 1% w/tax -------> 121.24</code></td>
+                                        <td colspan="2" style="text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note"></code></td>
                                     </tr>
                                 </table>
                             </div>
@@ -265,7 +265,7 @@
                         </div>
                         <div class="form-group col-sm-3 {{ form.government.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_government">Government ?</label>
-                            <select id="id_government" class="form-control input-sm select2" name="government">
+                            <select id="id_government" class="form-control input-sm" name="government">
                                 {% for id,name in form.fields.government.choices %}
                                     <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
                                 {% endfor %}
@@ -311,12 +311,19 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
     $(function(){
+        $('.select2').select2();
         ajaxselect2("agency", "id_agency");
         ajaxselect2("client", "id_client");
         ajaxselect2("agent", "id_agent");
 
         displayPayeeDropdowns();
         setPayeeOptions();
+        generateTotals();
+
+        $("#id_amount").on('keyup', function(){
+            var words = toWords($(this).val());
+            $("#id_amountinwords").val(words);
+        });
 
         $('#id_orsource').on('change', function(){
             displayPayeeDropdowns();
@@ -325,10 +332,52 @@
         $('.payee-type').on('change', function(){
             setPayeeOptions();
         });
+
         $("#id_branch option").filter(function(){
             return $(this).text() == 'HEAD OFFICE';
         }).attr('selected', 'selected');
 
+        $('#id_vat').on('change', function(){
+            showRate("#id_vat", "vatrate", "RATE");
+        });
+        $('#id_wtax').on('change', function(){
+            showRate("#id_wtax", "wtaxrate", "RATE");
+        });
+
+        $('#id_amount').on('keyup', function(){
+            generateTotals();
+        });
+        $('#id_vat, #id_wtax').on('change', function(){
+            generateTotals();
+        });
+
+        function generateTotals(){
+            givenAmount = parseFloat($('#id_amount').val().replace(',',''));
+            vatRate = parseFloat($('#id_vat option:selected').data('rate'));
+            wtaxRate = parseFloat($('#id_wtax option:selected').data('rate'));
+            console.log($('#id_wtax option:selected').data('rate'))
+            grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
+            addVat = grossAmount * (vatRate/100);
+            wtaxAmount = grossAmount * (wtaxRate/100);
+            totalPayment = grossAmount + addVat + wtaxAmount;
+
+            $('.amount_display').val(0);
+            $('#disp_note').text('');
+
+            if($('#id_vat').val() != ''){
+                if($('#id_vat option:selected').data('code') == 'VE') $('#disp_vatexempt').val(grossAmount.toFixed(2));
+                else if ($('#id_vat option:selected').data('code') == 'ZE') $('#disp_vatzero').val(grossAmount.toFixed(2));
+                else $('#disp_vatable').val(grossAmount.toFixed(2));
+
+                $('#disp_totalsale').val(grossAmount.toFixed(2));
+                $('#disp_addvat').val(addVat.toFixed(2));
+                $('#disp_totalpay').val(totalPayment.toFixed(2));
+
+                if($('#id_wtax').val() != ''){
+                    $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + wtaxAmount.toFixed(2));
+                }
+            }
+        }
 
         function displayPayeeDropdowns(){
             if($('#id_orsource').val() == 'A'){
@@ -358,6 +407,15 @@
             if(e.val() == 'AG')            $('#payee_options_agency').show();
             else if(e.val() == 'C')        $('#payee_options_client').show();
             else if(e.val() == 'A')        $('#payee_options_agent').show();
+        }
+
+        function showRate(field, rateSpan, defaultText){
+            var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
+                    parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
+            $('#' + rateSpan).html("<strong>" + defaultText + ": " + rateValue + "</strong>");
+            if($(field + " option:selected").text() == "-- Select --"){
+                $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
+            }
         }
 
     });
