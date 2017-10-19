@@ -79,9 +79,9 @@ class IndexView(AjaxListView):
 class CreateView(CreateView):
     model = Ormain
     template_name = 'officialreceipt/create.html'
-    fields = ['ordate', 'ortype', 'collector', 'branch', 'amount', 'amountinwords', 'outputvattype', 'deferredvat',
-              'vat', 'wtax', 'currency', 'fxrate', 'bankaccount', 'particulars', 'remarks', 'government',
-              'designatedapprover']
+    fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'payee_type', 'amount', 'amountinwords', 'vat',
+              'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
+              'designatedapprover', 'remarks']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.add_ormain'):
@@ -134,11 +134,27 @@ class CreateView(CreateView):
 
         print 'ornum: ' + ornum
         self.object.ornum = ornum
-        self.object.customer = Customer.objects.get(pk=int(self.request.POST['customer']))
-        self.object.customer_code = self.object.customer.code
-        self.object.customer_name = self.object.customer.name
+        if self.object.orsource == 'A':
+            self.object.payee_type = self.request.POST['payee_adv']
+        elif self.object.orsource == 'C':
+            self.object.payee_type = self.request.POST['payee_cir']
+
+        if self.object.payee_type == 'AG':
+            self.object.agency = Customer.objects.get(pk=int(self.request.POST['agency']))
+            self.object.payee_code = self.object.agency.code
+            self.object.payee_name = self.object.agency.name
+        elif self.object.payee_type == 'C':
+            self.object.client = Customer.objects.get(pk=int(self.request.POST['client']))
+            self.object.payee_code = self.object.client.code
+            self.object.payee_name = self.object.client.name
+        elif self.object.payee_type == 'A':
+            self.object.agent = Agent.objects.get(pk=int(self.request.POST['agent']))
+            self.object.payee_code = self.object.agent.code
+            self.object.payee_name = self.object.agent.name
+
         self.object.vatrate = Vat.objects.get(pk=int(self.request.POST['vat'])).rate
         self.object.wtaxrate = Wtax.objects.get(pk=int(self.request.POST['wtax'])).rate
+
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
