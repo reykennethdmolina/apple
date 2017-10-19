@@ -365,16 +365,16 @@
             $('#disp_note').text('');
 
             if($('#id_vat').val() != ''){
-                if($('#id_vat option:selected').data('code') == 'VE') $('#disp_vatexempt').val(grossAmount.toFixed(2));
-                else if ($('#id_vat option:selected').data('code') == 'ZE') $('#disp_vatzero').val(grossAmount.toFixed(2));
-                else $('#disp_vatable').val(grossAmount.toFixed(2));
+                if($('#id_vat option:selected').data('code') == 'VE') $('#disp_vatexempt').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                else if ($('#id_vat option:selected').data('code') == 'ZE') $('#disp_vatzero').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                else $('#disp_vatable').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
-                $('#disp_totalsale').val(grossAmount.toFixed(2));
-                $('#disp_addvat').val(addVat.toFixed(2));
-                $('#disp_totalpay').val(totalPayment.toFixed(2));
+                $('#disp_totalsale').val(grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $('#disp_addvat').val(addVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $('#disp_totalpay').val(totalPayment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
                 if($('#id_wtax').val() != ''){
-                    $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + wtaxAmount.toFixed(2));
+                    $('#disp_note').text('Noted: ' + wtaxRate + '% w/tax -------> ' + wtaxAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 }
             }
         }
