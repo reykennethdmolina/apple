@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from department.models import Department
 from . models import Employee
+from django.contrib.auth.models import User
 
 # pagination and search
 from endless_pagination.views import AjaxListView

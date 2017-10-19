@@ -5,6 +5,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 
+
 class Employee(models.Model):
     YESNO_CHOICES = (
         ('Y', 'Yes'),
@@ -33,6 +34,10 @@ class Employee(models.Model):
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
 
+    cellphone_subsidize_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,
+                                                     max_digits=18)
+    user = models.OneToOneField(User, null=True, blank=True)
+
     class Meta:
         db_table = 'employee'
         ordering = ['-pk']
@@ -49,4 +54,5 @@ class Employee(models.Model):
 
     def status_verbose(self):
         return dict(Employee.STATUS_CHOICES)[self.status]
+
 
