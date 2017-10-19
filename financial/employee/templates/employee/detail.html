@@ -63,6 +63,12 @@
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Cellphone Subsidize Amount&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.cellphone_subsidize_amount|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Multiple Status&nbsp;: </span>
                                             <span class="detail-profile">{{ object.get_multiplestatus_display }}</span>
                                         </div>

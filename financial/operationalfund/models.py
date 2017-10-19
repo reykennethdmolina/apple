@@ -7,17 +7,15 @@ import datetime
 
 
 class Ofmain(models.Model):
-    # employee = models.ForeignKey('employee.Employee', related_name='ofmain_employee_id', null=True,
-    #                              blank=True)  # will stay as comment, don't remove
-    # employee_code = models.CharField(max_length=20, null=True, blank=True)  # will stay as comment, don't remove
-    # employee_name = models.CharField(max_length=150, null=True, blank=True)  # will stay as comment, don't remove
-
     ofnum = models.CharField(max_length=10, unique=True)
     ofdate = models.DateField()
     oftype = models.ForeignKey('oftype.Oftype', related_name='ofmain_oftype_id', null=True, blank=True)
-    requestor = models.ForeignKey(User, related_name='ofmain_requestor_id')
-    requestor_username = models.CharField(max_length=50)
-    requestor_name = models.CharField(max_length=150)
+    requestor = models.ForeignKey('employee.Employee', related_name='ofmain_requestor_id')
+    requestor_code = models.CharField(max_length=10)
+    requestor_name = models.CharField(max_length=250)
+    designatedapprover = models.ForeignKey('employee.Employee', related_name='ofmain_designated_approver')
+    actualapprover = models.ForeignKey('employee.Employee', related_name='ofmain_actual_approver', null=True,
+                                       blank=True)
     department = models.ForeignKey('department.Department', related_name='ofmain_department_id')
     department_code = models.CharField(max_length=10)
     department_name = models.CharField(max_length=150)
@@ -34,8 +32,6 @@ class Ofmain(models.Model):
         ('R', 'Released'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')
-    designatedapprover = models.ForeignKey(User, default=2, related_name='ofmain_designated_approver')
-    actualapprover = models.ForeignKey(User, related_name='ofmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
         ('D', 'Disapproved'),
