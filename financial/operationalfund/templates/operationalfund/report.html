@@ -248,10 +248,10 @@
                             </div>
                             <div class="form-group col-sm-2">
                                 <label class="control-label small">Employee</label>
-                                <select class="form-control input-sm" id="rep_f_employee">
+                                <select class="form-control input-sm select2" id="rep_f_employee" style="width:100%">
                                     <option value="">-- Select --</option>
                                     {% for data in user %}
-                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                        <option value="{{ data.id }}">{{ data.firstname }} {{ data.lastname }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -293,10 +293,10 @@
                             </div>
                             <div class="form-group col-sm-2">
                                 <label class="control-label small">Approver</label>
-                                <select class="form-control input-sm" id="rep_f_approver">
+                                <select class="form-control input-sm select2" id="rep_f_approver" style="width:100%">
                                     <option value="">-- Select --</option>
                                     {% for data in user %}
-                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                        <option value="{{ data.id }}">{{ data.firstname }} {{ data.lastname }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

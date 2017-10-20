@@ -102,7 +102,8 @@ class ReportView(ListView):
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('description')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        context['user'] = User.objects.filter(is_active=1).order_by('first_name')
+        # context['user'] = User.objects.filter(is_active=1).order_by('first_name')
+        context['user'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
@@ -1700,7 +1701,7 @@ def reportresultxlsx(request):
             data = [
                 "OF-" + obj.oftype.code + "-" + obj.ofnum,
                 DateFormat(obj.ofdate).format('Y-m-d'),
-                obj.requestor.first_name + " " + obj.requestor.last_name,
+                obj.requestor.firstname + " " + obj.requestor.lastname,
                 obj.get_ofstatus_display(),
                 obj.amount,
             ]
@@ -1713,7 +1714,7 @@ def reportresultxlsx(request):
             data = [
                 "OF-" + obj.ofmain.oftype.code + "-" + obj.ofmain.ofnum,
                 DateFormat(obj.ofdate).format('Y-m-d'),
-                obj.ofmain.requestor.first_name + " " + obj.ofmain.requestor.last_name,
+                obj.ofmain.requestor.firstname + " " + obj.ofmain.requestor.lastname,
                 obj.ofsubtype.code,
                 str_payee.upper(),
                 str_vat,
