@@ -83,13 +83,21 @@
             <td width="20%" style="border-left: 2px solid black;"><b>Approved by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                <div class="sign_here">{{ ofmain.designatedapprover.firstname }}&nbsp;{{ ofmain.designatedapprover.lastname }}</div>
+                {% if ofmain.actualapprover and ofmain.approverresponse == 'A' %}
+                    <div class="sign_here">SGD {{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
+                {% else %}
+                    <div class="sign_here">{{ ofmain.designatedapprover.firstname }}&nbsp;{{ ofmain.designatedapprover.lastname }}</div>
+                {% endif %}
                 <i>Signature over printed name</i>
             </td>
             <td width="20%"><b>Received by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-                <div class="sign_here">&nbsp;</div>
+                {% if ofmain.receiveby %}
+                    <div class="sign_here">{{ ofmain.receiveby.first_name }}&nbsp;{{ ofmain.receiveby.last_name }}</div>
+                {% else %}
+                    <div class="sign_here">&nbsp;</div>
+                {% endif %}
                 <i>Signature over printed name</i>
             </td>
         </tr>
@@ -97,12 +105,20 @@
             <td width="20%" style="border-left: 2px solid black;"><b>Date approved</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                <div class="sign_here">&nbsp;</div>
+                {% if ofmain.responsedate and ofmain.approverresponse == 'A' %}
+                    <div class="sign_here">{{ ofmain.responsedate|date:'Y-m-d' }}</div>
+                {% else %}
+                    <div class="sign_here">&nbsp;</div>
+                {% endif %}
             </td>
             <td width="20%"><b>Date received</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-                <div class="sign_here">&nbsp;</div>
+                {% if ofmain.receivedate %}
+                    <div class="sign_here">{{ ofmain.receivedate|date:'Y-m-d' }}</div>
+                {% else %}
+                    <div class="sign_here">&nbsp;</div>
+                {% endif %}
             </td>
         </tr>
     </table>
