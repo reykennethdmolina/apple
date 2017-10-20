@@ -213,6 +213,10 @@ class CreateViewUser(CreateView):
                     self.object.department = Department.objects.get(code=self.object.requestor.department.code)
                     self.object.department_code = self.object.department.code
                     self.object.department_name = self.object.department.departmentname
+                else:
+                    self.object.department = Department.objects.get(code='IT')
+                    self.object.department_code = self.object.department.code
+                    self.object.department_name = self.object.department.departmentname
                 self.object.save()
 
                 # ----------------- START save ofitemtemp to ofitem START ---------------------
