@@ -92,7 +92,8 @@ class Ofmain(models.Model):
         permissions = (("view_operationalfund", "Can view operational fund"),
                        ("approve_assignedof", "Can approve assigned of"),
                        ("approve_allof", "Can approve all of"),
-                       ("is_cashier", "Is from cashier's office"),)
+                       ("is_cashier", "Is from cashier's office"),
+                       ("assign_requestor", "Can assign requestor"),)
 
     def get_absolute_url(self):
         return reverse('operationalfund:detail', kwargs={'pk': self.pk})
