@@ -45,7 +45,14 @@ class IndexView(AjaxListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        query = Ofmain.objects.all().filter(isdeleted=0)
+        if self.request.user.has_perm('operationalfund.approve_assignedof') and not self.request.user.has_perm('operationalfund.approve_allof'):
+            user_employee = get_object_or_None(Employee, user=self.request.user)
+            if user_employee is not None:
+                query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
+            else:
+                query = Ofmain.objects.all().filter(isdeleted=0)
+        else:
+            query = Ofmain.objects.all().filter(isdeleted=0)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(ofnum__icontains=keysearch) |
@@ -1227,7 +1234,7 @@ def approve(request):
                 request.user.has_perm('operationalfund.approve_assignedof'):
             if request.user.has_perm('operationalfund.approve_allof') or \
                     (request.user.has_perm('operationalfund.approve_assignedof') and
-                     of_for_approval.designatedapprover == request.user):
+                     of_for_approval.designatedapprover.user == request.user):
                 if of_for_approval.ofstatus != 'I' and of_for_approval.ofstatus != 'R':
                     of_for_approval.ofstatus = request.POST['response']
                     of_for_approval.isdeleted = 0
