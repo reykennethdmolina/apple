@@ -2,8 +2,9 @@ import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from department.models import Department
+from django.views.decorators.csrf import csrf_exempt
 from . models import Employee
 from django.contrib.auth.models import User
 
@@ -113,3 +114,56 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/employee')
+
+
+@csrf_exempt
+def getUnusedEmployee(request):
+    if request.method == 'POST':
+        employee = Employee.objects.filter(isdeleted=0, user=None).exclude(firstname='').order_by('firstname')
+
+        employee_list = []
+
+        for data in employee:
+            employee_list.append([data.id,
+                                  data.code,
+                                  data.firstname,
+                                  data.middlename,
+                                  data.lastname,
+                                  data.email,
+                                  ])
+        data = {
+            'status': 'success',
+            'employee': employee_list,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def saveUserEmployee(request):
+    if request.method == 'POST':
+        post_employee = request.POST['employee']
+        post_user = request.POST['user']
+
+        if User.objects.filter(pk=post_user, is_active=1):
+            if Employee.objects.filter(pk=post_employee, user=post_user) or Employee.objects.filter(pk=post_employee, user=None):
+                Employee.objects.filter(user=post_user).update(user=None)
+                Employee.objects.filter(pk=post_employee).update(user=post_user)
+                type = "success"
+            else:
+                type = "used"
+        else:
+            type = "inactive"
+
+        data = {
+            'status': 'success',
+            'type': type,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)

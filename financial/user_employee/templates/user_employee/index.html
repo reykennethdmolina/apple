@@ -1,0 +1,168 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} User - Employee {% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <style>
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="shade"><div class="loader two-color"></div></div>
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Account</th>
+                            <th>Employee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in user %}
+                            <tr>
+                                <td>{{ data.username }}</td>
+                                <td class="small">
+                                    {{ data.first_name }} {{ data.last_name }}<br>{{ data.email }}</td>
+                                <td class="small">
+                                    <a class="assign_employee" href="#" data-toggle='modal' data-target='#userModal'
+                                       data-user-id="{{ data.pk|default:'' }}"
+                                       data-code="{{ data.employee.code|default:'-' }}"
+                                       data-name="{{ data.employee.firstname|default:'-' }} {{ data.employee.middlename }} {{ data.employee.lastname }}"
+                                       data-email="{{ data.employee.email|default:'-' }}">
+                                        {% if data.employee.code %}
+                                            <i class="icon glyphicon glyphicon-user text-primary" aria-hidden="true"></i>
+                                        {% else %}
+                                            <i class="icon glyphicon glyphicon-plus-sign text-success" aria-hidden="true"></i>
+                                        {% endif %}
+                                        &nbsp;&nbsp;&nbsp;{{ data.employee.code|default:'add' }}
+                                        {% if data.employee.code %}
+                                            <br>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            {{ data.employee.firstname|title }} {{ data.employee.middlename|title }} {{ data.employee.lastname|title }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="userModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                Change Assigned Employee
+            </div>
+            <div class="modal-body">
+                <div id="employee_profile">
+                    <select class="form-control input-sm select2" id="emp_options" style="width:100%;">
+                    </select><br><br>
+                    <table class="table small">
+                        <tr>
+                            <td width="110px"><b>Code</b></td>
+                            <td id="emp_code"></td>
+                        </tr>
+                        <tr>
+                            <td><b>Name</b></td>
+                            <td id="emp_name"></td>
+                        </tr>
+                        <tr>
+                            <td><b>Email</b></td>
+                            <td id="emp_email"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="user_id">
+                <button type="button" class="btn btn-success btn-sm" id="save_employee"><i class="icon fa-plus" aria-hidden="true"></i>&nbsp;&nbsp;Save Changes</button>
+                <button type="button" class="btn btn-sm" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="user-success" class="custom-alert success">Employee successfully assigned.</div>
+<div id="user-used" class="custom-alert danger">Employee already used!</div>
+<div id="user-inactive" class="custom-alert danger">Selected user is not active!</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script type="text/javascript">
+    $(function(){
+        $('#emp_options').select2({});
+        $('.assign_employee').on('click', function(){
+            $('.shade').fadeIn();
+            $('#emp_code').text($(this).data('code'));
+            $('#emp_name').text($(this).data('name'));
+            $('#emp_email').text($(this).data('email'));
+            $('#user_id').val($(this).data('user-id'));
+            $('#emp_options').html('');
+
+            $.ajax({
+                url: "{% url 'employee:getunusedemployee' %}",
+                type: "post",
+                data: "",
+                success: function(response){
+                    $('#emp_options').append("<option value=''>-- Select Employee --</option>");
+                    for(i=0;i<response.employee.length;i++){
+                        $('#emp_options').append("<option value='"+ response.employee[i][0] +"' " +
+                                "data-code='"+ response.employee[i][1] +"'" +
+                                "data-name='"+ response.employee[i][2] + " " + response.employee[i][3] + " " + response.employee[i][4] +"'" +
+                                "data-email='"+ response.employee[i][5] +"'>"+ response.employee[i][2] + " " + response.employee[i][3] + " " + response.employee[i][4] +"</option>");
+                    }
+                    $('.shade').fadeOut();
+                }, error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        });
+
+        $('#emp_options').on('change', function(){
+            $('#emp_code').text($(this).find('option:selected').data('code'));
+            $('#emp_name').text($(this).find('option:selected').data('name'));
+            $('#emp_email').text($(this).find('option:selected').data('email'));
+
+        });
+
+        $('#save_employee').on('click', function(){
+            $('.shade').fadeIn();
+            employee = $('#emp_options').val();
+            user = $('#user_id').val();
+
+            $.ajax({
+                url: "{% url 'employee:saveuseremployee' %}",
+                type: "post",
+                data: {'employee': employee, 'user':user},
+                success: function(response){
+                    if(response.type == 'success'){
+{#                        customAlert($('#user-success'));#}
+                        location.reload();
+                    }
+                    else if(response.type == 'used'){
+                        customAlert($('#user-used'));
+                    }
+                    else{
+                        customAlert($('#user-inactive'));
+                    }
+                    $('.shade').fadeOut();
+                },
+                error: function(response){
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+
+        });
+    });
+    </script>
+{% endblock extra_js %}
+

@@ -125,6 +125,7 @@ urlpatterns = [
     url(r'^outputvattype/', include('outputvattype.urls', app_name='outputvattype', namespace='outputvattype')),
     url(r'^orsubtype/', include('orsubtype.urls', app_name='orsubtype', namespace='orsubtype')),
     url(r'^creditcard/', include('creditcard.urls', app_name='creditcard', namespace='creditcard')),
+    url(r'^user_employee/', include('user_employee.urls', app_name='user_employee', namespace='user_employee')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

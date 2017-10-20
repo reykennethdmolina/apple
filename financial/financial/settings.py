@@ -138,7 +138,9 @@ INSTALLED_APPS = [
     'outputvattype',
     'orsubtype',
     'creditcard',
-    'officialreceipt',]
+    'officialreceipt',
+    'user_employee',
+]
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',

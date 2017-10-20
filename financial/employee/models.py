@@ -41,7 +41,8 @@ class Employee(models.Model):
     class Meta:
         db_table = 'employee'
         ordering = ['-pk']
-        permissions = (("view_employee", "Can view employee"),)
+        permissions = (("view_employee", "Can view employee"),
+                       ("can_adduser", "Can add user to employee"),)
 
     def get_absolute_url(self):
         return reverse('employee:detail', kwargs={'pk': self.pk})
