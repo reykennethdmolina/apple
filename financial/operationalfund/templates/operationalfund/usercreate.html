@@ -103,10 +103,18 @@
                             </div>
                         </div>
                         <div class="form-group col-sm-4 margin-bottom-0">
-                            <div class="panel">
+                            <div class="panel" style="height: 125px;">
+                                <table class="pull-right" style="margin: 30px; margin-right: 10px;">
+                                    <tr>
+                                        <td><label class="control-label pull-right" style="margin-right: 40px">Amount Limit:</label></td>
+                                        <td><label class="control-label pull-right" style="margin-right: 20px">Total Amount:</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td><div class="pull-right" id="amountlimit" style="margin-right: 40px">0.00</div></td>
+                                        <td><div class="pull-right" id="totalamount" style="margin-right: 20px">0.00</div></td>
+                                    </tr>
+                                </table>
                                 <br>
-                                <label class="control-label pull-right" style="margin-right: 20px">Total Amount:</label><br><br>
-                                <div class="pull-right" id="totalamount" style="margin-right: 20px">0.00</div><br><br>
                             </div>
                             <button type="submit" class="btn btn-round btn-success floatright" id="validateButton">Submit</button>
                         </div>
@@ -270,6 +278,7 @@
                 $("#id_requestor").select2();
             }
 
+            changeAmountLimit();
 
             /** Prepare hidden field **/
             $('.item_table tbody tr.warning').last().clone().prependTo('.item_table tbody');
@@ -308,6 +317,8 @@
                         $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
                     }
                     $("#id_requestor").select2();
+
+                    changeAmountLimit();
                 }
                 else{
                     customAlert($('#oftype-change-error'));
@@ -479,6 +490,10 @@
                 }
             });
 
+            $(document).on('change', '#id_requestor', function(){
+                changeAmountLimit();
+            });
+
             function itemRecount(){
                 var item_count = 1;
                 $('.item_counter').each(function(){
@@ -558,6 +573,18 @@
                     }
                 });
                 $('#totalamount').text(totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            }
+
+            function changeAmountLimit(){
+                if($('#id_oftype option:selected').text().indexOf('Petty Cash') > 0){
+                    $('#amountlimit').text("1,000.00");
+                }
+                else if($('#id_oftype option:selected').text().indexOf('Revolving Fund') > 0){
+                    $('#amountlimit').text("N/A");
+                }
+                else if($('#id_oftype option:selected').text().indexOf('Cellphone Subsidy') > 0){
+                    $('#id_requestor').val() == '' ? $('#amountlimit').text("N/A") : $('#amountlimit').text(parseFloat($('#id_requestor option:selected').data('amount')).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+                }
             }
         });
     </script>
