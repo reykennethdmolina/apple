@@ -80,10 +80,11 @@
                             <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
                         {% if perms.operationalfund.change_ofmain and data.isdeleted == 0 and perms.operationalfund.is_cashier %}
-{#                            {% if data.ofstatus == 'F' or data.ofstatus == 'D' %}#}
+                            {% if data.enterby.username == user %}
                                 <a href="{% url 'operationalfund:userupdate' data.pk %}" style="display: none;" class="btnUpdate userUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
                                 </a>
+                            {% endif %}
 {#                            {% else %}#}
                                 <a href="{% url 'operationalfund:cashierupdate' data.pk %}" style="display: none;" class="btnUpdate cashierUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                     <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>

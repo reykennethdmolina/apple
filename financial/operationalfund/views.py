@@ -77,6 +77,7 @@ class IndexView(AjaxListView):
         context['forapproval'] = forapproval
         context['userrole'] = 'C' if self.request.user.has_perm('operationalfund.is_cashier') else 'U'
         context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
+        context['user'] = self.request.user
 
         # data for lookup
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
