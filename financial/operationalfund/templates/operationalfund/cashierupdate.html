@@ -199,6 +199,7 @@
                                     <label class="control-label" for="id_ofstatus">OF Status</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_ofstatus" name="ofstatus">
                                         <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
+                                        <option value="O" {% if form.ofstatus.value == 'O' %} selected="selected" {% endif %}>On Hand</option>
                                         <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
                                     </select>
                                     <span class="help-block form-error">{{ form.ofstatus.errors.as_text }}</span>
