@@ -84,12 +84,12 @@
             <div class="modal-footer">
                 <input type="hidden" id="user_id">
                 <button type="button" class="btn btn-success btn-sm" id="save_employee"><i class="icon fa-plus" aria-hidden="true"></i>&nbsp;&nbsp;Save Changes</button>
+                <button type="button" class="btn btn-danger btn-sm" id="unassign_employee"><i class="icon fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Clear Employee</button>
                 <button type="button" class="btn btn-sm" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
-<div id="user-success" class="custom-alert success">Employee successfully assigned.</div>
 <div id="user-used" class="custom-alert danger">Employee already used!</div>
 <div id="user-inactive" class="custom-alert danger">Selected user is not active!</div>
 {% endblock page-content %}
@@ -144,7 +144,6 @@
                 data: {'employee': employee, 'user':user},
                 success: function(response){
                     if(response.type == 'success'){
-{#                        customAlert($('#user-success'));#}
                         location.reload();
                     }
                     else if(response.type == 'used'){
@@ -160,7 +159,30 @@
                     $('.shade').fadeOut();
                 }
             });
+        });
 
+        $('#unassign_employee').on('click', function(){
+            $('.shade').fadeIn();
+            user = $('#user_id').val();
+
+            $.ajax({
+                url: "{% url 'employee:unassignuseremployee' %}",
+                type: "post",
+                data: {'user':user},
+                success: function(response){
+                    if(response.type == 'success'){
+                        location.reload();
+                    }
+                    else{
+                        customAlert($('#user-inactive'));
+                    }
+                    $('.shade').fadeOut();
+                },
+                error: function(response){
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
         });
     });
     </script>

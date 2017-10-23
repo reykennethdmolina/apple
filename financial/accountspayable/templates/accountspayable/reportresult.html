@@ -148,9 +148,9 @@
             </thead>
             <tbody>
             {% for data in data_list %}
-                <tr {% ifchanged data.chartofaccount__title %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+                <tr {% ifchanged data.chartofaccount__accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
                     <td style="width: 35%">
-                        {% ifchanged data.chartofaccount__title %}
+                        {% ifchanged data.chartofaccount__accountcode %}
                             {{ data.chartofaccount__accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount__description }}
                         {% endifchanged %}
                     </td>
@@ -289,9 +289,9 @@
             </thead>
             <tbody>
             {% for data in data_list %}
-                <tr {% ifchanged data.chartofaccount.description %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+                <tr {% ifchanged data.chartofaccount.accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
                     <td style="width: 20%">
-                        {% ifchanged data.chartofaccount.description %}
+                        {% ifchanged data.chartofaccount.accountcode %}
                             {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}
                         {% endifchanged %}
                     </td>

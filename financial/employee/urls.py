@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^getunusedemployee/$', views.getUnusedEmployee, name='getunusedemployee'),
     url(r'^saveuseremployee/$', views.saveUserEmployee, name='saveuseremployee'),
+    url(r'^unassignuseremployee/$', views.unassignUserEmployee, name='unassignuseremployee'),
 ]

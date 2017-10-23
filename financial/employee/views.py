@@ -167,3 +167,25 @@ def saveUserEmployee(request):
             'status': 'error',
         }
     return JsonResponse(data)
+
+
+@csrf_exempt
+def unassignUserEmployee(request):
+    if request.method == 'POST':
+        post_user = request.POST['user']
+
+        if User.objects.filter(pk=post_user, is_active=1):
+            Employee.objects.filter(user=post_user).update(user=None)
+            type = "success"
+        else:
+            type = "inactive"
+
+        data = {
+            'status': 'success',
+            'type': type,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
