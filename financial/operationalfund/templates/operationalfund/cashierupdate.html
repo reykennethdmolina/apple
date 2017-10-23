@@ -958,7 +958,7 @@
                            'oftype': $("#id_oftype").val(),
                            'branch': $("#id_branch").val(),
                            'department': $("#id_department").val(),
-                           'employee': '709',
+                           'employee': $("#id_requestor").val(),
                            'table': "ofdetailtemp"},
                     success: function(response){
                         $("#datatable").html(response['datatable']);

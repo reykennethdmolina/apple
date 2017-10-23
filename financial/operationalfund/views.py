@@ -1143,7 +1143,7 @@ def autoentry(request):
         #
         # ######## START----------- DEBIT entries ------------START
         department_expchartofaccount_accountcode_prefix = str(Chartofaccount.objects.get(pk=Department.objects.get(
-            pk=main.department.id).expchartofaccount_id).accountcode)[:2]
+            pk=int(request.POST['department'])).expchartofaccount_id).accountcode)[:2]
         for data in items:
             if str(Ofsubtype.objects.get(pk=data.ofsubtype.id).chartexpcostofsale.
                     accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
