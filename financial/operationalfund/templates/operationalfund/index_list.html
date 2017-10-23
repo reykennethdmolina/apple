@@ -91,14 +91,18 @@
                                 </a>
 {#                            {% endif %}#}
                         {% elif perms.operationalfund.change_ofmain and data.isdeleted == 0 and not perms.operationalfund.is_cashier %}
-                        <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate userUpdate_user" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
-                        </a>
+                            {% if data.enterby.username == user %}
+                                <a href="{% url 'operationalfund:userupdate' data.pk %}" class="btnUpdate userUpdate_user" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                    <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                </a>
+                            {% endif %}
                         {% endif %}
                         {% if perms.operationalfund.delete_ofmain and data.isdeleted == 0 and data.status == 'A' and data.ofstatus == 'F' %}
-                        <a href="{% url 'operationalfund:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
-                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
-                        </a>
+                            {% if data.enterby.username == user %}
+                                <a href="{% url 'operationalfund:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                    <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                </a>
+                            {% endif %}
                         {% endif %}
                         </div>
                     </div>
