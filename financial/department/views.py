@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from department.models import Department
 from chartofaccount.models import Chartofaccount
-from productgroup.models import Productgroup
+from product.models import Product
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -28,7 +28,7 @@ class CreateView(CreateView):
     model = Department
     template_name = 'department/create.html'
     fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname',
-              'groupname', 'productgroup', 'branchstatus']
+              'groupname', 'product', 'branchstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('department.add_department'):
@@ -39,7 +39,7 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['expchartofaccount'] = Chartofaccount.objects.\
             filter(isdeleted=0, main=5).order_by('accountcode')
-        context['productgroup'] = Productgroup.objects.\
+        context['product'] = Product.objects.\
             filter(isdeleted=0).order_by('description')
         return context
 
@@ -56,7 +56,7 @@ class UpdateView(UpdateView):
     model = Department
     template_name = 'department/edit.html'
     fields = ['code', 'departmentname', 'expchartofaccount', 'sectionname',
-              'groupname', 'productgroup', 'branchstatus']
+              'groupname', 'product', 'branchstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('department.change_department'):
@@ -67,7 +67,7 @@ class UpdateView(UpdateView):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['expchartofaccount'] = Chartofaccount.objects.\
             filter(isdeleted=0, main=5).order_by('accountcode')
-        context['productgroup'] = Productgroup.objects.\
+        context['product'] = Product.objects.\
             filter(isdeleted=0).order_by('description')
         return context
 
@@ -77,7 +77,7 @@ class UpdateView(UpdateView):
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['departmentname', 'expchartofaccount',
                                         'sectionname', 'groupname',
-                                        'productgroup', 'branchstatus', 'modifyby', 'modifydate'])
+                                        'product', 'branchstatus', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/department')
 
 

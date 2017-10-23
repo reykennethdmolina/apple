@@ -53,17 +53,17 @@
                                     <option value="Y" {% if form.branchstatus.value == 'Y' %} selected="selected" {% endif %}>Yes</option>
                                     <option value="N" {% if form.branchstatus.value == 'N' %} selected="selected" {% endif %}>No</option>
                                 </select>
-                                <span class="help-block form-error">{{ form.productgroup.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
                             </div>
                             <div class="form-group form-material col-md-8">
-                                <label for="id_productgroup" class="control-label">Product Group</label>
-                                <select id="id_productgroup" name="productgroup" class="form-control">
+                                <label for="id_product" class="control-label">Product</label>
+                                <select id="id_product" name="product" class="form-control">
                                     <option value="">-- Select --</option>
-                                    {% for productgroup in productgroup %}
-                                        <option value="{{ productgroup.id }}" {% if form.productgroup.value|add:0 == productgroup.id %} selected="selected" {% endif %}>{{ productgroup.description }}</option>
+                                    {% for product in product %}
+                                        <option value="{{ product.id }}" {% if form.product.value|add:0 == product.id %} selected="selected" {% endif %}>{{ product.description }}</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.productgroup.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
                             </div>
                         </div>
                         <div class="form-group margin-bottom-0">

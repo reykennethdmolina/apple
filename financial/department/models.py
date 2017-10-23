@@ -52,5 +52,5 @@ class Department(models.Model):
             'enterby': self.enterby.username,
             'modifyby': self.modifyby.username,
             'expchartofaccount': self.expchartofaccount,
-            'productgroup': self.productgroup,
+            'product': self.product,
         }
