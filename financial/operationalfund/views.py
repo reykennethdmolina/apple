@@ -805,7 +805,7 @@ class UpdateViewCashier(UpdateView):
             # self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
             self.object.save(update_fields=['refnum', 'particulars', 'creditterm', 'branch', 'ofstatus',
-                                            'remarks', 'modifyby', 'modifydate'])
+                                            'remarks', 'modifyby', 'modifydate', 'department'])
 
             # revert status from RELEASED to In Process if no release date is saved
             if self.object.ofstatus == 'R' and self.object.releasedate is None:

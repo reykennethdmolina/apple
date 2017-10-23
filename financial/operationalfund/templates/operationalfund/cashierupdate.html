@@ -169,7 +169,7 @@
                                     <label class="control-label" for="id_department">Department</label>
                                     <select class="form-control input-sm select2" data-validation="required" id="id_department" name="department">
                                         <option value="">-- Select --</option>
-                                        {% for department in requestordepartment %}
+                                        {% for department in department %}
                                             <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} | {{ department.departmentname }}</option>
                                         {% endfor %}
                                     </select>
@@ -612,7 +612,7 @@
             $("#id_payee").prop("readonly", true);
             $(".input-search-button").hide();
             $("#id_requestor option:selected").siblings().attr('disabled','disabled');
-            $("#id_department option:selected").siblings().attr('disabled','disabled');
+{#            $("#id_department option:selected").siblings().attr('disabled','disabled');#}
             $("#id_employee option:selected").siblings().attr('disabled','disabled');
             $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
             $("#id_amount").prop("readonly", true);
