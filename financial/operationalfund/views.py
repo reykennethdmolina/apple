@@ -798,7 +798,7 @@ class UpdateViewCashier(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        if self.request.POST['originalofstatus'] != 'R':
+        if self.request.POST['originalofstatus'] != 'R' and self.request.POST['originalofstatus'] != 'P':
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             # self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
@@ -892,7 +892,7 @@ class UpdateViewCashier(UpdateView):
             self.object.approvedamount = approved_amount['amount__sum']
             self.object.save(update_fields=['approvedamount'])
 
-        else:
+        elif self.request.POST['originalofstatus'] == 'R':
             if self.object.reppcvmain is None:
                 if self.request.POST['ofstatus'] == 'I':
                     self.object.ofstatus = 'I'
