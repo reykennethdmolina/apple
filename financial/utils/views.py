@@ -240,8 +240,7 @@ def ajaxSearch(request):
 
         elif request.POST['table'] == "ofmain":
             items = Ofmain.objects.all().filter(isdeleted=0).order_by('pk')
-            if request.user.has_perm('operationalfund.is_cashier'):
-                items = items.filter(Q(ofstatus='A') | Q(ofstatus='I') | Q(ofstatus='R'))
+            items = items.filter(Q(ofstatus='A') | Q(ofstatus='I') | Q(ofstatus='R') | Q(ofstatus='O') | Q(ofstatus='P'))
 
             if request.POST['cache_ofnum_from'] and request.POST['cache_ofnum_to']:
                 items = items.filter(ofnum__range=[int(request.POST['cache_ofnum_from']),
