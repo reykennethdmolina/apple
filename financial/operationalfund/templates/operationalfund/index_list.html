@@ -138,7 +138,9 @@
                 $(this).siblings('.cashierUpdate').hide();
             }
             else if($(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                    $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
+                    $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Released" ||
+                    $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "On Hand" ||
+                    $(this).parent().parent().parent().siblings('.tdOfStatus').find('b').text() == "Process JV"){
                 $(this).siblings('.userUpdate').hide();
                 $(this).siblings('.cashierUpdate').show();
             }
@@ -154,7 +156,9 @@
                 $(this).parent().siblings('.btn-approve').hide();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released" ||
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "On Hand" ||
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Process JV"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-disapprove').hide();
                 $(this).parent().html(' - ')
@@ -170,7 +174,9 @@
                 $(this).parent().siblings('.btn-approve').show();
             }
             else if($(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "In Process" ||
-                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released"){
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Released" ||
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "On Hand" ||
+                    $(this).parent().parent().siblings('.tdOfStatus').find('b').text() == "Process JV"){
                 $(this).hide();
                 $(this).parent().siblings('.btn-approve').hide();
                 $(this).parent().html(' - ')

@@ -94,8 +94,8 @@ class CreateView(CreateView):
         context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None).\
-            exclude(releasedate=None).order_by('id')   # released CSVs that do not have JVs yet
+        context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None, ofstatus='O')\
+            .order_by('id')   # on-hand CSVs that do not have JVs yet
 
         #lookup
         context['pk'] = 0
@@ -127,6 +127,7 @@ class CreateView(CreateView):
         for i in range(len(self.request.POST.getlist('csv_checkbox'))):
             ofmain = Ofmain.objects.get(pk=int(self.request.POST.getlist('csv_checkbox')[i]))
             ofmain.jvmain = self.object
+            ofmain.ofstatus = 'P'
             ofmain.save()
         # save jvmain in ofmain
 

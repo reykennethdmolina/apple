@@ -93,7 +93,7 @@
                                     <label class="control-label col-sm-4">AP&nbsp;Voucher:</label>
                                     <label id="currentstatus" class="control-label col-sm-8">{{ apnum }}, {{ apdate|date:'Y-m-d' }}</label>
                                 {% elif savedoftype == 'CSV' and csv_replenished == 'True' %}
-                                    <label class="control-label col-sm-4">Journal&nbsp;Voucher:</label>
+                                    <label class="control-label col-sm-4" id="jvmain">Journal&nbsp;Voucher:</label>
                                     <label id="currentstatus" class="control-label col-sm-8">{{ jvnum }}, {{ jvdate|date:'Y-m-d' }}</label>
                                 {% endif %}
                             </div>
@@ -198,9 +198,20 @@
                                 <div class="form-group col-sm-2 {{ form.ofstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_ofstatus">OF Status</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_ofstatus" name="ofstatus">
-                                        <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
-                                        <option value="O" {% if form.ofstatus.value == 'O' %} selected="selected" {% endif %}>On Hand</option>
-                                        <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+                                        {% if savedoftype != 'CSV' %}
+                                            <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
+                                            <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+                                        {% else %}
+                                            {% if originalofstatus == 'A' or originalofstatus == 'I' or originalofstatus == 'O' %}
+                                                <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
+                                                <option value="O" {% if form.ofstatus.value == 'O' %} selected="selected" {% endif %}>On Hand</option>
+                                            {% elif originalofstatus == 'P' %}
+                                                <option value="P" {% if form.ofstatus.value == 'P' %} selected="selected" {% endif %}>Process JV</option>
+                                                <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+                                            {% elif originalofstatus == 'R' %}
+                                                <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+                                            {% endif %}
+                                        {% endif %}
                                     </select>
                                     <span class="help-block form-error">{{ form.ofstatus.errors.as_text }}</span>
                                 </div>
@@ -295,8 +306,8 @@
                                                         <div class="col-sm-12"></div>
                                                         <div class="form-group col-sm-8 div-supplier">
                                                             <label class="control-label"><small>Supplier</small></label>
-                                                            <select class="form-control input-sm {% if form.ofstatus.value != 'R' %}ajaxselect2{% endif %} select-supplier" name="item_supplier" form="form-b">
-                                                                {% if form.ofstatus.value != 'R' %}<option value=""></option>{% endif %}
+                                                            <select class="form-control input-sm {% if form.ofstatus.value != 'R' and form.ofstatus.value != 'P' %}ajaxselect2{% endif %} select-supplier" name="item_supplier" form="form-b">
+                                                                {% if form.ofstatus.value != 'R' and form.ofstatus.value != 'P' %}<option value=""></option>{% endif %}
                                                                 {% if itemtemp.supplier != None %}
                                                                     <option value="{{ itemtemp.supplier }}" selected="selected">{{ itemtemp.supplier_name }}</option>
                                                                 {% elif itemtemp.payee != None %}
@@ -531,6 +542,12 @@
             /** Requested Items starts here **/
             /****************************** **/
 
+            if($("#id_oftype option:selected").text() == 'Cellphone Subsidy'){
+                $('.select-vat').each(function(){
+                    $(this).find("option:contains('N/A')").attr('selected', 'selected');
+                });
+            }
+
             $('.select-vat').each(function(){
                 if($(this).find('option:selected').data('rate') != '0'){
                     $(this).parent().siblings('.div-supplier').show();
@@ -619,13 +636,14 @@
             $("#id_amount").prop("readonly", true);
             //disabling of some elements from usercreate screen 08172017
 
-            if($('#id_ofstatus').val() == 'R'){
+            if($('#id_ofstatus').val() == 'R' || $('#id_ofstatus').val() == 'P'){
                 $("#id_ofdate").prop("readonly", true);
                 $("#id_ofdate").datepicker("destroy");
                 $("#id_ofdate").removeClass("datepicker").removeAttr('id');
                 $("#id_oftype option:selected").siblings().attr('disabled','disabled');
                 $("#id_refnum").prop("readonly", true);
                 $("#id_employee option:selected").siblings().attr('disabled','disabled');
+                $("#id_branch option:selected").siblings().attr('disabled','disabled');
                 $("#id_department option:selected").siblings().attr('disabled','disabled');
                 $("#id_creditterm option:selected").siblings().attr('disabled','disabled');
                 $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
@@ -638,6 +656,7 @@
                 $(".select-inputvattype option:selected").siblings().attr('disabled','disabled');
                 $(".select-deferredvat option:selected").siblings().attr('disabled','disabled');
                 $(".select-currency option:selected").siblings().attr('disabled','disabled');
+                $(".select-supplier option:selected").siblings().attr('disabled','disabled');
                 $(".input-fxrate").prop("readonly", true);
                 $(".datepickerfrom_month").prop("readonly", true);
                 $(".datepickerfrom_month").datepicker("destroy");
@@ -660,19 +679,16 @@
                     $("#id_remarks").prop("readonly", true);
                     $(".textarea-remarks").prop("readonly", true);
                     $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
-                {% elif savedoftype == 'CSV' and csv_replenished == 'True' %}
-                    $("#id_remarks").prop("readonly", true);
-                    $(".textarea-remarks").prop("readonly", true);
-                    $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
                 {% endif %}
-            }
 
-            var defaultOfType = "Expenses";
-            var defaultOfSubtype = "CASH ADVANCE";
-            if($("#id_oftype").val() == "")
-                $("#id_oftype option:contains(" + defaultOfType + ")").attr('selected', 'selected');
-            if($("#id_ofsubtype").val() == "")
-                $("#id_ofsubtype option:contains(" + defaultOfSubtype + ")").attr('selected', 'selected');
+                if($('#id_ofstatus').val() == 'R'){ //since items that have 'P' status can still have remarks edited
+                    {% if savedoftype == 'CSV' and csv_replenished == 'True' %}
+                        $("#id_remarks").prop("readonly", true);
+                        $(".textarea-remarks").prop("readonly", true);
+                        $("#id_ofstatus option:selected").siblings().attr('disabled','disabled');
+                    {% endif %}
+                }
+            }
 
             if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
             else                            showRate("#id_vat", "vatrate", "RATE");
