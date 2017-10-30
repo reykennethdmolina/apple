@@ -26,6 +26,7 @@ from journalvoucher.models import Jvmain, Jvdetailtemp, Jvdetailbreakdowntemp, J
 from accountspayable.models import Apmain, Apdetailtemp, Apdetailbreakdowntemp, Apdetail, Apdetailbreakdown
 from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, Ofdetail, Ofdetailbreakdown, Ofitem
 from checkvoucher.models import Cvmain, Cvdetailtemp, Cvdetailbreakdowntemp, Cvdetail, Cvdetailbreakdown
+from officialreceipt.models import Ormain, Ordetailtemp, Ordetailbreakdowntemp, Ordetail, Ordetailbreakdown
 from annoying.functions import get_object_or_None
 
 
@@ -73,6 +74,17 @@ def validatetable(table):
             'str_detailbreakdown': 'cvdetailbreakdown',
             'stmt_detailtemp': 'temp.cvmain, temp.cv_num, DATE(temp.cv_date) AS cvdate, ',
             'stmt_detailbreakdowntemp': 'temp.cvdetailtemp AS detailid, temp.particular, temp.item_counter, temp.cvmain, temp.cv_num, DATE(temp.cv_date) AS cvdate, ',
+        }
+    elif table == 'ordetailtemp':
+        data = {
+            'sal': 'or',
+            'str_main': 'ormain',
+            'str_detailtemp': 'ordetailtemp',
+            'str_detail': 'ordetail',
+            'str_detailbreakdowntemp': 'ordetailbreakdowntemp',
+            'str_detailbreakdown': 'ordetailbreakdown',
+            'stmt_detailtemp': 'temp.ormain, temp.or_num, DATE(temp.or_date) AS ordate, ',
+            'stmt_detailbreakdowntemp': 'temp.ordetailtemp AS detailid, temp.particular, temp.item_counter, temp.ormain, temp.or_num, DATE(temp.or_date) AS ordate, ',
         }
 
     return data

@@ -75,7 +75,7 @@ class Ormain(models.Model):
         ('M', 'Mixed'),
     )
     government = models.CharField(max_length=2, choices=GOVT_CHOICES, null=True, blank=True, default='NG')
-    designatedapprover = models.ForeignKey(User, default=2, related_name='ormain_designated_approver')
+    designatedapprover = models.ForeignKey(User, related_name='ormain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='ormain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),

@@ -55,14 +55,14 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Create</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                     <div class="col-sm-12">
                         <div class="form-group col-sm-2">
                             <label class="control-label" for="id_ornum">Number</label>
-                            <input type="text" class="form-control input-sm" style="background: white;" placeholder="ORxxxxxxx" disabled="disabled">
+                            <input type="text" class="form-control input-sm" style="background: white;" disabled="disabled" value="{{ ornum }}">
                         </div>
                         <div class="form-group col-sm-2 {{ form.ordate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_ordate">Date</label>
@@ -132,17 +132,29 @@
                         </div>
                         <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_agency">
                             <label class="control-label" for="id_agency">Agency</label>
-                            <select class="form-control input-sm" id="id_agency" name="agency" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_agency" name="agency" style="width: 100%">
+                                {% if agency.id != None %}
+                                    <option value="{{ agency.id }}">[{{ agency.code }}] {{ agency.name }}</option>
+                                {% endif %}
+                            </select>
                             <span class="help-block form-error">{{ form.agency.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_client">
                             <label class="control-label" for="id_client">Client</label>
-                            <select class="form-control input-sm" id="id_client" name="client" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_client" name="client" style="width: 100%">
+                                {% if client.id != None %}
+                                    <option value="{{ client.id }}">[{{ client.code }}] {{ client.name }}</option>
+                                {% endif %}
+                            </select>
                             <span class="help-block form-error">{{ form.client.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4 payee_options class-cir" id="payee_options_agent">
                             <label class="control-label" for="id_agent">Agent</label>
-                            <select class="form-control input-sm" id="id_agent" name="agent" style="width: 100%"></select>
+                            <select class="form-control input-sm" id="id_agent" name="agent" style="width: 100%">
+                                {% if agent.id != None %}
+                                    <option value="{{ agent.id }}">[{{ agent.code }}] {{ agent.name }}</option>
+                                {% endif %}
+                            </select>
                             <span class="help-block form-error">{{ form.agent.errors.as_text }}</span>
                         </div>
                         <div class="col-md-12"><hr></div>
@@ -161,7 +173,7 @@
                         <div class="col-md-12"></div>
                         <div class="form-group col-sm-4 {{ form.vat.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_vat">VAT</label>
-                            <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
+                            <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" data-vatrate="RATE: {{ form.vatrate.value|floatformat:2 }}%">
                                 <option value="" data-rate="0">-- Select --</option>
                                 {% for data in vat %}
                                     <option value="{{ data.id }}" data-code="{{ data.code }}" data-rate="{{ data.rate|floatformat:2 }}" {% if form.vat.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
@@ -182,7 +194,7 @@
                         </div>
                         <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_wtax">WTAX</label>
-                            <select class="form-control input-sm" id="id_wtax" name="wtax">
+                            <select class="form-control input-sm" id="id_wtax" name="wtax" data-wtaxrate="RATE: {{ form.wtaxrate.value|floatformat:2 }}%">
                                 <option value="" data-rate="0">-- Select --</option>
                                 {% for data in wtax %}
                                     <option value="{{ data.id }}" data-code="{{ data.code }}" data-rate="{{ data.rate|floatformat:2 }}" {% if form.wtax.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
@@ -360,22 +372,6 @@
         </div>
     </div>
 </div>
-
-<!-- Accounting Entry Start -->
-<div class="modal fade modal-message" id="modal-row">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
-                <span aria-hidden="true">x</span>
-                </button>
-                <h4 class="modal-title">Breakdown Entry</h4>
-            </div>
-            <div class="modal-body" id="breakdowndata">
-            </div>
-        </div>
-    </div>
-</div>
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
@@ -398,6 +394,12 @@
         displayPayeeDropdowns();
         setPayeeOptions();
         generateTotals();
+
+        if($("#id_vat").val() != '')    $('#vatrate').html("<strong>" + $("#id_vat").data('vatrate') + "</strong>");
+        else                            showRate("#id_vat", "vatrate", "RATE");
+
+        if($("#id_wtax").val() != '')    $('#wtaxrate').html("<strong>" + $("#id_wtax").data('wtaxrate') + "</strong>");
+        else                            showRate("#id_wtax", "wtaxrate", "RATE");
 
         $("#id_amount").on('keyup', function(){
             var words = toWords($(this).val());

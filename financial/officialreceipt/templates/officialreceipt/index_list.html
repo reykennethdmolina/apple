@@ -8,9 +8,9 @@
                 <th><span>ID</span></th>
                 <th><span>Number</span></th>
                 <th><span>Date</span></th>
-                <th><span>Customer</span></th>
+                <th><span>Agency/Client/Agent</span></th>
                 <th><span>Amount</span></th>
-                <th><span>OR Status</span></th>
+{#                <th><span>OR Status</span></th>#}
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -20,16 +20,16 @@
                 <td>{{ data.id }}</td>
                 <td>{{ data.ornum }}</td>
                 <td>{{ data.ordate|date:"Y-m-d" }}</td>
-                <td>{{ data.customer_name }}</td>
+                <td>{{ data.payee_name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
-                <td class="tdOfStatus
-                        {% if data.orstatus == 'A' %} text-success
-                        {% elif data.orstatus == 'D' %} text-danger
-                        {% elif data.orstatus == 'F' %} text-info
-                        {% elif data.orstatus == 'R' %} text-success
-                        {% endif %}">
-                    <b>{{ data.get_orstatus_display }}</b>
-                </td>
+{#                <td class="tdOfStatus#}
+{#                        {% if data.orstatus == 'A' %} text-success#}
+{#                        {% elif data.orstatus == 'D' %} text-danger#}
+{#                        {% elif data.orstatus == 'F' %} text-info#}
+{#                        {% elif data.orstatus == 'R' %} text-success#}
+{#                        {% endif %}">#}
+{#                    <b>{{ data.get_orstatus_display }}</b>#}
+{#                </td>#}
                 <td style="width: 115px; padding-left: 13px" class="action-btns-container">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist" style="text-align: left">
@@ -37,9 +37,9 @@
 {#                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>#}
 {#                        </a>#}
                         {% if perms.officialreceipt.change_ormain and data.isdeleted == 0 %}
-{#                        <a href="{% url 'officialreceipt:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">#}
-{#                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>#}
-{#                        </a>#}
+                        <a href="{% url 'officialreceipt:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
                         {% endif %}
                         {% if perms.officialreceipt.delete_ormain and data.isdeleted == 0 and data.status == 'A' and data.orstatus != 'A' and data.orstatus != 'I' and data.orstatus != 'R' %}
 {#                        <a href="{% url 'officialreceipt:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">#}
