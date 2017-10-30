@@ -272,7 +272,7 @@
                             <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-3 {{ form.government.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_government">Government ?</label>
+                            <label class="control-label" for="id_government">Government</label>
                             <select id="id_government" class="form-control input-sm" name="government">
                                 {% for id,name in form.fields.government.choices %}
                                     <option value="{{ id }}"{% if form.government.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
