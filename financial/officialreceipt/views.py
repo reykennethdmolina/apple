@@ -53,7 +53,7 @@ class IndexView(AjaxListView):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(ornum__icontains=keysearch) |
                                  Q(ordate__icontains=keysearch) |
-                                 Q(customer_name__icontains=keysearch) |
+                                 Q(payee_name__icontains=keysearch) |
                                  Q(amount__icontains=keysearch))
         return query
 
@@ -74,6 +74,36 @@ class IndexView(AjaxListView):
     #     # data for lookup
     #
     #     return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Ormain
+    template_name = 'officialreceipt/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        # data for lookup
+        # context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
+        # context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
+        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        # context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        # context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        # context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
+        # context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        # context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        # context['pk'] = self.object.pk
+        # data for lookup
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -987,3 +1017,53 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
     return response
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Ormain
+    template_name = 'officialreceipt/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('officialreceipt.delete_ormain') or self.object.status == 'O' \
+                or self.object.orstatus == 'A' or self.object.orstatus == 'I' or self.object.orstatus == 'R':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.orstatus = 'D'
+        self.object.save()
+
+        return HttpResponseRedirect('/officialreceipt')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Ormain
+    template_name = 'officialreceipt/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['ormain'] = Ormain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ordetail.objects.filter(isdeleted=0). \
+            filter(ormain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedor = Ormain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printedor.print_ctr += 1
+        printedor.save()
+        return context

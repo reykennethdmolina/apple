@@ -56,6 +56,28 @@
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
                 <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                    {% if perms.officialreceipt.delete_ormain and object.orstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                    <a href="{% url 'officialreceipt:delete' object.id %}" class="floatright">
+                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                        </button>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'officialreceipt:pdf' object.id %}" target="_blank" class="floatright">
+                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        </button>
+                    </a>
+                    <a href="{% url 'officialreceipt:detail' object.id %}" class="floatright">
+                        <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                        </button>
+                    </a>
+                </div>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
@@ -480,7 +502,7 @@
             grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
-            totalPayment = grossAmount + addVat + wtaxAmount;
+            totalPayment = grossAmount + addVat - wtaxAmount;
 
             $('.amount_display').val(0);
             $('#disp_note').text('');

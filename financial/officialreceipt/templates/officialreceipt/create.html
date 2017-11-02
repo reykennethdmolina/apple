@@ -478,7 +478,7 @@
             grossAmount = givenAmount/(1+(vatRate/100)-(wtaxRate/100));
             addVat = grossAmount * (vatRate/100);
             wtaxAmount = grossAmount * (wtaxRate/100);
-            totalPayment = grossAmount + addVat + wtaxAmount;
+            totalPayment = grossAmount + addVat - wtaxAmount;
 
             $('.amount_display').val(0);
             $('#disp_note').text('');

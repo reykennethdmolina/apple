@@ -1,0 +1,318 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Official Receipt {% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+    <style>
+        .text-name-profile.text-info {
+            width: 30%;
+        }
+        .detail-profile {
+            width: 50%;
+        }
+        .heading-top-index-2 {
+            padding-right: 20px;
+            padding-left: 20px;
+        }
+        .vattable td {
+            text-align: left;
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .widgett {
+            margin-bottom: 10px;
+        }
+        li.active
+        {
+            font-size: 12px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="page-content container-fluid page">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Start Profile Tab Section -->
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <div class="pull-right">
+                    <div class="btn-group floatright">
+                        <a href="{% url 'officialreceipt:pdf' object.id %}" target="_blank" class="floatright">
+                            <button class="btn btn-info btn-sm">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body small">
+                                <!-- <h4 class="list-title">Personal Information</h4> -->
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Number</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6"><b>{{ object.ornum }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Date</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.ordate }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Type</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.ortype.description|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>AR&nbsp;Type</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.get_orsource_display|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>PR&nbsp;#</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.prnum|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>PR&nbsp;Date</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.prdate|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Collector</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.collector_name|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Branch</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.branch.description|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Payee&nbsp;Type</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.get_payee_type_display }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>
+                                                {% if object.payee_type == 'AG' %}Agency&nbsp;Name
+                                                {% elif object.payee_type == 'C' %}Client&nbsp;Name
+                                                {% elif object.payee_type == 'A' %}Agent&nbsp;Name{% endif %}</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.payee_name|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br>
+                                            <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Amount</b></span>
+                                            <span class="text-info row col-md-1" style="margin-right: 13px;"><b>: </b></span>
+                                            <span class="row col-md-9"><b>{{ object.amount|floatformat:2|intcomma }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Amount&nbsp;in&nbsp;Words</b></span>
+                                            <span class="text-info row col-md-1" style="margin-right: 13px;"><b>: </b></span>
+                                            <span class="row col-md-9"><b>{{ object.amountinwords|default:'N/A' }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Product</b></span>
+                                            <span class="text-info row col-md-1" style="margin-right: 13px;"><b>: </b></span>
+                                            <span class="row col-md-9"><b>[{{ object.product.code }}]&nbsp;{{ object.product.description }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Bank&nbsp;Account</b></span>
+                                            <span class="text-info row col-md-1" style="margin-right: 13px;"><b>: </b></span>
+                                            <span class="row col-md-9"><b>{{ object.bankaccount.code }}&nbsp;[{{ object.bankaccount.bank.description }} - {{ object.bankaccount.bankaccounttype.description }}, {{ object.bankaccount.bankbranch.description }}]&nbsp;{{ object.bankaccount.accountnumber }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1" style="margin-right: 87px;"><b>Government</b></span>
+                                            <span class="text-info row col-md-1" style="margin-right: 13px;"><b>: </b></span>
+                                            <span class="row col-md-9"><b>{{ object.get_government_display }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br>
+                                            <span class="text-info row col-md-2 margin-right-90"><b>VAT</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{% if object.vat %}{{ object.vat.description }}&nbsp;({{ object.vatrate }}%){% else %}N/A{% endif %}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <br>
+                                            <span class="text-info row col-md-1 margin-right-60"><b>WTax</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{% if object.wtax %}{{ object.wtax.code }}&nbsp;({{ object.wtaxrate }}%){% else %}N/A{% endif %}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Output&nbsp;VAT&nbsp;Type</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.outputvattype.code|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Deferred</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.get_deferredvat_display|upper|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Particulars</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-6">{{ object.particulars|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Remarks</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.remarks|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-4">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Summary</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body">
+                                    <div class="master-degree">
+                                        <table class="vattable">
+                                            <tr>
+                                                <td><small>VATable&nbsp;Sale:</small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_vatable" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.vatablesale|floatformat:2|intcomma }}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><small>VAT-Exempt&nbsp;Sale:</small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_vatexempt" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.vatexemptsale|floatformat:2|intcomma }}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Sale:</small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_vatzero" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.vatzeroratedsale|floatformat:2|intcomma }}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><small><b>Total&nbsp;Sale:</b></small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_totalsale" class="form-control input-sm amount amount_display" disabled="disabled" value="{% if object.vatablesale > 0.00 %}{{ object.vatablesale|floatformat:2|intcomma }}{% endif %}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.vatamount|floatformat:2|intcomma }}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td><small><b>Total&nbsp;Payment:</b></small></td>
+                                                <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="{{ object.totalsale|floatformat:2|intcomma }}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note">Noted: {{ object.wtaxrate }}% w/tax -------> {{ object.wtaxamount|floatformat:2|intcomma }}</code></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include "acctentry/datatabledetail.html" %}
+        <div class="row col-md-3">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Activity Log</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="profiles" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body small">
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Created&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.enterby }}</div>
+                                        <div class="univer-profile">{{ object.enterdate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <span class="degree-name text-info">Modified&nbsp;By:</span>
+                                        <div class="univer-profile">{{ object.modifyby }}</div>
+                                        <div class="univer-profile">{{ object.modifydate }}</div>
+                                    </div>
+                                    <div class="master-degree">
+                                        <div class="iconlist">
+                                            {% if perms.officialreceipt.change_ormain and object.isdeleted == 0 %}
+                                                <a href="{% url 'officialreceipt:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_pencil" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                            {% if perms.officialreceipt.delete_ormain and object.orstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                                <a href="{% url 'officialreceipt:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                                    <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                                        <i class="icon_trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
