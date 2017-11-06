@@ -140,6 +140,7 @@ INSTALLED_APPS = [
     'creditcard',
     'officialreceipt',
     'user_employee',
+    'processing_or',
 ]
 
 MIDDLEWARE_CLASSES = [
