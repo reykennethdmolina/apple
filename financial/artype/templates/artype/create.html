@@ -1,5 +1,9 @@
 {% extends 'base-form.html' %}
 {% block page-title %} AR Type {% endblock page-title %}
+{% block extra_css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
 {% block page-content %}
 <div class="panel">
     <div class="panel-body container-fluid">
@@ -23,6 +27,12 @@
                                 <textarea id="id_description" class="form-control text-area" name="description" rows="5" data-validation="required">{{ form.description.value|default:"" }}</textarea>
                             </div>
                         </div>
+                        <div class="form-group {{ form.creditchartofaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_creditchartofaccount" class="control-label">Credit Chart of Account</label>
+                            <select name="creditchartofaccount" class="form-control ajaxselect2" id="id_creditchartofaccount" data-validation="required">
+                            </select>
+                            <span class="help-block form-error">{{ form.creditchartofaccount.errors.as_text }}</span>
+                        </div>
                         <div class="form-group margin-bottom-0">
                             <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                         </div>
@@ -35,3 +45,12 @@
     </div>
 </div>
 {% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function(){
+            ajaxselect2("chartofaccount_posting");
+        });
+    </script>
+{% endblock extra_js %}

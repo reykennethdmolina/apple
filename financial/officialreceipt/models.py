@@ -103,6 +103,15 @@ class Ormain(models.Model):
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 
+    # processing_or fields
+    initmark = models.CharField(null=True, blank=True, max_length=500)
+    glsmark = models.CharField(null=True, blank=True, max_length=500)
+    glsdate = models.DateTimeField(null=True, blank=True)
+    importornum = models.CharField(null=True, blank=True, max_length=500)
+    importordate = models.DateField(null=True, blank=True)
+    importdate = models.DateTimeField(null=True, blank=True)
+    importby = models.ForeignKey(User, default=1, related_name='ormain_import')
+
     class Meta:
         db_table = 'ormain'
         ordering = ['-pk']
