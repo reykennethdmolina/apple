@@ -6,6 +6,9 @@
         #formloading{
             display: none;
         }
+        #upload_summary td{
+            border-top: none;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -14,65 +17,207 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
-                    <div id="formupload">
-                        <form method="post" id="data" enctype="multipart/form-data">
-                            <div class="form-group col-sm-3">
-                                <label class="control-label small">AR Type</label>
-                                <select class="form-control input-sm" id="or_artype" name="or_artype">
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-7">
-                                <label class="control-label small">File</label>
-                                <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
-                            </div>
-                            <br>
-                            <button type="button" class="btn btn-sm btn-success col-md-2" id="or_upload">Process</button>
-                        </form>
-                    </div>
-                    <div id="formloading">
-                       <br>
-                        <div class="animatebar clearfix" data-percent="65%">
-                            <div class="animatebar-title progress-bar-success"><span>Uploading</span></div>
-                            <div class="animatebar-bar progress-bar-success" style="width: 65%;"></div>
-                            <div class="animatebar-bar-percent">65%</div>
+                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
+                        <div id="formupload">
+                                <div class="form-group col-sm-3">
+                                    <label class="control-label small">AR Type</label>
+                                    <select class="form-control input-sm" id="or_artype" name="or_artype">
+                                        <option value="a">Advertising</option>
+                                        <option value="c">Circulation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-7">
+                                    <label class="control-label small">File</label>
+                                    <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <br>
+                                    <button type="button" class="btn btn-sm btn-success pull-right" style="width:100px" id="or_upload">VERIFY</button>
+                                </div>
                         </div>
-                    </div>
-                </div><br>
+                        <div id="formloading">
+                            <br>
+                            <div class="animatebar clearfix" data-percent="65%">
+                                <div class="animatebar-title progress-bar-success"><span>Processing...</span></div>
+                                <div class="animatebar-bar progress-bar-success" style="width: 65%;"></div>
+                                <div class="animatebar-bar-percent">65%</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
             <div class="clearfix"></div>
         </div>
     </div>
 </div>
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="form-group col-sm-12">
+                        <label class="control-label small">Upload Results</label><br><br>
+                        <table class="table table-condensed table-bordered" id="upload_summary">
+                            <tr>
+                                <td align="center" style="width:20%"><small><b>Total Processed</b></small></td>
+                                <td align="center" style="width:20%"><small class="text-success"><b>Passed</b></small></td>
+                                <td align="center" style="width:20%"><small class="text-warning"><b>Existing</b></small></td>
+                                <td align="center" style="width:20%"><small class="text-danger"><b>Failed</b></small></td>
+                                <td align="center" style="width:20%"><small><b>Success Rate</b></small></td>
+                            </tr>
+                            <tr>
+                                <td align="center" class="small" id="upload_total">-</td>
+                                <td align="center" class="small" id="upload_success">-</td>
+                                <td align="center" class="small" id="upload_existing">-</td>
+                                <td align="center" class="small" id="upload_failed">-</td>
+                                <td align="center" class="small" id="upload_rate">-</td>
+                            </tr>
+                        </table><br>
+                        <div class="col-md-4">
+                            <table class="table table-condensed">
+                                <tr>
+                                    <td colspan="2"><small><b>Passed</b></small></td>
+                                </tr>
+                                <tr>
+                                    <td class="success"><small>662234</small></td>
+                                    <td class="success"><small>08/01/2017</small></td>
+                                </tr>
+                                <tr>
+                                    <td class="success"><small>662234</small></td>
+                                    <td class="success"><small>08/01/2017</small></td>
+                                </tr>
+                                <tr>
+                                    <td class="success"><small>662234</small></td>
+                                    <td class="success"><small>08/01/2017</small></td>
+                                </tr>
+                                <tr>
+                                    <td class="" colspan="2">...</td>
+                                </tr>
+                            </table>
+                        </div>   
+                        <div class="col-md-4">
+                            <table class="table table-condensed" id="existing_table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2"><small><b>Existing</b></small></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>   
+                        <div class="col-md-4">
+                            <table class="table table-condensed" id="failed_table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2"><small><b>Failed</b></small></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>   
+                        <div class="col-md-12">
+                            <br>
+                            <i>** Only <font class="text-success"><b>PASSED</b></font> items will be saved **</i>
+                        </div>   
+                            <button type="button" class="pull-right btn btn-sm btn-success" style="width:100px" id="or_export">EXPORT</button>
+                    </div>    
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<div id="upload-success" class="custom-alert success">Upload successful!</div>
+<div id="upload-error" class="custom-alert danger">File upload failed!</div>
+<div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
+<div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
 {% endblock page-content %}
 {% block extra_js %}
 <script>
     $(function(){
-        $(document).on('click', '#or_upload', function(){
-            $('#formupload').slideUp();
-            $('#formloading').slideDown();
-            $("form#data").submit();
-        });
-        $("form#data").submit(function(){
-            var formData = new FormData(this);
+        $(document).on('click', '#or_upload', function(e){
+            $('#formupload').fadeOut(300);
 
-            $.ajax({
-                url: "{% url 'processing_or:fileupload' %}",
-                type: 'POST',
-                data: formData,
-                async: false,
-                success: function (data) {
-                    if(data['result'] == "success"){
-                        $('#formupload').slideDown();
-                        $('#formloading').slideUp();
-                    }
-                },
-                cache: false,
-                contentType: false,
-                processData: false
+            e.preventDefault()
+            $('#formloading').delay(300).fadeIn(300, function() {
+                $("form#data").submit();
             });
+        });
+
+        $("form#data").submit(function(){
+            if ($('#or_file').get(0).files.length === 0) {
+                customAlert($('#upload-file-error'));
+                showUploadForm();
+            }
+            else{
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: "{% url 'processing_or:fileupload' %}",
+                    type: 'POST',
+                    data: formData,
+                    async: false,
+                    success: function (data) {
+                        switch(data['result']){
+                            case 1:
+                                customAlert($('#upload-success'));
+                                $('#upload_total').text(data['orcount']);
+                                $('#upload_success').text(data['successcount']);
+                                $('#upload_existing').text(data['existingcount']);
+                                $('#upload_failed').text(data['failedcount']);
+                                $('#upload_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
+
+                                $('#existing_table tbody').html('');
+                                if(parseInt(data['existingcount']) > 5) maxcount = 5; 
+                                else maxcount = data['existingcount'];
+                                for(var i = 0; i < maxcount; i++) {
+                                    $('#existing_table tbody').append("<tr class='warning'><td><small>"+data['existingdata'][i]['importornum']+"</small></td></tr>");
+                                };
+                                if(data['existingcount'] > 5){                                    
+                                    $('#existing_table tbody').append("<tr><td class='' colspan='2'><b>...</b></td></tr>")
+                                }
+
+                                $('#failed_table tbody').html('');
+                                if(parseInt(data['faileddata'].length) > 5) maxcount = 5; 
+                                else maxcount = data['faileddata'].length;
+                                for(var i = 0; i < maxcount; i++) {
+                                    $('#failed_table tbody').append("<tr class='danger'><td><small>"+data['faileddata'][i]['orno']+"&nbsp;&nbsp;&nbsp; <small><i>(appeared &nbsp;"+data['faileddata'][i]['id__count']+"x)</i></small></small></td></tr>");
+                                };
+                                if(data['faileddata'].length > 5){                                    
+                                    $('#failed_table tbody').append("<tr><td class='' colspan='2'><b>...</b></td></tr>")
+                                }
+
+                                // remove limit, insert slider
+
+                                break;
+                            case 2:
+                                customAlert($('#upload-error'));
+                                break;
+                            case 3:
+                                customAlert($('#upload-file-error'));
+                                break;
+                            case 4:
+                                customAlert($('#upload-file-large'));
+                                break;    
+                            case 5:
+                                customAlert($('#upload-file-error'));
+                                break;  
+                            default:            
+                        }
+                        showUploadForm();
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });                
+            }
 
             return false;
         });
+        function showUploadForm(){
+            $('#formloading').delay(1000).fadeOut(300);
+            $('#formupload').delay(1300).fadeIn(300);
+        }
     });
 </script>
 {% endblock extra_js %}
