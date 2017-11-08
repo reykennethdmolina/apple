@@ -115,6 +115,7 @@ class Ormain(models.Model):
                                      blank=True)
     circulationproduct = models.ForeignKey('circulationproduct.Circulationproduct',
                                            related_name='ormain_circulationproduct_id', null=True, blank=True)
+    adtype = models.ForeignKey('adtype.Adtype', related_name='ormain_adtype_id', null=True, blank=True)
 
     class Meta:
         db_table = 'ormain'
