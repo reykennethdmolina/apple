@@ -77,6 +77,8 @@ urlpatterns = [
     url(r'^apsubtype/', include('apsubtype.urls', app_name='apsubtype', namespace='apsubtype')),
     url(r'^jvsubtype/', include('jvsubtype.urls', app_name='jvsubtype', namespace='jvsubtype')),
     url(r'^officialreceipt/', include('officialreceipt.urls', app_name='officialreceipt', namespace='officialreceipt')),
+    url(r'^acknowledgementreceipt/', include('acknowledgementreceipt.urls', app_name='acknowledgementreceipt', namespace='acknowledgementreceipt')),
+    url(r'^arsubtype/', include('arsubtype.urls', app_name='arsubtype', namespace='arsubtype')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

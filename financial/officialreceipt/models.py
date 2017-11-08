@@ -62,9 +62,9 @@ class Ormain(models.Model):
     orstatus = models.CharField(max_length=1, choices=OR_STATUS_CHOICES, default='F')
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='ormain_bankaccount_id', null=True,
                                     blank=True)
-    product = models.ForeignKey('product.Product', related_name='ormain_product_id')
-    product_code = models.CharField(max_length=25)
-    product_name = models.CharField(max_length=250)
+    product = models.ForeignKey('product.Product', related_name='ormain_product_id', null=True, blank=True)
+    product_code = models.CharField(max_length=25, null=True, blank=True)
+    product_name = models.CharField(max_length=250, null=True, blank=True)
     vatablesale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     vatexemptsale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     vatzeroratedsale = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
@@ -111,6 +111,10 @@ class Ormain(models.Model):
     importordate = models.DateField(null=True, blank=True)
     importdate = models.DateTimeField(null=True, blank=True)
     importby = models.ForeignKey(User, default=1, related_name='ormain_import')
+    productgroup = models.ForeignKey('productgroup.Productgroup', related_name='ormain_productgroup_id', null=True,
+                                     blank=True)
+    circulationproduct = models.ForeignKey('circulationproduct.Circulationproduct',
+                                           related_name='ormain_circulationproduct_id', null=True, blank=True)
 
     class Meta:
         db_table = 'ormain'
@@ -199,8 +203,8 @@ class Ordetailbreakdown(models.Model):
     ordetail = models.ForeignKey('officialreceipt.Ordetail', related_name='ordetail_ordetailbreakdown_id', null=True,
                                  blank=True)
     datatype = models.CharField(max_length=1, null=True, blank=True)
-    of_num = models.CharField(max_length=10)
-    of_date = models.DateTimeField()
+    or_num = models.CharField(max_length=10)
+    or_date = models.DateTimeField()
     chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
                                        related_name='chartofaccount_ordetailbreakdown_id')
     particular = models.TextField(null=True, blank=True)

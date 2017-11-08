@@ -141,6 +141,7 @@ INSTALLED_APPS = [
     'officialreceipt',
     'user_employee',
     'processing_or',
+    'arsubtype',
 ]
 
 MIDDLEWARE_CLASSES = [

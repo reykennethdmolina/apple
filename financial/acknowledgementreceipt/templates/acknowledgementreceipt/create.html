@@ -1,151 +1,250 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
-{% block page-title %} Journal Voucher {% endblock page-title %}
+{% block page-title %} Acknowledgement Receipt {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
-    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" /><style>
+        .widgett {
+            margin-bottom: 10px;
+        }
+        .vattable td{
+        }
+            text-align: right;
+        }
+        .vattable td:first-child {
+            width: 170px;
+            padding-right: 20px;
+        }
+        .vattable td input {
+            width: 100px;
+            text-align: right;
+        }
+        .heading-top-index-2 {
+            padding-right: 15px;
+            padding-left: 45px;
+        }
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: transparent;
+        }
+        .payee_options{
+            display: none;
+        }
+        hr{
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .select2-results__option {
+            font-size: 12px;
+        }
+        .class-adv {
+            display: none;
+        }
+        .class-cir {
+            display: none;
+        }
+        .amount_display{
+            height: 25px;
+            margin-left: 40px;
+        }
+    </style>
 {% endblock extra_css %}
 <div class="panel">
     <div class="panel-body container-fluid">
         <div class="row">
-            <div class="panel margin-bottom-20">
-                    <form method="post" id="form-b">
-                        {% csrf_token %}
-                        <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
-                        <div class="col-sm-12">
-                            <div class="row row-lg">
-                                <div class="form-group  col-sm-2">
-                                    <label class="control-label" for="id_jvnum">Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_jvnum" name="jvnum" placeholder="JVxxxxxxx" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2">
-                                    <label class="control-label" for="id_jvdate">Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepickerfrom" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required">
-                                    <span class="help-block form-error">{{ form.jvdate.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.jvtype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_jvtype">Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
-                                        <option value="">-- Select --</option>
-                                        {% for jvtype in jvtype %}
-                                            <option value="{{ jvtype.id }}" {% if form.jvtype.value|add:0 == jvtype.id %} selected="selected" {% endif %}>{{ jvtype.code }} - {{ jvtype.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.jvtype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_currency">Currency</label>
-                                    <select class="form-control input-sm" id="id_currency" name="currency" data-validation="required">
-                                        {% for currency in currency %}
-                                            <option value="{{ currency.id }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% endif %}>[{{ currency.symbol }}] - {{ currency.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
-                                </div>
-                            </div>
+            <div class="margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Create</h3>
+                <form autocomplete="off" id="form-b" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
+                    <div class="col-sm-12">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label" for="id_arnum">Number</label>
+                            <input type="text" class="form-control input-sm" style="background: white;" placeholder="ARxxxxxxx" disabled="disabled">
                         </div>
-                        <div class="col-sm-12">
-                            <div class="row row-lg">
-                                <div class="form-group col-sm-2">
-                                    <label class="control-label" for="id_refnum">Reference#</label>
-                                    <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="xxxxx">
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.branch.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_branch">Branch</label>
-                                    <select class="form-control input-sm" id="id_branch" name="branch" data-validation="required">
-                                        {% for branch in branch %}
-                                            <option value="{{ branch.id }}" {% if form.branch.value|default_if_none:5 == branch.id %} selected="selected" {% endif %}>{{ branch.code }} - {{ branch.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_department">Department</label>
-                                    <select class="form-control input-sm select2" id="id_department" name="department">
-                                        <option value="">-- Select --</option>
-                                        {% for department in department %}
-                                            <option value="{{ department.id }}" {% if form.department.value|add:0 == department.id %} selected="selected" {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
-                                </div>
-                            </div>
+                        <div class="form-group col-sm-2 {{ form.ardate.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_ardate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_ardate" name="ardate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ardate.value %}{{ form.ardate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <span class="help-block form-error">{{ form.ardate.errors.as_text }}</span>
                         </div>
-                        <div class="col-sm-12">
-                            <div class="row row-lg">
-                                <div class="form-group col-sm-12">
-                                    <label class="control-label" for="id_particular">Particular</label>
-                                    <textarea data-fv-field="standard_content" class="form-control" id="id_particular" name="particular" rows="5" data-validation="required">{% lorem 50 w random %}</textarea>
-                                </div>
-                            </div>
+                        <div class="form-group col-sm-2 {{ form.artype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_artype">AR Type</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_artype" name="artype">
+                                {% for data in artype %}
+                                    <option value="{{ data.id }}" {% if form.artype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.artype.errors.as_text }}</span>
                         </div>
-                        <div class="col-sm-12 margin-bottom-10">
-                            <div class="col-sm-6">
-                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
-                            </div>
-                            <div class="col-sm-6">
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
-                            </div>
+                        <div class="form-group col-sm-6 {{ form.arsubtype.errors|yesno:'has-error,' }}" id="id_div_arsubtype">
+                            <label class="control-label">AR Subtype</label>
+                            <select class="form-control input-sm select2" id="id_arsubtype" name="arsubtype">
+                                {% for data in arsubtype %}
+                                    <option value="{{ data.id }}" {% if form.arsubtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.arsubtypechartofaccount.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.arsubtype.errors.as_text }}</span>
                         </div>
-                        </form>
-                        <div class="col-sm-12" id="entryview" style="display: none">
+                        <div class="col-sm-12"><hr></div>
+                        <div class="form-group col-sm-4 {{ form.payor.errors|yesno:'has-error,' }}">
+                            <label class="control-label">Payor</label>
+                            <div id="id_div_payor_employee">
+                                <select class="form-control input-sm ajaxselect2" id="id_payor_employee" name="payor_employee">
+                                </select>
+                            </div>
+                            <input type="text" class="form-control input-sm" id="id_payor_others" style="background-color: transparent; text-transform: uppercase;" value="{{ form.payor_name.value|default:'' }}" name="payor_others">
+                            <span class="help-block form-error">{{ form.payor.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_amount">Amount</label>
+                            <input type="text" class="form-control input-sm amount" id="id_amount" style="text-align: right;" value="{{ form.amount.value|default:'' }}" name="amount">
+                            <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label">&nbsp;</label>
+                            <input type="text" class="form-control input-sm" id="id_amountinwords" readonly="readonly" style="background-color: transparent;" value="{{ form.amountinwords.value|default:'' }}" name="amountinwords">
+                        </div>
+                        <div class="col-sm-12"></div>
+                        <div class="form-group col-sm-4 {{ form.collector.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_collector">Collector</label>
+                            <select class="form-control input-sm select2" id="id_collector" name="collector">
+                                <option value="">-- Select --</option>
+                                {% for data in collector %}
+                                    <option value="{{ data.id }}" {% if form.collector.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.collector.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_branch">Branch</label>
+                            <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                                <option value="">-- Select --</option>
+                                {% for data in branch %}
+                                    <option value="{{ data.id }}" {% if form.branch.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-6 {{ form.depositorybank.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_depositorybank">Depository Bank</label>
+                            <select class="form-control input-sm select2" id="id_depositorybank" name="depositorybank">
+                                <option value="">-- Select --</option>
+                                {% for data in depositorybank %}
+                                    <option value="{{ data.id }}" {% if form.depositorybank.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} [{{ data.bank.description }} - {{ data.bankaccounttype.description }}, {{ data.bankbranch.description }}] {{ data.accountnumber }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.collector.errors.as_text }}</span>
+                        </div>
+                        <div class="col-sm-12"></div>
+                        <div class="form-group col-sm-6 {{ form.particulars.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="2">{{ form.particulars.value|default:'' }}</textarea>
+                            <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-12 padding-top-15 padding-bottom-15">
+                            <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                        </div>
+                        <div class="col-sm-12 row">
                             <div class="panel panel-bordered">
                                 <div class="panel-body">
-                                    <h4>Manual Accounting Entry</h4>
-                                    <div id="manualentryview">
-{#                                        {% include "acctentry/manualentry.html" %}#}
+                                    <h4>Payment Details
+                                        <a href="#_" id="item_add" style="font-size: 20px" class="pull-right" data-toggle='modal' data-target='#paymentDetailModal'>
+                                            <i class="icon fa-plus-square" aria-hidden="true"></i>
+                                        </a>
+                                    </h4>
+                                    <br>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered small">
+                                                <thead>
+                                                    <tr>
+                                                        <th><span>#</span></th>
+                                                        <th><span>TYPE</span></th>
+                                                        <th><span>BANK</span></th>
+                                                        <th><span>NUMBER</span></th>
+                                                        <th><span>DATE</span></th>
+                                                        <th><span>AUTH. #</span></th>
+                                                        <th><span>REMARKS</span></th>
+                                                        <th style="text-align: right;"><span>AMOUNT</span></th>
+                                                        <th style="text-align: center;"><span>ACTION</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+{#                                                    <tr>#}
+{#                                                        <td>1</td>#}
+{#                                                        <td><b>Cash</b></td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td style="text-align: right;">10,000.00</td>#}
+{#                                                    </tr>#}
+{#                                                    <tr>#}
+{#                                                        <td>2</td>#}
+{#                                                        <td><b>Check</b></td>#}
+{#                                                        <td>BDO C. ROCES</td>#}
+{#                                                        <td>GTEH74857</td>#}
+{#                                                        <td>2017-11-09</td>#}
+{#                                                        <td>9568467577</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td style="text-align: right;">4,567.00</td>#}
+{#                                                    </tr>#}
+{#                                                    <tr>#}
+{#                                                        <td>3</td>#}
+{#                                                        <td><b>Exdeal</b></td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>---</td>#}
+{#                                                        <td>payment for advances</td>#}
+{#                                                        <td style="text-align: right;">150,000.00</td>#}
+{#                                                    </tr>#}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="col-sm-12 padding-top-15 padding-bottom-15">
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
+                        </div>
+
+                        <!-- Accounting entry start -->
+                        <div class="col-sm-12" id="entryview" style="display: none">
+                            <div class="panel panel-bordered">
+                                <div class="panel-body">
+                                    <h4>Manual Accounting Entry</h4>
+                                    <div id="waitingbar" class="animatebar-bar progress-bar-success" style="width: 95%;">
+                                        <div class="animatebar-bar-percent">95%</div>
+                                    </div>
+                                    <div id="manualentryview">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-sm-12">
                             <div class="panel">
+                                <div class="shade"><div class="loader two-color"></div></div>
                                 <div class="panel-body">
-                                    <!-- Start Editable Section -->
+                                    <h4>Accounting Entries</h4><br>
                                     <table class="table table-striped margin-bottom-0">
                                         <thead>
                                             <tr>
-                                                <th>Chart of Account</th>
-                                                <th>Particular</th>
-                                                <th>Debit</th>
-                                                <th>Credit</th>
+                                                <th width="5%"></th>
+                                                <th width="15%">Chart of Account</th>
+                                                <th width="55%">Title</th>
+                                                <th width="10%" style="text-align: right;">Debit&nbsp;</th>
+                                                <th width="10%" style="text-align: right;">Credit&nbsp;</th>
+                                                <th width="15%" class="actionrowhead"></th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>100</td>
-                                                <td>200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>330</td>
-                                                <td>240</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>430</td>
-                                                <td>540</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>100</td>
-                                                <td>200</td>
-                                            </tr>
-                                            <tr>
-                                                <td>{% lorem 4 w random %}</td>
-                                                <td></td>
-                                                <td>330</td>
-                                                <td>240</td>
-                                            </tr>
+                                        <tbody id="datatable">
+                                        {{ datatable|safe }}
                                         </tbody>
                                         <tfoot>
                                             <tr>
@@ -154,49 +253,287 @@
                                                 </th>
                                                 <th></th>
                                                 <th></th>
-                                                <th></th>
+                                                <th id="total_debitamount" class="text-align-right"><strong>0.00</strong></th>
+                                                <th id="total_creditamount" class="text-align-right"><strong>0.00</strong></th>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                             </div>
                         </div>
-                </div>
+                        <!-- Accounting entry end -->
+
+                    </div>
+                </form>
+                <!-- End Simple Form Validation -->
+            </div>
             <div class="clearfix"></div>
+            <div id="paymentDetailModal" class="modal fade" role="dialog">
+                <div class="modal-dialog" style="width: 450px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Save Payment Detail</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <div class="form-group col-md-12" id="div_paytype">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_paytype">Type:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control input-sm" id="id_paytype" name="paytype">
+                                                {% for data in paytype %}
+                                                    <option value="{{ data.id }}" data-code="{{ data.code }}">{{ data.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_bank">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_bank">Bank:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control input-sm" id="id_bank" name="bank">
+                                                <option value="">-- Select --</option>
+                                                {% for data in bank %}
+                                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_branch">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_branch">Branch:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control input-sm" id="id_branch" name="branch">
+                                                <option value="">-- Select a bank first --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_number">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_number">Number:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <input type="text" class="form-control input-sm" id="id_number" name="number">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_date">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_date">Date:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week"
+                                                   readonly="readonly" style="padding: 5px 10px" id="id_date" name="date"
+                                                   placeholder="YYYY-MM-DD" value="{% now "Y-m-d" %}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_authnum">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_authnum">Auth. Number:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <input type="text" class="form-control input-sm" id="id_authnum" name="authnum">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12 extra-field" id="div_detailremarks">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_detailremarks">Remarks:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <input type="text" class="form-control input-sm" id="id_detailremarks" name="detailremarks">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12" id="div_detailamount">
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label" for="id_detailamount">Amount:</label>
+                                        </div>
+                                        <div class="form-group col-md-8">
+                                            <input type="text" class="form-control input-sm amount" id="id_detailamount" style="text-align: right;" name="detailamount">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div align="center">
+                                <button type="button" class="btn btn-sm btn-info" id="releaseconfirm">Confirm</button>
+                                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Accounting Entry Start -->
+<div class="modal fade modal-message" id="modal-row">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
+<div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
+<div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $("#manualbutton").click(function (){
-                $.ajax({
-                    url: "{% url 'acctentry:maccountingentry' %}",
-                    type: "post",
-                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",},
-                    success: function(response){
-                        $("#manualentryview").html(response['viewhtml']);
-                        $("#entryview").show();
-                    }, error: function(response) {
-                        console.debug(response);
-                    }
-                });
-            });
-        });
-    </script>
-    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
-    <script type="text/javascript">
-        $('.select2').select2({});
-{#        $('.select2modal').select2({#}
-{#            dropdownParent: $('.modal')#}
-{#        });#}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function(){
+        $('.select2').select2();
+        ajaxselect2("employee");
 
+        displayPayor();
+
+        $("#id_amount").on('keyup', function(){
+            var words = toWords($(this).val());
+            $("#id_amountinwords").val(words);
+        });
+
+        $("#id_branch option").filter(function(){
+            return $(this).text() == 'HEAD OFFICE';
+        }).attr('selected', 'selected');
+
+        $("#id_artype").on('change', function(){
+           displayPayor();
+        });
+
+        $('#paymentDetailModal').on('shown.bs.modal', function () {
+            displayPaymentDetailFields();
+        });
+
+        $("#id_paytype").on('change', function(){
+            displayPaymentDetailFields();
+        });
+
+        $("#id_bank").on('change', function(){
+            if ($(this).val() == "") {
+                $("#id_branch").html("<option value=''>-- Select a bank first --</option>");
+            }
+            else {
+                $.ajax({
+                    url: "{% url 'bankaccount:get_branch' %}",
+                    type: "post",
+                    data: {'bank': $(this).val()},
+
+                    success: function(response) {
+                        bankbranch = response.bankbranch;
+                        bankbranchlist = $.parseJSON(bankbranch);
+
+                        $("#id_branch").html("<option value=''>-- Select --</option>");
+
+                        if (bankbranchlist == undefined || bankbranchlist == null || bankbranchlist.length == 0){
+                            alert("The selected bank has no branches available.");
+                        }
+
+                        $.each(bankbranchlist, function(k, v){
+                            console.log("PK: " + v.pk);
+                            console.log("Description: " + v.fields.description);
+                            $('#id_branch').append( '<option value="' + v.pk + '">' + v.fields.description + '</option>' );
+                        });
+                    }
+                    , error: function(response) {
+                    console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $("#manualbutton").unbind().click(function (){
+            $("#entryview").show();
+            $.ajax({
+                url: "{% url 'acctentry:maccountingentry' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'table': "ordetailtemp"},
+                success: function(response){
+                    $("#manualentryview").html(response['viewhtml']);
+                    $("#waitingbar").hide();
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
+
+        $("#validateButton").on('click', function() {
+            var total_creditamount = $("#total_creditamount").text().replace(',', '');
+            var total_debitamount = $("#total_debitamount").text().replace(',', '');
+            var total_itemamount = $("#id_amount").val().replace(',', '');
+            if (parseFloat(total_creditamount) != '0.00' || parseFloat(total_debitamount) != '0.00') {
+                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
+                    customAlert($('#not-equal-debit-credit-error'));
+                    event.preventDefault();
+                    return false;
+                }
+                if (parseFloat(total_creditamount) != parseFloat(total_itemamount)) {
+                    customAlert($('#not-equal-accounting-entries-total-amount-error'));
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+            if (checkbreakdownstatus) {
+                customAlert($('#unbalanced-entries-error'));
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        function displayPayor(){
+            if($('#id_artype option:selected').text().indexOf('AOE') >= 0){
+                $('#id_div_payor_employee').show();
+                $('#id_payor_others').hide();
+            }
+            else {
+                $('#id_div_payor_employee').hide();
+                $('#id_payor_others').show();
+            }
+            if($('#id_artype option:selected').text().indexOf('Non - Trade') >= 0){
+                $('#id_div_arsubtype').show();
+            }
+            else {
+                $('#id_div_arsubtype').hide();
+            }
+        }
+
+        function displayPaymentDetailFields(){
+            $('.extra-field').hide();
+            if($('#id_paytype option:selected').data('code') == 'CH'){
+                $('#div_bank').show();
+                $('#div_branch').show();
+                $('#div_number').show();
+                $('#div_date').show();
+            }
+            else if($('#id_paytype option:selected').data('code') == 'CC'){
+                $('#div_number').show();
+                $('#div_date').show();
+                $('#div_authnum').show();
+            }
+            else if($('#id_paytype option:selected').data('code') == 'EX'){
+                $('#div_detailremarks').show();
+            }
+        }
+
+    });
     </script>
-{#    {% include "acctentry/manualentry.js" %}#}
 {% endblock extra_js %}

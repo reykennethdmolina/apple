@@ -1,0 +1,119 @@
+{% extends 'base-form.html' %}
+{% block page-title %} AR Subtype {% endblock page-title %}
+{% block extra_css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/multi-select/css/multi-select.min.css' %}" />
+    <style>
+        .ms-container {
+            width: 100%;
+            color: white;
+        }
+        .ms-container .ms-list {
+            height: 300px;
+        }
+        .ms-elem-selectable, .ms-elem-selection{
+            font-size: 12px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <div class="table-responsive">
+                        <select class="multi-select-methods form-control" id="id_chartofaccount" name="chartofaccount" multiple="multiple">
+                            {% for data in arsubtypechartofaccount %}
+                                <option value="{{ data.id }}" {% if data.selected == 'T' %}selected{% endif %}>
+                                    [{{ data.accountcode }}] - {{ data.description }}</option>
+                            {% endfor %}
+						</select><br>
+                        <div align="right">
+                            <button class="btn w-icon btn-info btn-round waves-effect waves-light" id="buttonSave" type="button"><i class="icon fa-save" aria-hidden="true"></i>&nbsp;&nbsp;SAVE</button>&nbsp;&nbsp;
+                            <button class="btn w-icon btn-danger btn-round waves-effect waves-light" id="buttonReset" type="button"><i class="icon fa-refresh" aria-hidden="true"></i>&nbsp;&nbsp;RESET</button>
+                        </div>
+                    </div>
+                    <!-- End Basic Table Section -->
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/multi-select/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/quicksearch/jquery.quicksearch.js' %}"></script>
+    <script>
+    $(function(){
+{#        $('#id_chartofaccount').multiSelect();#}
+        $('#id_chartofaccount').multiSelect({
+              selectableHeader: "<div style='margin-bottom: 5px; ' class='form-label'><b>CHART OF ACCOUNT</b></div><input type='text' class='form-control input-sm' autocomplete='off' style='margin-bottom: 20px; text-transform:uppercase; ' >",
+              selectionHeader: "<div style='margin-bottom: 5px; ' class='form-label'><b>AR SUBTYPE</b></div><input type='text' class='form-control input-sm' autocomplete='off'  style='margin-bottom: 20px; text-transform:uppercase; '>",
+              afterInit: function(ms){
+                var that = this,
+                    $selectableSearch = that.$selectableUl.prev(),
+                    $selectionSearch = that.$selectionUl.prev(),
+                    selectableSearchString = '#'+that.$container.attr('id')+' .ms-elem-selectable:not(.ms-selected)',
+                    selectionSearchString = '#'+that.$container.attr('id')+' .ms-elem-selection.ms-selected';
+
+                that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
+                .on('keydown', function(e){
+                  if (e.which === 40){
+                    that.$selectableUl.focus();
+                    return false;
+                  }
+                });
+
+                that.qs2 = $selectionSearch.quicksearch(selectionSearchString)
+                .on('keydown', function(e){
+                  if (e.which == 40){
+                    that.$selectionUl.focus();
+                    return false;
+                  }
+                });
+              },
+              afterSelect: function(){
+                this.qs1.cache();
+                this.qs2.cache();
+              },
+              afterDeselect: function(){
+                this.qs1.cache();
+                this.qs2.cache();
+              }
+            });
+        $('#buttonSave').on('click', function(){
+            if($('#id_chartofaccount').val() == null){
+                alert("Please select at least one (1) AR Subtype.");
+            }
+            else {
+                if (confirm('Are you sure you want to save the AR Subtypes?')) {
+                    var data = {'selected_arsubtype[]': []};
+                    $('#id_chartofaccount > :selected').each(function() {
+                        data['selected_arsubtype[]'].push($(this).val());
+                    });
+
+                    $.ajax({
+                        url: "{% url 'arsubtype:savearsubtype' %}",
+                        type: "post",
+                        data: data,
+                        success: function(response){
+                            alert("AR Subtypes successfully saved!");
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+        });
+        $('#buttonReset').on('click', function(){
+            location.reload();
+        });
+    });
+    </script>
+{% endblock extra_js %}
+

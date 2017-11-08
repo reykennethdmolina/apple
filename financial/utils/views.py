@@ -32,7 +32,8 @@ def ajaxSelect(request):
             items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                   Q(firstname__icontains=request.GET['q']) |
                                                   Q(middlename__icontains=request.GET['q']) |
-                                                  Q(lastname__icontains=request.GET['q']))
+                                                  Q(lastname__icontains=request.GET['q'])).\
+                exclude(Q(firstname='') | Q(lastname='') | Q(firstname=None) | Q(lastname=None)).order_by('lastname')
 
         elif request.GET['table'] == "customer" or request.GET['table'] == "customer_notmultiple":
             items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
@@ -83,7 +84,7 @@ def ajaxSelect(request):
                 or request.GET['table'] == "customer_notmultiple":
             items = items.filter(multiplestatus='N')
 
-        items = items.filter(isdeleted=0).order_by('-enterdate')
+        items = items.filter(isdeleted=0)
 
         count = items.count()
         limit = 10
@@ -104,7 +105,7 @@ def ajaxSelect(request):
                 text = data.name
             elif request.GET['table'] == "employee" \
                     or request.GET['table'] == "employee_notmultiple":
-                text = data.code + " - " + data.lastname + ", " + data.firstname + " " + data.middlename
+                text = data.code + " - " + data.lastname + ", " + data.firstname
             elif request.GET['table'] == "customer" \
                     or request.GET['table'] == "customer_notmultiple":
                 text = data.name
