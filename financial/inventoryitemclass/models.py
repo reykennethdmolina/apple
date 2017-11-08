@@ -33,6 +33,10 @@ class Inventoryitemclass(models.Model):
     modifydate = models.DateTimeField(default=datetime.datetime.now())
     isdeleted = models.IntegerField(default=0)
 
+    depreciationchartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
+                                                   related_name='invclass_depreciationchartofaccount_id', null=True,
+                                                   blank=True)
+
     class Meta:
         db_table = 'inventoryitemclass'
         ordering = ['-pk']

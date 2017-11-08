@@ -125,7 +125,7 @@ class Aritemtemp(models.Model):
     secretkey = models.CharField(max_length=255, null=True, blank=True)
     armain = models.CharField(max_length=10, null=True, blank=True)
     aritem = models.CharField(max_length=10, null=True, blank=True)
-    arnum = models.CharField(max_length=10)
+    arnum = models.CharField(max_length=10, null=True, blank=True)
     ardate = models.DateTimeField(blank=True, null=True)
     paytype = models.CharField(max_length=10, null=True, blank=True)
     bank = models.CharField(max_length=10, null=True, blank=True)

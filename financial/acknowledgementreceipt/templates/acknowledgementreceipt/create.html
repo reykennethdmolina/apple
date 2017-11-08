@@ -156,7 +156,7 @@
                                     </h4>
                                     <br>
                                         <div class="table-responsive">
-                                            <table class="table table-hover table-bordered small">
+                                            <table class="table table-hover table-bordered small" id="detailstable">
                                                 <thead>
                                                     <tr>
                                                         <th><span>#</span></th>
@@ -170,38 +170,14 @@
                                                         <th style="text-align: center;"><span>ACTION</span></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
-{#                                                    <tr>#}
-{#                                                        <td>1</td>#}
-{#                                                        <td><b>Cash</b></td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td style="text-align: right;">10,000.00</td>#}
-{#                                                    </tr>#}
-{#                                                    <tr>#}
-{#                                                        <td>2</td>#}
-{#                                                        <td><b>Check</b></td>#}
-{#                                                        <td>BDO C. ROCES</td>#}
-{#                                                        <td>GTEH74857</td>#}
-{#                                                        <td>2017-11-09</td>#}
-{#                                                        <td>9568467577</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td style="text-align: right;">4,567.00</td>#}
-{#                                                    </tr>#}
-{#                                                    <tr>#}
-{#                                                        <td>3</td>#}
-{#                                                        <td><b>Exdeal</b></td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>---</td>#}
-{#                                                        <td>payment for advances</td>#}
-{#                                                        <td style="text-align: right;">150,000.00</td>#}
-{#                                                    </tr>#}
-                                                </tbody>
+                                                <tbody></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="7"><b>TOTAL</b></td>
+                                                        <td id="totaldetailsamount" class="text-right"><b>0.00</b></td>
+                                                        <td>&nbsp;</td>
+                                                    </tr>
+                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>
@@ -278,12 +254,13 @@
                         <div class="modal-body" style="overflow:hidden;">
                             <div class="row">
                                 <div class="form-group col-md-12">
+                                    <input type="hidden" value="1" id="id_item_counter" name="item_counter">
                                     <div class="form-group col-md-12" id="div_paytype">
                                         <div class="form-group col-md-4">
                                             <label class="control-label" for="id_paytype">Type:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <select class="form-control input-sm" id="id_paytype" name="paytype">
+                                            <select class="form-control input-sm required" id="id_paytype" name="paytype">
                                                 {% for data in paytype %}
                                                     <option value="{{ data.id }}" data-code="{{ data.code }}">{{ data.description }}</option>
                                                 {% endfor %}
@@ -295,7 +272,7 @@
                                             <label class="control-label" for="id_bank">Bank:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <select class="form-control input-sm" id="id_bank" name="bank">
+                                            <select class="form-control input-sm check-required" id="id_bank" name="bank">
                                                 <option value="">-- Select --</option>
                                                 {% for data in bank %}
                                                     <option value="{{ data.id }}">{{ data.description }}</option>
@@ -303,12 +280,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-12 extra-field" id="div_branch">
+                                    <div class="form-group col-md-12 extra-field" id="div_bankbranch">
                                         <div class="form-group col-md-4">
-                                            <label class="control-label" for="id_branch">Branch:</label>
+                                            <label class="control-label" for="id_bankbranch">Branch:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <select class="form-control input-sm" id="id_branch" name="branch">
+                                            <select class="form-control input-sm check-required" id="id_bankbranch" name="bankbranch">
                                                 <option value="">-- Select a bank first --</option>
                                             </select>
                                         </div>
@@ -318,7 +295,7 @@
                                             <label class="control-label" for="id_number">Number:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <input type="text" class="form-control input-sm" id="id_number" name="number">
+                                            <input type="text" class="form-control input-sm check-required cc-required" id="id_number" name="number">
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12 extra-field" id="div_date">
@@ -326,7 +303,7 @@
                                             <label class="control-label" for="id_date">Date:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week"
+                                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week check-required cc-required"
                                                    readonly="readonly" style="padding: 5px 10px" id="id_date" name="date"
                                                    placeholder="YYYY-MM-DD" value="{% now "Y-m-d" %}">
                                         </div>
@@ -336,7 +313,7 @@
                                             <label class="control-label" for="id_authnum">Auth. Number:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <input type="text" class="form-control input-sm" id="id_authnum" name="authnum">
+                                            <input type="text" class="form-control input-sm cc-required" id="id_authnum" name="authnum">
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12 extra-field" id="div_detailremarks">
@@ -344,7 +321,7 @@
                                             <label class="control-label" for="id_detailremarks">Remarks:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <input type="text" class="form-control input-sm" id="id_detailremarks" name="detailremarks">
+                                            <input type="text" class="form-control input-sm ex-required" id="id_detailremarks" name="detailremarks">
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12" id="div_detailamount">
@@ -352,7 +329,7 @@
                                             <label class="control-label" for="id_detailamount">Amount:</label>
                                         </div>
                                         <div class="form-group col-md-8">
-                                            <input type="text" class="form-control input-sm amount" id="id_detailamount" style="text-align: right;" name="detailamount">
+                                            <input type="text" class="form-control input-sm amount required" id="id_detailamount" style="text-align: right;" name="detailamount">
                                         </div>
                                     </div>
                                 </div>
@@ -360,7 +337,7 @@
                         </div>
                         <div class="modal-footer">
                             <div align="center">
-                                <button type="button" class="btn btn-sm btn-info" id="releaseconfirm">Confirm</button>
+                                <button type="button" class="btn btn-sm btn-info" id="detailconfirm">Save</button>
                                 <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -389,6 +366,7 @@
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
+<div id="item-save-success" class="custom-alert success">Payment detail successfully saved.</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -402,6 +380,7 @@
     $(function(){
         $('.select2').select2();
         ajaxselect2("employee");
+        detailsTable = $("#detailstable tbody");
 
         displayPayor();
 
@@ -428,7 +407,7 @@
 
         $("#id_bank").on('change', function(){
             if ($(this).val() == "") {
-                $("#id_branch").html("<option value=''>-- Select a bank first --</option>");
+                $("#id_bankbranch").html("<option value=''>-- Select a bank first --</option>");
             }
             else {
                 $.ajax({
@@ -440,16 +419,17 @@
                         bankbranch = response.bankbranch;
                         bankbranchlist = $.parseJSON(bankbranch);
 
-                        $("#id_branch").html("<option value=''>-- Select --</option>");
+                        $("#id_bankbranch").html("<option value=''>-- Select --</option>");
 
                         if (bankbranchlist == undefined || bankbranchlist == null || bankbranchlist.length == 0){
                             alert("The selected bank has no branches available.");
                         }
 
                         $.each(bankbranchlist, function(k, v){
-                            console.log("PK: " + v.pk);
-                            console.log("Description: " + v.fields.description);
-                            $('#id_branch').append( '<option value="' + v.pk + '">' + v.fields.description + '</option>' );
+                            $('#id_bankbranch')
+                                 .append($("<option></option>")
+                                            .attr("value", v.pk)
+                                            .text(v.fields.description));
                         });
                     }
                     , error: function(response) {
@@ -457,6 +437,95 @@
                     }
                 });
             }
+        });
+
+        $("#detailconfirm").on('click', function(){
+            var valid = true;
+            $.each($('.required'), function(){
+                if($(this).val() == '' || $(this).val() == null){
+                    valid = false;
+                }
+            });
+            if($('#id_paytype option:selected').data('code') == 'CH'){
+                $.each($('.check-required'), function(){
+                    if($(this).val() == '' || $(this).val() == null){
+                        valid = false;
+                    }
+                });
+            }
+            else if($('#id_paytype option:selected').data('code') == 'CC'){
+                $.each($('.cc-required'), function(){
+                    if($(this).val() == '' || $(this).val() == null){
+                        valid = false;
+                    }
+                });
+            }
+            else if($('#id_paytype option:selected').data('code') == 'EX'){
+                $.each($('.ex-required'), function(){
+                    if($(this).val() == '' || $(this).val() == null){
+                        valid = false;
+                    }
+                });
+            }
+            if(valid){
+                if(confirm('Are you sure you want to save this payment detail?')){
+                    $.ajax({
+                        url: "{% url 'acknowledgementreceipt:savepaymentdetailtemp' %}",
+                        type: "post",
+                        data: {
+                            'id_itemtemp': null,
+                            'itemno': $('#id_item_counter').val(),
+                            'secretkey': $('#secretkey').val(),
+                            'paytype': $('#id_paytype').val(),
+                            'amount': $('#id_detailamount').val(),
+                            'bank': $('#id_bank').val(),
+                            'bankbranch': $('#id_bankbranch').val(),
+                            'num': $('#id_number').val(),
+                            'date': $('#id_date').val(),
+                            'authnum': $('#id_authnum').val(),
+                            'remarks': $('#id_detailremarks').val()
+                        },
+                        success: function(response){
+                            customAlert($('#item-save-success'));
+
+                            detailsTable.append("<tr class='tblItemContainer'>" +
+                                "<td class='tblItemCounter text-center' data-id='" + response.id + "'>" + response.item_counter + "</td>" +
+                                "<td class='tblPaytype'><b>" + response.paytype + "</b></td>" +
+                                "<td class='tblBank'>" + response.bank  + "</td>" +
+                                "<td class='tblNumber'>" + response.number + "</td>" +
+                                "<td class='tblDate'>" + response.date + "</td>" +
+                                "<td class='tblAuthnum'>" + response.authnum + "</td>" +
+                                "<td class='tblRemarks'>" + response.remarks + "</td>" +
+                                "<td class='tblAmount text-right'><b>" + parseFloat(response.amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</b></td>" +
+                                "<td class='tblAction text-center'><a href='#_' class='detailedit' id='detailedit'><i class='icon fa-pencil' aria-hidden='true'></i></a>" +
+                                    "&nbsp;&nbsp<a href='#_' class='detaildelete' id='detaildelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>" +
+                            "</tr>");
+
+                            $("#id_item_counter").val(parseInt($("#id_item_counter").val())+ 1);
+                            $("#id_paytype option:contains(Cash)").prop("selected","selected");
+                            $('#id_detailamount').val("");
+                            $('#id_bank').val("");
+                            $("#id_bankbranch").html("<option value=''>-- Select a bank first --</option>");
+                            $('#id_number').val("");
+                            $('#id_date').val("{% now "Y-m-d" %}");
+                            $('#id_authnum').val("");
+                            $('#id_detailremarks').val("");
+                            displayPaymentDetailFields();
+                            computePaymentDetailTotalAmount();
+
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+            else {
+                alert("Please fill in the required fields.");
+            }
+        });
+
+        $(document).on('click', '.detailedit', function(){
+            alert($(this).parent().siblings('.tblItemCounter').data('id'));
         });
 
         $("#manualbutton").unbind().click(function (){
@@ -520,7 +589,7 @@
             $('.extra-field').hide();
             if($('#id_paytype option:selected').data('code') == 'CH'){
                 $('#div_bank').show();
-                $('#div_branch').show();
+                $('#div_bankbranch').show();
                 $('#div_number').show();
                 $('#div_date').show();
             }
@@ -532,6 +601,14 @@
             else if($('#id_paytype option:selected').data('code') == 'EX'){
                 $('#div_detailremarks').show();
             }
+        }
+
+        function computePaymentDetailTotalAmount(){
+            var total = 0.00;
+            $.each($('.tblAmount'), function(){
+                total += parseFloat($(this).text().replace(/,/g, ''));
+            });
+            $('#totaldetailsamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
         }
 
     });

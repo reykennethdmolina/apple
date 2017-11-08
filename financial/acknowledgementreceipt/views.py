@@ -31,6 +31,7 @@ from pprint import pprint
 from django.utils.dateformat import DateFormat
 from utils.mixins import ReportContentMixin
 from bank.models import Bank
+from bankbranch.models import Bankbranch
 from collector.models import Collector
 from paytype.models import Paytype
 from agent.models import Agent
@@ -136,3 +137,51 @@ class CreateView(CreateView):
 
         return HttpResponseRedirect('/acknowledgementreceipt/')
         # return HttpResponseRedirect('/acknowledgementreceipt/' + str(self.object.id) + '/update')
+
+
+@csrf_exempt
+def savepaymentdetailtemp(request):
+    if request.method == 'POST':
+        if request.POST['id_itemtemp'] != '':  # if item already exists (update)
+            itemtemp = Aritemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
+        else:  # if item does not exist (create)
+            itemtemp = Aritemtemp()
+            itemtemp.enterby = request.user
+        itemtemp.item_counter = request.POST['itemno']
+        itemtemp.secretkey = request.POST['secretkey']
+        itemtemp.paytype = request.POST['paytype']
+        itemtemp.amount = request.POST['amount'].replace(',', '')
+        itemtemp.modifyby = request.user
+
+        if Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'CH':
+            itemtemp.bank = request.POST['bank']
+            itemtemp.bankbranch = request.POST['bankbranch']
+            itemtemp.num = request.POST['num']
+            itemtemp.date = request.POST['date']
+        elif Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'CC':
+            itemtemp.num = request.POST['num']
+            itemtemp.authnum = request.POST['authnum']
+            itemtemp.date = request.POST['date']
+        elif Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'EX':
+            itemtemp.remarks = request.POST['remarks']
+
+        itemtemp.save()
+        data = {
+            'status': 'success',
+            'id': itemtemp.pk,
+            'item_counter': itemtemp.item_counter,
+            'paytype': Paytype.objects.get(pk=int(itemtemp.paytype)).description,
+            'amount': itemtemp.amount,
+            'bank': Bank.objects.get(pk=int(itemtemp.bank)).code + ' ' +
+                    Bankbranch.objects.get(pk=int(itemtemp.bankbranch)).description if itemtemp.bank and itemtemp.bankbranch else ' - ',
+            'number': itemtemp.num if itemtemp.num else ' - ',
+            'date': itemtemp.date if itemtemp.date else ' - ',
+            'authnum': itemtemp.authnum if itemtemp.authnum else ' - ',
+            'remarks': itemtemp.remarks if itemtemp.remarks else ' - ',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
