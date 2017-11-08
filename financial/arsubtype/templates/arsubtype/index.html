@@ -84,7 +84,7 @@
               afterDeselect: function(){
                 this.qs1.cache();
                 this.qs2.cache();
-              }
+              },
             });
         $('#buttonSave').on('click', function(){
             if($('#id_chartofaccount').val() == null){
@@ -112,6 +112,16 @@
         });
         $('#buttonReset').on('click', function(){
             location.reload();
+        });
+        $('.ms-elem-selectable').on('click', function(){
+            if(!confirm("Are you sure you want to add " + $.trim($(this).children('span').text()) + " as an AR subtype?")) {
+                event.stopPropagation();
+            }
+        });
+        $('.ms-elem-selection').on('click', function(){
+            if(!confirm("Are you sure you want to remove "+ $.trim($(this).children('span').text()) + " as an AR subtype?")) {
+                event.stopPropagation();
+            }
         });
     });
     </script>
