@@ -185,3 +185,26 @@ def savepaymentdetailtemp(request):
         }
     return JsonResponse(data)
 
+
+@csrf_exempt
+def gettempdetails(request):
+    if request.method == 'POST':
+        itemtemp = Aritemtemp.objects.get(pk=int(request.POST['id']))
+        data = {
+            'status': 'success',
+            'paytype': itemtemp.paytype,
+            'amount': itemtemp.amount,
+            'bank': itemtemp.bank,
+            # 'available_branches':
+            'bankbranch': itemtemp.bankbranch,
+            'num': itemtemp.num,
+            'date': itemtemp.date,
+            'authnum': itemtemp.authnum,
+            'remarks': itemtemp.remarks,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+

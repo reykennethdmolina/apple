@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, Http404
 from inventoryitemclass.models import Inventoryitemclass
 from chartofaccount.models import Chartofaccount
 from inventoryitemtype.models import Inventoryitemtype
+from annoying.functions import get_object_or_None
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -28,7 +29,7 @@ class CreateView(CreateView):
     model = Inventoryitemclass
     template_name = 'inventoryitemclass/create.html'
     fields = ['code', 'description', 'inventoryitemtype', 'chartofaccountinventory',
-              'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+              'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp', 'depreciationchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitemclass.add_inventoryitemclass'):
@@ -54,6 +55,8 @@ class CreateView(CreateView):
             context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpgenandadmin'], isdeleted=0)
         if self.request.POST.get('chartexpsellexp', False):
             context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpsellexp'], isdeleted=0)
+        if self.request.POST.get('depreciationchartofaccount', False):
+            context['depreciationchartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['depreciationchartofaccount'], isdeleted=0)
         return context
 
 
@@ -62,7 +65,7 @@ class UpdateView(UpdateView):
     model = Inventoryitemclass
     template_name = 'inventoryitemclass/edit.html'
     fields = ['code', 'description', 'inventoryitemtype', 'chartofaccountinventory',
-              'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp']
+              'chartexpcostofsale', 'chartexpgenandadmin', 'chartexpsellexp', 'depreciationchartofaccount']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('inventoryitemclass.change_inventoryitemclass'):
@@ -76,19 +79,23 @@ class UpdateView(UpdateView):
         if self.request.POST.get('chartofaccountinventory', False):
             context['chartofaccountinventory'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccountinventory'], isdeleted=0)
         elif self.object.chartofaccountinventory:
-            context['chartofaccountinventory'] = Chartofaccount.objects.get(pk=self.object.chartofaccountinventory.id, isdeleted=0)
+            context['chartofaccountinventory'] = get_object_or_None(Chartofaccount, pk=self.object.chartofaccountinventory.id)
         if self.request.POST.get('chartexpcostofsale', False):
             context['chartexpcostofsale'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpcostofsale'], isdeleted=0)
         elif self.object.chartexpcostofsale:
-            context['chartexpcostofsale'] = Chartofaccount.objects.get(pk=self.object.chartexpcostofsale.id, isdeleted=0)
+            context['chartexpcostofsale'] = get_object_or_None(Chartofaccount, pk=self.object.chartexpcostofsale.id)
         if self.request.POST.get('chartexpgenandadmin', False):
             context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpgenandadmin'], isdeleted=0)
         elif self.object.chartexpgenandadmin:
-            context['chartexpgenandadmin'] = Chartofaccount.objects.get(pk=self.object.chartexpgenandadmin.id, isdeleted=0)
+            context['chartexpgenandadmin'] = get_object_or_None(Chartofaccount, pk=self.object.chartexpgenandadmin.id)
         if self.request.POST.get('chartexpsellexp', False):
             context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.request.POST['chartexpsellexp'], isdeleted=0)
         elif self.object.chartexpsellexp:
-            context['chartexpsellexp'] = Chartofaccount.objects.get(pk=self.object.chartexpsellexp.id, isdeleted=0)
+            context['chartexpsellexp'] = get_object_or_None(Chartofaccount, pk=self.object.chartexpsellexp.id)
+        if self.request.POST.get('depreciationchartofaccount', False):
+            context['depreciationchartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['depreciationchartofaccount'], isdeleted=0)
+        elif self.object.depreciationchartofaccount:
+            context['depreciationchartofaccount'] = get_object_or_None(Chartofaccount, pk=self.object.depreciationchartofaccount.id)
         return context
 
     def form_valid(self, form):
@@ -97,7 +104,7 @@ class UpdateView(UpdateView):
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['description', 'inventoryitemtype',
                                         'chartofaccountinventory', 'chartexpcostofsale',
-                                        'chartexpgenandadmin', 'chartexpsellexp',
+                                        'chartexpgenandadmin', 'chartexpsellexp', 'depreciationchartofaccount',
                                         'modifyby', 'modifydate'])
         return HttpResponseRedirect('/inventoryitemclass')
 

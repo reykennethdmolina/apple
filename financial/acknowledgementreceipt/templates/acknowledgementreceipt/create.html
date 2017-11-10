@@ -255,6 +255,7 @@
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <input type="hidden" value="1" id="id_item_counter" name="item_counter">
+                                    <input type="hidden" value="" id="id_item_tempid" name="item_tempid">
                                     <div class="form-group col-md-12" id="div_paytype">
                                         <div class="form-group col-md-4">
                                             <label class="control-label" for="id_paytype">Type:</label>
@@ -525,7 +526,32 @@
         });
 
         $(document).on('click', '.detailedit', function(){
-            alert($(this).parent().siblings('.tblItemCounter').data('id'));
+            $('#id_item_tempid').val($(this).parent().siblings('.tblItemCounter').data('id'));
+
+            $.ajax({
+                url: "{% url 'acknowledgementreceipt:gettempdetails' %}",
+                type: "post",
+                data: {'id': $(this).parent().siblings('.tblItemCounter').data('id')},
+                success: function(response){
+                    $('#id_paytype').val(response.paytype);
+                    $('#id_bank').val(response.bank);
+                    $('#id_bankbranch').val(response.bankbranch);
+                    $('#id_number').val(response.num);
+                    $('#id_date').val(response.date);
+                    $('#id_authnum').val(response.authnum);
+                    $('#id_detailremarks').val(response.remarks);
+                    $('#id_detailamount').val(response.amount);
+                    $('#id_paytype').prop("disabled", true);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+            $('#paymentDetailModal').modal('show');
+            displayPaymentDetailFields();
+        });
+
+        $('#paymentDetailModal').on('hidden.bs.modal', function () {
+
         });
 
         $("#manualbutton").unbind().click(function (){
@@ -534,7 +560,7 @@
                 url: "{% url 'acctentry:maccountingentry' %}",
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                       'table': "ordetailtemp"},
+                       'table': "ardetailtemp"},
                 success: function(response){
                     $("#manualentryview").html(response['viewhtml']);
                     $("#waitingbar").hide();

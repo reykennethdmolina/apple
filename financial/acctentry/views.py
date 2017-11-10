@@ -86,6 +86,17 @@ def validatetable(table):
             'stmt_detailtemp': 'temp.ormain, temp.or_num, DATE(temp.or_date) AS ordate, ',
             'stmt_detailbreakdowntemp': 'temp.ordetailtemp AS detailid, temp.particular, temp.item_counter, temp.ormain, temp.or_num, DATE(temp.or_date) AS ordate, ',
         }
+    elif table == 'ardetailtemp':
+        data = {
+            'sal': 'ar',
+            'str_main': 'armain',
+            'str_detailtemp': 'ardetailtemp',
+            'str_detail': 'ardetail',
+            'str_detailbreakdowntemp': 'ardetailbreakdowntemp',
+            'str_detailbreakdown': 'ardetailbreakdown',
+            'stmt_detailtemp': 'temp.armain, temp.ar_num, DATE(temp.ar_date) AS ardate, ',
+            'stmt_detailbreakdowntemp': 'temp.ardetailtemp AS detailid, temp.particular, temp.item_counter, temp.armain, temp.ar_num, DATE(temp.ar_date) AS ardate, ',
+        }
 
     return data
 

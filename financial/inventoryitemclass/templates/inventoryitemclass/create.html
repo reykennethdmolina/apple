@@ -74,6 +74,15 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.chartexpsellexp.errors.as_text }}</span>
                             </div>
+                            <div class="form-group form-material {{ form.depreciationchartofaccount.errors|yesno:'has-error,' }}">
+                                <label for="id_depreciationchartofaccount" class="control-label">Depreciation Chart of Account</label>
+                                <select id="id_depreciationchartofaccount" name="depreciationchartofaccount" class="form-control" data-validation="required">
+                                    {% if depreciationchartofaccount.id != None %}
+                                        <option value="{{ depreciationchartofaccount.id }}">[{{ depreciationchartofaccount.accountcode }}] - {{ depreciationchartofaccount.title }}</option>
+                                    {% endif %}
+                                </select>
+                                <span class="help-block form-error">{{ form.depreciationchartofaccount.errors.as_text }}</span>
+                            </div>
                             <div class="form-group margin-bottom-0">
                                 <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
                             </div>
@@ -96,6 +105,7 @@
             ajaxselect2("chartofaccount", "id_chartexpcostofsale");
             ajaxselect2("chartofaccount", "id_chartexpgenandadmin");
             ajaxselect2("chartofaccount", "id_chartexpsellexp");
+            ajaxselect2("chartofaccount", "id_depreciationchartofaccount");
             $('#id_inventoryitemtype option:first').attr('selected', 'selected');
         });
     </script>
