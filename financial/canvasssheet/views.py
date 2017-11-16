@@ -74,6 +74,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('code')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
 
         return context
@@ -143,6 +144,7 @@ class UpdateView(UpdateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('code')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
         context['prfimported'] = Csdata.objects.filter(csmain=self.object.pk, isdeleted=0).exclude(prfmain=None)
         context['csmain'] = self.object.pk
@@ -349,15 +351,17 @@ def updateCsdetailtemp(request):
             i += 1
 
         i = 0
-        # assign nego cost per supplier item
+        # assign nego cost and vat per supplier item
         for data in request.POST.getlist('arr_item_cost_supplier[]'):
             detail = Csdetailtemp.objects.filter(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
                                         itemdetailkey=request.POST.getlist('arr_item_each_detail_key[]')[i],
                                         supplier=data, isdeleted=0, status='A')
 
-            # assignment of negocost
+            # assignment of negocost, vat
             detail.update(negocost=request.POST.getlist('arr_item_cost[]')[i])
+            detail.update(vatrate=request.POST.getlist('arr_item_cost_vatrate[]')[i])
+            detail.update(vat=Vat.objects.get(pk=request.POST.getlist('arr_item_cost_vat[]')[i], status='A', isdeleted=0))
 
             detailget = Csdetailtemp.objects.get(secretkey=request.POST['secretkey'],
                                         invitem=request.POST.getlist('arr_item_cost_item[]')[i],
@@ -645,6 +649,7 @@ def getSupplier(request):
             'success': 'success',
             'supplierid': supplier.id,
             'suppliername': supplier.name,
+            'suppliervat': supplier.vat.id,
             # 'supplier': supplier_list,
         }
 

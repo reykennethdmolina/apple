@@ -60,6 +60,13 @@
         {% endfor %}
         unitofmeasure_list += "</select>";
 
+        //vat list
+        vat_list = "<select name='item_vat_input' class='form-control input-sm item_vat_input pull-right' style='width:70px'>";
+        {% for data in vat %}
+            vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}'>{{ data.description }}</option>";
+        {% endfor %}
+        vat_list += "</select>";
+
         $('.remarks-editor').wysihtml5({
             "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
             "emphasis": false, //Italics, bold, etc. Default true
@@ -168,12 +175,25 @@
                         while(current_container_next.next().not('.item_container').length == 1){
                             current_container_next = current_container_next.next();
                         }
+
+                        //vat list
+                        vat_list = "<select name='item_vat_input' class='form-control input-sm item_vat_input pull-right' style='width:70px'>";
+                        {% for data in vat %}
+                            if(response.suppliervat == '{{ data.id }}'){
+                                vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}' selected='selected'>{{ data.description }}</option>";
+                            }
+                            else{
+                                vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}'>{{ data.description }}</option>";
+                            }
+                        {% endfor %}
+                        vat_list += "</select>";
+
                         current_container_next.after("<tr><td><input type='radio' name='supplier' class='radio radio-custom supplier' " + status_checked + " data-itemdetailkey='" + current_container.data('itemdetailkey') + "' data-item='" + current_container.attr('id') + "' data-supplier='" + response.supplierid + "' form='" + current_container.data('form') + "'></td>" +
                                                 "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + response.suppliername + "</td> " +
                                                 "<td class='small text-right' style='padding-right: 30px'> - </td> " +
                                                 "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + 0 + "'></td> " +
                                                 "<td class='small item_amount text-right'></td>" +
-                                                "<td class='small item_vat_rate text-right' data-vatcode='" + 0 + "'>" + 0 + "</td>" +
+                                                "<td class='small item_vat_rate text-right'>" + vat_list + "</td>" +
                                                 "<td class='small item_vatable text-right'></td>" +
                                                 "<td class='small item_vatexempt text-right'></td>" +
                                                 "<td class='small item_vatzero text-right'></td>" +
@@ -272,13 +292,25 @@
                                 status_checked = '';
                                 if(j==0) status_checked = "checked='checked'";
 
+                                //vat list
+                                vat_list = "<select name='item_vat_input' class='form-control input-sm item_vat_input pull-right' style='width:70px'>";
+                                {% for data in vat %}
+                                    if(temp_supplier[j][6] == '{{ data.id }}'){
+                                        vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}' selected='selected'>{{ data.description }}</option>";
+                                    }
+                                    else{
+                                        vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}'>{{ data.description }}</option>";
+                                    }
+                                {% endfor %}
+                                vat_list += "</select>";
+
                                 summary.append("<tr>" +
                                         "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-itemdetailkey='" + response.itemdetail_key + "' data-item='" + response.item + "' data-supplier='" + temp_supplier[j][10] + "' form='" + temp_formradio_counter + "'></td> " +
                                         "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
                                         "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                         "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                         "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-right' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vat_rate text-right'>" + vat_list + "</td>" +
                                         "<td class='small item_vatable text-right'></td>" +
                                         "<td class='small item_vatexempt text-right'></td>" +
                                         "<td class='small item_vatzero text-right'></td>" +
@@ -410,13 +442,25 @@
                                 status_checked = '';
                                 if(j==0) status_checked = "checked='checked'";
 
+                                //vat list
+                                vat_list = "<select name='item_vat_input' class='form-control input-sm item_vat_input pull-right' style='width:70px'>";
+                                {% for data in vat %}
+                                    if(temp_supplier[j][6] == '{{ data.id }}'){
+                                        vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}' selected='selected'>{{ data.description }}</option>";
+                                    }
+                                    else{
+                                        vat_list += "<option value='{{ data.id }}' data-rate='{{ data.rate }}' data-code='{{ data.code }}'>{{ data.description }}</option>";
+                                    }
+                                {% endfor %}
+                                vat_list += "</select>";
+
                                 summary.append("<tr>" +
                                         "<td><input type='radio' name='supplier' " + status_checked + " class='radio radio-custom supplier' data-itemdetailkey='" + response.itemdetailkey[i][0] + "' data-item='" + response.prfdetail[i][4] + "' data-supplier='" + temp_supplier[j][10] + "' form='" + (temp_formradio_counter+i) + "'></td> " +
                                         "<td class='small'><span style='cursor:pointer;font-size:15px;' class='supplierdetails'><i class='icon fa-folder text-info' aria-hidden='true'></i></span> &nbsp;&nbsp;" + temp_supplier[j][5] + "</td> " +
                                         "<td class='small text-right' style='padding-right: 30px'>" + temp_supplier[j][2] + "</td> " +
                                         "<td class='small'><input type='number' class='form-control item_cost input-sm' value='" + temp_supplier[j][2] + "'></td> " +
                                         "<td class='small item_amount text-right'></td>" +
-                                        "<td class='small item_vat_rate text-right' data-vatcode='" + temp_supplier[j][8] + "'>" + temp_supplier[j][7] + "</td>" +
+                                        "<td class='small item_vat_rate text-right'>" + vat_list + "</td>" +
                                         "<td class='small item_vatable text-right'></td>" +
                                         "<td class='small item_vatexempt text-right'></td>" +
                                         "<td class='small item_vatzero text-right'></td>" +
@@ -477,7 +521,7 @@
         });
 
         // on nego cost
-        $(document).on('change', '.item_cost, .item_quantity_input', function(){
+        $(document).on('change', '.item_cost, .item_quantity_input, .item_vat_input', function(){
             computeVatItem();
         });
 
@@ -573,6 +617,18 @@
 
             {% for data in csdetailtemp %}
 
+                //vat list
+                vat_list = "<select name='item_vat_input' class='form-control input-sm item_vat_input pull-right' style='width:70px'>";
+                {% for data_temp in vat %}
+                    if('{{ data.vat.id }}' == '{{ data_temp.id }}'){
+                        vat_list += "<option value='{{ data_temp.id }}' data-rate='{{ data_temp.rate }}' data-code='{{ data_temp.code }}' selected='selected'>{{ data_temp.description }}</option>";
+                    }
+                    else{
+                        vat_list += "<option value='{{ data_temp.id }}' data-rate='{{ data_temp.rate }}' data-code='{{ data_temp.code }}'>{{ data_temp.description }}</option>";
+                    }
+                {% endfor %}
+                vat_list += "</select>";
+
                 // new item container
                 if(upd_itemdetailkey != "{{ data.itemdetailkey }}"){
                     upd_i++;
@@ -612,7 +668,7 @@
                                    "<td class='small text-right' style='padding-right: 30px'>{{ data.unitcost }}</td> " +
                                    "<td class='small'><input type='number' class='form-control item_cost input-sm' value='{{ data.negocost }}'></td> " +
                                    "<td class='small item_amount text-right'></td>" +
-                                   "<td class='small item_vat_rate text-right' data-vatcode='{{ data.vat.code }}'>{{ data.vat.rate }}</td>" +
+                                   "<td class='small item_vat_rate text-right'>" + vat_list +"</td>" +
                                    "<td class='small item_vatable text-right'></td>" +
                                    "<td class='small item_vatexempt text-right'></td>" +
                                    "<td class='small item_vatzero text-right'></td>" +
@@ -634,7 +690,7 @@
                                    "<td class='small text-right' style='padding-right: 30px'>{{ data.unitcost }}</td> " +
                                    "<td class='small'><input type='number' class='form-control item_cost input-sm' value='{{ data.negocost }}'></td> " +
                                    "<td class='small item_amount text-right'></td>" +
-                                   "<td class='small item_vat_rate text-right' data-vatcode='{{ data.vat.code }}'>{{ data.vat.rate }}</td>" +
+                                   "<td class='small item_vat_rate text-right'>" + vat_list +"</td>" +
                                    "<td class='small item_vatable text-right'></td>" +
                                    "<td class='small item_vatexempt text-right'></td>" +
                                    "<td class='small item_vatzero text-right'></td>" +
@@ -708,6 +764,8 @@
             var arr_item_cost_supplier = new Array();
             var arr_item_cost_item = new Array();
             var arr_item_cost = new Array();
+            var arr_item_cost_vat = new Array();
+            var arr_item_cost_vatrate = new Array();
             var arr_item_detail_key = new Array();
             var arr_item_each_detail_key = new Array();
 
@@ -748,6 +806,8 @@
                 arr_item_cost_supplier.push($(this).parent().parent().find('.supplier').data('supplier'));
                 arr_item_cost_item.push($(this).parent().parent().find('.supplier').data('item'));
                 arr_item_cost.push($(this).val());
+                arr_item_cost_vat.push($(this).parent().parent().find('.item_vat_rate').find('.item_vat_input').val());
+                arr_item_cost_vatrate.push($(this).parent().parent().find('.item_vat_rate').find('.item_vat_input').children('option:selected').data('rate'));
             });
 
             // get item detail key
@@ -772,6 +832,8 @@
                         'arr_item_cost_supplier[]': arr_item_cost_supplier,
                         'arr_item_cost_item[]': arr_item_cost_item,
                         'arr_item_cost[]': arr_item_cost,
+                        'arr_item_cost_vat[]': arr_item_cost_vat,
+                        'arr_item_cost_vatrate[]': arr_item_cost_vatrate,
                         'arr_item_detail_key[]': arr_item_detail_key,
                         'arr_item_each_detail_key[]': arr_item_each_detail_key,
                         'secretkey': $("#id_secretkey").val()
@@ -837,9 +899,9 @@
                 }
 
                 item_total_amount = (item_total * parseFloat($(this).prev().find('.item_cost').val()));
-                item_vat_rate = parseFloat($(this).siblings('.item_vat_rate').html());
+                item_vat_rate = parseFloat($(this).siblings('.item_vat_rate').find('.item_vat_input').children('option:selected').data('rate'));
                 item_gross_amount = item_total_amount;
-                item_vatcode = $(this).siblings('.item_vat_rate').data('vatcode');
+                item_vatcode = $(this).siblings('.item_vat_rate').find('.item_vat_input').children('option:selected').data('code');
                 item_vatable = 0;
                 item_vatexempt = 0;
                 item_vatzero = 0;
@@ -859,19 +921,19 @@
                 item_addvat = item_total_amount - item_gross_amount;
 
                 // item total amount
-                $(this).siblings('.item_total_amount').html(item_total_amount.toFixed(2));
+                $(this).siblings('.item_total_amount').html(item_total_amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item vatable
-                $(this).siblings('.item_vatable').html(item_vatable.toFixed(2));
+                $(this).siblings('.item_vatable').html(item_vatable.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item vatexempt
-                $(this).siblings('.item_vatexempt').html(item_vatexempt.toFixed(2));
+                $(this).siblings('.item_vatexempt').html(item_vatexempt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item vatzero
-                $(this).siblings('.item_vatzero').html(item_vatzero.toFixed(2));
+                $(this).siblings('.item_vatzero').html(item_vatzero.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item totalpurchase
-                $(this).siblings('.item_totalpurchase').html(item_totalpurchase.toFixed(2));
+                $(this).siblings('.item_totalpurchase').html(item_totalpurchase.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item addvat
-                $(this).siblings('.item_addvat').html(item_addvat.toFixed(2));
+                $(this).siblings('.item_addvat').html(item_addvat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 // item gross amount
-                $(this).html(item_gross_amount.toFixed(2));
+                $(this).html(item_gross_amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
             computeVatSummary();
         }
@@ -893,24 +955,24 @@
 
             $('.supplier:checked').each(function(){
                 //compute
-                grossAmt += parseFloat($(this).parent().siblings('.item_amount').html());
-                vatAble += parseFloat($(this).parent().siblings('.item_vatable').html());
-                vatExempt += parseFloat($(this).parent().siblings('.item_vatexempt').html());
-                vatZero += parseFloat($(this).parent().siblings('.item_vatzero').html());
-                totalPurchase += parseFloat($(this).parent().siblings('.item_totalpurchase').html());
-                addVat += parseFloat($(this).parent().siblings('.item_addvat').html());
-                totalAmt += parseFloat($(this).parent().siblings('.item_total_amount').html());
+                grossAmt += parseFloat($(this).parent().siblings('.item_amount').html().replace(/,/g, ''));
+                vatAble += parseFloat($(this).parent().siblings('.item_vatable').html().replace(/,/g, ''));
+                vatExempt += parseFloat($(this).parent().siblings('.item_vatexempt').html().replace(/,/g, ''));
+                vatZero += parseFloat($(this).parent().siblings('.item_vatzero').html().replace(/,/g, ''));
+                totalPurchase += parseFloat($(this).parent().siblings('.item_totalpurchase').html().replace(/,/g, ''));
+                addVat += parseFloat($(this).parent().siblings('.item_addvat').html().replace(/,/g, ''));
+                totalAmt += parseFloat($(this).parent().siblings('.item_total_amount').html().replace(/,/g, ''));
 
             });
             //apply
-            $('#totalQty').val(totalQty.toFixed(2));
-            $('#grossAmt').val(grossAmt.toFixed(2));
-            $('#vatAble').val(vatAble.toFixed(2));
-            $('#vatExempt').val(vatExempt.toFixed(2));
-            $('#vatZero').val(vatZero.toFixed(2));
-            $('#totalPurchase').val(totalPurchase.toFixed(2));
-            $('#addVat').val(addVat.toFixed(2));
-            $('#totalAmt').val(totalAmt.toFixed(2));
+            $('#totalQty').val(totalQty.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#grossAmt').val(grossAmt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#vatAble').val(vatAble.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#vatExempt').val(vatExempt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#vatZero').val(vatZero.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#totalPurchase').val(totalPurchase.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#addVat').val(addVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+            $('#totalAmt').val(totalAmt.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
         }
 

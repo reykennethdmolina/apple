@@ -48,8 +48,8 @@ class Customer(models.Model):
     creditstatus = models.CharField(max_length=1, choices=CREDITSTATUS_CHOICES, \
         null=True, blank=True)
     creditrating = models.CharField(max_length=5, null=True, blank=True)
-    contactperson = models.CharField(max_length=250)
-    contactposition = models.CharField(max_length=250)
+    contactperson = models.CharField(max_length=250, blank=True, null=True)
+    contactposition = models.CharField(max_length=250, blank=True, null=True)
     contactemail = models.CharField(max_length=250, blank=True, null=True)
     remarks = models.CharField(max_length=250, blank=True, null=True)
     currency = models.ForeignKey('currency.Currency', related_name='customer_currency_id', \
