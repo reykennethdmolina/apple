@@ -187,24 +187,21 @@ def savepaymentdetailtemp(request):
 
 
 @csrf_exempt
-def gettempdetails(request):
+def deletepaymentdetailtemp(request):
     if request.method == 'POST':
-        itemtemp = Aritemtemp.objects.get(pk=int(request.POST['id']))
+        itemtemptodelete = Aritemtemp.objects.get(pk=request.POST['id_itemtemp'])
+        if itemtemptodelete.armain is None:
+            itemtemptodelete.delete()
+        else:
+            itemtemptodelete.isdeleted = 1
+            itemtemptodelete.save()
         data = {
             'status': 'success',
-            'paytype': itemtemp.paytype,
-            'amount': itemtemp.amount,
-            'bank': itemtemp.bank,
-            # 'available_branches':
-            'bankbranch': itemtemp.bankbranch,
-            'num': itemtemp.num,
-            'date': itemtemp.date,
-            'authnum': itemtemp.authnum,
-            'remarks': itemtemp.remarks,
         }
     else:
         data = {
             'status': 'error',
         }
     return JsonResponse(data)
+
 

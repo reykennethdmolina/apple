@@ -167,7 +167,7 @@
                                                         <th><span>AUTH. #</span></th>
                                                         <th><span>REMARKS</span></th>
                                                         <th style="text-align: right;"><span>AMOUNT</span></th>
-                                                        <th style="text-align: center;"><span>ACTION</span></th>
+                                                        <th style="text-align: center;"><span>&nbsp;</span></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody></tbody>
@@ -368,6 +368,7 @@
 <div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
 <div id="item-save-success" class="custom-alert success">Payment detail successfully saved.</div>
+<div id="item-delete-success" class="custom-alert success">Payment detail successfully deleted.</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -498,8 +499,7 @@
                                 "<td class='tblAuthnum'>" + response.authnum + "</td>" +
                                 "<td class='tblRemarks'>" + response.remarks + "</td>" +
                                 "<td class='tblAmount text-right'><b>" + parseFloat(response.amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</b></td>" +
-                                "<td class='tblAction text-center'><a href='#_' class='detailedit' id='detailedit'><i class='icon fa-pencil' aria-hidden='true'></i></a>" +
-                                    "&nbsp;&nbsp<a href='#_' class='detaildelete' id='detaildelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>" +
+                                "<td class='tblAction text-center'><a href='#_' class='detaildelete' id='detaildelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>" +
                             "</tr>");
 
                             $("#id_item_counter").val(parseInt($("#id_item_counter").val())+ 1);
@@ -525,35 +525,6 @@
             }
         });
 
-        $(document).on('click', '.detailedit', function(){
-            $('#id_item_tempid').val($(this).parent().siblings('.tblItemCounter').data('id'));
-
-            $.ajax({
-                url: "{% url 'acknowledgementreceipt:gettempdetails' %}",
-                type: "post",
-                data: {'id': $(this).parent().siblings('.tblItemCounter').data('id')},
-                success: function(response){
-                    $('#id_paytype').val(response.paytype);
-                    $('#id_bank').val(response.bank);
-                    $('#id_bankbranch').val(response.bankbranch);
-                    $('#id_number').val(response.num);
-                    $('#id_date').val(response.date);
-                    $('#id_authnum').val(response.authnum);
-                    $('#id_detailremarks').val(response.remarks);
-                    $('#id_detailamount').val(response.amount);
-                    $('#id_paytype').prop("disabled", true);
-                }, error: function(response) {
-                    console.debug(response);
-                }
-            });
-            $('#paymentDetailModal').modal('show');
-            displayPaymentDetailFields();
-        });
-
-        $('#paymentDetailModal').on('hidden.bs.modal', function () {
-
-        });
-
         $("#manualbutton").unbind().click(function (){
             $("#entryview").show();
             $.ajax({
@@ -568,6 +539,28 @@
                     console.debug(response);
                 }
             });
+        });
+
+        $(document.body).on('click', '.detaildelete' ,function(){
+            var item = $(this).parent().parent().parent();
+            if(confirm('Are you sure you want to delete this item?')){
+            /* Ajax delete */
+                $.ajax({
+                    url: "{% url 'acknowledgementreceipt:deletepaymentdetailtemp' %}",
+                    type: "post",
+                    data: {
+                        'id_itemtemp': $(this).parent().siblings('.tblItemCounter').data('id')
+                    },
+                    success: function(){
+                        item.remove();
+                        itemRecount();
+                        customAlert($('#item-delete-success'));
+                        computePaymentDetailTotalAmount();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
         });
 
         $("#validateButton").on('click', function() {
@@ -636,6 +629,14 @@
             });
             $('#totaldetailsamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
         }
+
+        function itemRecount(){
+                var item_count = 1;
+                $('.tblItemCounter').each(function(){
+                    $(this).html(item_count);
+                    item_count++;
+                })
+            }
 
     });
     </script>
