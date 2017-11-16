@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from branch.models import Branch
+from companyparameter.models import Companyparameter
 from department.models import Department
 from inventoryitem.models import Inventoryitem
 from inventoryitemtype.models import Inventoryitemtype
@@ -18,7 +19,7 @@ from . models import Rfmain, Rfdetail, Rfdetailtemp
 
 # pagination and search
 from endless_pagination.views import AjaxListView
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 @method_decorator(login_required, name='dispatch')
@@ -366,8 +367,17 @@ class Pdf(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['rfmain'] = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-        context['rfdetail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0,
+        context['detail'] = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0,
                                                       status='A').order_by('item_counter')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        rf_detail_aggregate = Rfdetail.objects.filter(rfmain=self.kwargs['pk'], isdeleted=0, status='A').\
+            aggregate(Sum('quantity'))
+        context['detail_total_quantity'] = rf_detail_aggregate['quantity__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedrf = Rfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedrf.print_ctr += 1
