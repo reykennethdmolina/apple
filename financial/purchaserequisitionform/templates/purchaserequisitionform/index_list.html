@@ -9,6 +9,7 @@
                 <th><span>Date requested</span></th>
                 <th><span>Particulars</span></th>
                 <th><span>PRF Status</span></th>
+                <th><span>Status</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td>{{ data.prfdate|date:"Y-m-d" }}</td>
                 <td>{{ data.particulars }}</td>
                 <td>{{ data.get_prfstatus_display }}</td>
+                <td>{{ data.get_status_display }}</td>
                 <td style="width: 150px; padding-left: 30px">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist" style="text-align: left">
