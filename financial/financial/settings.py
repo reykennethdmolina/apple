@@ -142,6 +142,7 @@ INSTALLED_APPS = [
     'user_employee',
     'processing_or',
     'arsubtype',
+    'processing_data',
 ]
 
 MIDDLEWARE_CLASSES = [

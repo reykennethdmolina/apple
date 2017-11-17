@@ -1,18 +1,20 @@
 {% extends 'base-form.html' %}
-{% block page-title %} OR Processing {% endblock page-title %}
+{% block page-title %} OR Uploading {% endblock page-title %}
 {% block extra_css %}
     {% load static %}
     <style>
-        #formloading{
+        #formloading, #or_step_upload, #or_step_final{
             display: none;
         }
-        #upload_summary td{
-            border-top: none;
+        .table_result{
+            height: 150px;
+            overflow: scroll;
+            padding: 0px;
         }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
-<div class="panel">
+<div class="panel" id="or_step_verify">
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -27,12 +29,12 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-sm-7">
-                                    <label class="control-label small">File</label>
+                                    <label class="control-label small">OR Master</label>
                                     <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <br>
-                                    <button type="button" class="btn btn-sm btn-success pull-right" style="width:100px" id="or_upload">VERIFY</button>
+                                    <button type="button" class="btn btn-sm btn-info pull-right" style="width:100px" id="or_upload">VERIFY</button>
                                 </div>
                         </div>
                         <div id="formloading">
@@ -50,66 +52,38 @@
         </div>
     </div>
 </div>
-<div class="panel">
+<div class="panel" id="or_step_upload">
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="form-group col-sm-12">
-                        <label class="control-label small">Upload Results</label><br><br>
-                        <table class="table table-condensed table-bordered" id="upload_summary">
-                            <tr>
-                                <td align="center" style="width:20%"><small><b>Total Processed</b></small></td>
-                                <td align="center" style="width:20%"><small class="text-success"><b>Passed</b></small></td>
-                                <td align="center" style="width:20%"><small class="text-warning"><b>Existing</b></small></td>
-                                <td align="center" style="width:20%"><small class="text-danger"><b>Failed</b></small></td>
-                                <td align="center" style="width:20%"><small><b>Success Rate</b></small></td>
-                            </tr>
-                            <tr>
-                                <td align="center" class="small" id="upload_total">-</td>
-                                <td align="center" class="small" id="upload_success">-</td>
-                                <td align="center" class="small" id="upload_existing">-</td>
-                                <td align="center" class="small" id="upload_failed">-</td>
-                                <td align="center" class="small" id="upload_rate">-</td>
-                            </tr>
-                        </table><br>
-                        <div class="col-md-4">
-                            <table class="table table-condensed">
-                                <tr>
-                                    <td colspan="2"><small><b>Passed</b></small></td>
-                                </tr>
-                                <tr>
-                                    <td class="success"><small>662234</small></td>
-                                    <td class="success"><small>08/01/2017</small></td>
-                                </tr>
-                                <tr>
-                                    <td class="success"><small>662234</small></td>
-                                    <td class="success"><small>08/01/2017</small></td>
-                                </tr>
-                                <tr>
-                                    <td class="success"><small>662234</small></td>
-                                    <td class="success"><small>08/01/2017</small></td>
-                                </tr>
-                                <tr>
-                                    <td class="" colspan="2">...</td>
-                                </tr>
+                        <label class="control-label small">Verification Results</label><br><br>
+                        <div class="col-md-4 table_result">
+                            <table class="table table-condensed" id="success_table">                            
+                                <thead>
+                                    <tr class="bg-light-green-500">
+                                        <th colspan="2" style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></small></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
                             </table>
-                        </div>   
-                        <div class="col-md-4">
+                        </div>  
+                        <div class="col-md-4 table_result">
                             <table class="table table-condensed" id="existing_table">
                                 <thead>
-                                    <tr>
-                                        <th colspan="2"><small><b>Existing</b></small></th>
+                                    <tr class="bg-orange-300">
+                                        <th colspan="2" style="color:white"><small><b>Existing</b><div class="pull-right" id="upload_existing"></small></th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
                         </div>   
-                        <div class="col-md-4">
+                        <div class="col-md-4 table_result">
                             <table class="table table-condensed" id="failed_table">
                                 <thead>
-                                    <tr>
-                                        <th colspan="2"><small><b>Failed</b></small></th>
+                                    <tr class="bg-red-400">
+                                        <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></small></th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -117,9 +91,49 @@
                         </div>   
                         <div class="col-md-12">
                             <br>
-                            <i>** Only <font class="text-success"><b>PASSED</b></font> items will be saved **</i>
+                            <i class="small">** Total of <b id="upload_total"></b> items processed and <b id="upload_rate"></b> succcess rate. **</i>
                         </div>   
-                            <button type="button" class="pull-right btn btn-sm btn-success" style="width:100px" id="or_export">EXPORT</button>
+                        <input type="hidden" id="or_export_sequence">
+                        <input type="hidden" id="or_export_artype">
+                        <button type="button" class="pull-right btn btn-sm btn-info" style="width:100px" id="or_export">UPLOAD</button>
+                    </div>    
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<div class="panel" id="or_step_final">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="form-group col-sm-12">
+                        <label class="control-label small">Upload Results</label><br><br>
+                        <div class="col-md-4 table_result">
+                            <table class="table table-condensed" id="success_table_f">
+                                <thead>
+                                    <tr class="bg-light-green-500">
+                                        <th style="color: white"><small><b>Passed</b><div class="pull-right" id="final_success"></small></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>   
+                        <div class="col-md-8 table_result">
+                            <table class="table table-condensed" id="failed_table_f">
+                                <thead>
+                                    <tr class="bg-red-400">
+                                        <th style="color: white" colspan="2"><small><b>Failed</b><div class="pull-right" id="final_failed"></small></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-12">
+                            <br>
+                            <i class="small">** Total of <b id="final_total"></b> items processed and <b id="final_rate"></b> succcess rate. **</i>
+                        </div>
                     </div>    
                 </div>
             </div>
@@ -131,12 +145,15 @@
 <div id="upload-error" class="custom-alert danger">File upload failed!</div>
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
 <div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
+<div id="upload-error-artype" class="custom-alert danger">Invalid AR Type</div>
 {% endblock page-content %}
 {% block extra_js %}
 <script>
     $(function(){
         $(document).on('click', '#or_upload', function(e){
             $('#formupload').fadeOut(300);
+            $('#or_step_upload').fadeOut(300);
+            $('#or_step_final').fadeOut(300);
 
             e.preventDefault()
             $('#formloading').delay(300).fadeIn(300, function() {
@@ -161,33 +178,28 @@
                         switch(data['result']){
                             case 1:
                                 customAlert($('#upload-success'));
+                                $('#or_step_upload').fadeIn();
                                 $('#upload_total').text(data['orcount']);
-                                $('#upload_success').text(data['successcount']);
-                                $('#upload_existing').text(data['existingcount']);
-                                $('#upload_failed').text(data['failedcount']);
+                                $('#upload_success').html(data['successcount']+"&nbsp;&nbsp;");
+                                $('#upload_existing').html(data['existingcount']+"&nbsp;&nbsp;");
+                                $('#upload_failed').html(data['failedcount']+"&nbsp;&nbsp;");
                                 $('#upload_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
                                 $('#existing_table tbody').html('');
-                                if(parseInt(data['existingcount']) > 5) maxcount = 5; 
-                                else maxcount = data['existingcount'];
-                                for(var i = 0; i < maxcount; i++) {
-                                    $('#existing_table tbody').append("<tr class='warning'><td><small>"+data['existingdata'][i]['importornum']+"</small></td></tr>");
+                                for(var i = 0; i < data['existingcount']; i++) {
+                                    $('#existing_table tbody').append("<tr><td><small>"+data['existingdata'][i]['importornum']+"</small></td></tr>");
                                 };
-                                if(data['existingcount'] > 5){                                    
-                                    $('#existing_table tbody').append("<tr><td class='' colspan='2'><b>...</b></td></tr>")
-                                }
-
                                 $('#failed_table tbody').html('');
-                                if(parseInt(data['faileddata'].length) > 5) maxcount = 5; 
-                                else maxcount = data['faileddata'].length;
-                                for(var i = 0; i < maxcount; i++) {
-                                    $('#failed_table tbody').append("<tr class='danger'><td><small>"+data['faileddata'][i]['orno']+"&nbsp;&nbsp;&nbsp; <small><i>(appeared &nbsp;"+data['faileddata'][i]['id__count']+"x)</i></small></small></td></tr>");
+                                for(var i = 0; i < data['faileddata'].length; i++) {
+                                    $('#failed_table tbody').append("<tr><td><small>"+data['faileddata'][i]['orno']+"&nbsp;&nbsp;&nbsp; <small><i>(appeared &nbsp;"+data['faileddata'][i]['id__count']+"x)</i></small></small></td></tr>");
                                 };
-                                if(data['faileddata'].length > 5){                                    
-                                    $('#failed_table tbody').append("<tr><td class='' colspan='2'><b>...</b></td></tr>")
-                                }
+                                $('#success_table tbody').html('');
+                                for(var i = 0; i < data['successdata'].length; i++) {
+                                    $('#success_table tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
+                                };
 
-                                // remove limit, insert slider
+                                $('#or_export_sequence').val(data['sequence']);
+                                $('#or_export_artype').val(data['artype']);
 
                                 break;
                             case 2:
@@ -201,7 +213,10 @@
                                 break;    
                             case 5:
                                 customAlert($('#upload-file-error'));
-                                break;  
+                                break;
+                            case 6:
+                                customAlert($('#upload-error-artype'));
+                                break;
                             default:            
                         }
                         showUploadForm();
@@ -214,6 +229,38 @@
 
             return false;
         });
+
+        $('#or_export').on('click', function(){
+            $('#or_step_final').fadeOut(300);
+            $.ajax({
+                url: "{% url 'processing_or:exportsave' %}",
+                type: "post",
+                data: {'sequence': $('#or_export_sequence').val(),
+                       'artype': $('#or_export_artype').val()},
+                success: function(data){
+                    $('#or_step_final').fadeIn();
+                    $('#or_step_upload').fadeIn();
+                    $('#final_total').text(data['processedcount']);
+                    $('#final_success').html(data['successcount']+"&nbsp;&nbsp;");
+                    $('#final_failed').html(data['failedcount'])+"&nbsp;&nbsp;";
+                    $('#final_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
+
+                    $('#success_table_f tbody').html('');
+                    for(var i = 0; i < data['successcount']; i++) {
+                        $('#success_table_f tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
+                    };
+
+                    $('#failed_table_f tbody').html('');
+                    for(var i = 0; i < data['failedcount']; i++) {
+                        $('#failed_table_f tbody').append("<tr><td><small>"+data['faileddata'][i][0]+"</small></td><td><small>"+data['faileddata'][i][1]+"</small></td></tr>");
+                    };
+
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        });
+
         function showUploadForm(){
             $('#formloading').delay(1000).fadeOut(300);
             $('#formupload').delay(1300).fadeIn(300);

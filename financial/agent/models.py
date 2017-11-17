@@ -10,7 +10,7 @@ class Agent(models.Model):
     code = models.CharField(max_length=10, unique=True)
     agenttype = models.ForeignKey('agenttype.Agenttype', related_name='agent_agenttype_id')
     name = models.CharField(max_length=250)
-    street = models.CharField(max_length=250)
+    street = models.CharField(max_length=250, null=True, blank=True)
     remarks = models.CharField(max_length=250, null=True, blank=True)
     comments = models.CharField(max_length=250, null=True, blank=True)
     STATUS_CHOICES = (

@@ -2,6 +2,7 @@ import re
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import subprocess
 
 # add models here
 from supplier.models import Supplier
@@ -359,3 +360,19 @@ def ajaxSearch(request):
 
     return JsonResponse(data)
 
+
+# count items in .txt file
+def wccount(filename):
+    out = subprocess.Popen(['wc', '-l', filename],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT
+                         ).communicate()[0]
+    return int(out.partition(b' ')[0])
+
+
+# upload file
+def storeupload(file, file_name, file_extension, upload_directory):
+    with open(upload_directory + str(file_name) + '.' + str(file_extension), 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)       
+    return True
