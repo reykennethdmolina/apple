@@ -155,7 +155,7 @@
             $('#or_step_upload').fadeOut(300);
             $('#or_step_final').fadeOut(300);
 
-            e.preventDefault()
+            e.preventDefault();
             $('#formloading').delay(300).fadeIn(300, function() {
                 $("form#data").submit();
             });
@@ -188,15 +188,15 @@
                                 $('#existing_table tbody').html('');
                                 for(var i = 0; i < data['existingcount']; i++) {
                                     $('#existing_table tbody').append("<tr><td><small>"+data['existingdata'][i]['importornum']+"</small></td></tr>");
-                                };
+                                }
                                 $('#failed_table tbody').html('');
                                 for(var i = 0; i < data['faileddata'].length; i++) {
                                     $('#failed_table tbody').append("<tr><td><small>"+data['faileddata'][i]['orno']+"&nbsp;&nbsp;&nbsp; <small><i>(appeared &nbsp;"+data['faileddata'][i]['id__count']+"x)</i></small></small></td></tr>");
-                                };
+                                }
                                 $('#success_table tbody').html('');
                                 for(var i = 0; i < data['successdata'].length; i++) {
                                     $('#success_table tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
-                                };
+                                }
 
                                 $('#or_export_sequence').val(data['sequence']);
                                 $('#or_export_artype').val(data['artype']);

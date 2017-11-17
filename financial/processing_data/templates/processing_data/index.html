@@ -2,11 +2,15 @@
 {% block page-title %} Data Uploading {% endblock page-title %}
 {% block extra_css %}
 	{% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
 	<style>
 		#table_container > div{
             height: 150px;
             overflow: scroll;
             padding: 0px;
+        }
+        .select2-results__options{
+            font-size: 12px;
         }
 	</style>
 {% endblock extra_css %}
@@ -21,11 +25,16 @@
                         <div id="formupload">
                             <div class="form-group col-sm-3 padding-left-0">
                                 <label class="control-label small">Data Type</label>
-                                <select name="upload_type" id="upload_type" class="form-control input-sm">
+                                <select name="upload_type" id="upload_type" class="form-control input-sm select2">
                                     <option value="">-- Select --</option>
-                                    <option value="agency">Agency</option>
-                                    <option value="agent">Agent</option>
-                                    <option value="client">Client</option>
+                                    <optgroup label="Advertising">
+                                        <option value="agency">Agency</option>
+                                        <option value="client">Client</option>
+{#                                    <option value="adtype">Ad Type</option>#}
+                                    </optgroup>
+                                    <optgroup label="Circulation">
+                                        <option value="agent">Agent</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             <div class="form-group col-sm-7 padding-left-0">
@@ -70,12 +79,16 @@
 		</div>
 	</div>
 </div>
+<div id="upload-success" class="custom-alert success">Upload successful!</div>
 <div id="upload-error" class="custom-alert danger">File upload failed!</div>
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
+<div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
 {% endblock page-content %}
 {% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
 <script>
 	$(function(){
+        $('.select2').select2({});
 		$(document).on('click', '.upload_button', function(e){
             e.preventDefault();
             $('.shade').fadeIn();
@@ -96,18 +109,38 @@
 	                data: formData,
 	                async: false,
 	                success: function (data) {
-                        $('#success_table tbody').html('');
-                        for(var i = 0; i < data['successcount']; i++) {
-                            $('#success_table tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
-                        };
-                        $('#failed_table tbody').html('');
-                        for(var i = 0; i < data['failedcount']; i++) {
-                            $('#failed_table tbody').append("<tr><td><small>"+data['faileddata'][i][0]+"</small></td><td><small>"+data['faileddata'][i][1]+"</small></td></tr>");
-                        };
+                        switch(data['result']) {
+                            case 1:
+                                $('#success_table tbody').html('');
+                                for (var i = 0; i < data['successcount']; i++) {
+                                    $('#success_table tbody').append("<tr><td><small>" + data['successdata'][i] + "</small></td></tr>");
+                                }
+                                $('#failed_table tbody').html('');
+                                for (var i = 0; i < data['failedcount']; i++) {
+                                    $('#failed_table tbody').append("<tr><td><small>" + data['faileddata'][i][0] + "</small></td><td><small>" + data['faileddata'][i][1] + "</small></td></tr>");
+                                }
 
-                        $('#upload_total').text(data['datacount']);
-                        $('#upload_success').html(data['successcount']+"&nbsp;&nbsp;");
-                        $('#upload_failed').html(data['failedcount']+"&nbsp;&nbsp;");
+                                $('#upload_total').text(data['datacount']);
+                                $('#upload_success').html(data['successcount'] + "&nbsp;&nbsp;");
+                                $('#upload_failed').html(data['failedcount'] + "&nbsp;&nbsp;");
+                                break;
+                            case 2:
+                                customAlert($('#upload-error'));
+                                break;
+                            case 3:
+                                customAlert($('#upload-file-error'));
+                                break;
+                            case 4:
+                                customAlert($('#upload-file-large'));
+                                break;
+                            case 5:
+                                customAlert($('#upload-file-error'));
+                                break;
+                            case 6:
+                                customAlert($('#upload-error-artype'));
+                                break;
+                            default:
+                        }
                         $('.shade').fadeOut();
 	                }, error: function(response) {
                         console.debug(response);

@@ -43,9 +43,7 @@ def upload(request):
         #   4: failed - file size too large (> 3mb)
         #   5: failed - file array columns does not match requirement
 
-        if request.FILES['upload_file'] \
-                and (request.FILES['upload_file'].name.endswith('.txt')
-                     or request.FILES['upload_file'].name.endswith('.dbf')):
+        if request.FILES['upload_file']:
 
             if request.FILES['upload_file']._size < float(upload_size)*1024*1024:
                 sequence = get_random_string(length=20)
@@ -106,8 +104,8 @@ def upload(request):
                         data = {
                             'result': 2
                         }
-                if (request.POST['upload_type'] == 'agency' or request.POST['upload_type'] == 'client') \
-                        and request.FILES['upload_file'].name.endswith('.dbf'):
+                elif (request.POST['upload_type'] == 'agency' or request.POST['upload_type'] == 'client') \
+                        and request.FILES['upload_file'].name.endswith('.txt'):
                     if request.POST['upload_type'] == 'agency':
                         upload_directory = 'processing_data/uploaded_files/agency/'
                     else:
@@ -125,16 +123,9 @@ def upload(request):
 
                                 saveproceed = 1
                                 if len(data) == 26:
-                                    # some filters
-                                    # some filters
-                                    # some filters
-
-                                    # fix filter start in industry
-                                    # fix filter start in industry
-                                    # fix filter start in industry
-                                    # fix filter start in industry
-                                    # fix filter start in industry
-                                    # fix filter start in industry
+                                    if get_object_or_None(Customer, code=data[0]) is not None:
+                                        faileddata.append([data[0] + ' - ' + data[1], 'Customer already exists',])
+                                        saveproceed = 0
 
                                     if saveproceed == 1:
                                         Customer.objects.create(
@@ -151,34 +142,24 @@ def upload(request):
                                             tin=data[25],
                                             pagerno=data[10],
                                             payterms=data[11],
-                                            creditlimit=data[12],
-                                            creditstatus=,
+                                            creditlimit=data[12] if data[12].isdigit() else None,
                                             creditrating=data[13],
-                                            contactperson=,
-                                            contactposition=,
-                                            contactemail=,
                                             remarks=data[14],
                                             multiplestatus='N',
-                                            beg_amount=data[15],
+                                            beg_amount=data[15] if data[15].isdigit() else None,
                                             beg_code=data[16],
-                                            beg_date=data[17],
-                                            end_amount=data[18],
+                                            beg_date=data[17] if data[17] != '' else None,
+                                            end_amount=data[18] if data[18].isdigit() else None,
                                             end_code=data[19],
-                                            end_date=data[20],
-                                            bankaccount
-                                            creditterm
-                                            currency
+                                            end_date=data[20] if data[20] != '' else None,
                                             customertype=get_object_or_None(Customertype, code='A'),
-                                            industry=get_object_or_None(Industry, code='A'),
-
-
                                             status='A',
                                             enterby=request.user,
                                             modifyby=request.user,
                                             enterdate=datetime.now(),
                                         ).save()
 
-                                        successdata.append(data['AGNT_CODE'] + ' - ' + data['AGNT_TYPE'])
+                                        successdata.append(data[0] + ' - ' + data[1])
                                         successcount += 1
                                     else:
                                         failedcount += 1

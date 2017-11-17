@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, F, Sum
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
+from utils.mixins import ReportContentMixin
 import datetime
 
 # pagination and search
@@ -753,3 +754,82 @@ def comments():
     # delete item prompt
     # delete prfmain prompt
     # handle bloating in prfdetailtemp
+
+
+# @change add report class and def
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Prfmain
+    # @change template link
+    template_name = 'purchaserequisitionform/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Prfmain
+    # @change template link
+    template_name = 'purchaserequisitionform/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        # @change totals
+        query, context['report_type'], context['report_totalgross'], context['report_totalnet'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        # @change default title
+        context['rc_headtitle'] = "PURCHASE REQUISITION FORM"
+        context['rc_title'] = "PURCHASE REQUISITION FORM"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+
+    # @change totals
+    report_totalgross = ''
+    report_totalnet = ''
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        # @change report title
+        report_type = "PRF Summary"
+
+        # @change table for main
+        query = Prfmain.objects.all().filter(isdeleted=0)
+
+        # @change amount format
+        report_totalgross = query.aggregate(Sum('grossamount'))
+        report_totalnet = query.aggregate(Sum('netamount'))
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        # @change report title
+        report_type = "PRF Detailed"
+
+        # @change table for detailed
+        query = Prfmain.objects.all().filter(isdeleted=0)
+
+    if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+        if key_data != 'null':
+            key_data = key_data.split(",")
+            query = query.order_by(*key_data)
+
+    if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+        if key_data == 'd':
+            query = query.reverse()
+
+    # @change totals
+    return query, report_type, report_totalgross, report_totalnet
