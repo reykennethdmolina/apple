@@ -122,6 +122,7 @@ def approve(request):
             if request.POST['response'] == 'A' and request.user.has_perm('requisitionform.can_approverf'):
                 approve = Rfmain.objects.get(pk=request.POST['main_id'])
                 approve.rfstatus = request.POST['response']
+                approve.status = 'A'
             elif request.POST['response'] == 'D' and request.user.has_perm('requisitionform.can_disapproverf'):
                 approve = Rfmain.objects.get(pk=request.POST['main_id'])
                 approve.rfstatus = request.POST['response']
@@ -134,6 +135,7 @@ def approve(request):
             if request.POST['response'] == 'A' and request.user.has_perm('purchaserequisitionform.can_approveprf'):
                 approve = Prfmain.objects.get(pk=request.POST['main_id'])
                 approve.prfstatus = request.POST['response']
+                approve.status = 'A'
             elif request.POST['response'] == 'D' and request.user.has_perm('purchaserequisitionform.can_disapproveprf'):
 
                 # exclude approved PRFs that already have dependent CSs (prfmain_id is used in csdata)
