@@ -615,7 +615,7 @@ def deletedetailtemp(request):
 
 
 def updateTransaction(pk, status):
-    csdata = Csdata.objects.get(prfmain=pk, isdeleted=0)
+    csdata = Csdata.objects.get(prfmain=pk, isdeleted=0).exclude(csmain=None)
     if csdata and Csmain.objects.get(pk=csdata.csmain.pk, status='A', isdeleted=0):
 
         if status == 'A':
@@ -709,7 +709,6 @@ def updateTransaction(pk, status):
                                                 isdeleted=0).first()
 
                 if csdetail:
-
                     data.negocost = 0
                     data.vatable = 0
                     data.vatexempt = 0

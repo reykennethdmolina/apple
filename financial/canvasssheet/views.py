@@ -148,6 +148,7 @@ class UpdateView(UpdateView):
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
         context['prfimported'] = Csdata.objects.filter(csmain=self.object.pk, isdeleted=0).exclude(prfmain=None)
         context['csmain'] = self.object.pk
+        context['csnum'] = self.object.csnum
         context['pagetype'] = 'update'
 
         Csdetailtemp.objects.filter(csmain=self.object.pk).delete()  # clear all temp data
