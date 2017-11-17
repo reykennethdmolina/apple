@@ -128,7 +128,7 @@ class UpdateView(UpdateView):
     fields = ['csdate', 'cstype', 'particulars', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('canvasssheett.change_csmain'):
+        if not request.user.has_perm('canvasssheet.change_csmain'):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
