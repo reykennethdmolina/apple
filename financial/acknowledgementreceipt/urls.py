@@ -15,4 +15,5 @@ urlpatterns = [
     # url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     url(r'^savepaymentdetailtemp/$', views.savepaymentdetailtemp, name='savepaymentdetailtemp'),
     url(r'^deletepaymentdetailtemp/$', views.deletepaymentdetailtemp, name='deletepaymentdetailtemp'),
+    url(r'^autoentry/$', views.autoentry, name='autoentry'),
 ]

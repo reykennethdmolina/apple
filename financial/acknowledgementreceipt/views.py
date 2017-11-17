@@ -205,3 +205,63 @@ def deletepaymentdetailtemp(request):
     return JsonResponse(data)
 
 
+@csrf_exempt
+def autoentry(request):
+    if request.method == 'POST':
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        if request.POST['arnum']:
+            updateallquery(request.POST['table'], request.POST['arnum'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+        # set isdeleted=2 for existing detailtemp data
+
+        # DEBIT ENTRY: CASH IN BANK, Bank Account is saved
+        ardetailtemp1 = Ardetailtemp()
+        ardetailtemp1.item_counter = 1
+        ardetailtemp1.secretkey = request.POST['secretkey']
+        ardetailtemp1.ar_num = ''
+        ardetailtemp1.ar_date = datetime.datetime.now()
+        ardetailtemp1.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank_id
+        ardetailtemp1.bankaccount = int(request.POST['bankaccount'])
+        ardetailtemp1.debitamount = float(request.POST['amount'].replace(',', ''))
+        ardetailtemp1.balancecode = 'D'
+        ardetailtemp1.enterby = request.user
+        ardetailtemp1.modifyby = request.user
+        ardetailtemp1.save()
+
+        # CREDIT ENTRY: Credit Chart of Account of OR Type, Credit Chart of Account of OR Subtype if Non-Trade
+        ardetailtemp2 = Ardetailtemp()
+        ardetailtemp2.item_counter = 2
+        ardetailtemp2.secretkey = request.POST['secretkey']
+        ardetailtemp2.ar_num = ''
+        ardetailtemp2.ar_date = datetime.datetime.now()
+        if Artype.objects.get(pk=int(request.POST['artype'])).code == 'NT':
+            ardetailtemp2.chartofaccount = Arsubtype.objects.get(pk=int(request.POST['arsubtype'])).\
+                arsubtypechartofaccount_id
+        else:
+            ardetailtemp2.chartofaccount = Artype.objects.get(pk=int(request.POST['artype'])).creditchartofaccount_id
+        if Artype.objects.get(pk=int(request.POST['artype'])).code.startswith('AOE'):
+            ardetailtemp2.employee = int(request.POST['employee'])
+        ardetailtemp2.creditamount = float(request.POST['amount'].replace(',', ''))
+        ardetailtemp2.balancecode = 'C'
+        ardetailtemp2.enterby = request.user
+        ardetailtemp2.modifyby = request.user
+        ardetailtemp2.save()
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success'
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+

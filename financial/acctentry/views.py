@@ -27,6 +27,7 @@ from accountspayable.models import Apmain, Apdetailtemp, Apdetailbreakdowntemp, 
 from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, Ofdetail, Ofdetailbreakdown, Ofitem
 from checkvoucher.models import Cvmain, Cvdetailtemp, Cvdetailbreakdowntemp, Cvdetail, Cvdetailbreakdown
 from officialreceipt.models import Ormain, Ordetailtemp, Ordetailbreakdowntemp, Ordetail, Ordetailbreakdown
+from acknowledgementreceipt.models import Armain, Ardetailtemp, Ardetailbreakdowntemp, Ardetail, Ardetailbreakdown
 from annoying.functions import get_object_or_None
 
 

@@ -187,7 +187,7 @@
 
                         <div class="col-sm-12 padding-top-15 padding-bottom-15">
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
+                            <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                         </div>
 
                         <!-- Accounting entry start -->
@@ -369,6 +369,7 @@
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
 <div id="item-save-success" class="custom-alert success">Payment detail successfully saved.</div>
 <div id="item-delete-success" class="custom-alert success">Payment detail successfully deleted.</div>
+<div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -542,7 +543,7 @@
         });
 
         $(document.body).on('click', '.detaildelete' ,function(){
-            var item = $(this).parent().parent().parent();
+            var item = $(this).parent().parent();
             if(confirm('Are you sure you want to delete this item?')){
             /* Ajax delete */
                 $.ajax({
@@ -560,6 +561,37 @@
                         console.debug(response);
                     }
                 });
+            }
+        });
+
+        $("#autobutton").on('click', function() {
+            var valid = true;
+            if($("#id_amount").val() == '' || $("#id_amount").val() == 0.00){
+                alert("Amount is required.");
+                valid = false;
+            }
+            if($("#id_artype option:selected").text() == 'Non - Trade' && ($("#id_arsubtype").val() == null || $("#id_arsubtype").val() == '')){
+                alert("AR Subtype is required.");
+                valid = false;
+            }
+            if($("#id_artype option:selected").text().indexOf("AOE") == 0 && ($("#id_payor_employee").val() == null || $("#id_payor_employee").val() == '')){
+                alert("Payor is required.");
+                valid = false;
+            }
+            if($("#id_depositorybank").val() == null || $("#id_depositorybank").val() == ''){
+                alert("Depository bank is required.");
+                valid = false;
+            }
+
+            if(valid){
+                if($(".detaildelete")[0]) {
+                    if (confirm("The currently added accounting entries will be deleted. Are you sure you want to proceed?")) {
+                        autoEntry();
+                    }
+                }
+                else {
+                    autoEntry();
+                }
             }
         });
 
@@ -611,11 +643,15 @@
                 $('#div_bankbranch').show();
                 $('#div_number').show();
                 $('#div_date').show();
+                $("label[for='id_number']").text("Check Number:");
+                $("label[for='id_date']").text("Check Date:");
             }
             else if($('#id_paytype option:selected').data('code') == 'CC'){
                 $('#div_number').show();
                 $('#div_date').show();
                 $('#div_authnum').show();
+                $("label[for='id_number']").text("Card Number:");
+                $("label[for='id_date']").text("Expiry Date:");
             }
             else if($('#id_paytype option:selected').data('code') == 'EX'){
                 $('#div_detailremarks').show();
@@ -637,6 +673,30 @@
                     item_count++;
                 })
             }
+
+        function autoEntry(){
+            $('.shade').fadeIn();
+            $.ajax({
+                url: "{% url 'acknowledgementreceipt:autoentry' %}",
+                type: "post",
+                data: {'secretkey': $("#secretkey").val(),
+                       'arnum': '',
+                       'bankaccount': $("#id_depositorybank").val(),
+                       'artype': $("#id_artype").val(),
+                       'employee': $("#id_payor_employee").val(),
+                       'arsubtype': $("#id_arsubtype").val(),
+                       'amount': $("#id_amount").val(),
+                       'table': "ardetailtemp"},
+                success: function(response){
+                    $("#datatable").html(response['datatable']);
+                    customAlert($('#autoentry-success'));
+                    $('.shade').fadeOut();
+                }, error: function(response) {
+                    console.debug(response);
+                    $('.shade').fadeOut();
+                }
+            });
+        }
 
     });
     </script>
