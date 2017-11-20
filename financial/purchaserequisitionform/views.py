@@ -19,6 +19,7 @@ from django.db.models import Q, F, Sum
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 from utils.mixins import ReportContentMixin
+from django.utils.dateformat import DateFormat
 import datetime
 
 # pagination and search
@@ -765,6 +766,9 @@ class ReportView(ListView):
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
 
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+
         return context
 
 
@@ -809,6 +813,43 @@ def reportresultquery(request):
         # @change table for main
         query = Prfmain.objects.all().filter(isdeleted=0)
 
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(prfnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(prfnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(prfdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(prfdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_prfstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_prfstatus_' + request.resolver_match.app_name))
+            query = query.filter(prfstatus=str(key_data))
+        if request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name))
+            query = query.filter(inventoryitemtype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(branch=int(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
         # @change amount format
         report_totalgross = query.aggregate(Sum('grossamount'))
         report_totalnet = query.aggregate(Sum('netamount'))
@@ -817,13 +858,50 @@ def reportresultquery(request):
         report_type = "PRF Detailed"
 
         # @change table for detailed
-        query = Prfmain.objects.all().filter(isdeleted=0)
+        query = Prfdetail.objects.all().filter(isdeleted=0).order_by('prfmain')
 
-    if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
-        if key_data != 'null':
-            key_data = key_data.split(",")
-            query = query.order_by(*key_data)
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__prfnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__prfnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__prfdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__prfdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_prfstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_prfstatus_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__prfstatus=str(key_data))
+        if request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__inventoryitemtype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(prfmain__branch=int(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                for n,data in enumerate(key_data):
+                    key_data[n] = "prfmain__" + data
+                query = query.order_by(*key_data)
+
+        # @change amount format
+        report_totalgross = query.aggregate(Sum('prfmain__grossamount'))
+        report_totalnet = query.aggregate(Sum('prfmain__netamount'))
 
     if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
         key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
@@ -832,3 +910,122 @@ def reportresultquery(request):
 
     # @change totals
     return query, report_type, report_totalgross, report_totalnet
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_totalgross, report_totalnet = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'PRF Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        amount_placement = 6
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        amount_placement = 11
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'PRF Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Inventory Item Type', bold)
+        worksheet.write('D1', 'PRF Status', bold)
+        worksheet.write('E1', 'Branch', bold)
+        worksheet.write('F1', 'Quantity', bold)
+        worksheet.write('G1', 'Gross Amount', bold_right)
+        worksheet.write('H1', 'Net Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        worksheet.merge_range('A1:A2', 'PRF Number', bold)
+        worksheet.merge_range('B1:B2', 'Date', bold)
+        worksheet.merge_range('C1:C2', 'Item Type', bold)
+        worksheet.merge_range('D1:D2', 'Status', bold)
+        worksheet.merge_range('E1:I1', 'PRF Detail', bold_center)
+        worksheet.merge_range('J1:J2', 'Total Quantity', bold)
+        worksheet.merge_range('K1:K2', 'Total Gross', bold_right)
+        worksheet.merge_range('L1:L2', 'Total Net', bold_right)
+        worksheet.write('E2', 'Item', bold)
+        worksheet.write('F2', 'Supplier', bold)
+        worksheet.write('G2', 'Department', bold)
+        worksheet.write('H2', 'Item Gross', bold_right)
+        worksheet.write('I2', 'Item Net', bold_right)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            data = [
+                obj.prfnum,
+                DateFormat(obj.prfdate).format('Y-m-d'),
+                obj.inventoryitemtype.description,
+                obj.get_prfstatus_display(),
+                obj.branch.code + " - " + obj.branch.description,
+                obj.totalquantity,
+                obj.grossamount,
+                obj.netamount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            data = [
+                obj.prfmain.prfnum,
+                DateFormat(obj.prfmain.prfdate).format('Y-m-d'),
+                obj.prfmain.inventoryitemtype.description,
+                obj.prfmain.get_prfstatus_display(),
+                obj.invitem.code + " - " + obj.invitem.description,
+                str(obj.suppliercode) + " - " + str(obj.suppliername),
+                obj.department.code + " - " + obj.department.departmentname,
+                obj.grossamount,
+                obj.netamount,
+                obj.prfmain.totalquantity,
+                obj.prfmain.grossamount,
+                obj.prfmain.netamount,
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        data = [
+            "", "", "", "", "",
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        data = [
+            "", "", "", "", "", "", "", "", "",
+            "Total", report_totalgross['prfmain__grossamount__sum'], report_totalnet['prfmain__netamount__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response

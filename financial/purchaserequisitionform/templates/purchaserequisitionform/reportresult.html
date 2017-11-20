@@ -1,0 +1,165 @@
+{% extends 'reports/base.html' %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        td{
+            vertical-align: top;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <br>
+    <h2>{{ report_type }}</h2>
+
+    {% if report == 's' %}
+        <table id="table_summary">
+        <thead>
+            <tr>
+                {# @change theads #}
+                <th class="left" style="width: 15%;"><span>PRF Number</span></th>
+                <th class="left" style="width: 10%;"><span>Date</span></th>
+                <th class="left" style="width: 25%;"><span>Inventory Item Type</span></th>
+                <th class="left" style="width: 10%;"><span>PRF Status</span></th>
+                <th class="left" style="width: 10%;"><span>Branch</span></th>
+                <th class="right" style="width: 10%;"><span>Quantity</span></th>
+                <th class="right" style="width: 10%;"><span>Gross Amount</span></th>
+                <th class="right" style="width: 10%;"><span>Net Amount</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    {# @change data #}
+                    <td>{{ data.prfnum }}</td>
+                    <td>{{ data.prfdate|date:'Y-m-d' }}</td>
+                    <td>{{ data.inventoryitemtype.description }}</td>
+                    <td>{{ data.get_prfstatus_display }}</td>
+                    <td>{{ data.branch.code }}</td>
+                    <td class="right">{{ data.totalremainingquantity }} / {{ data.totalquantity }}</td>
+                    <td class="right">
+                        {% if data.grossamount != 0.00 %}
+                            {{ data.grossamount|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
+                    <td class="right">
+                        {% if data.netamount != 0.00 %}
+                            {{ data.netamount|floatformat:2|intcomma }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="8"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                {# @change totals #}
+                <td colspan="6"><b>Total</b></td>
+                <td class="right"><b>
+                    {{ report_totalgross.grossamount__sum|floatformat:2|intcomma }}
+                </b></td>
+                <td class="right"><b>
+                    {{ report_totalnet.netamount__sum|floatformat:2|intcomma }}
+                </b></td>
+            </tr>
+        </tbody>
+        </table>
+
+
+    {% elif report == 'd' %}
+{#        <table>#}
+{#            <tr>#}
+{#                <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">#}
+{#                    <b>Subtype:</b> &nbsp;&nbsp;(RFR) Revolving Fund Replenishment, &nbsp;&nbsp;(MAP) Manual Accounts Payable Voucher#}
+{#                </td>#}
+{#                <td style="width: 28%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">#}
+{#                    <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services#}
+{#                </td>#}
+{#                <td style="width: 39%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">#}
+{#                    <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(I) In Process, &nbsp;&nbsp;(R) Released, &nbsp;&nbsp;(D) Disapproved#}
+{#                </td>#}
+{#            </tr>#}
+{#        </table>#}
+{#        <br><br><br>#}
+        <table id="table_detailed">
+        <thead>
+            <tr>
+                {# @change theads #}
+                <th class="left" style="width: 8%;"><span>PRF Number</span></th>
+                <th class="left" style="width: 7%;"><span>Date</span></th>
+                <th class="left" style="width: 5%;"><span>Item Type</span></th>
+                <th class="left" style="width: 4%;"><span>Status</span></th>
+
+                <th class="left" style="width: 19%;"><span>Item</span></th>
+                <th class="left" style="width: 8%;"><span>Supplier</span></th>
+                <th class="left" style="width: 7%;"><span>Department</span></th>
+                <th class="right" style="width: 3%;"><span>Qty.</span></th>
+                <th class="right" style="width: 8%;"><span>Item Gross</span></th>
+                <th class="right" style="width: 8%;"><span>Item Net</span></th>
+
+                <th class="right" style="width: 7%;"><span>Total Quantity</span></th>
+                <th class="right" style="width: 8%;"><span>Total Gross</span></th>
+                <th class="right" style="width: 8%;"><span>Total Net</span></th>
+            </tr>
+        </thead>
+        <tbody class="small">
+            {% for data in data_list %}
+                <tr>
+                    {# @change data #}
+                    {% ifchanged data.prfmain.prfnum %}
+                        <td>{{ data.prfmain.prfnum }}</td>
+                        <td>{{ data.prfmain.prfdate|date:'Y-m-d' }}</td>
+                        <td>{{ data.prfmain.inventoryitemtype.code }}</td>
+                        <td>{{ data.prfmain.prfstatus }}</td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% endifchanged %}
+                    <td>{{ data.invitem_code }} - {{ data.invitem_name }}</td>
+                    <td>{{ data.supplier_code }}</td>
+                    <td>{{ data.department.code }}</td>
+                    <td class="right">{{ data.quantity }}</td>
+                    <td class="right">
+                        {% if data.grossamount != 0.00 %}
+                            {{ data.grossamount }}
+                        {% endif %}
+                    </td>
+                    <td class="right">
+                        {% if data.netamount != 0.00 %}
+                            {{ data.netamount }}
+                        {% endif %}
+                    </td>
+                    {% ifchanged data.prfmain.prfnum %}
+                        <td class="right">{{ data.prfmain.totalremainingquantity }} / {{ data.prfmain.totalquantity }}</td>
+                        <td class="right">
+                            {% if data.prfmain.grossamount != 0.00 %}
+                                {{ data.prfmain.grossamount|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                        <td class="right">
+                            {% if data.prfmain.netamount != 0.00 %}
+                                {{ data.prfmain.netamount|floatformat:2|intcomma }}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% endifchanged %}
+                </tr>
+            {% endfor %}
+            <tr><td colspan="13"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                {# @change totals #}
+                <td colspan="11"><b>Total</b></td>
+                <td class="right"><b>
+                    {{ report_totalgross.prfmain__grossamount__sum|floatformat:2|intcomma }}
+                </b></td>
+                <td class="right"><b>
+                    {{ report_totalnet.prfmain__netamount__sum|floatformat:2|intcomma }}
+                </b></td>
+            </tr>
+        </tbody>
+        </table>
+    {% endif %}
+{% endblock main_content %}
