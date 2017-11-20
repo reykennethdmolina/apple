@@ -10,6 +10,7 @@
                 <th><span>Date</span></th>
                 <th><span>Payee</span></th>
                 <th><span>Amount</span></th>
+                <th><span>Approver</span></th>
                 <th><span>CV Status</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
@@ -22,6 +23,7 @@
                 <td>{{ data.cvdate|date:"Y-m-d" }}</td>
                 <td>{{ data.payee_name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
                 <td class="tdOfStatus
                         {% if data.cvstatus == 'A' %} text-success
                         {% elif data.cvstatus == 'D' %} text-danger

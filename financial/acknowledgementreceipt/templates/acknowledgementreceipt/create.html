@@ -500,7 +500,7 @@
                                 "<td class='tblAuthnum'>" + response.authnum + "</td>" +
                                 "<td class='tblRemarks'>" + response.remarks + "</td>" +
                                 "<td class='tblAmount text-right'><b>" + parseFloat(response.amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</b></td>" +
-                                "<td class='tblAction text-center'><a href='#_' class='detaildelete' id='detaildelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>" +
+                                "<td class='tblAction text-center'><a href='#_' class='itemdelete' id='itemdelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>" +
                             "</tr>");
 
                             $("#id_item_counter").val(parseInt($("#id_item_counter").val())+ 1);
@@ -542,7 +542,7 @@
             });
         });
 
-        $(document.body).on('click', '.detaildelete' ,function(){
+        $(document.body).on('click', '.itemdelete' ,function(){
             var item = $(this).parent().parent();
             if(confirm('Are you sure you want to delete this item?')){
             /* Ajax delete */

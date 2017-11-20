@@ -8,6 +8,7 @@
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
                 <th><span>Type</span></th>
+                <th><span>Approver</span></th>
                 <th><span>Status</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
@@ -20,6 +21,7 @@
                 <td>{{ data.apnum }}</td>
                 <td>{{ data.apdate|date:'Y-m-d' }}</td>
                 <td>{{ data.aptype.description }}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
                 <td class="tdApStatus
                         {% if data.apstatus == 'A' %} text-success
                         {% elif data.apstatus == 'D' %} text-danger

@@ -20,7 +20,7 @@ class Dcmain(models.Model):
         ('C', 'Credit Memo'),
     )
     dctype = models.CharField(max_length=1, choices=DC_TYPE_CHOICES)
-    dcartype = models.ForeignKey('artype.Artype', related_name='dcmain_artype_id')
+    dcartype = models.ForeignKey('dcartype.Dcartype', related_name='dcmain_dcartype_id', null=True, blank=True)
     dcsubtype = models.ForeignKey('debitcreditmemosubtype.Debitcreditmemosubtype', related_name='dcmain_subtype_id')
     branch = models.ForeignKey('branch.Branch', related_name='dcmain_branch_id', default=5)
     customer = models.ForeignKey('customer.Customer', related_name='dcmain_customer_id', null=True, blank=True)
@@ -30,11 +30,12 @@ class Dcmain(models.Model):
         ('OUTV G', 'Output VAT - Goods'),
         ('OUTV S', 'Output VAT - Services'),
     )
-    outputvattype = models.CharField(max_length=6, choices=DC_OUTPUTVATTYPE_CHOICES)
+    outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='dcmain_outvattype_id', null=True,
+                                      blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='dcmain_vat_id', validators=[MinValueValidator(1)])
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     particulars = models.TextField()
-    designatedapprover = models.ForeignKey(User, default=2, related_name='dcmain_designated_approver')
+    designatedapprover = models.ForeignKey(User, related_name='dcmain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='dcmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),

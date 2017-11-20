@@ -28,6 +28,7 @@ from operationalfund.models import Ofmain, Ofdetailtemp, Ofdetailbreakdowntemp, 
 from checkvoucher.models import Cvmain, Cvdetailtemp, Cvdetailbreakdowntemp, Cvdetail, Cvdetailbreakdown
 from officialreceipt.models import Ormain, Ordetailtemp, Ordetailbreakdowntemp, Ordetail, Ordetailbreakdown
 from acknowledgementreceipt.models import Armain, Ardetailtemp, Ardetailbreakdowntemp, Ardetail, Ardetailbreakdown
+from debitcreditmemo.models import Dcmain, Dcdetailtemp, Dcdetailbreakdowntemp, Dcdetail, Dcdetailbreakdown
 from annoying.functions import get_object_or_None
 
 
@@ -97,6 +98,17 @@ def validatetable(table):
             'str_detailbreakdown': 'ardetailbreakdown',
             'stmt_detailtemp': 'temp.armain, temp.ar_num, DATE(temp.ar_date) AS ardate, ',
             'stmt_detailbreakdowntemp': 'temp.ardetailtemp AS detailid, temp.particular, temp.item_counter, temp.armain, temp.ar_num, DATE(temp.ar_date) AS ardate, ',
+        }
+    elif table == 'dcdetailtemp':
+        data = {
+            'sal': 'dc',
+            'str_main': 'dcmain',
+            'str_detailtemp': 'dcdetailtemp',
+            'str_detail': 'dcdetail',
+            'str_detailbreakdowntemp': 'dcdetailbreakdowntemp',
+            'str_detailbreakdown': 'dcdetailbreakdown',
+            'stmt_detailtemp': 'temp.dcmain, temp.dc_num, DATE(temp.dc_date) AS dcdate, ',
+            'stmt_detailbreakdowntemp': 'temp.dcdetailtemp AS detailid, temp.particular, temp.item_counter, temp.dcmain, temp.dc_num, DATE(temp.dc_date) AS dcdate, ',
         }
 
     return data

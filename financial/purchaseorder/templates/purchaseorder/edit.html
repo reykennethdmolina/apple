@@ -150,7 +150,7 @@
                                     <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
                                         <option value="">-- Select --</option>
                                         {% for vat in vat %}
-                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
+                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
                                         {% endfor %}
                                     </select>
                                     <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
@@ -300,7 +300,7 @@
                             </div>
                             <div class="col-sm-6">
                                 {% if postatus != 'Approved' %}
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import PRF</button>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                                 {% endif %}
                             </div>
@@ -607,10 +607,16 @@
                 });
 
                 $("#importbutton").click(function(){
-                    $('#importprfpreview tbody').empty();
-                    $("#importprfselect2").val('').trigger('change.select2');
-                    $('#checkUncheckAll').remove();
-                    $('#iconChecked').remove();
+                    if($("#id_vat").val() == '') {
+                        alert("Please select VAT first.");
+                    }
+                    else {
+                        $('#importprfpreview tbody').empty();
+                        $("#importprfselect2").val('').trigger('change.select2');
+                        $('#checkUncheckAll').remove();
+                        $('#iconChecked').remove();
+                        $('#myModal').modal('show');
+                    }
                 });
 
                 function displaySupplierData(selectedSupplier){
