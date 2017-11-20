@@ -9,6 +9,7 @@
             <th><span>Number</span></th>
             <th><span>Date</span></th>
             <th class="text-right"><span>Amount</span></th>
+            <th><span>Approver</span></th>
             <th><span>OF Status</span></th>
             {% if user_employee != None %}
                 {% if perms.operationalfund.approve_assignedof or perms.operationalfund.approve_allof %}
@@ -29,6 +30,7 @@
             <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
             <td>{{ data.ofdate|date:"Y-m-d" }}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+            <td>{% if data.actualapprover %}{{ data.actualapprover.firstname }}&nbsp;{{ data.actualapprover.lastname }}{% else %}{{ data.designatedapprover.firstname }}&nbsp;{{ data.designatedapprover.lastname }}{% endif %}</td>
             <td class="tdOfStatus
                     {% if data.ofstatus == 'A' %} text-success
                     {% elif data.ofstatus == 'D' %} text-danger

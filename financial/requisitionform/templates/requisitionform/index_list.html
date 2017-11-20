@@ -8,6 +8,7 @@
                     <th><span>Number</span></th>
                     <th><span>Date</span></th>
                     <th><span>Particulars</span></th>
+                    <th><span>Approver</span></th>
                     <th><span>RF Status</span></th>
                     <th class="text-center" style="width: 150px"><span>Action</span></th>
                 </tr>
@@ -19,6 +20,7 @@
                     <td>{{ data.rfnum }}</td>
                     <td>{{ data.rfdate|date:"Y-m-d" }}</td>
                     <td>{{ data.particulars }}</td>
+                    <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
                     <td>{{ data.get_rfstatus_display }}</td>
                     <td style="width: 150px; padding-left: 30px">
                         <div class="iconlist-wrap auto-0">

@@ -7,8 +7,8 @@
                 <th><span>ID</span></th>
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
-                <th><span>Type</span></th>
                 <th><span>Department</span></th>
+                <th><span>Approver</span></th>
                 <th><span>Status</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
@@ -20,8 +20,8 @@
                 <td>{{ data.id }}</td>
                 <td>{{ data.jvnum }}</td>
                 <td>{{ data.jvdate|date:'Y-m-d' }}</td>
-                <td>{{ data.jvtype.description }}</td>
                 <td>{{ data.department.departmentname }}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
                 <td class="tdJvStatus
                         {% if data.jvstatus == 'A' %} text-success
                         {% elif data.jvstatus == 'D' %} text-danger
