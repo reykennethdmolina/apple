@@ -617,6 +617,12 @@
                 event.preventDefault();
                 return false;
             }
+
+            if(!$(".itemdelete").length) {
+                alert('no items!');
+                event.preventDefault();
+                return false;
+            }
         });
 
         function displayPayor(){

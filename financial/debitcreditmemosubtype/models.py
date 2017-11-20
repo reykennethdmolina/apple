@@ -5,6 +5,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 
+
 class Debitcreditmemosubtype(models.Model):
     YESNO_CHOICES = (
         ('Y', 'Yes'),
@@ -23,18 +24,18 @@ class Debitcreditmemosubtype(models.Model):
     )
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
-    group = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, \
-        validators=[MinValueValidator(1)])
-    applicationstatus = models.CharField(max_length=1, choices=YESNO_CHOICES, \
-        validators=[MinValueValidator(1)])
-    debit1chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', default=0, \
-        related_name='debit1chartofaccount_id', validators=[MinValueValidator(1)])
-    debit2chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', default=0, \
-        related_name='debit2chartofaccount_id', validators=[MinValueValidator(1)])
-    credit1chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', default=0, \
-        related_name='credit1chartofaccount_id', validators=[MinValueValidator(1)])
-    credit2chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', default=0, \
-        related_name='credit2chartofaccount', validators=[MinValueValidator(1)])
+    group = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, validators=[MinValueValidator(1)], null=True,
+                             blank=True)
+    applicationstatus = models.CharField(max_length=1, choices=YESNO_CHOICES, validators=[MinValueValidator(1)],
+                                         null=True, blank=True)
+    debit1chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='debit1chartofaccount_id',
+                                             validators=[MinValueValidator(1)], null=True, blank=True)
+    debit2chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='debit2chartofaccount_id',
+                                             validators=[MinValueValidator(1)], null=True, blank=True)
+    credit1chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='credit1chartofaccount_id',
+                                              validators=[MinValueValidator(1)], null=True, blank=True)
+    credit2chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='credit2chartofaccount',
+                                              validators=[MinValueValidator(1)], null=True, blank=True)
     particular = models.CharField(max_length=250, blank=True, null=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='debitcreditmemosubtype_enter')
