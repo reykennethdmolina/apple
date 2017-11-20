@@ -36,7 +36,7 @@
                     </div>
                     <!-- pagination and search end -->
 
-                    {% if perms.checkvoucher.change_cvmain %}
+                    {% if perms.debitcreditmemo.change_dcmain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
                             <i class="icon fa-search" aria-hidden="true"></i> Lookup
                         </button>
@@ -68,7 +68,7 @@
         </div>
     </div>
 </div>
-{#{% include "checkvoucher/search.html" %}#}
+{% include "debitcreditmemo/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}

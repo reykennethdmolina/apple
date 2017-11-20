@@ -7,6 +7,7 @@ from acctentry.views import generatekey, querystmtdetail, querytotaldetail, save
 from django.template.loader import render_to_string
 from ataxcode.models import Ataxcode
 from branch.models import Branch
+from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
 from customer.models import Customer
@@ -18,18 +19,9 @@ from . models import Dcmain, Dcdetail, Dcdetailbreakdown, Dcdetailtemp, Dcdetail
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from easy_pdf.views import PDFTemplateView
 from endless_pagination.views import AjaxListView
 import datetime
-
-
-@method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
-    model = Dcmain
-    template_name = 'debitcreditmemo/index.html'
-    context_object_name = 'data_list'
-
-    def get_queryset(self):
-        return Dcmain.objects.filter(isdeleted=0).order_by('-enterdate')[0:10]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -49,6 +41,20 @@ class IndexView(AjaxListView):
                                  Q(customer_name__icontains=keysearch))
         return query
 
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        # data for lookup
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['pk'] = 0
+        # data for lookup
+
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
@@ -64,17 +70,14 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
         context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
-        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('code')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['secretkey'] = generatekey(self)
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['pk'] = self.object.pk
+        context['secretkey'] = generatekey(self)
+
         return context
 
     def form_valid(self, form):
@@ -132,6 +135,13 @@ class DetailView(DetailView):
             filter(dcmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Dcdetail.objects.filter(isdeleted=0).\
             filter(dcmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['pk'] = self.object.pk
 
         return context
 
@@ -236,18 +246,13 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-        context['dcnum'] = self.object.dcnum
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
         context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
-        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('code')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
-        context['secretkey'] = generatekey(self)
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['pk'] = self.object.pk
+        context['secretkey'] = generatekey(self)
 
         if self.request.POST.get('customer', False):
             context['customer'] = Customer.objects.get(pk=self.request.POST['customer'], isdeleted=0)
@@ -312,3 +317,30 @@ class DeleteView(DeleteView):
         self.object.save()
 
         return HttpResponseRedirect('/debitcreditmemo')
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Dcmain
+    template_name = 'debitcreditmemo/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['dcmain'] = Dcmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['detail'] = Dcdetail.objects.filter(isdeleted=0). \
+            filter(dcmain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Dcdetail.objects.filter(isdeleted=0). \
+            filter(dcmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Dcdetail.objects.filter(isdeleted=0). \
+            filter(dcmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printeddc = Dcmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
+        printeddc.print_ctr += 1
+        printeddc.save()
+        return context

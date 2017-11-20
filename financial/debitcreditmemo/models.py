@@ -26,10 +26,6 @@ class Dcmain(models.Model):
     customer = models.ForeignKey('customer.Customer', related_name='dcmain_customer_id', null=True, blank=True)
     customer_code = models.CharField(max_length=10, null=True, blank=True)
     customer_name = models.CharField(max_length=250, null=True, blank=True)
-    DC_OUTPUTVATTYPE_CHOICES = (
-        ('OUTV G', 'Output VAT - Goods'),
-        ('OUTV S', 'Output VAT - Services'),
-    )
     outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='dcmain_outvattype_id', null=True,
                                       blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='dcmain_vat_id', validators=[MinValueValidator(1)])

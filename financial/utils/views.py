@@ -15,6 +15,7 @@ from journalvoucher.models import Jvmain
 from inventoryitem.models import Inventoryitem
 from operationalfund.models import Ofmain
 from checkvoucher.models import Cvmain
+from debitcreditmemo.models import Dcmain
 from agent.models import Agent
 
 
@@ -336,6 +337,39 @@ def ajaxSearch(request):
             if request.POST['cache_particulars']:
                 items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
 
+        elif request.POST['table'] == "dcmain":
+            items = Dcmain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.POST['cache_dcnum_from'] and request.POST['cache_dcnum_to']:
+                items = items.filter(dcnum__range=[int(request.POST['cache_dcnum_from']),
+                                                   int(request.POST['cache_dcnum_to'])])
+            elif request.POST['cache_dcnum_from']:
+                items = items.filter(dcnum__gte=int(request.POST['cache_dcnum_from']))
+            elif request.POST['cache_dcnum_to']:
+                items = items.filter(dcnum__lte=int(request.POST['cache_dcnum_to']))
+            if request.POST['cache_dcdate_from'] and request.POST['cache_dcdate_to']:
+                items = items.filter(dcdate__range=[request.POST['cache_dcdate_from'],
+                                                    request.POST['cache_dcdate_to']])
+            elif request.POST['cache_dcdate_from']:
+                items = items.filter(dcdate__gte=request.POST['cache_dcdate_from'])
+            elif request.POST['cache_dcdate_to']:
+                items = items.filter(dcdate__lte=request.POST['cache_dcdate_to'])
+            if request.POST['cache_customer_name']:
+                items = items.filter(customer_name__icontains=str(request.POST['cache_customer_name']))
+            if request.POST['cache_dctype']:
+                items = items.filter(dctype=str(request.POST['cache_dctype']))
+            if request.POST['cache_dcsubtype']:
+                items = items.filter(dcsubtype=str(request.POST['cache_dcsubtype']))
+            if request.POST['cache_dcartype']:
+                items = items.filter(dcartype=int(request.POST['cache_dcartype']))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_outputvattype']:
+                items = items.filter(outputvattype=int(request.POST['cache_outputvattype']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+
         items = items[:500]
         listitems = []
 
@@ -348,6 +382,8 @@ def ajaxSearch(request):
                 listitems.append({'text': data.ofnum, 'id': data.id})
             elif request.POST['table'] == "cvmain":
                 listitems.append({'text': data.cvnum, 'id': data.id})
+            elif request.POST['table'] == "dcmain":
+                listitems.append({'text': data.dcnum, 'id': data.id})
 
         data = {
             'status': 'success',
