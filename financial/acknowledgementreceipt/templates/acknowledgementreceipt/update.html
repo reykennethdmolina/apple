@@ -55,14 +55,14 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Create</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                     <div class="col-sm-12">
                         <div class="form-group col-sm-2">
                             <label class="control-label" for="id_arnum">Number</label>
-                            <input type="text" class="form-control input-sm" style="background: white;" placeholder="ARxxxxxxx" disabled="disabled">
+                            <input type="text" class="form-control input-sm" style="background: white;" placeholder="ARxxxxxxx" disabled="disabled" value="{{ arnum }}">
                         </div>
                         <div class="form-group col-sm-2 {{ form.ardate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_ardate">Date</label>
@@ -92,6 +92,9 @@
                             <label class="control-label">Payor</label>
                             <div id="id_div_payor_employee">
                                 <select class="form-control input-sm ajaxselect2" id="id_payor_employee" name="payor_employee">
+                                    {% if payor.id != None %}
+                                        <option value="{{ payor.id }}">{{ payor.code }} - {{ payor.lastname }}, {{ payor.firstname }}</option>
+                                    {% endif %}
                                 </select>
                             </div>
                             <input type="text" class="form-control input-sm" id="id_payor_others" style="background-color: transparent; text-transform: uppercase;" value="{{ form.payor_name.value|default:'' }}" name="payor_others">

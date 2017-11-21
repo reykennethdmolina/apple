@@ -57,6 +57,28 @@
                             </button>
 						</div>
                     </h3>
+                    <div style="padding-right: 10px; padding-bottom: 50px;">
+                        {% if perms.debitcreditmemo.delete_dcmain and object.dcstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                        <a href="{% url 'debitcreditmemo:delete' object.id %}" class="floatright">
+                            <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                            </button>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'debitcreditmemo:pdf' object.id %}" target="_blank" class="floatright">
+                            <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                            </button>
+                        </a>
+                        <a href="{% url 'debitcreditmemo:detail' object.id %}" class="floatright">
+                            <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                            waves-light get_report">
+                                <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                            </button>
+                        </a>
+                    </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>

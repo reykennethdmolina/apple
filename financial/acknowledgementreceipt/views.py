@@ -125,18 +125,80 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
 
-        # if Ordetailtemp.objects.filter(secretkey=self.request.POST['secretkey']).count() == 0:
-        #     addcashinbank(self.request.POST['secretkey'], self.object.totalsale, self.request.user)
-        #
-        # # save ordetailtemp to ordetail
-        # source = 'ordetailtemp'
-        # mainid = self.object.id
-        # num = self.object.ornum
-        # secretkey = self.request.POST['secretkey']
-        # savedetail(source, mainid, num, secretkey, self.request.user)
+        # save aritemtemp to aritem
+        itemtemp = Aritemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
+            order_by('enterdate')
+        i = 1
+        for itemtemp in itemtemp:
+            item = Aritem()
+            item.item_counter = i
+            item.armain = self.object
+            item.arnum = self.object.arnum
+            item.ardate = self.object.ardate
+            item.num = itemtemp.num
+            item.authnum = itemtemp.authnum
+            item.date = itemtemp.date
+            item.amount = itemtemp.amount
+            item.remarks = itemtemp.remarks
+            if itemtemp.bank:
+                item.bank = Bank.objects.get(pk=int(itemtemp.bank))
+            if itemtemp.bankbranch:
+                item.bankbranch = Bankbranch.objects.get(pk=int(itemtemp.bankbranch))
+            if itemtemp.paytype:
+                item.paytype = Paytype.objects.get(pk=int(itemtemp.paytype))
+            item.enterby = itemtemp.enterby
+            item.modifyby = itemtemp.modifyby
+            item.postby = itemtemp.postby
+            item.enterdate = itemtemp.enterdate
+            item.modifydate = itemtemp.modifydate
+            item.postdate = itemtemp.postdate
+            item.save()
+            itemtemp.delete()
+            i += 1
+
+        # save ardetailtemp to ardetail
+        source = 'ardetailtemp'
+        mainid = self.object.id
+        num = self.object.arnum
+        secretkey = self.request.POST['secretkey']
+        savedetail(source, mainid, num, secretkey, self.request.user)
 
         return HttpResponseRedirect('/acknowledgementreceipt/')
         # return HttpResponseRedirect('/acknowledgementreceipt/' + str(self.object.id) + '/update')
+
+
+@method_decorator(login_required, name='dispatch')
+class UpdateView(UpdateView):
+    model = Armain
+    template_name = 'acknowledgementreceipt/update.html'
+    fields = ['ardate', 'artype', 'collector', 'branch', 'amount', 'amountinwords', 'depositorybank', 'particulars']
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('acknowledgementreceipt.change_armain'):
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['secretkey'] = generatekey(self)
+        context['paytype'] = Paytype.objects.filter(isdeleted=0).order_by('pk')
+        context['bank'] = Bank.objects.filter(isdeleted=0).order_by('code')
+        context['arnum'] = self.object.arnum
+
+        if self.request.POST.get('payor', False):
+            context['payor'] = Employee.objects.get(pk=self.request.POST['payor_employee'], isdeleted=0)
+        elif self.object.payor:
+            context['payor'] = Employee.objects.get(pk=self.object.payor.id, isdeleted=0)
+
+        # data for lookup
+        context['artype'] = Artype.objects.filter(isdeleted=0).order_by('pk')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['arsubtype'] = Arsubtype.objects.filter(isdeleted=0)
+        context['depositorybank'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank__code')
+        # data for lookup
+
+        return context
 
 
 @csrf_exempt

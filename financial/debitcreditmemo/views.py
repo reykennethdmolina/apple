@@ -75,7 +75,7 @@ class CreateView(CreateView):
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['pk'] = self.object.pk
+        context['pk'] = 0
         context['secretkey'] = generatekey(self)
 
         return context
