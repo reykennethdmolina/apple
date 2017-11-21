@@ -900,8 +900,11 @@ def reportresultquery(request):
                 query = query.order_by(*key_data)
 
         # @change amount format
-        report_totalgross = query.aggregate(Sum('prfmain__grossamount'))
-        report_totalnet = query.aggregate(Sum('prfmain__netamount'))
+        report_total = query.values_list('prfmain', flat=True).order_by('prfmain').distinct()
+        report_totalgross = Prfmain.objects.filter(pk__in=report_total).aggregate(Sum('grossamount'))
+        report_totalnet = Prfmain.objects.filter(pk__in=report_total).aggregate(Sum('netamount'))
+        # report_totalgross = query.aggregate(Sum('prfmain__grossamount'))
+        # report_totalnet = query.aggregate(Sum('prfmain__netamount'))
 
     if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
         key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
@@ -1017,7 +1020,7 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         data = [
             "", "", "", "", "", "", "", "", "",
-            "Total", report_totalgross['prfmain__grossamount__sum'], report_totalnet['prfmain__netamount__sum'],
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
         ]
 
     row += 1

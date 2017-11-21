@@ -15,5 +15,10 @@ urlpatterns = [
     url(r'^removeprf/$', views.removePrf, name='removeprf'),
     url(r'^getsupplier/$', views.getSupplier, name='getsupplier'),
     url(r'^updatestatus/(?P<command>[\w\-]+)/(?P<pk>[0-9]+)/$', views.updateStatus, name='updatestatus'),
+
+    # @change add report urls
+    url(r'^report/$', views.ReportView.as_view(), name='report'),
+    url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
+    url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
 ]
 

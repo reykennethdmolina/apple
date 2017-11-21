@@ -21,6 +21,10 @@ from . models import Rfmain, Rfdetail, Rfdetailtemp
 from endless_pagination.views import AjaxListView
 from django.db.models import Q, Sum
 
+from utils.mixins import ReportContentMixin
+from django.utils.dateformat import DateFormat
+import datetime
+
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(AjaxListView):
@@ -39,7 +43,6 @@ class IndexView(AjaxListView):
                                  Q(rfdate__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
         return query
-
 
 
 @method_decorator(login_required, name='dispatch')
@@ -454,3 +457,236 @@ def deletedetailtemp(request):
 
     return JsonResponse(data)
 
+
+# @change add report class and def
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Rfmain
+    # @change template link
+    template_name = 'requisitionform/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
+        context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Rfmain
+    # @change template link
+    template_name = 'requisitionform/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        # @change totals
+        query, context['report_type'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        # @change default title
+        context['rc_headtitle'] = "REQUISITION FORM"
+        context['rc_title'] = "REQUISITION FORM"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        # @change report title
+        report_type = "RF Summary"
+
+        # @change table for main
+        query = Rfmain.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(rfnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(rfnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(rfdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(rfdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_rfstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rfstatus_' + request.resolver_match.app_name))
+            query = query.filter(rfstatus=str(key_data))
+        if request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name))
+            query = query.filter(inventoryitemtype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(branch=int(key_data))
+        if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+            query = query.filter(department=int(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        # @change report title
+        report_type = "RF Detailed"
+
+        # @change table for detailed
+        query = Rfdetail.objects.all().filter(isdeleted=0).order_by('rfmain')
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__rfnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__rfnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__rfdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__rfdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_rfstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rfstatus_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__rfstatus=str(key_data))
+        if request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_inventoryitemtype_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__inventoryitemtype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__branch=int(key_data))
+        if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+            query = query.filter(rfmain__department=int(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                for n, data in enumerate(key_data):
+                    key_data[n] = "rfmain__" + data
+                query = query.order_by(*key_data)
+
+    if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+        if key_data == 'd':
+            query = query.reverse()
+
+    # @change totals
+    return query, report_type
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'PRF Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'RF Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Date Needed', bold)
+        worksheet.write('D1', 'Inventory Item Type', bold)
+        worksheet.write('E1', 'RF Status', bold)
+        worksheet.write('F1', 'Designated Approver', bold)
+        worksheet.write('G1', 'Actual Approver', bold)
+        worksheet.write('H1', 'Approver Response', bold)
+        worksheet.write('I1', 'Branch', bold)
+        worksheet.write('J1', 'Department', bold)
+        worksheet.write('K1', 'Quantity', bold)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        worksheet.merge_range('A1:A2', 'RF Number', bold)
+        worksheet.merge_range('B1:B2', 'Date', bold)
+        worksheet.merge_range('C1:C2', 'Date Needed', bold)
+        worksheet.merge_range('D1:D2', 'Inventory Item Type', bold)
+        worksheet.merge_range('E1:E2', 'RF Status', bold)
+        worksheet.merge_range('F1:G1', 'RF Detail', bold_center)
+        worksheet.merge_range('H1:H2', 'Total Quantity', bold_right)
+        worksheet.write('F2', 'Item', bold)
+        worksheet.write('G2', 'Quantity', bold)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            str_actualapprover = '-'
+            if obj.actualapprover:
+                str_actualapprover = str(obj.actualapprover.first_name) + " " + str(obj.actualapprover.last_name)
+
+            data = [
+                obj.rfnum,
+                DateFormat(obj.rfdate).format('Y-m-d'),
+                DateFormat(obj.dateneeded).format('Y-m-d'),
+                obj.inventoryitemtype.description,
+                obj.get_rfstatus_display(),
+                str(obj.designatedapprover.first_name) + " " + str(obj.designatedapprover.last_name),
+                str_actualapprover,
+                obj.get_approverresponse_display(),
+                obj.branch.code + " - " + obj.branch.description,
+                obj.department.code + " - " + obj.department.departmentname,
+                obj.totalquantity,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            data = [
+                obj.rfmain.rfnum,
+                DateFormat(obj.rfmain.rfdate).format('Y-m-d'),
+                DateFormat(obj.rfmain.dateneeded).format('Y-m-d'),
+                obj.rfmain.inventoryitemtype.description,
+                obj.rfmain.get_rfstatus_display(),
+                obj.invitem.code + " - " + obj.invitem.description,
+                obj.quantity,
+                obj.rfmain.totalquantity,
+            ]
+
+        for col_num in xrange(len(data)):
+            worksheet.write(row, col_num, data[col_num])
+
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num])
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response

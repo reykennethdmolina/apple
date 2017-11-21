@@ -1,0 +1,110 @@
+{% extends 'reports/base.html' %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        td{
+            vertical-align: top;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <br>
+    <h2>{{ report_type }}</h2>
+
+    {% if report == 's' %}
+        <table id="table_summary">
+        <thead>
+            <tr>
+                {# @change theads #}
+                <th class="left" style="width: 8%;"><span>RF Number</span></th>
+                <th class="left" style="width: 8%;"><span>Date</span></th>
+                <th class="left" style="width: 8%;"><span>Date Needed</span></th>
+                <th class="left" style="width: 10%;"><span>Inventory Item Type</span></th>
+                <th class="left" style="width: 8%;"><span>RF Status</span></th>
+                <th class="left" style="width: 13%;"><span>Designated Approver</span></th>
+                <th class="left" style="width: 13%;"><span>Actual Approver</span></th>
+                <th class="left" style="width: 12%;"><span>Approver Response</span></th>
+                <th class="left" style="width: 5%;"><span>Branch</span></th>
+                <th class="left" style="width: 5%;"><span>Department</span></th>
+                <th class="right" style="width: 10%;"><span>Quantity</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    {# @change data #}
+                    <td>{{ data.rfnum }}</td>
+                    <td>{{ data.rfdate|date:'Y-m-d' }}</td>
+                    <td>{{ data.dateneeded|date:'Y-m-d' }}</td>
+                    <td>{{ data.inventoryitemtype.description }}</td>
+                    <td>{{ data.get_rfstatus_display }}</td>
+                    <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
+                    <td>
+                        {% if data.actualapprover %}
+                            {{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if data.approverresponse %}
+                            {{ data.get_approverresponse_display }}
+                        {% endif %}
+                    </td>
+                    <td>{{ data.branch.code }}</td>
+                    <td>{{ data.department.code }}</td>
+                    <td class="right">{{ data.totalremainingquantity }} / {{ data.totalquantity }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+
+    {% elif report == 'd' %}
+        <table id="table_detailed">
+        <thead>
+            <tr>
+                {# @change theads #}
+                <th class="left" style="width: 8%;"><span>RF Number</span></th>
+                <th class="left" style="width: 8%;"><span>Date</span></th>
+                <th class="left" style="width: 8%;"><span>Date Needed</span></th>
+                <th class="left" style="width: 10%;"><span>Inventory Item Type</span></th>
+                <th class="left" style="width: 8%;"><span>RF Status</span></th>
+
+                <th class="left" style="width: 33%;"><span>Item</span></th>
+                <th class="right" style="width: 10%;"><span>Quantity</span></th>
+
+                <th class="right" style="width: 15%;"><span>Total Quantity</span></th>
+            </tr>
+        </thead>
+        <tbody class="small">
+            {% for data in data_list %}
+                <tr>
+                    {# @change data #}
+                    {% ifchanged data.rfmain.rfnum %}
+                        <td>{{ data.rfmain.rfnum }}</td>
+                        <td>{{ data.rfmain.rfdate|date:'Y-m-d' }}</td>
+                        <td>{{ data.rfmain.dateneeded|date:'Y-m-d' }}</td>
+                        <td>{{ data.rfmain.inventoryitemtype.code }}</td>
+                        <td>{{ data.rfmain.rfstatus }}</td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    {% endifchanged %}
+                    <td>{{ data.invitem_code }} - {{ data.invitem_name }} ({{ data.invitem_unitofmeasure_code }})</td>
+                    <td class="right">{{ data.prfremainingquantity }} / {{ data.prftotalquantity }}</td>
+                    {% ifchanged data.rfmain.rfnum %}
+                        <td class="right">{{ data.rfmain.totalremainingquantity }} / {{ data.rfmain.totalquantity }}</td>
+                    {% else %}
+                        <td></td>
+                    {% endifchanged %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    {% endif %}
+{% endblock main_content %}

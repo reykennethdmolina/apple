@@ -23,6 +23,10 @@ import datetime
 # pagination and search
 from endless_pagination.views import AjaxListView
 
+from utils.mixins import ReportContentMixin
+from django.utils.dateformat import DateFormat
+from easy_pdf.views import PDFTemplateView
+
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(AjaxListView):
@@ -990,3 +994,261 @@ def updateStatus(request, command, pk):
 def comments():
     print 123
     # removed from imported(doesnt remove prfdetail data of items) -> re-imported(diplicates item with same prfdetail)
+
+
+# @change add report class and def
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Csmain
+    # @change template link
+    template_name = 'canvasssheet/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Prfmain
+    # @change template link
+    template_name = 'canvasssheet/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        # @change totals
+        query, context['report_type'], context['report_totalgross'], context['report_totalnet'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        # @change default title
+        context['rc_headtitle'] = "CANVASS SHEET"
+        context['rc_title'] = "CANVASS SHEET"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+
+    # @change totals
+    report_totalgross = ''
+    report_totalnet = ''
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        # @change report title
+        report_type = "CS Summary"
+
+        # @change table for main
+        query = Csmain.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(csnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(csnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(csdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(csdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_csstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_csstatus_' + request.resolver_match.app_name))
+            query = query.filter(csstatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+        # @change amount format
+        report_totalgross = query.aggregate(Sum('grossamount'))
+        report_totalnet = query.aggregate(Sum('netamount'))
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        # @change report title
+        report_type = "CS Detailed"
+
+        # @change table for detailed
+        query = Csdetail.objects.all().filter(isdeleted=0, csstatus=1).order_by('csmain')
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(csmain__csnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(csmain__csnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(csmain__csdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(csmain__csdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(csmain__netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(csmain__netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_csstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_csstatus_' + request.resolver_match.app_name))
+            query = query.filter(csmain__csstatus=str(key_data))
+
+        # @change amount format
+        report_total = query.values_list('csmain', flat=True).order_by('csmain').distinct()
+        report_totalgross = Csmain.objects.filter(pk__in=report_total).aggregate(Sum('grossamount'))
+        report_totalnet = Csmain.objects.filter(pk__in=report_total).aggregate(Sum('netamount'))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                for n,data in enumerate(key_data):
+                    key_data[n] = "csmain__" + data
+                query = query.order_by(*key_data)
+
+    if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+        if key_data == 'd':
+            query = query.reverse()
+
+    # @change totals
+    return query, report_type, report_totalgross, report_totalnet
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_totalgross, report_totalnet = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'PRF Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        amount_placement = 3
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        amount_placement = 10
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'CS Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'CS Status', bold)
+        worksheet.write('D1', 'Gross Amount', bold_right)
+        worksheet.write('E1', 'Net Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        worksheet.merge_range('A1:A2', 'CS Number', bold)
+        worksheet.merge_range('B1:B2', 'Date', bold)
+        worksheet.merge_range('C1:C2', 'Status', bold)
+        worksheet.merge_range('D1:I1', 'CS Detail', bold_center)
+        worksheet.merge_range('J1:J2', 'Total Qty.', bold)
+        worksheet.merge_range('K1:K2', 'Total Gross', bold_right)
+        worksheet.merge_range('L1:L2', 'Total Net', bold_right)
+        worksheet.write('D2', 'Item', bold)
+        worksheet.write('E2', 'Supplier', bold)
+        worksheet.write('F2', 'Qty.', bold)
+        worksheet.write('G2', 'Nego Cost', bold)
+        worksheet.write('H2', 'Gross Amount', bold_right)
+        worksheet.write('I2', 'Net Amount', bold_right)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            data = [
+                obj.csnum,
+                DateFormat(obj.csdate).format('Y-m-d'),
+                obj.get_csstatus_display(),
+                obj.grossamount,
+                obj.netamount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            data = [
+                obj.csmain.csnum,
+                DateFormat(obj.csmain.csdate).format('Y-m-d'),
+                obj.csmain.get_csstatus_display(),
+                obj.invitem_code + " - " + obj.invitem_name,
+                str(obj.suppliercode) + " - " + str(obj.suppliername),
+                obj.quantity,
+                obj.negocost,
+                obj.grossamount,
+                obj.netamount,
+                obj.csmain.quantity,
+                obj.csmain.grossamount,
+                obj.csmain.netamount,
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        data = [
+            "", "",
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        data = [
+            "", "", "", "", "", "", "", "", "",
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response
