@@ -1,0 +1,69 @@
+{% load endless %}
+{% load humanize %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>ID</span></th>
+                <th><span>Number</span></th>
+                <th><span>Date</span></th>
+                <th><span>Particulars</span></th>
+                <th><span>Amount</span></th>
+{#                <th><span>OR Status</span></th>#}
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.cmnum }}</td>
+                <td>{{ data.cmdate|date:"Y-m-d" }}</td>
+                <td>{{ data.particulars }}</td>
+                <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+{#                <td class="tdOfStatus#}
+{#                        {% if data.orstatus == 'A' %} text-success#}
+{#                        {% elif data.orstatus == 'D' %} text-danger#}
+{#                        {% elif data.orstatus == 'F' %} text-info#}
+{#                        {% elif data.orstatus == 'R' %} text-success#}
+{#                        {% endif %}">#}
+{#                    <b>{{ data.get_orstatus_display }}</b>#}
+{#                </td>#}
+                <td style="width: 115px; padding-left: 13px" class="action-btns-container">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist" style="text-align: left">
+{#                        <a href="{% url 'cmsadjustment:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
+{#                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>#}
+{#                        </a>#}
+                        {% if perms.cmsadjustment.change_cmmain and data.isdeleted == 0 %}
+                        <a href="{% url 'cmsadjustment:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+{#                        {% if perms.cmsadjustment.delete_cmmain and data.isdeleted == 0 and data.status == 'A' and data.cmstatus != 'A' and data.cmstatus != 'I' and data.cmstatus != 'R' %}#}
+{#                        <a href="{% url 'cmsadjustment:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">#}
+{#                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>#}
+{#                        </a>#}
+{#                        {% endif %}#}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+    });
+</script>

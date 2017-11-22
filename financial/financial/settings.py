@@ -144,6 +144,7 @@ INSTALLED_APPS = [
     'arsubtype',
     'processing_data',
     'dcartype',
+    'cmsadjustment',
 ]
 
 MIDDLEWARE_CLASSES = [

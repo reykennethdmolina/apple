@@ -1,0 +1,232 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} CMS Adjustment {% endblock page-title %}
+{% block page-content %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" /><style>
+        .heading-top-index-2 {
+            padding-right: 15px;
+            padding-left: 45px;
+        }
+        .form-control.input-sm.date-yyyymmdd.datepicker.week {
+            background-color: transparent;
+        }
+        hr{
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .select2-results__option {
+            font-size: 12px;
+        }
+        .class-adv {
+            display: none;
+        }
+        .class-cir {
+            display: none;
+        }
+        .amount_display{
+            height: 25px;
+            margin-left: 40px;
+        }
+    </style>
+{% endblock extra_css %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <form autocomplete="off" id="form-b" method="post">
+                    {% csrf_token %}
+                    <div class="col-sm-4">
+                        <div class="form-group col-sm-12 margin-bottom-15">
+                            <label class="control-label" for="id_cmnum">Number</label>
+                            <input type="text" class="form-control input-sm" style="background: white;" value="{{ cmnum }}" placeholder="CMxxxxxxx" disabled="disabled">
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10 {{ form.cmdate.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_cmdate">Date</label>
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <span class="help-block form-error">{{ form.cmdate.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-12 {{ form.particulars.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_particulars">Particulars</label>
+                            <textarea id="id_particulars" data-validation="required" class="form-control input-sm" name="particulars" rows="3">{{ form.particulars.value|default:'' }}</textarea>
+                            <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="control-label">Total Amount:</label>
+                            <label class="control-label pull-right" id="totalamount">{{ totalamount|floatformat:2|intcomma }}</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="col-sm-12 row">
+                            <div class="table-responsive" style="margin-top:-12px">
+                                <table class="table" id="detailstable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;"><span>#</span></th>
+                                            <th><span>PRODUCT</span></th>
+                                            <th style="text-align: right; width: 200px;"><span>AMOUNT</span></th>
+                                            <th style="width: 30px"><a href="#" style="font-size: 15px" id="item_add"><i class="icon fa-plus-square" aria-hidden="true"></i></a></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                                            <tr>
+                                                <td>{{ item.item_counter }}</td>
+                                                <td>
+                                                    <select name="product[]" class="form-control input-sm select2 product">
+                                                        <option value="">-- Select --</option>
+                                                        {% for data in product %}
+                                                            <option value="{{ data.id }}" {% if item.product_id|add:0 == data.id %} selected="selected" {% endif %}>
+                                                                [{{ data.code }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="amount[]" class="form-control input-sm amount po_dynamic text-right" value="{{ item.amount|floatformat:2|intcomma }}">
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td>{{ currentcounter }}</td>
+                                            <td>
+                                                <select name="product[]" class="form-control input-sm select2 product">
+                                                    <option value="">-- Select --</option>
+                                                    {% for data in product %}
+                                                        <option value="{{ data.id }}">[{{ data.code }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td><input type="text" name="amount[]" class="form-control input-sm amount po_dynamic text-right"></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2"><b>TOTAL</b></td>
+                                            <td id="totaldetailsamount" class="text-right padding-right-20"><b>{{ totalamount|floatformat:2|intcomma }}</b></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 padding-top-15 padding-bottom-15">
+                        <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                    </div>
+                </form>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Accounting Entry Start -->
+<div class="modal fade modal-message" id="modal-row">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btnclosebreakdown" aria-label="Close">
+                <span aria-hidden="true">x</span>
+                </button>
+                <h4 class="modal-title">Breakdown Entry</h4>
+            </div>
+            <div class="modal-body" id="breakdowndata">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="item-save-warning" class="custom-alert danger">Please complete details of added items first.</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function(){
+        $('.select2').select2();
+
+{#        start#}
+        //product list
+        product_list = "<select name='product[]' class='form-control input-sm select2 product'>";
+        product_list += "<option value=''>-- Select --</option>";
+        {% for data in product %}
+            product_list += "<option value='{{ data.id }}'>[{{ data.code }}]&nbsp;&nbsp;&nbsp;{{ data.description }}</option>";
+        {% endfor %}
+        product_list += "</select>";
+
+        $('#item_add').on('click', function(){
+            var valid = true;
+            $('.product').each(function(){
+                if($(this).val() == '' || $(this).parent().parent().find('.amount').val() == '' || $(this).parent().parent().find('.amount').val() == '0.00'){
+                    customAlert($('#item-save-warning'));
+                    valid = false;
+                }
+            });
+            if(valid){
+                $('#detailstable > tbody').append("<tr>" +
+                        "<td></td>" +
+                        "<td>"+product_list+"</td>" +
+                        "<td><input type='text' name='amount[]' class='form-control po_dynamic input-sm amount text-right'></td>" +
+                        "<td><a href='#' style='font-size: 13px' class='item_delete'><i class='icon fa-trash' aria-hidden='true'></i></a></td>" +
+                        "</tr>");
+                $('.select2').select2();
+                itemRecount();
+                computeTotalAmount();
+                initMaskMoney('po_dynamic');
+            }
+        });
+
+        $(document).on('click', '.item_delete', function(){
+            $(this).parent().parent().remove();
+            itemRecount();
+            computeTotalAmount();
+        });
+
+        $(document).on('change', '.amount', function(){
+            computeTotalAmount();
+        });
+
+        $("#validateButton").on('click', function() {
+            var valid = true;
+            $('.product').each(function(){
+                if($(this).val() == '' || $(this).parent().parent().find('.amount').val() == '' || $(this).parent().parent().find('.amount').val() == '0.00'){
+                    customAlert($('#item-save-warning'));
+                    valid = false;
+                }
+            });
+            if(!valid){
+                event.preventDefault();
+            }
+        });
+
+        function itemRecount(){
+            var item_count = 1;
+            $('#detailstable > tbody > tr').each(function(){
+                $(this).find('td:eq(0)').html(item_count);
+                item_count++;
+            })
+        }
+
+        function computeTotalAmount(){
+            var total = 0.00;
+            $.each($('.amount'), function(){
+                total += parseFloat($(this).val() != '' ? $(this).val().replace(/,/g, '') : '0');
+            });
+            $('#totaldetailsamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
+            $('#totalamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
+        }
+{#        end#}
+    });
+    </script>
+{% endblock extra_js %}

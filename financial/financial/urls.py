@@ -80,6 +80,7 @@ urlpatterns = [
     url(r'^acknowledgementreceipt/', include('acknowledgementreceipt.urls', app_name='acknowledgementreceipt', namespace='acknowledgementreceipt')),
     url(r'^arsubtype/', include('arsubtype.urls', app_name='arsubtype', namespace='arsubtype')),
     url(r'^dcartype/', include('dcartype.urls', app_name='dcartype', namespace='dcartype')),
+    url(r'^cmsadjustment/', include('cmsadjustment.urls', app_name='cmsadjustment', namespace='cmsadjustment')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),
