@@ -5,7 +5,7 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Acknowledgement Receipt</title>
+    <title>CMS Adjustment</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
@@ -20,14 +20,14 @@
                 left: 1cm;
                 width: 19.5cm;
                 top: 2.5cm;
-                height: 21cm;
+                height: 19.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm;
                 width: 19.5cm;
-                top: 23cm;
-                height: 5cm;
+                top: 22cm;
+                height: 6cm;
             }
         }
         body{
@@ -53,8 +53,8 @@
         .sign_here{
             width: 165px;
             border-bottom: 1px solid black;
-            padding-bottom: -5px;
-            margin-bottom: -5px;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
         }
     </style>
 </head>
@@ -65,10 +65,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">ACKNOWLEDGEMENT RECEIPT</p>
+                <p class="title center">CMS ADJUSTMENT</p>
             </td>
             <td>
-                <p class="title right">{{ armain.arnum }}</p>
+                <p class="title right">{{ cmmain.cmnum }}</p>
             </td>
         </tr>
     </table>
@@ -76,31 +76,22 @@
 
 <div id="footer_content">
     <table>
-        <tr style="border-top: 2px solid black; padding-bottom: 0px;border-left: 2px solid black;">
-            <td colspan="6" style="border-right: 2px solid black;">&nbsp;</td>
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="6" style="border-right: 2px solid black;"></td>
         </tr>
         <tr style="padding: 5px; padding-bottom: 0px;">
             <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">
-                    {% if armain.actualapprover %}
-                        SGD
-                    {% endif %}
-                    {{ armain.enterby.first_name }}&nbsp;{{ armain.enterby.last_name }}
+                    {{ cmmain.enterby.first_name }}&nbsp;{{ cmmain.enterby.last_name }}
                 </div>
                 <i>Signature over printed name</i>
             </td>
             <td width="20%"><b>Approved by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-                <div class="sign_here">
-                    {% if armain.actualapprover and armain.approverresponse == 'A' %}
-                        SGD {{ armain.actualapprover.first_name }}&nbsp;{{ armain.actualapprover.last_name }}
-                    {% else %}
-                        {{ armain.designatedapprover.first_name }}&nbsp;{{ armain.designatedapprover.last_name }}
-                    {% endif %}
-                </div>
+                <div class="sign_here">&nbsp;</div>
                 <i>Signature over printed name</i>
             </td>
         </tr>
@@ -108,21 +99,15 @@
             <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                <div class="sign_here">{{ armain.enterdate|date:'Y-m-d' }}</div>
+                <div class="sign_here">{{ cmmain.enterdate|date:'Y-m-d' }}</div>
             </td>
             <td width="20%"><b>Date approved</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-                <div class="sign_here">
-                    {% if armain.actualapprover and armain.approverresponse == 'A' %}
-                        {{ armain.responsedate|date:'Y-m-d' }}
-                    {% else %}
-                        &nbsp;
-                    {% endif %}
-                </div>
+                <div class="sign_here">&nbsp;</div>
             </td>
         </tr>
-</table>
+    </table>
     <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
         <tr>
             <td>
@@ -160,217 +145,47 @@
             VAT REG TIN: {{ parameter.tinnum }}
         </td>
     </tr>
-    <tr><td colspan="3"></td></tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr><td>&nbsp;</td></tr>
+</table>
+<br><br>
+<table style="margin-bottom: 30px;">
     <tr>
-        <td colspan="3">
-            <br>
+        <td width="40%">
             <table>
                 <tr>
-                    <td width="12%"><b>Date</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.ardate|date:'Y-m-d' }}</td>
-                    <td width="20%"><b>Collector</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.collector_name }}</td>
+                    <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td width="12%"><b>AR&nbsp;Type</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.artype.description }}</td>
-                    <td width="20%"><b>AR&nbsp;Subtype</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.arsubtype.arsubtypechartofaccount.description|default:'N/A' }}</td>
+                    <td width="20%"><b>Date</b></td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td width="70%" style="vertical-align: top">{{ cmmain.cmdate|date:'Y-m-d' }}</td>
                 </tr>
                 <tr>
-                    <td width="12%"><b>Payor</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.payor_name }}</td>
-                    <td width="20%"><b>Depository&nbsp;Bank</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.depositorybank.code }}&nbsp;[{{ armain.depositorybank.bank.description }}&nbsp;-&nbsp;{{ armain.depositorybank.bankaccounttype.description }},&nbsp;{{ armain.depositorybank.bankbranch.description }}]&nbsp;{{ armain.depositorybank.accountnumber }}</td>
-                </tr>
-                <tr>
-                    <td width="12%"><b>Amount</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.amount|floatformat:2|intcomma }}</td>
-                    <td width="20%"><b>Amount&nbsp;in&nbsp;Words</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.amountinwords }}</td>
-                </tr>
-                <tr>
-                    <td width="12%"><b>Branch</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.branch.description }}</td>
                     <td width="20%"><b>Particulars</b></td>
-                    <td width="5%"><b>:</b></td>
-                    <td>{{ armain.particulars }}</td>
+                    <td width="10%" style="vertical-align: top"><b>:</b></td>
+                    <td width="70%" style="vertical-align: top">{{ cmmain.particulars }}</td>
                 </tr>
             </table>
         </td>
-    </tr>
-    <tr><td></td></tr>
-    <tr><td><b>PAYMENT DETAILS</b></td></tr>
-</table>
-<table>
-    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;"><b><i></i></b></td>
-        <td><b><i>Type</i></b></td>
-        <td><b><i>Bank</i></b></td>
-        <td><b><i>Number</i></b></td>
-        <td><b><i>Date</i></b></td>
-        <td><b><i>Auth. #</i></b></td>
-        <td><b><i>Remarks</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Amount (PHP)</i></b></td>
-    </tr>
-    {% for data in items %}
-        <tr style="padding-top: 5px;">
-            <td width="5%">{{ forloop.counter }}</td>
-            <td>{{ data.paytype.description }}</td>
-            <td>{% if data.bank and data.bankbranch %} {{ data.bank.code }}&nbsp;{{ data.bankbranch.description }} {% else %} - {% endif %}</td>
-            <td>{{ data.num|default:' - ' }}</td>
-            <td>{{ data.date|date:'Y-m-d'|default:' - ' }}</td>
-            <td>{{ data.authnum|default:' - ' }}</td>
-            <td>{{ data.remarks|default:' - ' }}</td>
-            <td align="right" style="padding-right: 5px;">{{ data.amount|floatformat:2|intcomma }}</td>
-        </tr>
-    {% endfor %}
-    <tr>
-        <td colspan="6"></td>
-        <td style="padding-top: 8px;"><b>TOTAL:</b></td>
-        <td style="text-align: right; padding-right: 5px; padding-top: 8px;"><b>{{ armain.amount|floatformat:2|intcomma }}</b></td>
-    </tr>
-</table>
-            <b>ACCOUNTING ENTRIES</b>
-<table style="padding-left: 5px;">
-    <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>
-        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>
-    </tr>
-    <tr class="left" style="border-bottom: 2px solid black;">
-        <td style="border-left: 2px solid black;">
-            <table>
+        <td width="60%">
+            <table class="table table-bordered" id="detailstable">
                 <tr>
-                    <td style="width: 30%"><b><i>Acct Code</i></b></td>
-                    <td style="width: 70%"><b><i>Acct Title</i></b></td>
+                    <th><span>&nbsp;</span></th>
+                    <th style="text-align: left;"><span>PRODUCT</span></th>
+                    <th style="text-align: right; width: 200px;"><span>AMOUNT</span></th>
                 </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 30%"><b><i>Detail</i></b></td>
-                    <td style="width: 70%"><b><i>Description</i></b></td>
-                </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 50%; text-align: right;"><b><i>Debit</i></b></td>
-                    <td style="width: 50%; text-align: right; border-right: 2px solid black; padding-right: 5px;"><b><i>Credit</i></b></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-    {% for detail in detail %}
-        <tr style="padding-top: 5px;">
-            <td>
-                <table style="padding-bottom: -5px;">
+                {% for item in items %}
                     <tr>
-                        <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>
-                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>
+                        <td width="5%" style="margin-left: 5px;">{{ item.item_counter }}</td>
+                        <td width="65%">[{{ item.product_code }}]&nbsp;&nbsp;{{ item.product_name }}</td>
+                        <td width="30%" style="text-align: right;">{{ item.amount|floatformat:2|intcomma }}</td>
                     </tr>
-                </table>
-            </td>
-            <td>
-                <table style="padding-bottom: -5px;">
-                    {% if detail.bankaccount %}
-                        <tr>
-                            <td width="30%">Account no.:</td>
-                            <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.department %}
-                        <tr>
-                            <td width="30%">Department:</td>
-                            <td width="70%">{{ detail.department.departmentname }}</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.employee %}
-                        <tr>
-                            <td width="30%">Employee:</td>
-                            <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
-                        </tr>{% endif %}
-                    {% if detail.supplier %}
-                        <tr>
-                            <td width="30%">Supplier:</td>
-                            <td width="70%">{{ detail.supplier.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.customer %}
-                        <tr>
-                            <td width="30%">Customer:</td>
-                            <td width="70%">{{ detail.customer.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.unit %}
-                        <tr>
-                            <td width="30%">Unit:</td>
-                            <td width="70%">{{ detail.unit.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.branch %}
-                        <tr>
-                            <td width="30%">Branch:</td>
-                            <td width="70%">{{ detail.branch.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.product %}
-                        <tr>
-                            <td width="30%">Product:</td>
-                            <td width="70%">{{ detail.product.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.inputvat %}
-                        <tr>
-                            <td width="30%">Input VAT:</td>
-                            <td width="70%">{{ detail.inputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.outputvat %}
-                        <tr>
-                            <td width="30%">Ouptut VAT:</td>
-                            <td width="70%">{{ detail.outputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.vat %}
-                        <tr>
-                            <td width="30%">VAT:</td>
-                            <td width="70%">{{ detail.vat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.wtax %}
-                        <tr>
-                            <td width="30%">WTax:</td>
-                            <td width="70%">{{ detail.wtax.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.ataxcode %}
-                        <tr>
-                            <td width="30%">ATax:</td>
-                            <td width="70%">{{ detail.ataxcode.description }}</td>
-                        </tr>{% endif %}
-                </table>
-            </td>
-            <td>
-                <table>
-                    <tr>
-                        <td style="width: 50%; text-align: right;">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}</td>
-                        <td style="width: 50%; text-align: right; padding-right: 5px;">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    {% endfor %}
-    <tr style="padding-top: 5px;">
-        <td colspan="2" align="right"><b>TOTAL:</b></td>
-        <td>
-            <table style="padding-top: 2.5px;">
+                {% endfor %}
+                <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td style="width: 50%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
-                    <td style="width: 50%; text-align: right; padding-right: 5px;"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
+                    <td colspan="2" style="text-align: right;"><b>TOTAL</b></td>
+                    <td style="text-align: right;"><b>{{ cmmain.amount|floatformat:2|intcomma }}</b></td>
                 </tr>
             </table>
         </td>

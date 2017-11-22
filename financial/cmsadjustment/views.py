@@ -196,95 +196,26 @@ class DeleteView(DeleteView):
         return HttpResponseRedirect('/cmsadjustment')
 
 
-# @method_decorator(login_required, name='dispatch')
-# class Pdf(PDFTemplateView):
-#     model = Armain
-#     template_name = 'acknowledgementreceipt/pdf.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(PDFTemplateView, self).get_context_data(**kwargs)
-#
-#         context['armain'] = Armain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-#         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
-#         context['items'] = Aritem.objects.filter(armain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
-#         context['detail'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).order_by('item_counter')
-#         context['totaldebitamount'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).\
-#             aggregate(Sum('debitamount'))
-#         context['totalcreditamount'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).\
-#             aggregate(Sum('creditamount'))
-#
-#         context['pagesize'] = 'Letter'
-#         context['orientation'] = 'portrait'
-#         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-#
-#         printedar = Armain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-#         printedar.print_ctr += 1
-#         printedar.save()
-#         return context
-#
-#
-# @csrf_exempt
-# def savepaymentdetailtemp(request):
-#     if request.method == 'POST':
-#         if request.POST['id_itemtemp'] != '':  # if item already exists (update)
-#             itemtemp = Aritemtemp.objects.get(pk=int(request.POST['id_itemtemp']))
-#         else:  # if item does not exist (create)
-#             itemtemp = Aritemtemp()
-#             itemtemp.enterby = request.user
-#         itemtemp.item_counter = request.POST['itemno']
-#         itemtemp.secretkey = request.POST['secretkey']
-#         itemtemp.paytype = Paytype.objects.get(pk=int(request.POST['paytype']))
-#         itemtemp.amount = request.POST['amount'].replace(',', '')
-#         itemtemp.modifyby = request.user
-#
-#         if itemtemp.paytype.code == 'CH':
-#             itemtemp.bank = Bank.objects.get(pk=int(request.POST['bank']))
-#             itemtemp.bankbranch = Bankbranch.objects.get(pk=int(request.POST['bankbranch']))
-#             itemtemp.num = request.POST['num']
-#             itemtemp.date = request.POST['date']
-#         elif itemtemp.paytype.code == 'CC':
-#             itemtemp.num = request.POST['num']
-#             itemtemp.authnum = request.POST['authnum']
-#             itemtemp.date = request.POST['date']
-#         elif itemtemp.paytype.code == 'EX':
-#             itemtemp.remarks = request.POST['remarks']
-#
-#         itemtemp.save()
-#         data = {
-#             'status': 'success',
-#             'id': itemtemp.pk,
-#             'item_counter': itemtemp.item_counter,
-#             'paytype': itemtemp.paytype.description,
-#             'amount': itemtemp.amount,
-#             'bank': itemtemp.bank.code + ' ' + itemtemp.bankbranch.description if itemtemp.bank and itemtemp.bankbranch else ' - ',
-#             'number': itemtemp.num if itemtemp.num else ' - ',
-#             'date': itemtemp.date if itemtemp.date else ' - ',
-#             'authnum': itemtemp.authnum if itemtemp.authnum else ' - ',
-#             'remarks': itemtemp.remarks if itemtemp.remarks else ' - ',
-#         }
-#     else:
-#         data = {
-#             'status': 'error',
-#         }
-#     return JsonResponse(data)
-#
-#
-# @csrf_exempt
-# def deletepaymentdetailtemp(request):
-#     if request.method == 'POST':
-#         itemtemptodelete = Aritemtemp.objects.get(pk=request.POST['id_itemtemp'])
-#         if itemtemptodelete.armain is None:
-#             itemtemptodelete.delete()
-#         else:
-#             itemtemptodelete.isdeleted = 1
-#             itemtemptodelete.save()
-#         data = {
-#             'status': 'success',
-#         }
-#     else:
-#         data = {
-#             'status': 'error',
-#         }
-#     return JsonResponse(data)
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Cmmain
+    template_name = 'cmsadjustment/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['cmmain'] = Cmmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['items'] = Cmitem.objects.filter(cmmain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedcm = Cmmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedcm.print_ctr += 1
+        printedcm.save()
+        return context
+
 
 

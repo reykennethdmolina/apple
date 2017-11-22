@@ -39,6 +39,28 @@
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
                 <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <div style="padding-right: 10px; padding-bottom: 60px;">
+                    {% if perms.cmsadjustment.delete_cmmain and object.cmstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                    <a href="{% url 'cmsadjustment:delete' object.id %}" class="floatright">
+                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                        </button>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'cmsadjustment:pdf' object.id %}" target="_blank" class="floatright">
+                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        </button>
+                    </a>
+                    <a href="{% url 'cmsadjustment:detail' object.id %}" class="floatright">
+                        <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                        </button>
+                    </a>
+                </div>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <div class="col-sm-4">
