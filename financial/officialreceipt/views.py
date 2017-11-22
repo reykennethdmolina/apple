@@ -650,17 +650,17 @@ def reportresultquery(request):
 
         if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
-            query = query.filter(ornum__gte=int(key_data))
+            query = query.filter(ormain__ornum__gte=int(key_data))
         if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
-            query = query.filter(ornum__lte=int(key_data))
+            query = query.filter(ormain__ornum__lte=int(key_data))
 
         if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
-            query = query.filter(ordate__gte=key_data)
+            query = query.filter(ormain__ordate__gte=key_data)
         if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
-            query = query.filter(ordate__lte=key_data)
+            query = query.filter(ormain__ordate__lte=key_data)
 
         if request.COOKIES.get('rep_f_ortype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_ortype_' + request.resolver_match.app_name))

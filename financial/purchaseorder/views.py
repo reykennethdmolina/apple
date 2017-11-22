@@ -26,6 +26,10 @@ import datetime
 # pagination and search
 from endless_pagination.views import AjaxListView
 
+from utils.mixins import ReportContentMixin
+from easy_pdf.views import PDFTemplateView
+from django.utils.dateformat import DateFormat
+
 # Create your views here.
 
 
@@ -982,3 +986,271 @@ def deleteprfpotransactionitem(podetail):
     Pomain.objects.filter(pk=podetail.pomain.id).update(totalquantity=0, totalamount=0.00, grossamount=0.00,
                                                         discountamount=0.00, netamount=0.00, vatable=0.00,
                                                         vatamount=0.00, vatexempt=0.00, vatzerorated=0.00)
+
+
+# @change add report class and def
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Pomain
+    # @change template link
+    template_name = 'purchaseorder/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['inventoryitemtype'] = Inventoryitemtype.objects.filter(isdeleted=0).order_by('description')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Prfmain
+    # @change template link
+    template_name = 'purchaseorder/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        # @change totals
+        query, context['report_type'], context['report_totalgross'], context['report_totalnet'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        # @change default title
+        context['rc_headtitle'] = "PURCHASE ORDER"
+        context['rc_title'] = "PURCHASE ORDER"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+
+    # @change totals
+    report_totalgross = ''
+    report_totalnet = ''
+
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        # @change report title
+        report_type = "PO Summary"
+
+        # @change table for main
+        query = Pomain.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(ponum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(ponum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(podate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(podate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_postatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_postatus_' + request.resolver_match.app_name))
+            query = query.filter(postatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+        # @change amount format
+        report_totalgross = query.aggregate(Sum('grossamount'))
+        report_totalnet = query.aggregate(Sum('netamount'))
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        # @change report title
+        report_type = "PO Detailed"
+
+        # @change table for detailed
+        query = Podetail.objects.all().filter(isdeleted=0).order_by('prfmain')
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(pomain__ponum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(pomain__ponum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(pomain__podate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(pomain__podate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountfrom_' + request.resolver_match.app_name))
+            query = query.filter(pomain__netamount__gte=float(key_data.replace(',', '')))
+        if request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_net_amountto_' + request.resolver_match.app_name))
+            query = query.filter(pomain__netamount__lte=float(key_data.replace(',', '')))
+
+        if request.COOKIES.get('rep_f_postatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_postatus_' + request.resolver_match.app_name))
+            query = query.filter(pomain__postatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_order_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                for n,data in enumerate(key_data):
+                    key_data[n] = "pomain__" + data
+                query = query.order_by(*key_data)
+
+        # @change amount format
+        report_total = query.values_list('pomain', flat=True).order_by('pomain').distinct()
+        report_totalgross = Pomain.objects.filter(pk__in=report_total).aggregate(Sum('grossamount'))
+        report_totalnet = Pomain.objects.filter(pk__in=report_total).aggregate(Sum('netamount'))
+
+    if request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_asc_' + request.resolver_match.app_name))
+        if key_data == 'd':
+            query = query.reverse()
+
+    # @change totals
+    return query, report_type, report_totalgross, report_totalnet
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_totalgross, report_totalnet = reportresultquery(request)
+    report_type = report_type if report_type != '' else 'PO Report'
+    worksheet = workbook.add_worksheet(report_type)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        amount_placement = 6
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        amount_placement = 12
+
+    # config: header
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        worksheet.write('A1', 'PO Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Ref No.', bold)
+        worksheet.write('D1', 'PO Status', bold)
+        worksheet.write('E1', 'Supplier', bold)
+        worksheet.write('F1', 'Quantity', bold)
+        worksheet.write('G1', 'Gross Amount', bold_right)
+        worksheet.write('H1', 'Net Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        worksheet.merge_range('A1:A2', 'PO Number', bold)
+        worksheet.merge_range('B1:B2', 'Date', bold)
+        worksheet.merge_range('C1:C2', 'Status', bold)
+        worksheet.merge_range('D1:D2', 'Supplier', bold)
+        worksheet.merge_range('E1:K1', 'PO Detail', bold_center)
+        worksheet.merge_range('L1:L2', 'Total Quantity', bold)
+        worksheet.merge_range('M1:M2', 'Total Gross', bold_right)
+        worksheet.merge_range('N1:N2', 'Total Net', bold_right)
+        worksheet.write('E2', 'Item', bold)
+        worksheet.write('F2', 'Branch', bold)
+        worksheet.write('G2', 'Department', bold)
+        worksheet.write('H2', 'Item Cost', bold_right)
+        worksheet.write('I2', 'Quantity', bold_right)
+        worksheet.write('J2', 'Gross Amount', bold_right)
+        worksheet.write('K2', 'Net Amount', bold_right)
+        row += 1
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+            data = [
+                obj.ponum,
+                DateFormat(obj.podate).format('Y-m-d'),
+                obj.refnum,
+                obj.get_postatus_display(),
+                str(obj.supplier_code) + " - " + str(obj.supplier_name),
+                obj.totalquantity,
+                obj.grossamount,
+                obj.netamount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+            data = [
+                obj.pomain.ponum,
+                DateFormat(obj.pomain.podate).format('Y-m-d'),
+                obj.pomain.get_postatus_display(),
+                str(obj.pomain.supplier_code) + " - " + str(obj.pomain.supplier_name),
+                obj.invitem_code + " - " + obj.invitem_name,
+                obj.branch.code + " - " + obj.branch.description,
+                obj.department.code + " - " + obj.department.departmentname,
+                obj.unitcost,
+                obj.quantity,
+                obj.grossamount,
+                obj.netamount,
+                obj.pomain.totalquantity,
+                obj.pomain.grossamount,
+                obj.pomain.netamount,
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
+        data = [
+            "", "", "", "", "",
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
+        data = [
+            "", "", "", "", "", "", "", "", "", "", "",
+            "Total", report_totalgross['grossamount__sum'], report_totalnet['netamount__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    return response
