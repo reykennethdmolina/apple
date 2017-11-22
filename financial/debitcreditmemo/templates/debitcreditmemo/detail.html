@@ -26,11 +26,11 @@
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
                     <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Main Details</a></li>
-                        <a href="{% url 'debitcreditmemo:pdf' object.id %}" target="_blank" class="floatright">
-                            <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
-                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
-                            </button>
-                        </a>
+                    <a href="{% url 'debitcreditmemo:pdf' object.id %}" target="_blank" class="floatright">
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Print
+                        </button>
+                    </a>
                 </ul>
                 <div class="tab-content padding-top-0">
                     <div class="tab-pane active" id="profiles" role="tabpanel">

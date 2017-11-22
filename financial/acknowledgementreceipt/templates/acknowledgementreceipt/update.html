@@ -57,6 +57,28 @@
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
                 <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <div style="padding-right: 10px; padding-bottom: 50px;">
+                    {% if perms.acknowledgementreceipt.delete_armain and object.arstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                    <a href="{% url 'acknowledgementreceipt:delete' object.id %}" class="floatright">
+                        <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                        </button>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'acknowledgementreceipt:pdf' object.id %}" target="_blank" class="floatright">
+                        <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                        </button>
+                    </a>
+                    <a href="{% url 'acknowledgementreceipt:detail' object.id %}" class="floatright">
+                        <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                        </button>
+                    </a>
+                </div>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
@@ -83,7 +105,7 @@
                             <label class="control-label">AR Subtype</label>
                             <select class="form-control input-sm select2" id="id_arsubtype" name="arsubtype">
                                 {% for data in arsubtype %}
-                                    <option value="{{ data.id }}" {% if form.arsubtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.arsubtypechartofaccount.description }}</option>
+                                    <option value="{{ data.id }}" {% if saved_arsubtype|add:0 == data.id %} selected="selected" {% endif %}>{{ data.arsubtypechartofaccount.description }}</option>
                                 {% endfor %}
                             </select>
                             <span class="help-block form-error">{{ form.arsubtype.errors.as_text }}</span>

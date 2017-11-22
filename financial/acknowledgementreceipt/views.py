@@ -293,6 +293,7 @@ class UpdateView(UpdateView):
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('code')
         context['arnum'] = self.object.arnum
         context['payor_name'] = self.object.payor_name
+        context['saved_arsubtype'] = self.object.arsubtype.id if self.object.arsubtype else None
 
         if self.request.POST.get('payor', False):
             context['payor'] = Employee.objects.get(pk=self.request.POST['payor_employee'], isdeleted=0)
@@ -436,6 +437,33 @@ class DeleteView(DeleteView):
         self.object.status = 'C'
         self.object.arstatus = 'D'
         self.object.save()
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Armain
+    template_name = 'acknowledgementreceipt/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PDFTemplateView, self).get_context_data(**kwargs)
+
+        context['armain'] = Armain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['items'] = Aritem.objects.filter(armain=self.kwargs['pk'], isdeleted=0).order_by('item_counter')
+        context['detail'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).\
+            aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ardetail.objects.filter(isdeleted=0, armain_id=self.kwargs['pk']).\
+            aggregate(Sum('creditamount'))
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedar = Armain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedar.print_ctr += 1
+        printedar.save()
+        return context
 
 
 @csrf_exempt
