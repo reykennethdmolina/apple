@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load humanize %}
 {% block page-title %} Acknowledgement Receipt {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
@@ -97,7 +98,7 @@
                                     {% endif %}
                                 </select>
                             </div>
-                            <input type="text" class="form-control input-sm" id="id_payor_others" style="background-color: transparent; text-transform: uppercase;" value="{{ form.payor_name.value|default:'' }}" name="payor_others">
+                            <input type="text" class="form-control input-sm" id="id_payor_others" style="background-color: transparent; text-transform: uppercase;" value="{{ payor_name|default:'' }}" name="payor_others">
                             <span class="help-block form-error">{{ form.payor.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.amount.errors|yesno:'has-error,' }}">
@@ -173,11 +174,25 @@
                                                         <th style="text-align: center;"><span>&nbsp;</span></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody></tbody>
+                                                <tbody>
+                                                    {% for itemtemp in itemtemp %}
+                                                        <tr class='tblItemContainer'>
+                                                            <td class='tblItemCounter text-center' data-id='{{ itemtemp.id }}'>{{ itemtemp.item_counter }}</td>
+                                                            <td class='tblPaytype'><b>{{ itemtemp.paytype.description }}</b></td>
+                                                            <td class='tblBank'>{% if itemtemp.bank and itemtemp.bankbranch %} {{ itemtemp.bank.code }}&nbsp;{{ itemtemp.bankbranch.description }} {% else %} - {% endif %}</td>
+                                                            <td class='tblNumber'>{{ itemtemp.num|default:' - ' }}</td>
+                                                            <td class='tblDate'>{{ itemtemp.date|date:'Y-m-d'|default:' - ' }}</td>
+                                                            <td class='tblAuthnum'>{{ itemtemp.authnum|default:' - ' }}</td>
+                                                            <td class='tblRemarks'>{{ itemtemp.remarks|default:' - ' }}</td>
+                                                            <td class='tblAmount text-right'><b>{{ itemtemp.amount|floatformat:2|intcomma }}</b></td>
+                                                            <td class='tblAction text-center'><a href='#_' class='itemdelete' id='itemdelete'><i class='icon fa-remove' aria-hidden='true'></i></a></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
                                                 <tfoot>
                                                     <tr>
                                                         <td colspan="7"><b>TOTAL</b></td>
-                                                        <td id="totaldetailsamount" class="text-right"><b>0.00</b></td>
+                                                        <td id="totaldetailsamount" class="text-right"><b>{{ totalpaymentamount.amount__sum|floatformat:2|intcomma }}</b></td>
                                                         <td>&nbsp;</td>
                                                     </tr>
                                                 </tfoot>
@@ -392,14 +407,12 @@
 
         displayPayor();
 
+        $('#id_item_counter').val(parseInt($('.tblItemCounter').last().html()) + 1);
+
         $("#id_amount").on('keyup', function(){
             var words = toWords($(this).val());
             $("#id_amountinwords").val(words);
         });
-
-        $("#id_branch option").filter(function(){
-            return $(this).text() == 'HEAD OFFICE';
-        }).attr('selected', 'selected');
 
         $("#id_artype").on('change', function(){
            displayPayor();
@@ -519,6 +532,7 @@
                             $('#id_detailremarks').val("");
                             displayPaymentDetailFields();
                             computePaymentDetailTotalAmount();
+                            itemRecount();
 
                         }, error: function(response) {
                             console.debug(response);
@@ -698,7 +712,7 @@
                 url: "{% url 'acknowledgementreceipt:autoentry' %}",
                 type: "post",
                 data: {'secretkey': $("#secretkey").val(),
-                       'arnum': '',
+                       'arnum': '{{ arnum }}',
                        'bankaccount': $("#id_depositorybank").val(),
                        'artype': $("#id_artype").val(),
                        'employee': $("#id_payor_employee").val(),

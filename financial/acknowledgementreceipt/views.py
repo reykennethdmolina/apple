@@ -140,12 +140,9 @@ class CreateView(CreateView):
             item.date = itemtemp.date
             item.amount = itemtemp.amount
             item.remarks = itemtemp.remarks
-            if itemtemp.bank:
-                item.bank = Bank.objects.get(pk=int(itemtemp.bank))
-            if itemtemp.bankbranch:
-                item.bankbranch = Bankbranch.objects.get(pk=int(itemtemp.bankbranch))
-            if itemtemp.paytype:
-                item.paytype = Paytype.objects.get(pk=int(itemtemp.paytype))
+            item.bank = itemtemp.bank
+            item.bankbranch = itemtemp.bankbranch
+            item.paytype = itemtemp.paytype
             item.enterby = itemtemp.enterby
             item.modifyby = itemtemp.modifyby
             item.postby = itemtemp.postby
@@ -163,8 +160,7 @@ class CreateView(CreateView):
         secretkey = self.request.POST['secretkey']
         savedetail(source, mainid, num, secretkey, self.request.user)
 
-        return HttpResponseRedirect('/acknowledgementreceipt/')
-        # return HttpResponseRedirect('/acknowledgementreceipt/' + str(self.object.id) + '/update')
+        return HttpResponseRedirect('/acknowledgementreceipt/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -178,12 +174,125 @@ class UpdateView(UpdateView):
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        self.mysecretkey = generatekey(self)
+
+        # payment breakdown
+        iteminfo = Aritem.objects.filter(armain=self.object.pk, isdeleted=0).order_by('item_counter')
+
+        for data in iteminfo:
+            detailtemp = Aritemtemp()
+            detailtemp.item_counter = data.item_counter
+            detailtemp.secretkey = self.mysecretkey
+            detailtemp.armain = data.armain.id
+            detailtemp.aritem = data.id
+            detailtemp.arnum = data.arnum
+            detailtemp.ardate = data.ardate
+            detailtemp.paytype = data.paytype
+            detailtemp.bank = data.bank
+            detailtemp.bankbranch = data.bankbranch
+            detailtemp.num = data.num
+            detailtemp.authnum = data.authnum
+            detailtemp.date = data.date
+            detailtemp.amount = data.amount
+            detailtemp.remarks = data.remarks
+            detailtemp.enterdate = data.enterdate
+            detailtemp.modifydate = data.modifydate
+            detailtemp.postdate = data.postdate
+            detailtemp.enterby = data.enterby
+            detailtemp.modifyby = data.modifyby
+            detailtemp.postby = data.postby
+            detailtemp.save()
+
+        # accounting entries
+        detailinfo = Ardetail.objects.filter(armain=self.object.pk).order_by('item_counter')
+
+        for drow in detailinfo:
+            detail = Ardetailtemp()
+            detail.secretkey = self.mysecretkey
+            detail.ar_num = drow.ar_num
+            detail.armain = drow.armain_id
+            detail.ardetail = drow.pk
+            detail.item_counter = drow.item_counter
+            detail.ar_date = drow.ar_date
+            detail.chartofaccount = drow.chartofaccount_id
+            detail.bankaccount = drow.bankaccount_id
+            detail.employee = drow.employee_id
+            detail.supplier = drow.supplier_id
+            detail.customer = drow.customer_id
+            detail.department = drow.department_id
+            detail.unit = drow.unit_id
+            detail.branch = drow.branch_id
+            detail.product = drow.product_id
+            detail.inputvat = drow.inputvat_id
+            detail.outputvat = drow.outputvat_id
+            detail.vat = drow.vat_id
+            detail.wtax = drow.wtax_id
+            detail.ataxcode = drow.ataxcode_id
+            detail.debitamount = drow.debitamount
+            detail.creditamount = drow.creditamount
+            detail.balancecode = drow.balancecode
+            detail.customerbreakstatus = drow.customerbreakstatus
+            detail.supplierbreakstatus = drow.supplierbreakstatus
+            detail.employeebreakstatus = drow.employeebreakstatus
+            detail.isdeleted = 0
+            detail.modifyby = self.request.user
+            detail.enterby = self.request.user
+            detail.modifydate = datetime.datetime.now()
+            detail.save()
+
+            detailtempid = detail.id
+
+            breakinfo = Ardetailbreakdown.objects. \
+                filter(ardetail_id=drow.id).order_by('pk', 'datatype')
+            if breakinfo:
+                for brow in breakinfo:
+                    breakdown = Ardetailbreakdowntemp()
+                    breakdown.ar_num = drow.ar_num
+                    breakdown.secretkey = self.mysecretkey
+                    breakdown.armain = drow.armain_id
+                    breakdown.ardetail = drow.pk
+                    breakdown.ardetailtemp = detailtempid
+                    breakdown.ardetailbreakdown = brow.pk
+                    breakdown.item_counter = brow.item_counter
+                    breakdown.ar_date = brow.ar_date
+                    breakdown.chartofaccount = brow.chartofaccount_id
+                    breakdown.particular = brow.particular
+                    # Return None if object is empty
+                    breakdown.bankaccount = brow.bankaccount_id
+                    breakdown.employee = brow.employee_id
+                    breakdown.supplier = brow.supplier_id
+                    breakdown.customer = brow.customer_id
+                    breakdown.department = brow.department_id
+                    breakdown.unit = brow.unit_id
+                    breakdown.branch = brow.branch_id
+                    breakdown.product = brow.product_id
+                    breakdown.inputvat = brow.inputvat_id
+                    breakdown.outputvat = brow.outputvat_id
+                    breakdown.vat = brow.vat_id
+                    breakdown.wtax = brow.wtax_id
+                    breakdown.ataxcode = brow.ataxcode_id
+                    breakdown.debitamount = brow.debitamount
+                    breakdown.creditamount = brow.creditamount
+                    breakdown.balancecode = brow.balancecode
+                    breakdown.datatype = brow.datatype
+                    breakdown.customerbreakstatus = brow.customerbreakstatus
+                    breakdown.supplierbreakstatus = brow.supplierbreakstatus
+                    breakdown.employeebreakstatus = brow.employeebreakstatus
+                    breakdown.isdeleted = 0
+                    breakdown.modifyby = self.request.user
+                    breakdown.enterby = self.request.user
+                    breakdown.modifydate = datetime.datetime.now()
+                    breakdown.save()
+                    # accounting entry ends here
+
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
         context['paytype'] = Paytype.objects.filter(isdeleted=0).order_by('pk')
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('code')
         context['arnum'] = self.object.arnum
+        context['payor_name'] = self.object.payor_name
 
         if self.request.POST.get('payor', False):
             context['payor'] = Employee.objects.get(pk=self.request.POST['payor_employee'], isdeleted=0)
@@ -198,7 +307,135 @@ class UpdateView(UpdateView):
         context['depositorybank'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank__code')
         # data for lookup
 
+        # requested items
+        context['itemtemp'] = Aritemtemp.objects.filter(armain=self.object.pk, isdeleted=0,
+                                                        secretkey=self.mysecretkey).order_by('item_counter')
+        context['totalpaymentamount'] = Aritemtemp.objects.filter(armain=self.object.pk, isdeleted=0,
+                                                                  secretkey=self.mysecretkey).\
+            aggregate(Sum('amount'))
+
+        # accounting entry starts here
+        context['secretkey'] = self.mysecretkey
+        contextdatatable = {
+            # to be used by accounting entry on load
+            'tabledetailtemp': 'ardetailtemp',
+            'tablebreakdowntemp': 'ardetailbreakdowntemp',
+
+            'datatemp': querystmtdetail('ardetailtemp', self.mysecretkey),
+            'datatemptotal': querytotaldetail('ardetailtemp', self.mysecretkey),
+        }
+        context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
+        # accounting entry ends here
+
         return context
+
+    def form_valid(self, form):
+        if self.object.artype.code.startswith('AOE'):
+            self.object.payor = Employee.objects.get(pk=int(self.request.POST['payor_employee']))
+            self.object.payor_code = self.object.payor.code
+            self.object.payor_name = (self.object.payor.firstname + ' ' + self.object.payor.lastname).upper()
+        else:
+            self.object.payor_code = 'NONTRADE'
+            self.object.payor_name = self.request.POST['payor_others'].upper()
+
+        self.object.arsubtype = Arsubtype.objects.get(
+            pk=int(self.request.POST['arsubtype'])) if self.object.artype.code == 'NT' else None
+
+        self.object.collector_code = self.object.collector.code
+        self.object.collector_name = self.object.collector.name
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+
+        self.object.save(update_fields=['ardate', 'artype', 'collector', 'branch', 'amount', 'amountinwords',
+                                        'depositorybank', 'particulars', 'modifyby', 'modifydate', 'payor',
+                                        'payor_code', 'payor_name', 'arsubtype', 'collector_code', 'collector_name'])
+
+        # save aritemtemp to aritem
+        Aritem.objects.filter(armain=self.object.pk).update(isdeleted=2)
+
+        itemtemp = Aritemtemp.objects.filter(Q(secretkey=self.request.POST['secretkey'], armain=self.object.pk,
+                                               isdeleted=0) | Q(secretkey=self.request.POST['secretkey'], armain=None)).\
+            order_by('enterdate')
+
+        i = 1
+        for itemtemp in itemtemp:
+            item = Aritem()
+            item.item_counter = i
+            item.armain = self.object
+            item.arnum = self.object.arnum
+            item.ardate = self.object.ardate
+            item.num = itemtemp.num
+            item.authnum = itemtemp.authnum
+            item.date = itemtemp.date
+            item.amount = itemtemp.amount
+            item.remarks = itemtemp.remarks
+            item.bank = itemtemp.bank
+            item.bankbranch = itemtemp.bankbranch
+            item.paytype = itemtemp.paytype
+            item.enterby = itemtemp.enterby
+            item.modifyby = itemtemp.modifyby
+            item.postby = itemtemp.postby
+            item.enterdate = itemtemp.enterdate
+            item.modifydate = itemtemp.modifydate
+            item.postdate = itemtemp.postdate
+            item.save()
+            itemtemp.delete()
+            i += 1
+
+        Aritem.objects.filter(armain=self.object.pk, isdeleted=2).delete()
+
+        # accounting entry starts here..
+        source = 'ardetailtemp'
+        mainid = self.object.id
+        num = self.object.arnum
+        secretkey = self.request.POST['secretkey']
+        updatedetail(source, mainid, num, secretkey, self.request.user)
+
+        return HttpResponseRedirect('/acknowledgementreceipt/' + str(self.object.id) + '/update')
+
+
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Armain
+    template_name = 'acknowledgementreceipt/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['detail'] = Ardetail.objects.filter(isdeleted=0).\
+            filter(armain_id=self.kwargs['pk']).order_by('item_counter')
+        context['totaldebitamount'] = Ardetail.objects.filter(isdeleted=0).\
+            filter(armain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
+        context['totalcreditamount'] = Ardetail.objects.filter(isdeleted=0).\
+            filter(armain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
+
+        # requested items
+        context['itemtemp'] = Aritem.objects.filter(armain=self.object.pk, isdeleted=0).order_by('item_counter')
+        context['totalpaymentamount'] = Aritem.objects.filter(armain=self.object.pk, isdeleted=0).aggregate(
+            Sum('amount'))
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Armain
+    template_name = 'acknowledgementreceipt/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('acknowledgementreceipt.delete_armain') or self.object.status == 'O' \
+                or self.object.arstatus == 'A' or self.object.arstatus == 'I' or self.object.arstatus == 'R':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.arstatus = 'D'
+        self.object.save()
 
 
 @csrf_exempt
@@ -211,20 +448,20 @@ def savepaymentdetailtemp(request):
             itemtemp.enterby = request.user
         itemtemp.item_counter = request.POST['itemno']
         itemtemp.secretkey = request.POST['secretkey']
-        itemtemp.paytype = request.POST['paytype']
+        itemtemp.paytype = Paytype.objects.get(pk=int(request.POST['paytype']))
         itemtemp.amount = request.POST['amount'].replace(',', '')
         itemtemp.modifyby = request.user
 
-        if Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'CH':
-            itemtemp.bank = request.POST['bank']
-            itemtemp.bankbranch = request.POST['bankbranch']
+        if itemtemp.paytype.code == 'CH':
+            itemtemp.bank = Bank.objects.get(pk=int(request.POST['bank']))
+            itemtemp.bankbranch = Bankbranch.objects.get(pk=int(request.POST['bankbranch']))
             itemtemp.num = request.POST['num']
             itemtemp.date = request.POST['date']
-        elif Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'CC':
+        elif itemtemp.paytype.code == 'CC':
             itemtemp.num = request.POST['num']
             itemtemp.authnum = request.POST['authnum']
             itemtemp.date = request.POST['date']
-        elif Paytype.objects.get(pk=int(itemtemp.paytype)).code == 'EX':
+        elif itemtemp.paytype.code == 'EX':
             itemtemp.remarks = request.POST['remarks']
 
         itemtemp.save()
@@ -232,10 +469,9 @@ def savepaymentdetailtemp(request):
             'status': 'success',
             'id': itemtemp.pk,
             'item_counter': itemtemp.item_counter,
-            'paytype': Paytype.objects.get(pk=int(itemtemp.paytype)).description,
+            'paytype': itemtemp.paytype.description,
             'amount': itemtemp.amount,
-            'bank': Bank.objects.get(pk=int(itemtemp.bank)).code + ' ' +
-                    Bankbranch.objects.get(pk=int(itemtemp.bankbranch)).description if itemtemp.bank and itemtemp.bankbranch else ' - ',
+            'bank': itemtemp.bank.code + ' ' + itemtemp.bankbranch.description if itemtemp.bank and itemtemp.bankbranch else ' - ',
             'number': itemtemp.num if itemtemp.num else ' - ',
             'date': itemtemp.date if itemtemp.date else ' - ',
             'authnum': itemtemp.authnum if itemtemp.authnum else ' - ',

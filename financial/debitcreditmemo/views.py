@@ -119,6 +119,11 @@ class CreateView(CreateView):
         secretkey = self.request.POST['secretkey']
         savedetail(source, mainid, num, secretkey, self.request.user)
 
+        totalamount = Dcdetail.objects.filter(isdeleted=0).filter(dcmain_id=self.object.id).\
+            aggregate(Sum('debitamount'))
+        self.object.amount = totalamount['debitamount__sum']
+        self.object.save()
+
         return HttpResponseRedirect('/debitcreditmemo/' + str(self.object.id) + '/update')
 
 
@@ -291,6 +296,11 @@ class UpdateView(UpdateView):
         num = self.object.dcnum
         secretkey = self.request.POST['secretkey']
         updatedetail(source, mainid, num, secretkey, self.request.user)
+
+        totalamount = Dcdetail.objects.filter(isdeleted=0).filter(dcmain_id=self.object.id). \
+            aggregate(Sum('debitamount'))
+        self.object.amount = totalamount['debitamount__sum']
+        self.object.save(update_fields=['amount'])
 
         return HttpResponseRedirect('/debitcreditmemo/' + str(self.object.id) + '/update')
 

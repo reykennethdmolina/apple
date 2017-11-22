@@ -33,19 +33,19 @@
                 <td style="width: 115px; padding-left: 13px" class="action-btns-container">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist" style="text-align: left">
-{#                        <a href="{% url 'acknowledgementreceipt:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
-{#                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>#}
-{#                        </a>#}
-{#                        {% if perms.acknowledgementreceipt.change_armain and data.isdeleted == 0 %}#}
-{#                        <a href="{% url 'acknowledgementreceipt:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">#}
-{#                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>#}
-{#                        </a>#}
-{#                        {% endif %}#}
-{#                        {% if perms.acknowledgementreceipt.delete_armain and data.isdeleted == 0 and data.status == 'A' and data.arstatus != 'A' and data.arstatus != 'I' and data.arstatus != 'R' %}#}
-{#                        <a href="{% url 'acknowledgementreceipt:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">#}
-{#                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>#}
-{#                        </a>#}
-{#                        {% endif %}#}
+                        <a href="{% url 'acknowledgementreceipt:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% if perms.acknowledgementreceipt.change_armain and data.isdeleted == 0 %}
+                        <a href="{% url 'acknowledgementreceipt:update' data.pk %}" class="btnUpdate" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+                        {% if perms.acknowledgementreceipt.delete_armain and data.isdeleted == 0 and data.status == 'A' and data.arstatus != 'A' and data.arstatus != 'I' and data.arstatus != 'R' %}
+                        <a href="{% url 'acknowledgementreceipt:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
                         </div>
                     </div>
                 </td>

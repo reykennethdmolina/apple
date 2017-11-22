@@ -219,10 +219,10 @@
                                                 <th width="15%" class="actionrowhead"></th>
                                             </tr>
                                         </thead>
-                                        <tbody id="datatable">
+                                        <tbody id="datatable" style="font-size: 12px;">
                                         {{ datatable|safe }}
                                         </tbody>
-                                        <tfoot>
+                                        <tfoot style="font-size: 12px;">
                                             <tr>
                                                 <th>
                                                     <strong>Total</strong>
@@ -516,6 +516,7 @@
                             $('#id_detailremarks').val("");
                             displayPaymentDetailFields();
                             computePaymentDetailTotalAmount();
+                            itemRecount();
 
                         }, error: function(response) {
                             console.debug(response);

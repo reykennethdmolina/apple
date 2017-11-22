@@ -127,9 +127,10 @@ class Aritemtemp(models.Model):
     aritem = models.CharField(max_length=10, null=True, blank=True)
     arnum = models.CharField(max_length=10, null=True, blank=True)
     ardate = models.DateTimeField(blank=True, null=True)
-    paytype = models.CharField(max_length=10, null=True, blank=True)
-    bank = models.CharField(max_length=10, null=True, blank=True)
-    bankbranch = models.CharField(max_length=10, null=True, blank=True)
+    paytype = models.ForeignKey('paytype.Paytype', related_name='aritemtemp_paytype_id')
+    bank = models.ForeignKey('bank.Bank', related_name='aritemtemp_bank_id', null=True, blank=True)
+    bankbranch = models.ForeignKey('bankbranch.Bankbranch', related_name='aritemtemp_bankbranch_id', null=True,
+                                   blank=True)
     num = models.CharField(max_length=200, null=True, blank=True)
     authnum = models.CharField(max_length=200, null=True, blank=True)
     date = models.DateTimeField(null=True, blank=True)
