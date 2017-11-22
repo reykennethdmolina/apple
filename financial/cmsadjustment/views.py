@@ -157,43 +157,45 @@ class UpdateView(UpdateView):
         return HttpResponseRedirect('/cmsadjustment/' + str(self.object.id) + '/update')
 
 
-# @method_decorator(login_required, name='dispatch')
-# class DetailView(DetailView):
-#     model = Cmmain
-#     template_name = 'cmsadjustment/detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(DetailView, self).get_context_data(**kwargs)
-#
-#         # items
-#         context['items'] = Cmitem.objects.filter(isdeleted=0, status='A', cmmain=self.object.pk).\
-#             order_by('item_counter')
-#
-#         return context
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Cmmain
+    template_name = 'cmsadjustment/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailView, self).get_context_data(**kwargs)
+
+        # items
+        context['items'] = Cmitem.objects.filter(isdeleted=0, status='A', cmmain=self.object.pk).\
+            order_by('item_counter')
+
+        return context
 
 
-# @method_decorator(login_required, name='dispatch')
-# class DeleteView(DeleteView):
-#     model = Armain
-#     template_name = 'acknowledgementreceipt/delete.html'
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         if not request.user.has_perm('acknowledgementreceipt.delete_armain') or self.object.status == 'O' \
-#                 or self.object.arstatus == 'A' or self.object.arstatus == 'I' or self.object.arstatus == 'R':
-#             raise Http404
-#         return super(DeleteView, self).dispatch(request, *args, **kwargs)
-#
-#     def delete(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         self.object.modifyby = self.request.user
-#         self.object.modifydate = datetime.datetime.now()
-#         self.object.isdeleted = 1
-#         self.object.status = 'C'
-#         self.object.arstatus = 'D'
-#         self.object.save()
-#
-#
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Cmmain
+    template_name = 'cmsadjustment/delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('cmsadjustment.delete_cmmain') or self.object.status == 'O' \
+                or self.object.cmstatus == 'A' or self.object.cmstatus == 'I' or self.object.cmstatus == 'R':
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'C'
+        self.object.cmstatus = 'D'
+        self.object.save()
+
+        return HttpResponseRedirect('/cmsadjustment')
+
+
 # @method_decorator(login_required, name='dispatch')
 # class Pdf(PDFTemplateView):
 #     model = Armain

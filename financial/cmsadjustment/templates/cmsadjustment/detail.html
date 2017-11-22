@@ -1,6 +1,6 @@
 {% extends 'base-form.html' %}
 {% block page-title %} CMS Adjustment {% endblock page-title %}
-
+{% load humanize %}
 {% block page-content %}
 <div class="page-content container-fluid page">
     <div class="row small">
@@ -16,35 +16,63 @@
                             <div class="panel-body">
                                 <!-- <h4 class="list-title">Personal Information</h4> -->
                                 <div class="row">
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Number&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.cmnum }}</span>
+                                    <div class="row col-md-5 col-sm-5">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info" style="width: 25%">Number</span>
+                                                <span class="text-name-profile text-info" style="width: 10%">:</span>
+                                                <span class="detail-profile" style="width: 65%">{{ object.cmnum }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info" style="width: 25%">Date</span>
+                                                <span class="text-name-profile text-info" style="width: 10%">:</span>
+                                                <span class="detail-profile" style="width: 65%">{{ object.cmdate|date:'Y-m-d' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info" style="width: 25%">Particulars</span>
+                                                <span class="text-name-profile text-info" style="width: 10%">:</span>
+                                                <span class="detail-profile" style="width: 65%">{{ object.particulars }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-name-profile text-info" style="width: 25%">Status</span>
+                                                <span class="text-name-profile text-info" style="width: 10%">:</span>
+                                                <span class="detail-profile {% if object.status == 'A' %} text-success
+                                                             {% else %} text-danger
+                                                             {% endif %}" style="width: 65%"><b>{{ object.get_status_display }}</b></span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Date&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.cmdate|date:'Y-m-d' }}</span>
-                                        </div>
-                                    </div>
-                                    <br><br>
-                                    <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-name-profile text-info" style="width: 35%">Particulars&nbsp;: </span>
-                                            <span class="detail-profile" style="width: 65%">{{ object.particulars }}</span>
-                                        </div>
-                                    </div>
-                                    <br><br><br><br>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-info row col-md-2 margin-right-90"><b>Status</b></span>
-                                            <span class="text-info row col-md-2"><b>: </b></span>
-                                            <span class="{% if object.postatus == 'F' %} text-primary
-                                                         {% elif object.postatus == 'A' %} text-success
-                                                         {% elif object.postatus == 'D' %} text-danger
-                                                         {% endif %}"><b>{{ object.get_postatus_display }}</b></span>
-                                        </div>
+                                    <div class="col-md-7 col-sm-7">
+                                        <table class="table table-bordered" id="detailstable">
+                                            <thead>
+                                                <tr>
+                                                    <th><span>#</span></th>
+                                                    <th><span>PRODUCT</span></th>
+                                                    <th style="text-align: right; width: 200px;"><span>AMOUNT</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in items %}
+                                                    <tr>
+                                                        <td width="5%">{{ item.item_counter }}</td>
+                                                        <td width="70%">[{{ item.product_code }}]&nbsp;&nbsp;{{ item.product_name }}</td>
+                                                        <td width="25%" class="text-right">{{ item.amount|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="2"><b>TOTAL</b></td>
+                                                    <td id="totaldetailsamount" class="text-right"><b>{{ object.amount|floatformat:2|intcomma }}</b></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -55,32 +83,42 @@
             <!--  End Profile Tab Section -->
         </div>
         <div class="col-md-3">
-            <div class="right-box-profile">
-                <h4 class="skill-title">Activity Logs</h4>
-                <div class="panel">
-                    <div class="panel-body">
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Created By:</span>
-                            <div class="univer-profile">{{ object.enterby }}</div>
-                            <div class="univer-profile">{{ object.enterdate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <span class="degree-name text-info">Modify By:</span>
-                            <div class="univer-profile">{{ object.modifyby }}</div>
-                            <div class="univer-profile">{{ object.modifydate }}</div>
-                        </div>
-                        <div class="master-degree">
-                            <div class="iconlist">
-                            <a href="{% url 'adtype:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_pencil" aria-hidden="true"></i>
-                                </button>
-                            </a>
-                            <a href="{% url 'adtype:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
-                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
-                                    <i class="icon_trash" aria-hidden="true"></i>
-                                </button>
-                            </a>
+            <div class="nav-tabs nav-tabs-animate border-profile">
+                <ul class="nav nav-tabs nav-profile">
+                    <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Activity Log</a></li>
+                </ul>
+                <div class="tab-content padding-top-0">
+                    <div class="tab-pane active" id="profiles" role="tabpanel">
+                        <div class="panel top-profile skill-profile margin-bottom-25">
+                            <div class="panel-body">
+                                <div class="master-degree">
+                                    <span class="degree-name text-info">Created&nbsp;By:</span>
+                                    <div class="univer-profile">{{ object.enterby }}</div>
+                                    <div class="univer-profile">{{ object.enterdate }}</div>
+                                </div>
+                                <div class="master-degree">
+                                    <span class="degree-name text-info">Modified&nbsp;By:</span>
+                                    <div class="univer-profile">{{ object.modifyby }}</div>
+                                    <div class="univer-profile">{{ object.modifydate }}</div>
+                                </div>
+                                <div class="master-degree">
+                                    <div class="iconlist">
+                                        {% if perms.cmsadjustment.change_cmmain and object.isdeleted == 0 %}
+                                            <a href="{% url 'cmsadjustment:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
+                                                    <i class="icon_pencil" aria-hidden="true"></i>
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                        {% if perms.cmsadjustment.delete_cmmain and object.isdeleted == 0 and object.status == 'A' and object.cmstatus != 'A' and object.cmstatus != 'I' and object.cmstatus != 'R' %}
+                                            <a href="{% url 'cmsadjustment:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                                <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
+                                                    <i class="icon_trash" aria-hidden="true"></i>
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

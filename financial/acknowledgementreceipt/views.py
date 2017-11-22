@@ -438,6 +438,8 @@ class DeleteView(DeleteView):
         self.object.arstatus = 'D'
         self.object.save()
 
+        return HttpResponseRedirect('/acknowledgementreceipt')
+
 
 @method_decorator(login_required, name='dispatch')
 class Pdf(PDFTemplateView):
