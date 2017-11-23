@@ -339,7 +339,7 @@ def exportsave(request):
 
                     if saveproceed == 1:
                         Ormain.objects.create(
-                            ornum=str(ornum),
+                            ornum=str(data.orno),
                             ordate=data_date,
                             ortype=get_object_or_None(Ortype, code='AR'),
                             orsource='A',
