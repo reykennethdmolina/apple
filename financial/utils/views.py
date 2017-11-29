@@ -140,7 +140,8 @@ def ajaxSelect(request):
                                   'id': data.id,
                                   'um': data.unitofmeasure.id,
                                   'code': data.code,
-                                  'type': data.inventoryitemclass.inventoryitemtype.code})
+                                  'type': data.inventoryitemclass.inventoryitemtype.code,
+                                  'itemtype': data.inventoryitemclass.inventoryitemtype.code})
             else:
                 listitems.append({'text': newtext, 'id': data.id})
 

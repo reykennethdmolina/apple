@@ -30,6 +30,9 @@
             padding-right: 15px;
             padding-left: 45px;
         }
+        .form-control[disabled], .form-control[readonly]{
+            background-color: white !important;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -95,7 +98,7 @@
                                 <input type="text" class="form-control input-sm" id="id_prfstatus" value="{{ prfstatus }}" readonly="readonly">
                             </div>
                             <div class="form-group col-sm-4">
-                                <label class="control-label" for="id_prfdate">Date</label>
+                                <label class="control-label" for="id_prfdate">PRF Date</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd {% if object.prfstatus != 'A' %}datepicker{% endif %} week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
                             </div>
