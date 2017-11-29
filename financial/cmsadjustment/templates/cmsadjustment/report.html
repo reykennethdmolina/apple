@@ -2,7 +2,7 @@
 {% load endless %}
 {% load humanize %}
 {% load staticfiles %}
-{% block page-title %}<div style="line-height: 25px;">Debit Credit Memo Book<br><small><small>Report</small></small></div>{% endblock page-title %}
+{% block page-title %}<div style="line-height: 25px;">Contribution Margin<br><small><small>Report</small></small></div>{% endblock page-title %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
@@ -78,7 +78,7 @@
                         <a href="#_" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
                             <i class="icon fa-print" aria-hidden="true"></i>
                         </a>
-                        <a href="{% url 'debitcreditmemo:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
+                        <a href="{% url 'cmsadjustment:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
                             <i class="icon fa-file-excel-o" aria-hidden="true"></i>
                         </a>
                         <div id="rep_f_keyword"></div>
@@ -98,8 +98,8 @@
                                 <select class="form-control input-sm" id="rep_f_report">
                                     <option value="s">Summary</option>
                                     <option value="d">Detailed</option>
-                                    <option value="a_s">Accounting Entry - Summary</option>
-                                    <option value="a_d">Accounting Entry - Detailed</option>
+                                    <!-- <option value="a_s">Accounting Entry - Summary</option>
+                                    <option value="a_d">Accounting Entry - Detailed</option> -->
                                 </select>
                             </div>
                             <div class="form-group col-sm-2">
@@ -109,15 +109,13 @@
                                     <option value="l">Landscape</option>
                                 </select>
                             </div>
-                            <div class="form-group col-sm-6" id="rep_f_order_holder">
+                            <div class="form-group col-sm-4" id="rep_f_order_holder">
                                 <label class="control-label small">Order By</label>
                                 <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order">
                                     <option value="amount">Amount</option>
-                                    <option value="dcdate">Date</option>
-                                    <option value="dcnum">DC Number</option>
-                                    <option value="dcstatus">Status</option>
-                                    <option value="dctype">Type</option>
-                                    <option value="dcsubtype">Sub Type</option>
+                                    <option value="cmdate">Date</option>
+                                    <option value="cmnum">CM Number</option>
+                                    <option value="cmstatus">Status</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2" id="rep_f_asc_holder">
@@ -126,6 +124,15 @@
                                     <option value=""> -- </option>
                                     <option value="a">Ascending</option>
                                     <option value="d">Descending</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">CM Status</label>
+                                <select class="form-control input-sm" id="rep_f_cmstatus">
+                                    <option value="">-- Select --</option>
+                                    <option value="F">For Approval</option>
+                                    <option value="A">Approved</option>
+                                    <option value="D">Disapproved</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2 rep_f_ae_holder" style="border-left: 1px solid #e0e0e0">
@@ -163,9 +170,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_summary">
-                            <div class="form-group col-sm-5">
-                                <label class="control-label small">DC Num</label>
+                        <!-- <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_summary"> -->
+                        <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;" id="fil_summary">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">CM Num</label>
                                 <div class="input-daterange">
                                     <div class="input-group">
                                         <span class="input-group-addon input-sm">from</span>
@@ -177,33 +185,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Type</label>
-                                <select class="form-control input-sm" id="rep_f_dctype">
-                                    <option value="">-- Select --</option>
-                                    <option value="D">Debit Memo</option>
-                                    <option value="C">Credit Memo</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-3">
-                                <label class="control-label small">Sub-Type</label>
-                                <select class="form-control input-sm" id="rep_f_dcsubtype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in dcsubtype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">DC Status</label>
-                                <select class="form-control input-sm" id="rep_f_dcstatus">
-                                    <option value="">-- Select --</option>
-                                    <option value="F">For Approval</option>
-                                    <option value="A">Approved</option>
-                                    <option value="D">Disapproved</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-5">
+                            <div class="form-group col-sm-4">
                                 <label class="control-label small">Date</label><br>
                                 <div class="input-daterange datarange">
                                     <div class="input-group">
@@ -215,35 +197,8 @@
                                         <input type="text" class="form-control input-sm datepickerto" id="rep_f_dateto">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">Branch</label>
-                                <select class="form-control input-sm" id="rep_f_branch">
-                                    <option value="">-- Select --</option>
-                                    {% for data in branch %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-3">
-                                <label class="control-label small">Output VAT Type</label>
-                                <select class="form-control input-sm" id="rep_f_outputvattype">
-                                    <option value="">-- Select --</option>
-                                    {% for data in outputvattype %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <label class="control-label small">VAT</label>
-                                <select class="form-control input-sm" id="rep_f_vat">
-                                    <option value="">-- Select --</option>
-                                    {% for data in vat %}
-                                        <option value="{{ data.id }}">{{ data.description }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-5" id="rep_f_amount_holder">
+                            </div>                            
+                            <div class="form-group col-sm-4" id="rep_f_amount_holder">
                                 <label class="control-label small">Amount</label><br>
                                 <div class="input-daterange">
                                     <div class="input-group">
@@ -255,7 +210,7 @@
                                         <input type="text" class="form-control input-sm amount text-right" id="rep_f_amountto">
                                     </div>
                                 </div>
-                            </div>
+                            </div>                            
                         </div>
                     </div>
                 </div>
@@ -267,7 +222,7 @@
         <div class="col-md-12" style="text-align: center">
             <div id="iframe_preview" class="panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
-                <iframe id="iframe" src="{% url 'debitcreditmemo:reportresult' %}" frameborder="0" scrolling="no"></iframe>
+                <iframe id="iframe" src="{% url 'cmsadjustment:reportresult' %}" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -293,16 +248,11 @@
             if($('#rep_f_report').val() != ''){
                 setCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}', $('#rep_f_numfrom').val());
                 setCookie('rep_f_numto_{{ request.resolver_match.app_name }}', $('#rep_f_numto').val());
-                setCookie('rep_f_dctype_{{ request.resolver_match.app_name }}', $('#rep_f_dctype').val());
-                setCookie('rep_f_dcsubtype_{{ request.resolver_match.app_name }}', $('#rep_f_dcsubtype').val());
-                setCookie('rep_f_dcstatus_{{ request.resolver_match.app_name }}', $('#rep_f_dcstatus').val());
+                setCookie('rep_f_cmstatus_{{ request.resolver_match.app_name }}', $('#rep_f_cmstatus').val());
                 setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
                 setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
-                setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
                 setCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_amountfrom').val());
                 setCookie('rep_f_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_amountto').val());
-                setCookie('rep_f_vat_{{ request.resolver_match.app_name }}', $('#rep_f_vat').val());
-                setCookie('rep_f_outputvattype_{{ request.resolver_match.app_name }}', $('#rep_f_outputvattype').val());
 
                 setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
                 setCookie('rep_f_asc_{{ request.resolver_match.app_name }}', $('#rep_f_asc').val());
@@ -315,7 +265,7 @@
                 setCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountfrom').val());
                 setCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountto').val());
 
-                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'debitcreditmemo:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
+                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'cmsadjustment:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
             }
             else{
                 customAlert($('#report-search-error'));
@@ -345,17 +295,12 @@
 
         // assign values
         $('#rep_f_numfrom').val(getCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_numto').val(getCookie('rep_f_numto_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_dctype').val(getCookie('rep_f_dctype_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_dcsubtype').val(getCookie('rep_f_dcsubtype_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_dcstatus').val(getCookie('rep_f_dcstatus_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_numto').val(getCookie('rep_f_numto_{{ request.resolver_match.app_name }}'));       
+        $('#rep_f_cmstatus').val(getCookie('rep_f_cmstatus_{{ request.resolver_match.app_name }}'));
         $('#rep_f_datefrom').val(getCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_branch').val(getCookie('rep_f_branch_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountfrom').val(getCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountto').val(getCookie('rep_f_amountto_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_vat').val(getCookie('rep_f_vat_{{ request.resolver_match.app_name }}'));
-        $('#rep_f_outputvattype').val(getCookie('rep_f_outputvattype_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_asc').val(getCookie('rep_f_asc_{{ request.resolver_match.app_name }}'));
