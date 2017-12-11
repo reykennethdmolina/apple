@@ -16,4 +16,8 @@ urlpatterns = [
     url(r'^savepaymentdetailtemp/$', views.savepaymentdetailtemp, name='savepaymentdetailtemp'),
     url(r'^deletepaymentdetailtemp/$', views.deletepaymentdetailtemp, name='deletepaymentdetailtemp'),
     url(r'^autoentry/$', views.autoentry, name='autoentry'),
+
+    url(r'^report/$', views.ReportView.as_view(), name='report'),
+    url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
+    url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
 ]

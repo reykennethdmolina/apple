@@ -69,7 +69,8 @@
     <table>
         <tr>
             <td><img src="{{ rc_logo | get64 }}"/><br></td>
-            <td><p class="title center">{{ rc_title }}</p></td>
+            {# <td><p class="title center">{{ rc_title }}</p></td> #}
+            <td><p class="title center">{{ report_type }}</p></td>
             <td>{% block rc_title_right %}{% endblock rc_title_right %}</td>
         </tr>
     </table>

@@ -53,16 +53,16 @@ def ajaxSelect(request):
 
         elif request.GET['table'] == "chartofaccount":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q']))
+                                                        Q(title__icontains=request.GET['q'])).order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_posting":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(accounttype='P')
+                                                        Q(title__icontains=request.GET['q'])).filter(accounttype='P').order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_arcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(main=1)
+                                                        Q(title__icontains=request.GET['q'])).filter(main=1).order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_revcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(main__in=[2, 4])
+                                                        Q(title__icontains=request.GET['q'])).filter(main__in=[2, 4]).order_by('accountcode')
 
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
