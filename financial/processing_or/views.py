@@ -3,17 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from .models import Temp_ormain, Logs_ormain, Logs_ordetail
+from .models import Temp_ormain, Temp_ordetail, Logs_ormain, Logs_ordetail
 from officialreceipt.models import Ormain
 from ortype.models import Ortype
 from collector.models import Collector
 from branch.models import Branch
+from vat.models import Vat
 from bankaccount.models import Bankaccount
 from customer.models import Customer
+from product.models import Product
 from agent.models import Agent
 from outputvattype.models import Outputvattype
 from currency.models import Currency
 from adtype.models import Adtype
+from companyparameter.models import Companyparameter
 from django.db.models import Count
 from datetime import datetime
 from datetime import timedelta
@@ -109,7 +112,12 @@ def fileupload(request):
                                         ordate=data[1],
                                         prno=data[2],
                                         accounttype=data[3],
-                                        collector=data[4],
+                                        # temporary adtype
+                                        # temporary adtype
+                                        # temporary adtype
+                                        # collector=data[4],
+                                        collector='WL',
+                                        collectordesc='WILLIE LADERAS',
                                         payeetype=data[5],
                                         adtype=data[6],
                                         agencycode=data[7],
@@ -118,6 +126,11 @@ def fileupload(request):
                                         payeename=data[10],
                                         amount=data[11],
                                         amountinwords=data[12],
+                                        # temporary vat
+                                        # temporary vat
+                                        # temporary vat
+                                        vatcode='VAT12',
+                                        vatrate='12',
                                         bankaccount=data[13],
                                         particulars=data[14],
                                         artype=data[15],
@@ -125,6 +138,9 @@ def fileupload(request):
                                         statusdate=data[17],
                                         enterby=data[18],
                                         enterdate=data[19],
+                                        # temporary product
+                                        # temporary product
+                                        # temporary product
                                         # product=data[20],
                                         product='DLY',
                                         initmark=data[21],
@@ -175,6 +191,11 @@ def fileupload(request):
                                                 balance=data[3],
                                                 assignamount=data[4],
                                                 assignvatamount=data[5],
+                                                # temporary vat
+                                                # temporary vat
+                                                # temporary vat
+                                                vatcode='VAT12',
+                                                vatrate='12',
                                                 status=data[6],
                                                 statusdate=data[7],
                                                 usercode=data[8],
@@ -371,7 +392,184 @@ def exportsave(request):
 
             if request.POST['artype'] == 'a':
                 ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
-                print ormain.first()
+
+                for data in ormain:
+                    remainingamount = 0
+                    vatamount = 0
+                    vatable = 0
+                    vatexempt = 0
+                    vatzerorated = 0
+
+                    # transfer ormain
+                    temp_ormain = Temp_ormain.objects.create(
+                        orno=data.orno,
+                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        prno=data.prno,
+                        bankaccountcode=data.bankaccount,
+                        branchcode=data.branchcode,
+                        collectorcode=data.collector,
+                        collectordesc=data.collectordesc,
+                        artype=data.artype,
+                        agencycode=data.agencycode,
+                        clientcode=data.clientcode,
+                        agentcode=data.agentcode,
+                        payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                        payeename=data.payeename,
+                        payeetype=data.payeetype,
+                        productcode=data.product,
+                        adtypecode=data.adtype,
+                        amount=data.amount,
+                        amountinwords=data.amountinwords,
+                        vatrate=data.vatrate,
+                        vatcode=data.vatcode,
+                        particulars=data.particulars,
+                        importby=data.importby,
+                        batchkey=data.batchkey,
+                        postingremarks='Processing...',
+                    )
+                    temp_ormain.save()
+
+                    # cash in bank
+                    Temp_ordetail.objects.create(
+                        orno=data.orno,
+                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        debitamount=data.amount,
+                        balancecode='D',
+                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                        batchkey=data.batchkey,
+                        postingremarks='Processing...',
+                    ).save()
+                    remainingamount = float(data.amount)
+
+                    # transfer ordetails
+                    ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
+                    for data_d in ordetail:
+                        Temp_ordetail.objects.create(
+                            orno=data_d.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            adtypecode=data_d.adtype,
+                            amount=data_d.assignamount,
+                            vatamount=data_d.assignvatamount,
+                            creditamount=data_d.assignamount,
+                            balancecode='C',
+                            chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
+                            vatrate=data_d.vatrate,
+                            vatcode=data_d.vatcode,
+                            payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                            payeename=data.payeename,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        if data_d.vatrate > 0:
+                            vatable = float(vatable) + float(data_d.assignamount)
+                        elif data_d.vatcode == 'VE':
+                            vatexempt = float(vatexempt) + float(data_d.assignamount)
+                        elif data_d.vatcode == 'ZE':
+                            vatzerorated = float(vatzerorated) + float(data_d.assignamount)
+
+                        # do vat here
+                        Temp_ordetail.objects.create(
+                            orno=data_d.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            creditamount=data_d.assignvatamount,
+                            balancecode='C',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                            vatrate=data_d.vatrate,
+                            vatcode=data_d.vatcode,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        vatamount = float(vatamount) + float(data_d.assignvatamount)
+
+                        remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
+                        remainingamount = float(format(remainingamount, '.2f'))
+
+                    # transfer leftovers
+                    if remainingamount > 0:
+                        leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
+                        leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            adtypecode=data.adtype,
+                            amount=leftover_amount,
+                            vatamount=leftover_vatamount,
+                            creditamount=leftover_amount,
+                            balancecode='C',
+                            chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
+                            vatrate=data.vatrate,
+                            vatcode=data.vatcode,
+                            payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                            payeename=data.payeename,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        if data_d.vatrate > 0:
+                            vatable = float(vatable) + float(leftover_amount)
+                        elif data_d.vatcode == 'VE':
+                            vatexempt = float(vatexempt) + float(leftover_amount)
+                        elif data_d.vatcode == 'ZE':
+                            vatzerorated = float(vatzerorated) + float(leftover_amount)
+
+                        # do vat here
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            creditamount=leftover_vatamount,
+                            balancecode='C',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                            vatrate=data.vatrate,
+                            vatcode=data.vatcode,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        vatamount = float(vatamount) + float(leftover_vatamount)
+
+                    # temp ormaint to ormain
+                    Ormain.objects.create(
+                        ornum=temp_ormain.orno,
+                        ordate=temp_ormain.ordate,
+                        prnum=temp_ormain.prno,
+                        orstatus='F',
+                        amount=temp_ormain.amount,
+                        amountinwords=temp_ormain.amountinwords,
+                        vatrate=temp_ormain.vatrate,
+                        vatamount=vatamount,
+                        particulars=temp_ormain.particulars,
+                        vatablesale=vatable,
+                        vatexemptsale=vatexempt,
+                        vatzeroratedsale=vatzerorated,
+                        totalsale=temp_ormain.amount,
+                        status='A',
+                        bankaccount=Bankaccount.objects.get(code=temp_ormain.bankaccountcode),
+                        branch=Branch.objects.get(code=temp_ormain.branchcode),
+                        collector=Collector.objects.get(code=temp_ormain.collectorcode),
+                        collector_code=temp_ormain.collectorcode,
+                        collector_name=temp_ormain.collectordesc,
+                        enterby=request.user,
+                        modifyby=request.user,
+                        ortype=Ortype.objects.get(pk=2),
+                        vat=Vat.objects.get(code=temp_ormain.vatcode),
+                        agency=get_object_or_None(Customer, code=temp_ormain.agencycode),
+                        client=get_object_or_None(Customer, code=temp_ormain.clientcode),
+                        orsource='A',
+                        payee_code=temp_ormain.payeecode,
+                        payee_name=temp_ormain.payeename,
+                        payee_type=temp_ormain.payeetype,
+                        product=Product.objects.get(code=temp_ormain.productcode),
+                        product_code=temp_ormain.productcode,
+                        product_name=Product.objects.get(code=temp_ormain.productcode).description,
+                        importby=request.user,
+                        importornum=temp_ormain.orno,
+                        adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
+                    ).save()
+
+                    # do details
+                    # do details
+                    # do details
+                    # set to posted after success of orno and batch
+                    # set posting status to success for temp
+            # maybe delete temp after
 
         else:
             data = {
