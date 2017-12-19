@@ -7,9 +7,12 @@
             display: none;
         }
         .table_result{
-            height: 150px;
+            height: 300px;
             overflow: scroll;
             padding: 0px;
+        }
+        .table_detail{
+            border-top: none !important;
         }
     </style>
 {% endblock extra_css %}
@@ -21,16 +24,20 @@
                 <div class="page-wrap">
                     <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
                         <div id="formupload">
-                                <div class="form-group col-sm-3">
+                                <div class="form-group col-sm-2">
                                     <label class="control-label small">AR Type</label>
                                     <select class="form-control input-sm" id="or_artype" name="or_artype">
                                         <option value="a">Advertising</option>
                                         <option value="c">Circulation</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-sm-7">
+                                <div class="form-group col-sm-4">
                                     <label class="control-label small">OR Master</label>
                                     <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label class="control-label small">OR Detail</label>
+                                    <input type="file" id="or_d_file" class="form-control input-sm upload" name="or_d_file">
                                 </div>
                                 <div class="form-group col-sm-2">
                                     <br>
@@ -59,41 +66,14 @@
                 <div class="page-wrap">
                     <div class="form-group col-sm-12">
                         <label class="control-label small">Verification Results</label><br><br>
-                        <div class="col-md-4 table_result">
-                            <table class="table table-condensed" id="success_table">                            
-                                <thead>
-                                    <tr class="bg-light-green-500">
-                                        <th colspan="2" style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></small></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>  
-                        <div class="col-md-4 table_result">
-                            <table class="table table-condensed" id="existing_table">
-                                <thead>
-                                    <tr class="bg-orange-300">
-                                        <th colspan="2" style="color:white"><small><b>Existing</b><div class="pull-right" id="upload_existing"></small></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>   
-                        <div class="col-md-4 table_result">
-                            <table class="table table-condensed" id="failed_table">
-                                <thead>
-                                    <tr class="bg-red-400">
-                                        <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></small></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>   
+                        <div class="col-md-12 table_result">
+                            <table class="table table-condensed small" id="ordata_table"><tbody></tbody></table>
+                        </div>
                         <div class="col-md-12">
                             <br>
-                            <i class="small">** Total of <b id="upload_total"></b> items processed and <b id="upload_rate"></b> succcess rate. **</i>
+                            <i class="small">** Total of <b id="upload_total"></b> items passed (<b id="upload_rate"></b>). **</i>
                         </div>   
-                        <input type="hidden" id="or_export_sequence">
+                        <input type="hidden" id="or_batchkey">
                         <input type="hidden" id="or_export_artype">
                         <button type="button" class="pull-right btn btn-sm btn-info" style="width:100px" id="or_export">UPLOAD</button>
                     </div>    
@@ -162,7 +142,8 @@
         });
 
         $("form#data").submit(function(){
-            if ($('#or_file').get(0).files.length === 0) {
+            if ($('#or_file').get(0).files.length === 0 || $('#or_d_file').get(0).files.length === 0) {
+{#            if ($('#or_file').get(0).files.length === 0) {#}
                 customAlert($('#upload-file-error'));
                 showUploadForm();
             }
@@ -179,26 +160,43 @@
                             case 1:
                                 customAlert($('#upload-success'));
                                 $('#or_step_upload').fadeIn();
-                                $('#upload_total').text(data['orcount']);
-                                $('#upload_success').html(data['successcount']+"&nbsp;&nbsp;");
-                                $('#upload_existing').html(data['existingcount']+"&nbsp;&nbsp;");
-                                $('#upload_failed').html(data['failedcount']+"&nbsp;&nbsp;");
+                                $('#upload_total').text(data['successcount'] + " out of " + data['orcount']);
                                 $('#upload_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
-                                $('#existing_table tbody').html('');
-                                for(var i = 0; i < data['existingcount']; i++) {
-                                    $('#existing_table tbody').append("<tr><td><small>"+data['existingdata'][i]['importornum']+"</small></td></tr>");
-                                }
-                                $('#failed_table tbody').html('');
-                                for(var i = 0; i < data['faileddata'].length; i++) {
-                                    $('#failed_table tbody').append("<tr><td><small>"+data['faileddata'][i]['orno']+"&nbsp;&nbsp;&nbsp; <small><i>(appeared &nbsp;"+data['faileddata'][i]['id__count']+"x)</i></small></small></td></tr>");
-                                }
-                                $('#success_table tbody').html('');
-                                for(var i = 0; i < data['successdata'].length; i++) {
-                                    $('#success_table tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
+                                $('#ordata_table tbody').html('');
+                                for(var i = 0; i < data['ordata_list'].length; i++) {
+                                    dataremarks = '';
+                                    datahighlight = '';
+                                    if(data['ordata_list'][i][4] == 'F'){
+                                        datahighlight = 'danger';
+                                        dataremarks = "<tr class='"+datahighlight+"'><td colspan='5' align='center'><small><b>"+data['ordata_list'][i][5]+"</b></small></td></tr>";
+                                    }
+
+                                    $('#ordata_table tbody')
+                                            .append(dataremarks +
+                                                    "<tr class='"+datahighlight+"' data-main='"+data['ordata_list'][i][0]+"'>" +
+                                                        "<td><small>"+data['ordata_list'][i][0]+"</small></td>" +
+                                                        "<td><small>"+data['ordata_list'][i][1]+"</small></td>" +
+                                                        "<td><small>"+data['ordata_list'][i][2]+"</small></td>" +
+                                                        "<td></td>" +
+                                                        "<td align='right'><small>"+data['ordata_list'][i][3].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</small></td>" +
+                                                    "</tr>");
                                 }
 
-                                $('#or_export_sequence').val(data['sequence']);
+                                for(var i = 0; i < data['ordata_d_list'].length; i++) {
+                                    if(data['ordata_d_list'][i][2] == 'F'){
+                                        datahighlight = 'danger';
+                                    }
+                                    $("[data-main='"+data['ordata_d_list'][i][0]+"']")
+                                            .after("<tr class='"+datahighlight+"'>" +
+                                                    "<td class='table_detail' colspan='2'></td>" +
+                                                    "<td class='table_detail'><small>"+data['ordata_d_list'][i][3]+"</small></td>" +
+                                                    "<td class='table_detail' align='right'><small>"+data['ordata_d_list'][i][1].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</small></td>" +
+                                                    "<td class='table_detail'></td>" +
+                                                   "</tr>")
+                                }
+
+                                $('#or_batchkey').val(data['batchkey']);
                                 $('#or_export_artype').val(data['artype']);
 
                                 break;
@@ -235,25 +233,25 @@
             $.ajax({
                 url: "{% url 'processing_or:exportsave' %}",
                 type: "post",
-                data: {'sequence': $('#or_export_sequence').val(),
+                data: {'batchkey': $('#or_batchkey').val(),
                        'artype': $('#or_export_artype').val()},
                 success: function(data){
-                    $('#or_step_final').fadeIn();
-                    $('#or_step_upload').fadeIn();
-                    $('#final_total').text(data['processedcount']);
-                    $('#final_success').html(data['successcount']+"&nbsp;&nbsp;");
-                    $('#final_failed').html(data['failedcount'])+"&nbsp;&nbsp;";
-                    $('#final_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
-
-                    $('#success_table_f tbody').html('');
-                    for(var i = 0; i < data['successcount']; i++) {
-                        $('#success_table_f tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");
-                    };
-
-                    $('#failed_table_f tbody').html('');
-                    for(var i = 0; i < data['failedcount']; i++) {
-                        $('#failed_table_f tbody').append("<tr><td><small>"+data['faileddata'][i][0]+"</small></td><td><small>"+data['faileddata'][i][1]+"</small></td></tr>");
-                    };
+{#                    $('#or_step_final').fadeIn();#}
+{#                    $('#or_step_upload').fadeIn();#}
+{#                    $('#final_total').text(data['processedcount']);#}
+{#                    $('#final_success').html(data['successcount']+"&nbsp;&nbsp;");#}
+{#                    $('#final_failed').html(data['failedcount'])+"&nbsp;&nbsp;";#}
+{#                    $('#final_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");#}
+{##}
+{#                    $('#success_table_f tbody').html('');#}
+{#                    for(var i = 0; i < data['successcount']; i++) {#}
+{#                        $('#success_table_f tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");#}
+{#                    };#}
+{##}
+{#                    $('#failed_table_f tbody').html('');#}
+{#                    for(var i = 0; i < data['failedcount']; i++) {#}
+{#                        $('#failed_table_f tbody').append("<tr><td><small>"+data['faileddata'][i][0]+"</small></td><td><small>"+data['faileddata'][i][1]+"</small></td></tr>");#}
+{#                    };#}
 
                 }, error: function(response) {
                     console.debug(response);
