@@ -42,6 +42,7 @@
                                 <div class="form-group col-sm-2">
                                     <br>
                                     <button type="button" class="btn btn-sm btn-info pull-right" style="width:100px" id="or_upload">VERIFY</button>
+                                    <button type="button" disabled="disabled" class="btn btn-sm btn-info pull-right" style="width:100px; display: none;" id="or_upload_loading">VERIFYING ...</button>
                                 </div>
                         </div>
                         <div id="formloading">
@@ -76,7 +77,8 @@
                         <input type="hidden" id="or_batchkey">
                         <input type="hidden" id="or_export_artype">
                         <button type="button" class="pull-right btn btn-sm btn-info" style="width:100px" id="or_export">UPLOAD</button>
-                    </div>    
+                        <button type="button" disabled="disabled" class="pull-right btn btn-sm btn-info" style="width:100px; display: none" id="or_export_loading">UPLOADING ...</button>
+                    </div>
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -89,30 +91,22 @@
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="form-group col-sm-12">
-                        <label class="control-label small">Upload Results</label><br><br>
-                        <div class="col-md-4 table_result">
-                            <table class="table table-condensed" id="success_table_f">
+                        <label class="control-label small">Final Results</label><br><br>
+                        <div class="col-md-12 table_result">
+                            <table class="table table-condensed small" id="ordata_table2">
                                 <thead>
-                                    <tr class="bg-light-green-500">
-                                        <th style="color: white"><small><b>Passed</b><div class="pull-right" id="final_success"></small></th>
+                                    <tr>
+                                        <th style="width:5%">OR No.</th>
+                                        <th style="width:10%">OR Date</th>
+                                        <th style="width:20%">Product</th>
+                                        <th style="width:25%">Payee</th>
+                                        <th style="width:10%; text-align: right">Debit</th>
+                                        <th style="width:10%; text-align: right">Credit</th>
+                                        <th style="width:10%; text-align: right">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
-                        </div>   
-                        <div class="col-md-8 table_result">
-                            <table class="table table-condensed" id="failed_table_f">
-                                <thead>
-                                    <tr class="bg-red-400">
-                                        <th style="color: white" colspan="2"><small><b>Failed</b><div class="pull-right" id="final_failed"></small></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-12">
-                            <br>
-                            <i class="small">** Total of <b id="final_total"></b> items processed and <b id="final_rate"></b> succcess rate. **</i>
                         </div>
                     </div>    
                 </div>
@@ -131,19 +125,16 @@
 <script>
     $(function(){
         $(document).on('click', '#or_upload', function(e){
-            $('#formupload').fadeOut(300);
+            $('#or_upload').fadeOut(300);
             $('#or_step_upload').fadeOut(300);
             $('#or_step_final').fadeOut(300);
-
-            e.preventDefault();
-            $('#formloading').delay(300).fadeIn(300, function() {
+            $('#or_upload_loading').delay(300).fadeIn(300, function() {
                 $("form#data").submit();
             });
         });
 
         $("form#data").submit(function(){
             if ($('#or_file').get(0).files.length === 0 || $('#or_d_file').get(0).files.length === 0) {
-{#            if ($('#or_file').get(0).files.length === 0) {#}
                 customAlert($('#upload-file-error'));
                 showUploadForm();
             }
@@ -160,6 +151,8 @@
                             case 1:
                                 customAlert($('#upload-success'));
                                 $('#or_step_upload').fadeIn();
+                                $('#or_export').delay(300).fadeIn(300);
+                                $('#or_export_loading').fadeOut(300);
                                 $('#upload_total').text(data['successcount'] + " out of " + data['orcount']);
                                 $('#upload_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
@@ -230,28 +223,75 @@
 
         $('#or_export').on('click', function(){
             $('#or_step_final').fadeOut(300);
+            $('#or_export').fadeOut(300);
+            $('#or_export_loading').delay(300).fadeIn(300);
             $.ajax({
                 url: "{% url 'processing_or:exportsave' %}",
                 type: "post",
                 data: {'batchkey': $('#or_batchkey').val(),
                        'artype': $('#or_export_artype').val()},
                 success: function(data){
-{#                    $('#or_step_final').fadeIn();#}
-{#                    $('#or_step_upload').fadeIn();#}
-{#                    $('#final_total').text(data['processedcount']);#}
-{#                    $('#final_success').html(data['successcount']+"&nbsp;&nbsp;");#}
-{#                    $('#final_failed').html(data['failedcount'])+"&nbsp;&nbsp;";#}
-{#                    $('#final_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");#}
-{##}
-{#                    $('#success_table_f tbody').html('');#}
-{#                    for(var i = 0; i < data['successcount']; i++) {#}
-{#                        $('#success_table_f tbody').append("<tr><td><small>"+data['successdata'][i]+"</small></td></tr>");#}
-{#                    };#}
-{##}
-{#                    $('#failed_table_f tbody').html('');#}
-{#                    for(var i = 0; i < data['failedcount']; i++) {#}
-{#                        $('#failed_table_f tbody').append("<tr><td><small>"+data['faileddata'][i][0]+"</small></td><td><small>"+data['faileddata'][i][1]+"</small></td></tr>");#}
-{#                    };#}
+                    switch(data['result']) {
+                        case 1:
+                            $('#or_step_final').fadeIn(300);
+                            $('#or_export_loading').fadeOut(300);
+                            $('#or_export').delay(300).fadeIn(300);
+
+                            $('#ordata_table2 tbody').html('');
+                            for (var i = 0; i < data['ordata_list'].length; i++) {
+                                datahighlight = '';
+                                if (data['ordata_list'][i][8] == 'F') {
+                                    datahighlight = 'danger';
+                                }
+
+                                $('#ordata_table2 tbody')
+                                        .append("<tr class='" + datahighlight + "' data-mainlive='" + data['ordata_list'][i][0] + "'>" +
+                                        "<td><small><b>" + data['ordata_list'][i][0] + "</b></small></td>" +
+                                        "<td><small>" + data['ordata_list'][i][1] + "</small></td>" +
+                                        "<td><small>" + data['ordata_list'][i][4] + "</small></td>" +
+                                        "<td><small>(" + data['ordata_list'][i][3] + ") " + data['ordata_list'][i][2] + "</small></td>" +
+                                        "<td colspan='2'></td>" +
+                                        "<td align='right'><small>" + data['ordata_list'][i][5].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + "</small></td>" +
+                                        "</tr>");
+                            }
+
+                            for (var i = 0; i < data['ordata_d_list'].length; i++) {
+                                extra_data = '';
+                                extra_debit = '';
+                                extra_credit = '';
+                                if(data['ordata_d_list'][i][3] != null){
+                                    extra_data = data['ordata_d_list'][i][3];
+                                }
+                                else if(data['ordata_d_list'][i][4] != null){
+                                    extra_data = data['ordata_d_list'][i][4];
+                                }
+                                if(data['ordata_d_list'][i][5] != null){
+                                    extra_debit = data['ordata_d_list'][i][5].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                                }
+                                if(data['ordata_d_list'][i][6] != null){
+                                    extra_credit = data['ordata_d_list'][i][6].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                                }
+
+                                if (data['ordata_d_list'][i][7] == 'F') {
+                                    datahighlight = 'danger';
+                                }
+                                $("[data-mainlive='" + data['ordata_d_list'][i][0] + "']")
+                                        .after("<tr style='background-color: #ececec;'>" +
+                                        "<td class='table_detail'></td>" +
+                                        "<td class='table_detail'><b><small>" + data['ordata_d_list'][i][1] + "</small></b></td>" +
+                                        "<td class='table_detail'><small>" + data['ordata_d_list'][i][2] + "</small></td>" +
+                                        "<td class='table_detail'><small>" + extra_data + "</small></td>" +
+                                        "<td class='table_detail' align='right'><small>" + extra_debit + "</small></td>" +
+                                        "<td class='table_detail' align='right'><small>" + extra_credit + "</small></td>" +
+                                        "<td class='table_detail'></td>" +
+                                        "</tr>")
+                            }
+                            break;
+                        case 2:
+                            customAlert($('#upload-error'));
+                            break;
+                        default:
+                    }
 
                 }, error: function(response) {
                     console.debug(response);
@@ -260,8 +300,8 @@
         });
 
         function showUploadForm(){
-            $('#formloading').delay(1000).fadeOut(300);
-            $('#formupload').delay(1300).fadeIn(300);
+            $('#or_upload_loading').fadeOut(300);
+            $('#or_upload').delay(300).fadeIn(300);
         }
     });
 </script>

@@ -4,12 +4,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from .models import Temp_ormain, Temp_ordetail, Logs_ormain, Logs_ordetail
-from officialreceipt.models import Ormain
+from officialreceipt.models import Ormain, Ordetail
 from ortype.models import Ortype
 from collector.models import Collector
 from branch.models import Branch
 from vat.models import Vat
 from bankaccount.models import Bankaccount
+from chartofaccount.models import Chartofaccount
 from customer.models import Customer
 from product.models import Product
 from agent.models import Agent
@@ -17,7 +18,7 @@ from outputvattype.models import Outputvattype
 from currency.models import Currency
 from adtype.models import Adtype
 from companyparameter.models import Companyparameter
-from django.db.models import Count
+from django.db.models import Count, Sum
 from datetime import datetime
 from datetime import timedelta
 from annoying.functions import get_object_or_None
@@ -392,9 +393,10 @@ def exportsave(request):
 
             if request.POST['artype'] == 'a':
                 ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
+                ormain_list = []
+                ordetail_list = []
 
                 for data in ormain:
-                    remainingamount = 0
                     vatamount = 0
                     vatable = 0
                     vatexempt = 0
@@ -453,8 +455,6 @@ def exportsave(request):
                             creditamount=data_d.assignamount,
                             balancecode='C',
                             chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
-                            vatrate=data_d.vatrate,
-                            vatcode=data_d.vatcode,
                             payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
                             payeename=data.payeename,
                             batchkey=data.batchkey,
@@ -497,8 +497,6 @@ def exportsave(request):
                             creditamount=leftover_amount,
                             balancecode='C',
                             chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
-                            vatrate=data.vatrate,
-                            vatcode=data.vatcode,
                             payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
                             payeename=data.payeename,
                             batchkey=data.batchkey,
@@ -525,7 +523,7 @@ def exportsave(request):
                         ).save()
                         vatamount = float(vatamount) + float(leftover_vatamount)
 
-                    # temp ormaint to ormain
+                    # temp ormain to ormain
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
                         ordate=temp_ormain.ordate,
@@ -564,30 +562,78 @@ def exportsave(request):
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
                     ).save()
 
-                    # do details
-                    # do details
-                    # do details
+                    # temp ordetail to ordetail
+                    temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode').order_by()\
+                                                         .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
+                    for index, data2 in enumerate(temp_ordetail):
+                        Ordetail.objects.create(
+                            item_counter=index + 1,
+                            or_num=data2['orno'],
+                            or_date=data2['ordate'],
+                            debitamount=data2['debit'],
+                            creditamount=data2['credit'],
+                            balancecode=data2['balancecode'],
+                            status='A',
+                            chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
+                            customer=get_object_or_None(Customer, code=data2['payeecode']),
+                            enterby=request.user,
+                            modifyby=request.user,
+                            ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
+                            vat=get_object_or_None(Vat, code=data2['vatcode']),
+                        ).save()
+
+                    # delete temp pls
+                    # delete temp pls
+                    # delete temp pls
+                    # delete temp pls
+
                     # set to posted after success of orno and batch
                     # set posting status to success for temp
-            # maybe delete temp after
 
+                    # append failed items
+
+                    # save for preview
+                    ormain_data = Ormain.objects.filter(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A').order_by('ornum')
+                    for datalist in ormain_data:
+                        ormain_list.append([datalist.ornum,
+                                            datalist.ordate,
+                                            datalist.payee_name,
+                                            datalist.payee_type,
+                                            datalist.product_name,
+                                            datalist.amount,
+                                            'S',
+                                           ])
+
+                    ordetail_data = Ordetail.objects.filter(or_num=temp_ormain.orno, status='A', isdeleted=0).order_by('item_counter')
+                    for datalist in ordetail_data:
+                        customer = datalist.customer.name if datalist.customer else None
+                        vat = datalist.vat.code if datalist.vat else None
+                        ordetail_list.append([datalist.or_num,
+                                              datalist.chartofaccount.accountcode,
+                                              datalist.chartofaccount.title,
+                                              customer,
+                                              vat,
+                                              datalist.debitamount,
+                                              datalist.creditamount,
+                                              'S',
+                                             ])
+
+                # successcount = ordata.filter(importstatus='S').count()
+                # rate = (float(successcount) / float(orcount)) * 100
+                data = {
+                    'result': 1,
+                    'ordata_list': ormain_list,
+                    'ordata_d_list': ordetail_list,
+                    # 'successcount': successcount,
+                    # 'rate': rate,
+                }
         else:
             data = {
                 'result': 2
             }
 
-
-        # rate = (float(successcount) / float(processedcount)) * 100
-        # data = {
-        #     'result': 'success',
-        #     'processedcount': processedcount,
-        #     'successcount': successcount,
-        #     'successdata': successdata,
-        #     'failedcount': failedcount,
-        #     'faileddata': faileddata,
-        #     'rate': rate,
-        # }
-        # return JsonResponse(data)
+        return JsonResponse(data)
 
 
 # @csrf_exempt
