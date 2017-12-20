@@ -240,7 +240,7 @@ def fileupload(request):
                                                        ])
                                 for data in ordata_d:
                                     ordata_d_list.append([data.orno,
-                                                          data.assignamount,
+                                                          float(data.assignamount) + float(data.assignvatamount),
                                                           data.importstatus,
                                                           data.adtypedesc,
                                                          ])
@@ -567,12 +567,15 @@ def exportsave(request):
                                                          .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode').order_by()\
                                                          .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
                     for index, data2 in enumerate(temp_ordetail):
+                        debit = data2['debit'] if data2['debit'] is not None else 0.00
+                        credit = data2['credit'] if data2['credit'] is not None else 0.00
+
                         Ordetail.objects.create(
                             item_counter=index + 1,
                             or_num=data2['orno'],
                             or_date=data2['ordate'],
-                            debitamount=data2['debit'],
-                            creditamount=data2['credit'],
+                            debitamount=debit,
+                            creditamount=credit,
                             balancecode=data2['balancecode'],
                             status='A',
                             chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
@@ -605,7 +608,7 @@ def exportsave(request):
                                             'S',
                                            ])
 
-                    ordetail_data = Ordetail.objects.filter(or_num=temp_ormain.orno, status='A', isdeleted=0).order_by('item_counter')
+                    ordetail_data = Ordetail.objects.filter(or_num=temp_ormain.orno, status='A', isdeleted=0).order_by('-item_counter')
                     for datalist in ordetail_data:
                         customer = datalist.customer.name if datalist.customer else None
                         vat = datalist.vat.code if datalist.vat else None
