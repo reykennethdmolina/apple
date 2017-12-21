@@ -57,23 +57,22 @@ class IndexView(AjaxListView):
                                  Q(amount__icontains=keysearch))
         return query
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(AjaxListView, self).get_context_data(**kwargs)
-    #
-    #     # data for lookup
-    #     context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
-    #     context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
-    #     context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-    #     context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-    #     context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
-    #     context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-    #     context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
-    #     context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
-    #     context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
-    #     context['pk'] = 0
-    #     # data for lookup
-    #
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        # data for lookup
+        context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
+        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
+        context['pk'] = 0
+        # data for lookup
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -124,20 +123,19 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')   # add filter customer type
         context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')   # add filter customer type
         context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
-        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
 
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
+        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = 0
         # data for lookup
 
@@ -364,12 +362,13 @@ class UpdateView(UpdateView):
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['pk'] = 0
+        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
+        context['pk'] = self.object.pk
         # data for lookup
 
         # accounting entry starts here
@@ -415,13 +414,14 @@ class UpdateView(UpdateView):
 
         self.object.vatrate = Vat.objects.get(pk=int(self.request.POST['vat'])).rate
 
+        self.object.acctentry_incomplete = 0
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['ordate', 'amount', 'amountinwords', 'deferredvat', 'vatrate', 'wtaxrate',
                                         'particulars', 'government', 'remarks', 'bankaccount', 'branch', 'collector',
                                         'ortype', 'vat', 'wtax', 'outputvattype', 'agency', 'agent', 'client',
                                         'orsource', 'payee_code', 'payee_name', 'payee_type', 'product', 'modifyby',
-                                        'modifydate'])
+                                        'modifydate', 'acctentry_incomplete'])
 
         non_vat_amount = decimal.Decimal(self.object.amount) / (1 + (decimal.Decimal(self.object.vatrate) /
                                                                      decimal.Decimal(100)) -

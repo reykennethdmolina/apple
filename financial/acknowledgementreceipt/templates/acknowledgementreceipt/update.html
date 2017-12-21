@@ -56,7 +56,26 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update
+                    <div class="btn-group pull-right">
+                        <div class="shade"><div class="loader loader-sm two-color"></div></div>
+                        <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Search
+                        </button>
+                        <button id="nav_stepleft" class="btn btn-default nav_btn small">
+                            <i class="icon fa-step-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_left" class="btn btn-default nav_btn small">
+                            <i class="icon fa-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_right" class="btn btn-default nav_btn small">
+                            <i class="icon fa-forward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_stepright" class="btn btn-default nav_btn small">
+                            <i class="icon icon fa-step-forward" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </h3>
                 <div style="padding-right: 10px; padding-bottom: 50px;">
                     {% if perms.acknowledgementreceipt.delete_armain and object.arstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'acknowledgementreceipt:delete' object.id %}" class="floatright">
@@ -412,6 +431,8 @@
 <div id="item-delete-success" class="custom-alert success">Payment detail successfully deleted.</div>
 <div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
 <div id="no-payment-breakdown" class="custom-alert danger">Please provide the payment breakdown.</div>
+
+{% include "acknowledgementreceipt/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

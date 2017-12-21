@@ -55,7 +55,13 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Create</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Create
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Search
+                        </button>
+                    </div>
+                </h3>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
@@ -372,6 +378,8 @@
 <div id="item-delete-success" class="custom-alert success">Payment detail successfully deleted.</div>
 <div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
 <div id="no-payment-breakdown" class="custom-alert danger">Please provide the payment breakdown.</div>
+
+{% include "acknowledgementreceipt/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

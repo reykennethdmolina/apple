@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     'processing_data',
     'dcartype',
     'cmsadjustment',
+    'processing_transaction',
 ]
 
 MIDDLEWARE_CLASSES = [

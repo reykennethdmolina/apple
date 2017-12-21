@@ -47,7 +47,11 @@
 {#                            <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report#}
 {#                        </button>#}
 {#                    </a>#}
-
+                    {% if perms.officialreceipt.change_ormain %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Lookup
+                        </button>
+                    {% endif %}
                     {% if perms.officialreceipt.add_ormain %}
                         <a href="{% url 'officialreceipt:create' %}"><button type="button" class="btn btn-success btn-sm waves-effect waves-light">
                             <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New Official Receipt
@@ -68,7 +72,7 @@
         </div>
     </div>
 </div>
-{#{% include "checkvoucher/search.html" %}#}
+{% include "officialreceipt/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}

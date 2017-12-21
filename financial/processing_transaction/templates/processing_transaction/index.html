@@ -1,0 +1,269 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Importation of Transaction Data {% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+{#        .iconlist {#}
+{#            text-align: left;#}
+{#            margin-left: 40px;#}
+{#            margin-right: 40px;#}
+{#        }#}
+        .btns-icon{
+            padding: 2px;
+            margin: auto;
+        }
+        td{
+            vertical-align: middle !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    {% block content %}
+                    <div class="col-md-12" style="margin-right: 15px;">
+                        <form method="get" id="filter" class="row form-material">
+                            <div class="col-md-5">
+                                <label class="control-label" for="id_selectprocess">Select Process:</label>
+                                <select class="form-control form-material input-sm" id="id_selectprocess" name="selectprocess">
+                                    <option value="">-- Select --</option>
+                                    <option value="potoapv" {% if selectprocess == 'potoapv' %}selected="selected"{% endif %} >Purchase Order to Accounts Payable Voucher (PO to APV)</option>
+                                    <option value="apvtocv" {% if selectprocess == 'apvtocv' %}selected="selected"{% endif %} >Accounts Payable Voucher to Check Voucher (APV to CV)</option>
+                                </select><br><br>
+                            </div>
+                            <div class="col-md-3 select_holder" id="datefrom_holder">
+                                <label class="control-label" for="id_datefrom">Date FROM:</label>
+                                <input type="text" class="form-control date-yyyymmdd datepickerfrom input-sm" readonly="readonly"
+                                       style="padding: 5px 10px" id="id_datefrom" name="datefrom" placeholder="YYYY-MM-DD"
+                                       value="{{ datefrom }}">
+                                <br><br>
+                            </div>
+                            <div class="col-md-3 select_holder" id="dateto_holder">
+                                <label class="control-label" for="id_dateto">Date TO:</label>
+                                <input type="text" class="form-control date-yyyymmdd datepickerto input-sm" readonly="readonly"
+                                       style="padding: 5px 10px" id="id_dateto" name="dateto" placeholder="YYYY-MM-DD"
+                                       value="{{ dateto }}">
+                                <br><br>
+                            </div>
+                            <div style="margin-top: 25px" class="col-md-1">
+                                <input type="submit" id="filterforms" value="GO" class="btn btn-info btn-sm waves-effect waves-light">
+                                <br>
+                            </div>
+                        </form>
+
+                        <form action="{% url 'replenish_rfv:replenish' %}" method="post" id="form-importdata">
+                            <table class="table table-hover small">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                            <input type="checkbox" id="checkbox0" class="item-check-all"
+                                                   name="trans_checkbox_all">
+                                            <label for="checkbox0"><b>Number</b></label>
+                                        </div>
+                                    </th>
+                                    <th><span>Date</span></th>
+                                    <th><span>Supplier/Payee</span></th>
+                                    <th><span>VAT</span></th>
+                                    <th><span>Input VAT Type</span></th>
+                                    <th class="text-right"><span>Amount</span></th>
+                                    <th class="text-right"><span>Final Amount</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in data_list %}
+                                <tr>
+                                    <td>
+                                        <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                            <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
+                                                   name="trans_checkbox" value="{{ data.id }}">
+                                            <label for="checkbox{{ data.id }}">
+                                                {% if selectprocess == 'potoapv' %}
+                                                    <a href="{% url 'purchaseorder:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                        PO # {{ data.ponum }}
+                                                    </a>
+                                                {% elif selectprocess == 'apvtocv' %}
+                                                    <a href="{% url 'accountspayable:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                        APV # {{ data.apnum }}
+                                                    </a>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if selectprocess == 'potoapv' %}
+                                            {{ data.podate|date:"Y-m-d" }}
+                                        {% elif selectprocess == 'apvtocv' %}
+                                            {{ data.apdate|date:"Y-m-d" }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="item-supplier">
+                                        {% if selectprocess == 'potoapv' %}
+                                            {{ data.supplier_name }}
+                                        {% elif selectprocess == 'apvtocv' %}
+                                            {{ data.payee.name }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="item-vat">
+                                        {{ data.vat.description }}
+                                    </td>
+                                    <td class="item-inputvattype">
+                                        {{ data.inputvattype.description }}
+                                    </td>
+                                    <td style="text-align: right;" class="item-amount">
+                                        {% if selectprocess == 'potoapv' %}
+                                            {{ data.totalamount|floatformat:2|intcomma }}
+                                        {% elif selectprocess == 'apvtocv' %}
+                                            {{ data.amount|floatformat:2|intcomma }}
+                                        {% endif %}
+                                    </td>
+                                    <td align="right" class="actual-amount">
+                                        <input type="text" name="temp_actualamount" style="width: 200px;"
+                                               class="form-control input-sm amount text-right input-amount
+                                               po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' %}{{ data.totalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' %}{{ data.amount|floatformat:2|intcomma }}{% endif %}">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <thead>
+                                <tr>
+                                    <th class="text-right" colspan="6" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
+                                    <th class="text-right" id="totalamount" style="border-bottom: none; padding-right:15px;"><b>0.00</b></th>
+                                </tr>
+                            </thead>
+                            </table>
+                            <input type="submit" id="replenishButton" value="Import Transaction Data" class="btn btn-round btn-success btn-sm">
+                        </form>
+                    </div>
+                    {% endblock %}
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<div id="required-fields-error" class="custom-alert danger">Please provide filters.</div>
+<div id="checked-items-error" class="custom-alert danger">Please check at least one item.</div>
+<div id="choose-type-error" class="custom-alert danger">Please choose a process type first.</div>
+{% endblock page-content %}
+{% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function () {
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+        if($('#id_datefrom').val() == '' && $('#id_dateto').val() == ''){
+            $("#id_datefrom").datepicker("setDate", firstDay);
+            $("#id_dateto").datepicker("setDate", lastDay);
+        }
+        $(document).on('change', '.item-check', function(){
+            if($('.item-check:checked').length == $('.item-check').length)
+                $('.item-check-all').prop('checked', true);
+            else
+                $('.item-check-all').prop('checked', false);
+            computeItemTotal();
+        });
+        $(document).on('change', '.item-check-all', function(){
+            if ($('.item-check-all').is(':checked')){
+                $('.item-check').prop('checked', true);
+            }
+            else{
+                $('.item-check').prop('checked', false);
+            }
+            computeItemTotal();
+        });
+        $('.item-amount').each(function() {
+            $(this).text($(this).text().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        });
+
+        $('#filterforms').on('click', function(){
+            if($('#id_selectprocess').val() == '' || ($('#id_datefrom').val() == '' && $('#id_dateto').val() == '')){
+                customAlert($('#required-fields-error'));
+                event.preventDefault();
+            }
+        });
+
+        function useSome(array){
+            return !array.some(function(value, index, array){
+                return value !== array[0];
+            });
+        }
+
+        $(document).on('click', '#replenishButton', function(){
+            var allSuppliers = new Array();
+            var allVats = new Array();
+            var allInputVATTypes = new Array();
+
+            $('.item-check:checked').each(function() {
+                allSuppliers.push($(this).parent().parent().parent().find('.item-supplier').text().trim());
+                allVats.push($(this).parent().parent().parent().find('.item-vat').text().trim());
+                allInputVATTypes.push($(this).parent().parent().parent().find('.item-inputvattype').text().trim());
+            });
+
+            if($('.item-check:checked').length == 0){
+                customAlert($('#checked-items-error'));
+                event.preventDefault();
+            }
+            else if(!useSome(allSuppliers) || !useSome(allVats) || !useSome(allInputVATTypes)){
+{#                customAlert($('#checked-items-error'));#}
+                alert('whoa');
+                event.preventDefault();
+            }
+            else {
+                if($('#id_selectprocess').val() == 'potoapv'){
+
+                }
+                else if($('#id_selectprocess').val() == 'apvtocv'){
+
+                }
+                else {
+                    customAlert($('#checked-items-error'));
+                    event.preventDefault();
+                }
+                if(confirm("Are you sure you would like to import the selected POs to an APV?")){
+                    alert("Request for RFV Replenishment submitted.");
+                    $("#form-replenish").submit();
+                }
+                else {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        $(document).on('change', '.input-amount', function(){
+            if(Number($(this).val().replace( /,/g, "")) > Number($(this).parent().parent().find('.item-amount').text().replace( /,/g, ""))){
+                $(this).val($(this).parent().parent().find('.item-amount').text());
+                $(this).focus();
+            }
+            else {
+                if($(this).parent().parent().find('.item-check').is(':checked')){
+                    computeItemTotal();
+                }
+            }
+        });
+
+        function computeItemTotal(){
+            var sum = 0;
+            $('.item-check:checkbox:checked').each(function() {
+                sum += Number($(this).parent().parent().parent().find('.input-amount').val().replace( /,/g, ""));
+            });
+            $('#totalamount').text(sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        }
+	});
+    </script>
+{% endblock extra_js %}

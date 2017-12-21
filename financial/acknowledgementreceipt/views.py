@@ -57,6 +57,18 @@ class IndexView(AjaxListView):
                                  Q(amount__icontains=keysearch))
         return query
 
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        # lookup
+        context['artype'] = Artype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('name')
+        context['depositorybank'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank__code')
+        context['pk'] = 0
+
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateView(CreateView):
@@ -74,14 +86,14 @@ class CreateView(CreateView):
         context['secretkey'] = generatekey(self)
         context['paytype'] = Paytype.objects.filter(isdeleted=0).order_by('pk')
         context['bank'] = Bank.objects.filter(isdeleted=0).order_by('code')
-
-        # data for lookup
-        context['artype'] = Artype.objects.filter(isdeleted=0).order_by('pk')
-        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['arsubtype'] = Arsubtype.objects.filter(isdeleted=0)
+
+        # lookup
+        context['artype'] = Artype.objects.filter(isdeleted=0).order_by('pk')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['depositorybank'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank__code')
-        # data for lookup
+        context['pk'] = 0
 
         return context
 
@@ -294,19 +306,19 @@ class UpdateView(UpdateView):
         context['arnum'] = self.object.arnum
         context['payor_name'] = self.object.payor_name
         context['saved_arsubtype'] = self.object.arsubtype.id if self.object.arsubtype else None
+        context['arsubtype'] = Arsubtype.objects.filter(isdeleted=0)
 
         if self.request.POST.get('payor', False):
             context['payor'] = Employee.objects.get(pk=self.request.POST['payor_employee'], isdeleted=0)
         elif self.object.payor:
             context['payor'] = Employee.objects.get(pk=self.object.payor.id, isdeleted=0)
 
-        # data for lookup
+        # lookup
         context['artype'] = Artype.objects.filter(isdeleted=0).order_by('pk')
-        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['arsubtype'] = Arsubtype.objects.filter(isdeleted=0)
+        context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['depositorybank'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank__code')
-        # data for lookup
+        context['pk'] = self.object.pk
 
         # requested items
         context['itemtemp'] = Aritemtemp.objects.filter(armain=self.object.pk, isdeleted=0,

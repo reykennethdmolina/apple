@@ -16,6 +16,8 @@ from inventoryitem.models import Inventoryitem
 from operationalfund.models import Ofmain
 from checkvoucher.models import Cvmain
 from debitcreditmemo.models import Dcmain
+from acknowledgementreceipt.models import Armain
+from officialreceipt.models import Ormain
 from agent.models import Agent
 
 
@@ -371,6 +373,94 @@ def ajaxSearch(request):
             if request.POST['cache_particulars']:
                 items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
 
+        elif request.POST['table'] == "armain":
+            items = Armain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.POST['cache_arnum_from'] and request.POST['cache_arnum_to']:
+                items = items.filter(arnum__range=[int(request.POST['cache_arnum_from']),
+                                                   int(request.POST['cache_arnum_to'])])
+            elif request.POST['cache_arnum_from']:
+                items = items.filter(arnum__gte=int(request.POST['cache_arnum_from']))
+            elif request.POST['cache_arnum_to']:
+                items = items.filter(arnum__lte=int(request.POST['cache_arnum_to']))
+            if request.POST['cache_artype']:
+                items = items.filter(artype=int(request.POST['cache_artype']))
+            if request.POST['cache_ardate_from'] and request.POST['cache_ardate_to']:
+                items = items.filter(ardate__range=[request.POST['cache_ardate_from'],
+                                                    request.POST['cache_ardate_to']])
+            elif request.POST['cache_ardate_from']:
+                items = items.filter(ardate__gte=request.POST['cache_ardate_from'])
+            elif request.POST['cache_ardate_to']:
+                items = items.filter(ardate__lte=request.POST['cache_ardate_to'])
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
+                items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
+                                                    request.POST['cache_amount_to'].replace(',', '')])
+            elif request.POST['cache_amount_from']:
+                items = items.filter(amount__gte=request.POST['cache_amount_from'].replace(',', ''))
+            elif request.POST['cache_amount_to']:
+                items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
+            if request.POST['cache_payor_name']:
+                items = items.filter(payor_name__icontains=str(request.POST['cache_payor_name']))
+            if request.POST['cache_collector']:
+                items = items.filter(collector=int(request.POST['cache_collector']))
+            if request.POST['cache_depositorybank']:
+                items = items.filter(depositorybank=int(request.POST['cache_depositorybank']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+
+        elif request.POST['table'] == "ormain":
+            items = Ormain.objects.all().filter(isdeleted=0).order_by('pk')
+            if request.POST['cache_ornum_from'] and request.POST['cache_ornum_to']:
+                items = items.filter(ornum__range=[int(request.POST['cache_ornum_from']),
+                                                   int(request.POST['cache_ornum_to'])])
+            elif request.POST['cache_ornum_from']:
+                items = items.filter(ornum__gte=int(request.POST['cache_ornum_from']))
+            elif request.POST['cache_ornum_to']:
+                items = items.filter(ornum__lte=int(request.POST['cache_ornum_to']))
+            if request.POST['cache_ortype']:
+                items = items.filter(ortype=int(request.POST['cache_ortype']))
+            if request.POST['cache_ordate_from'] and request.POST['cache_ordate_to']:
+                items = items.filter(ordate__range=[request.POST['cache_ordate_from'],
+                                                    request.POST['cache_ordate_to']])
+            elif request.POST['cache_ordate_from']:
+                items = items.filter(ordate__gte=request.POST['cache_ordate_from'])
+            elif request.POST['cache_ordate_to']:
+                items = items.filter(ordate__lte=request.POST['cache_ordate_to'])
+            if request.POST['cache_artype']:
+                items = items.filter(orsource=int(request.POST['cache_artype']))
+            if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
+                items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
+                                                    request.POST['cache_amount_to'].replace(',', '')])
+            elif request.POST['cache_amount_from']:
+                items = items.filter(amount__gte=request.POST['cache_amount_from'].replace(',', ''))
+            elif request.POST['cache_amount_to']:
+                items = items.filter(amount__lte=request.POST['cache_amount_to'].replace(',', ''))
+            if request.POST['cache_branch']:
+                items = items.filter(branch=int(request.POST['cache_branch']))
+            if request.POST['cache_collector']:
+                items = items.filter(collector=int(request.POST['cache_collector']))
+            if request.POST['cache_payee_name']:
+                items = items.filter(payee_name__icontains=str(request.POST['cache_payee_name']))
+            if request.POST['cache_vat']:
+                items = items.filter(vat=int(request.POST['cache_vat']))
+            if request.POST['cache_outputvattype']:
+                items = items.filter(outputvattype=int(request.POST['cache_outputvattype']))
+            if request.POST['cache_deferredvat']:
+                items = items.filter(deferredvat=str(request.POST['cache_deferredvat']))
+            if request.POST['cache_wtax']:
+                items = items.filter(wtax=int(request.POST['cache_wtax']))
+            if request.POST['cache_bankaccount']:
+                items = items.filter(bankaccount=int(request.POST['cache_bankaccount']))
+            if request.POST['cache_government']:
+                items = items.filter(government=str(request.POST['cache_government']))
+            if request.POST['cache_particulars']:
+                items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+            if request.POST['cache_product']:
+                items = items.filter(product=int(request.POST['cache_product']))
+            if request.POST['cache_remarks']:
+                items = items.filter(remarks__icontains=str(request.POST['cache_remarks']))
+
         items = items[:500]
         listitems = []
 
@@ -385,6 +475,10 @@ def ajaxSearch(request):
                 listitems.append({'text': data.cvnum, 'id': data.id})
             elif request.POST['table'] == "dcmain":
                 listitems.append({'text': data.dcnum, 'id': data.id})
+            elif request.POST['table'] == "armain":
+                listitems.append({'text': data.arnum, 'id': data.id})
+            elif request.POST['table'] == "ormain":
+                listitems.append({'text': data.ornum, 'id': data.id})
 
         data = {
             'status': 'success',

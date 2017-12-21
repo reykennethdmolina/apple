@@ -38,7 +38,26 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update
+                    <div class="btn-group pull-right">
+                        <div class="shade"><div class="loader loader-sm two-color"></div></div>
+                        <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Search
+                        </button>
+                        <button id="nav_stepleft" class="btn btn-default nav_btn small">
+                            <i class="icon fa-step-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_left" class="btn btn-default nav_btn small">
+                            <i class="icon fa-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_right" class="btn btn-default nav_btn small">
+                            <i class="icon fa-forward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_stepright" class="btn btn-default nav_btn small">
+                            <i class="icon icon fa-step-forward" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </h3>
                 <div style="padding-right: 10px; padding-bottom: 60px;">
                     {% if perms.cmsadjustment.delete_cmmain and object.cmstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'cmsadjustment:delete' object.id %}" class="floatright">
@@ -165,6 +184,7 @@
     </div>
 </div>
 <div id="item-save-warning" class="custom-alert danger">Please complete details of added items first.</div>
+{% include "cmsadjustment/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

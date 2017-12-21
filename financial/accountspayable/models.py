@@ -82,6 +82,11 @@ class Apmain(models.Model):
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 
+    # for CV
+    cvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    isfullycv = models.IntegerField(default=0)
+    # for CV
+
     class Meta:
         db_table = 'apmain'
         ordering = ['-pk']

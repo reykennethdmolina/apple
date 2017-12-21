@@ -55,7 +55,26 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update</h3>
+                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update
+                    <div class="btn-group pull-right">
+                        <div class="shade"><div class="loader loader-sm two-color"></div></div>
+                        <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
+                            <i class="icon fa-search" aria-hidden="true"></i> Search
+                        </button>
+                        <button id="nav_stepleft" class="btn btn-default nav_btn small">
+                            <i class="icon fa-step-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_left" class="btn btn-default nav_btn small">
+                            <i class="icon fa-backward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_right" class="btn btn-default nav_btn small">
+                            <i class="icon fa-forward" aria-hidden="true"></i>
+                        </button>
+                        <button id="nav_stepright" class="btn btn-default nav_btn small">
+                            <i class="icon icon fa-step-forward" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
                     {% if perms.officialreceipt.delete_ormain and object.orstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'officialreceipt:delete' object.id %}" class="floatright">
@@ -397,6 +416,7 @@
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="not-equal-accounting-entries-total-amount-error" class="custom-alert danger">Total amounts of items and accounting entries must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
+{% include "officialreceipt/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

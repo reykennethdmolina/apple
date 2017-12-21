@@ -93,6 +93,11 @@ class Pomain(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
+    # for APV
+    apvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    isfullyapv = models.IntegerField(default=0)
+    # for APV
+
     class Meta:
         db_table = 'pomain'
         ordering = ['-pk']
