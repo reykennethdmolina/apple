@@ -47,8 +47,9 @@ class Apmain(models.Model):
     ataxcode = models.CharField(max_length=10, null=True, blank=True)
     ataxrate = models.IntegerField(default=0, null=True, blank=True)
 
-    bankbranchdisburse = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse', related_name='ap_bankbranchdisburse_id')
-    bankbranchdisbursebranch = models.CharField(max_length=10)
+    bankbranchdisburse = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
+                                           related_name='ap_bankbranchdisburse_id', null=True, blank=True)
+    bankbranchdisbursebranch = models.CharField(max_length=10, null=True, blank=True)
 
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ap_inputvattype_id')
     creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ap_creditterm_id')
@@ -59,7 +60,7 @@ class Apmain(models.Model):
     currency = models.ForeignKey('currency.Currency', related_name='ap_currency_id')
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
 
-    designatedapprover = models.ForeignKey(User, default=2, related_name='apmain_designated_approver')
+    designatedapprover = models.ForeignKey(User, related_name='apmain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='apmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),

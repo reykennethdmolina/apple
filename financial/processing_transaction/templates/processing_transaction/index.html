@@ -1,5 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
+{% load mathfilters %}
 {% load humanize %}
 {% block page-title %} Importation of Transaction Data {% endblock page-title %}
 {% block extra_css %}
@@ -57,7 +58,8 @@
                             </div>
                         </form>
 
-                        <form action="{% url 'replenish_rfv:replenish' %}" method="post" id="form-importdata">
+                        <form action="{% url 'processing_transaction:importtransdata' %}" method="post" id="form-importdata">
+                            <input type="hidden" id="transtype" name="transtype" value="">
                             <table class="table table-hover small">
                             <thead>
                                 <tr>
@@ -118,15 +120,15 @@
                                     </td>
                                     <td style="text-align: right;" class="item-amount">
                                         {% if selectprocess == 'potoapv' %}
-                                            {{ data.totalamount|floatformat:2|intcomma }}
+                                            {{ data.totalamount|sub:data.apvamount|floatformat:2|intcomma }}
                                         {% elif selectprocess == 'apvtocv' %}
-                                            {{ data.amount|floatformat:2|intcomma }}
+                                            {{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}
                                         {% endif %}
                                     </td>
                                     <td align="right" class="actual-amount">
-                                        <input type="text" name="temp_actualamount" style="width: 200px;"
+                                        <input type="text" name="temp_actualamount" style="width: 200px;" disabled="disabled"
                                                class="form-control input-sm amount text-right input-amount
-                                               po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' %}{{ data.totalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' %}{{ data.amount|floatformat:2|intcomma }}{% endif %}">
+                                               po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' %}{{ data.totalamount|sub:data.apvamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -138,7 +140,9 @@
                                 </tr>
                             </thead>
                             </table>
-                            <input type="submit" id="replenishButton" value="Import Transaction Data" class="btn btn-round btn-success btn-sm">
+                            <input type="hidden" id="hdnamount" name="hdnamount" value="0.00">
+                            <input type="hidden" id="hdnamountinwords" name="hdnamountinwords" value="">
+                            <input type="submit" id="importButton" value="Import Transaction Data" class="btn btn-round btn-success btn-sm">
                         </form>
                     </div>
                     {% endblock %}
@@ -152,6 +156,7 @@
 <div id="required-fields-error" class="custom-alert danger">Please provide filters.</div>
 <div id="checked-items-error" class="custom-alert danger">Please check at least one item.</div>
 <div id="choose-type-error" class="custom-alert danger">Please choose a process type first.</div>
+<div id="different-values-error" class="custom-alert danger">Same supplier, VAT and input VAT type only.</div>
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -166,6 +171,7 @@
         var date = new Date();
         var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
         var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        $('#transtype').val($('#id_selectprocess').val());
 
         if($('#id_datefrom').val() == '' && $('#id_dateto').val() == ''){
             $("#id_datefrom").datepicker("setDate", firstDay);
@@ -204,7 +210,7 @@
             });
         }
 
-        $(document).on('click', '#replenishButton', function(){
+        $(document).on('click', '#importButton', function(){
             var allSuppliers = new Array();
             var allVats = new Array();
             var allInputVATTypes = new Array();
@@ -220,29 +226,35 @@
                 event.preventDefault();
             }
             else if(!useSome(allSuppliers) || !useSome(allVats) || !useSome(allInputVATTypes)){
-{#                customAlert($('#checked-items-error'));#}
-                alert('whoa');
+                customAlert($('#different-values-error'));
                 event.preventDefault();
             }
             else {
                 if($('#id_selectprocess').val() == 'potoapv'){
-
+                    if(confirm("Are you sure you would like to import the selected POs to an APV?")){
+                        $("#form-importdata").submit();
+                    }
+                    else {
+                        event.preventDefault();
+                    }
                 }
                 else if($('#id_selectprocess').val() == 'apvtocv'){
-
+                    if(confirm("Are you sure you would like to import the selected APVs to a CV?")){
+                        $("#form-importdata").submit();
+                    }
+                    else {
+                        event.preventDefault();
+                    }
                 }
                 else {
                     customAlert($('#checked-items-error'));
                     event.preventDefault();
                 }
-                if(confirm("Are you sure you would like to import the selected POs to an APV?")){
-                    alert("Request for RFV Replenishment submitted.");
-                    $("#form-replenish").submit();
-                }
-                else {
-                    event.preventDefault();
-                }
             }
+        });
+
+        $('#id_selectprocess').on('change', function(){
+            $('#transtype').val($(this).val());
         });
 
         $(document).on('change', '.input-amount', function(){
@@ -259,9 +271,14 @@
 
         function computeItemTotal(){
             var sum = 0;
+            $('.input-amount').prop('disabled', true);
             $('.item-check:checkbox:checked').each(function() {
                 sum += Number($(this).parent().parent().parent().find('.input-amount').val().replace( /,/g, ""));
+                $(this).parent().parent().parent().find('.input-amount').prop('disabled', false);
             });
+            $('#hdnamount').val(sum.toFixed(2));
+            var words = toWords(sum.toFixed(2));
+            $("#hdnamountinwords").val(words);
             $('#totalamount').text(sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         }
 	});
