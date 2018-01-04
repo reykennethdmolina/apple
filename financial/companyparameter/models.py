@@ -38,6 +38,8 @@ class Companyparameter(models.Model):
     # defaults for accounting entries
     coa_cashinbank = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_cashinbank',
                                        blank=True, null=True)
+    coa_unsubscribe = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_unsubscribe',
+                                       blank=True, null=True)
     coa_inputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_inputvat',
                                      blank=True, null=True)
     coa_outputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_outputvat',

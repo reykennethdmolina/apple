@@ -108,6 +108,10 @@
                                 <tbody></tbody>
                             </table>
                         </div>
+                        <div class="col-md-12">
+                            <br>
+                            <i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i>
+                        </div>
                     </div>    
                 </div>
             </div>
@@ -236,11 +240,13 @@
                             $('#or_step_final').fadeIn(300);
                             $('#or_export_loading').fadeOut(300);
                             $('#or_export').delay(300).fadeIn(300);
+                            $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
+                            $('#upload_rate2').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
                             $('#ordata_table2 tbody').html('');
                             for (var i = 0; i < data['ordata_list'].length; i++) {
                                 datahighlight = '';
-                                if (data['ordata_list'][i][8] == 'F') {
+                                if (data['ordata_list'][i][6] == 'F') {
                                     datahighlight = 'danger';
                                 }
 

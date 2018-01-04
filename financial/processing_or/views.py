@@ -82,8 +82,7 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
-                                if len(data) == 31:
-
+                                if len(data) == 38:
                                     # log status filtering
                                     if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
                                         importstatus = 'F'
@@ -97,28 +96,37 @@ def fileupload(request):
                                     elif not Adtype.objects.filter(code=data[6]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Adtype does not exist'
+                                    elif not Vat.objects.filter(code=data[33]):
+                                        importstatus = 'F'
+                                        importremarks = 'Failed: Vat Type does not exist'
+                                    elif not Product.objects.filter(code=data[35]):
+                                        importstatus = 'F'
+                                        importremarks = 'Failed: Product does not exist'
                                     else:
                                         importstatus = 'S'
                                         importremarks = 'Passed'
 
-                                    # new branch checking
                                     if importstatus is not 'F':
+                                        # new branch checking
                                         if not Branch.objects.filter(code=data[26]):
                                             Branch.objects.create(code=data[26],
+                                                                  description=data[32],
                                                                   enterby=request.user,
                                                                   modifyby=request.user)
+                                        # new collector checking
+                                        if not Collector.objects.filter(code=data[4]):
+                                            Collector.objects.create(code=data[4],
+                                                                     name=data[31],
+                                                                     enterby=request.user,
+                                                                     modifyby=request.user)
 
                                     Logs_ormain.objects.create(
                                         orno=data[0],
                                         ordate=data[1],
                                         prno=data[2],
-                                        accounttype=data[3],
-                                        # temporary adtype
-                                        # temporary adtype
-                                        # temporary adtype
-                                        # collector=data[4],
-                                        collector='WL',
-                                        collectordesc='WILLIE LADERAS',
+                                        accounttype=data[3].lower(),
+                                        collector=data[4],
+                                        collectordesc=data[31],
                                         payeetype=data[5],
                                         adtype=data[6],
                                         agencycode=data[7],
@@ -127,11 +135,8 @@ def fileupload(request):
                                         payeename=data[10],
                                         amount=data[11],
                                         amountinwords=data[12],
-                                        # temporary vat
-                                        # temporary vat
-                                        # temporary vat
-                                        vatcode='VAT12',
-                                        vatrate='12',
+                                        vatcode=data[33],
+                                        vatrate=data[34],
                                         bankaccount=data[13],
                                         particulars=data[14],
                                         artype=data[15],
@@ -139,21 +144,19 @@ def fileupload(request):
                                         statusdate=data[17],
                                         enterby=data[18],
                                         enterdate=data[19],
-                                        # temporary product
-                                        # temporary product
-                                        # temporary product
-                                        # product=data[20],
-                                        product='DLY',
+                                        product=data[35],
                                         initmark=data[21],
                                         glsmark=data[22],
                                         glsdate=data[23],
                                         totalwtax=data[24],
+                                        wtaxrate=data[36],
                                         gov=data[25],
                                         branchcode=data[26],
                                         address1=data[27],
                                         address2=data[28],
                                         address3=data[29],
                                         tin=data[30],
+                                        subscription=data[37].rstrip(),
                                         batchkey=batchkey,
                                         importstatus=importstatus,
                                         importremarks=importremarks,
@@ -171,16 +174,14 @@ def fileupload(request):
                                     for n, i in enumerate(data):
                                         data[n] = data[n].replace('"', '')
 
-                                    if len(data) == 16:
+                                    if len(data) == 19:
                                         if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey):
-                                            ormain = Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey).order_by('-importstatus').first()
-
-                                            # temporary adtype
-                                            # temporary adtype
-                                            # temporary adtype
-                                            if not Adtype.objects.filter(code=ormain.adtype):
+                                            if not Adtype.objects.filter(code=data[16]):
                                                 importstatus = 'F'
                                                 importremarks = 'Failed: Adtype does not exist'
+                                            elif not Vat.objects.filter(code=data[17]):
+                                                importstatus = 'F'
+                                                importremarks = 'Failed: Vat Type does not exist'
                                             else:
                                                 importstatus = 'S'
                                                 importremarks = 'Passed'
@@ -192,11 +193,8 @@ def fileupload(request):
                                                 balance=data[3],
                                                 assignamount=data[4],
                                                 assignvatamount=data[5],
-                                                # temporary vat
-                                                # temporary vat
-                                                # temporary vat
-                                                vatcode='VAT12',
-                                                vatrate='12',
+                                                vatcode=data[17],
+                                                vatrate=data[18],
                                                 status=data[6],
                                                 statusdate=data[7],
                                                 usercode=data[8],
@@ -211,12 +209,8 @@ def fileupload(request):
                                                 importstatus=importstatus,
                                                 importremarks=importremarks,
                                                 importby=request.user,
-
-                                                # temporary adtype
-                                                # temporary adtype
-                                                # temporary adtype
-                                                adtype=ormain.adtype,
-                                                adtypedesc=get_object_or_None(Adtype, code=ormain.adtype).description,
+                                                adtype=data[16],
+                                                adtypedesc=get_object_or_None(Adtype, code=data[16]).description,
                                             ).save()
                                             breakstatus = 0
                                     else:
@@ -402,11 +396,12 @@ def exportsave(request):
                     vatexempt = 0
                     vatzerorated = 0
 
-                    # transfer ormain
+                    # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
                         ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                         prno=data.prno,
+                        accounttype=data.accounttype,
                         bankaccountcode=data.bankaccount,
                         branchcode=data.branchcode,
                         collectorcode=data.collector,
@@ -424,104 +419,126 @@ def exportsave(request):
                         amountinwords=data.amountinwords,
                         vatrate=data.vatrate,
                         vatcode=data.vatcode,
+                        totalwtax=data.totalwtax,
+                        wtaxrate=data.wtaxrate,
                         particulars=data.particulars,
+                        subscription=data.subscription,
                         importby=data.importby,
                         batchkey=data.batchkey,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
 
-                    # cash in bank
-                    Temp_ordetail.objects.create(
-                        orno=data.orno,
-                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                        debitamount=data.amount,
-                        balancecode='D',
-                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
-                        batchkey=data.batchkey,
-                        postingremarks='Processing...',
-                    ).save()
-                    remainingamount = float(data.amount)
-
-                    # transfer ordetails
-                    ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
-                    for data_d in ordetail:
-                        Temp_ordetail.objects.create(
-                            orno=data_d.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            adtypecode=data_d.adtype,
-                            amount=data_d.assignamount,
-                            vatamount=data_d.assignvatamount,
-                            creditamount=data_d.assignamount,
-                            balancecode='C',
-                            chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
-                            payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
-                            payeename=data.payeename,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
-                        if data_d.vatrate > 0:
-                            vatable = float(vatable) + float(data_d.assignamount)
-                        elif data_d.vatcode == 'VE':
-                            vatexempt = float(vatexempt) + float(data_d.assignamount)
-                        elif data_d.vatcode == 'ZE':
-                            vatzerorated = float(vatzerorated) + float(data_d.assignamount)
-
-                        # do vat here
-                        Temp_ordetail.objects.create(
-                            orno=data_d.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            creditamount=data_d.assignvatamount,
-                            balancecode='C',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                            vatrate=data_d.vatrate,
-                            vatcode=data_d.vatcode,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
-                        vatamount = float(vatamount) + float(data_d.assignvatamount)
-
-                        remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
-                        remainingamount = float(format(remainingamount, '.2f'))
-
-                    # transfer leftovers
-                    if remainingamount > 0:
-                        leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
-                        leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
+                    if temp_ormain.accounttype == 'a' or temp_ormain.accounttype == 's':
+                        # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
                             ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            adtypecode=data.adtype,
-                            amount=leftover_amount,
-                            vatamount=leftover_vatamount,
-                            creditamount=leftover_amount,
-                            balancecode='C',
-                            chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
-                            payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
-                            payeename=data.payeename,
+                            debitamount=data.amount,
+                            balancecode='D',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                            bankaccountcode=data.bankaccount,
                             batchkey=data.batchkey,
                             postingremarks='Processing...',
                         ).save()
-                        if data_d.vatrate > 0:
-                            vatable = float(vatable) + float(leftover_amount)
-                        elif data_d.vatcode == 'VE':
-                            vatexempt = float(vatexempt) + float(leftover_amount)
-                        elif data_d.vatcode == 'ZE':
-                            vatzerorated = float(vatzerorated) + float(leftover_amount)
+                        remainingamount = float(data.amount)
 
-                        # do vat here
-                        Temp_ordetail.objects.create(
-                            orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            creditamount=leftover_vatamount,
-                            balancecode='C',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                            vatrate=data.vatrate,
-                            vatcode=data.vatcode,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
-                        vatamount = float(vatamount) + float(leftover_vatamount)
+                        # accounttype = (a/r)
+                        if temp_ormain.accounttype == 'a':
+                            # transfer ordetails
+                            ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
+                            for data_d in ordetail:
+                                Temp_ordetail.objects.create(
+                                    orno=data_d.orno,
+                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    adtypecode=data_d.adtype,
+                                    amount=data_d.assignamount,
+                                    vatamount=data_d.assignvatamount,
+                                    creditamount=data_d.assignamount,
+                                    balancecode='C',
+                                    chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
+                                    payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                                    payeename=data.payeename,
+                                    batchkey=data.batchkey,
+                                    postingremarks='Processing...',
+                                ).save()
+                                if data_d.vatrate > 0:
+                                    vatable = float(vatable) + float(data_d.assignamount)
+                                elif data_d.vatcode == 'VE':
+                                    vatexempt = float(vatexempt) + float(data_d.assignamount)
+                                elif data_d.vatcode == 'ZE':
+                                    vatzerorated = float(vatzerorated) + float(data_d.assignamount)
+
+                                # do vat here
+                                Temp_ordetail.objects.create(
+                                    orno=data_d.orno,
+                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    creditamount=data_d.assignvatamount,
+                                    balancecode='C',
+                                    chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                    vatrate=data_d.vatrate,
+                                    vatcode=data_d.vatcode,
+                                    batchkey=data.batchkey,
+                                    postingremarks='Processing...',
+                                ).save()
+                                vatamount = float(vatamount) + float(data_d.assignvatamount)
+
+                                remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
+                                remainingamount = float(format(remainingamount, '.2f'))
+
+                            # transfer leftovers
+                            if remainingamount > 0:
+                                leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
+                                leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
+                                Temp_ordetail.objects.create(
+                                    orno=data.orno,
+                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    adtypecode=data.adtype,
+                                    amount=leftover_amount,
+                                    vatamount=leftover_vatamount,
+                                    creditamount=leftover_amount,
+                                    balancecode='C',
+                                    chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
+                                    payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                                    payeename=data.payeename,
+                                    batchkey=data.batchkey,
+                                    postingremarks='Processing...',
+                                ).save()
+                                if data_d.vatrate > 0:
+                                    vatable = float(vatable) + float(leftover_amount)
+                                elif data_d.vatcode == 'VE':
+                                    vatexempt = float(vatexempt) + float(leftover_amount)
+                                elif data_d.vatcode == 'ZE':
+                                    vatzerorated = float(vatzerorated) + float(leftover_amount)
+
+                                # do vat here
+                                Temp_ordetail.objects.create(
+                                    orno=data.orno,
+                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    creditamount=leftover_vatamount,
+                                    balancecode='C',
+                                    chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                    vatrate=data.vatrate,
+                                    vatcode=data.vatcode,
+                                    batchkey=data.batchkey,
+                                    postingremarks='Processing...',
+                                ).save()
+                                vatamount = float(vatamount) + float(leftover_vatamount)
+
+                        # accounttype = 'S' (subscription) and sub type is 1
+                        elif temp_ormain.subscription == '1':
+                            Temp_ordetail.objects.create(
+                                orno=data.orno,
+                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                creditamount=data.amount,
+                                balancecode='C',
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_unsubscribe.pk,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
+
+                    else: # if account type = 'R' (r/e)
+                        print "no setup yet"
 
                     # temp ormain to ormain
                     Ormain.objects.create(
@@ -557,14 +574,18 @@ def exportsave(request):
                         product=Product.objects.get(code=temp_ormain.productcode),
                         product_code=temp_ormain.productcode,
                         product_name=Product.objects.get(code=temp_ormain.productcode).description,
+                        wtaxrate=temp_ormain.wtaxrate,
+                        wtaxamount=temp_ormain.totalwtax,
                         importby=request.user,
                         importornum=temp_ormain.orno,
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
+                        transaction_type='A',
+                        outputvattype=Outputvattype.objects.get(code='OVT - S'),
                     ).save()
 
                     # temp ordetail to ordetail
                     temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
-                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode').order_by()\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode').order_by()\
                                                          .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
                     for index, data2 in enumerate(temp_ordetail):
                         debit = data2['debit'] if data2['debit'] is not None else 0.00
@@ -580,21 +601,22 @@ def exportsave(request):
                             status='A',
                             chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
                             customer=get_object_or_None(Customer, code=data2['payeecode']),
+                            bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
                             enterby=request.user,
                             modifyby=request.user,
                             ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
                             vat=get_object_or_None(Vat, code=data2['vatcode']),
                         ).save()
 
-                    # delete temp pls
-                    # delete temp pls
-                    # delete temp pls
-                    # delete temp pls
+                    # set posting status to success for temp
+                    temp_ormain.postingstatus = 'S'
+                    temp_ormain.save()
+                    temp_ordetail.update(postingstatus='S')
 
                     # set to posted after success of orno and batch
-                    # set posting status to success for temp
-
-                    # append failed items
+                    data.importstatus = 'P'
+                    data.save()
+                    Logs_ordetail.objects.filter(batchkey=request.POST['batchkey'], orno=data.orno).update(importstatus='P')
 
                     # save for preview
                     ormain_data = Ormain.objects.filter(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A').order_by('ornum')
@@ -622,14 +644,33 @@ def exportsave(request):
                                               'S',
                                              ])
 
-                # successcount = ordata.filter(importstatus='S').count()
-                # rate = (float(successcount) / float(orcount)) * 100
+                # append failed items from temp to ormain_list, ordetail_list
+                ormain_data = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='F')
+                for datalist in ormain_data:
+                    ormain_list.append([datalist.orno,
+                                        datalist.ordate,
+                                        datalist.payeename,
+                                        datalist.payeetype,
+                                        datalist.productcode,
+                                        datalist.amount,
+                                        'F',
+                                       ])
+
+                totalcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).count()
+                successcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='S').count()
+                rate = (int(successcount) / int(totalcount)) * 100
+
+                # delete temp
+                Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).delete()
+                Temp_ordetail.objects.filter(batchkey=request.POST['batchkey']).delete()
+
                 data = {
                     'result': 1,
                     'ordata_list': ormain_list,
                     'ordata_d_list': ordetail_list,
-                    # 'successcount': successcount,
-                    # 'rate': rate,
+                    'totalcount': totalcount,
+                    'successcount': successcount,
+                    'rate': rate,
                 }
         else:
             data = {
