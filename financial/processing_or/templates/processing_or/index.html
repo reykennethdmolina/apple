@@ -3,7 +3,7 @@
 {% block extra_css %}
     {% load static %}
     <style>
-        #formloading, #or_step_upload, #or_step_final{
+        #or_step_upload, #or_step_final{
             display: none;
         }
         .table_result{
@@ -14,43 +14,101 @@
         .table_detail{
             border-top: none !important;
         }
+        .price-list{
+            background-color: white;            
+        }
+        .price-list .price-price{
+            font-size: 14px !important;
+            text-align: left;
+            color: #76838f !important;
+        }
+        .price-title.bg-teal-a400:before {
+            background: #00bfa5;
+        }
+        .price-list .price-title{
+            padding-top: 5px;
+            letter-spacing: 1px;
+        }
+        .price-title:before {
+            position: relative;
+            display: block;
+            width: 14px;
+            height: 14px;
+            content: '';
+            top: 42px;
+            transform: rotate(45deg);
+            text-align: center;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .price-footer{
+            margin-top: 40px;
+        }
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
-<div class="panel" id="or_step_verify">
-    <div class="panel-body container-fluid">
+<div id="or_step_verify">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
                     <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
-                        <div id="formupload">
-                                <div class="form-group col-sm-2">
-                                    <label class="control-label small">AR Type</label>
-                                    <select class="form-control input-sm" id="or_artype" name="or_artype">
-                                        <option value="a">Advertising</option>
-                                        <option value="c">Circulation</option>
-                                    </select>
+                        <div class="col-md-12">
+                            <div class="price-list margin-sm-0">
+                                <div class="price-header">
+                                    <div class="price-title bg-teal-a400">STEP 1: FILE UPLOAD</div>
+                                    <div class="price-price teal-a400" id="formupload">
+                                        <div class="form-group col-sm-2">
+                                            <label class="control-label small">AR Type</label>
+                                            <select class="form-control input-sm" id="or_artype" name="or_artype">
+                                                <option value="a">Advertising</option>
+                                                <option value="c">Circulation</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-5">
+                                            <label class="control-label small">OR Master</label>
+                                            <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
+                                        </div>
+                                        <div class="form-group col-sm-5">
+                                            <label class="control-label small">OR Detail</label>
+                                            <input type="file" id="or_d_file" class="form-control input-sm upload" name="or_d_file">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group col-sm-4">
-                                    <label class="control-label small">OR Master</label>
-                                    <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
+                                <div class="price-footer">
+                                    <button type="button" class="btn btn-info waves-effect waves-light" id="or_upload">
+                                        <i class="icon fa-cloud-upload font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        Upload and Verify
+                                    </button>
+                                    <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="or_upload_loading">
+                                        <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        VERIFYING ...
+                                    </button>
                                 </div>
-                                <div class="form-group col-sm-4">
-                                    <label class="control-label small">OR Detail</label>
-                                    <input type="file" id="or_d_file" class="form-control input-sm upload" name="or_d_file">
-                                </div>
-                                <div class="form-group col-sm-2">
-                                    <br>
-                                    <button type="button" class="btn btn-sm btn-info pull-right" style="width:100px" id="or_upload">VERIFY</button>
-                                    <button type="button" disabled="disabled" class="btn btn-sm btn-info pull-right" style="width:100px; display: none;" id="or_upload_loading">VERIFYING ...</button>
-                                </div>
-                        </div>
-                        <div id="formloading">
-                            <br>
-                            <div class="animatebar clearfix" data-percent="65%">
-                                <div class="animatebar-title progress-bar-success"><span>Processing...</span></div>
-                                <div class="animatebar-bar progress-bar-success" style="width: 65%;"></div>
-                                <div class="animatebar-bar-percent">65%</div>
                             </div>
                         </div>
                     </form>
@@ -60,24 +118,40 @@
         </div>
     </div>
 </div>
-<div class="panel" id="or_step_upload">
-    <div class="panel-body container-fluid">
+<br><br>
+<div id="or_step_upload">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="form-group col-sm-12">
-                        <label class="control-label small">Verification Results</label><br><br>
-                        <div class="col-md-12 table_result">
-                            <table class="table table-condensed small" id="ordata_table"><tbody></tbody></table>
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">STEP 2: DATA VALIDATION</div>
+                                <div class="price-price teal-a400">
+                                    <div class="col-md-12 table_result">
+                                        <br>
+                                        <table class="table table-condensed small" id="ordata_table"><tbody></tbody></table>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <br>
+                                        <i class="small">** Total of <b id="upload_total"></b> items passed (<b id="upload_rate"></b>). **</i>
+                                    </div>   
+                                    <input type="hidden" id="or_batchkey">
+                                    <input type="hidden" id="or_export_artype">
+                                </div>
+                            </div>
+                            <div class="price-footer">&nbsp;
+                                <button type="button" class="btn btn-info waves-effect waves-light" id="or_export">
+                                    <i class="icon fa-database font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    Import to Database
+                                </button>
+                                <button type="button" disabled="disabled" class="btn btn-sm btn-info" style="display: none" id="or_export_loading">
+                                    <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    IMPORTING ...
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-12">
-                            <br>
-                            <i class="small">** Total of <b id="upload_total"></b> items passed (<b id="upload_rate"></b>). **</i>
-                        </div>   
-                        <input type="hidden" id="or_batchkey">
-                        <input type="hidden" id="or_export_artype">
-                        <button type="button" class="pull-right btn btn-sm btn-info" style="width:100px" id="or_export">UPLOAD</button>
-                        <button type="button" disabled="disabled" class="pull-right btn btn-sm btn-info" style="width:100px; display: none" id="or_export_loading">UPLOADING ...</button>
                     </div>
                 </div>
             </div>
@@ -85,32 +159,45 @@
         </div>
     </div>
 </div>
-<div class="panel" id="or_step_final">
-    <div class="panel-body container-fluid">
+<br><br>
+<div id="or_step_final">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="form-group col-sm-12">
-                        <label class="control-label small">Final Results</label><br><br>
-                        <div class="col-md-12 table_result">
-                            <table class="table table-condensed small" id="ordata_table2">
-                                <thead>
-                                    <tr>
-                                        <th style="width:5%">OR No.</th>
-                                        <th style="width:10%">OR Date</th>
-                                        <th style="width:20%">Product</th>
-                                        <th style="width:25%">Payee</th>
-                                        <th style="width:10%; text-align: right">Debit</th>
-                                        <th style="width:10%; text-align: right">Credit</th>
-                                        <th style="width:10%; text-align: right">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-12">
-                            <br>
-                            <i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i>
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">STEP 3: IMPORT SUMMARY</div>
+                                <div class="price-price teal-a400">
+                                    <div class="col-md-12 table_result">
+                                        <table class="table table-condensed small" id="ordata_table2">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:5%">OR No.</th>
+                                                    <th style="width:10%">OR Date</th>
+                                                    <th style="width:20%">Product</th>
+                                                    <th style="width:25%">Payee</th>
+                                                    <th style="width:10%; text-align: right">Debit</th>
+                                                    <th style="width:10%; text-align: right">Credit</th>
+                                                    <th style="width:10%; text-align: right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <br>
+                                        <i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="price-footer">
+                                <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
+                                    <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    Reload page and upload more
+                                </button>
+                            </div>
                         </div>
                     </div>    
                 </div>
@@ -119,6 +206,7 @@
         </div>
     </div>
 </div>
+<br><br>
 <div id="upload-success" class="custom-alert success">Upload successful!</div>
 <div id="upload-error" class="custom-alert danger">File upload failed!</div>
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
@@ -151,11 +239,11 @@
                     data: formData,
                     async: false,
                     success: function (data) {
+                        proceedinit = true;
                         switch(data['result']){
                             case 1:
                                 customAlert($('#upload-success'));
                                 $('#or_step_upload').fadeIn();
-                                $('#or_export').delay(300).fadeIn(300);
                                 $('#or_export_loading').fadeOut(300);
                                 $('#upload_total').text(data['successcount'] + " out of " + data['orcount']);
                                 $('#upload_rate').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
@@ -167,6 +255,7 @@
                                     if(data['ordata_list'][i][4] == 'F'){
                                         datahighlight = 'danger';
                                         dataremarks = "<tr class='"+datahighlight+"'><td colspan='5' align='center'><small><b>"+data['ordata_list'][i][5]+"</b></small></td></tr>";
+                                        proceedinit = false;
                                     }
 
                                     $('#ordata_table tbody')
@@ -193,9 +282,15 @@
                                                    "</tr>")
                                 }
 
+                                if(proceedinit){
+                                    $('#or_export').delay(300).fadeIn(300);
+                                }
+
                                 $('#or_batchkey').val(data['batchkey']);
                                 $('#or_export_artype').val(data['artype']);
-
+                                $('#or_step_verify').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+                                $('#or_step_upload').find('.price-title').removeClass('bg-grey-600').addClass('bg-teal-a400');
+                                $('html, body').delay(300).animate({scrollTop: $('#or_step_upload').offset().top -80 }, 'slow');
                                 break;
                             case 2:
                                 customAlert($('#upload-error'));
@@ -226,7 +321,7 @@
         });
 
         $('#or_export').on('click', function(){
-            $('#or_step_final').fadeOut(300);
+            // $('#or_step_final').fadeOut(300);
             $('#or_export').fadeOut(300);
             $('#or_export_loading').delay(300).fadeIn(300);
             $.ajax({
@@ -239,7 +334,7 @@
                         case 1:
                             $('#or_step_final').fadeIn(300);
                             $('#or_export_loading').fadeOut(300);
-                            $('#or_export').delay(300).fadeIn(300);
+                            // $('#or_export').delay(300).fadeIn(300);
                             $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
                             $('#upload_rate2').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
@@ -292,6 +387,8 @@
                                         "<td class='table_detail'></td>" +
                                         "</tr>")
                             }
+                            $('#or_step_upload').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+                            $('html, body').delay(300).animate({scrollTop: $('#or_step_final').offset().top -80 }, 'slow');
                             break;
                         case 2:
                             customAlert($('#upload-error'));
