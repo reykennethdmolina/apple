@@ -46,7 +46,7 @@
                                 <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2">
-                                <label class="control-label" for="id_jvdate">Date</label>
+                                <label class="control-label" for="id_jvdate">JV Date</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.jvdate.value %}{{ form.jvdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.jvdate.errors.as_text }}</span>
                             </div>

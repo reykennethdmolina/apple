@@ -23,7 +23,7 @@
                 <td>{{ data.cvdate|date:"Y-m-d" }}</td>
                 <td>{{ data.payee_name }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
-                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- no approver assigned yet --{% endif %}</td>
                 <td class="tdOfStatus
                         {% if data.cvstatus == 'A' %} text-success
                         {% elif data.cvstatus == 'D' %} text-danger

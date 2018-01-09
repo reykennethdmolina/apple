@@ -21,7 +21,7 @@
                 <td>{{ data.apnum }}</td>
                 <td>{{ data.apdate|date:'Y-m-d' }}</td>
                 <td>{{ data.aptype.description }}</td>
-                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- no approver assigned yet --{% endif %}</td>
                 <td class="tdApStatus
                         {% if data.apstatus == 'A' %} text-success
                         {% elif data.apstatus == 'D' %} text-danger

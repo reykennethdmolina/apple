@@ -88,7 +88,7 @@
                             <input type="text" class="form-control input-sm" style="background: white;" value="{{ cmnum }}" placeholder="CMxxxxxxx" disabled="disabled">
                         </div>
                         <div class="form-group col-sm-12 margin-bottom-10 {{ form.cmdate.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_cmdate">Date</label>
+                            <label class="control-label" for="id_cmdate">CM Date</label>
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.cmdate.errors.as_text }}</span>
                         </div>
@@ -184,7 +184,7 @@
     </div>
 </div>
 <div id="item-save-warning" class="custom-alert danger">Please complete details of added items first.</div>
-{% include "cmsadjustment/search.html" %}
+{#{% include "cmsadjustment/search.html" %}#}
 {% endblock page-content %}
 {% block extra_js %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>

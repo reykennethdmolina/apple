@@ -11,6 +11,7 @@ from supplier.models import Supplier
 from inventoryitemtype.models import Inventoryitemtype
 from inventoryitem.models import Inventoryitem
 from branch.models import Branch
+from companyparameter.models import Companyparameter
 from department.models import Department
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
@@ -422,13 +423,23 @@ class DeleteView(DeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class Pdf(PDFTemplateView):
-    model = Prfmain
-    template_name = 'purchaserequisitionform/pdf2.html'
+    model = Rfmain
+    template_name = 'purchaserequisitionform/pdf.html'
 
     def get_context_data(self, **kwargs):
         context = super(Pdf, self).get_context_data(**kwargs)
         context['prfmain'] = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
-        context['prfdetail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').order_by('item_counter')
+        context['detail'] = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').\
+            order_by('item_counter')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        prf_detail_aggregate = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').\
+            aggregate(Sum('quantity'))
+        context['detail_total_quantity'] = prf_detail_aggregate['quantity__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'portrait'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedprf = Prfmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
         printedprf.print_ctr += 1

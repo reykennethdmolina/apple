@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">ACKNOWLEDGEMENT RECEIPT</p>
+                <p class="title center"><br>ACKNOWLEDGEMENT RECEIPT</p>
             </td>
             <td>
-                <p class="title right">{{ armain.arnum }}</p>
+                <p class="right number">AR No. {{ armain.arnum }}</p>
             </td>
         </tr>
     </table>
@@ -166,7 +170,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="12%"><b>Date</b></td>
+                    <td width="12%"><b>AR&nbsp;Date</b></td>
                     <td width="5%"><b>:</b></td>
                     <td>{{ armain.ardate|date:'Y-m-d' }}</td>
                     <td width="20%"><b>Collector</b></td>

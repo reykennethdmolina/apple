@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">OFFICIAL RECEIPT</p>
+                <p class="title center"><br>OFFICIAL RECEIPT</p>
             </td>
             <td>
-                <p class="title right">{{ ormain.ornum }}</p>
+                <p class="number right">OR No. {{ ormain.ornum }}</p>
             </td>
         </tr>
     </table>
@@ -151,7 +155,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Date</b></td>
+                    <td width="25%" style="vertical-align: top"><b>OR Date</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top">{{ ormain.ordate|date:'Y-m-d' }}</td>
                     <td width="25%" style="vertical-align: top"><b>Type</b></td>

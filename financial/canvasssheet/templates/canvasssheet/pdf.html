@@ -5,29 +5,29 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Purchase Requisition Form</title>
+    <title>Canvass Sheet</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
             @frame header_frame {
                 -pdf-frame-content: header_content;
                 left: 1cm;
-                width: 19.5cm;
+                width: 26cm;
                 top: 1cm;
                 height: 2cm;
             }
             @frame content_frame {
                 left: 1cm;
-                width: 19.5cm;
-                top: 2.5cm;
-                height: 19.5cm;
+                width: 26cm;
+                top: 2cm;
+                height: 15cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm;
-                width: 19.5cm;
-                top: 22cm;
-                height: 6cm;
+                width: 26cm;
+                top: 16.5cm;
+                height: 6.5cm;
             }
         }
         body{
@@ -69,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center"><br>PURCHASE REQUISITION FORM</p>
+                <p class="title center"><br>CANVASS SHEET</p>
             </td>
             <td>
-                <p class="number right">PRF No. {{ prfmain.prfnum }}</p>
+                <p class="number right">CS No. {{ csmain.csnum }}</p>
             </td>
         </tr>
     </table>
@@ -84,42 +84,42 @@
             <td colspan="6" style="border-right: 2px solid black;"></td>
         </tr>
         <tr style="padding: 5px; padding-bottom: 0px;">
-            <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+            <td width="15%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">
-                    {% if prfmain.actualapprover %}
+                    {% if csmain.actualapprover %}
                         SGD
                     {% endif %}
-                    {{ prfmain.enterby.first_name }}&nbsp;{{ prfmain.enterby.last_name }}
+                    {{ csmain.enterby.first_name }}&nbsp;{{ csmain.enterby.last_name }}
                 </div>
                 <i>Signature over printed name</i>
             </td>
-            <td width="20%"><b>Approved by</b></td>
+            <td width="15%"><b>Approved by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if prfmain.actualapprover and prfmain.approverresponse == 'A' %}
-                        SGD {{ prfmain.actualapprover.first_name }}&nbsp;{{ prfmain.actualapprover.last_name }}
+                    {% if csmain.actualapprover and csmain.approverresponse == 'A' %}
+                        SGD {{ csmain.actualapprover.first_name }}&nbsp;{{ csmain.actualapprover.last_name }}
                     {% else %}
-                        {{ prfmain.designatedapprover.first_name }}&nbsp;{{ prfmain.designatedapprover.last_name }}
+                        {{ csmain.designatedapprover.first_name }}&nbsp;{{ csmain.designatedapprover.last_name }}
                     {% endif %}
                 </div>
                 <i>Signature over printed name</i>
             </td>
         </tr>
         <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
-            <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+            <td width="15%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
-                <div class="sign_here">{{ prfmain.enterdate|date:'Y-m-d' }}</div>
+                <div class="sign_here">{{ csmain.enterdate|date:'Y-m-d' }}</div>
             </td>
-            <td width="20%"><b>Date approved</b></td>
+            <td width="15%"><b>Date approved</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if prfmain.actualapprover and prfmain.approverresponse == 'A' %}
-                        {{ prfmain.responsedate|date:'Y-m-d' }}
+                    {% if csmain.actualapprover and csmain.approverresponse == 'A' %}
+                        {{ csmain.responsedate|date:'Y-m-d' }}
                     {% else %}
                         &nbsp;
                     {% endif %}
@@ -170,41 +170,20 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>PRF Date</b></td>
+                    <td width="25%" style="vertical-align: top"><b>CS Date</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.prfdate|date:'Y-m-d' }}</td>
-                    <td width="25%" style="vertical-align: top"><b>PRF Type</b></td>
+                    <td style="vertical-align: top">{{ csmain.csdate|date:'Y-m-d' }}</td>
+                    <td width="25%" style="vertical-align: top"><b>CS Type</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.get_prftype_display }}</td>
+                    <td style="vertical-align: top">{{ csmain.get_cstype_display }}</td>
                 </tr>
                 <tr>
-                    <td style="vertical-align: top"><b>Inv. Item Type</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.inventoryitemtype.description }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Urgency</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.get_urgencytype_display }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>Branch</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.branch.description }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Date&nbsp;Needed</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.dateneeded|date:'Y-m-d' }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>RF&nbsp;Status</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.get_prfstatus_display }}</td>
                     <td width="25%"><b>Particulars</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.particulars }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>Remarks</b></td>
+                    <td style="vertical-align: top">{{ csmain.particulars }}</td>
+                    <td width="25%" style="vertical-align: top"><b>CS Status</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.remarks|default:'N/A' }}</td>
+                    <td style="vertical-align: top">{{ csmain.get_csstatus_display }}</td>
                 </tr>
             </table>
         </td>
@@ -214,34 +193,45 @@
 
 
 <b>ITEMS</b>
-<table>
+<table style="font-size: 10px;">
     <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
         <td style="border-left: 2px solid black; padding-left: 5px;"></td>
         <td style="padding-left: 5px;"><b><i>Code</i></b></td>
         <td><b><i>Item Name</i></b></td>
-        <td><b><i>Dept.</i></b></td>
-        <td><b><i>Remarks</i></b></td>
-        <td><b><i>RF No.</i></b></td>
-        <td><b><i>UM</i></b></td>
-        <td style="text-align: right; padding-right: 5px;"><b><i>Amount</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Qty</i></b></td>
+        <td style="text-align: center;"><b><i>Branch/<br>Dept.</i></b></td>
+        <td style="text-align: center; padding-left: 5px; padding-top: 5px;"><b><i>Supplier</i></b></td>
+        <td style="text-align: right;"><b><i>Nego Cost/<br>Unit Cost</i></b></td>
+        <td style="text-align: right;"><b><i>Qty</i></b></td>
+        <td style="text-align: right;"><b><i>Gross<br>Amount</i></b></td>
+        <td style="text-align: right;"><b><i>VAT<br>Rate</i></b></td>
+        <td style="text-align: right;"><b><i>VATable/<br>VATExempt/<br>VATZero</i></b></td>
+        <td style="text-align: right;"><b><i>VAT<br>Amount</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Net<br>Amount</i></b></td>
     </tr>
     {% for data in detail %}
         <tr>
-            <td width="3%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
-            <td width="10%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
-            <td width="25%" style="padding-top: 5px;">{{ data.invitem_name }}</td>
-            <td width="7%" style="padding-top: 5px;">{{ data.department.code }}</td>
-            <td width="12%" style="padding-top: 5px;">{{ data.remarks|default:'N/A' }}</td>
-            <td width="15%" style="padding-top: 5px;">{{ data.rfdetail.rfmain.rfnum|default:'N/A' }}</td>
-            <td width="5%" style="padding-top: 5px;">{{ data.invitem_unitofmeasure_code }}</td>
-            <td width="16%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{% if data.netamount > 0.00 %}{{ data.netamount|floatformat:2|intcomma }}{% else %}-- no amt yet --{% endif %}</td>
-            <td width="7%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.quantity }}</td>
+            <td width="2%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+            <td width="8%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
+            <td width="18%" style="padding-top: 5px;">{{ data.invitem_name }} (UM)</td>
+            <td width="6%" style="text-align: center; padding-top: 5px;">{{ data.branch.code }}<br>{{ data.department.code }}</td>
+            <td width="22%" style="padding-left: 5px; padding-top: 5px;">{{ data.suppliername }}</td>
+            <td width="7%" style="text-align: right; padding-top: 5px;">{{ data.negocost|floatformat:2|intcomma }}<br>{{ data.unitcost|floatformat:2|intcomma }}</td>
+            <td width="4%" style="text-align: right; padding-top: 5px;">{{ data.quantity }}</td>
+            <td width="7%" style="text-align: right; padding-top: 5px;">{{ data.grossamount|floatformat:2|intcomma }}</td>
+            <td width="5%" style="text-align: right; padding-top: 5px;">{{ data.vatrate }}%</td>
+            <td width="7%" style="text-align: right; padding-top: 5px;">{% if data.vatable > 0 %}{{ data.vatable|floatformat:2|intcomma }}{% elif data.vatexempt > 0 %}{{ data.vatexempt|floatformat:2|intcomma }}{% elif data.vatzerorated > 0 %}{{ data.vatzerorated|floatformat:2|intcomma }}{% endif %}</td>
+            <td width="7%" style="text-align: right; padding-top: 5px;">{{ data.vatamount|floatformat:2|intcomma }}</td>
+            <td width="7%" style="text-align: right; padding-top: 5px; padding-right: 5px;">{{ data.netamount|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
         <tr>
-        <td colspan="8" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
-        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
+        <td colspan="6" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td width="4%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
+        <td width="7%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_grossamount|floatformat:2|intcomma }}</b></td>
+        <td width="5%" style="text-align: right; padding-top: 5px;">&nbsp;</td>
+        <td width="7%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatable|floatformat:2|intcomma }}</b></td>
+        <td width="7%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatamount|floatformat:2|intcomma }}</b></td>
+        <td width="7%" style="text-align: right; padding-top: 5px; padding-right: 5px;"><b>{{ detail_total_netamount|floatformat:2|intcomma }}</b></td>
     </tr>
 </table>
 

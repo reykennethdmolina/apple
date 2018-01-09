@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Purchase Requisition Form</title>
+    <style>
+        .col {
+            padding: 3px;
+            padding-top: 9px;
+        }
+        .align-right {
+            width: 100%;
+            text-align:right;
+        }
+        .align-left {
+            width: 100%;
+            text-align: left;
+        }
+        .align-center{
+            width: 100%;
+            text-align: center;
+        }
+        @page {
+            margin: 1cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: -3cm;
+                margin-right: 0cm;
+                height: 1cm;
+            }
+        }
+        .title{
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .subtitle{
+            font-size: 12px;
+            font-weight: normal;
+        }
+        body{
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="align-center title">
+    PHILIPPINE DAILY INQUIRER, INC.<br>
+    PURCHASE REQUISITION FORM<br>
+    <div class="subtitle">(For {{ prfmain.inventoryitemtype.description }} Items)</div>
+</div>
+<div class="align-right">
+    PRF No. {{ prfmain.prfnum }}
+</div>
+<br><br>
+<div class="align-left">
+    <table>
+        <tr>
+            <td>Dept./Division: <b>{{ prfmain.department.departmentname | title }}</b></td>
+        </tr>
+        <tr>
+            <td>Requested by: <b>{{ prfmain.modifyby.last_name | title }}, {{ prfmain.modifyby.first_name | title }}</b></td>
+        </tr>
+        <tr>
+            <td>Date Requested: <b>{{ prfmain.prfdate }}</b></td>
+        </tr>
+        <tr>
+            <td>Date Needed: <b>{{ prfmain.dateneeded }}</b></td>
+        </tr>
+    </table>
+    <br><br>
+    <table border="1">
+        <thead>
+            <tr>
+                <th><div class="col">Item Code</div></th>
+                <th><div class="col">Quantity</div></th>
+                <th align="right"><div class="col">Estimated Cost / pc</div></th>
+            </tr>
+        </thead>
+        {% for data in prfdetail %}
+            <tr>
+                <td><div class="col">{{ data.invitem_code }}</div></td>
+                <td align="center"><div class="col">{{ data.quantity }}</div></td>
+                <td align="right"><div class="col">{{ data.invitem.unitcost }}</div></td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br><br><br>
+
+
+    <b>To be filled up by Budget before final approval:</b><br><br>
+    <table>
+        <tr>
+            <td>___&nbsp;&nbsp;&nbsp;Approved</td>
+            <td>___&nbsp;&nbsp;&nbsp;Disapproved</td>
+        </tr>
+    </table>
+    <br><br><br>
+    Checked by: ____________________<br><br>
+    <table>
+        <tr>
+            <td>
+                Noted by:<br><br><br><br>
+
+                <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ prfmain.modifyby.last_name | title }}, {{ prfmain.modifyby.first_name | title }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u><br>
+                (Pls. Print your name and sign)
+            </td>
+            <td>
+                Approved by:<br><br><br>
+                ________________________________<br>
+                (Pls. Print your name and sign)
+            </td>
+        </tr>
+    </table>
+
+
+</div>
+
+<div id="footerContent">
+    {%block page_foot%}
+        Page <pdf:pagenumber /> of <pdf:pagecount />
+    {%endblock%}
+</div>
+</body>
+</html>

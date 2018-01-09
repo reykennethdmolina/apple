@@ -59,7 +59,7 @@
                                     <span class="help-block form-error">{{ form.ponum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4">
-                                    <label class="control-label" for="id_podate">Date</label>
+                                    <label class="control-label" for="id_podate">PO Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" style="padding: 5px 10px" id="id_podate" name="podate" placeholder="YYYY-MM-DD" readonly="readonly" data-validation="required" value="{% if form.podate.value %}{{ form.podate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.podate.errors.as_text }}</span>
                                 </div>

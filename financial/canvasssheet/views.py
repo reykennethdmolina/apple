@@ -13,11 +13,13 @@ from department.models import Department
 from branch.models import Branch
 from unitofmeasure.models import Unitofmeasure
 from vat.models import Vat
+from companyparameter.models import Companyparameter
 from currency.models import Currency
 from django.contrib.auth.models import User
 from django.db.models import Q, Sum
 from acctentry.views import generatekey
 from purchaserequisitionform.views import updateTransaction
+from easy_pdf.views import PDFTemplateView
 import datetime
 
 # pagination and search
@@ -1252,3 +1254,40 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
     return response
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Csmain
+    template_name = 'canvasssheet/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['csmain'] = Csmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['detail'] = Csdetail.objects.filter(csmain=self.kwargs['pk'], isdeleted=0, status='A').\
+            order_by('item_counter')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        cs_detail_aggregates = Csdetail.objects.filter(csmain=self.kwargs['pk'], isdeleted=0, status='A').\
+            aggregate(Sum('quantity'),
+                      Sum('grossamount'),
+                      Sum('vatable'),
+                      Sum('vatexempt'),
+                      Sum('vatzerorated'),
+                      Sum('vatamount'),
+                      Sum('netamount'))
+        context['detail_total_quantity'] = cs_detail_aggregates['quantity__sum']
+        context['detail_total_grossamount'] = cs_detail_aggregates['grossamount__sum']
+        context['detail_total_vatable'] = cs_detail_aggregates['vatable__sum'] + cs_detail_aggregates['vatexempt__sum'] + cs_detail_aggregates['vatzerorated__sum']
+        context['detail_total_vatamount'] = cs_detail_aggregates['vatamount__sum']
+        context['detail_total_netamount'] = cs_detail_aggregates['netamount__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'landscape'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedcs = Csmain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedcs.print_ctr += 1
+        printedcs.save()
+
+        return context

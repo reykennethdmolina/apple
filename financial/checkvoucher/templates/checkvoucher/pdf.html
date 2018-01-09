@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">CHECK VOUCHER</p>
+                <p class="title center"><br>CHECK VOUCHER</p>
             </td>
             <td>
-                <p class="title right">{{ cvmain.cvnum }}</p>
+                <p class="number right">CV No. {{ cvmain.cvnum }}</p>
             </td>
         </tr>
     </table>
@@ -166,7 +170,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Date</b></td>
+                    <td width="25%" style="vertical-align: top"><b>CV&nbsp;Date</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top">{{ cvmain.cvdate|date:'Y-m-d' }}</td>
                     <td width="25%" style="vertical-align: top"><b>Type</b></td>

@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">OPERATIONAL FUND</p>
+                <p class="title center"><br>OPERATIONAL FUND</p>
             </td>
             <td>
-                <p class="title right">OF-{{ ofmain.oftype.code }}-{{ ofmain.ofnum }}</p>
+                <p class="number right">OF-{{ ofmain.oftype.code }}-{{ ofmain.ofnum }}</p>
             </td>
         </tr>
     </table>
@@ -169,7 +173,7 @@
                     <td width="15%"><b>Name</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ ofmain.requestor_name }}</td>
-                    <td width="10%"><b>Date</b></td>
+                    <td width="10%"><b>OF Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ ofmain.ofdate|date:'Y-m-d' }}</td>
                 </tr>

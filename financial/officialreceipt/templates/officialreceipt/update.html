@@ -106,7 +106,7 @@
                             <input type="text" class="form-control input-sm" style="background: white;" disabled="disabled" value="{{ ornum }}">
                         </div>
                         <div class="form-group col-sm-2 {{ form.ordate.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_ordate">Date</label>
+                            <label class="control-label" for="id_ordate">OR Date</label>
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_ordate" name="ordate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ordate.value %}{{ form.ordate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.ordate.errors.as_text }}</span>
                         </div>

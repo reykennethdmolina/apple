@@ -6,8 +6,29 @@
     {% include "canvasssheet/createcss.html" %}
 {% endblock extra_css %}
 <div class="panel">
-    <div class="panel-heading">
-        <h3 class="panel-title">Update</h3>
+    <div class="panel-heading padding-bottom-10">
+        <h3 class="panel-title">Update
+            {% if perms.canvasssheet.delete_csmain and object.csstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+            <a href="{% url 'canvasssheet:delete' object.id %}" class="floatright">
+                <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
+                waves-light get_report">
+                    <i class="icon fa-trash" aria-hidden="true"></i>&nbsp; Cancel
+                </button>
+            </a>
+            {% endif %}
+            <a href="{% url 'canvasssheet:pdf' object.id %}" target="_blank" class="floatright">
+                <button type="button" id="get_pdf" class="btn btn-round btn-info btn-sm waves-effect
+                waves-light get_report">
+                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
+                </button>
+            </a>
+            <a href="{% url 'canvasssheet:detail' object.id %}" class="floatright">
+                <button type="button" id="get_details" class="btn btn-round btn-info btn-sm waves-effect
+                waves-light get_report">
+                    <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
+                </button>
+            </a>
+        </h3>
     </div>
     <div class="panel-body container-fluid">
         <div class="row">

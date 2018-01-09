@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">CMS ADJUSTMENT</p>
+                <p class="title center"><br>CMS ADJUSTMENT</p>
             </td>
             <td>
-                <p class="title right">{{ cmmain.cmnum }}</p>
+                <p class="number right">CM No. {{ cmmain.cmnum }}</p>
             </td>
         </tr>
     </table>
@@ -157,7 +161,7 @@
                     <td>&nbsp;</td>
                 </tr>
                 <tr>
-                    <td width="20%"><b>Date</b></td>
+                    <td width="20%"><b>CM Date</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td width="70%" style="vertical-align: top">{{ cmmain.cmdate|date:'Y-m-d' }}</td>
                 </tr>

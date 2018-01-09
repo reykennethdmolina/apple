@@ -70,7 +70,7 @@
                                     <span class="help-block form-error">{{ form.ofnum.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-2">
-                                    <label class="control-label" for="id_ofdate">Date</label>
+                                    <label class="control-label" for="id_ofdate">OF Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_ofdate" name="ofdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.ofdate.value %}{{ form.ofdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.ofdate.errors.as_text }}</span>
                                 </div>

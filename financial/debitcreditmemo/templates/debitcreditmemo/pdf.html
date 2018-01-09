@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">DEBIT/CREDIT MEMO</p>
+                <p class="title center"><br>DEBIT/CREDIT MEMO</p>
             </td>
             <td>
-                <p class="title right">{{ dcmain.dcnum }}</p>
+                <p class="number right">DC No. {{ dcmain.dcnum }}</p>
             </td>
         </tr>
     </table>
@@ -166,7 +170,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%"><b>Date</b></td>
+                    <td width="25%"><b>DC Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ dcmain.dcdate|date:'Y-m-d' }}</td>
                     <td width="25%"><b>Type</b></td>

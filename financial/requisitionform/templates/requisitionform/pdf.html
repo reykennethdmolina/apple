@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">REQUISITION FORM</p>
+                <p class="title center"><br>REQUISITION FORM</p>
             </td>
             <td>
-                <p class="title right">{{ rfmain.rfnum }}</p>
+                <p class="number right">RF No. {{ rfmain.rfnum }}</p>
             </td>
         </tr>
     </table>
@@ -166,7 +170,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Date</b></td>
+                    <td width="25%" style="vertical-align: top"><b>RF Date</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top">{{ rfmain.rfdate|date:'Y-m-d' }}</td>
                     <td width="25%" style="vertical-align: top"><b>Type</b></td>

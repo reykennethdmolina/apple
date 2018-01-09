@@ -44,6 +44,10 @@
         .right{
             text-align: right;
         }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
         .arial{
             font-family: 'arial';
         }
@@ -65,10 +69,10 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center">ACCOUNTS PAYABLE</p>
+                <p class="title center"><br>ACCOUNTS PAYABLE VOUCHER</p>
             </td>
             <td>
-                <p class="title right">{{ apmain.apnum }}</p>
+                <p class="right number">APV No. {{ apmain.apnum }}</p>
             </td>
         </tr>
     </table>
@@ -166,7 +170,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%"><b>Date</b></td>
+                    <td width="25%"><b>AP&nbsp;Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.apdate|date:'Y-m-d' }}</td>
                     <td width="25%"><b>Ref.&nbsp;No.</b></td>
