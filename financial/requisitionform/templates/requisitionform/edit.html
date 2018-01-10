@@ -39,7 +39,7 @@
                                     <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; Print
                                 </button>
                             </a>
-                            {% if object.rfstatus == 'A' %}
+                            {% if object.rfstatus == 'A' and prfs %}
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" data-toggle="modal"
                                 data-target="#myModal"><i class="icon fa-list-ul" aria-hidden="true"></i>&nbsp; PRF</button>
                             {% endif %}

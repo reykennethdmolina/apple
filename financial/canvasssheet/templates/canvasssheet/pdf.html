@@ -20,14 +20,14 @@
                 left: 1cm;
                 width: 26cm;
                 top: 2cm;
-                height: 15cm;
+                height: 15.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm;
                 width: 26cm;
-                top: 16.5cm;
-                height: 6.5cm;
+                top: 16cm;
+                height: 7cm;
             }
         }
         body{
@@ -130,28 +130,30 @@
     <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
         <tr>
             <td>
-                {{ parameter.report_footer1 }} {{ request.user }}<br>
-                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
                 {{ parameter.report_footer3 }}<br>
                 {{ parameter.report_footer4 }}<br>
                 <b>{{ parameter.report_footer5 }}</b><br>
-                <b>{{ parameter.report_footer6 }}</b>
+                <b>{{ parameter.report_footer6 }}</b><br>
+                {{ parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
             </td>
             <td style="margin-left: 30px;width: 600px;">
-                {{ parameter.report_footer7 }}<br>
                 {{ parameter.report_footer8 }}<br>
                 {{ parameter.report_footer9 }}<br>
                 {{ parameter.report_footer10 }}<br>
                 {{ parameter.report_footer11 }}<br>
-                {{ parameter.report_footer12 }}
+                {{ parameter.report_footer12 }}<br>
+                {{ parameter.report_footer13 }}<br>
+                {{ parameter.report_footer14 }}
             </td>
         </tr>
     </table>
-    <div style="text-align: right">
-        {%block page_foot%}
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
             Page <pdf:pagenumber /> of <pdf:pagecount />
-        {%endblock%}
-    </div>
+        </div>
+    {%endblock%}
 </div>
 <table>
     <tr><td colspan="3"></td></tr>
@@ -212,7 +214,7 @@
         <tr>
             <td width="2%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
             <td width="8%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
-            <td width="18%" style="padding-top: 5px;">{{ data.invitem_name }} (UM)</td>
+            <td width="18%" style="padding-top: 5px;">{{ data.invitem_name }} ({{ data.invitem_unitofmeasure_code }})</td>
             <td width="6%" style="text-align: center; padding-top: 5px;">{{ data.branch.code }}<br>{{ data.department.code }}</td>
             <td width="22%" style="padding-left: 5px; padding-top: 5px;">{{ data.suppliername }}</td>
             <td width="7%" style="text-align: right; padding-top: 5px;">{{ data.negocost|floatformat:2|intcomma }}<br>{{ data.unitcost|floatformat:2|intcomma }}</td>

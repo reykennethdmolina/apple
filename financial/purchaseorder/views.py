@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, F
 from .models import Pomain, Podetail, Podetailtemp, Podata, Prfpotransaction
 from purchaserequisitionform.models import Prfmain, Prfdetail
+from companyparameter.models import Companyparameter
 from employee.models import Employee
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
@@ -1254,3 +1255,42 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
     return response
+
+
+@method_decorator(login_required, name='dispatch')
+class Pdf(PDFTemplateView):
+    model = Pomain
+    template_name = 'purchaseorder/pdf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Pdf, self).get_context_data(**kwargs)
+        context['pomain'] = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        context['detail'] = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
+            order_by('item_counter')
+        context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+
+        po_detail_aggregates = Podetail.objects.filter(pomain=self.kwargs['pk'], isdeleted=0, status='A').\
+            aggregate(Sum('quantity'),
+                      Sum('grossamount'),
+                      Sum('discountamount'),
+                      Sum('vatable'),
+                      Sum('vatexempt'),
+                      Sum('vatzerorated'),
+                      Sum('vatamount'),
+                      Sum('netamount'))
+        context['detail_total_quantity'] = po_detail_aggregates['quantity__sum']
+        context['detail_total_grossamount'] = po_detail_aggregates['grossamount__sum']
+        context['detail_total_discountamount'] = po_detail_aggregates['discountamount__sum']
+        context['detail_total_vatable'] = po_detail_aggregates['vatable__sum'] + po_detail_aggregates['vatexempt__sum'] + po_detail_aggregates['vatzerorated__sum']
+        context['detail_total_vatamount'] = po_detail_aggregates['vatamount__sum']
+        context['detail_total_netamount'] = po_detail_aggregates['netamount__sum']
+
+        context['pagesize'] = 'Letter'
+        context['orientation'] = 'landscape'
+        context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
+
+        printedpo = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')
+        printedpo.print_ctr += 1
+        printedpo.save()
+
+        return context

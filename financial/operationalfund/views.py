@@ -1129,7 +1129,7 @@ def autoentry(request):
         #   - Increment item_counter
         #   - Save Ofdetailtemp()
         #   - Create new Ofdetailtemp() object
-        #   - Get the Input VAT Chart of Account from the Parameter table
+        #   - Get the Input VAT Chart of Account from the Parameter table if VAT rate is not 0
         #   - Input VAT = first Input VAT entry that matches the Input VAT Type of the item
         #   - Debit Amount = VAT amount (amount * vatrate/100)
         #   - Increment item_counter
@@ -1173,21 +1173,22 @@ def autoentry(request):
                                  int(request.POST['department']), int(request.POST['employee']))
             item_counter += 1
 
-            ofdetailtemp2 = Ofdetailtemp()
-            ofdetailtemp2.item_counter = item_counter
-            ofdetailtemp2.of_date = main.ofdate
-            ofdetailtemp2.ofitem = data.ofitem
-            ofdetailtemp2.secretkey = request.POST['secretkey']
-            ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
-            ofdetailtemp2.debitamount = gross_amount * (float(data.vatrate) / 100.0)
-            ofdetailtemp2.balancecode = 'D'
-            ofdetailtemp2.enterby = request.user
-            ofdetailtemp2.modifyby = request.user
-            ofdetailtemp2.save()
-            chart_of_account2 = Chartofaccount.objects.get(pk=Companyparameter.objects.get(code='PDI').coa_inputvat_id)
-            getacctgentrydetails(chart_of_account2, ofdetailtemp2, data, int(request.POST['branch']),
-                                 int(request.POST['department']), int(request.POST['employee']))
-            item_counter += 1
+            if data.vatrate > 0:
+                ofdetailtemp2 = Ofdetailtemp()
+                ofdetailtemp2.item_counter = item_counter
+                ofdetailtemp2.of_date = main.ofdate
+                ofdetailtemp2.ofitem = data.ofitem
+                ofdetailtemp2.secretkey = request.POST['secretkey']
+                ofdetailtemp2.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
+                ofdetailtemp2.debitamount = gross_amount * (float(data.vatrate) / 100.0)
+                ofdetailtemp2.balancecode = 'D'
+                ofdetailtemp2.enterby = request.user
+                ofdetailtemp2.modifyby = request.user
+                ofdetailtemp2.save()
+                chart_of_account2 = Chartofaccount.objects.get(pk=Companyparameter.objects.get(code='PDI').coa_inputvat_id)
+                getacctgentrydetails(chart_of_account2, ofdetailtemp2, data, int(request.POST['branch']),
+                                     int(request.POST['department']), int(request.POST['employee']))
+                item_counter += 1
 
             total_amount += data.amount
         # ######## END----------- DEBIT entries ------------END

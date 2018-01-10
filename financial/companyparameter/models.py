@@ -60,6 +60,8 @@ class Companyparameter(models.Model):
     report_footer10 = models.CharField(max_length=250, blank=True, null=True)
     report_footer11 = models.CharField(max_length=250, blank=True, null=True)
     report_footer12 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer13 = models.CharField(max_length=250, blank=True, null=True)
+    report_footer14 = models.CharField(max_length=250, blank=True, null=True)
     # report footers
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')

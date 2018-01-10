@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>Purchase Order</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                width: 26cm;
+                top: 1cm;
+                height: 2cm;
+            }
+            @frame content_frame {
+                left: 1cm;
+                width: 26cm;
+                top: 2cm;
+                height: 15.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                width: 26cm;
+                top: 16cm;
+                height: 7cm;
+            }
+        }
+        body{
+            font-size: 11px;
+            font-family: 'Arial';
+        }
+        .title{
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .right{
+            text-align: right;
+        }
+        .number{
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .arial{
+            font-family: 'arial';
+        }
+        td{
+            vertical-align: top;
+        }
+        .sign_here{
+            width: 165px;
+            border-bottom: 1px solid black;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <table>
+        <tr>
+            <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
+            <td width="500px">
+                <p class="title center"><br>PURCHASE ORDER</p>
+            </td>
+            <td>
+                <p class="number right">PO No. {{ pomain.ponum }}</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer_content">
+    <table>
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="6" style="border-right: 2px solid black;"></td>
+        </tr>
+        <tr style="padding: 5px; padding-bottom: 0px;">
+            <td width="15%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">
+                    {% if pomain.actualapprover %}
+                        SGD
+                    {% endif %}
+                    {{ pomain.enterby.first_name }}&nbsp;{{ pomain.enterby.last_name }}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="15%"><b>Approved by</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if pomain.actualapprover and pomain.approverresponse == 'A' %}
+                        SGD {{ pomain.actualapprover.first_name }}&nbsp;{{ pomain.actualapprover.last_name }}
+                    {% else %}
+                        {{ pomain.designatedapprover.first_name }}&nbsp;{{ pomain.designatedapprover.last_name }}
+                    {% endif %}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+        <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+            <td width="15%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here">{{ pomain.enterdate|date:'Y-m-d' }}</div>
+            </td>
+            <td width="15%"><b>Date approved</b></td>
+            <td width="5%"><b>:</b></td>
+            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if pomain.actualapprover and pomain.approverresponse == 'A' %}
+                        {{ pomain.responsedate|date:'Y-m-d' }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
+        <tr>
+            <td>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
+                {{ parameter.report_footer3 }}<br>
+                {{ parameter.report_footer4 }}<br>
+                <b>{{ parameter.report_footer5 }}</b><br>
+                <b>{{ parameter.report_footer6 }}</b><br>
+                {{ parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
+            </td>
+            <td style="margin-left: 30px;width: 600px;">
+                {{ parameter.report_footer8 }}<br>
+                {{ parameter.report_footer9 }}<br>
+                {{ parameter.report_footer10 }}<br>
+                {{ parameter.report_footer11 }}<br>
+                {{ parameter.report_footer12 }}<br>
+                {{ parameter.report_footer13 }}<br>
+                {{ parameter.report_footer14 }}
+            </td>
+        </tr>
+    </table>
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
+            Page <pdf:pagenumber /> of <pdf:pagecount />
+        </div>
+    {%endblock%}
+</div>
+<table>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3" style="line-height: 15px;">
+            <span class="title">{{ parameter.description|upper }}</span><br>
+            {{ parameter.address1 }}<br>
+            {{ parameter.address2 }}<br>
+            Tel: ({{ parameter.telno1 }}, {{ parameter.telno2 }}<br>
+            VAT REG TIN: {{ parameter.tinnum }}
+        </td>
+    </tr>
+    <tr><td colspan="3"></td></tr>
+    <tr>
+        <td colspan="3">
+            <br>
+            <table>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>PO Date</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ pomain.podate|date:'Y-m-d' }}</td>
+                    <td width="15%" style="vertical-align: top"><b>PO Type</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.get_potype_display }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Ref. No.</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.refnum }}</td>
+                </tr>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>Urgency</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ pomain.get_urgencytype_display }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Date&nbsp;Needed</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.dateneeded|date:'Y-m-d' }}</td>
+                    <td width="15%" style="vertical-align: top"><b>PO Status</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.get_postatus_display }}</td>
+                </tr>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>Supplier</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">[{{ pomain.supplier_code }}]&nbsp;{{ pomain.supplier_name }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Credit&nbsp;Terms</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.creditterm.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Input&nbsp;VAT&nbsp;Type</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.inputvattype.description }}</td>
+                </tr>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>VAT</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ pomain.vat.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Withholding&nbsp;Tax</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.wtax.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Deferred</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.get_deferredvat_display }}</td>
+                </tr>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>ATC</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">[{{ pomain.atc.code }}]&nbsp;{{ pomain.atc.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Delivery&nbsp;Status</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.get_deliverystatus_display|default:'N/A' }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Delivery&nbsp;Date</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.deliverydate|date:'Y-m-d'|default:'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td width="15%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ pomain.particulars }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+</table>
+
+
+<b>ITEMS</b>
+<table style="font-size: 10px;">
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+        <td style="border-left: 2px solid black; padding-left: 5px;"></td>
+        <td style="padding-left: 5px;"><b><i>Code</i></b></td>
+        <td><b><i>Item Name</i></b></td>
+        <td style="text-align: center;"><b><i>Branch/<br>Dept.</i></b></td>
+        <td style="text-align: right;"><b><i>Unit Cost</i></b></td>
+        <td style="text-align: right;"><b><i>Qty</i></b></td>
+        <td style="text-align: right;"><b><i>Gross<br>Amount</i></b></td>
+        <td style="text-align: right;"><b><i>Discount</i></b></td>
+        <td style="text-align: right;"><b><i>VAT<br>Rate</i></b></td>
+        <td style="text-align: right;"><b><i>VATable/<br>VATExempt/<br>VATZero</i></b></td>
+        <td style="text-align: right;"><b><i>VAT<br>Amount</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Net<br>Amount</i></b></td>
+    </tr>
+    {% for data in detail %}
+        <tr>
+            <td width="2%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
+            <td width="8%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
+            <td width="15%" style="padding-top: 5px;">{{ data.invitem_name }} ({{ data.unitofmeasure.code }})</td>
+            <td width="6%" style="text-align: center; padding-top: 5px;">{{ data.branch.code }}<br>{{ data.department.code }}</td>
+            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.unitcost|floatformat:2|intcomma }}</td>
+            <td width="4%" style="text-align: right; padding-top: 5px;">{{ data.quantity }}</td>
+            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.grossamount|floatformat:2|intcomma }}</td>
+            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.discountamount|floatformat:2|intcomma }}{% if data.discountrate > 0 %}<br>({{ data.discountrate }}%){% endif %}</td>
+            <td width="5%" style="text-align: right; padding-top: 5px;">{{ data.vatrate }}%</td>
+            <td width="10%" style="text-align: right; padding-top: 5px;">{% if data.vatable > 0 %}{{ data.vatable|floatformat:2|intcomma }}{% elif data.vatexempt > 0 %}{{ data.vatexempt|floatformat:2|intcomma }}{% elif data.vatzerorated > 0 %}{{ data.vatzerorated|floatformat:2|intcomma }}{% endif %}</td>
+            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.vatamount|floatformat:2|intcomma }}</td>
+            <td width="10%" style="text-align: right; padding-top: 5px; padding-right: 5px;">{{ data.netamount|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+        <td colspan="5" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td width="4%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
+        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_grossamount|floatformat:2|intcomma }}</b></td>
+        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_discountamount|floatformat:2|intcomma }}</b></td>
+        <td width="5%" style="text-align: right; padding-top: 5px;">&nbsp;</td>
+        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatable|floatformat:2|intcomma }}</b></td>
+        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatamount|floatformat:2|intcomma }}</b></td>
+        <td width="10%" style="text-align: right; padding-top: 5px; padding-right: 5px;"><b>{{ detail_total_netamount|floatformat:2|intcomma }}</b></td>
+    </tr>
+</table>
+
+</body>
+</html>

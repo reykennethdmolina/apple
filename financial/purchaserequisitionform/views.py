@@ -13,6 +13,7 @@ from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from companyparameter.models import Companyparameter
 from department.models import Department
+from purchaseorder.models import Pomain
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
 from django.contrib.auth.models import User
@@ -56,6 +57,19 @@ class DetailView(DetailView):
         context['totalpoquantity'] = Prfmain.objects.get(pk=self.kwargs['pk']).\
                                         totalquantity - Prfmain.objects.\
                                         get(pk=self.kwargs['pk']).totalremainingquantity
+        pos = Pomain.objects.raw('SELECT DISTINCT prfm.prfnum, pom.ponum, pom.id, pom.postatus, pom.modifydate '
+                                 'FROM podetail pod LEFT JOIN prfdetail prfd ON pod.prfdetail_id = prfd.id '
+                                 'LEFT JOIN prfmain prfm ON prfd.prfmain_id = prfm.id '
+                                 'LEFT JOIN pomain pom ON pod.pomain_id = pom.id '
+                                 'WHERE prfm.prfnum = ' + self.object.prfnum + ' AND pom.isdeleted = 0 '
+                                                                               'ORDER BY pom.modifydate')
+
+        context['pos'] = []
+        for data in pos:
+            context['pos'].append([data.ponum,
+                                   data.postatus,
+                                   data.modifydate,
+                                   data.id])
         return context
 
 
@@ -254,6 +268,20 @@ class UpdateView(UpdateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['totalremainingquantity'] = Prfmain.objects.get(pk=self.object.pk).\
             totalremainingquantity
+
+        pos = Pomain.objects.raw('SELECT DISTINCT prfm.prfnum, pom.ponum, pom.id, pom.postatus, pom.modifydate '
+                                 'FROM podetail pod LEFT JOIN prfdetail prfd ON pod.prfdetail_id = prfd.id '
+                                 'LEFT JOIN prfmain prfm ON prfd.prfmain_id = prfm.id '
+                                 'LEFT JOIN pomain pom ON pod.pomain_id = pom.id '
+                                 'WHERE prfm.prfnum = ' + self.object.prfnum + ' AND pom.isdeleted = 0 '
+                                                                               'ORDER BY pom.modifydate')
+
+        context['pos'] = []
+        for data in pos:
+            context['pos'].append([data.ponum,
+                                   data.postatus,
+                                   data.modifydate,
+                                   data.id])
 
         Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()        # clear all temp data
 

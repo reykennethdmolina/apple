@@ -108,28 +108,30 @@
     <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
         <tr>
             <td>
-                {{ parameter.report_footer1 }} {{ request.user }}<br>
-                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
                 {{ parameter.report_footer3 }}<br>
                 {{ parameter.report_footer4 }}<br>
                 <b>{{ parameter.report_footer5 }}</b><br>
-                <b>{{ parameter.report_footer6 }}</b>
+                <b>{{ parameter.report_footer6 }}</b><br>
+                {{ parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
             </td>
             <td style="margin-left: 30px;width: 600px;">
-                {{ parameter.report_footer7 }}<br>
                 {{ parameter.report_footer8 }}<br>
                 {{ parameter.report_footer9 }}<br>
                 {{ parameter.report_footer10 }}<br>
                 {{ parameter.report_footer11 }}<br>
-                {{ parameter.report_footer12 }}
+                {{ parameter.report_footer12 }}<br>
+                {{ parameter.report_footer13 }}<br>
+                {{ parameter.report_footer14 }}
             </td>
         </tr>
     </table>
-    <div style="text-align: right">
-        {%block page_foot%}
+    {%block page_foot%}
+        <div style="text-align: right; font-size: 8px;">
             Page <pdf:pagenumber /> of <pdf:pagecount />
-        {%endblock%}
-    </div>
+        </div>
+    {%endblock%}
 </div>
 <table>
     <tr><td colspan="3"></td></tr>
