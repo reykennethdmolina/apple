@@ -147,6 +147,7 @@ INSTALLED_APPS = [
     'cmsadjustment',
     'processing_transaction',
     'locationcategory',
+    'productgroupcategory',
 ]
 
 MIDDLEWARE_CLASSES = [

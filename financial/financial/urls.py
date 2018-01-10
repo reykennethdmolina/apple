@@ -134,6 +134,7 @@ urlpatterns = [
     url(r'^processing_or/', include('processing_or.urls', app_name='processing_or', namespace='processing_or')),
     url(r'^processing_data/', include('processing_data.urls', app_name='processing_data', namespace='processing_data')),
     url(r'^locationcategory/', include('locationcategory.urls', app_name='locationcategory', namespace='locationcategory')),
+    url(r'^productgroupcategory/', include('productgroupcategory.urls', app_name='productgroupcategory', namespace='productgroupcategory')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

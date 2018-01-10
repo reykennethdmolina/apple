@@ -1,0 +1,80 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Product Group Category {% endblock page-title %}
+{% block extra_css %}
+{% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="panel margin-bottom-20">
+                <!-- Start Simple Form Validation -->
+                <div class="panel-heading">
+                    <h3 class="panel-title">CREATE</h3>
+                </div>
+                <div class="panel-body">
+                    <form autocomplete="off" id="form-b" method="post">
+                        {% csrf_token %}
+                        {% for field, errors in form.errors.items %}
+                            {% if errors %}
+                                <span class="help-block form-error">
+                                    {% for error in errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="form-group {{ form.productgroup.errors|yesno:'has-error,' }}">
+                            <label for="id_productgroup" class="control-label">Product Group</label>
+                            <select id="id_productgroup" name="productgroup" class="form-control">
+                                <option value="">-- Select --</option>
+                                {% for productgroup in productgroup %}
+                                    <option value="{{ productgroup.id }}" {% if form.productgroup.value|add:0 == productgroup.id %} selected="selected" {% endif %}>{{ productgroup.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.productgroup.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.category.errors|yesno:'has-error,' }}">
+                            <label for="id_category" class="control-label">Category</label>
+                            <select id="id_category" name="category" class="form-control">
+                                <option value="">-- Select --</option>
+                                {% for locationcategory in locationcategory %}
+                                    <option value="{{ locationcategory.id }}" {% if form.category.value|add:0 == locationcategory.id %} selected="selected" {% endif %}>{{ locationcategory.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.category.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group {{ form.chartofaccount.errors|yesno:'has-error,' }}">
+                            <label for="id_chartofaccount" class="control-label">Chart of Account</label>
+                            <select id="id_chartofaccount" class="form-control ajaxselect2" name="chartofaccount"
+                                    data-validation="required">
+                                {% if chartofaccount.id != None %}
+                                    <option value="{{ chartofaccount.id }}">[{{ chartofaccount.accountcode }}] - {{ chartofaccount.title }}</option>
+                                {% endif %}
+                            </select>
+                            <span class="help-block form-error">{{ form.chartofaccount.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group margin-bottom-0">
+                            <button type="submit" class="btn btn-info" id="validateButton">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- End Simple Form Validation -->
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+    /* Hack tools for selecting first option default foreign data value */
+    $(document).ready(function() {
+        $("#id_chartofaccount option:first").attr('selected', 'selected');
+        ajaxselect2("chartofaccount", "id_chartofaccount");
+    });
+</script>
+{% endblock extra_js %}
