@@ -65,24 +65,33 @@ def upload(request):
                                 if get_object_or_None(Agenttype, code=data['AGNT_TYPE']) is None:
                                     faileddata.append([data['AGNT_CODE'] + ' - ' + data['AGNT_TYPE'], 'Agent Type does not exist',])
                                     saveproceed = 0
-                                if get_object_or_None(Agent, code=data['AGNT_CODE']) is not None:
-                                    faileddata.append([data['AGNT_CODE'] + ' - ' + data['AGNT_TYPE'], 'Agent already exists',])
-                                    saveproceed = 0
 
                                 if saveproceed == 1:
-                                    Agent.objects.create(
-                                        code=data['AGNT_CODE'],
-                                        agenttype=get_object_or_None(Agenttype, code=data['AGNT_TYPE']),
-                                        name=data['AGNT_NAME'],
-                                        status='A',
-                                        enterby=request.user,
-                                        modifyby=request.user,
-                                        enterdate=datetime.now(),
-                                    ).save()
+                                    if get_object_or_None(Agent, code=data['AGNT_CODE']) is not None:
+                                        Agent.objects.filter(code=data['AGNT_CODE']).update(
+                                            agenttype=get_object_or_None(Agenttype, code=data['AGNT_TYPE']),
+                                            name=data['AGNT_NAME'],
+                                            status='A',
+                                            enterby=request.user,
+                                            modifyby=request.user,
+                                            modifydate=datetime.now(),
+                                        )
+                                    else:
+                                        Agent.objects.create(
+                                            code=data['AGNT_CODE'],
+                                            agenttype=get_object_or_None(Agenttype, code=data['AGNT_TYPE']),
+                                            name=data['AGNT_NAME'],
+                                            status='A',
+                                            enterby=request.user,
+                                            modifyby=request.user,
+                                            enterdate=datetime.now(),
+                                        ).save()
+
                                     successdata.append(data['AGNT_CODE'] + ' - ' + data['AGNT_TYPE'])
                                     successcount += 1
                                 else:
                                     failedcount += 1
+
                                 breakstatus = 0
                             else:
                                 breakstatus = 1

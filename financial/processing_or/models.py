@@ -154,6 +154,7 @@ class Temp_ordetail(models.Model):
     chartofaccountcode = models.CharField(null=True, blank=True, max_length=500)
     payeecode = models.CharField(null=True, blank=True, max_length=500)
     payeename = models.CharField(null=True, blank=True, max_length=500)
+    productcode = models.CharField(null=True, blank=True, max_length=500)
     vatrate = models.CharField(null=True, blank=True, max_length=500)
     vatcode = models.CharField(null=True, blank=True, max_length=500)
     bankaccountcode = models.CharField(null=True, blank=True, max_length=500)

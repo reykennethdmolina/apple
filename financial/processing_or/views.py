@@ -538,7 +538,57 @@ def exportsave(request):
                             ).save()
 
                     else: # if account type = 'R' (r/e)
-                        print "no setup yet"
+                        # cash in bank
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            debitamount=data.amount,
+                            balancecode='D',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                            bankaccountcode=data.bankaccount,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        remainingamount = float(data.amount)
+                        remainingamount = float(format(remainingamount, '.2f'))
+
+                        # (r/e)
+                        re_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
+                        re_vatamount = float(format(re_amount * (float(data.vatrate) * 0.01), '.2f'))
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            adtypecode=data.adtype,
+                            amount=re_amount,
+                            vatamount=re_vatamount,
+                            creditamount=re_amount,
+                            balancecode='C',
+                            chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_revcode.pk,
+                            productcode=data.product,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+
+                        if data.vatrate > 0:
+                            vatable = float(vatable) + float(re_amount)
+                        elif data.vatcode == 'VE':
+                            vatexempt = float(vatexempt) + float(re_amount)
+                        elif data.vatcode == 'ZE':
+                            vatzerorated = float(vatzerorated) + float(re_amount)
+
+                        # do vat here
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            creditamount=re_vatamount,
+                            balancecode='C',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                            vatrate=data.vatrate,
+                            vatcode=data.vatcode,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
+                        vatamount = float(vatamount) + float(re_vatamount)
 
                     # temp ormain to ormain
                     Ormain.objects.create(
@@ -585,7 +635,7 @@ def exportsave(request):
 
                     # temp ordetail to ordetail
                     temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
-                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode').order_by()\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode', 'productcode').order_by()\
                                                          .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
                     for index, data2 in enumerate(temp_ordetail):
                         debit = data2['debit'] if data2['debit'] is not None else 0.00
@@ -602,6 +652,7 @@ def exportsave(request):
                             chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
                             customer=get_object_or_None(Customer, code=data2['payeecode']),
                             bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
+                            product=get_object_or_None(Product, code=data2['productcode']),
                             enterby=request.user,
                             modifyby=request.user,
                             ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
