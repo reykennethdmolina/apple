@@ -57,12 +57,10 @@ def fileupload(request):
         #   6: failed - invalid artype
 
         if request.POST['or_artype'] == 'a':    # 6
-            # if request.FILES['or_file'] and request.FILES['or_file'].name.endswith('.txt'):     # 3
             if request.FILES['or_file'] \
                     and request.FILES['or_file'].name.endswith('.txt') \
                     and request.FILES['or_d_file'] \
                     and request.FILES['or_d_file'].name.endswith('.txt'):     # 3
-                # if request.FILES['or_file']._size < float(upload_size)*1024*1024:
                 if request.FILES['or_file']._size < float(upload_size)*1024*1024 \
                         and request.FILES['or_d_file']._size < float(upload_size)*1024*1024:
 
@@ -273,18 +271,19 @@ def fileupload(request):
                 }
                 return JsonResponse(data)
         elif request.POST['or_artype'] == 'c' and request.POST['batchkey']:
-            if request.FILES['or_file'] and request.FILES['or_file'].name.endswith('.dbf'):
-                if request.FILES['or_file']._size < float(upload_size)*1024*1024:
-                    try:
-                        data = Temp_ormain.objects.latest('importsequence')
-                        sequence = int(data.importsequence) + 1
-                    except Temp_ormain.DoesNotExist:
-                        sequence = 1
+            if request.FILES['or_file'] \
+                    and request.FILES['or_file'].name.endswith('.dbf')\
+                    and request.FILES['or_d_file'] \
+                    and request.FILES['or_d_file'].name.endswith('.dbf'):   # 3
+                if request.FILES['or_file']._size < float(upload_size)*1024*1024\
+                        and request.FILES['or_d_file']._size < float(upload_size)*1024*1024:
 
-                    if storeupload(request.FILES['or_file'], sequence, 'dbf', upload_directory):
+                    sequence = datetime.now().isoformat().replace(':', '-')
+                    batchkey = generatekey(1)
+
+                    if storeupload(request.FILES['or_file'], sequence, 'dbf', upload_directory)\
+                            and storeupload(request.FILES['or_d_file'], sequence, 'dbf', upload_d_directory):
                         orcount = 0
-                        failedcount = 0
-
                         datatotal = wccount(upload_directory + str(sequence) + '.dbf') + 1
                         datacurrent = 0
 
@@ -292,6 +291,21 @@ def fileupload(request):
                             orcount += 1
 
                             if len(data) == 21:
+
+                                # log status filtering
+                                if Logs_ormain.objects.filter(orno=data['OR_NUM'], importstatus='P'):
+                                    importstatus = 'F'
+                                    importremarks = 'Skipped: Already posted'
+                                elif Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, importstatus='S'):
+                                    importstatus = 'F'
+                                    importremarks = 'Skipped: Already exists in this batch'
+                                elif not Bankaccount.objects.filter(code=data['BANKCODE']):
+                                    importstatus = 'F'
+                                    importremarks = 'Failed: Bank account does not exist'
+                                else:
+                                    importstatus = 'S'
+                                    importremarks = 'Passed'
+
                                 Temp_ormain.objects.create(
                                     orno=data['OR_NUM'],
                                     ordate=data['OR_DATE'],
@@ -537,7 +551,7 @@ def exportsave(request):
                                 postingremarks='Processing...',
                             ).save()
 
-                    else: # if account type = 'R' (r/e)
+                    else: # if account type = 'R or D' (r/e)
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
@@ -591,6 +605,16 @@ def exportsave(request):
                         vatamount = float(vatamount) + float(re_vatamount)
 
                     # temp ormain to ormain
+                    if temp_ormain.accounttype == 'd':
+                        ortype_accounttype = 'r'
+                    else:
+                        ortype_accounttype = temp_ormain.accounttype
+
+                    if temp_ormain.payeetype == 'y':
+                        payeetype_payeetype = 'ag'
+                    else:
+                        payeetype_payeetype = temp_ormain.payeetype
+
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
                         ordate=temp_ormain.ordate,
@@ -613,14 +637,14 @@ def exportsave(request):
                         collector_name=temp_ormain.collectordesc,
                         enterby=request.user,
                         modifyby=request.user,
-                        ortype=Ortype.objects.get(pk=2),
+                        ortype=Ortype.objects.get(code=ortype_accounttype.upper()),
                         vat=Vat.objects.get(code=temp_ormain.vatcode),
                         agency=get_object_or_None(Customer, code=temp_ormain.agencycode),
                         client=get_object_or_None(Customer, code=temp_ormain.clientcode),
                         orsource='A',
                         payee_code=temp_ormain.payeecode,
                         payee_name=temp_ormain.payeename,
-                        payee_type=temp_ormain.payeetype,
+                        payee_type=payeetype_payeetype.upper(),
                         product=Product.objects.get(code=temp_ormain.productcode),
                         product_code=temp_ormain.productcode,
                         product_name=Product.objects.get(code=temp_ormain.productcode).description,

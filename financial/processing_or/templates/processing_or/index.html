@@ -93,7 +93,7 @@
                                             <label class="control-label small">OR Master</label>
                                             <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
                                         </div>
-                                        <div class="form-group col-sm-5">
+                                        <div id="or_d_file_container" class="form-group col-sm-5">
                                             <label class="control-label small">OR Detail</label>
                                             <input type="file" id="or_d_file" class="form-control input-sm upload" name="or_d_file">
                                         </div>
@@ -216,6 +216,15 @@
 {% block extra_js %}
 <script>
     $(function(){
+{#        $('#or_artype').on('change', function(){#}
+{#            if($(this).val() == 'a'){#}
+{#                $('#or_d_file_container').show();#}
+{#            }#}
+{#            else{#}
+{#                $('#or_d_file_container').hide();#}
+{#            }#}
+{#        });#}
+
         $(document).on('click', '#or_upload', function(e){
             $('#or_upload').fadeOut(300);
             $('#or_export').fadeOut(300);
@@ -227,7 +236,12 @@
         });
 
         $("form#data").submit(function(){
-            if ($('#or_file').get(0).files.length === 0 || $('#or_d_file').get(0).files.length === 0) {
+{#            if (($('#or_artype').val() == 'a' && ($('#or_file').get(0).files.length === 0 || $('#or_d_file').get(0).files.length === 0))#}
+{#                || ($('#or_artype').val() == 'c' && $('#or_file').get(0).files.length === 0)#}
+{#                || ($('#or_artype').val() != 'a' && $('#or_artype').val() != 'c')) {#}
+            if ($('#or_file').get(0).files.length === 0
+                    || $('#or_d_file').get(0).files.length === 0
+                    || ($('#or_artype').val() != 'a' && $('#or_artype').val() != 'c')) {
                 customAlert($('#upload-file-error'));
                 showUploadForm();
             }
