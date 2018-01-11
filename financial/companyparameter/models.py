@@ -44,6 +44,10 @@ class Companyparameter(models.Model):
                                      blank=True, null=True)
     coa_outputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_outputvat',
                                       blank=True, null=True)
+    coa_ewtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_ewtax', blank=True,
+                                  null=True)
+    coa_aptrade = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_aptrade', blank=True,
+                                    null=True)
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 

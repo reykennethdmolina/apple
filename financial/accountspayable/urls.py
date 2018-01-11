@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
     url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
+    url(r'^generatedefaultentries/$', views.generatedefaultentries, name='generatedefaultentries'),
 ]

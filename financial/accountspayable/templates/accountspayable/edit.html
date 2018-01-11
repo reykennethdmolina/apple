@@ -189,7 +189,7 @@
                             </div>
                             <div class="form-group col-sm-5 {{ form.atax.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_atax" style="display: block;">ATC</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_atax" name="atax" style="width: 80%; display: inline-block;">
+                                <select class="form-control input-sm" id="id_atax" name="atax" style="width: 80%; display: inline-block;">
                                     <option value="">-- Select --</option>
                                     {% for atc in atax %}
                                         <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atax.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>
@@ -279,7 +279,7 @@
                             </div>
                             <div class="col-sm-6 padding-top-15 padding-bottom-15">
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
                             </div>
                         </div>
                     </form>
@@ -452,6 +452,11 @@
 <div id="approve-success" class="custom-alert success">APV #{{ apnum }} has been tagged as APPROVED.</div>
 <div id="disapprove-success" class="custom-alert success">APV #{{ apnum }} has been tagged as DISAPPROVED.</div>
 <div id="release-success" class="custom-alert success">APV #{{ apnum }} has been tagged as RELEASED.</div>
+<div id="autoentry-success" class="custom-alert success">Auto-entry is successful.</div>
+<div id="base-amount-needed" class="custom-alert danger">Please enter the debit entry with taxable amount first.</div>
+<div id="payee-needed" class="custom-alert danger">Please supply the payee first.</div>
+<div id="vat-needed" class="custom-alert danger">Please supply VAT first.</div>
+<div id="inputvattype-needed" class="custom-alert danger">Please supply Input VAT Type first.</div>
 <div id="zero-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must not be zero.</div>
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
@@ -595,6 +600,57 @@
                         console.debug(response);
                     }
                 });
+            });
+
+            $("#autobutton").on('click', function(){
+                if($('.detaildelete').length == 0 || $("#total_debitamount").text() == '0.00'){
+                    customAlert($('#base-amount-needed'));
+                    $("#entryview").show();
+                    $.ajax({
+                        url: "{% url 'acctentry:maccountingentry' %}",
+                        type: "post",
+                        data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                               'table': "apdetailtemp"},
+                        success: function(response){
+                            $("#manualentryview").html(response['viewhtml']);
+                            $("#waitingbar").hide();
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+                else if($('#id_payee').val() == null){
+                    customAlert($('#payee-needed'));
+                }
+                else if($('#id_vat').val() == ''){
+                    customAlert($('#vat-needed'));
+                }
+                else if($('#id_inputvattype').val() == ''){
+                    customAlert($('#inputvattype-needed'));
+                }
+                else {
+                    if(confirm("The entries for input VAT, expanded withholding tax and AP trade will be discarded. Are you sure you want to proceed?")){
+                        $.ajax({
+                            url: "{% url 'accountspayable:generatedefaultentries' %}",
+                            type: "post",
+                            data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                                   'secretkey': $('#secretkey').val(),
+                                   'vat': $('#id_vat').val(),
+                                   'supplier': $('#id_payee').val(),
+                                   'inputvattype': $('#id_inputvattype').val(),
+                                   'atc': $('#id_atax').val(),
+                                   'table': "apdetailtemp"},
+                            success: function(response){
+                                $("#datatable").html(response['datatable']);
+                                customAlert($('#autoentry-success'));
+                                $('.shade').fadeOut();
+                            }, error: function(response) {
+                                console.debug(response);
+                                $('.shade').fadeOut();
+                            }
+                        });
+                    }
+                }
             });
 
             $('#id_payee').change(function(){
@@ -764,20 +820,24 @@
             }
 
             $("#validateButton").on('click', function() {
-                alert({{ originalapstatus }});
-                var total_creditamount = $("#total_creditamount").text().replace(',','');
-                var total_debitamount = $("#total_debitamount").text().replace(',','');
+                var total_creditamount = $("#total_creditamount").text().replace(',', '');
+                var total_debitamount = $("#total_debitamount").text().replace(',', '');
+
                 if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
-                    alert('Debit and Credit amount must not be zero');
+                    customAlert($('#zero-debit-credit-error'));
+                    event.preventDefault();
                     return false;
                 }
                 if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
-                    alert('Debit and Credit amount be equal');
+                    customAlert($('#not-equal-debit-credit-error'));
+                    event.preventDefault();
                     return false;
                 }
                 var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
+
                 if (checkbreakdownstatus) {
-                    alert('You have unbalance various entry. Please review your entry!');
+                    customAlert($('#unbalanced-entries-error'));
+                    event.preventDefault();
                 }
             });
             // Accounting entry end
