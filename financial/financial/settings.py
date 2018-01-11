@@ -148,6 +148,7 @@ INSTALLED_APPS = [
     'processing_transaction',
     'locationcategory',
     'productgroupcategory',
+    'circulationpaytype',
 ]
 
 MIDDLEWARE_CLASSES = [
