@@ -262,6 +262,13 @@
                                             <span class="row col-md-6">{% if object.releaseby %}{{ object.releaseby.first_name }}&nbsp;{{ object.releaseby.last_name }}{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Released&nbsp;To</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">{{ object.releaseto|default:'' }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -16,9 +16,10 @@ class Cvmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
+        ('FR', 'For Release'),
         ('R', 'Released'),
     )
-    cvstatus = models.CharField(max_length=1, choices=CV_STATUS_CHOICES, default='F')
+    cvstatus = models.CharField(max_length=2, choices=CV_STATUS_CHOICES, default='F')
     payee = models.ForeignKey('supplier.Supplier', related_name='cvmain_payee_id', null=True, blank=True)
     payee_code = models.CharField(max_length=25, null=True, blank=True)
     payee_name = models.CharField(max_length=150)
@@ -72,6 +73,7 @@ class Cvmain(models.Model):
     postdate = models.DateTimeField(null=True, blank=True)
     releaseby = models.ForeignKey(User, related_name='cvmain_release', null=True, blank=True)
     releasedate = models.DateTimeField(null=True, blank=True)
+    releaseto = models.CharField(max_length=250, null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 

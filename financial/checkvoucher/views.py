@@ -308,6 +308,7 @@ class UpdateView(UpdateView):
         context['approverremarks'] = Cvmain.objects.get(pk=self.object.id).approverremarks
         context['responsedate'] = Cvmain.objects.get(pk=self.object.id).responsedate
         context['releaseby'] = Cvmain.objects.get(pk=self.object.id).releaseby
+        context['releaseto'] = Cvmain.objects.get(pk=self.object.id).releaseto
         context['releasedate'] = Cvmain.objects.get(pk=self.object.id).releasedate
         context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).order_by('enterdate')
         cv_main_aggregate = Reppcvmain.objects.filter(isdeleted=0, cvmain=self.object.id).aggregate(Sum('amount'))
@@ -401,13 +402,15 @@ class UpdateView(UpdateView):
             # remove release details if CVSTATUS is not RELEASED
             if self.object.cvstatus == 'R' and self.object.releasedate is None:
                 self.object.releaseby = None
+                self.object.releaseto = None
                 self.object.releasedate = None
                 self.object.cvstatus = 'A'
-                self.object.save(update_fields=['releaseby', 'releasedate', 'cvstatus'])
+                self.object.save(update_fields=['releaseby', 'releasedate', 'releaseto', 'cvstatus'])
             elif self.object.cvstatus != 'R':
                 self.object.releaseby = None
+                self.object.releaseto = None
                 self.object.releasedate = None
-                self.object.save(update_fields=['releaseby', 'releasedate'])
+                self.object.save(update_fields=['releaseby', 'releasedate', 'releaseto'])
 
             # accounting entry starts here..
             source = 'cvdetailtemp'
@@ -610,6 +613,7 @@ def approve(request):
                     cv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
                     cv_for_approval.approverremarks = request.POST['approverremarks']
                     cv_for_approval.releaseby = None
+                    cv_for_approval.releaseto = None
                     cv_for_approval.releasedate = None
                     cv_for_approval.save()
                     data = {
@@ -643,6 +647,7 @@ def release(request):
         cv_for_release = Cvmain.objects.get(cvnum=request.POST['cvnum'])
         if cv_for_release.cvstatus != 'F' and cv_for_release.cvstatus != 'D':
             cv_for_release.releaseby = User.objects.get(pk=request.POST['releaseby'])
+            cv_for_release.releaseto = request.POST['releaseto']
             cv_for_release.releasedate = request.POST['releasedate']
             cv_for_release.cvstatus = 'R'
             cv_for_release.save()

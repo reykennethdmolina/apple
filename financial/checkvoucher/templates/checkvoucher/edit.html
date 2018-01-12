@@ -302,7 +302,7 @@
                                             {% elif perms.checkvoucher.approve_allcv %}
                                                 <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
                                             {% endif %}
-                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
+                                            <option value="FR" {% if form.cvstatus.value == "FR" %} selected{% endif %}>For Release</option>
                                         {% elif originalcvstatus == 'D' %}
                                             <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
                                             {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
@@ -310,6 +310,10 @@
                                             {% elif perms.checkvoucher.approve_allcv %}
                                                 <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
                                             {% endif %}
+                                        {% elif originalcvstatus == 'FR' %}
+                                            <option value="FR" {% if form.cvstatus.value == "FR" %} selected{% endif %}>For Release</option>
+                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
+                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
                                         {% elif originalcvstatus == 'R' %}
                                             <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
                                             <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
@@ -508,6 +512,9 @@
                                             {% endfor %}
                                     </select>
                                     <br><br>
+                                    <label class="control-label" for="id_releasedate">Released To:</label>
+                                    <input type="text" class="form-control input-sm" id="id_releaseto" name="releaseto" value="{{ releaseto|default:'' }}">
+                                    <br>
                                     <label class="control-label" for="id_releasedate">Released On:</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
                                            style="padding: 5px 10px; background: white" id="id_releasedate" name="releasedate"
@@ -755,6 +762,7 @@
                             type: "post",
                             data: {'cvnum': $('#id_cvnum').val(),
                                    'releaseby': $('#id_releaseby').val(),
+                                   'releaseto': $('#id_releaseto').val(),
                                    'releasedate': $('#id_releasedate').val()
                             },
                             success: function(){

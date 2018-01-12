@@ -136,6 +136,9 @@ def importtransdata(request):
             newapv.save()
 
             print "APV successfully generated."
+
+            return redirect('/accountspayable/' + str(newapv.id) + '/update')
+
         elif request.POST['transtype'] == 'apvtocv':
             referenceap = Apmain.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0]))
             allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('apnum')
@@ -209,6 +212,9 @@ def importtransdata(request):
             newcv.save()
 
             print "CV successfully generated."
+
+            return redirect('/checkvoucher/' + str(newcv.id) + '/update')
+
     else:
         print "Something went wrong in saving APV/CV."
 
