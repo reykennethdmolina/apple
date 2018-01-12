@@ -133,10 +133,36 @@ def upload(request):
                                 saveproceed = 1
                                 if len(data) == 26:
                                     if get_object_or_None(Customer, code=data[0]) is not None:
-                                        faileddata.append([data[0] + ' - ' + data[1], 'Customer already exists',])
-                                        saveproceed = 0
-
-                                    if saveproceed == 1:
+                                        Customer.objects.filter(code=data[0]).update(
+                                            name=data[1],
+                                            address1=data[2],
+                                            address2=data[3],
+                                            address3=data[4],
+                                            telno1=data[5],
+                                            telno2=data[6],
+                                            telno3=data[7],
+                                            faxno1=data[8],
+                                            faxno2=data[9],
+                                            tin=data[25],
+                                            pagerno=data[10],
+                                            payterms=data[11],
+                                            creditlimit=data[12] if data[12].isdigit() else None,
+                                            creditrating=data[13],
+                                            remarks=data[14],
+                                            multiplestatus='N',
+                                            beg_amount=data[15] if data[15].isdigit() else None,
+                                            beg_code=data[16],
+                                            beg_date=data[17] if data[17] != '' else None,
+                                            end_amount=data[18] if data[18].isdigit() else None,
+                                            end_code=data[19],
+                                            end_date=data[20] if data[20] != '' else None,
+                                            customertype=get_object_or_None(Customertype, code='A'),
+                                            status='A',
+                                            enterby=request.user,
+                                            modifyby=request.user,
+                                            enterdate=datetime.now(),
+                                        )
+                                    else:
                                         Customer.objects.create(
                                             code=data[0],
                                             name=data[1],
@@ -168,10 +194,8 @@ def upload(request):
                                             enterdate=datetime.now(),
                                         ).save()
 
-                                        successdata.append(data[0] + ' - ' + data[1])
-                                        successcount += 1
-                                    else:
-                                        failedcount += 1
+                                    successdata.append(data[0] + ' - ' + data[1])
+                                    successcount += 1
                                     breakstatus = 0
                                 else:
                                     breakstatus = 1
