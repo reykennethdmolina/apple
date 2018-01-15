@@ -70,8 +70,6 @@ def fileupload(request):
                     if storeupload(request.FILES['or_file'], sequence, 'txt', upload_directory)\
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt', upload_d_directory):    # 2
                         orcount = 0
-                        datatotal = wccount(upload_directory + str(sequence) + '.txt') + 1
-                        datacurrent = 0
 
                         with open(upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
@@ -166,54 +164,55 @@ def fileupload(request):
                                     break
 
                             # inspect/insert detail
-                            with open(upload_d_directory + str(sequence) + ".txt") as textFile2:
-                                for line in textFile2:
-                                    data = line.split("\t")
-                                    for n, i in enumerate(data):
-                                        data[n] = data[n].replace('"', '')
+                            if breakstatus == 0:
+                                with open(upload_d_directory + str(sequence) + ".txt") as textFile2:
+                                    for line in textFile2:
+                                        data = line.split("\t")
+                                        for n, i in enumerate(data):
+                                            data[n] = data[n].replace('"', '')
 
-                                    if len(data) == 19:
-                                        if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey):
-                                            if not Adtype.objects.filter(code=data[16]):
-                                                importstatus = 'F'
-                                                importremarks = 'Failed: Adtype does not exist'
-                                            elif not Vat.objects.filter(code=data[17]):
-                                                importstatus = 'F'
-                                                importremarks = 'Failed: Vat Type does not exist'
-                                            else:
-                                                importstatus = 'S'
-                                                importremarks = 'Passed'
+                                        if len(data) == 19:
+                                            if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey):
+                                                if not Adtype.objects.filter(code=data[16]):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Adtype does not exist'
+                                                elif not Vat.objects.filter(code=data[17]):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Vat Type does not exist'
+                                                else:
+                                                    importstatus = 'S'
+                                                    importremarks = 'Passed'
 
-                                            Logs_ordetail.objects.create(
-                                                orno=data[0],
-                                                doctype=data[1],
-                                                docnum=data[2],
-                                                balance=data[3],
-                                                assignamount=data[4],
-                                                assignvatamount=data[5],
-                                                vatcode=data[17],
-                                                vatrate=data[18],
-                                                status=data[6],
-                                                statusdate=data[7],
-                                                usercode=data[8],
-                                                userdate=data[9],
-                                                docitem=data[10],
-                                                initmark=data[11],
-                                                glsmark=data[12],
-                                                glsdate=data[13],
-                                                assignwtaxamount=data[14],
-                                                assignwvatamount=data[15],
-                                                batchkey=batchkey,
-                                                importstatus=importstatus,
-                                                importremarks=importremarks,
-                                                importby=request.user,
-                                                adtype=data[16],
-                                                adtypedesc=get_object_or_None(Adtype, code=data[16]).description,
-                                            ).save()
-                                            breakstatus = 0
-                                    else:
-                                        breakstatus = 1
-                                        break
+                                                Logs_ordetail.objects.create(
+                                                    orno=data[0],
+                                                    doctype=data[1],
+                                                    docnum=data[2],
+                                                    balance=data[3],
+                                                    assignamount=data[4],
+                                                    assignvatamount=data[5],
+                                                    vatcode=data[17],
+                                                    vatrate=data[18],
+                                                    status=data[6],
+                                                    statusdate=data[7],
+                                                    usercode=data[8],
+                                                    userdate=data[9],
+                                                    docitem=data[10],
+                                                    initmark=data[11],
+                                                    glsmark=data[12],
+                                                    glsdate=data[13],
+                                                    assignwtaxamount=data[14],
+                                                    assignwvatamount=data[15],
+                                                    batchkey=batchkey,
+                                                    importstatus=importstatus,
+                                                    importremarks=importremarks,
+                                                    importby=request.user,
+                                                    adtype=data[16],
+                                                    adtypedesc=get_object_or_None(Adtype, code=data[16]).description,
+                                                ).save()
+                                                breakstatus = 0
+                                        else:
+                                            breakstatus = 1
+                                            break
 
                             if breakstatus == 0:    # 5
                                 ordata_list = []
@@ -270,7 +269,7 @@ def fileupload(request):
                     'result': 3
                 }
                 return JsonResponse(data)
-        elif request.POST['or_artype'] == 'c' and request.POST['batchkey']:
+        elif request.POST['or_artype'] == 'c':
             if request.FILES['or_file'] \
                     and request.FILES['or_file'].name.endswith('.dbf')\
                     and request.FILES['or_d_file'] \
@@ -284,8 +283,6 @@ def fileupload(request):
                     if storeupload(request.FILES['or_file'], sequence, 'dbf', upload_directory)\
                             and storeupload(request.FILES['or_d_file'], sequence, 'dbf', upload_d_directory):
                         orcount = 0
-                        datatotal = wccount(upload_directory + str(sequence) + '.dbf') + 1
-                        datacurrent = 0
 
                         for data in DBF(upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
                             orcount += 1
@@ -306,63 +303,107 @@ def fileupload(request):
                                     importstatus = 'S'
                                     importremarks = 'Passed'
 
-                                Temp_ormain.objects.create(
+                                if importstatus is not 'F':
+                                    # new collector checking
+                                    if not Collector.objects.filter(code=data['COLL_INIT']):
+                                        Collector.objects.create(code=data['COLL_INIT'],
+                                                                 name=data['USER_ID'],
+                                                                 enterby=request.user,
+                                                                 modifyby=request.user)
+                                    # new agent checking
+                                    if not Agent.objects.filter(code=data['AGNT_CODE']) and data['ACCT_TYPE'] is 'C':
+                                        Agent.objects.create(code=data['AGNT_CODE'],
+                                                             name=data['PAY_NAME'],
+                                                             enterby=request.user,
+                                                             modifyby=request.user)
+
+                                Logs_ormain.objects.create(
                                     orno=data['OR_NUM'],
                                     ordate=data['OR_DATE'],
                                     prno=data['PR_NUM'],
-                                    accounttype=data['ACCT_TYPE'],
-                                    collector=data['COLL_INIT'],
-                                    payeetype='A',
-                                    agencycode=data['AGY_CODE'],
-                                    clientcode=data['CLNT_CODE'],
-                                    agentcode=data['AGNT_CODE'],
-                                    payeename=data['PAY_NAME'],
                                     amount=data['TOT_PAID'],
                                     amountinwords=data['AMT_WORD'],
                                     bankaccount=data['BANKCODE'],
-                                    particulars=data['REMARKS'],
-                                    artype=data['OR_ARTYPE'],
-                                    status=data['STATUS'],
-                                    statusdate=data['STATUS_D'],
-                                    enterby=data['USER_ID'],
-                                    enterdate=data['USER_D'],
-                                    product=data['PRODUCT'],
-                                    importsequence=sequence,
+                                    accounttype=data['ACCT_TYPE'].lower(),
+                                    vatcode='VE',
+                                    vatrate=0,
+                                    artype='C',
+                                    collector=data['COLL_INIT'],
+                                    collectordesc=data['USER_ID'],
+                                    agentcode=data['AGNT_CODE'],
+                                    payeename=data['PAY_NAME'],
+                                    payeetype='A',
+                                    branchcode='HO',
+                                    batchkey=batchkey,
+                                    importstatus=importstatus,
+                                    importremarks=importremarks,
                                     importby=request.user,
                                 ).save()
                                 breakstatus = 0
                             else:
                                 breakstatus = 1
                                 break
-                            datacurrent += 1
-                        if breakstatus == 0:
-                            # existing data
-                            ormain_existing = Ormain.objects.filter(importornum__in=set(Temp_ormain.objects.filter(importsequence=sequence).values_list('orno', flat=True))).order_by('importornum').values('importornum').distinct()
-                            existingcount = len(ormain_existing)
-                            existingdata = list(ormain_existing)
-                            # failed data
-                            temp_ormain_distinct = Temp_ormain.objects.filter(importsequence=sequence).values('orno').annotate(Count('orno')).count()
-                            failedcount = orcount - temp_ormain_distinct
-                            tempormain_duplicate = Temp_ormain.objects.filter(importsequence=sequence).values('orno').annotate(Count('id')).order_by().filter(id__count__gt=1)
-                            faileddata = list(tempormain_duplicate)
-                            #success data
-                            temp_ormain_distinct = Temp_ormain.objects.filter(importsequence=sequence).values_list('orno', flat=True).annotate(Count('id')).order_by().distinct()
-                            successdata = list(set(temp_ormain_distinct) - set(ormain_existing.values_list('importornum', flat=True)))
-                            successcount = len(successdata)
 
+                        # inspect/insert detail
+                        if breakstatus == 0:
+                            for data in DBF(upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                                if len(data) == 17:
+                                    if Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, accounttype='C'):
+                                        importstatus = 'S'
+                                        importremarks = 'Passed'
+
+                                        Logs_ordetail.objects.create(
+                                            orno=data['OR_NUM'],
+                                            assignamount=data['AMT_PAID'],
+                                            assignvatamount=0,
+                                            product=data['PRODUCT'],
+                                            batchkey=batchkey,
+                                            importstatus=importstatus,
+                                            importremarks=importremarks,
+                                            importby=request.user,
+                                        ).save()
+                                        breakstatus = 0
+                                else:
+                                    breakstatus = 1
+                                    break
+
+                        if breakstatus == 0:    # 5
+                            ordata_list = []
+                            ordata_d_list = []
+
+                            ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('orno')
+                            ordata_d = Logs_ordetail.objects.filter(batchkey=batchkey).order_by('orno')
+
+                            for data in ordata:
+                                ordata_list.append([data.orno,
+                                                    data.ordate,
+                                                    data.payeename,
+                                                    data.amount,
+                                                    data.importstatus,
+                                                    data.importremarks,
+                                                   ])
+                            for data in ordata_d:
+                                if request.POST['or_artype'] == 'A':
+                                    data_adtype = data.adtypedesc
+                                else:
+                                    data_adtype = data.product
+                                ordata_d_list.append([data.orno,
+                                                      float(data.assignamount) + float(data.assignvatamount),
+                                                      data.importstatus,
+                                                      data_adtype,
+                                                     ])
+
+                            successcount = ordata.filter(importstatus='S').count()
                             rate = (float(successcount) / float(orcount)) * 100
                             data = {
                                 'result': 1,
-                                'sequence': sequence,
                                 'artype': request.POST['or_artype'],
                                 'orcount': orcount,
+                                'ordata_list': ordata_list,
+                                'ordata_d_list': ordata_d_list,
                                 'successcount': successcount,
-                                'successdata': successdata,
-                                'failedcount': failedcount,
-                                'faileddata': faileddata,
-                                'existingcount': existingcount,
-                                'existingdata': existingdata,
                                 'rate': rate,
+                                'batchkey': batchkey,
                             }
                         else:
                             data = {

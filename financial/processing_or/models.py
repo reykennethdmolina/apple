@@ -90,6 +90,7 @@ class Logs_ordetail(models.Model):
     importby = models.ForeignKey(User, default=1, related_name='logs_ordetail_by')
     adtype = models.CharField(null=True, blank=True, max_length=500)
     adtypedesc = models.CharField(null=True, blank=True, max_length=500)
+    product = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'logs_ordetail'
@@ -161,6 +162,7 @@ class Temp_ordetail(models.Model):
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)
+    product = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'temp_ordetail'
