@@ -239,7 +239,7 @@
                                             <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
                                         </tr>
                                         <tr>
-                                            <td colspan="2" style="font-style: 12px; text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note"></code></td>
+                                            <td colspan="2" style="font-size: 12px; text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note"></code></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -576,6 +576,11 @@
                         console.debug(response);
                     }
                 });
+                if($('#id_vat').val() != '' && $('#id_inputvattype').val() != ''){
+                    if(confirm("Upon changing the payee, the accounting entries will also have to be modified. Would you like to update the accounting entries?")){
+                        autoEntry('manual');
+                    }
+                }
             });
 
             $("#importreprfvconfirm").click(function(){
@@ -678,7 +683,7 @@
                             $('#disp_totalpay').val(response['totalpayment'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
                             if(parseFloat(response['wtaxamount']) > 0){
-                                $('#disp_note').text('Noted: ' + $('#id_atax option:selected').data('rate') + '% w/tax -------> ' + response['wtaxamount'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                                $('#disp_note').text('Noted: ' + $('#id_atax option:selected').data('rate') + '% wtax -------> ' + response['wtaxamount'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                             }
                             else {
                                 $('#disp_note').text('');
