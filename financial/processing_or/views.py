@@ -18,6 +18,9 @@ from outputvattype.models import Outputvattype
 from currency.models import Currency
 from adtype.models import Adtype
 from companyparameter.models import Companyparameter
+from circulationpaytype.models import Circulationpaytype
+from productgroupcategory.models import Productgroupcategory
+from productgroup.models import Productgroup
 from django.db.models import Count, Sum
 from datetime import datetime
 from datetime import timedelta
@@ -299,6 +302,9 @@ def fileupload(request):
                                 elif not Bankaccount.objects.filter(code=data['BANKCODE']):
                                     importstatus = 'F'
                                     importremarks = 'Failed: Bank account does not exist'
+                                elif not Circulationpaytype.objects.filter(code=data['PAY_TYPE']) and data['ACCT_TYPE'] is 'C':
+                                    importstatus = 'F'
+                                    importremarks = 'Failed: Circulation Pay Type does not exist'
                                 else:
                                     importstatus = 'S'
                                     importremarks = 'Passed'
@@ -333,6 +339,7 @@ def fileupload(request):
                                     agentcode=data['AGNT_CODE'],
                                     payeename=data['PAY_NAME'],
                                     payeetype='A',
+                                    paytype=data['PAY_TYPE'],
                                     branchcode='HO',
                                     batchkey=batchkey,
                                     importstatus=importstatus,
@@ -349,8 +356,12 @@ def fileupload(request):
                             for data in DBF(upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
                                 if len(data) == 17:
                                     if Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, accounttype='C'):
-                                        importstatus = 'S'
-                                        importremarks = 'Passed'
+                                        if not Productgroup.objects.filter(code=data['PRODUCT']):
+                                            importstatus = 'F'
+                                            importremarks = 'Failed: Product Group does not exist'
+                                        else:
+                                            importstatus = 'S'
+                                            importremarks = 'Passed'
 
                                         Logs_ordetail.objects.create(
                                             orno=data['OR_NUM'],
@@ -439,12 +450,11 @@ def exportsave(request):
         #   1: success
         #   2: failed - artype error
         if request.POST['artype'] == 'a' or request.POST['artype'] == 'c':
+            ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
+            ormain_list = []
+            ordetail_list = []
 
             if request.POST['artype'] == 'a':
-                ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
-                ormain_list = []
-                ordetail_list = []
-
                 for data in ormain:
                     vatamount = 0
                     vatable = 0
@@ -760,34 +770,201 @@ def exportsave(request):
                                               'S',
                                              ])
 
-                # append failed items from temp to ormain_list, ordetail_list
-                ormain_data = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='F')
-                for datalist in ormain_data:
-                    ormain_list.append([datalist.orno,
-                                        datalist.ordate,
-                                        datalist.payeename,
-                                        datalist.payeetype,
-                                        datalist.productcode,
-                                        datalist.amount,
-                                        'F',
-                                       ])
+            elif request.POST['artype'] == 'c':
+                for data in ormain:
+                    vatexempt = float(data.amount)
+                    vatamount = 0
+                    vatable = 0
+                    vatzerorated = 0
 
-                totalcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).count()
-                successcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='S').count()
-                rate = (int(successcount) / int(totalcount)) * 100
+                    # logsormain to tempormain
+                    temp_ormain = Temp_ormain.objects.create(
+                        orno=data.orno,
+                        ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                        prno=data.prno,
+                        amount=data.amount,
+                        amountinwords=data.amountinwords,
+                        bankaccountcode=data.bankaccount,
+                        accounttype=data.accounttype,
+                        vatrate=data.vatrate,
+                        vatcode=data.vatcode,
+                        artype=data.artype,
+                        collectorcode=data.collector,
+                        collectordesc=data.collectordesc,
+                        agentcode=data.agentcode,
+                        payeecode=data.agentcode,
+                        payeename=data.payeename,
+                        payeetype=data.payeetype,
+                        paytype=data.paytype,
+                        branchcode=data.branchcode,
+                        importby=data.importby,
+                        batchkey=data.batchkey,
+                        postingremarks='Processing...',
+                    )
+                    temp_ormain.save()
 
-                # delete temp
-                Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).delete()
-                Temp_ordetail.objects.filter(batchkey=request.POST['batchkey']).delete()
+                    # cash in bank
+                    Temp_ordetail.objects.create(
+                        orno=data.orno,
+                        ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                        debitamount=data.amount,
+                        balancecode='D',
+                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                        bankaccountcode=data.bankaccount,
+                        batchkey=data.batchkey,
+                        postingremarks='Processing...',
+                    ).save()
 
-                data = {
-                    'result': 1,
-                    'ordata_list': ormain_list,
-                    'ordata_d_list': ordetail_list,
-                    'totalcount': totalcount,
-                    'successcount': successcount,
-                    'rate': rate,
-                }
+                    if temp_ormain.accounttype == 'c':
+                        # transfer ordetails
+                        ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
+                        for data_d in ordetail:
+                            temp_category = Circulationpaytype.objects.get(code=data.paytype, isdeleted=0).category
+                            temp_product = Productgroup.objects.get(code=data_d.product, isdeleted=0)
+
+                            temp_chartofaccount = Productgroupcategory.objects.get(category=temp_category, productgroup=temp_product)
+
+                            Temp_ordetail.objects.create(
+                                orno=data_d.orno,
+                                ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                                amount=data_d.assignamount,
+                                vatamount=0,
+                                creditamount=data_d.assignamount,
+                                balancecode='C',
+                                chartofaccountcode=temp_chartofaccount.chartofaccount.pk,
+                                payeecode=data.agentcode,
+                                payeename=data.payeename,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
+
+                    # temp ormain to ormain
+                    if temp_ormain.accounttype == 'c':
+                        ortype_accounttype = 'r'
+                    else:
+                        ortype_accounttype = temp_ormain.accounttype
+
+                    Ormain.objects.create(
+                        ornum=temp_ormain.orno,
+                        ordate=temp_ormain.ordate,
+                        prnum=temp_ormain.prno,
+                        orstatus='F',
+                        amount=temp_ormain.amount,
+                        amountinwords=temp_ormain.amountinwords,
+                        vatrate=temp_ormain.vatrate,
+                        vatamount=vatamount,
+                        vatablesale=vatable,
+                        vatexemptsale=vatexempt,
+                        vatzeroratedsale=vatzerorated,
+                        particulars=temp_ormain.particulars,
+                        totalsale=temp_ormain.amount,
+                        status='A',
+                        bankaccount=Bankaccount.objects.get(code=temp_ormain.bankaccountcode),
+                        branch=Branch.objects.get(code=temp_ormain.branchcode),
+                        collector=Collector.objects.get(code=temp_ormain.collectorcode),
+                        collector_code=temp_ormain.collectorcode,
+                        collector_name=temp_ormain.collectordesc,
+                        enterby=request.user,
+                        modifyby=request.user,
+                        ortype=Ortype.objects.get(code=ortype_accounttype.upper()),
+                        vat=Vat.objects.get(code=temp_ormain.vatcode),
+                        agent=get_object_or_None(Agent, code=temp_ormain.agentcode),
+                        orsource='C',
+                        payee_code=temp_ormain.payeecode,
+                        payee_name=temp_ormain.payeename,
+                        payee_type=temp_ormain.payeetype.upper(),
+                        importby=request.user,
+                        importornum=temp_ormain.orno,
+                        transaction_type='A',
+                        outputvattype=Outputvattype.objects.get(code='OVT - G'),
+                    ).save()
+
+                    # temp ordetail to ordetail
+                    temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'balancecode', 'bankaccountcode').order_by()\
+                                                         .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
+                    for index, data2 in enumerate(temp_ordetail):
+                        debit = data2['debit'] if data2['debit'] is not None else 0.00
+                        credit = data2['credit'] if data2['credit'] is not None else 0.00
+
+                        Ordetail.objects.create(
+                            item_counter=index + 1,
+                            or_num=data2['orno'],
+                            or_date=data2['ordate'],
+                            debitamount=debit,
+                            creditamount=credit,
+                            balancecode=data2['balancecode'],
+                            status='A',
+                            chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
+                            bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
+                            enterby=request.user,
+                            modifyby=request.user,
+                            ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='C'),
+                        ).save()
+
+                    # set posting status to success for temp
+                    temp_ormain.postingstatus = 'S'
+                    temp_ormain.save()
+                    temp_ordetail.update(postingstatus='S')
+
+                    # set to posted after success of orno and batch
+                    data.importstatus = 'P'
+                    data.save()
+                    Logs_ordetail.objects.filter(batchkey=request.POST['batchkey'], orno=data.orno).update(importstatus='P')
+
+                    # save for preview
+                    ormain_data = Ormain.objects.filter(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='C').order_by('ornum')
+                    for datalist in ormain_data:
+                        ormain_list.append([datalist.ornum,
+                                            datalist.ordate,
+                                            datalist.payee_name,
+                                            datalist.payee_type,
+                                            datalist.product_name,
+                                            datalist.amount,
+                                            'S',
+                                           ])
+
+                    ordetail_data = Ordetail.objects.filter(or_num=temp_ormain.orno, status='A', isdeleted=0).order_by('-item_counter')
+                    for datalist in ordetail_data:
+                        customer = datalist.customer.name if datalist.customer else None
+                        vat = datalist.vat.code if datalist.vat else None
+                        ordetail_list.append([datalist.or_num,
+                                              datalist.chartofaccount.accountcode,
+                                              datalist.chartofaccount.title,
+                                              customer,
+                                              vat,
+                                              datalist.debitamount,
+                                              datalist.creditamount,
+                                              'S',
+                                             ])
+            # append failed items from temp to ormain_list, ordetail_list
+            ormain_data = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='F')
+            for datalist in ormain_data:
+                ormain_list.append([datalist.orno,
+                                    datalist.ordate,
+                                    datalist.payeename,
+                                    datalist.payeetype,
+                                    datalist.productcode,
+                                    datalist.amount,
+                                    'F',
+                                   ])
+
+            totalcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).count()
+            successcount = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='S').count()
+            rate = (int(successcount) / int(totalcount)) * 100
+
+            # delete temp
+            Temp_ormain.objects.filter(batchkey=request.POST['batchkey']).delete()
+            Temp_ordetail.objects.filter(batchkey=request.POST['batchkey']).delete()
+
+            data = {
+                'result': 1,
+                'ordata_list': ormain_list,
+                'ordata_d_list': ordetail_list,
+                'totalcount': totalcount,
+                'successcount': successcount,
+                'rate': rate,
+            }
         else:
             data = {
                 'result': 2

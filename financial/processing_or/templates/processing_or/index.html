@@ -176,7 +176,7 @@
                                                 <tr>
                                                     <th style="width:5%">OR No.</th>
                                                     <th style="width:10%">OR Date</th>
-                                                    <th style="width:20%">Product</th>
+                                                    <th style="width:20%">Product/Item</th>
                                                     <th style="width:25%">Payee</th>
                                                     <th style="width:10%; text-align: right">Debit</th>
                                                     <th style="width:10%; text-align: right">Credit</th>
@@ -349,7 +349,6 @@
                         case 1:
                             $('#or_step_final').fadeIn(300);
                             $('#or_export_loading').fadeOut(300);
-                            // $('#or_export').delay(300).fadeIn(300);
                             $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
                             $('#upload_rate2').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
 
@@ -360,11 +359,16 @@
                                     datahighlight = 'danger';
                                 }
 
+                                temp_product = '';
+                                if(data['ordata_list'][i][4] !== null){
+                                    temp_product = data['ordata_list'][i][4]
+                                }
+
                                 $('#ordata_table2 tbody')
                                         .append("<tr class='" + datahighlight + "' data-mainlive='" + data['ordata_list'][i][0] + "'>" +
                                         "<td><small><b>" + data['ordata_list'][i][0] + "</b></small></td>" +
                                         "<td><small>" + data['ordata_list'][i][1] + "</small></td>" +
-                                        "<td><small>" + data['ordata_list'][i][4] + "</small></td>" +
+                                        "<td><small>" + temp_product + "</small></td>" +
                                         "<td><small>(" + data['ordata_list'][i][3] + ") " + data['ordata_list'][i][2] + "</small></td>" +
                                         "<td colspan='2'></td>" +
                                         "<td align='right'><small>" + data['ordata_list'][i][5].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + "</small></td>" +
