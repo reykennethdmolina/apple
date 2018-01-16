@@ -15,6 +15,25 @@
             .checkbox label::before {
                 margin-left: auto;
             }
+            .widgett {
+                margin-bottom: 10px;
+            }
+{#            .vattable td{#}
+{#                text-align: right;#}
+{#            }#}
+            .vattable td:first-child {
+                width: 170px;
+                padding-right: 20px;
+            }
+            .vattable td input {
+                width: 100px;
+                text-align: right;
+            }
+            .amount_display{
+                height: 30px;
+                margin: auto;
+                margin-left: 40px;
+            }
         </style>
     {% endblock extra_css %}
 <div class="panel">
@@ -37,7 +56,7 @@
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
-                        <div class="row">
+                        <div class="row col-md-12 padding-left-0 padding-right-0">
                             <div class="form-group col-sm-2">
                                 <label class="control-label" for="id_apnum">Number</label>
                                 <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" value="{{ form.apnum.value|default:'' }}" readonly="readonly">
@@ -111,8 +130,8 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="form-group col-sm-2">
+                        <div class="row col-md-8 padding-left-0 padding-right-0">
+                            <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_creditterm">Credit Terms</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
                                     <option value="" data-days="0">-- Select --</option>
@@ -122,36 +141,23 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.creditterm.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_duedate">Due Date</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_duedate" name="duedate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.duedate.value %}{{ form.duedate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.duedate.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-6">
                                 <label class="control-label" for="id_vat" style="display: block;">VAT</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" style="width: 65%; display: inline-block;">
+                                <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" style="width: 70%; display: inline-block;">
                                     <option value="">-- Select --</option>
                                     {% for vat in vat %}
-                                        <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>{{ vat.code }}</option>
+                                        <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;{{ vat.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span id="vatrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
                                 <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-5 {{ form.atax.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_atax" style="display: block;">ATC</label>
-                                <select class="form-control input-sm" id="id_atax" name="atax" style="width: 80%; display: inline-block;">
-                                    <option value="">-- Select --</option>
-                                    {% for atc in atax %}
-                                        <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atax.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>
-                                    {% endfor %}
-                                </select>
-                                <span id="atcrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
-                                <span class="help-block form-error">{{ form.atax.errors.as_text }}</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group col-sm-2 {{ form.inputvattype.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-sm-3 {{ form.inputvattype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_inputvattype">Input VAT Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
                                     <option value="">-- Select --</option>
@@ -161,7 +167,7 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-2 {{ form.deferred.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-sm-3 {{ form.deferred.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_deferred">Deferred VAT</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_deferred" name="deferred">
                                     {% for id,name in form.fields.deferred.choices %}
@@ -170,7 +176,18 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.deferred.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-6 {{ form.atax.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_atax" style="display: block;">ATC</label>
+                                <select class="form-control input-sm" id="id_atax" name="atax" style="width: 70%; display: inline-block;">
+                                    <option value="">-- Select --</option>
+                                    {% for atc in atax %}
+                                        <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atax.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span id="atcrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
+                                <span class="help-block form-error">{{ form.atax.errors.as_text }}</span>
+                            </div>
+                            <div class="form-group col-sm-4" style="display: none;">
                                 <label class="control-label" for="id_currency">Currency</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
                                     <option value="">-- Select --</option>
@@ -180,7 +197,7 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-2">
+                            <div class="form-group col-sm-2" style="display: none;">
                                 <label class="control-label" for="id_apnum">FX Rate</label>
                                 <input type="text" class="form-control input-sm disabled-white text-right" id="id_fxrate" name="fxrate" value="1.00">
                             </div>
@@ -188,11 +205,44 @@
                                 <label class="control-label" for="id_apstatus">AP Status</label>
                                 <input type="text" class="form-control input-sm disabled-white" value="For Approval" disabled="disabled">
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group col-sm-12">
+                            <div class="form-group col-sm-9">
                                 <label class="control-label" for="id_particulars">Particulars</label>
                                 <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4 padding-right-0 padding-left-20">
+                            <div class="widgett widgett-article widgett-shadow">
+                                <div class="heading-top-index-2">
+                                    <table class="vattable" width="100%">
+                                        <tr>
+                                            <td><small>VATable&nbsp;Sale:</small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_vatable" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small>VAT-Exempt&nbsp;Sale:</small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_vatexempt" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Sale:</small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_vatzero" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Total&nbsp;Sale:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_totalsale" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><small><b>Total&nbsp;Payment:</b></small></td>
+                                            <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount amount_display" disabled="disabled" value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="font-style: 12px; text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note"></code></td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -420,6 +470,15 @@
                 computeItemTotal();
             });
 
+            $('#id_vat, #id_atax, #id_inputvattype').on('change', function(){
+                if($('#id_payee').val() != null && $('#id_vat').val() != '' && $('#id_inputvattype').val() != '' &&
+                        $('.detaildelete').length > 0 && $("#total_debitamount").text() != '0.00'){
+                    if(confirm("Upon changing VAT/ATAX/Input VAT Type, the accounting entries will also have to be modified. Would you like to update the accounting entries?")){
+                        autoEntry('manual');
+                    }
+                }
+            });
+
             <!-- Accounting Entry Start -->
             $("#manualbutton").unbind().click(function (){
                 $("#entryview").show();
@@ -465,25 +524,7 @@
                 }
                 else {
                     if(confirm("Are you sure you want to generate the remaining entries? The current CREDIT entries will be discarded.")){
-                        $.ajax({
-                            url: "{% url 'accountspayable:generatedefaultentries' %}",
-                            type: "post",
-                            data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                                   'secretkey': $('#secretkey').val(),
-                                   'vat': $('#id_vat').val(),
-                                   'supplier': $('#id_payee').val(),
-                                   'inputvattype': $('#id_inputvattype').val(),
-                                   'atc': $('#id_atax').val(),
-                                   'table': "apdetailtemp"},
-                            success: function(response){
-                                $("#datatable").html(response['datatable']);
-                                customAlert($('#autoentry-success'));
-                                $('.shade').fadeOut();
-                            }, error: function(response) {
-                                console.debug(response);
-                                $('.shade').fadeOut();
-                            }
-                        });
+                        autoEntry('manual');
                     }
                 }
             });
@@ -608,6 +649,41 @@
                             $("#datatable").html(response['datatable']);
                             customAlert($('#autoentry-success'));
                             $("#autobutton").hide();
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
+                else if(create_method == 'manual'){
+                    $.ajax({
+                        url: "{% url 'accountspayable:generatedefaultentries' %}",
+                        type: "post",
+                        data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                               'secretkey': $('#secretkey').val(),
+                               'vat': $('#id_vat').val(),
+                               'supplier': $('#id_payee').val(),
+                               'inputvattype': $('#id_inputvattype').val(),
+                               'atc': $('#id_atax').val(),
+                               'table': "apdetailtemp"},
+                        success: function(response){
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+                            $('#disp_vatable').val(response['vatablesale'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            $('#disp_vatexempt').val(response['vatexemptsale'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            $('#disp_vatzero').val(response['vatzeroratedsale'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            $('#disp_totalsale').val(response['totalsale'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            $('#disp_addvat').val(response['addvat'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            $('#disp_totalpay').val(response['totalpayment'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+
+                            if(parseFloat(response['wtaxamount']) > 0){
+                                $('#disp_note').text('Noted: ' + $('#id_atax option:selected').data('rate') + '% w/tax -------> ' + response['wtaxamount'].replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                            }
+                            else {
+                                $('#disp_note').text('');
+                            }
+
                             $('.shade').fadeOut();
                         }, error: function(response) {
                             console.debug(response);
