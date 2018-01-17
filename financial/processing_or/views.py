@@ -716,23 +716,24 @@ def exportsave(request):
                         debit = data2['debit'] if data2['debit'] is not None else 0.00
                         credit = data2['credit'] if data2['credit'] is not None else 0.00
 
-                        Ordetail.objects.create(
-                            item_counter=index + 1,
-                            or_num=data2['orno'],
-                            or_date=data2['ordate'],
-                            debitamount=debit,
-                            creditamount=credit,
-                            balancecode=data2['balancecode'],
-                            status='A',
-                            chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
-                            customer=get_object_or_None(Customer, code=data2['payeecode']),
-                            bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
-                            product=get_object_or_None(Product, code=data2['productcode']),
-                            enterby=request.user,
-                            modifyby=request.user,
-                            ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
-                            vat=get_object_or_None(Vat, code=data2['vatcode']),
-                        ).save()
+                        if (Vat.objects.filter(code=data2['vatcode']) and credit > 0) or not Vat.objects.filter(code=data2['vatcode']):
+                            Ordetail.objects.create(
+                                item_counter=index + 1,
+                                or_num=data2['orno'],
+                                or_date=data2['ordate'],
+                                debitamount=debit,
+                                creditamount=credit,
+                                balancecode=data2['balancecode'],
+                                status='A',
+                                chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
+                                customer=get_object_or_None(Customer, code=data2['payeecode']),
+                                bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
+                                product=get_object_or_None(Product, code=data2['productcode']),
+                                enterby=request.user,
+                                modifyby=request.user,
+                                ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
+                                vat=get_object_or_None(Vat, code=data2['vatcode']),
+                            ).save()
 
                     # set posting status to success for temp
                     temp_ormain.postingstatus = 'S'
