@@ -265,7 +265,8 @@ class UpdateView(UpdateView):
         context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
 
         #lookup
-        context['pk'] = 0
+        # context['pk'] = 0
+        context['pk'] = self.object.pk
         return context
 
     def form_valid(self, form):
