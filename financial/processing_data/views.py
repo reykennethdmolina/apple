@@ -46,13 +46,17 @@ def upload(request):
         if request.FILES['upload_file']:
 
             if request.FILES['upload_file']._size < float(upload_size)*1024*1024:
-                sequence = get_random_string(length=20)
+                # sequence = get_random_string(length=20)
+                sequence = datetime.now().isoformat().replace(':', '-')
                 datacount = 0
                 successcount = 0
                 failedcount = 0
                 successdata = []
                 faileddata = []
 
+                ########################### Agent #########################
+                ########################### Agent #########################
+                ########################### Agent #########################
                 if request.POST['upload_type'] == 'agent' and request.FILES['upload_file'].name.endswith('.dbf'):
                     upload_directory = 'processing_data/uploaded_files/agent/'
                     if storeupload(request.FILES['upload_file'], sequence, 'dbf', upload_directory):
@@ -113,6 +117,9 @@ def upload(request):
                         data = {
                             'result': 2
                         }
+                ####################### Client/Agency #####################
+                ####################### Client/Agency #####################
+                ####################### Client/Agency #####################
                 elif (request.POST['upload_type'] == 'agency' or request.POST['upload_type'] == 'client') \
                         and request.FILES['upload_file'].name.endswith('.txt'):
                     if request.POST['upload_type'] == 'agency':

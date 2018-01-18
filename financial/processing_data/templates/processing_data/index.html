@@ -9,76 +9,175 @@
             overflow: scroll;
             padding: 0px;
         }
+        #data_result{
+            display: none;
+        }
         .select2-results__options{
             font-size: 12px;
+        }
+        .price-list{
+            background-color: white;            
+        }
+        .price-list .price-price{
+            font-size: 14px !important;
+            text-align: left;
+            color: #76838f !important;
+        }
+        .price-title.bg-teal-a400:before {
+            background: #00bfa5;
+        }
+        .price-list .price-title{
+            padding-top: 5px;
+            letter-spacing: 1px;
+        }
+        .price-title:before {
+            position: relative;
+            display: block;
+            width: 14px;
+            height: 14px;
+            content: '';
+            top: 42px;
+            transform: rotate(45deg);
+            text-align: center;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .price-footer{
+            margin-top: 40px;
+        }
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
         }
 	</style>
 {% endblock extra_css %}
 {% block page-content %}
-<div class="panel">
-    <div class="shade"><div class="loader two-color"></div></div>
-	<div class="panel-body container-fluid">
-		<div class="row">					
-			<div class="col-md-12">
-				<div class="page-wrap">
-					<form method="post" id="data" enctype="multipart/form-data" style="height:10px">
-                        <div id="formupload">
-                            <div class="form-group col-sm-3 padding-left-0">
-                                <label class="control-label small">Data Type</label>
-                                <select name="upload_type" id="upload_type" class="form-control input-sm select2">
-                                    <option value="">-- Select --</option>
-                                    <optgroup label="Advertising">
-                                        <option value="agency">Agency</option>
-                                        <option value="client">Client</option>
-{#                                    <option value="adtype">Ad Type</option>#}
-                                    </optgroup>
-                                    <optgroup label="Circulation">
-                                        <option value="agent">Agent</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-7 padding-left-0">
-                                <label class="control-label small">Data File</label>
-                                <input type="file" id="upload_file" class="form-control input-sm" name="upload_file">
-                            </div>
-                            <div class="form-group col-sm-2 padding-right-0">
-                                <br>
-                                <button type="button" class="btn btn-sm btn-info pull-right upload_button" style="width:100px">UPLOAD</button>
+<div id="data_verify">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
+                        <div class="col-md-12">
+                            <div class="price-list margin-sm-0">
+                                <div class="price-header">
+                                    <div class="price-title bg-teal-a400">FILE UPLOAD</div>
+                                    <div class="price-price teal-a400" id="formupload">
+                                        <div class="form-group col-sm-4">
+                                            <label class="control-label small">Data Type</label>
+                                            <select name="upload_type" id="upload_type" class="form-control input-sm select2">
+                                                <option value="">-- Select --</option>
+                                                <optgroup label="Advertising">
+                                                    <option value="agency">Agency</option>
+                                                    <option value="client">Client</option>
+                                                </optgroup>
+                                                <optgroup label="Circulation">
+                                                    <option value="agent">Agent</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-sm-8">
+                                            <label class="control-label small">Data File</label>
+                                            <input type="file" id="upload_file" class="form-control input-sm" name="upload_file">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-footer">
+                                    <button type="button" id="upload_button" class="btn btn-info waves-effect waves-light">
+                                        <i class="icon fa-database font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        Verify and Import
+                                    </button>
+                                    <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="data_upload_loading">
+                                        <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        VERIFYING ...
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>
-				</div>   
-			</div>
-			<div class="col-md-12" id="table_container">
-				<div class="col-md-4">
-                    <table class="table table-condensed" id="success_table">
-                        <thead>
-                            <tr class="bg-light-green-500">
-                                <th style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></div></small></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
                 </div>
-                <div class="col-md-8">
-                    <table class="table table-condensed" id="failed_table">
-                        <thead>
-                            <tr class="bg-red-400">
-                                <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></div></small></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-			</div>
-            <div class="col-md-12">
-                <br>
-                <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
             </div>
             <div class="clearfix"></div>
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
+<br><br>
+<div id="data_result">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
+                        <div class="col-md-12">
+                            <div class="price-list margin-sm-0">
+                                <div class="price-header">
+                                    <div class="price-title bg-teal-a400">IMPORT SUMMARY</div>
+                                    <div class="price-price teal-a400" id="formupload">
+                                        <br>
+                                        <div class="col-md-12" id="table_container">
+                                            <div class="col-md-6">
+                                                <table class="table table-condensed" id="success_table">
+                                                    <thead>
+                                                        <tr class="bg-light-green-500">
+                                                            <th style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></div></small></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <table class="table table-condensed" id="failed_table">
+                                                    <thead>
+                                                        <tr class="bg-red-400">
+                                                            <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></div></small></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <br>
+                                            <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-footer">
+                                    <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
+                                        <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        Reload page and upload more
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br><br>
 <div id="upload-success" class="custom-alert success">Upload successful!</div>
 <div id="upload-error" class="custom-alert danger">File upload failed!</div>
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
@@ -89,16 +188,18 @@
 <script>
 	$(function(){
         $('.select2').select2({});
-		$(document).on('click', '.upload_button', function(e){
-            e.preventDefault();
-            $('.shade').fadeIn();
-            $("form#data").submit();
+		$(document).on('click', '#upload_button', function(e){
+            $('#upload_button').fadeOut(300);
+            $('#data_result').fadeOut(300);
+            $('#data_upload_loading').delay(300).fadeIn(300, function() {
+                $("form#data").submit();
+            });
         });
 
 		$("form#data").submit(function(){
 	        if ($('#upload_file').get(0).files.length === 0) {
 	            customAlert($('#upload-file-error'));
-                $('.shade').fadeOut();
+                showUploadForm();
 	        }
 	        else{
 	            var formData = new FormData(this);
@@ -111,6 +212,7 @@
 	                success: function (data) {
                         switch(data['result']) {
                             case 1:
+                                customAlert($('#upload-success'));
                                 $('#success_table tbody').html('');
                                 for (var i = 0; i < data['successcount']; i++) {
                                     $('#success_table tbody').append("<tr><td><small>" + data['successdata'][i] + "</small></td></tr>");
@@ -123,6 +225,11 @@
                                 $('#upload_total').text(data['datacount']);
                                 $('#upload_success').html(data['successcount'] + "&nbsp;&nbsp;");
                                 $('#upload_failed').html(data['failedcount'] + "&nbsp;&nbsp;");
+                                $('#data_result').fadeIn();
+
+                                $('#data_verify').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+                                $('#data_result').find('.price-title').removeClass('bg-grey-600').addClass('bg-teal-a400');
+                                $('html, body').delay(300).animate({scrollTop: $('#data_result').offset().top -80 }, 'slow');
                                 break;
                             case 2:
                                 customAlert($('#upload-error'));
@@ -141,11 +248,8 @@
                                 break;
                             default:
                         }
-                        $('.shade').fadeOut();
-	                }, error: function(response) {
-                        console.debug(response);
-                        $('.shade').fadeOut();
-                    },
+                        showUploadForm();
+	                },
 	                cache: false,
 	                contentType: false,
 	                processData: false
@@ -153,6 +257,11 @@
 	        }
 			return false;
 	    });
+
+        function showUploadForm(){
+            $('#data_upload_loading').fadeOut(300);
+            $('#upload_button').delay(300).fadeIn(300);
+        }
 	});
 </script>
 {% endblock extra_js %}
