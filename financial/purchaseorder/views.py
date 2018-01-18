@@ -808,7 +808,7 @@ def saveimporteddetailtemp(request):
                 detailtemp.invitem_name = prfitemdetails.invitem_name
                 detailtemp.invitem_unitofmeasure = prfitemdetails.invitem_unitofmeasure_code
                 detailtemp.quantity = prfitemdetails.quantity
-                if prfitemdetails.supplier:
+                if prfitemdetails.supplier and request.POST['id_supplier']:
                     if int(request.POST['id_supplier']) == int(prfitemdetails.supplier.id):
                         detailtemp.unitcost = prfitemdetails.negocost
                 detailtemp.status = 'A'
