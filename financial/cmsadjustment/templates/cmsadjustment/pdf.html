@@ -177,18 +177,21 @@
                 <tr>
                     <th><span>&nbsp;</span></th>
                     <th style="text-align: left;"><span>PRODUCT</span></th>
-                    <th style="text-align: right; width: 200px;"><span>AMOUNT</span></th>
+                    <th style="text-align: right; width: 200px;"><span>DEBIT</span></th>
+                    <th style="text-align: right; width: 200px;"><span>CREDIT</span></th>
                 </tr>
                 {% for item in items %}
                     <tr>
                         <td width="5%" style="margin-left: 5px;">{{ item.item_counter }}</td>
                         <td width="65%">[{{ item.product_code }}]&nbsp;&nbsp;{{ item.product_name }}</td>
-                        <td width="30%" style="text-align: right;">{{ item.amount|floatformat:2|intcomma }}</td>
+                        <td width="30%" style="text-align: right;">{% if item.debitamount > 0 %}{{ item.debitamount|floatformat:2|intcomma }}{% endif %}</td>
+                        <td width="30%" style="text-align: right;">{% if item.creditamount > 0 %}{{ item.creditamount|floatformat:2|intcomma }}{% endif %}</td>
                     </tr>
                 {% endfor %}
                 <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td colspan="2" style="text-align: right;"><b>TOTAL</b></td>
+                    <td colspan="2"><b>TOTAL:</b></td>
+                    <td style="text-align: right;"><b>{{ cmmain.amount|floatformat:2|intcomma }}</b></td>
                     <td style="text-align: right;"><b>{{ cmmain.amount|floatformat:2|intcomma }}</b></td>
                 </tr>
             </table>
