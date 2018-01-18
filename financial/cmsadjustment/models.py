@@ -69,7 +69,8 @@ class Cmitem(models.Model):
     product = models.ForeignKey('product.Product', related_name='cmitem_product_id')
     product_code = models.CharField(max_length=100)
     product_name = models.CharField(max_length=500)
-    amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    debitamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    creditamount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     remarks = models.CharField(max_length=500, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),

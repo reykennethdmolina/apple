@@ -79,11 +79,11 @@ class CreateView(CreateView):
         self.object.modifyby = self.request.user
         self.object.save()
 
-        totalamount = 0
+        totaldebitamount = 0
+        totalcreditamount = 0
         i = 0
 
         for data in self.request.POST.getlist('product[]'):
-            print 'hey: ' + str(data)
             cmitem = Cmitem()
             cmitem.cmmain = self.object
             cmitem.item_counter = i + 1
@@ -92,14 +92,19 @@ class CreateView(CreateView):
             cmitem.product = Product.objects.get(pk=int(data))
             cmitem.product_code = cmitem.product.code
             cmitem.product_name = cmitem.product.description
-            cmitem.amount = float(self.request.POST.getlist('amount[]')[i].replace(',', ''))
+            cmitem.debitamount = float(self.request.POST.getlist('debitamount[]')[i].replace(',', ''))
+            cmitem.creditamount = float(self.request.POST.getlist('creditamount[]')[i].replace(',', ''))
             cmitem.enterby = self.request.user
             cmitem.modifyby = self.request.user
             cmitem.save()
-            totalamount += cmitem.amount
+            totaldebitamount += cmitem.debitamount
+            totalcreditamount += cmitem.creditamount
             i += 1
 
-        self.object.amount = totalamount
+        if totaldebitamount == totalcreditamount:
+            self.object.amount = totaldebitamount
+        else:
+            print "--------------Debit and Credit amounts are not balanced!--------------------"
         self.object.save()
 
         return HttpResponseRedirect('/cmsadjustment/' + str(self.object.id) + '/update')
@@ -135,7 +140,8 @@ class UpdateView(UpdateView):
 
         Cmitem.objects.filter(isdeleted=0, status='A', cmmain=self.object.pk).delete()
 
-        totalamount = 0
+        totaldebitamount = 0
+        totalcreditamount = 0
         i = 0
 
         for data in self.request.POST.getlist('product[]'):
@@ -147,14 +153,19 @@ class UpdateView(UpdateView):
             cmitem.product = Product.objects.get(pk=int(data))
             cmitem.product_code = cmitem.product.code
             cmitem.product_name = cmitem.product.description
-            cmitem.amount = float(self.request.POST.getlist('amount[]')[i].replace(',', ''))
+            cmitem.debitamount = float(self.request.POST.getlist('debitamount[]')[i].replace(',', ''))
+            cmitem.creditamount = float(self.request.POST.getlist('creditamount[]')[i].replace(',', ''))
             cmitem.enterby = self.request.user
             cmitem.modifyby = self.request.user
             cmitem.save()
-            totalamount += cmitem.amount
+            totaldebitamount += cmitem.debitamount
+            totalcreditamount += cmitem.creditamount
             i += 1
 
-        self.object.amount = totalamount
+        if totaldebitamount == totalcreditamount:
+            self.object.amount = totaldebitamount
+        else:
+            print "--------------Debit and Credit amounts are not balanced!--------------------"
         self.object.save(update_fields=['amount'])
 
         return HttpResponseRedirect('/cmsadjustment/' + str(self.object.id) + '/update')

@@ -38,27 +38,8 @@
         <div class="row">
             <div class="margin-bottom-20">
                 <!-- Start Simple Form Validation -->
-                <h3 class="panel-title" style="padding:5px 10px 20px 25px;">Update
-                    <div class="btn-group pull-right">
-                        <div class="shade"><div class="loader loader-sm two-color"></div></div>
-                        <button class="btn btn-info small" data-toggle='modal' data-target='#searchModal'>
-                            <i class="icon fa-search" aria-hidden="true"></i> Search
-                        </button>
-                        <button id="nav_stepleft" class="btn btn-default nav_btn small">
-                            <i class="icon fa-step-backward" aria-hidden="true"></i>
-                        </button>
-                        <button id="nav_left" class="btn btn-default nav_btn small">
-                            <i class="icon fa-backward" aria-hidden="true"></i>
-                        </button>
-                        <button id="nav_right" class="btn btn-default nav_btn small">
-                            <i class="icon fa-forward" aria-hidden="true"></i>
-                        </button>
-                        <button id="nav_stepright" class="btn btn-default nav_btn small">
-                            <i class="icon icon fa-step-forward" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </h3>
-                <div style="padding-right: 10px; padding-bottom: 60px;">
+                <h3 class="panel-title" style="padding:5px 10px 0px 25px;">Update</h3>
+                <div style="padding-right: 50px; padding-bottom: 60px;">
                     {% if perms.cmsadjustment.delete_cmmain and object.cmstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'cmsadjustment:delete' object.id %}" class="floatright">
                         <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
@@ -83,11 +64,11 @@
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
                     <div class="col-sm-4">
-                        <div class="form-group col-sm-12 margin-bottom-15">
+                        <div class="form-group col-sm-6 margin-bottom-15">
                             <label class="control-label" for="id_cmnum">Number</label>
                             <input type="text" class="form-control input-sm" style="background: white;" value="{{ cmnum }}" placeholder="CMxxxxxxx" disabled="disabled">
                         </div>
-                        <div class="form-group col-sm-12 margin-bottom-10 {{ form.cmdate.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-6 margin-bottom-10 {{ form.cmdate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_cmdate">CM Date</label>
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_cmdate" name="cmdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.cmdate.value %}{{ form.cmdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.cmdate.errors.as_text }}</span>
@@ -97,10 +78,6 @@
                             <textarea id="id_particulars" data-validation="required" class="form-control input-sm" name="particulars" rows="3">{{ form.particulars.value|default:'' }}</textarea>
                             <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-12">
-                            <label class="control-label">Total Amount:</label>
-                            <label class="control-label pull-right" id="totalamount">{{ totalamount|floatformat:2|intcomma }}</label>
-                        </div>
                     </div>
                     <div class="col-sm-8">
                         <div class="col-sm-12 row">
@@ -109,8 +86,9 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 50px;"><span>#</span></th>
-                                            <th><span>PRODUCT</span></th>
-                                            <th style="text-align: right; width: 200px;"><span>AMOUNT</span></th>
+                                            <th><span>Product</span></th>
+                                            <th style="text-align: right; width: 150px;"><span>Debit</span></th>
+                                            <th style="text-align: right; width: 150px;"><span>Credit</span></th>
                                             <th style="width: 30px"><a href="#" style="font-size: 15px" id="item_add"><i class="icon fa-plus-square" aria-hidden="true"></i></a></th>
                                         </tr>
                                     </thead>
@@ -128,8 +106,12 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="amount[]" class="form-control input-sm amount po_dynamic text-right" value="{{ item.amount|floatformat:2|intcomma }}">
+                                                    <input type="text" name="debitamount[]" class="form-control input-sm debit amount po_dynamic text-right" value="{% if item.debitamount > 0 %}{{ item.debitamount|floatformat:2|intcomma }}{% endif %}">
                                                 </td>
+                                                <td>
+                                                    <input type="text" name="creditamount[]" class="form-control input-sm credit amount po_dynamic text-right" value="{% if item.creditamount > 0 %}{{ item.creditamount|floatformat:2|intcomma }}{% endif %}">
+                                                </td>
+                                                <td><a href='#' style='font-size: 13px' class='item_delete'><i class='icon fa-trash' aria-hidden='true'></i></a></td>
                                             </tr>
                                         {% endfor %}
                                         <tr>
@@ -142,14 +124,16 @@
                                                     {% endfor %}
                                                 </select>
                                             </td>
-                                            <td><input type="text" name="amount[]" class="form-control input-sm amount po_dynamic text-right"></td>
-                                            <td></td>
+                                            <td><input type="text" name="debitamount[]" class="form-control input-sm debit amount po_dynamic text-right"></td>
+                                            <td><input type="text" name="creditamount[]" class="form-control input-sm credit amount po_dynamic text-right"></td>
+                                            <td><a href='#' style='font-size: 13px' class='item_delete'><i class='icon fa-trash' aria-hidden='true'></i></a></td>
                                         </tr>
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="2"><b>TOTAL</b></td>
-                                            <td id="totaldetailsamount" class="text-right padding-right-20"><b>{{ totalamount|floatformat:2|intcomma }}</b></td>
+                                            <td id="totaldetailsdebitamount" class="text-right padding-right-20"><b>{{ totalamount|floatformat:2|intcomma }}</b></td>
+                                            <td id="totaldetailscreditamount" class="text-right padding-right-20"><b>{{ totalamount|floatformat:2|intcomma }}</b></td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -157,7 +141,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group col-sm-12 padding-top-15 padding-bottom-15">
+                    <div class="form-group col-sm-12 padding-left-40 padding-bottom-15">
                         <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                     </div>
                 </form>
@@ -184,6 +168,9 @@
     </div>
 </div>
 <div id="item-save-warning" class="custom-alert danger">Please complete details of added items first.</div>
+<div id="item-save-warning2" class="custom-alert danger">Only one amount (debit OR credit) may be entered.</div>
+<div id="item-save-warning3" class="custom-alert danger">Please select another product.</div>
+<div id="item-save-warning4" class="custom-alert danger">The DEBIT and CREDIT amounts must be equal.</div>
 {#{% include "cmsadjustment/search.html" %}#}
 {% endblock page-content %}
 {% block extra_js %}
@@ -198,7 +185,6 @@
     $(function(){
         $('.select2').select2();
 
-{#        start#}
         //product list
         product_list = "<select name='product[]' class='form-control input-sm select2 product'>";
         product_list += "<option value=''>-- Select --</option>";
@@ -210,8 +196,15 @@
         $('#item_add').on('click', function(){
             var valid = true;
             $('.product').each(function(){
-                if($(this).val() == '' || $(this).parent().parent().find('.amount').val() == '' || $(this).parent().parent().find('.amount').val() == '0.00'){
+                if($(this).val() == '' || (($(this).parent().parent().find('.debit').val() == '' || $(this).parent().parent().find('.debit').val() == '0.00') && ($(this).parent().parent().find('.credit').val() == '' || $(this).parent().parent().find('.credit').val() == '0.00'))){
                     customAlert($('#item-save-warning'));
+                    valid = false;
+                }
+                if((($(this).parent().parent().find('.debit').val() != '') && ($(this).parent().parent().find('.debit').val() != '0.00')) &&
+                        (($(this).parent().parent().find('.credit').val() != '') && ($(this).parent().parent().find('.credit').val() != '0.00'))){
+                    customAlert($('#item-save-warning2'));
+                    $(this).parent().parent().find('.debit').val('');
+                    $(this).parent().parent().find('.credit').val('');
                     valid = false;
                 }
             });
@@ -219,7 +212,8 @@
                 $('#detailstable > tbody').append("<tr>" +
                         "<td></td>" +
                         "<td>"+product_list+"</td>" +
-                        "<td><input type='text' name='amount[]' class='form-control po_dynamic input-sm amount text-right'></td>" +
+                        "<td><input type='text' name='debitamount[]' class='form-control po_dynamic input-sm debit amount text-right'></td>" +
+                        "<td><input type='text' name='creditamount[]' class='form-control po_dynamic input-sm credit amount text-right'></td>" +
                         "<td><a href='#' style='font-size: 13px' class='item_delete'><i class='icon fa-trash' aria-hidden='true'></i></a></td>" +
                         "</tr>");
                 $('.select2').select2();
@@ -235,21 +229,72 @@
             computeTotalAmount();
         });
 
+        $(document).on('change', '.product', function(){
+            var selectIndex = $(this).index('.product');
+            var selectedProduct = $(this).val();
+            $('.product').each(function(){
+                if($(this).index('.product') != selectIndex){
+                    if(selectedProduct == $(this).val()){
+                        customAlert($('#item-save-warning3'));
+                        selectedProduct = null;
+                    }
+                }
+            });
+            $(this).val(selectedProduct);
+            $(this).select2();
+        });
+
         $(document).on('change', '.amount', function(){
+            var valid = true;
+            $('.product').each(function(){
+                if($(this).val() == '' || (($(this).parent().parent().find('.debit').val() == '' || $(this).parent().parent().find('.debit').val() == '0.00') && ($(this).parent().parent().find('.credit').val() == '' || $(this).parent().parent().find('.credit').val() == '0.00'))){
+                    customAlert($('#item-save-warning'));
+                    valid = false;
+                }
+                if((($(this).parent().parent().find('.debit').val() != '') && ($(this).parent().parent().find('.debit').val() != '0.00')) &&
+                        (($(this).parent().parent().find('.credit').val() != '') && ($(this).parent().parent().find('.credit').val() != '0.00'))){
+                    customAlert($('#item-save-warning2'));
+                    $(this).parent().parent().find('.debit').val('');
+                    $(this).parent().parent().find('.credit').val('');
+                    valid = false;
+                }
+            });
             computeTotalAmount();
         });
 
         $("#validateButton").on('click', function() {
             var valid = true;
+            var totaldebitamount = $('#totaldetailsdebitamount').text();
+            var totalcreditamount = $('#totaldetailscreditamount').text();
             $('.product').each(function(){
-                if($(this).val() == '' || $(this).parent().parent().find('.amount').val() == '' || $(this).parent().parent().find('.amount').val() == '0.00'){
+                if($(this).val() == '' || (($(this).parent().parent().find('.debit').val() == '' || $(this).parent().parent().find('.debit').val() == '0.00') && ($(this).parent().parent().find('.credit').val() == '' || $(this).parent().parent().find('.credit').val() == '0.00'))){
                     customAlert($('#item-save-warning'));
                     valid = false;
                 }
+                if((($(this).parent().parent().find('.debit').val() != '') && ($(this).parent().parent().find('.debit').val() != '0.00')) &&
+                        (($(this).parent().parent().find('.credit').val() != '') && ($(this).parent().parent().find('.credit').val() != '0.00'))){
+                    customAlert($('#item-save-warning2'));
+                    $(this).parent().parent().find('.debit').val('');
+                    $(this).parent().parent().find('.credit').val('');
+                    valid = false;
+                }
             });
+            if($('#totaldetailsdebitamount').find('b').remove().text() != $('#totaldetailscreditamount').find('b').remove().text()){
+                customAlert($('#item-save-warning4'));
+                valid = false;
+            }
             if(!valid){
                 event.preventDefault();
             }
+            else {
+                $('.amount').each(function(){
+                    if($(this).val() == '' || $(this).val() == null){
+                        $(this).val('0.00');
+                    }
+                });
+            }
+            $('#totaldetailsdebitamount').html('<b>' + totaldebitamount + '</b>');
+            $('#totaldetailscreditamount').html('<b>' + totalcreditamount + '</b>');
         });
 
         function itemRecount(){
@@ -261,14 +306,17 @@
         }
 
         function computeTotalAmount(){
-            var total = 0.00;
-            $.each($('.amount'), function(){
-                total += parseFloat($(this).val() != '' ? $(this).val().replace(/,/g, '') : '0');
+            var debittotal = 0.00;
+            var credittotal = 0.00;
+            $.each($('.debit'), function(){
+                debittotal += parseFloat($(this).val() != '' ? $(this).val().replace(/,/g, '') : '0');
             });
-            $('#totaldetailsamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
-            $('#totalamount').html('<b>' + total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
+            $('#totaldetailsdebitamount').html('<b>' + debittotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
+            $.each($('.credit'), function(){
+                credittotal += parseFloat($(this).val() != '' ? $(this).val().replace(/,/g, '') : '0');
+            });
+            $('#totaldetailscreditamount').html('<b>' + credittotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</b>');
         }
-{#        end#}
     });
     </script>
 {% endblock extra_js %}
