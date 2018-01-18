@@ -208,6 +208,7 @@
 </div>
 <br><br>
 <div id="upload-success" class="custom-alert success">Upload successful!</div>
+<div id="upload-success-2" class="custom-alert success">Importing successful!</div>
 <div id="upload-error" class="custom-alert danger">File upload failed!</div>
 <div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
 <div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
@@ -216,15 +217,6 @@
 {% block extra_js %}
 <script>
     $(function(){
-{#        $('#or_artype').on('change', function(){#}
-{#            if($(this).val() == 'a'){#}
-{#                $('#or_d_file_container').show();#}
-{#            }#}
-{#            else{#}
-{#                $('#or_d_file_container').hide();#}
-{#            }#}
-{#        });#}
-
         $(document).on('click', '#or_upload', function(e){
             $('#or_upload').fadeOut(300);
             $('#or_export').fadeOut(300);
@@ -236,9 +228,6 @@
         });
 
         $("form#data").submit(function(){
-{#            if (($('#or_artype').val() == 'a' && ($('#or_file').get(0).files.length === 0 || $('#or_d_file').get(0).files.length === 0))#}
-{#                || ($('#or_artype').val() == 'c' && $('#or_file').get(0).files.length === 0)#}
-{#                || ($('#or_artype').val() != 'a' && $('#or_artype').val() != 'c')) {#}
             if ($('#or_file').get(0).files.length === 0
                     || $('#or_d_file').get(0).files.length === 0
                     || ($('#or_artype').val() != 'a' && $('#or_artype').val() != 'c')) {
@@ -347,6 +336,7 @@
                 success: function(data){
                     switch(data['result']) {
                         case 1:
+                            customAlert($('#upload-success-2'));
                             $('#or_step_final').fadeIn(300);
                             $('#or_export_loading').fadeOut(300);
                             $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
