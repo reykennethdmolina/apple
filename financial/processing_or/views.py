@@ -30,10 +30,11 @@ from acctentry.views import generatekey
 from dbfread import DBF
 from django.utils.crypto import get_random_string
 from django.db.models import Q
+from django.conf import settings
 
 
-upload_directory = 'processing_or/uploaded_files/ormain/'
-upload_d_directory = 'processing_or/uploaded_files/ordetail/'
+upload_directory = 'processing_or/imported_main/'
+upload_d_directory = 'processing_or/imported_detail/'
 upload_size = 3
 
 
@@ -49,7 +50,7 @@ class IndexView(TemplateView):
 
 @csrf_exempt
 def fileupload(request):
-    if request.method == 'POST':
+    if request.method == 'POST':        
 
         # data-result definition:
         #   1: success
@@ -74,7 +75,7 @@ def fileupload(request):
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt', upload_d_directory):    # 2
                         orcount = 0
 
-                        with open(upload_directory + str(sequence) + ".txt") as textFile:
+                        with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
                                 orcount += 1
                                 data = line.split("\t")
@@ -168,7 +169,7 @@ def fileupload(request):
 
                             # inspect/insert detail
                             if breakstatus == 0:
-                                with open(upload_d_directory + str(sequence) + ".txt") as textFile2:
+                                with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt") as textFile2:
                                     for line in textFile2:
                                         data = line.split("\t")
                                         for n, i in enumerate(data):
@@ -287,7 +288,7 @@ def fileupload(request):
                             and storeupload(request.FILES['or_d_file'], sequence, 'dbf', upload_d_directory):
                         orcount = 0
 
-                        for data in DBF(upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                        for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
                             orcount += 1
 
                             if len(data) == 21:
@@ -353,7 +354,7 @@ def fileupload(request):
 
                         # inspect/insert detail
                         if breakstatus == 0:
-                            for data in DBF(upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                            for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
                                 if len(data) == 17:
                                     if Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, accounttype='C'):
                                         if not Productgroup.objects.filter(code=data['PRODUCT']):

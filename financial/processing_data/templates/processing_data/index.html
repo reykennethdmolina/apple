@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
 	<style>
 		#table_container > div{
-            height: 150px;
+            height: 250px;
             overflow: scroll;
             padding: 0px;
         }
@@ -127,50 +127,48 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="page-wrap">
-                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
-                        <div class="col-md-12">
-                            <div class="price-list margin-sm-0">
-                                <div class="price-header">
-                                    <div class="price-title bg-teal-a400">IMPORT SUMMARY</div>
-                                    <div class="price-price teal-a400" id="formupload">
-                                        <br>
-                                        <div class="col-md-12" id="table_container">
-                                            <div class="col-md-6">
-                                                <table class="table table-condensed" id="success_table">
-                                                    <thead>
-                                                        <tr class="bg-light-green-500">
-                                                            <th style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></div></small></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <table class="table table-condensed" id="failed_table">
-                                                    <thead>
-                                                        <tr class="bg-red-400">
-                                                            <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></div></small></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
+                    <div class="col-md-12">
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">IMPORT SUMMARY</div>
+                                <div class="price-price teal-a400" id="formupload">
+                                    <br>
+                                    <div class="col-md-12" id="table_container">
+                                        <div class="col-md-6">
+                                            <table class="table table-condensed" id="success_table">
+                                                <thead>
+                                                    <tr class="bg-light-green-500">
+                                                        <th style="color:white"><small><b>Passed</b><div class="pull-right" id="upload_success"></div></small></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
                                         </div>
-                                        <div class="col-md-12">
-                                            <br>
-                                            <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
+                                        <div class="col-md-6">
+                                            <table class="table table-condensed" id="failed_table">
+                                                <thead>
+                                                    <tr class="bg-red-400">
+                                                        <th colspan="2" style="color:white"><small><b>Failed</b><div class="pull-right" id="upload_failed"></div></small></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="price-footer">
-                                    <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
-                                        <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
-                                        Reload page and upload more
-                                    </button>
+                                    <div class="col-md-12">
+                                        <br>
+                                        <i class="small">** Total of <b id="upload_total"></b> items processed. **</i>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="price-footer">
+                                <button type="button" class="btn btn-info waves-effect waves-light" onClick="window.location.reload();return false;">
+                                    <i class="icon fa-refresh font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    Reload page and upload more
+                                </button>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -192,7 +190,7 @@
             $('#upload_button').fadeOut(300);
             $('#data_result').fadeOut(300);
             $('#data_upload_loading').delay(300).fadeIn(300, function() {
-                $("form#data").submit();
+                $("form#data").submit();                
             });
         });
 
@@ -203,7 +201,6 @@
 	        }
 	        else{
 	            var formData = new FormData(this);
-
 	            $.ajax({
 	                url: "{% url 'processing_data:upload' %}",
 	                type: 'POST',

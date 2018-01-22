@@ -10,7 +10,7 @@ from django.utils.crypto import get_random_string
 from utils.views import wccount, storeupload
 import decimal
 from dbfread import DBF
-
+from django.conf import settings
 from agent.models import Agent
 from agenttype.models import Agenttype
 from customer.models import Customer
@@ -18,7 +18,7 @@ from customertype.models import Customertype
 from industry.models import Industry
 
 
-upload_directory = 'processing_data/uploaded_files/'
+upload_directory = 'processing_data/'
 upload_size = 3
 
 
@@ -43,25 +43,23 @@ def upload(request):
         #   4: failed - file size too large (> 3mb)
         #   5: failed - file array columns does not match requirement
 
-        if request.FILES['upload_file']:
-
+        if request.FILES.get('upload_file', False):
             if request.FILES['upload_file']._size < float(upload_size)*1024*1024:
-                # sequence = get_random_string(length=20)
                 sequence = datetime.now().isoformat().replace(':', '-')
                 datacount = 0
                 successcount = 0
                 failedcount = 0
                 successdata = []
                 faileddata = []
+                upload_directory = 'processing_data/'
 
                 ########################### Agent #########################
                 ########################### Agent #########################
                 ########################### Agent #########################
                 if request.POST['upload_type'] == 'agent' and request.FILES['upload_file'].name.endswith('.dbf'):
-                    upload_directory = 'processing_data/uploaded_files/agent/'
-                    if storeupload(request.FILES['upload_file'], sequence, 'dbf', upload_directory):
+                    if storeupload(request.FILES['upload_file'], sequence, 'dbf', upload_directory + 'imported_agent/'):
                         breakstatus = 1
-                        for data in DBF(upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                        for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + 'imported_agent/' + str(sequence) + '.dbf', char_decode_errors='ignore'):
                             datacount += 1
                             saveproceed = 1
 
@@ -123,14 +121,14 @@ def upload(request):
                 elif (request.POST['upload_type'] == 'agency' or request.POST['upload_type'] == 'client') \
                         and request.FILES['upload_file'].name.endswith('.txt'):
                     if request.POST['upload_type'] == 'agency':
-                        upload_directory = 'processing_data/uploaded_files/agency/'
+                        upload_directory = upload_directory + 'imported_agency/'
                     else:
-                        upload_directory = 'processing_data/uploaded_files/client/'
+                        upload_directory = upload_directory + 'imported_client/'
 
                     if storeupload(request.FILES['upload_file'], sequence, 'txt', upload_directory):
                         breakstatus = 1
 
-                        with open(upload_directory + str(sequence) + ".txt") as textFile:
+                        with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
                                 datacount += 1
                                 data = line.split("\t")

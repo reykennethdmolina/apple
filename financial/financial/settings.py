@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     'locationcategory',
     'productgroupcategory',
     'circulationpaytype',
+    'filemanagement',
 ]
 
 MIDDLEWARE_CLASSES = [

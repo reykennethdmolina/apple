@@ -136,6 +136,7 @@ urlpatterns = [
     url(r'^locationcategory/', include('locationcategory.urls', app_name='locationcategory', namespace='locationcategory')),
     url(r'^productgroupcategory/', include('productgroupcategory.urls', app_name='productgroupcategory', namespace='productgroupcategory')),
     url(r'^circulationpaytype/', include('circulationpaytype.urls', app_name='circulationpaytype', namespace='circulationpaytype')),
+    url(r'^filemanagement/', include('filemanagement.urls', app_name='filemanagement', namespace='filemanagement')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

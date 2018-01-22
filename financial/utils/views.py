@@ -503,7 +503,23 @@ def wccount(filename):
 
 # upload file
 def storeupload(file, file_name, file_extension, upload_directory):
-    with open(upload_directory + str(file_name) + '.' + str(file_extension), 'wb+') as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)       
+    from django.core.files.storage import FileSystemStorage
+    fs = FileSystemStorage()
+    filename = fs.save(upload_directory+file_name+'.'+file_extension, file)
+    fs.url(filename)
+
+    # with open(upload_directory + str(file_name) + '.' + str(file_extension), 'wb+') as destination:
+    #     for chunk in file.chunks():
+    #         destination.write(chunk)       
     return True
+
+
+# round bytes
+def roundBytes(size, unit):
+    roundoff = 2
+    if unit.lower() == 'mb':
+        return round(float(size)/1000024, roundoff)
+    elif unit.lower() == 'kb':
+        return round(float(size)/1024, roundoff)
+    else:
+        return size

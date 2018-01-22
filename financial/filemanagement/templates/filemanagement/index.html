@@ -1,0 +1,186 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% block page-title %} File Management {% endblock page-title %}
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'financial-layout/assets/css/c3-chart/c3.min.css' %}" />
+    {% load static %}
+    <style>
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        .progress{
+        	margin-bottom: 5px;
+        }
+        .icon-trash{
+        	position: absolute;
+		    right: 0;
+		    margin-right: 35px;
+		    margin-top: -20px;
+        }
+        #icon-trash{
+        	position: absolute;
+		    right: 0;
+        	margin-right: 15px;
+		    margin-top: 30px;
+		    font-size: 15px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+    <div class="row">
+    	<div class="col-md-7">
+    		<br>
+        	<div class="col-md-6">
+				<div class="static-box">
+					<div class="row">
+						<a href="truncatedir/imported_or" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
+						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
+							<i class="icon fa-newspaper-o font-25"></i>
+							<h4>O.R.</h4>
+						</div>
+						<div class="col-md-7 col-sm-7 col-xs-7">
+							<h3 class="text-right text-primary">{{ f_or }}<small> MB</small></h3>
+						</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 padding-top-10">
+							<div class="progress progres-sm">
+								<div class="progress-bar progress-bar-primary" role="progressbar" style="width:{{ fp_or }}%;"></div>
+							</div>
+							<div style="text-align:center"><small>{{ fp_or|default:"0" }} %</small></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="static-box">
+					<div class="row">
+						<a href="truncatedir/imported_agent" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
+						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
+							<i class="icon fa-user-secret font-25"></i>
+							<h4>Agent</h4>
+						</div>
+						<div class="col-md-7 col-sm-7 col-xs-7">
+							<h3 class="text-right text-primary">{{ f_agent }}<small> MB</small></h3>
+						</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 padding-top-10">
+							<div class="progress progres-sm">
+								<div class="progress-bar progress-bar-primary" role="progressbar" style="width:{{ fp_agent }}%;"></div>
+							</div>
+							<div style="text-align:center"><small>{{ fp_agent|default:"0" }} %</small></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="static-box">
+					<div class="row">
+						<a href="truncatedir/imported_agency" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
+						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
+							<i class="icon fa-group font-25"></i>
+							<h4>Agency</h4>
+						</div>
+						<div class="col-md-7 col-sm-7 col-xs-7">
+							<h3 class="text-right text-primary">{{ f_agency }}<small> MB</small></h3>
+						</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 padding-top-10">
+							<div class="progress progres-sm">
+								<div class="progress-bar progress-bar-primary" role="progressbar" style="width:{{ fp_agency }}%;"></div>
+							</div>
+							<div style="text-align:center"><small>{{ fp_agency|default:"0" }} %</small></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="static-box">
+					<div class="row">
+						<a href="truncatedir/imported_client" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
+						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
+							<i class="icon fa-user font-25"></i>
+							<h4>Client</h4>
+						</div>
+						<div class="col-md-7 col-sm-7 col-xs-7">
+							<h3 class="text-right text-primary">{{ f_client }}<small> MB</small></h3>
+						</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 padding-top-10">
+							<div class="progress progres-sm">
+								<div class="progress-bar progress-bar-primary" role="progressbar" style="width:{{ fp_client }}%;"></div>
+							</div>
+							<div style="text-align:center"><small>{{ fp_client|default:"0" }} %</small></div>
+						</div>
+					</div>
+				</div>
+			</div>
+        </div>
+        <div class="col-md-5">
+	        <div id="chart"></div><br>
+	        <a href="truncatedir/all" onclick="return confirm('Are you sure?')" id="icon-trash" class="text-danger pull-right"><i class="icon fa-trash"></i> Clear all files</a>
+	        <h5>Total space consumed:</h5><h3 style="margin-top:0px" class="text-primary">{{ f_total }}<small> MB</small></h3>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<br><br>
+<div id="status-success" class="custom-alert success">Folder contents successfully cleared.</div>
+<div id="status-failed" class="custom-alert danger">Folder error!</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/js/c3-chart/c3.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/js/c3-chart/d3.min.js' %}"></script>
+<script>
+    $(function(){
+        var chart = c3.generate({
+		    data: {
+		        columns: [
+		            ['O.R', {{ fp_or }}],
+		            ['Agent', {{ fp_agent }}],
+		            ['Agency', {{ fp_agency }}],
+		            ['Client', {{ fp_client }}],
+		        ],
+		        type : 'pie',
+		        // onclick: function (d, i) { console.log("onclick", d, i); },
+		        // onmouseover: function (d, i) { console.log("onmouseover", d, i); },
+		        // onmouseout: function (d, i) { console.log("onmouseout", d, i); }
+		    }
+		});
+
+		$.urlParam = function(name){
+		    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+		    if (results==null){
+		       return null;
+		    }
+		    else{
+		       return decodeURI(results[1]) || 0;
+		    }
+		}
+
+		if($.urlParam('status') == 'success'){
+    		customAlert($('#status-success'));
+    	}
+    	else if($.urlParam('status') == 'failed'){
+    		customAlert($('#status-failed'));
+    	}
+    });
+</script>
+{% endblock extra_js %}
