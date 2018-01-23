@@ -103,7 +103,8 @@
                     <div class="col-sm-12">
                         <div class="form-group col-sm-2">
                             <label class="control-label" for="id_ornum">Number</label>
-                            <input type="text" class="form-control input-sm" style="background: white;" disabled="disabled" value="{{ ornum }}">
+                            <input type="text" class="form-control input-sm" style="background: white;" id="id_ornum" name="ornum" data-validation="required" value="{{ ornum }}">
+                            <span class="help-block form-error">{{ form.ornum.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.ordate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_ordate">OR Date</label>
@@ -129,12 +130,12 @@
                         </div>
                         <div class="form-group col-sm-2 {{ form.prnum.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prnum">PR #</label>
-                            <input type="text" class="form-control input-sm" id="id_prnum" name="prnum" placeholder="PR #" value="{{ form.prnum.value|default:'' }}" disabled="disabled" style="background: white;">
+                            <input type="text" class="form-control input-sm" id="id_prnum" name="prnum" placeholder="PR #" value="{{ form.prnum.value|default:'' }}" style="background: white;">
                             <span class="help-block form-error">{{ form.prnum.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-2 {{ form.prdate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prdate">PR Date</label>
-                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_prdate" disabled="disabled" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                            <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_prdate" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.ortype.errors.as_text }}</span>
                         </div>
                         <div class="col-md-12"><hr></div>
@@ -142,7 +143,7 @@
 
                         <div class="form-group col-sm-4 {{ form.collector.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_collector">Collector</label>
-                            <select class="form-control input-sm select2" id="id_collector" name="collector">
+                            <select class="form-control input-sm select2" id="id_collector" name="collector" data-validation="required">
                                 <option value="">-- Select --</option>
                                 {% for data in collector %}
                                     <option value="{{ data.id }}" {% if form.collector.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.name }}</option>
@@ -171,6 +172,7 @@
                             </select>
                             <span class="help-block form-error">{{ form.payee_type.errors.as_text }}</span>
                         </div>
+                        <!------------REQUIRE THE VISIBLE PAYEE TYPE--------------------------------------------->
                         <div class="form-group col-sm-4 payee_options class-adv" id="payee_options_agency">
                             <label class="control-label" for="id_agency">Agency</label>
                             <select class="form-control input-sm" id="id_agency" name="agency" style="width: 100%">
@@ -198,13 +200,14 @@
                             </select>
                             <span class="help-block form-error">{{ form.agent.errors.as_text }}</span>
                         </div>
+                        <!------------REQUIRE THE VISIBLE PAYEE TYPE--------------------------------------------->
                         <div class="col-md-12"><hr></div>
                         <!--------------------------------------------------------------------------------------------->
                     </div>
                     <div class="col-md-8">
                         <div class="form-group col-sm-3 {{ form.amount.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_amount">Amount</label>
-                            <input type="text" class="form-control input-sm amount" id="id_amount" style="text-align: right;" value="{{ form.amount.value|default:'' }}" name="amount">
+                            <input type="text" class="form-control input-sm amount" id="id_amount" style="text-align: right;" data-validation="required" value="{{ form.amount.value|default:'' }}" name="amount">
                             <span class="help-block form-error">{{ form.amount.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-9">
@@ -233,6 +236,7 @@
                             </select>
                             <span class="help-block form-error">{{ form.outputvattype.errors.as_text }}</span>
                         </div>
+                        <div class="col-md-12"></div>
                         <div class="form-group col-sm-4 {{ form.wtax.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_wtax">WTAX</label>
                             <select class="form-control input-sm" id="id_wtax" name="wtax" data-wtaxrate="RATE: {{ form.wtaxrate.value|floatformat:2 }}%">
@@ -294,7 +298,7 @@
                     <div class="col-md-12">
                         <div class="form-group col-sm-4 {{ form.product.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_product">Product</label>
-                            <select id="id_product" class="form-control input-sm select2" name="product">
+                            <select id="id_product" class="form-control input-sm select2" data-validation="required" name="product">
                                 <option value="">-- Select --</option>
                                 {% for data in product %}
                                     <option value="{{ data.id }}" {% if form.product.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
@@ -304,7 +308,7 @@
                         </div>
                         <div class="form-group col-sm-5">
                             <label class="control-label" for="id_bankaccount">Bank Account</label>
-                            <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
+                            <select id="id_bankaccount" class="form-control input-sm select2" data-validation="required" name="bankaccount">
                                 <option value="">-- Select --</option>
                                 {% for data in bankaccount %}
                                     <option value="{{ data.id }}" {% if form.bankaccount.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} [{{ data.bank.description }} - {{ data.bankaccounttype.description }}, {{ data.bankbranch.description }}] {{ data.accountnumber }}</option>
@@ -323,7 +327,7 @@
                         </div>
                         <div class="form-group col-sm-6 {{ form.particulars.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_particulars">Particulars</label>
-                            <textarea id="id_particulars" class="form-control input-sm" name="particulars" rows="2">{{ form.particulars.value|default:'' }}</textarea>
+                            <textarea id="id_particulars" class="form-control input-sm" data-validation="required" name="particulars" rows="2">{{ form.particulars.value|default:'' }}</textarea>
                             <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
                         </div>
 
@@ -491,6 +495,29 @@
         });
 
         $("#validateButton").on('click', function() {
+            if($('#id_orsource').val() == 'A'){
+                if($('#id_payee_adv').val() == 'AG' && $('#id_agency').val() === null){
+                    $('#payee_options_agency').find('.form-error').text('This Field is required');
+                    event.preventDefault();
+                }
+                else if($('#id_payee_adv').val() == 'C' && $('#id_client').val() === null){
+                    $('#payee_options_client').find('.form-error').text('This Field is required');
+                    event.preventDefault();
+                }
+                else{
+                    $('#payee_options_agency').find('.form-error').text('');
+                    $('#payee_options_client').find('.form-error').text('');
+                }
+            }
+            else if($('#id_orsource').val() == 'C'){
+                if($('#id_payee_cir').val() == 'A' && $('#id_agent').val() === null){
+                    $('#payee_options_agent').find('.form-error').text('This Field is required');
+                    event.preventDefault();
+                }
+                else{
+                    $('#payee_options_agent').find('.form-error').text('');
+                }
+            }
             var total_creditamount = $("#total_creditamount").text().replace(',', '');
             var total_debitamount = $("#total_debitamount").text().replace(',', '');
             var total_itemamount = $("#id_amount").val().replace(',', '');

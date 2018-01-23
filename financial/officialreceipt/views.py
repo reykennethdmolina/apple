@@ -111,7 +111,7 @@ class CreateView(CreateView):
     template_name = 'officialreceipt/create.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
               'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
-              'remarks']
+              'remarks', 'prnum', 'prdate', 'ornum']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.add_ormain'):
@@ -144,25 +144,26 @@ class CreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        year = str(form.cleaned_data['ordate'].year)
-        yearqs = Ormain.objects.filter(ornum__startswith=year)
+        # year = str(form.cleaned_data['ordate'].year)
+        # yearqs = Ormain.objects.filter(ornum__startswith=year)
+        #
+        # if yearqs:
+        #     ornumlast = yearqs.latest('ornum')
+        #     latestornum = str(ornumlast)
+        #     print "latest: " + latestornum
+        #
+        #     ornum = year
+        #     last = str(int(latestornum[4:]) + 1)
+        #     zero_addon = 6 - len(last)
+        #     for num in range(0, zero_addon):
+        #         ornum += '0'
+        #     ornum += last
+        # else:
+        #     ornum = year + '000001'
+        #
+        # print 'ornum: ' + ornum
+        # self.object.ornum = ornum
 
-        if yearqs:
-            ornumlast = yearqs.latest('ornum')
-            latestornum = str(ornumlast)
-            print "latest: " + latestornum
-
-            ornum = year
-            last = str(int(latestornum[4:]) + 1)
-            zero_addon = 6 - len(last)
-            for num in range(0, zero_addon):
-                ornum += '0'
-            ornum += last
-        else:
-            ornum = year + '000001'
-
-        print 'ornum: ' + ornum
-        self.object.ornum = ornum
         if self.object.orsource == 'A':
             self.object.payee_type = self.request.POST['payee_adv']
         elif self.object.orsource == 'C':
@@ -243,7 +244,7 @@ class UpdateView(UpdateView):
     template_name = 'officialreceipt/update.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
               'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
-              'remarks', 'vatrate', 'wtaxrate', 'payee_type', 'orsource']
+              'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate', 'ornum']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.change_ormain'):
