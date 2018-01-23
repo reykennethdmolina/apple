@@ -20,18 +20,27 @@ class Dcmain(models.Model):
         ('C', 'Credit Memo'),
     )
     dctype = models.CharField(max_length=1, choices=DC_TYPE_CHOICES)
-    dcartype = models.ForeignKey('dcartype.Dcartype', related_name='dcmain_dcartype_id', null=True, blank=True)
+    dcclasstype = models.ForeignKey('dcclasstype.Dcclasstype', related_name='dcmain_dcclasstype_id')
+    # dcartype = models.ForeignKey('dcartype.Dcartype', related_name='dcmain_dcartype_id', null=True, blank=True)
     dcsubtype = models.ForeignKey('debitcreditmemosubtype.Debitcreditmemosubtype', related_name='dcmain_subtype_id')
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     branch = models.ForeignKey('branch.Branch', related_name='dcmain_branch_id', default=5)
     customer = models.ForeignKey('customer.Customer', related_name='dcmain_customer_id', null=True, blank=True)
-    customer_code = models.CharField(max_length=10, null=True, blank=True)
-    customer_name = models.CharField(max_length=250, null=True, blank=True)
+    supplier = models.ForeignKey('supplier.Supplier', related_name='dcmain_supplier_id', null=True, blank=True)
+    employee = models.ForeignKey('employee.Employee', related_name='dcmain_employee_id', null=True, blank=True)
+    department = models.ForeignKey('department.Department', related_name='dcmain_department_id', null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='dcmain_bankaccount_id', null=True,
+                                    blank=True)
+    inventory = models.ForeignKey('inventoryitem.Inventoryitem', related_name='dcmain_inventoryitem_id', null=True,
+                                  blank=True)
+    payee_code = models.CharField(max_length=10, null=True, blank=True)
+    payee_name = models.CharField(max_length=250, null=True, blank=True)
     outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='dcmain_outvattype_id', null=True,
                                       blank=True)
     vat = models.ForeignKey('vat.Vat', related_name='dcmain_vat_id', validators=[MinValueValidator(1)])
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     particulars = models.TextField()
+    remarks = models.CharField(max_length=250, null=True, blank=True)
     designatedapprover = models.ForeignKey(User, related_name='dcmain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='dcmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
@@ -40,7 +49,8 @@ class Dcmain(models.Model):
     )
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
-    remarks = models.CharField(max_length=250, null=True, blank=True)
+    currency = models.ForeignKey('currency.Currency', related_name='dcmain_currency_id', default=1)
+    fxrate = models.DecimalField(default=0.00, decimal_places=5, max_digits=18)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -100,6 +110,9 @@ class Dcdetail(models.Model):
     creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
     balancecode = models.CharField(max_length=1, blank=True, null=True)
     amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    reftype = models.CharField(max_length=100, blank=True, null=True)
+    refnum = models.CharField(max_length=100, blank=True, null=True)
+    refdate = models.DateField(blank=True, null=True)
 
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -241,6 +254,9 @@ class Dcdetailtemp(models.Model):
     customerbreakstatus = models.IntegerField(blank=True, null=True)
     supplierbreakstatus = models.IntegerField(blank=True, null=True)
     employeebreakstatus = models.IntegerField(blank=True, null=True)
+    reftype = models.CharField(max_length=100, blank=True, null=True)
+    refnum = models.CharField(max_length=100, blank=True, null=True)
+    refdate = models.DateField(blank=True, null=True)
 
     STATUS_CHOICES = (
         ('A', 'Active'),
