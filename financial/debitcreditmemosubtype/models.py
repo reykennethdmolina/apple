@@ -36,6 +36,7 @@ class Debitcreditmemosubtype(models.Model):
                                               validators=[MinValueValidator(1)], null=True, blank=True)
     credit2chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount', related_name='credit2chartofaccount',
                                               validators=[MinValueValidator(1)], null=True, blank=True)
+    dcclasstype = models.ForeignKey('dcclasstype.Dcclasstype', related_name='dcclasstype', null=True, blank=True)
     particular = models.CharField(max_length=250, blank=True, null=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='debitcreditmemosubtype_enter')
