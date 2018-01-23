@@ -150,6 +150,7 @@ INSTALLED_APPS = [
     'productgroupcategory',
     'circulationpaytype',
     'filemanagement',
+    'dcclasstype',
 ]
 
 MIDDLEWARE_CLASSES = [
