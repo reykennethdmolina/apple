@@ -82,6 +82,7 @@ urlpatterns = [
     url(r'^dcartype/', include('dcartype.urls', app_name='dcartype', namespace='dcartype')),
     url(r'^cmsadjustment/', include('cmsadjustment.urls', app_name='cmsadjustment', namespace='cmsadjustment')),
     url(r'^processing_transaction/', include('processing_transaction.urls', app_name='processing_transaction', namespace='processing_transaction')),
+    url(r'^processing_jv/', include('processing_jv.urls', app_name='processing_jv', namespace='processing_jv')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

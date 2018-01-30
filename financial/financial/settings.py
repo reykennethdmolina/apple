@@ -151,6 +151,7 @@ INSTALLED_APPS = [
     'circulationpaytype',
     'filemanagement',
     'dcclasstype',
+    'processing_jv',
 ]
 
 MIDDLEWARE_CLASSES = [

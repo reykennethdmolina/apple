@@ -42,7 +42,7 @@ class Jvmain(models.Model):
     )
 
     jvstatus = models.CharField(max_length=1, choices=JV_STATUS_CHOICES, default='F')
-    designatedapprover = models.ForeignKey(User, default=2, related_name='jvmain_designated_approver')
+    designatedapprover = models.ForeignKey(User, related_name='jvmain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='jvmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
@@ -56,6 +56,7 @@ class Jvmain(models.Model):
     releasedate = models.DateTimeField(null=True, blank=True)
     print_ctr = models.IntegerField(default=0)
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    importedjvnum = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'jvmain'

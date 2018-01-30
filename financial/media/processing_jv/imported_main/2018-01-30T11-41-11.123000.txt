@@ -1,0 +1,2 @@
+00000002	2017-12-31	"To take up circulation sales (subscription) 2"	"for the month of December 2017"					comment	A	01/07/2018		01/07/2018
+00000003	2017-12-31	"To take up circulation sales (subscription)"	"for the month of December 2017"					.	A	01/07/2018		01/07/2018
