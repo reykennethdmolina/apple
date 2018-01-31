@@ -78,7 +78,7 @@
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_prfdate">PRF Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|default:'' }}" readonly="readonly">
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|default:'' }}{% if not form.prfdate.value %}{% now "o-m-d" %}{% endif %}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-4">
@@ -101,7 +101,7 @@
                                 <label class="control-label" for="id_branch">Branch</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
                                     {% for branch in branch %}
-                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %} {% if not form.branch.value and branch.code == 'HO'%} selected="selected" {% endif %}>{{ branch.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
