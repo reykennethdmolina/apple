@@ -173,6 +173,7 @@ class Prfdetail(models.Model):
 
     # nego vat
     negocost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    vat = models.ForeignKey('vat.Vat', related_name='temp_vatmain_id', null=True, blank=True)
     vatable = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatexempt = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vatzerorated = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
