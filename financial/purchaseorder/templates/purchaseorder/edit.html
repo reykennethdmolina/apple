@@ -497,7 +497,7 @@
                 </div>
             <div class="clearfix"></div>
             <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
+                <div class="modal-dialog" style="width: 780px;">
                     <div class="modal-content">
                         <div class="shade" id="shadePRFImport"><div class="loader two-color"></div></div>
                         <div class="modal-header">
@@ -637,19 +637,50 @@
 
                 $("#id_supplier").change(function(){
                     enableDisableButtons();
-                    displaySupplierData();
+                    displaySupplierData($(this).val());
                 });
 
                 $("#importbutton").click(function(){
-                    if($("#id_vat").val() == '') {
-                        alert("Please select VAT first.");
+                    if($("#id_vat").val() == '' || $("#id_supplier").val() == null) {
+                        alert("The following field values are required to proceed. \n1. Supplier\n2. VAT");
                     }
                     else {
-                        $('#importprfpreview tbody').empty();
-                        $("#importprfselect2").val('').trigger('change.select2');
-                        $('#checkUncheckAll').remove();
-                        $('#iconChecked').remove();
-                        $('#myModal').modal('show');
+                        $.ajax({
+                            url: "{% url 'purchaseorder:fetchprfs' %}",
+                            type: "post",
+                            data: {'supplier': $("#id_supplier").val(),
+                                   'vat': $("#id_vat").val()
+                            },
+                            success: function(response) {
+                                console.log('Loaded the PRFs available for importation.');
+                                if(response['prfs_for_import'].length == 0){
+                                    alert("There are no PRF items for the selected supplier and VAT.");
+                                }
+                                else {
+                                    $("#importprfselect2").html("<option value=''>-- Select --</option>");
+                                    for(var i=0; i<response['prfs_for_import'].length; i++){
+                                        $("#importprfselect2").append("<option value='"+response['prfs_for_import'][i][0]+"' " +
+                                                "data-refnum='"+response['prfs_for_import'][i][1]+"' " +
+                                                "data-urgency='"+response['prfs_for_import'][i][2]+"' " +
+                                                "data-dateneeded='"+response['prfs_for_import'][i][3]+"' " +
+                                                "data-approver='"+response['prfs_for_import'][i][4]+"'>"+
+                                                response['prfs_for_import'][i][1]+" | "+response['prfs_for_import'][i][5]+" | "+
+                                                response['prfs_for_import'][i][2]+" | Date Needed: "+
+                                                response['prfs_for_import'][i][3]+" | Requested By: "+
+                                                response['prfs_for_import'][i][6]+" | Quantity: "+
+                                                response['prfs_for_import'][i][7]+"</option>")
+                                    }
+                                    $('#importprfpreview tbody').empty();
+                                    $("#importprfselect2").val('').trigger('change.select2');
+                                    $('#checkUncheckAll').remove();
+                                    $('#iconChecked').remove();
+                                    $('#myModal').modal('show');
+                                }
+                            },
+                            error: function(response) {
+                                console.debug(response);
+                            }
+                        });
                     }
                 });
             }

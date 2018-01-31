@@ -324,13 +324,6 @@
                         filterDiscount();
                         filterExtraFields();
 
-{#                        $('#id_supplier option:selected').siblings().prop("disabled", true);#}
-{#                        $('#id_supplier').select2("destroy");#}
-{#                        $('#id_supplier').select2();#}
-                        var unblod_text = $('#id_supplier option:selected').text().replace('<B>', '').replace('</B>', '');
-                        $('#id_supplier option:selected').text(unblod_text);
-                        $('#id_supplier').select2();
-
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');
                         $("#id_unitcost").val('');
@@ -618,7 +611,10 @@
                 $.ajax({
                     url: "{% url 'purchaseorder:fetchitems' %}",
                     type: "post",
-                    data: {'prfid': $(this).val()},
+                    data: {'prfid': $(this).val(),
+                           'supplier': $("#id_supplier").val(),
+                           'vat': $("#id_vat").val()
+                    },
                     success: function(response) {
                         if(response.prfdetail.length == 0)
                             $('#checkUncheckAll').prop('checked', false);
@@ -632,7 +628,7 @@
                                         "<td style='text-align: left' class='text-center prfTblItemCode'>" + response.prfdetail[i][2] + "</td>" +
                                         "<td style='text-align: left' class='text-center prfTblItemName'>" + response.prfdetail[i][3] + "</td>" +
                                         "<td style='text-align: right' class='text-center prfTblQuantity'>" + response.prfdetail[i][40] + "</td>" +
-                                        "<td style='text-align: right' class='text-center prfTblAmount'>" + response.prfdetail[i][14] + "</td>" +
+                                        "<td style='text-align: right' class='text-center prfTblAmount'>" + parseFloat(response.prfdetail[i][14]).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "<td style='text-align: left' class='text-center prfTblProposedSupplier'>" + supplier + "</td>" +
                                         "</tr>");
 
@@ -848,11 +844,18 @@
                                 warnUnitCost();
                                 computeTotalAmounts();
                             }
-                        }
+                            var selectedKey =  $('#id_supplier').val();
+                            var selectedValue = $('#id_supplier option:selected').text();
+                            var label = $('#id_supplier').prev();
 
-{#                        var unbold_text = $('#id_supplier option:selected').text().replace(/(<([^>]+)>)/ig,"");#}
-{#                        $('#id_supplier option:selected').text(unbold_text);#}
-{#                        $('#id_supplier').select2();#}
+                            $('#id_supplier').next().remove();
+                            $('#id_supplier').remove();
+
+                            label.after("<select class='form-control input-sm select2' id='id_supplier' name='supplier'>" +
+                                    "<option value='"+selectedKey+"'>"+selectedValue+"</option>" +
+                                    "</select>");
+                            $('#id_supplier').select2({});
+                        }
 
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');

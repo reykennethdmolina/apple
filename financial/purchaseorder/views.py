@@ -91,8 +91,8 @@ class CreateView(CreateView):
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
-        context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
-                                                    totalremainingquantity__gt=0)
+        # context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
+        #                                             totalremainingquantity__gt=0)
         context['secretkey'] = generatekey(self)
         context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('pk')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
@@ -649,39 +649,55 @@ class DeleteView(DeleteView):
         return HttpResponseRedirect('/purchaseorder')
 
 
-# @csrf_exempt
-# def fetchPRFs(request):
-#     if request.method == 'POST':
-#         prf_data = Prfdetail.objects.filter(isdeleted=0, status='A', supplier=1159, prfmain__isdeleted=0,
-#                                             prfmain__prfstatus='A', prfmain__status='A',
-#                                             prfmain__totalremainingquantity__gt=0).values('prfmain', 'prfmain__prfnum',
-#                                                                                           'prfmain__prfdate',
-#                                                                                           'prfmain__urgencytype',
-#                                                                                           'prfmain__dateneeded',
-#                                                                                           'prfmain__actualapprover',
-#                                                                                           'prfmain__enterby',
-#                                                                                           'prfmain__totalremainingquantity').\
-#             distinct().order_by('prfmain', 'prfmain__prfnum', 'prfmain__prfdate', 'prfmain__urgencytype',
-#                                 'prfmain__dateneeded', 'prfmain__actualapprover', 'prfmain__enterby',
-#                                 'prfmain__totalremainingquantity')
-#
-#     else:
-#         data = {
-#             'status': 'error',
-#         }
-#
-#     return JsonResponse(data)
+@csrf_exempt
+def fetchprfs(request):
+    if request.method == 'POST':
+        prf_data = Prfdetail.objects.filter(isdeleted=0, status='A', supplier=int(request.POST['supplier']),
+                                            vat=int(request.POST['vat']), poremainingquantity__gt=0,
+                                            prfmain__isdeleted=0, prfmain__prfstatus='A', prfmain__status='A').\
+            values('prfmain', 'prfmain__prfnum', 'prfmain__prfdate', 'prfmain__urgencytype', 'prfmain__dateneeded',
+                   'prfmain__actualapprover', 'prfmain__enterby').distinct(). \
+            annotate(Sum('poremainingquantity')). \
+            order_by('-prfmain', 'prfmain__prfnum', 'prfmain__prfdate', 'prfmain__urgencytype', 'prfmain__dateneeded',
+                     'prfmain__actualapprover', 'prfmain__enterby')
+        prf_data_list = []
+        for data in prf_data:
+            prf_data_list.append([data['prfmain'],
+                                  data['prfmain__prfnum'],
+                                  'Normal' if data['prfmain__urgencytype'] == 'N' else 'Rush' if data['prfmain__urgencytype'] == 'R' else '',
+                                  data['prfmain__dateneeded'],
+                                  User.objects.get(pk=int(data['prfmain__actualapprover'])).username,
+                                  data['prfmain__prfdate'],
+                                  User.objects.get(pk=int(data['prfmain__enterby'])).first_name + ' ' + User.objects.get(pk=int(data['prfmain__enterby'])).last_name,
+                                  data['poremainingquantity__sum']
+                                  ])
+        data = {
+            'prfs_for_import': prf_data_list,
+            'status': 'success',
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
 
 
 @csrf_exempt
 def fetchitems(request):
     if request.method == 'POST':
-        prfmain = Prfmain.objects.get(pk=request.POST['prfid'],
-                                      prfstatus='A',
-                                      status='A',
-                                      isdeleted=0)
-
-        prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0, isfullypo=0)
+        prfdetail = Prfdetail.objects.filter(isdeleted=0, status='A', prfmain=int(request.POST['prfid']),
+                                             supplier=int(request.POST['supplier']), vat=int(request.POST['vat']),
+                                             poremainingquantity__gt=0, prfmain__isdeleted=0, prfmain__prfstatus='A',
+                                             prfmain__status='A').order_by('item_counter')
+        #
+        #
+        # prfmain = Prfmain.objects.get(pk=request.POST['prfid'],
+        #                               prfstatus='A',
+        #                               status='A',
+        #                               isdeleted=0)
+        #
+        # prfdetail = Prfdetail.objects.filter(prfmain=prfmain, status='A', isdeleted=0, isfullypo=0)
         prfdetail_list = []
 
         for data in prfdetail:
