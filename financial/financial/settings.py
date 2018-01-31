@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     'filemanagement',
     'dcclasstype',
     'processing_jv',
+    'budgetapproverlevels',
 ]
 
 MIDDLEWARE_CLASSES = [
