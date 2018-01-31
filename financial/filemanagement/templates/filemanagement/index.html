@@ -75,6 +75,26 @@
 			<div class="col-md-6">
 				<div class="static-box">
 					<div class="row">
+						<a href="truncatedir/imported_jv" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
+						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
+							<i class="icon fa-ticket font-25"></i>
+							<h4>J.V.</h4>
+						</div>
+						<div class="col-md-7 col-sm-7 col-xs-7">
+							<h3 class="text-right text-primary">{{ f_jv }}<small> MB</small></h3>
+						</div>
+						<div class="col-md-12 col-sm-12 col-xs-12 padding-top-10">
+							<div class="progress progres-sm">
+								<div class="progress-bar progress-bar-primary" role="progressbar" style="width:{{ fp_jv }}%;"></div>
+							</div>
+							<div style="text-align:center"><small>{{ fp_jv|default:"0" }} %</small></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="static-box">
+					<div class="row">
 						<a href="truncatedir/imported_agent" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
 						<div class="col-md-5 col-sm-5 col-xs-5  padding-top-10">
 							<i class="icon fa-user-secret font-25"></i>
@@ -92,7 +112,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-4">
 				<div class="static-box">
 					<div class="row">
 						<a href="truncatedir/imported_agency" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
@@ -112,7 +132,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-4">
 				<div class="static-box">
 					<div class="row">
 						<a href="truncatedir/imported_client" onclick="return confirm('Are you sure?')" class="icon-trash text-muted" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Clear storage."><i class="icon fa-trash"></i></a>
@@ -153,12 +173,13 @@
         var chart = c3.generate({
 		    data: {
 		        columns: [
-		            ['O.R', {{ fp_or }}],
+		            ['O.R.', {{ fp_or }}],
 		            ['Agent', {{ fp_agent }}],
 		            ['Agency', {{ fp_agency }}],
 		            ['Client', {{ fp_client }}],
+		            ['J.V.', {{ fp_jv }}],
 		        ],
-		        type : 'pie',
+		        type : 'donut',
 		        // onclick: function (d, i) { console.log("onclick", d, i); },
 		        // onmouseover: function (d, i) { console.log("onmouseover", d, i); },
 		        // onmouseout: function (d, i) { console.log("onmouseout", d, i); }
