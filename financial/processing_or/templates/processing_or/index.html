@@ -275,9 +275,10 @@
 
                                 for(var i = 0; i < data['ordata_d_list'].length; i++) {
                                     datahighlight = '';
-                                    if(data['ordata_d_list'][i][2] == 'F'){
+                                    if(data['ordata_d_list'][i][2] == 'F' || $("[data-main='"+data['ordata_d_list'][i][0]+"']").hasClass('danger')){
                                         datahighlight = 'danger';
                                     }
+
                                     $("[data-main='"+data['ordata_d_list'][i][0]+"']")
                                             .after("<tr class='"+datahighlight+"'>" +
                                                     "<td class='table_detail' colspan='2'></td>" +

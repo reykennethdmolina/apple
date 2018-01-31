@@ -183,6 +183,9 @@ def fileupload(request):
                                                 elif not Vat.objects.filter(code=data[17]):
                                                     importstatus = 'F'
                                                     importremarks = 'Failed: Vat Type does not exist'
+                                                elif not Vat.objects.filter(code=data[17]):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Vat Type does not exist'
                                                 else:
                                                     importstatus = 'S'
                                                     importremarks = 'Passed'
@@ -355,6 +358,7 @@ def fileupload(request):
                         # inspect/insert detail
                         if breakstatus == 0:
                             for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                            # for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf'):
                                 if len(data) == 17:
                                     if Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, accounttype='C'):
                                         if not Productgroup.objects.filter(code=data['PRODUCT']):
