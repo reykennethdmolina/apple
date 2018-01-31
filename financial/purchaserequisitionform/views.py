@@ -54,6 +54,7 @@ class DetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
         context['prfdetail'] = Prfdetail.objects.filter(isdeleted=0, prfmain=self.kwargs['pk']).order_by('item_counter')
+        context['totalamount'] = Prfdetail.objects.filter(isdeleted=0, prfmain=self.kwargs['pk']).aggregate(Sum('amount'))
         context['totalpoquantity'] = Prfmain.objects.get(pk=self.kwargs['pk']).\
                                         totalquantity - Prfmain.objects.\
                                         get(pk=self.kwargs['pk']).totalremainingquantity
@@ -144,10 +145,13 @@ class CreateView(CreateView):
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                print "----"
+                print self.request.POST.getlist('temp_amount')[i-1]
+                print "----"
+                detail.amount = self.request.POST.getlist('temp_amount')[i-1]
                 detail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
                 detail.department_code = department.code
                 detail.department_name = department.departmentname
-                detail.amount = 0
                 detail.remarks = self.request.POST.getlist('temp_remarks')[i-1]
                 detail.currency = Currency.objects.get(pk=self.request.POST.getlist('temp_item_currency')[i-1])
                 detail.fxrate = self.request.POST.getlist('temp_fxrate')[i-1]
@@ -379,6 +383,7 @@ class UpdateView(UpdateView):
                     alldetail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                     alldetail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                     alldetail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
+                    alldetail.amount = self.request.POST.getlist('temp_amount')[i-1]
                     alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
                     alldetail.department_code = department.code
                     alldetail.department_name = department.departmentname

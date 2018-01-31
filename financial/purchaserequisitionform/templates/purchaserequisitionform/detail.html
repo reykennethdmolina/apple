@@ -241,7 +241,7 @@
                                                     <td style="text-align:right">{{ prfdetail.rfdetail.rfmain.rfnum|default:'-' }}</td>
                                                     <td style="text-align:right">{{ prfdetail.currency.symbol }}</td>
                                                     <td style="text-align:right">{{ prfdetail.fxrate }}</td>
-                                                    <td style="text-align:right">{{ prfdetail.netamount }}</td>
+                                                    <td style="text-align:right" class="amount">{{ prfdetail.amount }}</td>
                                                     <td>{{ prfdetail.department_code }} <br> {{ prfdetail.department_name }}</td>
                                                     <td>{{ prfdetail.estimateddateofdelivery|default:'-' }}</td>
                                                     <td>{{ prfdetail.suppliername }}</td>
@@ -282,7 +282,7 @@
                         </tr>
                         <tr>
                             <td><small><b>Amount:</b></small></td>
-                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ object.grossamount }}"></td>
+                            <td class="form-group form-material"><input type="text" class="form-control input-sm amount" disabled="disabled" value="{{ totalamount.amount__sum }}"></td>
                         </tr>
                     </table>
                 </div>
@@ -403,4 +403,11 @@
         </div>
     </div>
 </div>
+<script>
+    $('.amount').each(function(){
+        $(this).val(parseFloat($(this).val()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        console.log($(this).text())
+        $(this).text($(this).text().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+</script>
 {% endblock page-content %}

@@ -68,6 +68,7 @@
         filterItems();
         inventorytypeimportDisable();
         computeTotalRequestedQty();
+        computeTotals();
 
         $('.remarks-editor').wysihtml5({
             "font-styles": false, //Font styling, e.g. h1, h2, etc. Default true
@@ -158,7 +159,7 @@
                     $('#id_remarks').data("wysihtml5").editor.setValue('');
 
                     reorderItems();
-                    totalQuantity();
+                    computeTotals();
                     inventorytypeimportDisable();
                     computeFxRateAll();
                     computeTotalRequestedQty();
@@ -229,7 +230,7 @@
                         }
                     }
 
-                    totalQuantity();
+                    computeTotals();
                     inventorytypeimportDisable();
                     computeFxRateAll();
                     computeTotalRequestedQty();
@@ -275,7 +276,7 @@
                     elem.parent().parent().remove();
                     reorderItems();
                     inventorytypeimportDisable();
-                    totalQuantity();
+                    computeTotals();
                     computeTotalRequestedQty();
                     $('.shade').fadeOut();
                 }
@@ -332,7 +333,13 @@
 
         $(document).on('change', '.temp_quantity', function(){
             computeTotalRequestedQty();
+            computeTotals();
         });
+        $(document).on('change', '.temp_amount', function(){
+            computeTotalRequestedQty();
+            computeTotals();
+        });
+
 
         function callEventHandler(i){
             var editor = new wysihtml5.Editor("id_temp_remarks["+i+"]");
@@ -365,16 +372,23 @@
                 summary.find('tr:eq('+i+')').find('td:eq(0)').html(i+1);
             }
             //change id index of id_temp_remarks[]
-            console.log(i)
             jQuery($('.input-remarks:eq(' + i + ')')).attr('id', 'id_temp_remarks[' + (i + 1) + ']')
         }
 
-        function totalQuantity(){
+        function computeTotals(){
             totalQty = 0;
+            totalAmount = 0;
+
+            $('#totalQty').val(0);
+            $('#totalAmount').val(0);
 
             $('.temp_quantity').each(function(){
                 totalQty += parseFloat($(this).val());
                 $('#totalQty').val(totalQty);
+            });
+            $('.temp_amount').each(function(){
+                totalAmount += parseFloat($(this).val()) * parseInt($(this).parent().parent().find('.temp_quantity').val());
+                $('#totalAmount').val(totalAmount);
             });
         }
 
@@ -416,7 +430,7 @@
             var totalPrfQuantity = totalRequestedQty - totalRemainingQuantity;
 
             $("#totalrequestedquantity").text(totalRequestedQty);
-            $("#id_totalquantity").val(totalRequestedQty);
+            $("#id_computeTotals").val(totalRequestedQty);
             $("#totalremainingquantity").text(totalRemainingQuantity);
             $("#totalprfquantity").text(totalPrfQuantity);
         }
