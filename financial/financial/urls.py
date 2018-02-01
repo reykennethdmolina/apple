@@ -139,7 +139,7 @@ urlpatterns = [
     url(r'^circulationpaytype/', include('circulationpaytype.urls', app_name='circulationpaytype', namespace='circulationpaytype')),
     url(r'^filemanagement/', include('filemanagement.urls', app_name='filemanagement', namespace='filemanagement')),
     url(r'^dcclasstype/', include('dcclasstype.urls', app_name='dcclasstype', namespace='dcclasstype')),
-    url(r'^budgetapproverlevels/', include('budgetapproverlevels.urls', app_name='budgetapproverlevels', namespace='budgetapproverlevels')),
+    # url(r'^budgetapproverlevels/', include('budgetapproverlevels.urls', app_name='budgetapproverlevels', namespace='budgetapproverlevels')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
