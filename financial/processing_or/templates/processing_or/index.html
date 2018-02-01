@@ -281,8 +281,9 @@
 
                                     $("[data-main='"+data['ordata_d_list'][i][0]+"']")
                                             .after("<tr class='"+datahighlight+"'>" +
-                                                    "<td class='table_detail' colspan='2'></td>" +
+                                                    "<td class='table_detail'></td>" +
                                                     "<td class='table_detail'><small>"+data['ordata_d_list'][i][3]+"</small></td>" +
+                                                    "<td class='table_detail'><small><b>"+data['ordata_d_list'][i][4]+"</b></small></td>" +
                                                     "<td class='table_detail' align='right'><small>"+parseFloat(data['ordata_d_list'][i][1]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</small></td>" +
                                                     "<td class='table_detail'></td>" +
                                                    "</tr>")

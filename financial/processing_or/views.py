@@ -184,9 +184,9 @@ def fileupload(request):
                                                 elif not Vat.objects.filter(code=data[17]):
                                                     importstatus = 'F'
                                                     importremarks = 'Failed: Vat Type does not exist'
-                                                elif not Vat.objects.filter(code=data[17]):
-                                                    importstatus = 'F'
-                                                    importremarks = 'Failed: Vat Type does not exist'
+                                                # elif data[1] == "":
+                                                #     importstatus = 'F'
+                                                #     importremarks = 'Failed: Doc Type does not exist'
                                                 else:
                                                     importstatus = 'S'
                                                     importremarks = 'Passed'
@@ -238,10 +238,37 @@ def fileupload(request):
                                                         data.importremarks,
                                                        ])
                                 for data in ordata_d:
+                                    totalassign = 0
+                                    totalassignamount = 0
+                                    totalvatamount = 0
+
+                                    def RepresentsInt(assignamount):
+                                        try: 
+                                            int(s)
+                                            return True
+                                        except ValueError:
+                                            return False
+
+                                    if RepresentsInt:
+                                        totalassignamount = float(data.assignamount)
+
+                                    def RepresentsInt(assignvatamount):
+                                        try: 
+                                            int(s)
+                                            return True
+                                        except ValueError:
+                                            return False
+
+                                    if RepresentsInt:
+                                        totalvatamount = float(data.assignvatamount)
+                                        
+                                    totalassign = totalassignamount + totalvatamount
+
                                     ordata_d_list.append([data.orno,
-                                                          float(data.assignamount) + float(data.assignvatamount),
+                                                          totalassign,
                                                           data.importstatus,
                                                           data.adtypedesc,
+                                                          data.importremarks,
                                                          ])
 
                                 successcount = ordata.filter(importstatus='S').count()
@@ -466,7 +493,7 @@ def exportsave(request):
                     vatable = 0
                     vatexempt = 0
                     vatzerorated = 0
-
+                    
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
@@ -512,7 +539,7 @@ def exportsave(request):
                             batchkey=data.batchkey,
                             postingremarks='Processing...',
                         ).save()
-                        remainingamount = float(data.amount)
+                        remainingamount = float(data.amount)                        
 
                         # accounttype = (a/r)
                         if temp_ormain.accounttype == 'a':
@@ -533,6 +560,7 @@ def exportsave(request):
                                     batchkey=data.batchkey,
                                     postingremarks='Processing...',
                                 ).save()
+
                                 if data_d.vatrate > 0:
                                     vatable = float(vatable) + float(data_d.assignamount)
                                 elif data_d.vatcode == 'VE':
@@ -547,11 +575,12 @@ def exportsave(request):
                                     creditamount=data_d.assignvatamount,
                                     balancecode='C',
                                     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                                    vatrate=data_d.vatrate,
+                                    vatrate=float(data_d.vatrate),
                                     vatcode=data_d.vatcode,
                                     batchkey=data.batchkey,
                                     postingremarks='Processing...',
                                 ).save()
+
                                 vatamount = float(vatamount) + float(data_d.assignvatamount)
 
                                 remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
@@ -679,7 +708,7 @@ def exportsave(request):
                         orstatus='F',
                         amount=temp_ormain.amount,
                         amountinwords=temp_ormain.amountinwords,
-                        vatrate=temp_ormain.vatrate,
+                        vatrate=float(temp_ormain.vatrate),
                         vatamount=vatamount,
                         particulars=temp_ormain.particulars,
                         vatablesale=vatable,
@@ -705,7 +734,7 @@ def exportsave(request):
                         circulationproduct=Circulationproduct.objects.get(code=temp_ormain.productcode),
                         circulationproduct_code=temp_ormain.productcode,
                         circulationproduct_name=Circulationproduct.objects.get(code=temp_ormain.productcode).description,
-                        wtaxrate=temp_ormain.wtaxrate,
+                        wtaxrate=float(temp_ormain.wtaxrate),
                         wtaxamount=temp_ormain.totalwtax,
                         importby=request.user,
                         importornum=temp_ormain.orno,
