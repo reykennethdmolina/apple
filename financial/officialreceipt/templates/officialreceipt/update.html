@@ -300,7 +300,7 @@
                     <div class="col-md-12">
                         <div class="form-group col-sm-4 {{ form.circulationproduct.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_circulationproduct">Product</label>
-                            <select id="id_circulationproduct" class="form-control input-sm select2" data-validation="required" name="circulationproduct">
+                            <select id="id_circulationproduct" class="form-control input-sm select2" name="circulationproduct">
                                 <option value="">-- Select --</option>
                                 {% for data in circulationproduct %}
                                     <option value="{{ data.id }}" {% if form.circulationproduct.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
