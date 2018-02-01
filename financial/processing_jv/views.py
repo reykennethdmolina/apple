@@ -63,21 +63,23 @@ def fileupload(request):
         #   5: failed - file array columns do not match requirements
         #   6: failed - invalid upload_type
 
-        if request.POST['upload_type'] == 'SUB-REG' or request.POST['upload_type'] == 'SUB-COM':    # 6
-            if request.FILES['jv_file'] \
-                    and request.FILES['jv_file'].name.endswith('.txt') \
-                    and request.FILES['jv_d_file'] \
-                    and request.FILES['jv_d_file'].name.endswith('.txt'):     # 3
-                if request.FILES['jv_file']._size < float(upload_size)*1024*1024 \
-                        and request.FILES['jv_d_file']._size < float(upload_size)*1024*1024:
 
-                    sequence = datetime.now().isoformat().replace(':', '-')
-                    batchkey = generatekey(1)
-
-                    if storeupload(request.FILES['jv_file'], sequence, 'txt', upload_directory)\
-                            and storeupload(request.FILES['jv_d_file'], sequence, 'txt', upload_d_directory):    # 2
-                        jvcount = 0
-
+        if request.FILES['jv_file'] \
+                and request.FILES['jv_file'].name.endswith('.txt') \
+                and request.FILES['jv_d_file'] \
+                and request.FILES['jv_d_file'].name.endswith('.txt'):     # 3
+            if request.FILES['jv_file']._size < float(upload_size)*1024*1024 \
+                    and request.FILES['jv_d_file']._size < float(upload_size)*1024*1024:  # 4
+                sequence = datetime.now().isoformat().replace(':', '-')
+                batchkey = generatekey(1)
+                if storeupload(request.FILES['jv_file'], sequence, 'txt', upload_directory)\
+                        and storeupload(request.FILES['jv_d_file'], sequence, 'txt', upload_d_directory):    # 2
+                    jvcount = 0
+                    if request.POST['upload_type'] == 'SUB-REG' or request.POST['upload_type'] == 'SUB-COM' or \
+                        request.POST['upload_type'] == 'ADV-ADJ' or request.POST['upload_type'] == 'ADV-EXD' or \
+                            request.POST['upload_type'] == 'ADV-CAI' or request.POST['upload_type'] == 'ADV-PPD' or \
+                            request.POST['upload_type'] == 'ADV-RAR' or request.POST['upload_type'] == 'ADV-TAX' or \
+                            request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI': # 6
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
                                 jvcount += 1
@@ -126,13 +128,22 @@ def fileupload(request):
 
                                         if len(data) == 14:
                                             if Logs_jvmain.objects.filter(jvnum=data[0], batchkey=batchkey):
-                                                if not Chartofaccount.objects.filter(accountcode=str(data[2])+'0000'):
+                                                if not Chartofaccount.objects.filter(accountcode=str(data[2]).strip()+'0000'):
                                                     importstatus = 'F'
-                                                    importremarks = 'Failed: Chartofaccount does not exist'
-                                                elif request.POST['upload_type'] == 'SUB-COM' and not Department.\
-                                                        objects.filter(code=data[4]) and data[5] == 'D':
-                                                    importstatus = 'F'
-                                                    importremarks = 'Failed: Department does not exist'
+                                                    importremarks = 'Failed: Chart of account does not exist'
+                                                elif data[3].strip() != '':
+                                                    if not Bankaccount.objects.filter(code=data[3].strip()):
+                                                        importstatus = 'F'
+                                                        importremarks = 'Failed: Bank account does not exist'
+                                                elif data[4].strip() != '':
+                                                    if not Department.objects.filter(code=data[4].strip()):
+                                                        importstatus = 'F'
+                                                        importremarks = 'Failed: Department does not exist'
+                                                elif data[13].strip() != '':
+                                                    print '-- with branch --'
+                                                    if not Branch.objects.filter(code=data[13].strip()):
+                                                        importstatus = 'F'
+                                                        importremarks = 'Failed: Branch does not exist'
                                                 else:
                                                     importstatus = 'S'
                                                     importremarks = 'Passed'
@@ -141,12 +152,15 @@ def fileupload(request):
                                                     jvnum=data[0],
                                                     jvdate=data[1],
                                                     chartofaccount=data[2],
+                                                    bankaccount=data[3],
                                                     department=data[4],
                                                     charttype=data[5],
                                                     amount=data[6],
+                                                    status=data[7],
                                                     datecreated=data[8],
                                                     datemodified=data[10],
                                                     sortnum=data[11],
+                                                    branch=data[13],
                                                     batchkey=batchkey,
                                                     importstatus=importstatus,
                                                     importremarks=importremarks,
@@ -190,6 +204,8 @@ def fileupload(request):
                                                           debitamount,
                                                           creditamount,
                                                           data.importstatus,
+                                                          data.bankaccount,
+                                                          data.branch,
                                                           ])
 
                                 for index, data in enumerate(jvdata_d_debit):
@@ -216,25 +232,24 @@ def fileupload(request):
                                     'result': 5
                                 }
                             return JsonResponse(data)
-                    # add detail upload here
                     else:
                         data = {
-                            'result': 2
+                            'result': 6
                         }
                     return JsonResponse(data)
                 else:
                     data = {
-                        'result': 4
+                        'result': 2
                     }
                 return JsonResponse(data)
             else:
                 data = {
-                    'result': 3
+                    'result': 4
                 }
                 return JsonResponse(data)
         else:
             data = {
-                'result': 6
+                'result': 3
             }
             return JsonResponse(data)
 
@@ -340,7 +355,7 @@ def exportsave(request):
                         totalcreditamount += finaljvdetail.creditamount
 
                     # save total amount in jvmain
-                    if totaldebitamount == totalcreditamount:
+                    if round(totaldebitamount, 2) == round(totalcreditamount, 2):
                         finaljvmain.amount = totaldebitamount
                         finaljvmain.save(update_fields=['amount'])
                     else:

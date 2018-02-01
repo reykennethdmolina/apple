@@ -39,12 +39,15 @@ class Logs_jvdetail(models.Model):
     jvnum = models.CharField(null=True, blank=True, max_length=500)
     jvdate = models.CharField(null=True, blank=True, max_length=500)
     chartofaccount = models.CharField(null=True, blank=True, max_length=500)
+    bankaccount = models.CharField(null=True, blank=True, max_length=500)
     department = models.CharField(null=True, blank=True, max_length=500)
     charttype = models.CharField(null=True, blank=True, max_length=500)
     amount = models.CharField(null=True, blank=True, max_length=500)
+    status = models.CharField(null=True, blank=True, max_length=500)
     datecreated = models.CharField(null=True, blank=True, max_length=500)
     datemodified = models.CharField(null=True, blank=True, max_length=500)
     sortnum = models.CharField(null=True, blank=True, max_length=500)
+    branch = models.CharField(null=True, blank=True, max_length=500)
     batchkey = models.CharField(max_length=255, null=True, blank=True)
     importstatus = models.CharField(max_length=1, choices=IMPORT_STATUS_CHOICES, default='S')
     importremarks = models.CharField(max_length=255, null=True, blank=True)
@@ -64,7 +67,7 @@ class Temp_jvmain(models.Model):
 
     importedjvnum = models.CharField(null=True, blank=True, max_length=500)
     jvdate = models.CharField(null=True, blank=True, max_length=500)
-    particulars = models.CharField(null=True, blank=True, max_length=1000)  # concat particulars, comments and remarks
+    particulars = models.CharField(null=True, blank=True, max_length=1000)  # particulars,comments,remarks
     importby = models.ForeignKey(User, default=1, related_name='temp_jvmain_by')
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
@@ -89,6 +92,11 @@ class Temp_jvdetail(models.Model):
     balancecode = models.CharField(null=True, blank=True, max_length=500)
     debitamount = models.CharField(null=True, blank=True, max_length=500)
     creditamount = models.CharField(null=True, blank=True, max_length=500)
+
+    # added fields for Advertising
+    bankaccount = models.CharField(null=True, blank=True, max_length=500)
+    branch = models.CharField(null=True, blank=True, max_length=500)
+
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)
