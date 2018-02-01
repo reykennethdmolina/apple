@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
+from adtype.models import Adtype
 from ataxcode.models import Ataxcode
 from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
@@ -111,7 +112,7 @@ class CreateView(CreateView):
     template_name = 'officialreceipt/create.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
               'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
-              'remarks', 'prnum', 'prdate', 'ornum']
+              'remarks', 'prnum', 'prdate', 'ornum', 'adtype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.add_ormain'):
@@ -126,6 +127,7 @@ class CreateView(CreateView):
         context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')   # add filter customer type
         context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')   # add filter customer type
         context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
+        context['adtype'] = Adtype.objects.filter(isdeleted=0).order_by('code')
 
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
@@ -244,7 +246,7 @@ class UpdateView(UpdateView):
     template_name = 'officialreceipt/update.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
               'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
-              'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate', 'ornum']
+              'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate', 'ornum', 'adtype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('officialreceipt.change_ormain'):
@@ -359,6 +361,8 @@ class UpdateView(UpdateView):
         # context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
         context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
         context['ornum'] = self.object.ornum
+        context['trans_type'] = self.object.transaction_type
+        context['adtype'] = Adtype.objects.filter(isdeleted=0).order_by('code')
 
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')
