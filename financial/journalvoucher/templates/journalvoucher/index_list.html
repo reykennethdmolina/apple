@@ -20,8 +20,8 @@
                 <td>{{ data.id }}</td>
                 <td>{{ data.jvnum }}</td>
                 <td>{{ data.jvdate|date:'Y-m-d' }}</td>
-                <td>{{ data.department.departmentname }}</td>
-                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
+                <td>{% if data.department %}{{ data.department.departmentname }}{% else %}-- Not assigned yet --{% endif %}</td>
+                <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- Not assigned yet --{% endif %}</td>
                 <td class="tdJvStatus
                         {% if data.jvstatus == 'A' %} text-success
                         {% elif data.jvstatus == 'D' %} text-danger

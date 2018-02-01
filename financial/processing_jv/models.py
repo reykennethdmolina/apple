@@ -23,6 +23,7 @@ class Logs_jvmain(models.Model):
     importremarks = models.CharField(max_length=255, null=True, blank=True)
     importdate = models.DateTimeField(auto_now_add=True)
     importby = models.ForeignKey(User, default=1, related_name='logs_jvmain_by')
+    jvsubtype = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'logs_jvmain'

@@ -357,9 +357,9 @@ class UpdateView(UpdateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
         context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
-        # context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')  # add filter customer type
-        # context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')  # add filter customer type
-        # context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
+        # context['agency'] = Customer.objects.get(isdeleted=0, ).order_by('code')  # add filter customer type
+        # context['client'] = Customer.objects.get(isdeleted=0, ).order_by('code')  # add filter customer type
+        # context['agent'] = Agent.objects.get(isdeleted=0, ).order_by('code')
         context['circulationproduct'] = Circulationproduct.objects.filter(isdeleted=0).order_by('code')
         context['ornum'] = self.object.ornum
         context['trans_type'] = self.object.transaction_type
@@ -402,16 +402,22 @@ class UpdateView(UpdateView):
 
         if self.object.payee_type == 'AG':
             self.object.agency = Customer.objects.get(pk=int(self.request.POST['agency']))
+            self.object.client = None
+            self.object.agent = None
             self.object.payee_code = self.object.agency.code
             self.object.payee_name = self.object.agency.name
         elif self.object.payee_type == 'C':
             self.object.client = Customer.objects.get(pk=int(self.request.POST['client']))
             self.object.payee_code = self.object.client.code
             self.object.payee_name = self.object.client.name
+            self.object.agency = None
+            self.object.agent = None
         elif self.object.payee_type == 'A':
             self.object.agent = Agent.objects.get(pk=int(self.request.POST['agent']))
             self.object.payee_code = self.object.agent.code
             self.object.payee_name = self.object.agent.name
+            self.object.agency = None
+            self.object.client = None
 
         if self.request.POST['wtax'] == '':
             self.object.wtaxrate = 0

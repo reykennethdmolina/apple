@@ -148,10 +148,14 @@
                                 <div class="price-price teal-a400">
                                     <div class="col-md-12 table_result">
                                         <br>
-                                        <table class="table table-condensed small" id="jvdata_table">
+                                        <table class="table table-condensed table-bordered small" id="jvdata_table">
                                             <thead>
                                                 <tr>
-                                                    <th colspan="3">&nbsp;</th>
+                                                    <th>JV #</th>
+                                                    <th>Date/Account Code</th>
+                                                    <th colspan="2">Particulars/Department</th>
+                                                    <th>Branch</th>
+                                                    <th>Bank Account</th>
                                                     <th style="text-align: right;">Debit</th>
                                                     <th style="text-align: right; padding-right: 10px;">Credit</th>
                                                 </tr>
@@ -196,13 +200,15 @@
                                 <div class="price-title bg-teal-a400">STEP 3: IMPORT SUMMARY</div>
                                 <div class="price-price teal-a400">
                                     <div class="col-md-12 table_result">
-                                        <table class="table table-condensed small" id="jvdata_table2">
+                                        <table class="table table-condensed table-bordered small" id="jvdata_table2">
                                             <thead>
                                                 <tr>
-                                                    <th style="width:10%">JV No.</th>
-                                                    <th style="width:10%">JV Date</th>
-                                                    <th style="width:20%">Ref. No.</th>
-                                                    <th style="width:40%">Particulars</th>
+                                                    <th style="width:7%">JV #</th>
+                                                    <th style="width:10%">Date<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>Account Code</small></th>
+                                                    <th style="width:20%">Imported JV #<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>Account Title</small></th>
+                                                    <th style="width:23%">Particulars<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>Department</small></th>
+                                                    <th style="width:5%">Branch</th>
+                                                    <th style="width:15%">Bank Account</th>
                                                     <th style="width:10%; text-align: right">Debit</th>
                                                     <th style="width:10%; text-align: right">Credit</th>
                                                 </tr>
@@ -284,7 +290,7 @@
                                     datahighlight = '';
                                     if(data['jvdata_list'][i][3] == 'F'){
                                         datahighlight = 'danger';
-                                        dataremarks = "<tr class='"+datahighlight+"'><td colspan='5' align='center'><small><b>"+data['jvdata_list'][i][4]+"</b></small></td></tr>";
+                                        dataremarks = "<tr class='"+datahighlight+"'><td colspan='7' align='center'><small><b>"+data['jvdata_list'][i][4]+"</b></small></td></tr>";
                                         proceedinit = false;
                                     }
 
@@ -293,8 +299,8 @@
                                                     "<tr class='"+datahighlight+"' data-main='"+data['jvdata_list'][i][0]+"'>" +
                                                         "<td><small>"+data['jvdata_list'][i][0]+"</td></small>" +
                                                         "<td><small>"+data['jvdata_list'][i][1]+"</td></small>" +
-                                                        "<td><small>"+data['jvdata_list'][i][2]+"</td></small>" +
-                                                        "<td></td><td></td>" +
+                                                        "<td colspan='2'><small>"+data['jvdata_list'][i][2]+"</td></small>" +
+                                                        "<td colspan='4'></td>" +
                                                     "</tr>");
                                 }
                                 for(var i = 0; i < data['jvdata_d_total_list'].length; i++) {
@@ -304,15 +310,17 @@
                                     }
                                     $("[data-main='"+data['jvdata_d_total_list'][i][0]+"']")
                                         .after("<tr style='background-color: #ececec' class='"+datahighlight+"'>" +
-                                                "<td class='table_detail'>&nbsp;</td>" +
-                                                "<td class='table_detail' colspan='2' style='padding-left: 30px;'><small><b><i>TOTAL</td></i></b></small>" +
+                                                "<td class='table_detail' colspan='5'>&nbsp;</td>" +
+                                                "<td class='table_detail' align='center'><small><b><i>TOTAL</td></i></b></small>" +
                                                 "<td class='table_detail' align='right'><small><b><i>"+parseFloat(data['jvdata_d_total_list'][i][1]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</i></b></small></td>" +
                                                 "<td class='table_detail' align='right' style='padding-right: 10px;'><small><b><i>"+parseFloat(data['jvdata_d_total_list'][i][2]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</i></b></small></td>" +
                                                "</tr>");
                                 }
 
                                 for(var i = 0; i < data['jvdata_d_list'].length; i++) {
-                                    datahighlight = '';
+                                    var datahighlight = '';
+                                    var colspan = '';
+                                    var remarkscolumn = '';
                                     if(data['jvdata_d_list'][i][5] == 'F' || $("[data-main='"+data['jvdata_d_list'][i][0]+"']").hasClass('danger')){
                                         datahighlight = 'danger';
                                     }
@@ -328,13 +336,22 @@
                                     else{
                                         var creditamount = parseFloat(data['jvdata_d_list'][i][4]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                                     }
+                                    if(data['jvdata_d_list'][i][8] == 'Passed'){
+                                        colspan = "colspan='2'";
+                                    }
+                                    else {
+                                        remarkscolumn = "<td class='table_detail' style='padding-left: 5px;'><small>"+data['jvdata_d_list'][i][8]+"</small></td>"
+                                    }
                                     $("[data-main='"+data['jvdata_d_list'][i][0]+"']")
                                             .after("<tr style='background-color: #ececec' class='"+datahighlight+"'>" +
                                                     "<td class='table_detail'></td>" +
-                                                    "<td class='table_detail' style='padding-left: 20px;'><small><i>"+data['jvdata_d_list'][i][1]+"</i></small></td>" +
-                                                    "<td class='table_detail'><small><i>"+data['jvdata_d_list'][i][2]+"</i></small></td>" +
-                                                    "<td class='table_detail' align='right'><small><i>"+debitamount+"</i></small></td>" +
-                                                    "<td class='table_detail' align='right' style='padding-right: 10px;'><small><i>"+creditamount+"</i></small></td>" +
+                                                    "<td class='table_detail' style='padding-left: 20px;'><small><b>"+data['jvdata_d_list'][i][1]+"</b></small></td>" +
+                                                    "<td class='table_detail' style='padding-left: 20px;' "+ colspan +"><small>"+data['jvdata_d_list'][i][2]+"</small></td>" + remarkscolumn +
+{#                                                    "<td class='table_detail' style='padding-left: 5px;'><small>"+importremarks+"</small></td>" +#}
+                                                    "<td class='table_detail'><small>"+data['jvdata_d_list'][i][7]+"</small></td>" +
+                                                    "<td class='table_detail'><small>"+data['jvdata_d_list'][i][6]+"</small></td>" +
+                                                    "<td class='table_detail' align='right'><small>"+debitamount+"</small></td>" +
+                                                    "<td class='table_detail' align='right' style='padding-right: 10px;'><small>"+creditamount+"</small></td>" +
                                                    "</tr>");
                                 }
 
@@ -412,26 +429,34 @@
                                         "<td><small>" + data['jvdata_list'][i][1] + "</small></td>" +
                                         "<td><small>" + data['jvdata_list'][i][2] + "</small></td>" +
                                         "<td><small>" + data['jvdata_list'][i][3] + "</small></td>" +
-                                        "<td colspan='2'></td>" +
+                                        "<td colspan='4'></td>" +
                                         "</tr>");
                             }
 
                             for(var i = 0; i < data['jvdata_d_total_list'].length; i++) {
                                 $("[data-mainlive='"+data['jvdata_d_total_list'][i][0]+"']")
                                     .after("<tr style='background-color: #ececec'>" +
-                                            "<td class='table_detail'>&nbsp;</td>" +
-                                            "<td class='table_detail' colspan='3' style='padding-left: 30px;'><small><b><i>TOTAL</td></i></b></small>" +
+                                            "<td class='table_detail' colspan='5'>&nbsp;</td>" +
+                                            "<td class='table_detail' align='center'><small><b><i>TOTAL</td></i></b></small>" +
                                             "<td class='table_detail' align='right'><small><b><i>"+parseFloat(data['jvdata_d_total_list'][i][1]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</i></b></small></td>" +
                                             "<td class='table_detail' align='right'><small><b><i>"+parseFloat(data['jvdata_d_total_list'][i][2]).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")+"</i></b></small></td>" +
                                            "</tr>");
                             }
 
                             for (var i = 0; i < data['jvdata_d_list'].length; i++) {
-                                extra_data = '';
+                                extra_department = '';
+                                extra_branch = '';
+                                extra_bankaccount = '';
                                 extra_debit = '';
                                 extra_credit = '';
                                 if(data['jvdata_d_list'][i][3] != ''){
-                                    extra_data = '[' + data['jvdata_d_list'][i][3] + '] ' + data['jvdata_d_list'][i][4];
+                                    extra_department = '[' + data['jvdata_d_list'][i][3] + '] ' + data['jvdata_d_list'][i][4];
+                                }
+                                if(data['jvdata_d_list'][i][12] != ''){
+                                    extra_branch = data['jvdata_d_list'][i][12];
+                                }
+                                if(data['jvdata_d_list'][i][8] != ''){
+                                    extra_bankaccount = '[' + data['jvdata_d_list'][i][8] + '] ' + data['jvdata_d_list'][i][9] + ', ' + data['jvdata_d_list'][i][10] + ', ' + data['jvdata_d_list'][i][11];
                                 }
                                 if(data['jvdata_d_list'][i][5] != 0.00){
                                     extra_debit = data['jvdata_d_list'][i][5].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
@@ -448,7 +473,9 @@
                                         "<td class='table_detail'></td>" +
                                         "<td class='table_detail' style='padding-left: 20px;'><b><small>" + data['jvdata_d_list'][i][1] + "</small></b></td>" +
                                         "<td class='table_detail' style='padding-left: 20px;'><small>" + data['jvdata_d_list'][i][2] + "</small></td>" +
-                                        "<td class='table_detail' style='padding-left: 20px;'><small>" + extra_data + "</small></td>" +
+                                        "<td class='table_detail' style='padding-left: 20px;'><small>" + extra_department + "</small></td>" +
+                                        "<td class='table_detail'><small>" + extra_branch + "</small></td>" +
+                                        "<td class='table_detail'><small>" + extra_bankaccount + "</small></td>" +
                                         "<td class='table_detail' align='right'><small>" + extra_debit + "</small></td>" +
                                         "<td class='table_detail' align='right'><small>" + extra_credit + "</small></td>" +
                                         "</tr>")

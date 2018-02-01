@@ -89,7 +89,8 @@ def fileupload(request):
 
                                 if len(data) == 13:
                                     # log status filtering
-                                    if Logs_jvmain.objects.filter(jvnum=data[0], importstatus='P'):
+                                    if Logs_jvmain.objects.filter(jvnum=data[0], importstatus='P',
+                                                                  jvsubtype=request.POST['upload_type']):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already posted'
                                     elif Logs_jvmain.objects.filter(jvnum=data[0], batchkey=batchkey, importstatus='S'):
@@ -112,6 +113,7 @@ def fileupload(request):
                                         importstatus=importstatus,
                                         importremarks=importremarks,
                                         importby=request.user,
+                                        jvsubtype=request.POST['upload_type'],
                                     ).save()
                                     breakstatus = 0
                                 else:
@@ -131,17 +133,16 @@ def fileupload(request):
                                                 if not Chartofaccount.objects.filter(accountcode=str(data[2]).strip()+'0000'):
                                                     importstatus = 'F'
                                                     importremarks = 'Failed: Chart of account does not exist'
-                                                elif data[3].strip() != '':
-                                                    if not Bankaccount.objects.filter(code=data[3].strip()):
-                                                        importstatus = 'F'
-                                                        importremarks = 'Failed: Bank account does not exist'
-                                                elif data[4].strip() != '':
-                                                    if not Department.objects.filter(code=data[4].strip()):
+                                                elif data[3].strip() != '' and not Bankaccount.objects.filter(
+                                                        code=data[3].strip()):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Bank account does not exist'
+                                                elif data[4].strip() != '' and not Department.objects.filter(
+                                                        code=data[4].strip()):
                                                         importstatus = 'F'
                                                         importremarks = 'Failed: Department does not exist'
-                                                elif data[13].strip() != '':
-                                                    print '-- with branch --'
-                                                    if not Branch.objects.filter(code=data[13].strip()):
+                                                elif data[13].strip() != '' and not Branch.objects.filter(
+                                                        code=data[13].strip()):
                                                         importstatus = 'F'
                                                         importremarks = 'Failed: Branch does not exist'
                                                 else:
@@ -206,6 +207,7 @@ def fileupload(request):
                                                           data.importstatus,
                                                           data.bankaccount,
                                                           data.branch,
+                                                          data.importremarks,
                                                           ])
 
                                 for index, data in enumerate(jvdata_d_debit):
@@ -270,145 +272,167 @@ def exportsave(request):
             jvdetail_list = []
             jvdetail_total_list = []
 
-            if request.POST['upload_type'] == 'SUB-REG' or request.POST['upload_type'] == 'SUB-COM':
-                for data in jvmain:
+            for data in jvmain:
 
-                    # logsjvmain to tempjvmain
-                    temp_jvmain = Temp_jvmain.objects.create(
-                        importedjvnum=data.jvnum,
-                        jvdate=data.jvdate,
-                        particulars=data.particulars + '; ' + data.remarks + '; ' + data.comments,
-                        importby=data.importby,
-                        batchkey=data.batchkey,
+                # logsjvmain to tempjvmain
+                temp_jvmain = Temp_jvmain.objects.create(
+                    importedjvnum=data.jvnum,
+                    jvdate=data.jvdate,
+                    particulars=data.particulars + '; ' + data.remarks + '; ' + data.comments,
+                    importby=data.importby,
+                    batchkey=data.batchkey,
+                    postingremarks='Processing...',
+                )
+                temp_jvmain.save()
+
+                # get logsjvdetail
+                jvdetail = Logs_jvdetail.objects.filter(jvnum=data.jvnum, batchkey=request.POST['batchkey'],
+                                                        importstatus='S')
+                for data2 in jvdetail:
+
+                    # logsjvdetail to tempjvdetail
+                    temp_jvdetail = Temp_jvdetail.objects.create(
+                        item_counter=str(int(data2.sortnum)+1),
+                        importedjvnum=data2.jvnum,
+                        jvdate=data2.jvdate,
+                        chartofaccount=data2.chartofaccount,
+                        bankaccount=data2.bankaccount,
+                        department=data2.department,
+                        branch=data2.branch,
+                        balancecode=data2.charttype,
+                        debitamount=data2.amount if data2.charttype == 'D' else '0.00',
+                        creditamount=data2.amount if data2.charttype == 'C' else '0.00',
+                        batchkey=data2.batchkey,
                         postingremarks='Processing...',
                     )
-                    temp_jvmain.save()
+                    temp_jvdetail.save()
 
-                    # get logsjvdetail
-                    jvdetail = Logs_jvdetail.objects.filter(jvnum=data.jvnum, batchkey=request.POST['batchkey'],
-                                                            importstatus='S')
-                    for data2 in jvdetail:
+                # generate jvnum, get jvyear
+                dt = datetime.strptime(data.jvdate, '%Y-%m-%d')
+                jvyear = dt.year
+                num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+                padnum = '{:06d}'.format(num)
+                actualjvnum = str(jvyear) + str(padnum)
 
-                        # logsjvdetail to tempjvdetail
-                        temp_jvdetail = Temp_jvdetail.objects.create(
-                            item_counter=str(int(data2.sortnum)+1),
-                            importedjvnum=data2.jvnum,
-                            jvdate=data2.jvdate,
-                            chartofaccount=data2.chartofaccount,
-                            department=data2.department,
-                            balancecode=data2.charttype,
-                            debitamount=data2.amount if data2.charttype == 'D' else '0.00',
-                            creditamount=data2.amount if data2.charttype == 'C' else '0.00',
-                            batchkey=data2.batchkey,
-                            postingremarks='Processing...',
-                        )
-                        temp_jvdetail.save()
+                # temp jvmain to jvmain
+                finaljvmain = Jvmain.objects.create(
+                    jvnum=actualjvnum,
+                    jvdate=datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%Y-%m-%d %X'),
+                    jvtype=Jvtype.objects.get(pk=1),
+                    jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
+                    currency=Currency.objects.get(pk=1),
+                    branch=Branch.objects.get(code='HO'),
+                    particular=temp_jvmain.particulars,
+                    enterby=temp_jvmain.importby,
+                    modifyby=temp_jvmain.importby,
+                    importedjvnum=temp_jvmain.importedjvnum,
+                    designatedapprover=request.user,
+                )
+                finaljvmain.save()
 
-                    # generate jvnum, get jvyear
-                    dt = datetime.strptime(data.jvdate, '%Y-%m-%d')
-                    jvyear = dt.year
-                    num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
-                    padnum = '{:06d}'.format(num)
-                    actualjvnum = str(jvyear) + str(padnum)
+                # temp jvdetail to jvdetail
+                temp_jvdetail = Temp_jvdetail.objects.filter(importedjvnum=temp_jvmain.importedjvnum,
+                                                             batchkey=temp_jvmain.batchkey, postingstatus='F')
 
-                    # temp jvmain to jvmain
-                    finaljvmain = Jvmain.objects.create(
-                        jvnum=actualjvnum,
-                        jvdate=datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%Y-%m-%d %X'),
-                        jvtype=Jvtype.objects.get(pk=1),
-                        jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
-                        refnum=temp_jvmain.importedjvnum,
-                        currency=Currency.objects.get(pk=1),
-                        branch=Branch.objects.get(code='HO'),
-                        particular=temp_jvmain.particulars,
-                        enterby=temp_jvmain.importby,
-                        modifyby=temp_jvmain.importby,
-                        importedjvnum=temp_jvmain.importedjvnum,
+                totaldebitamount = 0.00
+                totalcreditamount = 0.00
+
+                for data3 in temp_jvdetail:
+                    finaljvdetail = Jvdetail.objects.create(
+                        item_counter=data3.item_counter,
+                        jvmain=finaljvmain,
+                        jv_num=finaljvmain.jvnum,
+                        jv_date=finaljvmain.jvdate,
+                        chartofaccount=Chartofaccount.objects.get(accountcode=data3.chartofaccount+'0000'),
+                        debitamount=float(data3.debitamount),
+                        creditamount=float(data3.creditamount),
+                        balancecode=data3.balancecode,
+                        enterby=request.user,
+                        modifyby=request.user,
                     )
-                    finaljvmain.save()
+                    finaljvdetail.save()
+                    if data3.department.strip() != '' and data3.department.strip() is not None:
+                        finaljvdetail.department = Department.objects.get(code=data3.department.strip())
+                        finaljvdetail.save(update_fields=['department'])
+                    if data3.bankaccount.strip() != '' and data3.bankaccount.strip() is not None:
+                        finaljvdetail.bankaccount = Bankaccount.objects.get(code=data3.bankaccount.strip())
+                        finaljvdetail.save(update_fields=['bankaccount'])
+                    if data3.branch.strip() != '' and data3.branch.strip() is not None:
+                        finaljvdetail.branch = Branch.objects.get(code=data3.branch.strip())
+                        finaljvdetail.save(update_fields=['branch'])
 
-                    # temp jvdetail to jvdetail
-                    temp_jvdetail = Temp_jvdetail.objects.filter(importedjvnum=temp_jvmain.importedjvnum,
-                                                                 batchkey=temp_jvmain.batchkey, postingstatus='F')
+                    totaldebitamount += finaljvdetail.debitamount
+                    totalcreditamount += finaljvdetail.creditamount
 
-                    totaldebitamount = 0.00
-                    totalcreditamount = 0.00
+                # save total amount in jvmain
+                if round(totaldebitamount, 2) == round(totalcreditamount, 2):
+                    finaljvmain.amount = totaldebitamount
+                    finaljvmain.save(update_fields=['amount'])
+                else:
+                    print 'Total amounts for debit and credit are not equal. Jvmain Amount is not saved.'
 
-                    for data3 in temp_jvdetail:
-                        finaljvdetail = Jvdetail.objects.create(
-                            item_counter=data3.item_counter,
-                            jvmain=finaljvmain,
-                            jv_num=finaljvmain.jvnum,
-                            jv_date=finaljvmain.jvdate,
-                            chartofaccount=Chartofaccount.objects.get(accountcode=data3.chartofaccount+'0000'),
-                            debitamount=float(data3.debitamount),
-                            creditamount=float(data3.creditamount),
-                            balancecode=data3.balancecode,
-                            enterby=request.user,
-                            modifyby=request.user,
-                        )
-                        finaljvdetail.save()
-                        if data3.department:
-                            finaljvdetail.department = Department.objects.get(code=data3.department)
-                            finaljvdetail.save(update_fields=['department'])
-                        totaldebitamount += finaljvdetail.debitamount
-                        totalcreditamount += finaljvdetail.creditamount
+                # set posting status to success for temp
+                temp_jvmain.postingstatus = 'S'
+                temp_jvmain.save()
+                temp_jvdetail.update(postingstatus='S')
 
-                    # save total amount in jvmain
-                    if round(totaldebitamount, 2) == round(totalcreditamount, 2):
-                        finaljvmain.amount = totaldebitamount
-                        finaljvmain.save(update_fields=['amount'])
-                    else:
-                        print 'Total amounts for debit and credit are not equal. Jvmain Amount is not saved.'
+                # set to posted after success of jvnum and batch
+                data.importstatus = 'P'
+                data.save()
+                Logs_jvdetail.objects.filter(batchkey=request.POST['batchkey'], jvnum=data.jvnum).update(
+                    importstatus='P')
 
-                    # set posting status to success for temp
-                    temp_jvmain.postingstatus = 'S'
-                    temp_jvmain.save()
-                    temp_jvdetail.update(postingstatus='S')
+                # save for preview
+                jvmain_data = Jvmain.objects.filter(jvnum=finaljvmain.jvnum, jvstatus='F', status='A')
+                jvmain_data = jvmain_data.filter(Q(jvsubtype=Jvsubtype.objects.get(code='SUB-REG')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='SUB-COM')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-ADJ')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-EXD')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-CAI')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-PPD')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-RAR')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-TAX')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-VOD')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-USI'))).\
+                    order_by('jvnum')
 
-                    # set to posted after success of jvnum and batch
-                    data.importstatus = 'P'
-                    data.save()
-                    Logs_jvdetail.objects.filter(batchkey=request.POST['batchkey'], jvnum=data.jvnum).update(
-                        importstatus='P')
+                for datalist in jvmain_data:
+                    jvmain_list.append([datalist.jvnum,
+                                        datalist.jvdate.date(),
+                                        datalist.importedjvnum,
+                                        datalist.particular,
+                                        'S',
+                                        ])
 
-                    # save for preview
-                    jvmain_data = Jvmain.objects.filter(jvnum=finaljvmain.jvnum, jvstatus='F', status='A')
-                    jvmain_data = jvmain_data.filter(Q(jvsubtype=Jvsubtype.objects.get(code='SUB-REG')) |
-                                                     Q(jvsubtype=Jvsubtype.objects.get(code='SUB-COM'))).\
-                        order_by('jvnum')
+                jvdetail_data = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A',
+                                                        isdeleted=0).order_by('-item_counter')
+                for datalist in jvdetail_data:
+                    jvdetail_list.append([datalist.jv_num,
+                                          datalist.chartofaccount.accountcode,
+                                          datalist.chartofaccount.title,
+                                          datalist.department.code if datalist.department else '',
+                                          datalist.department.departmentname if datalist.department else '',
+                                          datalist.debitamount,
+                                          datalist.creditamount,
+                                          'S',
+                                          datalist.bankaccount.code if datalist.bankaccount else '',
+                                          datalist.bankaccount.bank.code if datalist.bankaccount else '',
+                                          datalist.bankaccount.bankbranch.description if datalist.bankaccount else '',
+                                          datalist.bankaccount.bankaccounttype.description if datalist.bankaccount else '',
+                                          datalist.branch.code if datalist.branch else '',
+                                          datalist.branch.description if datalist.branch else '',
+                                          ])
 
-                    for datalist in jvmain_data:
-                        jvmain_list.append([datalist.jvnum,
-                                            datalist.jvdate.date(),
-                                            datalist.refnum,
-                                            datalist.particular,
-                                            'S',
-                                            ])
+                jvdata_d_debit = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A', isdeleted=0).\
+                    values('jv_num').annotate(total=Sum('debitamount')).order_by('jv_num')
+                jvdata_d_credit = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A', isdeleted=0). \
+                    values('jv_num').annotate(total=Sum('creditamount')).order_by('jv_num')
 
-                    jvdetail_data = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A',
-                                                            isdeleted=0).order_by('-item_counter')
-                    for datalist in jvdetail_data:
-                        jvdetail_list.append([datalist.jv_num,
-                                              datalist.chartofaccount.accountcode,
-                                              datalist.chartofaccount.title,
-                                              datalist.department.code if datalist.department else '',
-                                              datalist.department.departmentname if datalist.department else '',
-                                              datalist.debitamount,
-                                              datalist.creditamount,
-                                              'S',
-                                              ])
-
-                    jvdata_d_debit = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A', isdeleted=0).\
-                        values('jv_num').annotate(total=Sum('debitamount')).order_by('jv_num')
-                    jvdata_d_credit = Jvdetail.objects.filter(jv_num=finaljvmain.jvnum, status='A', isdeleted=0). \
-                        values('jv_num').annotate(total=Sum('creditamount')).order_by('jv_num')
-
-                    for index, value in enumerate(jvdata_d_debit):
-                        jvdetail_total_list.append([value['jv_num'],
-                                                    value['total'],
-                                                    jvdata_d_credit[index]['total'],
-                                                    ])
+                for index, value in enumerate(jvdata_d_debit):
+                    jvdetail_total_list.append([value['jv_num'],
+                                                value['total'],
+                                                jvdata_d_credit[index]['total'],
+                                                ])
 
             # append failed items from temp to jvmain_list, jvdetail_list
             jvmain_data = Temp_jvmain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='F')

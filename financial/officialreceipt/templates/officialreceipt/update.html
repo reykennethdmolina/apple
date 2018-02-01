@@ -450,6 +450,20 @@
         ajaxselect2("agent", "id_agent");
 
         displayPayeeDropdowns();
+
+        if($('#id_orsource').val() == 'A'){
+            if($('#id_agency').val() != null){
+                $('#id_payee_adv').val('AG');
+                $('#payee_options_client').hide();
+                $('#payee_options_agency').show();
+            }
+            else if($('#id_client').val() != null){
+                $('#id_payee_adv').val('C');
+                $('#payee_options_agency').hide();
+                $('#payee_options_client').show();
+            }
+        }
+
         setPayeeOptions();
         generateTotals();
 
@@ -470,6 +484,7 @@
 
         $('#id_orsource').on('change', function(){
             displayPayeeDropdowns();
+            setPayeeOptions();
         });
 
         $('.payee-type').on('change', function(){
@@ -595,7 +610,6 @@
                 $('.class-cir').not('.class-agent').show();
                 $('.class-adv').hide();
             }
-            setPayeeOptions();
         }
 
         function setPayeeOptions(){
@@ -609,10 +623,27 @@
                 $('.class-adv').hide();
             }
 
-
-            if(e.val() == 'AG')            $('#payee_options_agency').show();
-            else if(e.val() == 'C')        $('#payee_options_client').show();
-            else if(e.val() == 'A')        $('#payee_options_agent').show();
+            if(e.val() == 'AG'){
+                $('#payee_options_agency').show();
+                $('#id_agent').val(null);
+                $('#id_client').val(null);
+                ajaxselect2("client", "id_client");
+                ajaxselect2("agent", "id_agent");
+            }
+            else if(e.val() == 'C'){
+                $('#payee_options_client').show();
+                $('#id_agent').val(null);
+                $('#id_agency').val(null);
+                ajaxselect2("agent", "id_agent");
+                ajaxselect2("agency", "id_agency");
+            }
+            else if(e.val() == 'A'){
+                $('#payee_options_agent').show();
+                $('#id_agency').val(null);
+                $('#id_client').val(null);
+                ajaxselect2("agency", "id_agency");
+                ajaxselect2("client", "id_client");
+            }
         }
 
         function showRate(field, rateSpan, defaultText){
