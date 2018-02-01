@@ -20,6 +20,7 @@ from adtype.models import Adtype
 from companyparameter.models import Companyparameter
 from circulationpaytype.models import Circulationpaytype
 from productgroupcategory.models import Productgroupcategory
+from circulationproduct.models import Circulationproduct
 from productgroup.models import Productgroup
 from django.db.models import Count, Sum
 from datetime import datetime
@@ -99,9 +100,9 @@ def fileupload(request):
                                     elif not Vat.objects.filter(code=data[33]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Vat Type does not exist'
-                                    elif not Product.objects.filter(code=data[35]):
+                                    elif not Circulationproduct.objects.filter(code=data[35]):
                                         importstatus = 'F'
-                                        importremarks = 'Failed: Product does not exist'
+                                        importremarks = 'Failed: Circulation Product does not exist'
                                     else:
                                         importstatus = 'S'
                                         importremarks = 'Passed'
@@ -701,9 +702,9 @@ def exportsave(request):
                         payee_code=temp_ormain.payeecode,
                         payee_name=temp_ormain.payeename,
                         payee_type=payeetype_payeetype.upper(),
-                        product=Product.objects.get(code=temp_ormain.productcode),
-                        product_code=temp_ormain.productcode,
-                        product_name=Product.objects.get(code=temp_ormain.productcode).description,
+                        circulationproduct=Circulationproduct.objects.get(code=temp_ormain.productcode),
+                        circulationproduct_code=temp_ormain.productcode,
+                        circulationproduct_name=Circulationproduct.objects.get(code=temp_ormain.productcode).description,
                         wtaxrate=temp_ormain.wtaxrate,
                         wtaxamount=temp_ormain.totalwtax,
                         importby=request.user,
@@ -715,8 +716,9 @@ def exportsave(request):
 
                     # temp ordetail to ordetail
                     temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
-                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode', 'productcode').order_by()\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode').order_by()\
                                                          .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
+                                                         # .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode', 'productcode').order_by()\
                     for index, data2 in enumerate(temp_ordetail):
                         debit = data2['debit'] if data2['debit'] is not None else 0.00
                         credit = data2['credit'] if data2['credit'] is not None else 0.00
@@ -733,7 +735,7 @@ def exportsave(request):
                                 chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
                                 customer=get_object_or_None(Customer, code=data2['payeecode']),
                                 bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
-                                product=get_object_or_None(Product, code=data2['productcode']),
+                                # product=get_object_or_None(Product, code=data2['productcode']),
                                 enterby=request.user,
                                 modifyby=request.user,
                                 ormain=Ormain.objects.get(ornum=temp_ormain.orno, orstatus='F', status='A', orsource='A'),
