@@ -115,6 +115,8 @@ class Ormain(models.Model):
                                      blank=True)
     circulationproduct = models.ForeignKey('circulationproduct.Circulationproduct',
                                            related_name='ormain_circulationproduct_id', null=True, blank=True)
+    circulationproduct_code = models.CharField(max_length=25, null=True, blank=True)
+    circulationproduct_name = models.CharField(max_length=250, null=True, blank=True)
     adtype = models.ForeignKey('adtype.Adtype', related_name='ormain_adtype_id', null=True, blank=True)
     transaction_type = models.CharField(default='M', max_length=1)
     acctentry_incomplete = models.IntegerField(default=0)

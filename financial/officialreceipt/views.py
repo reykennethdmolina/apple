@@ -7,6 +7,7 @@ from adtype.models import Adtype
 from ataxcode.models import Ataxcode
 from bankbranchdisburse.models import Bankbranchdisburse
 from branch.models import Branch
+from circulationproduct.models import Circulationproduct
 from companyparameter.models import Companyparameter
 from cvsubtype.models import Cvsubtype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
@@ -111,7 +112,7 @@ class CreateView(CreateView):
     model = Ormain
     template_name = 'officialreceipt/create.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
-              'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
+              'wtax', 'outputvattype', 'deferredvat', 'circulationproduct', 'bankaccount', 'particulars', 'government',
               'remarks', 'prnum', 'prdate', 'ornum', 'adtype']
 
     def dispatch(self, request, *args, **kwargs):
@@ -137,7 +138,7 @@ class CreateView(CreateView):
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
+        context['circulationproduct'] = Circulationproduct.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = 0
         # data for lookup
 
@@ -223,8 +224,8 @@ class CreateView(CreateView):
         self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
         self.object.collector_code = self.object.collector.code
         self.object.collector_name = self.object.collector.name
-        self.object.product_code = self.object.product.code
-        self.object.product_name = self.object.product.description
+        self.object.circulationproduct_code = self.object.circulationproduct.code
+        self.object.circulationproduct_name = self.object.circulationproduct.description
         self.object.save()
 
         if Ordetailtemp.objects.filter(secretkey=self.request.POST['secretkey']).count() == 0:
@@ -245,7 +246,7 @@ class UpdateView(UpdateView):
     model = Ormain
     template_name = 'officialreceipt/update.html'
     fields = ['ordate', 'ortype', 'orsource', 'collector', 'branch', 'amount', 'amountinwords', 'vat',
-              'wtax', 'outputvattype', 'deferredvat', 'product', 'bankaccount', 'particulars', 'government',
+              'wtax', 'outputvattype', 'deferredvat', 'circulationproduct', 'bankaccount', 'particulars', 'government',
               'remarks', 'vatrate', 'wtaxrate', 'orsource', 'prnum', 'prdate', 'ornum', 'adtype']
 
     def dispatch(self, request, *args, **kwargs):
@@ -359,7 +360,7 @@ class UpdateView(UpdateView):
         # context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')  # add filter customer type
         # context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')  # add filter customer type
         # context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
-        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
+        context['circulationproduct'] = Circulationproduct.objects.filter(isdeleted=0).order_by('code')
         context['ornum'] = self.object.ornum
         context['trans_type'] = self.object.transaction_type
         context['adtype'] = Adtype.objects.filter(isdeleted=0).order_by('code')
@@ -456,11 +457,11 @@ class UpdateView(UpdateView):
         self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
         self.object.collector_code = self.object.collector.code
         self.object.collector_name = self.object.collector.name
-        self.object.product_code = self.object.product.code
-        self.object.product_name = self.object.product.description
+        self.object.circulationproduct_code = self.object.circulationproduct.code
+        self.object.circulationproduct_name = self.object.circulationproduct.description
         self.object.save(update_fields=['vatamount', 'wtaxamount', 'vatablesale', 'vatexemptsale', 'vatzeroratedsale',
-                                        'totalsale', 'collector_code', 'collector_name', 'product_code',
-                                        'product_name'])
+                                        'totalsale', 'collector_code', 'collector_name', 'circulationproduct_code',
+                                        'circulationproduct_name'])
 
         # save ordetailtemp to ordetail
         source = 'ordetailtemp'
