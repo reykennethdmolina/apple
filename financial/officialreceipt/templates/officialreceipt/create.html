@@ -61,7 +61,6 @@
                             <i class="icon fa-search" aria-hidden="true"></i> Search
                         </button>
                     </div>
-                    <span class="label label-primary" style="font-size: 10px;">Manual</span>
                 </h3>
                 <form autocomplete="off" id="form-b" method="post">
                     {% csrf_token %}
@@ -94,6 +93,10 @@
                             </select>
                             <span class="help-block form-error">{{ form.orsource.errors.as_text }}</span>
                         </div>
+                        <div class="form-group col-sm-2 padding-top-30">
+                            <span class="label label-primary" style="font-size: 13px;">MANUAL</span>
+                        </div>
+                        <div class="col-md-12"><hr></div>
                         <div class="form-group col-sm-2 {{ form.prnum.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prnum">PR #</label>
                             <input type="text" class="form-control input-sm" id="id_prnum" name="prnum" placeholder="PR #" value="{{ form.prnum.value|default:'' }}" style="background: white;">
@@ -103,6 +106,16 @@
                             <label class="control-label" for="id_prdate">PR Date</label>
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_prdate" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                             <span class="help-block form-error">{{ form.ortype.errors.as_text }}</span>
+                        </div>
+                        <div class="form-group col-sm-4 {{ form.adtype.errors|yesno:'has-error,' }}">
+                            <label class="control-label" for="id_adtype">Ad Type</label>
+                            <select id="id_adtype" class="form-control input-sm select2" name="adtype">
+                                <option value="">-- Select --</option>
+                                {% for data in adtype %}
+                                    <option value="{{ data.id }}" {% if form.adtype.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="help-block form-error">{{ form.adtype.errors.as_text }}</span>
                         </div>
                         <div class="col-md-12"><hr></div>
                         <!--------------------------------------------------------------------------------------------->
@@ -279,17 +292,7 @@
                             </select>
                             <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
                         </div>
-                        <div class="form-group col-sm-4 {{ form.adtype.errors|yesno:'has-error,' }}">
-                            <label class="control-label" for="id_adtype">Ad Type</label>
-                            <select id="id_adtype" class="form-control input-sm select2" name="adtype">
-                                <option value="">-- Select --</option>
-                                {% for data in adtype %}
-                                    <option value="{{ data.id }}" {% if form.adtype.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.code }}] {{ data.description }}</option>
-                                {% endfor %}
-                            </select>
-                            <span class="help-block form-error">{{ form.adtype.errors.as_text }}</span>
-                        </div>
-                        <div class="form-group col-sm-5 {{ form.particulars.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-6 {{ form.particulars.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_particulars">Particulars</label>
                             <textarea id="id_particulars" class="form-control input-sm" data-validation="required" name="particulars" rows="2">{{ form.particulars.value|default:'' }}</textarea>
                             <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
@@ -310,7 +313,7 @@
 {#                            <input type="text" disabled="disabled" value="For Approval" class="form-control input-sm disabled-white">#}
 {#                            <span class="help-block form-error">{{ form.orstatus.errors.as_text }}</span>#}
 {#                        </div>#}
-                        <div class="form-group col-sm-3 {{ form.remarks.errors|yesno:'has-error,' }}">
+                        <div class="form-group col-sm-6 {{ form.remarks.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_remarks">Remarks</label>
                             <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="2">{{ form.remarks.value|default:'' }}</textarea>
                             <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
