@@ -123,10 +123,10 @@
                     <td style="width: 45%">
                         <table>
                             <tr>
-                                {% if data.bankaccount__accountnumber %}
+                                {% if data.bankaccount__code %}
                                     <td>
-                                        {% ifchanged data.bankaccount__accountnumber %}
-                                            Bank Acct. No. {{ data.bankaccount__accountnumber }}
+                                        {% ifchanged data.bankaccount__code %}
+                                            {{ data.bankaccount__code }}
                                         {% endifchanged %}
                                     </td>
                                 {% endif %}
@@ -264,7 +264,7 @@
                         <table>
                             <tr>
                                 {% if data.bankaccount.accountnumber %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>Bank Acct. No. {{ data.bankaccount.accountnumber }}</td>
+                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>{{ data.bankaccount.code }}</td>
                                 {% endif %}
                                 {% if data.department.departmentname %}
                                     <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>

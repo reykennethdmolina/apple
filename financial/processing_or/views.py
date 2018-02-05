@@ -701,6 +701,11 @@ def exportsave(request):
                     else:
                         payeetype_payeetype = temp_ormain.payeetype
 
+                    if temp_ormain.payeecode.upper() == 'WI':
+                        temp_remarks = temp_ormain.payeename
+                    else:
+                        temp_remarks = ''
+
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
                         ordate=temp_ormain.ordate,
@@ -741,6 +746,7 @@ def exportsave(request):
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - S'),
+                        remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
                     ).save()
 
                     # temp ordetail to ordetail

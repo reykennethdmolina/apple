@@ -302,6 +302,14 @@
                                 </select>
                             </div>
                             <div class="form-group col-sm-12"></div>
+                            <div class="form-group col-sm-2 transaction_type_holder">
+                                <label class="control-label small">Transaction Type</label>
+                                <select class="form-control input-sm transaction_type" id="rep_f_transaction_type">
+                                    <option value="">-- Select --</option>
+                                    <option value="A">Automatic</option>
+                                    <option value="M">Manual</option>
+                                </select>
+                            </div>
                             <div class="form-group col-sm-3">
                                 <label class="control-label small">AR Type</label>
                                 <select class="form-control input-sm" id="rep_f_artype">
@@ -457,6 +465,7 @@
                 setCookie('rep_f_product_{{ request.resolver_match.app_name }}', $('#rep_f_product').val());
                 setCookie('rep_f_bankaccount_{{ request.resolver_match.app_name }}', $('#rep_f_bankaccount').val());
                 setCookie('rep_f_government_{{ request.resolver_match.app_name }}', $('#rep_f_government').val());
+                setCookie('rep_f_transaction_type_{{ request.resolver_match.app_name }}', $('#rep_f_transaction_type').val());
                 setCookie('rep_f_orstatus_{{ request.resolver_match.app_name }}', $('#rep_f_orstatus').val());
                 setCookie('rep_f_artype_{{ request.resolver_match.app_name }}', $('#rep_f_artype').val());
                 setCookie('rep_f_payee_adv_{{ request.resolver_match.app_name }}', $('#rep_f_payee_adv').val());
@@ -521,6 +530,7 @@
         $('#rep_f_product').val(getCookie('rep_f_product_{{ request.resolver_match.app_name }}'));
         $('#rep_f_bankaccount').val(getCookie('rep_f_bankaccount_{{ request.resolver_match.app_name }}'));
         $('#rep_f_government').val(getCookie('rep_f_government_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_transaction_type').val(getCookie('rep_f_transaction_type_{{ request.resolver_match.app_name }}'));
         $('#rep_f_orstatus').val(getCookie('rep_f_orstatus_{{ request.resolver_match.app_name }}'));
         $('#rep_f_artype').val(getCookie('rep_f_artype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_payee_adv').val(getCookie('rep_f_payee_adv_{{ request.resolver_match.app_name }}'));

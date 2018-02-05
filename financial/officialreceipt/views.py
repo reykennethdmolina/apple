@@ -591,6 +591,9 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name))
             query = query.filter(government=str(key_data))
+        if request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name))
+            query = query.filter(transaction_type=str(key_data))
 
         if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
@@ -695,6 +698,9 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name))
             query = query.filter(ormain__government=str(key_data))
+        if request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name))
+            query = query.filter(ormain__transaction_type=str(key_data))
 
         if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
@@ -744,7 +750,7 @@ def reportresultquery(request):
             query = query.values('chartofaccount__accountcode',
                                  'chartofaccount__title',
                                  'chartofaccount__description',
-                                 'bankaccount__accountnumber',
+                                 'bankaccount__code',
                                  'department__departmentname',
                                  'employee__firstname',
                                  'employee__lastname',
@@ -762,7 +768,7 @@ def reportresultquery(request):
                          .annotate(Sum('debitamount'), Sum('creditamount'))\
                          .order_by('-balancecode',
                                    '-chartofaccount__accountcode',
-                                   'bankaccount__accountnumber',
+                                   'bankaccount__code',
                                    'department__departmentname',
                                    'employee__firstname',
                                    'supplier__name',
@@ -780,7 +786,7 @@ def reportresultquery(request):
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      '-chartofaccount__accountcode',
-                                                                                     'bankaccount__accountnumber',
+                                                                                     'bankaccount__code',
                                                                                      'department__departmentname',
                                                                                      'employee__firstname',
                                                                                      'supplier__name',
@@ -950,7 +956,7 @@ def reportresultxlsx(request):
 
             data = [
                 obj['chartofaccount__accountcode'] + " - " + obj['chartofaccount__description'],
-                obj['bankaccount__accountnumber'],
+                obj['bankaccount__code'],
                 obj['department__departmentname'],
                 str_firstname + " " + str_lastname,
                 obj['supplier__name'],
@@ -972,7 +978,7 @@ def reportresultxlsx(request):
 
             data = [
                 obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
-                obj.bankaccount.accountnumber if obj.bankaccount is not None else '',
+                obj.bankaccount.code if obj.bankaccount is not None else '',
                 obj.department.departmentname if obj.department is not None else '',
                 str_firstname + " " + str_lastname,
                 obj.supplier.name if obj.supplier is not None else '',
