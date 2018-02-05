@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 
 
 class Budgetapproverlevels(models.Model):
-    name = models.CharField(max_length=10, unique=True)
-    description = models.CharField(max_length=250)
+    name = models.CharField(max_length=250, unique=True)
+    description = models.CharField(max_length=500)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -15,7 +15,7 @@ class Budgetapproverlevels(models.Model):
         ('O', 'Posted'),
         ('P', 'Printed'),
     )
-    expwithinbudget = models.DecimalField(default=0.00, decimal_places=5, max_digits=18)
+    expwithinbudget = models.DecimalField(default=0.00, decimal_places=2, max_digits=18)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='budgetapproverlevels_enter')
     enterdate = models.DateTimeField(auto_now_add=True)

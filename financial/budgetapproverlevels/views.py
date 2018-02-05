@@ -16,10 +16,10 @@ class IndexView(ListView):
         return Budgetapproverlevels.objects.all().filter(isdeleted=0).order_by('-expwithinbudget')
 
 
-# @method_decorator(login_required, name='dispatch')
-# class DetailView(DetailView):
-#     model = Currency
-#     template_name = 'currency/detail.html'
+@method_decorator(login_required, name='dispatch')
+class DetailView(DetailView):
+    model = Budgetapproverlevels
+    template_name = 'budgetapproverlevels/detail.html'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -41,40 +41,40 @@ class CreateView(CreateView):
         return HttpResponseRedirect('/budgetapproverlevels')
 
 
-# @method_decorator(login_required, name='dispatch')
-# class UpdateView(UpdateView):
-#     model = Currency
-#     template_name = 'currency/edit.html'
-#     fields = ['code', 'symbol', 'description', 'country', 'fxrate']
+@method_decorator(login_required, name='dispatch')
+class UpdateView(UpdateView):
+    model = Budgetapproverlevels
+    template_name = 'budgetapproverlevels/edit.html'
+    fields = ['name', 'description', 'expwithinbudget']
 
-#     def dispatch(self, request, *args, **kwargs):
-#         if not request.user.has_perm('currency.change_currency'):
-#             raise Http404
-#         return super(UpdateView, self).dispatch(request, *args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('budgetapproverlevels.change_budgetapproverlevels'):
+            raise Http404
+        return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
-#     def form_valid(self, form):
-#         self.object = form.save(commit=False)
-#         self.object.modifyby = self.request.user
-#         self.object.modifydate = datetime.datetime.now()
-#         self.object.save(update_fields=['symbol', 'description', 'country', 'fxrate', 'modifyby', 'modifydate'])
-#         return HttpResponseRedirect('/currency')
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.save(update_fields=['name', 'description', 'expwithinbudget', 'modifyby', 'modifydate'])
+        return HttpResponseRedirect('/budgetapproverlevels')
 
 
-# @method_decorator(login_required, name='dispatch')
-# class DeleteView(DeleteView):
-#     model = Currency
-#     template_name = 'currency/delete.html'
+@method_decorator(login_required, name='dispatch')
+class DeleteView(DeleteView):
+    model = Budgetapproverlevels
+    template_name = 'budgetapproverlevels/delete.html'
 
-#     def dispatch(self, request, *args, **kwargs):
-#         if not request.user.has_perm('currency.delete_currency'):
-#             raise Http404
-#         return super(DeleteView, self).dispatch(request, *args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('budgetapproverlevels.delete_budgetapproverlevels'):
+            raise Http404
+        return super(DeleteView, self).dispatch(request, *args, **kwargs)
 
-#     def delete(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         self.object.modifyby = self.request.user
-#         self.object.modifydate = datetime.datetime.now()
-#         self.object.isdeleted = 1
-#         self.object.status = 'I'
-#         self.object.save()
-#         return HttpResponseRedirect('/currency')
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.modifyby = self.request.user
+        self.object.modifydate = datetime.datetime.now()
+        self.object.isdeleted = 1
+        self.object.status = 'I'
+        self.object.save()
+        return HttpResponseRedirect('/budgetapproverlevels')

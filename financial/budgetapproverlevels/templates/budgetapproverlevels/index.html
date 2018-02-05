@@ -1,0 +1,66 @@
+{% extends 'base-form.html' %}
+{% load humanize %}
+{% block page-title %} Budget Approver Levels {% endblock page-title %}
+
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if perms.budgetapproverlevels.add_budgetapproverlevels %}
+                <div class="text-right"><a href="{% url 'budgetapproverlevels:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a></div>
+                {% endif %}
+            </div>
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Data List</p></h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th><span>Id</span></th>
+                                    <th><span>Name</span></th>
+                                    <th><span>Expenses within Budget</span></th>
+                                    <th class="text-center"><span>Action</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in data_list %}
+                                <tr>
+                                    <td>{{ data.id }}</td>
+                                    <td>{{ data.name }}</td>
+                                    <td align="right">{{ data.expwithinbudget|intcomma }}</td>
+                                    <td class="text-center">
+                                        <div class="iconlist-wrap auto-0">
+                                            <div class="iconlist">
+                                            <a href="{% url 'budgetapproverlevels:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% if perms.budgetapproverlevels.change_budgetapproverlevels %}
+                                            <a href="{% url 'budgetapproverlevels:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            {% if perms.budgetapproverlevels.delete_budgetapproverlevels %}
+                                            <a href="{% url 'budgetapproverlevels:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                            </a>
+                                            {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- End Basic Table Section -->
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+
