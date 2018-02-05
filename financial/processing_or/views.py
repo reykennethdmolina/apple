@@ -162,6 +162,7 @@ def fileupload(request):
                                         importstatus=importstatus,
                                         importremarks=importremarks,
                                         importby=request.user,
+                                        branchdesc=data[32],
                                     ).save()
                                     breakstatus = 0
                                 else:
