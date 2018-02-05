@@ -227,7 +227,7 @@ def fileupload(request):
                                 ordata_list = []
                                 ordata_d_list = []
 
-                                ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('orno')
+                                ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('importstatus', 'orno')
                                 ordata_d = Logs_ordetail.objects.filter(batchkey=batchkey).order_by('orno')
 
                                 for data in ordata:
@@ -416,7 +416,7 @@ def fileupload(request):
                             ordata_list = []
                             ordata_d_list = []
 
-                            ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('orno')
+                            ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('importstatus', 'orno')
                             ordata_d = Logs_ordetail.objects.filter(batchkey=batchkey).order_by('orno')
 
                             for data in ordata:
