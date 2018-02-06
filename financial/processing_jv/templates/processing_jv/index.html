@@ -91,28 +91,30 @@
                                             <select name="upload_type" id="upload_type" class="form-control input-sm select2">
                                                 <option value="">-- Select --</option>
                                                 <optgroup label="Advertising">
-                                                    <option value="ADV-ADJ">ADV - Adjustment</option>
-                                                    <option value="ADV-EXD">ADV - Exdeal</option>
-                                                    <option value="ADV-CAI">ADV - Cancelled AI</option>
-                                                    <option value="ADV-PPD">ADV - Prompt Payment Discount</option>
-                                                    <option value="ADV-RAR">ADV - Rebates and Refund</option>
-                                                    <option value="ADV-TAX">ADV - Tax</option>
-                                                    <option value="ADV-VOD">ADV - Volume Discount</option>
-                                                    <option value="ADV-USI">ADV - Upload SI</option>
+                                                    <option value="ADV-ADJ" data-filename-main="{{ adv_adjustment.0 }}" data-filename-detail="{{ adv_adjustment.1 }}">ADV - Adjustment</option>
+                                                    <option value="ADV-EXD" data-filename-main="{{ adv_exdeal.0 }}" data-filename-detail="{{ adv_exdeal.1 }}">ADV - Exdeal</option>
+                                                    <option value="ADV-CAI" data-filename-main="{{ adv_cancelled_ai.0 }}" data-filename-detail="{{ adv_cancelled_ai.1 }}">ADV - Cancelled AI</option>
+                                                    <option value="ADV-PPD" data-filename-main="{{ adv_ppd.0 }}" data-filename-detail="{{ adv_ppd.1 }}">ADV - Prompt Payment Discount</option>
+                                                    <option value="ADV-RAR" data-filename-main="{{ adv_rar.0 }}" data-filename-detail="{{ adv_rar.1 }}">ADV - Rebates and Refund</option>
+                                                    <option value="ADV-TAX" data-filename-main="{{ adv_tax.0 }}" data-filename-detail="{{ adv_tax.1 }}">ADV - Tax</option>
+                                                    <option value="ADV-VOD" data-filename-main="{{ adv_vod.0 }}" data-filename-detail="{{ adv_vod.1 }}">ADV - Volume Discount</option>
+                                                    <option value="ADV-USI" data-filename-main="{{ adv_si.0 }}" data-filename-detail="{{ adv_si.1 }}">ADV - Upload SI</option>
                                                 </optgroup>
                                                 <optgroup label="Subscription">
-                                                    <option value="SUB-REG">SUB - Regular</option>
-                                                    <option value="SUB-COM">SUB - Complimentary</option>
+                                                    <option value="SUB-REG" data-filename-main="{{ sub_regular.0 }}" data-filename-detail="{{ sub_regular.1 }}">SUB - Regular</option>
+                                                    <option value="SUB-COM" data-filename-main="{{ sub_complimentary.0 }}" data-filename-detail="{{ sub_complimentary.1 }}">SUB - Complimentary</option>
                                                 </optgroup>
                                             </select>
                                         </div>
                                         <div class="form-group col-sm-4">
                                             <label class="control-label small">JV Master</label>
                                             <input type="file" id="jv_file" class="form-control input-sm upload" name="jv_file">
+                                            <span class="text-warning" style="font-size: smaller">*Required file name: <span id="main_filename" class="text-primary">N/A</span></span>
                                         </div>
                                         <div class="form-group col-sm-4">
                                             <label class="control-label small">JV Detail</label>
                                             <input type="file" id="jv_d_file" class="form-control input-sm upload" name="jv_d_file">
+                                            <span class="text-warning" style="font-size: smaller">*Required file name: <span id="detail_filename" class="text-primary">N/A</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -250,13 +252,30 @@
     $(function(){
         $('.select2').select2({});
         $(document).on('click', '#jv_upload', function(e){
-            $('#jv_upload').fadeOut(300);
-            $('#jv_export').fadeOut(300);
-            $('#jv_step_upload').fadeOut(300);
-            $('#jv_step_final').fadeOut(300);
-            $('#jv_upload_loading').delay(300).fadeIn(300, function() {
-                $("form#data").submit();
-            });
+            if($('#jv_file').val().split('\\').pop() == $('#main_filename').text() && $('#jv_d_file').val().split('\\').
+                            pop() == $('#detail_filename').text()){
+                $('#jv_upload').fadeOut(300);
+                $('#jv_export').fadeOut(300);
+                $('#jv_step_upload').fadeOut(300);
+                $('#jv_step_final').fadeOut(300);
+                $('#jv_upload_loading').delay(300).fadeIn(300, function() {
+                    $("form#data").submit();
+                });
+            }
+            else {
+                customAlert($('#upload-file-error'));
+            }
+        });
+
+        $('#upload_type').on('change', function(){
+            if($(this).val() != ''){
+                $('#main_filename').text($(this).find('option:selected').data('filename-main') + '.txt');
+                $('#detail_filename').text($(this).find('option:selected').data('filename-detail') + '.txt');
+            }
+            else {
+                $('#main_filename').text('N/A');
+                $('#detail_filename').text('N/A');
+            }
         });
 
         $("form#data").submit(function(){
@@ -290,7 +309,7 @@
                                     datahighlight = '';
                                     if(data['jvdata_list'][i][3] == 'F'){
                                         datahighlight = 'danger';
-                                        dataremarks = "<tr class='"+datahighlight+"'><td colspan='7' align='center'><small><b>"+data['jvdata_list'][i][4]+"</b></small></td></tr>";
+                                        dataremarks = "<tr class='"+datahighlight+"'><td colspan='8' align='center'><small><b>"+data['jvdata_list'][i][4]+"</b></small></td></tr>";
                                         proceedinit = false;
                                     }
 

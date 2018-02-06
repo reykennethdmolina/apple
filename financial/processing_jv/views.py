@@ -40,6 +40,20 @@ upload_directory = 'processing_jv/imported_main/'
 upload_d_directory = 'processing_jv/imported_detail/'
 upload_size = 3
 
+adv_headers = ["jv_m_tm_", "jv_a_tm_"]
+adv_adjustment = [adv_headers[0] + "adjustment", adv_headers[1] + "adjustment"]
+adv_exdeal = [adv_headers[0] + "exdeal", adv_headers[1] + "exdeal"]
+adv_cancelled_ai = [adv_headers[0] + "cancelled_ai", adv_headers[1] + "cancelled_ai"]
+adv_ppd = [adv_headers[0] + "ppd", adv_headers[1] + "ppd"]
+adv_rar = [adv_headers[0] + "rar", adv_headers[1] + "rar"]
+adv_tax = [adv_headers[0] + "tax", adv_headers[1] + "tax"]
+adv_vod = [adv_headers[0] + "vod", adv_headers[1] + "vod"]
+adv_si = [adv_headers[0] + "si", adv_headers[1] + "si"]
+
+sub_headers = ["jv_main_", "jv_detail_"]
+sub_regular = [sub_headers[0] + "regular", sub_headers[1] + "regular"]
+sub_complimentary = [sub_headers[0] + "complimentary", sub_headers[1] + "complimentary"]
+
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
@@ -47,6 +61,17 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
+
+        context['adv_adjustment'] = adv_adjustment
+        context['adv_exdeal'] = adv_exdeal
+        context['adv_cancelled_ai'] = adv_cancelled_ai
+        context['adv_ppd'] = adv_ppd
+        context['adv_rar'] = adv_rar
+        context['adv_tax'] = adv_tax
+        context['adv_vod'] = adv_vod
+        context['adv_si'] = adv_si
+        context['sub_regular'] = sub_regular
+        context['sub_complimentary'] = sub_complimentary
 
         return context
 
