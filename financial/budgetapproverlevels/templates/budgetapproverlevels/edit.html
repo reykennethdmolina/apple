@@ -12,12 +12,24 @@
                 <div class="panel-body">
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
+                        <div class="col-md-1 form-group {{ form.level.errors|yesno:'has-error,' }}">
+                            <label for="id_level" class="control-label">Level</label>
+                            <select name="level" class="form-control">
+                                <option value="1" {% if form.level.value == 1 %}selected="selected"{% endif %}>1</option>
+                                <option value="2" {% if form.level.value == 2 %}selected="selected"{% endif %}>2</option>
+                                <option value="3" {% if form.level.value == 3 %}selected="selected"{% endif %}>3</option>
+                                <option value="4" {% if form.level.value == 4 %}selected="selected"{% endif %}>4</option>
+                                <option value="5" {% if form.level.value == 5 %}selected="selected"{% endif %}>5</option>
+                                <option value="6" {% if form.level.value == 6 %}selected="selected"{% endif %}>6</option>
+                            </select>
+                            <span class="help-block form-error">{{ form.level.errors.as_text }}</span>
+                        </div>
                         <div class="col-md-8 form-group {{ form.name.errors|yesno:'has-error,' }}">
                             <label for="id_name" class="control-label">Name</label>
                             <input type="text" class="form-control" id="id_name" maxlength="250" placeholder="name" name="name" data-validation="required" value="{{ form.name.value|default:'' }}">
                             <span class="help-block form-error">{{ form.name.errors.as_text }}</span>
                         </div>
-                        <div class="col-md-4 form-group {{ form.expwithinbudget.errors|yesno:'has-error,' }}">
+                        <div class="col-md-3 form-group {{ form.expwithinbudget.errors|yesno:'has-error,' }}">
                             <label for="id_name" class="control-label">Expenses within Budget</label>
                             <input type="text" class="form-control amount text-right" id="id_name" maxlength="19" placeholder="0.00" name="expwithinbudget" value="{{ form.expwithinbudget.value|default:'' }}">
                             <span class="help-block form-error">{{ form.expwithinbudget.errors.as_text }}</span>

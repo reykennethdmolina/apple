@@ -21,6 +21,7 @@ class Employee(models.Model):
     department = models.ForeignKey('department.Department', \
         related_name='department_id', validators=[MinValueValidator(1)])
     code = models.CharField(max_length=10, unique=True)
+    managementlevel = models.ForeignKey('budgetapproverlevels.Budgetapproverlevels', related_name='budgetapproverlevels_id', null=True, blank=True)
     firstname = models.CharField(max_length=75)
     middlename = models.CharField(max_length=75, blank=True, null=True)
     lastname = models.CharField(max_length=75)

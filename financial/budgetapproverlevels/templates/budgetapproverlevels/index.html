@@ -19,16 +19,16 @@
                         <table class="table table-hover table-bordered">
                             <thead>
                                 <tr>
-                                    <th><span>Id</span></th>
+                                    <th style="width: 10px;"><span>Level</span></th>
                                     <th><span>Name</span></th>
-                                    <th><span>Expenses within Budget</span></th>
+                                    <th style="text-align: right"><span>Expenses within Budget</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for data in data_list %}
                                 <tr>
-                                    <td>{{ data.id }}</td>
+                                    <td align="center"><span class="badge badge-radius badge-info">{{ data.level }}</span></td>
                                     <td>{{ data.name }}</td>
                                     <td align="right">{{ data.expwithinbudget|intcomma }}</td>
                                     <td class="text-center">

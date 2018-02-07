@@ -51,6 +51,8 @@ class Companyparameter(models.Model):
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 
+    budgetapprover = models.ForeignKey(User, default=1, related_name='companyparameter_budgetapprover')
+
     # report footers
     report_footer1 = models.CharField(max_length=250, blank=True, null=True)
     report_footer2 = models.CharField(max_length=250, blank=True, null=True)

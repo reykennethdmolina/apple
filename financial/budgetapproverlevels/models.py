@@ -6,6 +6,15 @@ from django.contrib.auth.models import User
 
 
 class Budgetapproverlevels(models.Model):
+    LEVEL_CHOICES = (
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+    )
+    level = models.IntegerField(unique=True, choices=LEVEL_CHOICES)
     name = models.CharField(max_length=250, unique=True)
     description = models.CharField(max_length=500)
     STATUS_CHOICES = (

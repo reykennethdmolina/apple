@@ -13,7 +13,7 @@ class IndexView(ListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        return Budgetapproverlevels.objects.all().filter(isdeleted=0).order_by('-expwithinbudget')
+        return Budgetapproverlevels.objects.all().filter(isdeleted=0).order_by('-level')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -26,7 +26,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Budgetapproverlevels
     template_name = 'budgetapproverlevels/create.html'
-    fields = ['name', 'description', 'expwithinbudget']
+    fields = ['level', 'name', 'description', 'expwithinbudget']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('budgetapproverlevels.add_budgetapproverlevels'):
@@ -45,7 +45,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Budgetapproverlevels
     template_name = 'budgetapproverlevels/edit.html'
-    fields = ['name', 'description', 'expwithinbudget']
+    fields = ['level', 'name', 'description', 'expwithinbudget']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('budgetapproverlevels.change_budgetapproverlevels'):
@@ -56,7 +56,7 @@ class UpdateView(UpdateView):
         self.object = form.save(commit=False)
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
-        self.object.save(update_fields=['name', 'description', 'expwithinbudget', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['level', 'name', 'description', 'expwithinbudget', 'modifyby', 'modifydate'])
         return HttpResponseRedirect('/budgetapproverlevels')
 
 
