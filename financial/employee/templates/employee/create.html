@@ -18,17 +18,13 @@
                     <form autocomplete="off" id="form-b" method="post">
                         {% csrf_token %}
                         <div class="row">
-                            <div class="row col-md-6">
-                                <div class="form-group form-material form-group-0 form-group-sm col-md-12
-                                 {{ form.department.errors|yesno:'has-error,' }}">
-                                    <label for="id_department" class="col-sm-4 control-label">Department</label>
+                            <div class="row col-md-5">
+                                <div class="form-group col-md-12 form-group-0 form-group-sm
+                                 {{ form.code.errors|yesno:'has-error,' }}">
+                                    <label for="id_code" class="col-sm-4 control-label">Employee No.</label>
                                     <div class="col-sm-7">
-                                        <select id="id_department" class="form-control ajaxselect2" name="department" data-validation="required">
-                                            {% if department.id != None %}
-                                                <option value="{{ department.id }}">{{ department.departmentname }}</option>
-                                            {% endif %}
-                                        </select>
-                                        <span class="help-block form-error help-block-sm">{{ form.department.errors.as_text }}</span>
+                                        <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Emp. No." name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
+                                        <span class="help-block form-error help-block-sm">{{ form.code.errors.as_text }}</span>
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12 form-group-0 form-group-sm
@@ -59,18 +55,35 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row col-md-6">
-                                <div class="form-group col-md-12 form-group-0 form-group-sm
-                                 {{ form.code.errors|yesno:'has-error,' }}">
-                                    <label for="id_code" class="col-sm-4 control-label">Employee No.</label>
+                            <div class="row col-md-7">
+                                <div class="form-group form-group-0 col-md-12
+                                 {{ form.managementlevel.errors|yesno:'has-error,' }}">
+                                    <label for="id_managementlevel" class="col-sm-4 control-label">Management Level</label>
                                     <div class="col-sm-7">
-                                        <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Emp. No." name="code" data-validation="required" value="{{ form.code.value|default:'' }}">
-                                        <span class="help-block form-error help-block-sm">{{ form.code.errors.as_text }}</span>
+                                        <select id="id_managementlevel" class="form-control input-sm" name="managementlevel">
+                                            <option value="">-- Select --</option>
+                                            {% for managementlevel in managementlevel %}
+                                                <option value="{{ managementlevel.id }}" {% if form.managementlevel.value|add:0 == managementlevel.id %} selected="selected" {% endif %}>{{ managementlevel.level }} - {{ managementlevel.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.managementlevel.errors.as_text }}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group form-material form-group-0 form-group-sm col-md-12
+                                 {{ form.department.errors|yesno:'has-error,' }}">
+                                    <br><label for="id_department" class="col-sm-4 control-label">Department</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_department" class="form-control ajaxselect2" name="department" data-validation="required">
+                                            {% if department.id != None %}
+                                                <option value="{{ department.id }}">{{ department.departmentname }}</option>
+                                            {% endif %}
+                                        </select>
+                                        <span class="help-block form-error help-block-sm">{{ form.department.errors.as_text }}</span>
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12 form-group-0 form-group-sm
                                  {{ form.email.errors|yesno:'has-error,' }}">
-                                    <br><label for="id_email" class="col-sm-4 control-label">Email Address</label>
+                                    <label for="id_email" class="col-sm-4 control-label">Email Address</label>
                                     <div class="col-sm-7">
                                         <input type="email" class="form-control" id="id_email" maxlength="100" placeholder="Email Address"
                                                name="email" value="{{ form.email.value|default:'' }}">
@@ -79,7 +92,7 @@
                                 </div>
                                 <div class="form-group col-md-12 form-group-0 form-group-sm
                                  {{ form.cellphone_subsidize_amount.errors|yesno:'has-error,' }}">
-                                    <br><label for="id_cellphone_subsidize_amount" class="col-sm-4 control-label">Cellphone Subsidize Amount</label>
+                                    <label for="id_cellphone_subsidize_amount" class="col-sm-4 control-label">Cellphone Subsidize Amt.</label>
                                     <div class="col-sm-7">
                                         <input type="text" class="form-control amount text-right" id="id_cellphone_subsidize_amount" maxlength="26" name="cellphone_subsidize_amount"
                                                value="{{ form.cellphone_subsidize_amount.value|floatformat:2|intcomma|default:'' }}" placeholder="0.00">

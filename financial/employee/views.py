@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from department.models import Department
+from budgetapproverlevels.models import Budgetapproverlevels
 from django.views.decorators.csrf import csrf_exempt
 from . models import Employee
 from django.contrib.auth.models import User
@@ -42,7 +43,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Employee
     template_name = 'employee/create.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount']
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount', 'managementlevel']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.add_employee'):
@@ -61,6 +62,7 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         if self.request.POST.get('department', False):
             context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
+        context['managementlevel'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
         return context
 
 
@@ -68,7 +70,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
-    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount']
+    fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount', 'managementlevel']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.change_employee'):
@@ -82,7 +84,7 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.save(update_fields=['department', 'firstname',
                                         'middlename', 'lastname', 'email', 'multiplestatus',
-                                        'modifyby', 'modifydate', 'cellphone_subsidize_amount'])
+                                        'modifyby', 'modifydate', 'cellphone_subsidize_amount', 'managementlevel'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):
@@ -93,6 +95,8 @@ class UpdateView(UpdateView):
             context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
         elif self.object.department:
             context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
+
+        context['managementlevel'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
         return context
 
 

@@ -11,8 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
 
-# Create your views here.
-
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
