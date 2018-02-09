@@ -38,6 +38,15 @@ class Prfmain(models.Model):
         ('R', 'Rush'),
     )
 
+    LEVEL_CHOICES = (
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+        ('6', '6'),
+    )
+
     prfnum = models.CharField(max_length=10, unique=True)
     prfdate = models.DateField()
     prftype = models.CharField(max_length=10, choices=PRF_TYPE_CHOICES, default='MSRF')
@@ -66,24 +75,32 @@ class Prfmain(models.Model):
     approverlevelbudget = models.ForeignKey(User, related_name='prf_approverlevelbudget', null=True, blank=True)
     approverlevelbudget_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevelbudget_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel1 = models.ForeignKey(User, related_name='prf_approverlevel1', null=True, blank=True)
     approverlevel1_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel1_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel2 = models.ForeignKey(User, related_name='prf_approverlevel2', null=True, blank=True)
     approverlevel2_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel2_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel3 = models.ForeignKey(User, related_name='prf_approverlevel3', null=True, blank=True)
     approverlevel3_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel3_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel4 = models.ForeignKey(User, related_name='prf_approverlevel4', null=True, blank=True)
     approverlevel4_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel4_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel5 = models.ForeignKey(User, related_name='prf_approverlevel5', null=True, blank=True)
     approverlevel5_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel5_responsedate = models.DateTimeField(null=True, blank=True)
+
     approverlevel6 = models.ForeignKey(User, related_name='prf_approverlevel6', null=True, blank=True)
     approverlevel6_response = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     approverlevel6_responsedate = models.DateTimeField(null=True, blank=True)
+
+    approverlevel_required = models.IntegerField(choices=LEVEL_CHOICES, null=True, blank=True)
 
     # nego vat
     negocost = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)

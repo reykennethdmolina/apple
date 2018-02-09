@@ -13,9 +13,11 @@ from inventoryitem.models import Inventoryitem
 from branch.models import Branch
 from companyparameter.models import Companyparameter
 from department.models import Department
+from employee.models import Employee
 from purchaseorder.models import Pomain
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
+from budgetapproverlevels.models import Budgetapproverlevels
 from django.contrib.auth.models import User
 from django.db.models import Q, F, Sum
 from acctentry.views import generatekey
@@ -95,7 +97,8 @@ class CreateView(CreateView):
         context['rfmain'] = Rfmain.objects.filter(isdeleted=0, rfstatus='A', status='A')
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A').order_by('id')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
         context['totalremainingquantity'] = 0
         return context
 
@@ -133,8 +136,9 @@ class CreateView(CreateView):
             i = 1
 
             # delete and update of prfdetailtemp and prfdetail (respectively)
+            total_amount = 0
             for dt in detailtemp:
-
+                total_amount = total_amount + (float(self.request.POST.getlist('temp_amount')[i-1]) * float(self.request.POST.getlist('temp_quantity')[i-1]))
                 department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
 
                 detail = Prfdetail()
@@ -145,9 +149,6 @@ class CreateView(CreateView):
                 detail.invitem_unitofmeasure = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A')
                 detail.invitem_unitofmeasure_code = Unitofmeasure.objects.get(code=self.request.POST.getlist('temp_item_um')[i-1], isdeleted=0, status='A').code
                 detail.quantity = self.request.POST.getlist('temp_quantity')[i-1]
-                print "----"
-                print self.request.POST.getlist('temp_amount')[i-1]
-                print "----"
                 detail.amount = self.request.POST.getlist('temp_amount')[i-1]
                 detail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1])
                 detail.department_code = department.code
@@ -183,6 +184,11 @@ class CreateView(CreateView):
             prfmain.quantity = int(itemquantity)
             prfmain.totalquantity = int(itemquantity)
             prfmain.totalremainingquantity = int(itemquantity)
+            prfmain.netamount = total_amount
+
+            approverreached = Budgetapproverlevels.objects.filter(expwithinbudget__lte=total_amount).order_by('-level').first()
+            prfmain.approverlevel_required = approverreached.level + (1 if total_amount > approverreached.expwithinbudget else 0)
+
             prfmain.save()
 
             return HttpResponseRedirect('/purchaserequisitionform/' + str(self.object.id) + '/update/')
@@ -269,7 +275,8 @@ class UpdateView(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0, status='A')
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('code')
         context['prfstatus'] = Prfmain.objects.get(pk=self.object.pk).get_prfstatus_display()
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
+        managers = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        context['designatedapprover'] = User.objects.filter(id__in=managers, is_active=1).exclude(username='admin').order_by('first_name')
         context['totalremainingquantity'] = Prfmain.objects.get(pk=self.object.pk).\
             totalremainingquantity
 
@@ -370,8 +377,9 @@ class UpdateView(UpdateView):
                 itemquantity = 0
                 prfmain = Prfmain.objects.get(pk=self.object.pk)
                 i = 1
+                total_amount = 0
                 for atd in alltempdetail:
-
+                    total_amount = total_amount + (float(self.request.POST.getlist('temp_amount')[i-1]) * float(self.request.POST.getlist('temp_quantity')[i-1]))
                     department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i-1], isdeleted=0)
 
                     alldetail = Prfdetail()
@@ -412,12 +420,18 @@ class UpdateView(UpdateView):
                     else:
                         itemquantity = int(itemquantity) + int(alldetail.quantity)
 
-
                     i += 1
 
                 prfmain.quantity = int(itemquantity)
                 prfmain.totalquantity = int(itemquantity)
                 prfmain.totalremainingquantity = int(itemquantity)
+                prfmain.netamount = total_amount
+
+                approverreached = Budgetapproverlevels.objects.filter(expwithinbudget__lte=total_amount).order_by('-level').first()
+                prfmain.approverlevel_required = approverreached.level \
+                                                 + (1 if total_amount > approverreached.expwithinbudget else 0) \
+                                                 + (1 if prfmain.approverlevelbudget_response == 'D' else 0)
+
                 prfmain.save()
 
             Prfdetailtemp.objects.filter(prfmain=self.object.pk).delete()

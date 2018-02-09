@@ -21,7 +21,7 @@
                 <td>{{ data.firstname }}</td>
                 <td>{{ data.middlename }}</td>
                 <td>{{ data.lastname }}</td>
-                <td align="center">{{ data.managementlevel|default:'-' }}</td>
+                <td align="center">{{ data.managementlevel.level|default:'-' }}</td>
                 <td class="text-center">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist">

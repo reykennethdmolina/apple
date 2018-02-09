@@ -1,0 +1,404 @@
+{% extends 'base-form.html' %}
+{% block page-title %} PRF Approval {% endblock page-title %}
+{% block extra_css %}
+<style>
+    .resp-button{
+        width: 50px;
+    }
+    #approvers_panel{
+        display: none;
+    }
+    .fa-spin {
+      -webkit-animation: fa-spin 2s infinite linear;
+      animation: fa-spin 2s infinite linear;
+    }
+    @-webkit-keyframes fa-spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+    @keyframes fa-spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+</style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#home">Budget</a></li>
+                    <li><a data-toggle="tab" href="#menu1">For your Approval</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <br>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>File Date</th>
+                                <th style="text-align: right">Amount</th>
+                                <th style="text-align: center; width: 120px;">Remarks</th>
+                                <th style="text-align: center; width: 110px;">Budget Status</th>
+                                <th style="text-align: center; width: 180px; border-bottom: 2px solid white;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for data in to_budget %}
+                                <tr class="small">
+                                    <td><a href="{% url 'purchaserequisitionform:detail' data.pk %}" class="text-primary">PRF - {{ data.prfnum }}</a></td>
+                                    <td>{{ data.prfdate }}</td>
+                                    <td align="right">{{ data.netamount }}</td>
+                                    <td align="center">
+                                        <a href="#_" class="view_remarks" data-remarks="{{ data.remarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
+                                            <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
+                                        </a>
+                                    </td>
+                                    <td align="center" class="text-primary">{{ data.get_approverlevelbudget_response_display|default:'For Approval' }}</td>
+                                    <td align="center" style="border-bottom: 2px solid white;">
+                                        <button data-type="a" data-from="budget"
+                                                data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
+                                                class="b_response btn btn-info btn-sm"
+                                                {% if data.approverlevelbudget_response = 'A' %}disabled{% endif %}>
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Approve
+                                        </button>
+                                        <button data-type="d" data-from="budget"
+                                                data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
+                                                class="b_response btn btn-info btn-sm resp-button"
+                                                {% if data.approverlevelbudget_response = 'D' %}disabled{% endif %}>
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="menu1" class="tab-pane fade">
+                        <br>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th rowspan="2" style="width: 130px">No.</th>
+                                <th rowspan="2" style="width: 110px">File Date</th>
+                                <th rowspan="2" style="text-align: right">Amount</th>
+                                <th rowspan="2" style="text-align: center; width: 120px;">Remarks</th>
+                                <th rowspan="2" style="text-align: center; width: 150px;">Budget Status</th>
+                                <th style="text-align: center;" colspan="6">Management Levels of Approval</th>
+                                <th rowspan="2" style="text-align: center; width: 135px; border-bottom: 2px solid white;"></th>
+                            </tr>
+                            <tr class="small">
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 6 %}" target="_blank" class="text-primary">1</a></td>
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 5 %}" target="_blank" class="text-primary">2</a></td>
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 4 %}" target="_blank" class="text-primary">3</a></td>
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 3 %}" target="_blank" class="text-primary">4</a></td>
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 2 %}" target="_blank" class="text-primary">5</a></td>
+                                <td align="center"><a href="{% url 'budgetapproverlevels:update' 1 %}" target="_blank" class="text-primary">6</a></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for data in to_levels %}
+                                <tr class="small">
+                                    <td><a href="{% url 'purchaserequisitionform:detail' data.pk %}" class="text-primary">PRF - {{ data.prfnum }}</a></td>
+                                    <td>{{ data.prfdate }}</td>
+                                    <td align="right">{{ data.netamount }}</td>
+                                    <td align="center">
+                                        <a href="#_" class="view_remarks" data-remarks="{{ data.remarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
+                                            <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
+                                        </a>
+                                    </td>
+                                    <td align="center" class="text-primary">{{ data.get_approverlevelbudget_response_display|default:'For Approval' }}</td>
+                                    <td align="center" {% if data.actualapprover == user or data.approverlevel1 == user %}
+                                                            class="text-warning"
+                                                        {% elif data.designatedapprover == user and data.actualapprover == None %}
+                                                            class="text-warning"
+                                                        {% endif %}>
+                                        {% if data.approverlevel1_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel1_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevelbudget_response == None %}
+                                            <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                        {% elif data.approverlevelbudget_response != None and data.approverlevel1_response = None %}
+                                            <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" {% if data.approverlevel2 == user %}class="text-warning"{% endif %}>
+                                        {% if data.approverlevel2_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel2_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevel1_response != 'D' %}
+                                            {% if data.approverlevel1_response == None and data.approverlevel_required >= 2 %}
+                                                <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                            {% elif data.approverlevel1_response != None and data.approverlevel2_response = None and data.approverlevel_required >= 2 %}
+                                                <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" {% if data.approverlevel3 == user %}class="text-warning"{% endif %}>
+                                        {% if data.approverlevel3_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel3_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevel1_response != 'D' and data.approverlevel2_response != 'D' %}
+                                            {% if data.approverlevel2_response == None and data.approverlevel_required >= 3 %}
+                                                <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                            {% elif data.approverlevel2_response != None and data.approverlevel3_response = None and data.approverlevel_required >= 3 %}
+                                                <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" {% if data.approverlevel4 == user %}class="text-warning"{% endif %}>
+                                        {% if data.approverlevel4_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel4_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevel1_response != 'D' and data.approverlevel2_response != 'D' and data.approverlevel3_response != 'D' %}
+                                            {% if data.approverlevel3_response == None and data.approverlevel_required >= 4 %}
+                                                <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                            {% elif data.approverlevel3_response != None and data.approverlevel4_response = None and data.approverlevel_required >= 4 %}
+                                                <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" {% if data.approverlevel5 == user %}class="text-warning"{% endif %}>
+                                        {% if data.approverlevel5_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel5_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevel1_response != 'D' and data.approverlevel2_response != 'D' and data.approverlevel3_response != 'D' and data.approverlevel4_response != 'D' %}
+                                            {% if data.approverlevel4_response == None and data.approverlevel_required >= 5 %}
+                                                <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                            {% elif data.approverlevel4_response != None and data.approverlevel5_response = None and data.approverlevel_required >= 5 %}
+                                                <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" {% if data.approverlevel6 == user %}class="text-warning"{% endif %}>
+                                        {% if data.approverlevel6_response == 'A' %}
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                        {% elif data.approverlevel6_response == 'D' %}
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                        {% elif data.approverlevel1_response != 'D' and data.approverlevel2_response != 'D' and data.approverlevel3_response != 'D' and data.approverlevel4_response != 'D' and data.approverlevel5_response != 'D' %}
+                                            {% if data.approverlevel5_response == None and data.approverlevel_required >= 6 %}
+                                                <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                            {% elif data.approverlevel5_response != None and data.approverlevel6_response = None and data.approverlevel_required >= 6 %}
+                                                <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td align="center" style="border-bottom: 2px solid white;">
+                                        <!--check level and your level of assignment //// check if budget is done //// check if not yet touched by next level //// checked if approved by previous-->
+                                        {% if data.approverlevel_required >= 1 and data.approverlevelbudget_response != None and data.approverlevel2_response == None %}
+                                            {% if data.approverlevel1 == user or data.actualapprover == user %}
+                                                <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-level="1" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                                </button>
+                                                <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                                </button>
+                                            {% elif data.designatedapprover == user and data.actualapprover == None %}
+                                                <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-level="1" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                                </button>
+                                                <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                                </button>
+                                            {% endif %}
+                                        {% elif data.approverlevel_required >= 2 and data.approverlevel1_response == 'A' and data.approverlevel3_response == None and data.approverlevel2 == user %}
+                                            <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        {% elif data.approverlevel_required >= 3 and data.approverlevel2_response == 'A' and data.approverlevel4_response == None and data.approverlevel3 == user %}
+                                            <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        {% elif data.approverlevel_required >= 4 and data.approverlevel3_response == 'A' and data.approverlevel5_response == None and data.approverlevel4 == user %}
+                                            <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        {% elif data.approverlevel_required >= 5 and data.approverlevel4_response == 'A' and data.approverlevel6_response == None and data.approverlevel5 == user %}
+                                            <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        {% elif data.approverlevel_required >= 6 and data.approverlevel5_response == 'A' and data.approverlevel6 == user %}
+                                            <button data-type="a" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <button data-type="d" data-from="levels" data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal" class="b_response btn btn-info btn-sm resp-button">
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="b_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="prf/userresponse" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <div id="approvers_panel" class="small row">
+                            <div class="col-md-4">
+                                <label class="control-label">Mngr. Level 2 Approver:</label>
+                                <select name="approvers_panel_2" class="form-control input-sm">
+                                    <option value="">-- Select --</option>
+                                    {% for data in approverlevel2 %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Mngr. Level 3 Approver:</label>
+                                <select name="approvers_panel_3" class="form-control input-sm">
+                                    <option value="">-- Select --</option>
+                                    {% for data in approverlevel3 %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Mngr. Level 4 Approver:</label>
+                                <select name="approvers_panel_4" class="form-control input-sm">
+                                    <option value="">-- Select --</option>
+                                    {% for data in approverlevel4 %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                            <div class="col-md-4 col-md-offset-2">
+                                <label class="control-label">Mngr. Level 5 Approver:</label>
+                                <select name="approvers_panel_5" class="form-control input-sm">
+                                    <option value="">-- Select --</option>
+                                    {% for data in approverlevel5 %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <br><br>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Mngr. Level 6 Approver:</label>
+                                <select name="approvers_panel_6" class="form-control input-sm">
+                                    <option value="">-- Select --</option>
+                                    {% for data in approverlevel6 %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <br><br>
+                            </div>
+
+                            <input type="hidden" id="response_level">
+                        </div>
+                        <label class="control-label" for="id_remarks">Remarks:</label>
+                        <textarea name="response_remarks" id="response_remarks" class="form-control" rows="3"></textarea>
+                        <br>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="response_type" id="response_type">
+                    <input type="hidden" name="response_from" id="response_from">
+                    <input type="hidden" name="response_id" id="response_id">
+                    <button type="submit" id="response_confirm" class="btn btn-info">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="r_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remarks History</h4>
+            </div>
+            <div class="modal-body">
+                <p id="response_history"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script type="text/javascript">
+$(function(){
+    $(document).on("click", ".b_response", function(){
+        $('#response_type').val($(this).data('type'));
+        $('#response_from').val($(this).data('from'));
+        $('#response_id').val($(this).data('id'));
+        $('#response_remarks').val('');
+        $('#response_level').val('');
+
+        if($(this).data('level') == '1' && $(this).data('type') == 'a'){
+            $('#response_level').val(1);
+
+            $('#approver_panel_2').val('');
+            $('#approver_panel_3').val('');
+            $('#approver_panel_4').val('');
+            $('#approver_panel_5').val('');
+            $('#approver_panel_6').val('');
+            $('#approvers_panel').show();
+        }
+        else{
+            $('#approvers_panel').hide();
+        }
+    });
+    $(document).on("click", "#response_confirm", function(e){
+        if(!$('#response_remarks').val()){
+            e.preventDefault();
+            alert("Remarks are required!");
+        }
+        else if($('#response_level').val() == 1){
+            e.preventDefault();
+            alert("Approvers are required!");
+        }
+    });
+    $(document).on("click", ".view_remarks", function(){
+        $('#response_history').html($(this).data('remarks'));
+    });
+});
+</script>
+{% endblock extra_js %}
