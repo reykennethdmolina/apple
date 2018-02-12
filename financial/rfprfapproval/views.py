@@ -1,7 +1,8 @@
 from django.views.generic import ListView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponseRedirect
+from annoying.functions import get_object_or_None
 from requisitionform.models import Rfmain
 from companyparameter.models import Companyparameter
 from django.db.models import F
@@ -191,15 +192,15 @@ class PrfApprovalView(TemplateView):
                    | Q(approverlevel5=self.request.user.id) | Q(approverlevel6=self.request.user.id)).\
             exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True)))
 
-        level2 = Employee.objects.filter(managementlevel=6).values_list('user_id', flat=True)
+        level2 = Employee.objects.filter(managementlevel=5).values_list('user_id', flat=True)
         context['approverlevel2'] = User.objects.filter(id__in=level2, is_active=1).exclude(username='admin').order_by('first_name')
-        level3 = Employee.objects.filter(managementlevel=5).values_list('user_id', flat=True)
+        level3 = Employee.objects.filter(managementlevel=4).values_list('user_id', flat=True)
         context['approverlevel3'] = User.objects.filter(id__in=level3, is_active=1).exclude(username='admin').order_by('first_name')
-        level4 = Employee.objects.filter(managementlevel=4).values_list('user_id', flat=True)
+        level4 = Employee.objects.filter(managementlevel=3).values_list('user_id', flat=True)
         context['approverlevel4'] = User.objects.filter(id__in=level4, is_active=1).exclude(username='admin').order_by('first_name')
-        level5 = Employee.objects.filter(managementlevel=3).values_list('user_id', flat=True)
+        level5 = Employee.objects.filter(managementlevel=2).values_list('user_id', flat=True)
         context['approverlevel5'] = User.objects.filter(id__in=level5, is_active=1).exclude(username='admin').order_by('first_name')
-        level6 = Employee.objects.filter(managementlevel=2).values_list('user_id', flat=True)
+        level6 = Employee.objects.filter(managementlevel=1).values_list('user_id', flat=True)
         context['approverlevel6'] = User.objects.filter(id__in=level6, is_active=1).exclude(username='admin').order_by('first_name')
 
         return context
@@ -228,19 +229,153 @@ def userprfResponse(request):
                     old_remarks = '' if prfitem.first().remarks is None else prfitem.first().remarks
                     prfitem.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
 
-        elif request.POST['response_from'] == 'levels':
-            # for level 1, approvers will be sent here!!!!
-            # for level 1, approvers will be sent here!!!!
-            # for level 1, approvers will be sent here!!!!
-            # for level 1, approvers will be sent here!!!!
-            
-            # csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
-            # Prfmain.objects.filter(status='A', isdeleted=0, pk=request.POST['response_id']). \
-            #     filter(Q(designatedapprover=request.user.id) | Q(actualapprover=request.user.id)
-            #            | Q(approverlevel1=request.user.id) | Q(approverlevel2=request.user.id)
-            #            | Q(approverlevel3=request.user.id) | Q(approverlevel4=request.user.id)
-            #            | Q(approverlevel5=request.user.id) | Q(approverlevel6=request.user.id)). \
-            #     exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True)))
-            print 123
+        elif request.POST['response_from'] == 'levels' and (request.POST['response_type'] == 'a' or request.POST['response_type'] == 'd'):
+            csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
+            prfmain = Prfmain.objects.filter(status='A', isdeleted=0, pk=request.POST['response_id']). \
+                filter(Q(designatedapprover=request.user.id) | Q(actualapprover=request.user.id)
+                       | Q(approverlevel1=request.user.id) | Q(approverlevel2=request.user.id)
+                       | Q(approverlevel3=request.user.id) | Q(approverlevel4=request.user.id)
+                       | Q(approverlevel5=request.user.id) | Q(approverlevel6=request.user.id)). \
+                exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True)))
+
+            # check level 1 and assigned
+            if prfmain.first().approverlevel_required >= 1 \
+                and prfmain.first().approverlevelbudget_response \
+                and Employee.objects.filter(user=request.user, managementlevel=6, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel2_response is None \
+                and ((prfmain.first().approverlevel1 == request.user or prfmain.first().actualapprover == request.user)
+                     or (prfmain.first().designatedapprover == request.user and prfmain.first().actualapprover is None)):
+
+                # check if enough approver is supplied
+                if request.POST['response_type'] == 'd' \
+                   or prfmain.first().approverlevel_required == 1 \
+                   or (prfmain.first().approverlevel_required == 2 and request.POST['approvers_panel_2']) \
+                   or (prfmain.first().approverlevel_required == 3 and request.POST['approvers_panel_2'] and request.POST['approvers_panel_3']) \
+                   or (prfmain.first().approverlevel_required == 4 and request.POST['approvers_panel_2'] and request.POST['approvers_panel_3'] and request.POST['approvers_panel_4']) \
+                   or (prfmain.first().approverlevel_required == 5 and request.POST['approvers_panel_2'] and request.POST['approvers_panel_3'] and request.POST['approvers_panel_4'] and request.POST['approvers_panel_5']) \
+                   or (prfmain.first().approverlevel_required == 6 and request.POST['approvers_panel_2'] and request.POST['approvers_panel_3'] and request.POST['approvers_panel_4'] and request.POST['approvers_panel_5'] and request.POST['approvers_panel_6']):
+
+                    # save action
+                    prfmain.update(actualapprover=request.user,
+                                   approverresponse=request.POST['response_type'].upper(),
+                                   responsedate=datetime.datetime.now(),
+                                   approverlevel1=request.user,
+                                   approverlevel1_response=request.POST['response_type'].upper(),
+                                   approverlevel1_responsedate=datetime.datetime.now())
+
+                    # save assigned approvers
+                    if request.POST['response_type'] == 'a':
+                        prfmain.update(approverlevel2=get_object_or_None(User, pk=request.POST['approvers_panel_2'] if request.POST['approvers_panel_2'] else 0),
+                                       approverlevel3=get_object_or_None(User, pk=request.POST['approvers_panel_3'] if request.POST['approvers_panel_3'] else 0),
+                                       approverlevel4=get_object_or_None(User, pk=request.POST['approvers_panel_4'] if request.POST['approvers_panel_4'] else 0),
+                                       approverlevel5=get_object_or_None(User, pk=request.POST['approvers_panel_5'] if request.POST['approvers_panel_5'] else 0),
+                                       approverlevel6=get_object_or_None(User, pk=request.POST['approvers_panel_6'] if request.POST['approvers_panel_6'] else 0))
+
+                    # save remarks
+                    old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                    prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                    # check if final step of approval
+                    if prfmain.first().approverlevel_required == 1:
+                        prfmain.update(prfstatus=request.POST['response_type'].upper())
+
+            # check level 2 and assigned
+            elif prfmain.first().approverlevel_required >= 2 \
+                and prfmain.first().approverlevel1_response == 'A' \
+                and Employee.objects.filter(user=request.user, managementlevel=5, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel3_response is None \
+                    and prfmain.first().approverlevel2 == request.user:
+
+                # save action
+                prfmain.update(approverlevel2=request.user,
+                               approverlevel2_response=request.POST['response_type'].upper(),
+                               approverlevel2_responsedate=datetime.datetime.now())
+
+                # save remarks
+                old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                # check if final step of approval
+                if prfmain.first().approverlevel_required == 2:
+                    prfmain.update(prfstatus=request.POST['response_type'].upper())
+
+            # check level 3 and assigned
+            elif prfmain.first().approverlevel_required >= 3 \
+                and prfmain.first().approverlevel2_response == 'A' \
+                and Employee.objects.filter(user=request.user, managementlevel=4, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel4_response is None \
+                    and prfmain.first().approverlevel3 == request.user:
+
+                # save action
+                prfmain.update(approverlevel3=request.user,
+                               approverlevel3_response=request.POST['response_type'].upper(),
+                               approverlevel3_responsedate=datetime.datetime.now())
+
+                # save remarks
+                old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                # check if final step of approval
+                if prfmain.first().approverlevel_required == 3:
+                    prfmain.update(prfstatus=request.POST['response_type'].upper())
+
+            # check level 4 and assigned
+            elif prfmain.first().approverlevel_required >= 4 \
+                and prfmain.first().approverlevel3_response == 'A' \
+                and Employee.objects.filter(user=request.user, managementlevel=3, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel5_response is None \
+                    and prfmain.first().approverlevel4 == request.user:
+
+                # save action
+                prfmain.update(approverlevel4=request.user,
+                               approverlevel4_response=request.POST['response_type'].upper(),
+                               approverlevel4_responsedate=datetime.datetime.now())
+
+                # save remarks
+                old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                # check if final step of approval
+                if prfmain.first().approverlevel_required == 4:
+                    prfmain.update(prfstatus=request.POST['response_type'].upper())
+
+            # check level 5 and assigned
+            elif prfmain.first().approverlevel_required >= 5 \
+                and prfmain.first().approverlevel4_response == 'A' \
+                and Employee.objects.filter(user=request.user, managementlevel=2, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel6_response is None \
+                    and prfmain.first().approverlevel5 == request.user:
+
+                # save action
+                prfmain.update(approverlevel5=request.user,
+                               approverlevel5_response=request.POST['response_type'].upper(),
+                               approverlevel5_responsedate=datetime.datetime.now())
+
+                # save remarks
+                old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                # check if final step of approval
+                if prfmain.first().approverlevel_required == 5:
+                    prfmain.update(prfstatus=request.POST['response_type'].upper())
+
+            # check level 6 and assigned
+            elif prfmain.first().approverlevel_required >= 6 \
+                and prfmain.first().approverlevel5_response == 'A' \
+                and Employee.objects.filter(user=request.user, managementlevel=1, isdeleted=0, status='A').exists() \
+                and prfmain.first().approverlevel6 == request.user:
+
+                # save action
+                prfmain.update(approverlevel6=request.user,
+                               approverlevel6_response=request.POST['response_type'].upper(),
+                               approverlevel6_responsedate=datetime.datetime.now())
+
+                # save remarks
+                old_remarks = '' if prfmain.first().remarks is None else prfmain.first().remarks
+                prfmain.update(remarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+                # check if final step of approval
+                if prfmain.first().approverlevel_required == 6:
+                    prfmain.update(prfstatus=request.POST['response_type'].upper())
 
     return HttpResponseRedirect('/rfprfapproval/prf')
