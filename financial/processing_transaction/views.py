@@ -13,7 +13,7 @@ import decimal
 from dbfread import DBF
 from purchaseorder.models import Pomain, Podetail
 from accountspayable.models import Apmain, Apdetail
-from checkvoucher.models import Cvmain
+from checkvoucher.models import Cvmain, Cvdetail
 from branch.models import Branch
 from aptype.models import Aptype
 from apsubtype.models import Apsubtype
@@ -48,7 +48,7 @@ class IndexView(TemplateView):
                     context['data_list'] = context['data_list'].filter(pomain__podate__lte=self.request.GET['dateto'])
             elif self.request.GET['selectprocess'] == 'apvtocv':
                 context['data_list'] = Apmain.objects.all().filter(isdeleted=0, apstatus='R', isfullycv=0). \
-                    order_by('payeecode', 'inputvattype_id', 'vat_id')
+                    order_by('payeecode', 'vat_id', 'apnum')
                 if self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(apdate__gte=self.request.GET['datefrom'])
                 if self.request.GET['dateto']:
@@ -269,6 +269,8 @@ def importtransdata(request):
                     final_apdetail.balancecode = entry.balancecode
                     final_apdetail.debitamount = entry.debitamount
                     final_apdetail.creditamount = entry.creditamount
+                    final_apdetail.enterby = request.user
+                    final_apdetail.modifyby = request.user
                     final_apdetail.save()
                     final_entry_counter += 1
                     last_entry = entry.chartofaccount
@@ -281,7 +283,8 @@ def importtransdata(request):
 
         elif request.POST['transtype'] == 'apvtocv':
             referenceap = Apmain.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0]))
-            allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('apnum')
+            allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('payeecode',
+                                                                                                   'vat_id', 'apnum')
 
             ap_nums = allaps.values_list('apnum', flat=True)
             cvrefnum = ' '.join(ap_nums)
@@ -325,6 +328,7 @@ def importtransdata(request):
             newcv.particulars = 'Accounts Payable Voucher No.(s) ' + cvrefnum
             newcv.refnum = cvrefnum
             newcv.branch = Branch.objects.get(code='HO')
+            newcv.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
             newcv.disbursingbranch = referenceap.bankbranchdisburse
             newcv.inputvattype = referenceap.inputvattype
             newcv.amountinwords = request.POST['hdnamountinwords']
@@ -334,6 +338,11 @@ def importtransdata(request):
 
             total_amount = 0
             i = 0
+            aptrade_debit_amount = 0
+            inputvat_debit_amount = 0
+            deferredinputvat_credit_amount = 0
+            cashinbank_credit_amount = 0
+
             for data in allaps:
                 newapvcvtrans = Apvcvtransaction()
                 newapvcvtrans.cvamount = float(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
@@ -346,10 +355,88 @@ def importtransdata(request):
                 if updateapv.cvamount == updateapv.amount:
                     updateapv.isfullycv = 1
                 updateapv.save()
+
+                apv_detail = Apdetail.objects.filter(apmain=data, status='A')
+                for detail in apv_detail:
+                    if detail.balancecode == 'D':
+                        if 'DEFERRED' in detail.chartofaccount.title.upper():   # if deferred input vat
+                            inputvat_debit_amount += detail.debitamount
+                            deferredinputvat_credit_amount += detail.debitamount
+                            aptrade_debit_amount -= detail.debitamount
+                        else:
+                            cashinbank_credit_amount += detail.debitamount
+                    elif detail.balancecode == 'C':
+                        aptrade_debit_amount += detail.creditamount
                 i += 1
 
             newcv.amount = total_amount
             newcv.save()
+
+            cvdetail_item_counter = 1
+
+            # CV accounting entries
+            # 1st entry: Accounts Payable Trade
+            aptrade_cv_entry = Cvdetail()
+            aptrade_cv_entry.item_counter = cvdetail_item_counter
+            aptrade_cv_entry.cvmain = newcv
+            aptrade_cv_entry.cv_num = newcv.cvnum
+            aptrade_cv_entry.cv_date = newcv.cvdate
+            aptrade_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_aptrade
+            aptrade_cv_entry.supplier = newcv.payee
+            aptrade_cv_entry.balancecode = 'D'
+            aptrade_cv_entry.debitamount = aptrade_debit_amount
+            aptrade_cv_entry.enterby = request.user
+            aptrade_cv_entry.modifyby = request.user
+            aptrade_cv_entry.save()
+            cvdetail_item_counter += 1
+
+            # 2nd entry: Input VAT (if there is a Deferred Input VAT from APV which only comes from Services)
+            if inputvat_debit_amount > 0:
+                inputvat_cv_entry = Cvdetail()
+                inputvat_cv_entry.item_counter = cvdetail_item_counter
+                inputvat_cv_entry.cvmain = newcv
+                inputvat_cv_entry.cv_num = newcv.cvnum
+                inputvat_cv_entry.cv_date = newcv.cvdate
+                inputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat
+                inputvat_cv_entry.supplier = newcv.payee
+                inputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
+                inputvat_cv_entry.vat = newcv.vat
+                inputvat_cv_entry.balancecode = 'D'
+                inputvat_cv_entry.debitamount = inputvat_debit_amount
+                inputvat_cv_entry.enterby = request.user
+                inputvat_cv_entry.modifyby = request.user
+                inputvat_cv_entry.save()
+                cvdetail_item_counter += 1
+                # 3rd entry: Deferred Input VAT
+                deferredinputvat_cv_entry = Cvdetail()
+                deferredinputvat_cv_entry.item_counter = cvdetail_item_counter
+                deferredinputvat_cv_entry.cvmain = newcv
+                deferredinputvat_cv_entry.cv_num = newcv.cvnum
+                deferredinputvat_cv_entry.cv_date = newcv.cvdate
+                deferredinputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_deferredinputvat
+                deferredinputvat_cv_entry.supplier = newcv.payee
+                deferredinputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
+                deferredinputvat_cv_entry.vat = newcv.vat
+                deferredinputvat_cv_entry.balancecode = 'C'
+                deferredinputvat_cv_entry.creditamount = deferredinputvat_credit_amount
+                deferredinputvat_cv_entry.enterby = request.user
+                deferredinputvat_cv_entry.modifyby = request.user
+                deferredinputvat_cv_entry.save()
+                cvdetail_item_counter += 1
+
+            # 4th entry: Cash in Bank
+            cashinbank_cv_entry = Cvdetail()
+            cashinbank_cv_entry.item_counter = cvdetail_item_counter
+            cashinbank_cv_entry.cvmain = newcv
+            cashinbank_cv_entry.cv_num = newcv.cvnum
+            cashinbank_cv_entry.cv_date = newcv.cvdate
+            cashinbank_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_cashinbank
+            cashinbank_cv_entry.bankaccount = newcv.bankaccount
+            cashinbank_cv_entry.balancecode = 'C'
+            cashinbank_cv_entry.creditamount = cashinbank_credit_amount
+            cashinbank_cv_entry.enterby = request.user
+            cashinbank_cv_entry.modifyby = request.user
+            cashinbank_cv_entry.save()
 
             print "CV successfully generated."
 

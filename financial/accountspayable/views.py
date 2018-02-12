@@ -99,6 +99,39 @@ class DetailView(DetailView):
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
         context['pk'] = 0
 
+        apacctgentries = Apdetail.objects.filter(ap_num=self.object.apnum, status='A', isdeleted=0, apmain=self.object)
+        taxable_entries = apacctgentries.filter(balancecode='D', debitamount__gt=0.00).exclude(
+            chartofaccount=Companyparameter.objects.get(code='PDI').coa_inputvat).order_by('item_counter')
+        taxable_total = taxable_entries.aggregate(Sum('debitamount'))
+        vat_entries = apacctgentries.filter(balancecode='D', debitamount__gt=0.00, chartofaccount=Companyparameter.
+                                            objects.get(code='PDI').coa_inputvat).order_by('item_counter')
+        vat_total = vat_entries.aggregate(Sum('debitamount'))
+        aptrade_entries = apacctgentries.filter(balancecode='C', creditamount__gt=0.00).exclude(
+            chartofaccount=Companyparameter.objects.get(code='PDI').coa_ewtax).order_by('item_counter')
+        aptrade_total = aptrade_entries.aggregate(Sum('creditamount'))
+        wtax_entries = apacctgentries.filter(balancecode='C', creditamount__gt=0.00, chartofaccount=Companyparameter.
+                                             objects.get(code='PDI').coa_ewtax).order_by('item_counter')
+        wtax_total = wtax_entries.aggregate(Sum('creditamount'))
+
+        if self.object.vatrate > 0:
+            context['vatablesale'] = taxable_total['debitamount__sum']
+            context['vatexemptsale'] = 0
+            context['vatzeroratedsale'] = 0
+        elif self.object.vatcode == 'VE':
+            context['vatablesale'] = 0
+            context['vatexemptsale'] = taxable_total['debitamount__sum']
+            context['vatzeroratedsale'] = 0
+        elif self.object.vatcode == 'ZE' or self.object.vatcode == 'VATNA':
+            context['vatablesale'] = 0
+            context['vatexemptsale'] = 0
+            context['vatzeroratedsale'] = taxable_total['debitamount__sum']
+
+        context['totalsale'] = taxable_total['debitamount__sum']
+        context['addvat'] = vat_total['debitamount__sum']
+        context['totalpayment'] = aptrade_total['creditamount__sum']
+        context['wtaxamount'] = wtax_total['creditamount__sum']
+        context['wtaxrate'] = self.object.ataxrate
+
         return context
 
 

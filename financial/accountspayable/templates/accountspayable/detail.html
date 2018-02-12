@@ -21,7 +21,7 @@
 {% load humanize %}
 <div class="page-content container-fluid page">
     <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-8">
             <!-- Start Profile Tab Section -->
             <div class="nav-tabs nav-tabs-animate border-profile">
                 <ul class="nav nav-tabs nav-profile">
@@ -210,7 +210,7 @@
                 </div>
             </div>
         </div>
-        <div class="row col-md-3">
+        <div class="row col-md-4">
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
@@ -251,6 +251,45 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+{#                <div class="nav-tabs nav-tabs-animate border-profile">#}
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">VAT Table</a></li>
+                    </ul>
+                <div class="widgett widgett-article widgett-shadow">
+                    <div class="heading-top-index-2">
+                        <table class="vattable" width="100%">
+                            <tr>
+                                <td><small>VATable&nbsp;Sale:</small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_vatable" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{ vatablesale|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td><small>VAT-Exempt&nbsp;Sale:</small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_vatexempt" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{ vatexemptsale|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td><small>VAT&nbsp;Zero&nbsp;-&nbsp;Rated&nbsp;Sale:</small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_vatzero" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{vatzeroratedsale|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td><small><b>Total&nbsp;Sale:</b></small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_totalsale" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{ totalsale|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td><small><b>Add&nbsp;VAT:</b></small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_addvat" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{ addvat|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td><small><b>Total&nbsp;Payment:</b></small></td>
+                                <td class="form-group form-material"><input type="text" id="disp_totalpay" class="form-control input-sm amount text-right amount_display" disabled="disabled" value="{{ totalpayment|floatformat:2|intcomma }}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="font-size: 12px; text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note">{% if wtaxamount > 0 %}Noted: {{ wtaxrate }}% wtax -------> {{ wtaxamount|floatformat:2|intcomma }}{% endif %}</code></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>

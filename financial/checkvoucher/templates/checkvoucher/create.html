@@ -88,11 +88,21 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.cvtype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3">
-                                    <label class="control-label" for="id_refap">Reference&nbsp;AP</label>
-                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">
-                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>
+                                <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_cvstatus">CV Status</label>
+                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">#}
+{#                                        {% for id,name in form.fields.cvstatus.choices %}#}
+{#                                            <option value="{{ id }}"{% if form.cvstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+                                    <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
                                 </div>
+{#                                <div class="form-group col-sm-3">#}
+{#                                    <label class="control-label" for="id_refap">Reference&nbsp;AP</label>#}
+{#                                    <input type="text" style="background: white;" class="form-control input-sm" id="id_refap" name="refap" readonly="readonly" value="{{ form.refap.value|default:'N/A' }}">#}
+{#                                    <span class="help-block form-error">{{ form.refap.errors.as_text }}</span>#}
+{#                                </div>#}
                                 <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
 {#                                        <div class="input-search">#}
@@ -232,17 +242,7 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.deferredvat.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_cvstatus">CV Status</label>
-                                    <input type="text" class="form-control input-sm" id="id_cvstatus" name="cvstatus" value="For Approval" disabled="disabled" style="background: white;">
-{#                                    <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">#}
-{#                                        {% for id,name in form.fields.cvstatus.choices %}#}
-{#                                            <option value="{{ id }}"{% if form.cvstatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
-{#                                        {% endfor %}#}
-{#                                    </select>#}
-                                    <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-9">
+                                <div class="form-group col-sm-12">
                                     <label class="control-label" for="id_particulars">Particulars</label>
                                     <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
                                               rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>

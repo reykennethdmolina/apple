@@ -143,12 +143,20 @@
                                             <span class="row col-md-9"><b>{{ object.particulars|default:'N/A' }}</b></span>
                                         </div>
                                     </div>
+{#                                    <div class="col-md-6 col-sm-6 col-xs-12">#}
+{#                                        <div class="first-name-profile">#}
+{#                                            <br>#}
+{#                                            <span class="text-info row col-md-2 margin-right-90"><b>Ref.&nbsp;AP</b></span>#}
+{#                                            <span class="text-info row col-md-3"><b>: </b></span>#}
+{#                                            <span class="row col-md-6">{{ object.ref_ap|default:'N/A' }}</span>#}
+{#                                        </div>#}
+{#                                    </div>#}
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <br>
-                                            <span class="text-info row col-md-2 margin-right-90"><b>Ref.&nbsp;AP</b></span>
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Input&nbsp;VAT&nbsp;Type</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-6">{{ object.ref_ap|default:'N/A' }}</span>
+                                            <span class="row col-md-6">{{ object.inputvattype.description|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -173,18 +181,19 @@
                                             <span class="row col-md-8">{% if object.atc %}{{ object.atc.code }}&nbsp;({{ object.atcrate }}%){% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
+
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-info row col-md-2 margin-right-90"><b>Input&nbsp;VAT&nbsp;Type</b></span>
+                                            <span class="text-info row col-md-2 margin-right-90"><b>Currency</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-6">{{ object.inputvattype.description|default:'N/A' }}</span>
+                                            <span class="row col-md-6">{% if object.currency %}{{ object.currency.description }}&nbsp;({{ object.currency.symbol }}){% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-info row col-md-1 margin-right-60"><b>Currency</b></span>
+                                            <span class="text-info row col-md-1 margin-right-60"><b>FX&nbsp;Rate</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-8">{% if object.currency %}{{ object.currency.description }}&nbsp;({{ object.currency.symbol }}){% else %}N/A{% endif %}</span>
+                                            <span class="row col-md-8">{{ object.fxrate|floatformat:2|intcomma|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -195,11 +204,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-info row col-md-1 margin-right-60"><b>FX&nbsp;Rate</b></span>
-                                            <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-8">{{ object.fxrate|floatformat:2|intcomma|default:'N/A' }}</span>
-                                        </div>
+                                        <div class="first-name-profile">&nbsp;</div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
