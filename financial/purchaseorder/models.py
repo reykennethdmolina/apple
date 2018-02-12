@@ -88,7 +88,7 @@ class Pomain(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='pomain_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='pomain_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='pomain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
@@ -96,6 +96,7 @@ class Pomain(models.Model):
     # for APV
     apvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     isfullyapv = models.IntegerField(default=0)
+    totalremainingamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)  # upon creation, this is equal to totalamount
     # for APV
 
     class Meta:
@@ -187,9 +188,9 @@ class Podetail(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='podetail_enter')
-    enterdate = models.DateTimeField(default=datetime.datetime.now())
+    enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='podetail_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='podetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
@@ -197,6 +198,13 @@ class Podetail(models.Model):
                                 blank=True)
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_podetail', null=True,
                               blank=True)
+
+    # additional columns for PO-APV transactions
+    isfullyapv = models.IntegerField(default=0)
+    apvtotalamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    apvremainingamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)  # upon creation, this is equal to netamount
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='podetail_inputvattype', null=True,
+                                     blank=True)
 
     class Meta:
         db_table = 'podetail'
@@ -256,9 +264,9 @@ class Podetailtemp(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='podetailtemp_enter')
-    enterdate = models.DateTimeField(default=datetime.datetime.now())
+    enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='podetailtemp_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='podetailtemp_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
@@ -267,6 +275,14 @@ class Podetailtemp(models.Model):
                                 blank=True)
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_podetailtemp', null=True,
                               blank=True)
+
+    # additional columns for PO-APV transactions
+    isfullyapv = models.IntegerField(default=0)
+    apvtotalamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    apvremainingamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,
+                                             max_digits=18)  # upon creation, this is equal to netamount
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='podetailtemp_inputvattype', null=True,
+                                     blank=True)
 
     class Meta:
         db_table = 'podetailtemp'

@@ -135,6 +135,7 @@ class CreateView(CreateView):
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
             self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
+            self.object.totalremainingamount = self.object.totalamount
             self.object.save()
             # END: save po main
 
@@ -188,6 +189,7 @@ class CreateView(CreateView):
                     discountedAmount = detail.grossamount - detail.discountamount
                     detail.vatamount = discountedAmount * (float(detail.vatrate) / 100)
                     detail.netamount = discountedAmount + detail.vatamount
+                    detail.apvremainingamount = detail.netamount
 
                     if detail.vatrate > 0:
                         detail.vatable = discountedAmount
@@ -219,6 +221,7 @@ class CreateView(CreateView):
 
                     detail.prfmain = dt.prfmain
                     detail.prfdetail = dt.prfdetail
+                    detail.inputvattype = dt.inputvattype
 
                     detail.save()
                     # END: transfer po detail temp data to po detail, reflecting changes made in the screen
@@ -381,6 +384,7 @@ class UpdateView(UpdateView):
                 detailtemp.department_name = d.department_name
                 detailtemp.prfdetail = d.prfdetail
                 detailtemp.prfmain = d.prfmain
+                detailtemp.inputvattype = d.inputvattype
                 detailtemp.save()
             podetailtemp = Podetailtemp.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
         else:
@@ -515,6 +519,7 @@ class UpdateView(UpdateView):
 
                 alldetail.prfmain = atd.prfmain
                 alldetail.prfdetail = atd.prfdetail
+                alldetail.inputvattype = atd.inputvattype
 
                 alldetail.save()
                 # END: transfer po detail temp data to po detail, reflecting changes made in the screen
@@ -802,6 +807,7 @@ def savedetailtemp(request):
         detailtemp.serialnum = request.POST['id_serialnum']
         detailtemp.department_code = Department.objects.get(pk=request.POST['id_department']).code
         detailtemp.department_name = Department.objects.get(pk=request.POST['id_department']).departmentname
+        detailtemp.inputvattype = detailtemp.invitem.inventoryitemclass.inventoryitemtype.inputvattype
         detailtemp.save()
 
         data = {
@@ -860,6 +866,7 @@ def saveimporteddetailtemp(request):
                 detailtemp.department_name = prfitemdetails.department_name
                 detailtemp.prfmain = prfitemdetails.prfmain
                 detailtemp.prfdetail = prfitemdetails
+                detailtemp.inputvattype = detailtemp.invitem.inventoryitemclass.inventoryitemtype.inputvattype
                 detailtemp.save()
                 i += 1
                 podetail_list.append([detailtemp.pk,

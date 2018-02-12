@@ -15,8 +15,8 @@ class Poapvtransaction(models.Model):
     )
 
     pomain = models.ForeignKey('purchaseorder.Pomain', related_name='pomain_poapvtransaction')
+    podetail = models.ForeignKey('purchaseorder.Podetail', related_name='podetail_poapvtransaction')
     apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_poapvtransaction')
-
     apamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
@@ -34,6 +34,58 @@ class Poapvtransaction(models.Model):
         return self.pomain
 
 
+class Poapvdetailtemp(models.Model):
+    STATUS_CHOICES = (
+        ('A', 'Active'),
+        ('I', 'Inactive'),
+        ('C', 'Cancelled'),
+        ('O', 'Posted'),
+        ('P', 'Printed'),
+    )
+
+    item_counter = models.IntegerField()
+    sort_num = models.IntegerField()
+    secretkey = models.CharField(max_length=255, null=True, blank=True)
+    apmain = models.CharField(max_length=10, null=True, blank=True)
+    ap_num = models.CharField(max_length=10)
+    ap_date = models.DateTimeField(blank=True, null=True)
+    chartofaccount = models.IntegerField(blank=True, null=True)
+    bankaccount = models.IntegerField(blank=True, null=True)
+    department = models.IntegerField(blank=True, null=True)
+    employee = models.IntegerField(blank=True, null=True)
+    supplier = models.IntegerField(blank=True, null=True)
+    customer = models.IntegerField(blank=True, null=True)
+    unit = models.IntegerField(blank=True, null=True)
+    branch = models.IntegerField(blank=True, null=True)
+    product = models.IntegerField(blank=True, null=True)
+    inputvat = models.IntegerField(blank=True, null=True)
+    outputvat = models.IntegerField(blank=True, null=True)
+    vat = models.IntegerField(blank=True, null=True)
+    wtax = models.IntegerField(blank=True, null=True)
+    ataxcode = models.IntegerField(blank=True, null=True)
+    debitamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    creditamount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True, default=0.00)
+    balancecode = models.CharField(max_length=1, blank=True, null=True)
+    isdeleted = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'poapvdetailtemp'
+        ordering = ['-pk']
+        # permissions = (("view_apmain", "Can view apmain"),)
+
+    def get_absolute_url(self):
+        return reverse('poapvdetailtemp:detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+
+    def status_verbose(self):
+        return dict(Poapvdetailtemp.STATUS_CHOICES)[self.status]
+
+
 class Apvcvtransaction(models.Model):
     STATUS_CHOICES = (
         ('A', 'Active'),
@@ -45,7 +97,6 @@ class Apvcvtransaction(models.Model):
 
     apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_apvcvtransaction')
     cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_apvcvtransaction')
-
     cvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 

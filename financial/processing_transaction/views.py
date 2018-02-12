@@ -11,9 +11,8 @@ from django.utils.crypto import get_random_string
 from utils.views import wccount, storeupload
 import decimal
 from dbfread import DBF
-
-from purchaseorder.models import Pomain
-from accountspayable.models import Apmain
+from purchaseorder.models import Pomain, Podetail
+from accountspayable.models import Apmain, Apdetail
 from checkvoucher.models import Cvmain
 from branch.models import Branch
 from aptype.models import Aptype
@@ -21,7 +20,13 @@ from apsubtype.models import Apsubtype
 from supplier.models import Supplier
 from cvtype.models import Cvtype
 from cvsubtype.models import Cvsubtype
-from . models import Poapvtransaction, Apvcvtransaction
+from chartofaccount.models import Chartofaccount
+from companyparameter.models import Companyparameter
+from inputvat.models import Inputvat
+from vat.models import Vat
+from ataxcode.models import Ataxcode
+from . models import Poapvtransaction, Apvcvtransaction, Poapvdetailtemp
+from acctentry.views import generatekey
 
 
 @method_decorator(login_required, name='dispatch')
@@ -33,12 +38,14 @@ class IndexView(TemplateView):
 
         if self.request.GET:
             if self.request.GET['selectprocess'] == 'potoapv':
-                context['data_list'] = Pomain.objects.all().filter(isdeleted=0, postatus='A', isfullyapv=0).\
-                    order_by('supplier_name', 'inputvattype_id', 'vat_id')
+                context['data_list'] = Podetail.objects.filter(isdeleted=0, isfullyapv=0, pomain__isdeleted=0,
+                                                               pomain__postatus='A', pomain__isfullyapv=0).\
+                    order_by('pomain__ponum', 'pomain__supplier_name', 'pomain__inputvattype_id', 'vat_id',
+                             'item_counter')
                 if self.request.GET['datefrom']:
-                    context['data_list'] = context['data_list'].filter(podate__gte=self.request.GET['datefrom'])
+                    context['data_list'] = context['data_list'].filter(pomain__podate__gte=self.request.GET['datefrom'])
                 if self.request.GET['dateto']:
-                    context['data_list'] = context['data_list'].filter(podate__lte=self.request.GET['dateto'])
+                    context['data_list'] = context['data_list'].filter(pomain__podate__lte=self.request.GET['dateto'])
             elif self.request.GET['selectprocess'] == 'apvtocv':
                 context['data_list'] = Apmain.objects.all().filter(isdeleted=0, apstatus='R', isfullycv=0). \
                     order_by('payeecode', 'inputvattype_id', 'vat_id')
@@ -63,12 +70,16 @@ class IndexView(TemplateView):
 @csrf_exempt
 def importtransdata(request):
     if request.method == 'POST':
+        secretkey = generatekey(request)
         if request.POST['transtype'] == 'potoapv':
-            referencepo = Pomain.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0]))
-            allpos = Pomain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('ponum')
+            referencepo = Podetail.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0])).pomain
+            allpodetail = Podetail.objects.filter(id__in=request.POST.getlist('trans_checkbox')).\
+                order_by('pomain__ponum', 'pomain__supplier_name', 'pomain__inputvattype_id', 'vat_id', 'item_counter')
 
-            po_nums = allpos.values_list('ponum', flat=True)
-            refnum = ' '.join(po_nums)
+            refnum = ''
+            po_nums = allpodetail.values('pomain__ponum').distinct().order_by('pomain__ponum')
+            for data in po_nums:
+                refnum += ' ' + str(data['pomain__ponum'])
 
             year = str(datetime.date.today().year)
             yearqs = Apmain.objects.filter(apnum__startswith=year)
@@ -104,7 +115,7 @@ def importtransdata(request):
             newapv.ataxcode = referencepo.atc.code
             newapv.ataxrate = referencepo.atcrate
             newapv.refno = refnum
-            newapv.particulars = 'Purchase Order No.(s) ' + refnum
+            newapv.particulars = 'Payment setup for various items in ' + refnum
             newapv.deferred = referencepo.deferredvat
             newapv.currency = referencepo.currency
             newapv.fxrate = referencepo.fxrate
@@ -118,22 +129,151 @@ def importtransdata(request):
 
             total_amount = 0
             i = 0
-            for data in allpos:
+            for data in allpodetail:
+                print data.id
                 newpoapvtrans = Poapvtransaction()
-                newpoapvtrans.apamount = float(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
+                newpoapvtrans.pomain = data.pomain
+                newpoapvtrans.podetail = data
                 newpoapvtrans.apmain = newapv
-                newpoapvtrans.pomain = data
+                newpoapvtrans.apamount = decimal.Decimal(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
+                print 'PO-APV Trans Amount = ' + str(newpoapvtrans.apamount)
+
                 total_amount += newpoapvtrans.apamount
+                print 'Total Amount = ' + str(total_amount)
                 newpoapvtrans.save()
-                updatepo = Pomain.objects.get(pk=newpoapvtrans.pomain.id)
-                updatepo.apvamount = newpoapvtrans.apamount
-                if updatepo.apvamount == updatepo.totalamount:
-                    updatepo.isfullyapv = 1
-                updatepo.save()
+
+                # update podetail and pomain
+                data.apvtotalamount += decimal.Decimal(str(newpoapvtrans.apamount))
+                print 'PO Detail APV Total Amount = ' + str(data.apvtotalamount)
+                data.apvremainingamount -= decimal.Decimal(str(newpoapvtrans.apamount))
+                print 'PO Detail Remaining Amount = ' + str(data.apvremainingamount)
+                if data.apvremainingamount == 0 and data.netamount == data.apvtotalamount:
+                    data.isfullyapv = 1
+                data.save()
+
+                data_main = newpoapvtrans.pomain
+                data_main.apvamount += newpoapvtrans.apamount
+                print 'PO Main APV Total Amount = ' + str(data_main.apvamount)
+                data_main.totalremainingamount -= newpoapvtrans.apamount
+                print 'PO Main Remaining Amount = ' + str(data_main.totalremainingamount)
+                if data_main.totalremainingamount == 0 and data_main.totalamount == data_main.apvamount:
+                    data_main.isfullyapv = 1
+                data_main.save()
+
+                # APV Accounting Entry
+                # 1st entry for current item: Inventory Chart of Account
+                inventory_entry = Poapvdetailtemp()
+                inventory_entry.item_counter = i + 1
+                inventory_entry.sort_num = 1
+                inventory_entry.secretkey = secretkey
+                inventory_entry.apmain = newapv.id
+                inventory_entry.ap_num = newapv.apnum
+                inventory_entry.ap_date = newapv.apdate
+                if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or \
+                    data.invitem.inventoryitemclass.inventoryitemtype.code == 'SI' or \
+                        data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':  # remove this soon
+                    inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
+                # elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
+                    # special entry for SERVICES when available
+                inventory_entry.balancecode = 'D'
+                inventory_entry.debitamount = float(newpoapvtrans.apamount) / (1 + (float(data.vatrate) / 100.0))
+                inventory_entry.save()
+
+                # 2nd entry for current item: Input VAT (for Office Supplies and Fixed Assets) or
+                # Deferred Input VAT (for Services)
+                if data.vatrate > 0:
+                    inputvat_entry = Poapvdetailtemp()
+                    inputvat_entry.item_counter = i + 1
+                    inputvat_entry.sort_num = 2
+                    inputvat_entry.secretkey = secretkey
+                    inputvat_entry.apmain = newapv.id
+                    inputvat_entry.ap_num = newapv.apnum
+                    inputvat_entry.ap_date = newapv.apdate
+                    if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or \
+                                    data.invitem.inventoryitemclass.inventoryitemtype.code == 'SI':
+                        inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
+                    elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
+                        inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_deferredinputvat_id
+                    inputvat_entry.supplier = data_main.supplier_id
+                    inputvat_entry.inputvat = Inputvat.objects.filter(
+                        inputvattype=data.invitem.inventoryitemclass.inventoryitemtype.inputvattype).first().id
+                    inputvat_entry.vat = data.vat_id
+                    inputvat_entry.balancecode = 'D'
+                    inputvat_entry.debitamount = inventory_entry.debitamount * (float(data.vatrate) / 100.0)
+                    inputvat_entry.save()
+
+                # 3rd entry for current item: Expanded Withholding Tax
+                if data_main.atc:
+                    ewt_entry = Poapvdetailtemp()
+                    ewt_entry.item_counter = i + 1
+                    ewt_entry.sort_num = 3
+                    ewt_entry.secretkey = secretkey
+                    ewt_entry.apmain = newapv.id
+                    ewt_entry.ap_num = newapv.apnum
+                    ewt_entry.ap_date = newapv.apdate
+                    ewt_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_ewtax_id
+                    ewt_entry.ataxcode = data_main.atc_id
+                    ewt_entry.balancecode = 'C'
+                    ewt_entry.creditamount = float(newpoapvtrans.apamount) * (float(data_main.atcrate) / 100.0)
+                    ewt_entry.save()
+
+                # 4th entry for current item: AP Trade
+                aptrade_entry = Poapvdetailtemp()
+                aptrade_entry.item_counter = i + 1
+                aptrade_entry.sort_num = 4
+                aptrade_entry.secretkey = secretkey
+                aptrade_entry.apmain = newapv.id
+                aptrade_entry.ap_num = newapv.apnum
+                aptrade_entry.ap_date = newapv.apdate
+                aptrade_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_aptrade_id
+                aptrade_entry.supplier = data_main.supplier_id
+                aptrade_entry.balancecode = 'C'
+                aptrade_entry.creditamount = float(newpoapvtrans.apamount) - ewt_entry.creditamount
+                aptrade_entry.save()
+
                 i += 1
 
             newapv.amount = total_amount
             newapv.save()
+
+            poapvdetailtemp_for_grouping = Poapvdetailtemp.objects.filter(secretkey=secretkey).order_by('sort_num',
+                                                                                                        'item_counter',
+                                                                                                        'inputvat',
+                                                                                                        'ataxcode')
+            final_entry_counter = 1
+            last_entry = 0
+            last_inputvat = 0
+            last_ataxcode = 0
+            for entry in poapvdetailtemp_for_grouping:
+                if last_entry == entry.chartofaccount and last_inputvat == entry.inputvat and last_ataxcode == \
+                        entry.ataxcode:
+                    previous_apdetail = Apdetail.objects.latest('id')
+                    previous_apdetail.debitamount += entry.debitamount
+                    previous_apdetail.creditamount += entry.creditamount
+                    previous_apdetail.save()
+                else:
+                    final_apdetail = Apdetail()
+                    final_apdetail.item_counter = final_entry_counter
+                    final_apdetail.apmain = Apmain.objects.get(pk=entry.apmain)
+                    final_apdetail.ap_num = final_apdetail.apmain.apnum
+                    final_apdetail.ap_date = final_apdetail.apmain.apdate
+                    final_apdetail.chartofaccount = Chartofaccount.objects.get(pk=entry.chartofaccount)
+                    if entry.supplier:
+                        final_apdetail.supplier = Supplier.objects.get(pk=entry.supplier)
+                    if entry.inputvat:
+                        final_apdetail.inputvat = Inputvat.objects.get(pk=entry.inputvat)
+                    if entry.vat:
+                        final_apdetail.vat = Vat.objects.get(pk=entry.vat)
+                    if entry.ataxcode:
+                        final_apdetail.ataxcode = Ataxcode.objects.get(pk=entry.ataxcode)
+                    final_apdetail.balancecode = entry.balancecode
+                    final_apdetail.debitamount = entry.debitamount
+                    final_apdetail.creditamount = entry.creditamount
+                    final_apdetail.save()
+                    final_entry_counter += 1
+                    last_entry = entry.chartofaccount
+                    last_inputvat = entry.inputvat
+                    last_ataxcode = entry.ataxcode
 
             print "APV successfully generated."
 

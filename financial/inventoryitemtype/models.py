@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Inventoryitemtype(models.Model):
     code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=250)
@@ -18,8 +19,10 @@ class Inventoryitemtype(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='inventoryitemtype_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='inventoryitemtype_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='inventoryitemtype_inputvattype',
+                                     null=True, blank=True)
 
     class Meta:
         db_table = 'inventoryitemtype'

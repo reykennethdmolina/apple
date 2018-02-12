@@ -120,6 +120,7 @@ class Ormain(models.Model):
     adtype = models.ForeignKey('adtype.Adtype', related_name='ormain_adtype_id', null=True, blank=True)
     transaction_type = models.CharField(default='M', max_length=1)
     acctentry_incomplete = models.IntegerField(default=0)
+    logs = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'ormain'

@@ -27,6 +27,7 @@ from ortype.models import Ortype
 from orsubtype.models import Orsubtype
 from outputvattype.models import Outputvattype
 from paytype.models import Paytype
+from processing_or.models import Logs_ormain, Logs_ordetail
 from vat.models import Vat
 from wtax.models import Wtax
 from django.template.loader import render_to_string
@@ -364,6 +365,21 @@ class UpdateView(UpdateView):
         context['ornum'] = self.object.ornum
         context['trans_type'] = self.object.transaction_type
         context['adtype'] = Adtype.objects.filter(isdeleted=0).order_by('code')
+        context['footers'] = [self.object.enterby.first_name + " " + self.object.enterby.last_name if self.object.enterby else '',
+                              self.object.importby.first_name + " " + self.object.importby.last_name if self.object.importby else '',
+                              self.object.enterdate, self.object.importdate,
+                              self.object.modifyby.first_name + " " + self.object.modifyby.last_name if self.object.modifyby else '',
+                              self.object.postby.first_name + " " + self.object.postby.last_name if self.object.postby else '',
+                              self.object.modifydate, self.object.postdate
+                              ]
+        context['logs'] = self.object.logs
+
+        context['logs_ormain'] = Logs_ormain.objects.filter(orno=self.object.ornum, importstatus='P')
+        context['logs_ordetail'] = Logs_ordetail.objects.filter(orno=self.object.ornum, importstatus='P',
+                                                                batchkey=context['logs_ormain'].first().batchkey)
+        context['logs_orstatus'] = context['logs_ormain'].first().status if context['logs_ormain'] else ''
+
+        context['artype'] = 'A' if self.object.orsource == 'A' else 'C' if self.object.orsource == 'C' else ''
 
         # data for lookup
         context['ortype'] = Ortype.objects.filter(isdeleted=0).order_by('pk')

@@ -42,6 +42,8 @@ class Companyparameter(models.Model):
                                        blank=True, null=True)
     coa_inputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_inputvat',
                                      blank=True, null=True)
+    coa_deferredinputvat = models.ForeignKey('chartofaccount.Chartofaccount',
+                                             related_name='parameter_coa_deferredinputvat', blank=True, null=True)
     coa_outputvat = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_outputvat',
                                       blank=True, null=True)
     coa_ewtax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_ewtax', blank=True,
@@ -74,7 +76,7 @@ class Companyparameter(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='companyparameter_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:
