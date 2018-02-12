@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from annoying.functions import get_object_or_None
 from requisitionform.models import Rfmain
 from companyparameter.models import Companyparameter
+from budgetapproverlevels.models import Budgetapproverlevels
 from django.db.models import F
 from django.contrib.auth.models import User
 from purchaserequisitionform.models import Prfmain, Prfdetail
@@ -182,6 +183,7 @@ class PrfApprovalView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
+        context['budgetlevels'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
         context['to_budget'] = Prfmain.objects.filter(prfstatus='F', approverlevel1=None,
                                                       status='A', isdeleted=0)
         csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
