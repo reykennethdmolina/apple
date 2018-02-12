@@ -134,6 +134,7 @@ class Temp_ormain(models.Model):
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'temp_ormain'
@@ -165,6 +166,7 @@ class Temp_ordetail(models.Model):
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)
     product = models.CharField(null=True, blank=True, max_length=500)
+    status = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'temp_ordetail'
