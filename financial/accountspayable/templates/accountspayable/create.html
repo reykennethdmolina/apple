@@ -1,7 +1,7 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
 {% load humanize %}
-{% block page-title %} Accounts Payable {% endblock page-title %}
+{% block page-title %} Accounts Payable Voucher {% endblock page-title %}
 {% block page-content %}
     {% block extra_css %}
         {% include "accountspayable/createcss.html" %}
@@ -58,17 +58,17 @@
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="row col-md-12 padding-left-0 padding-right-0">
                             <div class="form-group col-sm-2">
-                                <label class="control-label" for="id_apnum">Number</label>
+                                <label class="control-label" for="id_apnum">APV Number</label>
                                 <input type="text" class="form-control input-sm" id="id_apnum" name="apnum" placeholder="APxxxxxxx" value="{{ form.apnum.value|default:'' }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.apnum.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2">
-                                <label class="control-label" for="id_apdate">AP Date</label>
+                                <label class="control-label" for="id_apdate">APV Date</label>
                                 <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_apdate" name="apdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.apdate.value %}{{ form.apdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                 <span class="help-block form-error">{{ form.apdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2 {{ form.aptype.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_aptype">AP Type</label>
+                                <label class="control-label" for="id_aptype">APV Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_aptype" name="aptype">
                                     {% for data in aptype %}
                                         <option value="{{ data.id }}" {% if form.aptype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
@@ -77,7 +77,7 @@
                                 <span class="help-block form-error">{{ form.aptype.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-3 {{ form.apsubtype.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_aptype">AP Subtype</label>
+                                <label class="control-label" for="id_aptype">APV Subtype</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_apsubtype" name="apsubtype">
                                     <option value="">-- Select --</option>
                                     {% for apsubtype in apsubtype %}
@@ -202,7 +202,7 @@
                                 <input type="text" class="form-control input-sm disabled-white text-right" id="id_fxrate" name="fxrate" value="1.00">
                             </div>
                             <div class="form-group col-sm-3">
-                                <label class="control-label" for="id_apstatus">AP Status</label>
+                                <label class="control-label" for="id_apstatus">APV Status</label>
                                 <input type="text" class="form-control input-sm disabled-white" value="For Approval" disabled="disabled">
                             </div>
                             <div class="form-group col-sm-9">

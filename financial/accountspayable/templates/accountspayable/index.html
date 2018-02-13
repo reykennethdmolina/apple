@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Accounts Payable {% endblock page-title %}
+{% block page-title %} Accounts Payable Voucher {% endblock page-title %}
 {% block extra_css %}
     {% include "accountspayable/createcss.html" %}
 {% endblock extra_css %}
@@ -29,7 +29,7 @@
                         </button>
                     {% endif %}
                     {% if perms.accountspayable.add_apmain %}
-                        <a href="{% url 'accountspayable:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Accounts Payable</button></a>
+                        <a href="{% url 'accountspayable:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Accounts Payable Voucher</button></a>
                     {% endif %}
                 </div>
             </div>

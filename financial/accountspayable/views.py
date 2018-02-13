@@ -17,6 +17,8 @@ from currency.models import Currency
 from apsubtype.models import Apsubtype
 from aptype.models import Aptype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
+from processing_transaction.models import Poapvtransaction
+from purchaseorder.models import Pomain, Podetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
@@ -375,6 +377,8 @@ class UpdateView(UpdateView):
         ap_main_aggregate = Reprfvmain.objects.filter(isdeleted=0, apmain=self.object.id).aggregate(Sum('amount'))
         context['reprfv_total_amount'] = ap_main_aggregate['amount__sum']
 
+        context['selectedapsubtype'] = self.object.apsubtype.code
+
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
         contextdatatable = {
@@ -539,6 +543,21 @@ class DeleteView(DeleteView):
             data.apmain = None
             data.save()
         # remove references in reprfvmain, reprfvdetail, ofmain
+
+        # remove references in PO tables
+        poapvtrans = Poapvtransaction.objects.filter(apmain=self.object)
+        for data in poapvtrans:
+            podetail = Podetail.objects.filter(pk=data.podetail.id).first()
+            podetail.apvtotalamount -= data.apamount
+            podetail.apvremainingamount += data.apamount
+            podetail.isfullyapv = 0
+            podetail.save()
+            pomain = Pomain.objects.filter(pk=podetail.pomain.id).first()
+            pomain.apvamount -= data.apamount
+            pomain.totalremainingamount += data.apamount
+            pomain.isfullyapv = 0
+            pomain.save()
+            data.delete()
 
         return HttpResponseRedirect('/accountspayable')
 

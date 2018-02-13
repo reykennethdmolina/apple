@@ -5,7 +5,7 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Accounts Payable</title>
+    <title>Accounts Payable Voucher</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
@@ -172,7 +172,7 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%"><b>AP&nbsp;Date</b></td>
+                    <td width="25%"><b>APV&nbsp;Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ apmain.apdate|date:'Y-m-d' }}</td>
                     <td width="25%"><b>Ref.&nbsp;No.</b></td>

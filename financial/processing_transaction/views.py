@@ -278,6 +278,7 @@ def importtransdata(request):
                     last_ataxcode = entry.ataxcode
 
             print "APV successfully generated."
+            Poapvdetailtemp.objects.filter(secretkey=secretkey).delete()
 
             return redirect('/accountspayable/' + str(newapv.id) + '/update')
 

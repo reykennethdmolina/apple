@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
+from accountspayable.models import Apmain
 from ataxcode.models import Ataxcode
 from bankaccount.models import Bankaccount
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -15,6 +16,7 @@ from inputvattype.models import Inputvattype
 from cvtype.models import Cvtype
 from cvsubtype.models import Cvsubtype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
+from processing_transaction.models import Apvcvtransaction
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from supplier.models import Supplier
 from vat.models import Vat
@@ -463,6 +465,15 @@ class DeleteView(DeleteView):
             data.cvmain = None
             data.save()
         # remove references in reppcvmain, reppcvdetail, ofmain
+
+        # remove references in APV tables
+        apvcvtrans = Apvcvtransaction.objects.filter(cvmain=self.object)
+        for data in apvcvtrans:
+            apvmain = Apmain.objects.filter(pk=data.apmain.id).first()
+            apvmain.cvamount -= data.cvamount
+            apvmain.isfullycv = 0
+            apvmain.save()
+            data.delete()
 
         return HttpResponseRedirect('/checkvoucher')
 
