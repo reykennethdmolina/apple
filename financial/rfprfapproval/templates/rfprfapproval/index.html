@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} RF and PRF Approval {% endblock page-title %}
+{% block page-title %} RF Approval {% endblock page-title %}
 {% block extra_css %}
     <style>
         .table-bordered button{
@@ -7,6 +7,11 @@
         }
         .select2-container--default .select2-results__option[aria-disabled=true] {
             display: none;
+        }
+        .tabContent{
+            border-bottom: none;
+            padding-left: 0px !important;
+            padding-right: 0px !important;
         }
     </style>
 {% endblock extra_css %}
@@ -19,25 +24,25 @@
 {#                <div class="page-wrap paginate-table" data-list="{{ listcount }}" data-rows="rfnum,rfdate,particulars,rfstatus">#}
                 <div class="page-wrap">
                     <!-- Start Basic Table Section -->
-                    <div class="col-md-12 form-group form-material">
+                    <div class="row col-md-12 form-group form-material">
                         <form method="get" id="filter">
 {#                            {% if perms.requisitionform.view_allassignrf or perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignprf or perms.requisitionform.view_assignprf %}#}
-                                <div class="col-md-3">
-                                    <label class="control-label" for="id_selecttype">Select Form Type:</label>
-                                    <select class="form-control" id="id_selecttype" name="selecttype">
-                                        {% if perms.requisitionform.view_allassignrf or perms.requisitionform.view_assignrf %}
-                                            {% if perms.purchaserequisitionform.view_allassignprf or perms.purchaserequisitionform.view_assignprf %}
-                                                <option value="ALL" {% if formtype == "ALL" %} selected="selected" {% endif %}>All</option>
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignrf %}
-                                            <option value="RF" {% if formtype == "RF" %} selected="selected" {% endif %}>Requisition Forms (RF)</option>
-                                        {% endif %}
-                                        {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}
-                                            <option value="PRF" {% if formtype == "PRF" %} selected="selected" {% endif %}>Purchase Requisition Forms (PRF)</option>
-                                        {% endif %}
-                                    </select><br>
-                                </div>
+{#                                <div class="col-md-3">#}
+{#                                    <label class="control-label" for="id_selecttype">Select Form Type:</label>#}
+{#                                    <select class="form-control" id="id_selecttype" name="selecttype">#}
+{#                                        {% if perms.requisitionform.view_allassignrf or perms.requisitionform.view_assignrf %}#}
+{#                                            {% if perms.purchaserequisitionform.view_allassignprf or perms.purchaserequisitionform.view_assignprf %}#}
+{#                                                <option value="ALL" {% if formtype == "ALL" %} selected="selected" {% endif %}>All</option>#}
+{#                                            {% endif %}#}
+{#                                        {% endif %}#}
+{#                                        {% if perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignrf %}#}
+{#                                            <option value="RF" {% if formtype == "RF" %} selected="selected" {% endif %}>Requisition Forms (RF)</option>#}
+{#                                        {% endif %}#}
+{#                                        {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}#}
+{#                                            <option value="PRF" {% if formtype == "PRF" %} selected="selected" {% endif %}>Purchase Requisition Forms (PRF)</option>#}
+{#                                        {% endif %}#}
+{#                                    </select><br>#}
+{#                                </div>#}
                                 {% if perms.requisitionform.view_assignrf or perms.requisitionform.view_allassignrf %}
                                     <div class="col-md-3 select_holder" id="selectrfapprover_holder">
                                         <label class="control-label" for="id_selectrfapprover">Filter RF Assigned To:</label>
@@ -55,31 +60,33 @@
                                         <br>
                                     </div>
                                 {% endif %}
-                                {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}
-                                    <div class="col-md-3 select_holder" id="selectprfapprover_holder">
-                                        <label class="control-label" for="id_selectprfapprover">Filter PRF Assigned To:</label>
-                                        <select class="form-control" id="id_selectprfapprover" name="selectprfapprover">
+
+{#                                {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}#}
+{#                                    <div class="col-md-3 select_holder" id="selectprfapprover_holder">#}
+{#                                        <label class="control-label" for="id_selectprfapprover">Filter PRF Assigned To:</label>#}
+{#                                        <select class="form-control" id="id_selectprfapprover" name="selectprfapprover">#}
 {#                                            {% if perms.purchaserequisitionform.view_assignprf or perms.purchaserequisitionform.view_allassignprf %}#}
 {#                                                <option value="ME" {% if formprfapprover == "ME" %} selected="selected" {% endif %}>Me</option>#}
 {#                                            {% endif %}#}
-                                            {% if perms.purchaserequisitionform.view_allassignprf %}
-                                                <option value="ALL" {% if formprfapprover == "ALL" %} selected="selected" {% endif %}>All</option>
-                                            {% endif %}
-                                            {% for prfapprovers in prfapprovers %}
-                                                <option value="{{ prfapprovers.id }}" {% if formprfapprover == prfapprovers.id|slugify %} selected="selected" {% endif %}>{{ prfapprovers.first_name }} {{ prfapprovers.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <br>
-                                    </div>
-                                {% endif %}
-                                    <div style="margin-top: 25px" class="col-md-1">
+{#                                            {% if perms.purchaserequisitionform.view_allassignprf %}#}
+{#                                                <option value="ALL" {% if formprfapprover == "ALL" %} selected="selected" {% endif %}>All</option>#}
+{#                                            {% endif %}#}
+{#                                            {% for prfapprovers in prfapprovers %}#}
+{#                                                <option value="{{ prfapprovers.id }}" {% if formprfapprover == prfapprovers.id|slugify %} selected="selected" {% endif %}>{{ prfapprovers.first_name }} {{ prfapprovers.last_name }}</option>#}
+{#                                            {% endfor %}#}
+{#                                        </select>#}
+{#                                        <br>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
+                                <div style="margin-top: 25px" class="col-md-2">
                                     <input type="submit" id="filterforms" value="GO" class="btn btn-info btn-sm waves-effect waves-light"/>
-                                    <br>
+                                    <a href="{% url 'rfprfapproval:prf' %}"><input type="button" value="PRF Approval" class="btn btn-info btn-sm waves-effect waves-light"/></a>
+                                    <br><br><br>
                                 </div>
 {#                            {% endif %}#}
                         </form>
                     </div>
-                    <div class="col-md-12">
+                    <div>
                     <ul class="nav nav-tabs small">
                         <li class="active">
                           <a id="0" href="#a"><i class="icon fa-refresh" aria-hidden="true"></i>Pending</a>
@@ -95,7 +102,7 @@
                     <!-- Accordions -->
                     <div class="tabContent" id="tabPending">
                         <div class="table-responsive">
-                            <table id="pending" class="table table-hover table-bordered small">
+                            <table id="pending" class="table small">
                                 <thead>
                                     <tr>
                                         <th><span>No.</span></th>
@@ -123,50 +130,50 @@
                                         <td>
                                             <div class="text-center buttonHolder">
                                                 {% if perms.requisitionform.can_approverf %}
-                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
+                                                    <button type="button" class="btn btn-info btn-sm approvebutton" data-toggle="modal"
                                                         data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.rfnum }}" data-type="RF" data-response="A">Approve</button>
                                                 {% endif %}
                                                 {% if perms.requisitionform.can_disapproverf %}
-                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
+                                                    <button type="button" class="btn btn-info btn-sm approvebutton" data-toggle="modal"
                                                         data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.rfnum }}" data-type="RF" data-response="D">Disapprove</button>
                                                 {% endif %}
                                             </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
-                                    {% for data in prfpending %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                PRF-{{ data.prfnum }}
-                                            </a>
-                                        </td>
-                                        <td>{{ data.prfdate }}</td>
-                                        <td>{{ data.particulars }}</td>
-                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
-                                        <td> - </td>
-                                        <td>{{ data.remarks|default:' - ' }}</td>
-                                        <td>
-                                            <div class="text-center buttonHolder">
-                                                {% if perms.purchaserequisitionform.can_approveprf %}
-                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
-                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="A">Approve</button>
-                                                {% endif %}
-                                                {% if perms.purchaserequisitionform.can_disapproveprf %}
-                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
-                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="D">Disapprove</button>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+{#                                    {% for data in prfpending %}#}
+{#                                    <tr>#}
+{#                                        <td>#}
+{#                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
+{#                                                PRF-{{ data.prfnum }}#}
+{#                                            </a>#}
+{#                                        </td>#}
+{#                                        <td>{{ data.prfdate }}</td>#}
+{#                                        <td>{{ data.particulars }}</td>#}
+{#                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>#}
+{#                                        <td> - </td>#}
+{#                                        <td>{{ data.remarks|default:' - ' }}</td>#}
+{#                                        <td>#}
+{#                                            <div class="text-center buttonHolder">#}
+{#                                                {% if perms.purchaserequisitionform.can_approveprf %}#}
+{#                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"#}
+{#                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="A">Approve</button>#}
+{#                                                {% endif %}#}
+{#                                                {% if perms.purchaserequisitionform.can_disapproveprf %}#}
+{#                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"#}
+{#                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="D">Disapprove</button>#}
+{#                                                {% endif %}#}
+{#                                            </div>#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                    {% endfor %}#}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="tabContent" id="tabApproved">
                         <div class="table-responsive">
-                            <table id="approved" class="table table-hover table-bordered small">
+                            <table id="approved" class="table small">
                                 <thead>
                                     <tr>
                                         <th><span>No.</span></th>
@@ -194,42 +201,42 @@
                                         <td>
                                             <div class="text-center buttonHolder">
                                                 {% if perms.requisitionform.can_disapproverf %}
-                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
+                                                    <button type="button" class="btn btn-info btn-sm approvebutton" data-toggle="modal"
                                                         data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.rfnum }}" data-type="RF" data-response="D">Disapprove</button>
                                                 {% endif %}
                                             </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
-                                    {% for data in prfapproved %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                PRF-{{ data.prfnum }}
-                                            </a>
-                                        </td>
-                                        <td>{{ data.prfdate }}</td>
-                                        <td>{{ data.particulars }}</td>
-                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
-                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
-                                        <td>{{ data.remarks|default:' - ' }}</td>
-                                        <td>
-                                            <div class="text-center buttonHolder">
-                                                {% if perms.purchaserequisitionform.can_disapproveprf %}
-                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
-                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="D">Disapprove</button>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+{#                                    {% for data in prfapproved %}#}
+{#                                    <tr>#}
+{#                                        <td>#}
+{#                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
+{#                                                PRF-{{ data.prfnum }}#}
+{#                                            </a>#}
+{#                                        </td>#}
+{#                                        <td>{{ data.prfdate }}</td>#}
+{#                                        <td>{{ data.particulars }}</td>#}
+{#                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>#}
+{#                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>#}
+{#                                        <td>{{ data.remarks|default:' - ' }}</td>#}
+{#                                        <td>#}
+{#                                            <div class="text-center buttonHolder">#}
+{#                                                {% if perms.purchaserequisitionform.can_disapproveprf %}#}
+{#                                                    <button type="button" class="btn btn-danger btn-xs waves-effect waves-light approvebutton" data-toggle="modal"#}
+{#                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="D">Disapprove</button>#}
+{#                                                {% endif %}#}
+{#                                            </div>#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                    {% endfor %}#}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="tabContent" id="tabDisapproved">
                         <div class="table-responsive">
-                            <table id="disapproved" class="table table-hover table-bordered small">
+                            <table id="disapproved" class="table small">
                                 <thead>
                                     <tr>
                                         <th><span>No.</span></th>
@@ -257,35 +264,35 @@
                                         <td>
                                             <div class="text-center buttonHolder">
                                                 {% if perms.requisitionform.can_approverf %}
-                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
+                                                    <button type="button" class="btn btn-info btn-sm approvebutton" data-toggle="modal"
                                                         data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.rfnum }}" data-type="RF" data-response="A">Approve</button>
                                                 {% endif %}
                                             </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
-                                    {% for data in prfdisapproved %}
-                                    <tr>
-                                        <td>
-                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
-                                                PRF-{{ data.prfnum }}
-                                            </a>
-                                        </td>
-                                        <td>{{ data.prfdate }}</td>
-                                        <td>{{ data.particulars }}</td>
-                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>
-                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>
-                                        <td>{{ data.remarks|default:' - ' }}</td>
-                                        <td>
-                                            <div class="text-center buttonHolder">
-                                                {% if perms.purchaserequisitionform.can_approveprf %}
-                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"
-                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="A">Approve</button>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+{#                                    {% for data in prfdisapproved %}#}
+{#                                    <tr>#}
+{#                                        <td>#}
+{#                                            <a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">#}
+{#                                                PRF-{{ data.prfnum }}#}
+{#                                            </a>#}
+{#                                        </td>#}
+{#                                        <td>{{ data.prfdate }}</td>#}
+{#                                        <td>{{ data.particulars }}</td>#}
+{#                                        <td>{{ data.designatedapprover.first_name }} {{ data.designatedapprover.last_name }}</td>#}
+{#                                        <td>{{ data.actualapprover.first_name }} {{ data.actualapprover.last_name }}</td>#}
+{#                                        <td>{{ data.remarks|default:' - ' }}</td>#}
+{#                                        <td>#}
+{#                                            <div class="text-center buttonHolder">#}
+{#                                                {% if perms.purchaserequisitionform.can_approveprf %}#}
+{#                                                    <button type="button" class="btn btn-success btn-xs waves-effect waves-light approvebutton" data-toggle="modal"#}
+{#                                                        data-target="#myModal" data-id="{{ data.id }}" data-num="{{ data.prfnum }}" data-type="PRF" data-response="A">Approve</button>#}
+{#                                                {% endif %}#}
+{#                                            </div>#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                    {% endfor %}#}
                                 </tbody>
                             </table>
                         </div>

@@ -32,9 +32,9 @@ class IndexView(ListView):
         context['rfapprovers'] = User.objects.filter(id__in=set(Rfmain.objects.values_list('designatedapprover',
                                                                                            flat=True))).\
             order_by('first_name')
-        context['prfapprovers'] = User.objects.filter(id__in=set(Prfmain.objects.values_list('designatedapprover',
-                                                                                             flat=True))).\
-            order_by('first_name')
+        # context['prfapprovers'] = User.objects.filter(id__in=set(Prfmain.objects.values_list('designatedapprover',
+        #                                                                                      flat=True))).\
+        #     order_by('first_name')
 
         if not self.request.user.has_perm('requisitionform.view_allassignrf'):
             rfdata = rfdata.filter(designatedapprover=self.request.user.id)
@@ -46,20 +46,20 @@ class IndexView(ListView):
             order_by('enterdate')
         context['rfdisapproved'] = rfdata.filter(rfstatus='D', status='C').order_by('enterdate')
 
-        prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A')
+        # prfdata = Prfmain.objects.all().filter(isdeleted=0, status='A')
 
-        if not self.request.user.has_perm('purchaserequisitionform.view_allassignprf'):
-            prfdata = prfdata.filter(designatedapprover=self.request.user.id)
-            context['prfapprovers'] = context['prfapprovers'].filter(id=self.request.user.id)
+        # if not self.request.user.has_perm('purchaserequisitionform.view_allassignprf'):
+        #     prfdata = prfdata.filter(designatedapprover=self.request.user.id)
+        #     context['prfapprovers'] = context['prfapprovers'].filter(id=self.request.user.id)
 
-        context['prfpending'] = prfdata.filter(prfstatus='F').order_by('enterdate')
+        # context['prfpending'] = prfdata.filter(prfstatus='F').order_by('enterdate')
 
         # exclude approved PRFs that already have dependent CSs (prfmain_id is used in csdata)
-        csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
-        context['prfapproved'] = prfdata.filter(prfstatus='A').\
-            exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True))).order_by('enterdate')
+        # csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
+        # context['prfapproved'] = prfdata.filter(prfstatus='A').\
+        #     exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True))).order_by('enterdate')
 
-        context['prfdisapproved'] = prfdata.filter(prfstatus='D').order_by('enterdate')
+        # context['prfdisapproved'] = prfdata.filter(prfstatus='D').order_by('enterdate')
 
         context['formtype'] = 'ALL'
         context['formrfapprover'] = 'ALL'
@@ -75,15 +75,15 @@ class IndexView(ListView):
                     context['rfdisapproved'] = context['rfdisapproved'].filter(designatedapprover=self.request.GET['selectrfapprover']).\
                         order_by('enterdate')
                     context['formrfapprover'] = self.request.GET['selectrfapprover']
-            if 'selectprfapprover' in self.request.GET:
-                if self.request.GET['selectprfapprover'] != 'ALL':
-                    context['prfpending'] = context['prfpending'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
-                        order_by('enterdate')
-                    context['prfapproved'] = context['prfapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
-                        order_by('enterdate')
-                    context['prfdisapproved'] = context['prfdisapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
-                        order_by('enterdate')
-                    context['formprfapprover'] = self.request.GET['selectprfapprover']
+            # if 'selectprfapprover' in self.request.GET:
+            #     if self.request.GET['selectprfapprover'] != 'ALL':
+            #         context['prfpending'] = context['prfpending'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
+            #             order_by('enterdate')
+            #         context['prfapproved'] = context['prfapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
+            #             order_by('enterdate')
+            #         context['prfdisapproved'] = context['prfdisapproved'].filter(designatedapprover=self.request.GET['selectprfapprover']). \
+            #             order_by('enterdate')
+            #         context['formprfapprover'] = self.request.GET['selectprfapprover']
             if 'selecttype' in self.request.GET:
                 if self.request.GET['selecttype'] == 'RF':
                     context['prfpending'] = context['prfpending'][0:0]
@@ -102,11 +102,11 @@ class IndexView(ListView):
             context['rfapproved'] = context['rfapproved'][0:0]
             context['rfdisapproved'] = context['rfdisapproved'][0:0]
 
-        if not self.request.user.has_perm('purchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
-                'purchaserequisitionform.view_allassignprf'):
-            context['prfpending'] = context['prfpending'][0:0]
-            context['prfapproved'] = context['prfapproved'][0:0]
-            context['prfdisapproved'] = context['prfdisapproved'][0:0]
+        # if not self.request.user.has_perm('purchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
+        #         'purchaserequisitionform.view_allassignprf'):
+        #     context['prfpending'] = context['prfpending'][0:0]
+        #     context['prfapproved'] = context['prfapproved'][0:0]
+        #     context['prfdisapproved'] = context['prfdisapproved'][0:0]
 
         return context
 
@@ -183,17 +183,33 @@ class PrfApprovalView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
-        context['budgetlevels'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
-        context['to_budget'] = Prfmain.objects.filter(prfstatus='F', approverlevel1=None,
-                                                      status='A', isdeleted=0)
+        if Companyparameter.objects.filter(budgetapprover=self.request.user).exists():
+            context['to_budget'] = Prfmain.objects.filter(prfstatus='F', approverlevel1=None,
+                                                          status='A', isdeleted=0).order_by('-prfnum')
         csdata_exclude = Csdata.objects.filter(isdeleted=0, csmain__isnull=False)
-        context['to_levels'] = Prfmain.objects.filter(status='A', isdeleted=0).\
-            filter(Q(designatedapprover=self.request.user.id) | Q(actualapprover=self.request.user.id)
-                   | Q(approverlevel1=self.request.user.id) | Q(approverlevel2=self.request.user.id)
-                   | Q(approverlevel3=self.request.user.id) | Q(approverlevel4=self.request.user.id)
-                   | Q(approverlevel5=self.request.user.id) | Q(approverlevel6=self.request.user.id)).\
-            exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True)))
 
+        if self.request.method == 'GET' and 'sort' in self.request.GET:
+            if self.request.GET['sort'] == 'all':
+                context['to_levels'] = Prfmain.objects.filter(status='A', isdeleted=0). \
+                    filter(Q(designatedapprover=self.request.user.id) | Q(actualapprover=self.request.user.id)
+                           | Q(approverlevel1=self.request.user.id) | Q(approverlevel2=self.request.user.id)
+                           | Q(approverlevel3=self.request.user.id) | Q(approverlevel4=self.request.user.id)
+                           | Q(approverlevel5=self.request.user.id) | Q(approverlevel6=self.request.user.id))
+        else:
+            context['to_levels'] = Prfmain.objects.filter(status='A', isdeleted=0).\
+                filter((Q(approverlevel_required__gte=1)
+                            & Q(approverlevelbudget_response__isnull=False)
+                            & Q(approverlevel2_response=None)
+                            & ((Q(approverlevel1=self.request.user) | Q(actualapprover=self.request.user)) | (Q(designatedapprover=self.request.user) & Q(actualapprover=None))))
+                        | (Q(approverlevel_required__gte=2) & Q(approverlevel1_response='A') & Q(approverlevel3_response=None) & Q(approverlevel2=self.request.user))
+                        | (Q(approverlevel_required__gte=3) & Q(approverlevel2_response='A') & Q(approverlevel4_response=None) & Q(approverlevel3=self.request.user))
+                        | (Q(approverlevel_required__gte=4) & Q(approverlevel3_response='A') & Q(approverlevel5_response=None) & Q(approverlevel4=self.request.user))
+                        | (Q(approverlevel_required__gte=5) & Q(approverlevel4_response='A') & Q(approverlevel6_response=None) & Q(approverlevel5=self.request.user))
+                        | (Q(approverlevel_required__gte=6) & Q(approverlevel5_response='A') & Q(approverlevel6=self.request.user)))
+
+        context['to_levels'] = context['to_levels'].exclude(id__in=set(csdata_exclude.values_list('prfmain', flat=True))).order_by('-prfnum')
+
+        context['budgetlevels'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
         level2 = Employee.objects.filter(managementlevel=5).values_list('user_id', flat=True)
         context['approverlevel2'] = User.objects.filter(id__in=level2, is_active=1).exclude(username='admin').order_by('first_name')
         level3 = Employee.objects.filter(managementlevel=4).values_list('user_id', flat=True)
@@ -210,7 +226,7 @@ class PrfApprovalView(TemplateView):
 
 def userprfResponse(request):
     if request.method == 'POST':
-        intro_remarks = '<i class="small text-primary">[' + str(request.user.id) + '] ' + str(request.user.first_name) + ' says</i> '
+        intro_remarks = '<font class="small text-primary">' + str(request.user.first_name) + ' </font><mark class="small text-warning">' + str(datetime.datetime.now().strftime("%m/%d/%y %H:%M")) + '</mark>&nbsp;&nbsp;&nbsp;'
 
         if request.POST['response_from'] == 'budget':
             if Companyparameter.objects.all().first().budgetapprover.pk == request.user.id \

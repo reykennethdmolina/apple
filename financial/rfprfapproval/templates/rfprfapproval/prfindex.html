@@ -43,55 +43,71 @@
         <div class="row">
             <div class="col-md-12">
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#home">Budget</a></li>
-                    <li><a data-toggle="tab" href="#menu1">For your Approval</a></li>
+                    {% if to_budget %}
+                        <li class="active"><a data-toggle="tab" href="#home">Budget</a></li>
+                    {% endif %}
+                    <li {% if not to_budget %}class="active"{% endif %}><a data-toggle="tab" href="#menu1">For Processing</a></li>
+                    <li class="pull-right" style="padding-left: 10px; padding-right: 10px;">
+                        <label class="control control-radio" style="margin-top: 8px; margin-bottom: 0px;">For your Approval
+                            <input id="prf_active" type="radio" name="radio" checked="checked">
+                            <span class="control_indicator"></span>
+                        </label>
+                    </li>
+                    <li class="pull-right" style="padding-left: 10px; padding-right: 10px;">
+                        <label id="" class="control control-radio" style="margin-top: 8px; margin-bottom: 0px;">All Statuses
+                            <input id="prf_all" type="radio" name="radio">
+                            <span class="control_indicator"></span>
+                        </label>
+                    </li>
                 </ul>
                 <div class="tab-content">
-                    <div id="home" class="tab-pane fade in active">
-                        <br>
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>File Date</th>
-                                <th style="text-align: right">Amount</th>
-                                <th style="text-align: center; width: 120px;">Remarks</th>
-                                <th style="text-align: center; width: 110px;">Budget Status</th>
-                                <th style="text-align: center; width: 180px; border-bottom: 2px solid white;"></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for data in to_budget %}
-                                <tr class="small">
-                                    <td><a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary">PRF - {{ data.prfnum }}</a></td>
-                                    <td>{{ data.prfdate }}</td>
-                                    <td align="right">{{ data.netamount }}</td>
-                                    <td align="center">
-                                        <a href="#_" class="view_remarks" data-remarks="{{ data.remarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
-                                            <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
-                                        </a>
-                                    </td>
-                                    <td align="center" class="text-primary">{{ data.get_approverlevelbudget_response_display|default:'For Approval' }}</td>
-                                    <td align="center" style="border-bottom: 2px solid white;">
-                                        <button data-type="a" data-from="budget"
-                                                data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
-                                                class="b_response btn btn-info btn-sm"
-                                                {% if data.approverlevelbudget_response = 'A' %}disabled{% endif %}>
-                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Approve
-                                        </button>
-                                        <button data-type="d" data-from="budget"
-                                                data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
-                                                class="b_response btn btn-info btn-sm resp-button"
-                                                {% if data.approverlevelbudget_response = 'D' %}disabled{% endif %}>
-                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                        </button>
-                                    </td>
+                    {% if to_budget %}
+                        <div id="home" class="tab-pane fade in active">
+                            <br>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>File Date</th>
+                                    <th style="text-align: right">Amount</th>
+                                    <th style="text-align: center; width: 120px;">Remarks</th>
+                                    <th style="text-align: center; width: 110px;">Budget Status</th>
+                                    <th style="text-align: center; width: 180px; border-bottom: 2px solid white;"></th>
                                 </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="menu1" class="tab-pane fade">
+                                </thead>
+                                <tbody>
+                                {% for data in to_budget %}
+                                    <tr class="small">
+                                        <td><a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary">PRF - {{ data.prfnum }}</a></td>
+                                        <td>{{ data.prfdate }}</td>
+                                        <td align="right" class="mask-money">{{ data.netamount }}</td>
+                                        <td align="center">
+                                            <a href="#_" class="view_remarks" data-remarks="{{ data.remarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
+                                                <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
+                                            </a>
+                                        </td>
+                                        <td align="center" class="text-primary">{{ data.get_approverlevelbudget_response_display|default:'For Approval' }}</td>
+                                        <td align="center" style="border-bottom: 2px solid white;">
+                                            <button data-type="a" data-from="budget"
+                                                    data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
+                                                    class="b_response btn btn-info btn-sm"
+                                                    {% if data.approverlevelbudget_response = 'A' %}disabled{% endif %}>
+                                                <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Approve
+                                            </button>
+                                            <button data-type="d" data-from="budget"
+                                                    data-id="{{ data.pk }}" data-target="#b_Modal" data-toggle="modal"
+                                                    class="b_response btn btn-info btn-sm resp-button"
+                                                    {% if data.approverlevelbudget_response = 'D' %}disabled{% endif %}>
+                                                <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                    <div id="menu1" class="tab-pane fade in {% if not to_budget %}active{% endif %}">
                         <br>
                         <table class="table">
                             <thead>
@@ -120,10 +136,10 @@
                             </thead>
                             <tbody>
                             {% for data in to_levels %}
-                                <tr class="small">
+                                <tr class="small" style="height: 50px;">
                                     <td style="vertical-align: middle;"><a href="{% url 'purchaserequisitionform:detail' data.pk %}" target="_blank" class="text-primary">PRF - {{ data.prfnum }}</a></td>
                                     <td style="vertical-align: middle;">{{ data.prfdate }}</td>
-                                    <td style="vertical-align: middle;" align="right">{{ data.netamount }}</td>
+                                    <td style="vertical-align: middle;" align="right" class="mask-money">{{ data.netamount }}</td>
                                     <td style="vertical-align: middle;" align="center">
                                         <a href="#_" class="view_remarks" data-remarks="{{ data.remarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
                                             <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
@@ -418,6 +434,22 @@
 {% block extra_js %}
 <script type="text/javascript">
 $(function(){
+
+    if(getUrlParameter('sort') == 'all'){
+        $('#prf_all').attr('checked', 'checked');
+    }
+
+    $.each($('.mask-money'), function(){
+        $(this).text($(this).text().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+
+    $('#prf_all').on('click', function(){
+       window.location.href = "{% url 'rfprfapproval:prf' %}?sort=all";
+    });
+    $('#prf_active').on('click', function(){
+       window.location.href = "{% url 'rfprfapproval:prf' %}";
+    });
+
     $(document).on("click", ".b_response", function(){
         $('#response_type').val($(this).data('type'));
         $('#response_from').val($(this).data('from'));
@@ -488,6 +520,21 @@ $(function(){
     $(document).on("click", ".view_remarks", function(){
         $('#response_history').html($(this).data('remarks'));
     });
+
+    function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
 });
 </script>
 {% endblock extra_js %}
