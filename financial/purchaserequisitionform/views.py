@@ -17,6 +17,7 @@ from employee.models import Employee
 from purchaseorder.models import Pomain
 from unitofmeasure.models import Unitofmeasure
 from currency.models import Currency
+from vat.models import Vat
 from budgetapproverlevels.models import Budgetapproverlevels
 from django.contrib.auth.models import User
 from django.db.models import Q, F, Sum
@@ -348,7 +349,7 @@ class UpdateView(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
 
-            if self.object.prfstatus == 'A':
+            if self.object.prfstatus == 'A' or self.object.approverlevelbudget_response is not None:
                 self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
             else:
                 self.object.save(update_fields=['prfdate', 'inventoryitemtype', 'prftype', 'urgencytype',
@@ -448,7 +449,8 @@ class DeleteView(DeleteView):
         self.object = self.get_object()
         if not request.user.has_perm('purchaserequisitionform.delete_prfmain') or \
                         self.object.status == 'O' or \
-                        self.object.prfstatus == 'A':
+                        self.object.prfstatus == 'A' or \
+                        self.object.approverlevelbudget_response is not None:
             raise Http404
         return super(DeleteView, self).dispatch(request, *args, **kwargs)
 

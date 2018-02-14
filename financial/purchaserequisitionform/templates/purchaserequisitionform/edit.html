@@ -46,7 +46,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="secretkey" id="id_secretkey" value="{{ secretkey }}"/>
                     <div class="row col-md-12 row-lg margin-bottom-20">
-                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' and object.prfstatus != 'A' %}
+                        {% if perms.purchaserequisitionform.delete_prfmain and object.status != 'O' and object.prfstatus != 'A' and object.approverlevelbudget_response != None %}
                             <a href="{% url 'purchaserequisitionform:delete' object.id %}" class="floatright">
                                 <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                                 waves-light get_report">
@@ -79,7 +79,7 @@
                             </div>
                             <div class="form-group col-sm-4 {{ form.prftype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_prftype">PRF Type</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype" {% if object.prfstatus == 'A' %}readOnly="readOnly"{% endif %}>
+                                <select class="form-control input-sm" data-validation="required" id="id_prftype" name="prftype" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %}readOnly="readOnly"{% endif %}>
                                     {% for id,name in form.fields.prftype.choices %}
                                         <option value="{{ id }}"{% if form.prftype.value == id %} selected {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
                                     {% endfor %}
@@ -88,7 +88,7 @@
                             </div>
                             <div class="form-group col-sm-4 {{ form.inventoryitemtype.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_inventoryitemtype">Type</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype" data-toggle="tooltip" data-placement="left" data-original-title="To select a new type, remove all items below." {% if object.prfstatus == 'A' %}readOnly="readOnly"{% endif %}>
+                                <select class="form-control input-sm" data-validation="required" id="id_inventoryitemtype" name="inventoryitemtype" data-toggle="tooltip" data-placement="left" data-original-title="To select a new type, remove all items below." {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %}readOnly="readOnly"{% endif %}>
                                     {% for inventoryitemtype in inventoryitemtype %}
                                         <option value="{{ inventoryitemtype.id }}"  data-code="{{ inventoryitemtype.code }}" {% if form.inventoryitemtype.value|add:0 == inventoryitemtype.id %} selected="selected" {% endif %}>{{ inventoryitemtype.description }}</option>
                                     {% endfor %}
@@ -103,12 +103,12 @@
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_prfdate">PRF Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd {% if object.prfstatus != 'A' %}datepicker{% endif %} week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
+                                <input type="text" class="form-control input-sm date-yyyymmdd {% if object.prfstatus != 'A' and object.approverlevelbudget_response == None %}datepicker{% endif %} week" id="id_prfdate" name="prfdate" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.prfdate.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.prfdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label" for="id_dateneeded">Date Needed</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd {% if object.prfstatus != 'A' %}datepicker{% endif %} week" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
+                                <input type="text" class="form-control input-sm date-yyyymmdd {% if object.prfstatus != 'A' and object.approverlevelbudget_response == None %}datepicker{% endif %} week" id="id_dateneeded" name="dateneeded" placeholder="YYYY-MM-DD" data-validation="required" value="{{ form.dateneeded.value|date:'Y-m-d'|default:'' }}" readonly="readonly">
                                 <span class="help-block form-error">{{ form.dateneeded.errors.as_text }}</span>
                             </div>
                         </div>
@@ -117,7 +117,7 @@
                                 <label class="control-label" for="id_urgencytype">Urgency Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_urgencytype" name="urgencytype">
                                     {% for id,name in form.fields.urgencytype.choices %}
-                                        <option value="{{ id }}"{% if form.urgencytype.value == id %} selected {% elif object.prfstatus == 'A' %} disabled {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
+                                        <option value="{{ id }}"{% if form.urgencytype.value == id %} selected {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.urgencytype.errors.as_text }}</span>
@@ -126,7 +126,7 @@
                                 <label class="control-label" for="id_branch">Branch</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
                                     {% for branch in branch %}
-                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% elif object.prfstatus == 'A' %} disabled {% endif %}>{{ branch.description }}</option>
+                                        <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{{ branch.description }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
@@ -136,7 +136,7 @@
                                 <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>
                                     {% for designatedapprover in designatedapprover %}
-                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% elif object.prfstatus == 'A' %} disabled {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.designatedapprover.errors.as_text }}</span>
@@ -199,7 +199,7 @@
                             <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                         </div>
                         <div class="col-sm-6">
-                            {% if object.prfstatus != 'A' %}
+                            {% if object.prfstatus != 'A' and object.approverlevelbudget_response == None %}
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="importbutton" data-toggle="modal" data-target="#myModal"><i class="icon fa-download" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Import RF</button>
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="detailsbutton"><i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Add Items</button>
                             {% endif %}
@@ -274,32 +274,32 @@
                                             </div></td>
                                             <td>{{ prfdetailtemp.rfdetail.rfmain.rfnum }}</td>
                                             {% load mathfilters %}
-                                            <td><input type="number" name="temp_quantity" form="form-b" step="any" class="form-control input-sm temp_quantity" value="{{ prfdetailtemp.quantity }}" min="1" max="{{ prfdetailtemp.rfdetail.prfremainingquantity|addition:prfdetailtemp.quantity }}" {% if object.prfstatus == 'A' %} disabled="disabled" {% endif %}></td>
+                                            <td><input type="number" name="temp_quantity" form="form-b" step="any" class="form-control input-sm temp_quantity" value="{{ prfdetailtemp.quantity }}" min="1" max="{{ prfdetailtemp.rfdetail.prfremainingquantity|addition:prfdetailtemp.quantity }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
                                             <td>
                                                 <select class="form-control input-sm" required style="width: 100%" id="id_temp_item_um" name="temp_item_um" form="form-b">
                                                     {% for unitofmeasure in unitofmeasure %}
-                                                        <option value="{{ unitofmeasure.code }}" {% if unitofmeasure.code == prfdetailtemp.invitem_unitofmeasure_code %} selected="selected" {% elif object.prfstatus == 'A' %} disabled {% endif %}>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>
+                                                        <option value="{{ unitofmeasure.code }}" {% if unitofmeasure.code == prfdetailtemp.invitem_unitofmeasure_code %} selected="selected" {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>
                                                     {% endfor %}
                                                 </select>
                                             </td>
                                             <td>
                                                 <select class="form-control input-sm temp_item_currency" required style="width: 100%" name="temp_item_currency" form="form-b">
                                                     {% for currency in currency %}
-                                                        <option value="{{ currency.id }}" data-fxrate="{{ currency.fxrate }}" {% if prfdetailtemp.currency.id == currency.id %} selected="selected" {% elif object.prfstatus == 'A' %} disabled {% endif %}>{{ currency.symbol }}</option>
+                                                        <option value="{{ currency.id }}" data-fxrate="{{ currency.fxrate }}" {% if prfdetailtemp.currency.id == currency.id %} selected="selected" {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{{ currency.symbol }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </td>
-                                            <td><input type="number" name="temp_fxrate" form="form-b" step="any" class="form-control input-sm temp_fxrate" value="{{ prfdetailtemp.fxrate }}" {% if object.prfstatus == 'A' %} disabled="disabled" {% endif %}></td>
-                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_amount amount" value="{{ prfdetailtemp.amount }}" {% if object.prfstatus == 'A' %} disabled="disabled" {% endif %}></td>
+                                            <td><input type="number" name="temp_fxrate" form="form-b" step="any" class="form-control input-sm temp_fxrate" value="{{ prfdetailtemp.fxrate }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
+                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_amount amount" value="{{ prfdetailtemp.amount }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
                                             <td>
                                                 <select class="form-control input-sm temp_department" required style="width: 100%" name="temp_department" form="form-b">
                                                     {% for department in department %}
-                                                        <option value="{{ department.id }}" {% if prfdetailtemp.department.id == department.id %} selected="selected" {% elif object.prfstatus == 'A' %} disabled {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
+                                                        <option value="{{ department.id }}" {% if prfdetailtemp.department.id == department.id %} selected="selected" {% elif object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled {% endif %}>{{ department.code }} - {{ department.departmentname }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </td>
                                             <td>
-                                               <button {% if object.prfstatus == 'A' %} style="display:none" {% endif %} class="btn remove_item" data-rf="{{ prfdetailtemp.rfmain.rfnum }}" data-itemno="{{ prfdetailtemp.item_counter }}">
+                                               <button {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} style="display:none" {% endif %} class="btn remove_item" data-rf="{{ prfdetailtemp.rfmain.rfnum }}" data-itemno="{{ prfdetailtemp.item_counter }}">
                                                    <i class="icon fa-remove" aria-hidden="true"></i>
                                                </button>
                                             </td>
