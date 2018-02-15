@@ -131,6 +131,7 @@ class Temp_ormain(models.Model):
     subscription = models.CharField(null=True, blank=True, max_length=500)
     paytype = models.CharField(null=True, blank=True, max_length=500)
     importby = models.ForeignKey(User, default=1, related_name='temp_ormain_by')
+    importdate = models.CharField(null=True, blank=True, max_length=500)
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)

@@ -378,6 +378,7 @@ def fileupload(request):
                                     importstatus=importstatus,
                                     importremarks=importremarks,
                                     importby=request.user,
+                                    status=data['STATUS'],
                                 ).save()
                                 breakstatus = 0
                             else:
@@ -523,12 +524,14 @@ def exportsave(request):
                         particulars=data.particulars,
                         subscription=data.subscription,
                         importby=data.importby,
+                        importdate=data.importdate,
                         batchkey=data.batchkey,
+                        status=data.status,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
 
-                    if temp_ormain.accounttype == 'a' or temp_ormain.accounttype == 's':
+                    if (temp_ormain.accounttype == 'a' or temp_ormain.accounttype == 's') and temp_ormain.status.upper() == 'A':
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
@@ -638,7 +641,7 @@ def exportsave(request):
                                 postingremarks='Processing...',
                             ).save()
 
-                    else: # if account type = 'R or D' (r/e)
+                    elif temp_ormain.status.upper() == 'A': # if account type = 'R or D' (r/e)
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
@@ -721,7 +724,7 @@ def exportsave(request):
                         vatexemptsale=vatexempt,
                         vatzeroratedsale=vatzerorated,
                         totalsale=temp_ormain.amount,
-                        status='A',
+                        status=temp_ormain.status.upper(),
                         bankaccount=Bankaccount.objects.get(code=temp_ormain.bankaccountcode),
                         branch=Branch.objects.get(code=temp_ormain.branchcode),
                         collector=Collector.objects.get(code=temp_ormain.collectorcode),
@@ -744,6 +747,8 @@ def exportsave(request):
                         wtaxamount=temp_ormain.totalwtax,
                         importby=request.user,
                         importornum=temp_ormain.orno,
+                        importdate=temp_ormain.importdate,
+                        importordate=temp_ormain.ordate,
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - S'),
@@ -842,45 +847,48 @@ def exportsave(request):
                         paytype=data.paytype,
                         branchcode=data.branchcode,
                         importby=data.importby,
+                        importdate=data.importdate,
                         batchkey=data.batchkey,
+                        status=data.status,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
 
-                    # cash in bank
-                    Temp_ordetail.objects.create(
-                        orno=data.orno,
-                        ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
-                        debitamount=data.amount,
-                        balancecode='D',
-                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
-                        bankaccountcode=data.bankaccount,
-                        batchkey=data.batchkey,
-                        postingremarks='Processing...',
-                    ).save()
+                    if temp_ormain.status.upper() == 'A':
+                        # cash in bank
+                        Temp_ordetail.objects.create(
+                            orno=data.orno,
+                            ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                            debitamount=data.amount,
+                            balancecode='D',
+                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                            bankaccountcode=data.bankaccount,
+                            batchkey=data.batchkey,
+                            postingremarks='Processing...',
+                        ).save()
 
-                    if temp_ormain.accounttype == 'c':
-                        # transfer ordetails
-                        ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
-                        for data_d in ordetail:
-                            temp_category = Circulationpaytype.objects.get(code=data.paytype, isdeleted=0).category
-                            temp_product = Productgroup.objects.get(code=data_d.product, isdeleted=0)
+                        if temp_ormain.accounttype == 'c':
+                            # transfer ordetails
+                            ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
+                            for data_d in ordetail:
+                                temp_category = Circulationpaytype.objects.get(code=data.paytype, isdeleted=0).category
+                                temp_product = Productgroup.objects.get(code=data_d.product, isdeleted=0)
 
-                            temp_chartofaccount = Productgroupcategory.objects.get(category=temp_category, productgroup=temp_product)
+                                temp_chartofaccount = Productgroupcategory.objects.get(category=temp_category, productgroup=temp_product)
 
-                            Temp_ordetail.objects.create(
-                                orno=data_d.orno,
-                                ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
-                                amount=data_d.assignamount,
-                                vatamount=0,
-                                creditamount=data_d.assignamount,
-                                balancecode='C',
-                                chartofaccountcode=temp_chartofaccount.chartofaccount.pk,
-                                payeecode=data.agentcode,
-                                payeename=data.payeename,
-                                batchkey=data.batchkey,
-                                postingremarks='Processing...',
-                            ).save()
+                                Temp_ordetail.objects.create(
+                                    orno=data_d.orno,
+                                    ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                                    amount=data_d.assignamount,
+                                    vatamount=0,
+                                    creditamount=data_d.assignamount,
+                                    balancecode='C',
+                                    chartofaccountcode=temp_chartofaccount.chartofaccount.pk,
+                                    payeecode=data.agentcode,
+                                    payeename=data.payeename,
+                                    batchkey=data.batchkey,
+                                    postingremarks='Processing...',
+                                ).save()
 
                     # temp ormain to ormain
                     if temp_ormain.accounttype == 'c':
@@ -902,7 +910,7 @@ def exportsave(request):
                         vatzeroratedsale=vatzerorated,
                         particulars=temp_ormain.particulars,
                         totalsale=temp_ormain.amount,
-                        status='A',
+                        status=temp_ormain.status.upper(),
                         bankaccount=Bankaccount.objects.get(code=temp_ormain.bankaccountcode),
                         branch=Branch.objects.get(code=temp_ormain.branchcode),
                         collector=Collector.objects.get(code=temp_ormain.collectorcode),
@@ -919,6 +927,8 @@ def exportsave(request):
                         payee_type=temp_ormain.payeetype.upper(),
                         importby=request.user,
                         importornum=temp_ormain.orno,
+                        importdate=temp_ormain.importdate,
+                        importordate=temp_ormain.ordate,
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - G'),
                     ).save()
