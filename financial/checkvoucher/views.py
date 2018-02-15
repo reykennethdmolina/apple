@@ -322,6 +322,8 @@ class UpdateView(UpdateView):
         elif self.object.payee:
             context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
 
+        context['selectedcvsubtype'] = self.object.cvsubtype.code
+
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
         context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
