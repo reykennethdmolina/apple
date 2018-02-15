@@ -34,6 +34,9 @@
             padding-right: 15px;
             padding-left: 45px;
         }
+        .approver_icon{
+            cursor: pointer;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -249,66 +252,102 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                {% if object.approverlevelbudget_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevelbudget_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% else %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
-                                                {% endif %}
+                                                <i class="icon approver_icon
+                                                    {% if object.approverlevelbudget_response == 'A' %} fa-thumbs-o-up
+                                                    {% elif object.approverlevelbudget_response == 'D' %} fa-thumbs-o-down
+                                                    {% else %} fa-clock-o
+                                                    {% endif %}
+                                                    " aria-hidden="true"
+                                                        data-approver="{{ object.approverlevelbudget.first_name }} {{ object.approverlevelbudget.last_name }}"
+                                                        data-date="{{ object.approverlevelbudget_responsedate|default:'-' }}"
+                                                        data-target="#a_Modal" data-toggle="modal">
+                                                </i>
                                             </td>
                                             <td align="center">
-                                                {% if object.approverlevel1_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel1_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% else %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
-                                                {% endif %}
+                                                <i class="icon approver_icon
+                                                    {% if object.approverlevel1_response == 'A' %} fa-thumbs-o-up
+                                                    {% elif object.approverlevel1_response == 'D' %} fa-thumbs-o-down
+                                                    {% else %} fa-clock-o
+                                                    {% endif %}
+                                                    " aria-hidden="true"
+                                                        data-approver="
+                                                            {% if object.actualapprover != None %}
+                                                                {{ object.actualapprover.first_name }} {{ object.actualapprover.last_name }}
+                                                            {% else %}
+                                                                {{ object.designatedapprover.first_name }} {{ object.designatedapprover.last_name }}
+                                                            {% endif %}"
+                                                        data-date="{{ object.approverlevel1_responsedate|default:'-' }}"
+                                                        data-target="#a_Modal" data-toggle="modal">
+                                                </i>
                                             </td>
                                             <td align="center" {% if object.approverlevel_required < 2 %}class="active"{% endif %}>
-                                                {% if object.approverlevel2_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel2_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% elif object.approverlevel_required >= 2 %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
+                                                {% if object.approverlevel_required >= 2 %}
+                                                    <i class="icon approver_icon
+                                                        {% if object.approverlevel2_response == 'A' %} fa-thumbs-o-up
+                                                        {% elif object.approverlevel2_response == 'D' %} fa-thumbs-o-down
+                                                        {% else %} fa-clock-o
+                                                        {% endif %}
+                                                        " aria-hidden="true"
+                                                            data-approver="{{ object.approverlevel2.first_name }} {{ object.approverlevel2.last_name }}"
+                                                            data-date="{{ object.approverlevel2_responsedate|default:'-' }}"
+                                                            data-target="#a_Modal" data-toggle="modal">
+                                                    </i>
                                                 {% endif %}
                                             </td>
                                             <td align="center" {% if object.approverlevel_required < 3 %}class="active"{% endif %}>
-                                                {% if object.approverlevel3_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel3_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% elif object.approverlevel_required >= 3 %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
+                                                {% if object.approverlevel_required >= 3 %}
+                                                    <i class="icon approver_icon
+                                                        {% if object.approverlevel3_response == 'A' %} fa-thumbs-o-up
+                                                        {% elif object.approverlevel3_response == 'D' %} fa-thumbs-o-down
+                                                        {% else %} fa-clock-o
+                                                        {% endif %}
+                                                        " aria-hidden="true"
+                                                            data-approver="{{ object.approverlevel3.first_name }} {{ object.approverlevel3.last_name }}"
+                                                            data-date="{{ object.approverlevel3_responsedate|default:'-' }}"
+                                                            data-target="#a_Modal" data-toggle="modal">
+                                                    </i>
                                                 {% endif %}
                                             </td>
                                             <td align="center" {% if object.approverlevel_required < 4 %}class="active"{% endif %}>
-                                                {% if object.approverlevel4_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel4_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% elif object.approverlevel_required >= 4 %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
+                                                {% if object.approverlevel_required >= 4 %}
+                                                    <i class="icon approver_icon
+                                                        {% if object.approverlevel4_response == 'A' %} fa-thumbs-o-up
+                                                        {% elif object.approverlevel4_response == 'D' %} fa-thumbs-o-down
+                                                        {% else %} fa-clock-o
+                                                        {% endif %}
+                                                        " aria-hidden="true"
+                                                            data-approver="{{ object.approverlevel4.first_name }} {{ object.approverlevel4.last_name }}"
+                                                            data-date="{{ object.approverlevel4_responsedate|default:'-' }}"
+                                                            data-target="#a_Modal" data-toggle="modal">
+                                                    </i>
                                                 {% endif %}
                                             </td>
                                             <td align="center" {% if object.approverlevel_required < 5 %}class="active"{% endif %}>
-                                                {% if object.approverlevel5_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel5_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% elif object.approverlevel_required >= 5 %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
+                                                {% if object.approverlevel_required >= 5 %}
+                                                    <i class="icon approver_icon
+                                                        {% if object.approverlevel5_response == 'A' %} fa-thumbs-o-up
+                                                        {% elif object.approverlevel5_response == 'D' %} fa-thumbs-o-down
+                                                        {% else %} fa-clock-o
+                                                        {% endif %}
+                                                        " aria-hidden="true"
+                                                            data-approver="{{ object.approverlevel5.first_name }} {{ object.approverlevel5.last_name }}"
+                                                            data-date="{{ object.approverlevel5_responsedate|default:'-' }}"
+                                                            data-target="#a_Modal" data-toggle="modal">
+                                                    </i>
                                                 {% endif %}
                                             </td>
                                             <td align="center" {% if object.approverlevel_required < 6 %}class="active"{% endif %}>
-                                                {% if object.approverlevel6_response == 'A' %}
-                                                    <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                                {% elif object.approverlevel6_response == 'D' %}
-                                                    <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                                {% elif object.approverlevel_required >= 6 %}
-                                                    <i class="icon fa-clock-o" aria-hidden="true"></i>
+                                                {% if object.approverlevel_required >= 6 %}
+                                                    <i class="icon approver_icon
+                                                        {% if object.approverlevel6_response == 'A' %} fa-thumbs-o-up
+                                                        {% elif object.approverlevel6_response == 'D' %} fa-thumbs-o-down
+                                                        {% else %} fa-clock-o
+                                                        {% endif %}
+                                                        " aria-hidden="true"
+                                                            data-approver="{{ object.approverlevel6.first_name }} {{ object.approverlevel6.last_name }}"
+                                                            data-date="{{ object.approverlevel6_responsedate|default:'-' }}"
+                                                            data-target="#a_Modal" data-toggle="modal">
+                                                    </i>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -525,13 +564,36 @@
         </div>
     </div>
 </div>
+<div id="a_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="max-width: 300px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Approver Description</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+                <small>Approver Name:</small><br><mark class="text-warning" id="approver_name"></mark><br><br>
+                <small>Date Approved/Disapproved:</small><br><mark class="text-warning" id="approver_date"></mark>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 $(function(){
     $('#response_history').html($('#response_history').text());
+
     $('.amount').each(function(){
         $(this).val(parseFloat($(this).val()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         console.log($(this).text())
         $(this).text($(this).text().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+
+    $('.approver_icon').on('click', function(){
+        $('#approver_name').text($(this).data('approver'));
+        $('#approver_date').text($(this).data('date'));
     });
 })
 </script>
