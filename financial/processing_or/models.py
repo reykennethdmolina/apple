@@ -135,6 +135,8 @@ class Temp_ormain(models.Model):
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
     postingremarks = models.CharField(max_length=255, null=True, blank=True)
+    enterby = models.CharField(null=True, blank=True, max_length=500)
+    enterdate = models.CharField(null=True, blank=True, max_length=500)
     status = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:

@@ -488,6 +488,7 @@ def exportsave(request):
             ormain = Logs_ormain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
             ormain_list = []
             ordetail_list = []
+            log_remarks = ''
 
             if request.POST['artype'] == 'a':
                 for data in ormain:
@@ -527,6 +528,8 @@ def exportsave(request):
                         importdate=data.importdate,
                         batchkey=data.batchkey,
                         status=data.status,
+                        enterby=data.enterby,
+                        enterdate=data.enterdate,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
@@ -588,10 +591,12 @@ def exportsave(request):
                                 vatamount = float(vatamount) + float(data_d.assignvatamount)
 
                                 remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
+                                totalamount = format(float(data_d.assignamount) + float(data_d.assignvatamount), ',')
                                 remainingamount = float(format(remainingamount, '.2f'))
 
                             # transfer leftovers
                             if remainingamount > 0:
+                                log_remarks = "Has partially applied: <b>" + str(totalamount) + "</b><br>"
                                 leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
                                 leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
                                 Temp_ordetail.objects.create(
@@ -629,6 +634,9 @@ def exportsave(request):
                                 ).save()
                                 vatamount = float(vatamount) + float(leftover_vatamount)
 
+                            else:
+                                log_remarks = "Has fully applied: <b>" + str(totalamount) + "</b><br>"
+
                         # accounttype = 'S' (subscription) and sub type is 1
                         elif temp_ormain.subscription == '1':
                             Temp_ordetail.objects.create(
@@ -655,6 +663,8 @@ def exportsave(request):
                         ).save()
                         remainingamount = float(data.amount)
                         remainingamount = float(format(remainingamount, '.2f'))
+
+                        log_remarks = "Has fully applied: <b>" + str(format(remainingamount, ',')) + "</b><br>"
 
                         # (r/e)
                         re_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
@@ -753,6 +763,7 @@ def exportsave(request):
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - S'),
                         remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
+                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>Entery date: <b>" + temp_ormain.enterdate + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
