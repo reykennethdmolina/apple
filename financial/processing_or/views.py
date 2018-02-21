@@ -32,6 +32,7 @@ from dbfread import DBF
 from django.utils.crypto import get_random_string
 from django.db.models import Q
 from django.conf import settings
+import re
 
 
 upload_directory = 'processing_or/imported_main/'
@@ -763,7 +764,7 @@ def exportsave(request):
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - S'),
                         remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
-                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>Entery date: <b>" + temp_ormain.enterdate + "</b>"
+                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>OR date: <b>" + temp_ormain.ordate + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
@@ -942,6 +943,7 @@ def exportsave(request):
                         importordate=temp_ormain.ordate,
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - G'),
+                        logs="Enter by: <b>" + temp_ormain.collectordesc + "</b><br>OR date: <b>" + re.sub('\ 00:00:00$', '', str(temp_ormain.ordate)) + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
