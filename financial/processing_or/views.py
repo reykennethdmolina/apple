@@ -22,6 +22,7 @@ from circulationpaytype.models import Circulationpaytype
 from productgroupcategory.models import Productgroupcategory
 from circulationproduct.models import Circulationproduct
 from productgroup.models import Productgroup
+from agenttype.models import Agenttype
 from django.db.models import Count, Sum
 from datetime import datetime
 from datetime import timedelta
@@ -52,7 +53,7 @@ class IndexView(TemplateView):
 
 @csrf_exempt
 def fileupload(request):
-    if request.method == 'POST':        
+    if request.method == 'POST':
 
         # data-result definition:
         #   1: success
@@ -245,7 +246,7 @@ def fileupload(request):
                                     totalvatamount = 0
 
                                     def RepresentsInt(assignamount):
-                                        try: 
+                                        try:
                                             int(s)
                                             return True
                                         except ValueError:
@@ -255,7 +256,7 @@ def fileupload(request):
                                         totalassignamount = float(data.assignamount)
 
                                     def RepresentsInt(assignvatamount):
-                                        try: 
+                                        try:
                                             int(s)
                                             return True
                                         except ValueError:
@@ -263,7 +264,7 @@ def fileupload(request):
 
                                     if RepresentsInt:
                                         totalvatamount = float(data.assignvatamount)
-                                        
+
                                     totalassign = totalassignamount + totalvatamount
 
                                     ordata_d_list.append([data.orno,
@@ -306,157 +307,169 @@ def fileupload(request):
                     'result': 3
                 }
                 return JsonResponse(data)
-        elif request.POST['or_artype'] == 'c':
+        elif request.POST['or_artype'] == 'c':  # 6
             if request.FILES['or_file'] \
-                    and request.FILES['or_file'].name.endswith('.dbf')\
+                    and request.FILES['or_file'].name.endswith('.txt') \
                     and request.FILES['or_d_file'] \
-                    and request.FILES['or_d_file'].name.endswith('.dbf'):   # 3
-                if request.FILES['or_file']._size < float(upload_size)*1024*1024\
-                        and request.FILES['or_d_file']._size < float(upload_size)*1024*1024:
+                    and request.FILES['or_d_file'].name.endswith('.txt'):  # 3
+                if request.FILES['or_file']._size < float(upload_size) * 1024 * 1024 \
+                        and request.FILES['or_d_file']._size < float(upload_size) * 1024 * 1024:
 
                     sequence = datetime.now().isoformat().replace(':', '-')
                     batchkey = generatekey(1)
 
-                    if storeupload(request.FILES['or_file'], sequence, 'dbf', upload_directory)\
-                            and storeupload(request.FILES['or_d_file'], sequence, 'dbf', upload_d_directory):
+                    if storeupload(request.FILES['or_file'], sequence, 'txt', upload_directory) \
+                            and storeupload(request.FILES['or_d_file'], sequence, 'txt',
+                                            upload_d_directory):  # 2
                         orcount = 0
 
-                        for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
-                            orcount += 1
+                        with open(settings.MEDIA_ROOT + '/' + upload_directory + str(
+                                sequence) + ".txt") as textFile:
+                            for line in textFile:
+                                orcount += 1
+                                data = line.split("\t")
+                                for n, i in enumerate(data):
+                                    data[n] = data[n].replace('"', '')
 
-                            if len(data) == 21:
+                                if len(data) == 22:
 
-                                # log status filtering
-                                if Logs_ormain.objects.filter(orno=data['OR_NUM'], importstatus='P'):
-                                    importstatus = 'F'
-                                    importremarks = 'Skipped: Already posted'
-                                elif Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, importstatus='S'):
-                                    importstatus = 'F'
-                                    importremarks = 'Skipped: Already exists in this batch'
-                                elif not Bankaccount.objects.filter(code=data['BANKCODE']):
-                                    importstatus = 'F'
-                                    importremarks = 'Failed: Bank account does not exist'
-                                elif not Circulationpaytype.objects.filter(code=data['PAY_TYPE']) and data['ACCT_TYPE'] is 'C':
-                                    importstatus = 'F'
-                                    importremarks = 'Failed: Circulation Pay Type does not exist'
-                                else:
-                                    importstatus = 'S'
-                                    importremarks = 'Passed'
+                                    # log status filtering
+                                    if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
+                                        importstatus = 'F'
+                                        importremarks = 'Skipped: Already posted'
+                                    elif Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, importstatus='S'):
+                                        importstatus = 'F'
+                                        importremarks = 'Skipped: Already exists in this batch'
+                                    elif not Bankaccount.objects.filter(code=data[13]):
+                                        importstatus = 'F'
+                                        importremarks = 'Failed: Bank account does not exist'
+                                    elif not Circulationpaytype.objects.filter(code=data[6]) and data[3] is 'C':
+                                        importstatus = 'F'
+                                        importremarks = 'Failed: Circulation Pay Type does not exist'
+                                    else:
+                                        importstatus = 'S'
+                                        importremarks = 'Passed'
 
-                                if importstatus is not 'F':
-                                    # new collector checking
-                                    if not Collector.objects.filter(code=data['COLL_INIT']):
-                                        Collector.objects.create(code=data['COLL_INIT'],
-                                                                 name=data['USER_ID'],
+                                    if importstatus is not 'F':
+                                        # new collector checking
+                                        if not Collector.objects.filter(code=data[4]):
+                                            Collector.objects.create(code=data[4],
+                                                                     name=data[18],
+                                                                     enterby=request.user,
+                                                                     modifyby=request.user)
+                                        # new agent checking
+                                        if not Agent.objects.filter(code=data[9]) and data[3] is 'C':
+                                            Agent.objects.create(code=data[9],
+                                                                 name=data[10],
+                                                                 agenttype=Agenttype.objects.get(code='OTHERS'),
                                                                  enterby=request.user,
                                                                  modifyby=request.user)
-                                    # new agent checking
-                                    if not Agent.objects.filter(code=data['AGNT_CODE']) and data['ACCT_TYPE'] is 'C':
-                                        Agent.objects.create(code=data['AGNT_CODE'],
-                                                             name=data['PAY_NAME'],
-                                                             enterby=request.user,
-                                                             modifyby=request.user)
-
-                                Logs_ormain.objects.create(
-                                    orno=data['OR_NUM'],
-                                    ordate=data['OR_DATE'],
-                                    prno=data['PR_NUM'],
-                                    amount=data['TOT_PAID'],
-                                    amountinwords=data['AMT_WORD'],
-                                    bankaccount=data['BANKCODE'],
-                                    accounttype=data['ACCT_TYPE'].lower(),
-                                    vatcode='VE',
-                                    vatrate=0,
-                                    artype='C',
-                                    collector=data['COLL_INIT'],
-                                    collectordesc=data['USER_ID'],
-                                    agentcode=data['AGNT_CODE'],
-                                    payeename=data['PAY_NAME'],
-                                    payeetype='A',
-                                    paytype=data['PAY_TYPE'],
-                                    branchcode='HO',
-                                    batchkey=batchkey,
-                                    importstatus=importstatus,
-                                    importremarks=importremarks,
-                                    importby=request.user,
-                                    status=data['STATUS'],
-                                ).save()
-                                breakstatus = 0
-                            else:
-                                breakstatus = 1
-                                break
-
-                        # inspect/insert detail
-                        if breakstatus == 0:
-                            for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
-                            # for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf'):
-                                if len(data) == 17:
-                                    if Logs_ormain.objects.filter(orno=data['OR_NUM'], batchkey=batchkey, accounttype='C'):
-                                        if not Productgroup.objects.filter(code=data['PRODUCT']):
-                                            importstatus = 'F'
-                                            importremarks = 'Failed: Product Group does not exist'
-                                        else:
-                                            importstatus = 'S'
-                                            importremarks = 'Passed'
-
-                                        Logs_ordetail.objects.create(
-                                            orno=data['OR_NUM'],
-                                            assignamount=data['AMT_PAID'],
-                                            assignvatamount=0,
-                                            product=data['PRODUCT'],
-                                            batchkey=batchkey,
-                                            importstatus=importstatus,
-                                            importremarks=importremarks,
-                                            importby=request.user,
-                                        ).save()
-                                        breakstatus = 0
+                                    Logs_ormain.objects.create(
+                                        orno=data[0],
+                                        ordate=data[1],
+                                        prno=data[2],
+                                        amount=data[11],
+                                        amountinwords=data[12],
+                                        bankaccount=data[13],
+                                        accounttype=data[3].lower(),
+                                        vatcode='VE',
+                                        vatrate=0,
+                                        artype='C',
+                                        collector=data[4],
+                                        collectordesc=data[18],
+                                        agentcode=data[9],
+                                        payeename=data[10],
+                                        payeetype='A',
+                                        paytype=data[6],
+                                        branchcode='HO',
+                                        batchkey=batchkey,
+                                        importstatus=importstatus,
+                                        importremarks=importremarks,
+                                        importby=request.user,
+                                        subscription=data[21].strip(),
+                                        status=data[16],
+                                    ).save()
+                                    breakstatus = 0
                                 else:
                                     breakstatus = 1
                                     break
 
-                        if breakstatus == 0:    # 5
-                            ordata_list = []
-                            ordata_d_list = []
+                            # inspect/insert detail
+                            with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(
+                                    sequence) + ".txt") as textFile2:
+                                for line in textFile2:
+                                    data = line.split("\t")
+                                    for n, i in enumerate(data):
+                                        data[n] = data[n].replace('"', '')
 
-                            ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('importstatus', 'orno')
-                            ordata_d = Logs_ordetail.objects.filter(batchkey=batchkey).order_by('orno')
+                                    if len(data) == 17:
+                                        if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, accounttype='C'):
+                                            if not Productgroup.objects.filter(code=data[16].strip()):
+                                                importstatus = 'F'
+                                                importremarks = 'Failed: Product Group does not exist'
+                                            else:
+                                                importstatus = 'S'
+                                                importremarks = 'Passed'
 
-                            for data in ordata:
-                                ordata_list.append([data.orno,
-                                                    data.ordate,
-                                                    data.payeename,
-                                                    data.amount,
-                                                    data.importstatus,
-                                                    data.importremarks,
-                                                   ])
-                            for data in ordata_d:
-                                if request.POST['or_artype'] == 'A':
-                                    data_adtype = data.adtypedesc
-                                else:
-                                    data_adtype = data.product
-                                ordata_d_list.append([data.orno,
-                                                      float(data.assignamount) + float(data.assignvatamount),
-                                                      data.importstatus,
-                                                      data_adtype,
-                                                     ])
+                                            Logs_ordetail.objects.create(
+                                                orno=data[0],
+                                                assignamount=data[4],
+                                                assignvatamount=0,
+                                                product=data[16].strip(),
+                                                batchkey=batchkey,
+                                                importstatus=importstatus,
+                                                importremarks=importremarks,
+                                                importby=request.user,
+                                            ).save()
+                                            breakstatus = 0
+                                    else:
+                                        breakstatus = 1
+                                        break
 
-                            successcount = ordata.filter(importstatus='S').count()
-                            rate = (float(successcount) / float(orcount)) * 100
-                            data = {
-                                'result': 1,
-                                'artype': request.POST['or_artype'],
-                                'orcount': orcount,
-                                'ordata_list': ordata_list,
-                                'ordata_d_list': ordata_d_list,
-                                'successcount': successcount,
-                                'rate': rate,
-                                'batchkey': batchkey,
-                            }
-                        else:
-                            data = {
-                                'result': 5
-                            }
-                        return JsonResponse(data)
+                            if breakstatus == 0:    # 5
+                                ordata_list = []
+                                ordata_d_list = []
+
+                                ordata = Logs_ormain.objects.filter(batchkey=batchkey).order_by('importstatus', 'orno')
+                                ordata_d = Logs_ordetail.objects.filter(batchkey=batchkey).order_by('orno')
+
+                                for data in ordata:
+                                    ordata_list.append([data.orno,
+                                                        data.ordate,
+                                                        data.payeename,
+                                                        data.amount,
+                                                        data.importstatus,
+                                                        data.importremarks,
+                                                       ])
+                                for data in ordata_d:
+                                    if request.POST['or_artype'] == 'A':
+                                        data_adtype = data.adtypedesc
+                                    else:
+                                        data_adtype = data.product
+                                    ordata_d_list.append([data.orno,
+                                                          float(data.assignamount) + float(data.assignvatamount),
+                                                          data.importstatus,
+                                                          data_adtype,
+                                                          '',
+                                                         ])
+
+                                successcount = ordata.filter(importstatus='S').count()
+                                rate = (float(successcount) / float(orcount)) * 100
+                                data = {
+                                    'result': 1,
+                                    'artype': request.POST['or_artype'],
+                                    'orcount': orcount,
+                                    'ordata_list': ordata_list,
+                                    'ordata_d_list': ordata_d_list,
+                                    'successcount': successcount,
+                                    'rate': rate,
+                                    'batchkey': batchkey,
+                                }
+                            else:
+                                data = {
+                                    'result': 5
+                                }
+                            return JsonResponse(data)
                     else:
                         data = {
                             'result': 2
@@ -497,7 +510,7 @@ def exportsave(request):
                     vatable = 0
                     vatexempt = 0
                     vatzerorated = 0
-                    
+
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
@@ -547,7 +560,7 @@ def exportsave(request):
                             batchkey=data.batchkey,
                             postingremarks='Processing...',
                         ).save()
-                        remainingamount = float(data.amount)                        
+                        remainingamount = float(data.amount)
 
                         # accounttype = (a/r)
                         if temp_ormain.accounttype == 'a':
@@ -764,7 +777,7 @@ def exportsave(request):
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT - S'),
                         remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
-                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>OR date: <b>" + temp_ormain.ordate + "</b>"
+                        logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>OR date: <b>" + str(temp_ormain.ordate) + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
@@ -841,7 +854,7 @@ def exportsave(request):
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
-                        ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                         prno=data.prno,
                         amount=data.amount,
                         amountinwords=data.amountinwords,
@@ -862,6 +875,7 @@ def exportsave(request):
                         importdate=data.importdate,
                         batchkey=data.batchkey,
                         status=data.status,
+                        subscription=data.subscription,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
@@ -870,7 +884,7 @@ def exportsave(request):
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                             debitamount=data.amount,
                             balancecode='D',
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
@@ -879,7 +893,18 @@ def exportsave(request):
                             postingremarks='Processing...',
                         ).save()
 
-                        if temp_ormain.accounttype == 'c':
+                        if str(temp_ormain.subscription.strip()) == '1':
+                            # transfer ordetails
+                            Temp_ordetail.objects.create(
+                                orno=data.orno,
+                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                creditamount=data.amount,
+                                balancecode='C',
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_subsrev.pk,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
+                        elif temp_ormain.accounttype == 'c':
                             # transfer ordetails
                             ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
                             for data_d in ordetail:
@@ -890,7 +915,7 @@ def exportsave(request):
 
                                 Temp_ordetail.objects.create(
                                     orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%Y-%m-%d'),
+                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
                                     amount=data_d.assignamount,
                                     vatamount=0,
                                     creditamount=data_d.assignamount,

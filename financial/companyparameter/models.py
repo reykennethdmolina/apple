@@ -50,6 +50,8 @@ class Companyparameter(models.Model):
                                   null=True)
     coa_aptrade = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_aptrade', blank=True,
                                     null=True)
+    coa_subsrev = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_subsrev', blank=True,
+                                    null=True)
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 
