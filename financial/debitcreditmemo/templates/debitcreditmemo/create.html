@@ -31,6 +31,9 @@
         .input-search {
             z-index: 99;
         }
+        .dc_item{
+            display: none;
+        }
     </style>
 {% endblock extra_css %}
 <div class="panel">
@@ -71,9 +74,8 @@
                                 <div class="form-group col-sm-3 {{ form.dcclasstype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_dcclasstype">DC Class Type</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_dcclasstype" name="dcclasstype">
-                                        <option value="">-- Select --</option>
                                         {% for dcclasstype in dcclasstype %}
-                                            <option value="{{ dcclasstype.id }}" {% if form.dcclasstype.value|add:"0" == dcclasstype.id %} selected="selected" {% endif %}>[{{ dcclasstype.code }}]&nbsp;&nbsp;&nbsp;{{ dcclasstype.description }}</option>
+                                            <option value="{{ dcclasstype.id }}" data-item="{{ dcclasstype.code }}" {% if form.dcclasstype.value|add:"0" == dcclasstype.id %} selected="selected" {% elif dcclasstype.code == 'AR' %} selected="selected" {% endif %}>[{{ dcclasstype.code }}]&nbsp;&nbsp;&nbsp;{{ dcclasstype.description }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.dcclasstype.errors.as_text }}</span>
@@ -85,42 +87,74 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.dcsubtype.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-4 {{ form.customer.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_customer">Customer</label>
-                                    <select class="form-control input-sm ajaxselect2" data-validation="required" id="id_customer" name="customer">
-                                    </select>
-                                    <span class="help-block form-error">{{ form.customer.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.outputvattype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_outputvattype">Output&nbsp;VAT&nbsp;Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_outputvattype" name="outputvattype">
-                                        <option value="">-- Select --</option>
-                                        {% for data in outputvattype %}
-                                            <option value="{{ data.id }}" {% if form.outputvattype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.outputvattype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_vat" style="display: block;">VAT</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" style="width: 65%; display: inline-block;">
-                                        <option value="">-- Select --</option>
-                                        {% for vat in vat %}
-                                            <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span id="vatrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
-                                    <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_branch">Branch</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
-                                        <option value="">-- Select --</option>
-                                        {% for branch in branch %}
-                                            <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                <div class="row col-md-12">
+                                    <div id="dc_item_employee" class="dc_item form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_employee">Employee</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_employee" name="employee">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.employee.errors.as_text }}</span>
+                                    </div>
+                                    <div id="dc_item_customer" class="dc_item form-group col-sm-4 {{ form.customer.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_customer">Customer</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_customer" name="customer">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.customer.errors.as_text }}</span>
+                                    </div>
+                                    <div id="dc_item_bankaccount" class="dc_item form-group col-sm-4 {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_bankaccount">Bank Account</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_bankaccount" name="bankaccount">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
+                                    </div>
+                                    <div id="dc_item_department" class="dc_item form-group col-sm-4 {{ form.department.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_department">Department</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_department" name="department">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
+                                    </div>
+                                    <div id="dc_item_inventoryitem" class="dc_item form-group col-sm-4 {{ form.inventoryitem.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_inventoryitem">Inventory Item</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_inventoryitem" name="inventoryitem">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.inventoryitem.errors.as_text }}</span>
+                                    </div>
+                                    <div id="dc_item_supplier" class="dc_item form-group col-sm-4 {{ form.supplier.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_supplier">Supplier</label>
+                                        <select class="form-control input-sm ajaxselect2" id="id_supplier" name="supplier">
+                                        </select>
+                                        <span class="help-block form-error">{{ form.supplier.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-3 {{ form.outputvattype.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_outputvattype">Output&nbsp;VAT&nbsp;Type</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_outputvattype" name="outputvattype">
+                                            <option value="">-- Select --</option>
+                                            {% for data in outputvattype %}
+                                                <option value="{{ data.id }}" {% if form.outputvattype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.outputvattype.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-3 {{ form.vat.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_vat" style="display: block;">VAT</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat" style="width: 65%; display: inline-block;">
+                                            <option value="">-- Select --</option>
+                                            {% for vat in vat %}
+                                                <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span id="vatrate" class="text-success small floatright" style="display: inline; margin-top: 10px;"><strong>RATE</strong></span>
+                                        <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-2 {{ form.branch.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_branch">Branch</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_branch" name="branch">
+                                            <option value="">-- Select --</option>
+                                            {% for branch in branch %}
+                                                <option value="{{ branch.id }}" {% if form.branch.value|add:0 == branch.id %} selected="selected" {% endif %}>{{ branch.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
+                                    </div>
                                 </div>
                                 <div class="form-group col-sm-5">
                                     <label class="control-label" for="id_particulars">Particulars</label>
@@ -244,6 +278,8 @@
     <script src="{% static 'js/jquery.validate.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            showDcsubtypeitem();
+
             $("#detailsbutton").click(function (){
                 $("#detailentry").show();
             });
@@ -253,41 +289,68 @@
             });
 
             $('#id_dcclasstype').change(function () {
-                if ($(this).val() == "") {
-                    $("#id_dcsubtype").html("<option value=''>-- Select --</option>");
-                    //$("#id_bankbranch").attr('disabled', true);
-                }
-                else {
-                    $.ajax({
-                        url: "{% url 'debitcreditmemo:getdcsubtypes' %}",
-                        type: "post",
-                        data: {'dcclasstype': $(this).val()},
-
-                        success: function(response) {
-                            dcsubtype = response.dcsubtype;
-                            dcsubtypelist = $.parseJSON(dcsubtype);
-
-                            $("#id_dcsubtype").html("<option value=''>-- Select --</option>");
-
-                            if (dcsubtypelist == undefined || dcsubtypelist == null || dcsubtypelist.length == 0){
-                                alert("The selected class type has no subtypes available.");
-                            }
-
-                            $.each(dcsubtypelist, function(k, v){
-                                console.log("PK: " + v.pk);
-                                console.log("Description: " + v.fields.description);
-                                $('#id_dcsubtype').append( '<option value="' + v.pk + '">' + v.fields.description
-                                        + '</option>' );
-                            });
-
-                            //$("#id_bankbranch").attr('disabled', false);
-                        }
-                        , error: function(response) {
-                        console.debug(response);
-                        }
-                    });
-                }
+                showDcsubtypeitem();
             });
+
+            function showDcsubtypeitem(){
+                $('.dc_item').hide();
+                $('.dc_item').find('.ajaxselect2').attr('data-validation', '');
+                switch($('#id_dcclasstype').find(':selected').data('item')) {
+                    case 'AO':
+                        $('#dc_item_employee').show();
+                        $('#dc_item_employee').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                    case 'AR':
+                    case 'NR':
+                        $('#dc_item_customer').show();
+                        $('#dc_item_customer').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                    case 'CB':
+                        $('#dc_item_bankaccount').show();
+                        $('#dc_item_bankaccount').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                    case 'EX':
+                        $('#dc_item_department').show();
+                        $('#dc_item_department').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                    case 'IN':
+                        $('#dc_item_inventoryitem').show();
+                        $('#dc_item_inventoryitem').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                    case 'NP':
+                        $('#dc_item_supplier').show();
+                        $('#dc_item_supplier').find('.ajaxselect2').attr('data-validation', 'required');
+                        break;
+                }
+                $.ajax({
+                    url: "{% url 'debitcreditmemo:getdcsubtypes' %}",
+                    type: "post",
+                    data: {'dcclasstype': $('#id_dcclasstype').val()},
+
+                    success: function(response) {
+                        dcsubtype = response.dcsubtype;
+                        dcsubtypelist = $.parseJSON(dcsubtype);
+
+                        $("#id_dcsubtype").html("<option value=''>-- Select --</option>");
+
+                        if (dcsubtypelist == undefined || dcsubtypelist == null || dcsubtypelist.length == 0){
+                            /** alert("The selected class type has no subtypes available."); **/
+                        }
+
+                        $.each(dcsubtypelist, function(k, v){
+                            console.log("PK: " + v.pk);
+                            console.log("Description: " + v.fields.description);
+                            $('#id_dcsubtype').append( '<option value="' + v.pk + '">' + v.fields.description
+                                    + '</option>' );
+                        });
+
+                        //$("#id_bankbranch").attr('disabled', false);
+                    }
+                    , error: function(response) {
+                    console.debug(response);
+                    }
+                });
+            }
 
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
@@ -315,25 +378,25 @@
                 });
             });
             $("#validateButton").on('click', function () {
-                var total_creditamount = $("#total_creditamount").text().replace(',', '');
-                var total_debitamount = $("#total_debitamount").text().replace(',', '');
-
-                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
-                    customAlert($('#zero-debit-credit-error'));
-                    event.preventDefault();
-                    return false;
-                }
-                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
-                    customAlert($('#not-equal-debit-credit-error'));
-                    event.preventDefault();
-                    return false;
-                }
-
-                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
-
-                if (checkbreakdownstatus) {
-                    alert('You have unbalanced various entry. Please review your entry!');
-                }
+{#                var total_creditamount = $("#total_creditamount").text().replace(',', '');#}
+{#                var total_debitamount = $("#total_debitamount").text().replace(',', '');#}
+{##}
+{#                if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {#}
+{#                    customAlert($('#zero-debit-credit-error'));#}
+{#                    event.preventDefault();#}
+{#                    return false;#}
+{#                }#}
+{#                if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {#}
+{#                    customAlert($('#not-equal-debit-credit-error'));#}
+{#                    event.preventDefault();#}
+{#                    return false;#}
+{#                }#}
+{##}
+{#                var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');#}
+{##}
+{#                if (checkbreakdownstatus) {#}
+{#                    alert('You have unbalanced various entry. Please review your entry!');#}
+{#                }#}
             });
             <!-- Accounting Entry End -->
         });
@@ -344,6 +407,11 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-        ajaxselect2("customer_notmultiple");
+        ajaxselect2("employee_notmultiple", "id_employee");
+        ajaxselect2("customer_notmultiple", "id_customer");
+        ajaxselect2("bankaccount", "id_bankaccount");
+        ajaxselect2("department", "id_department");
+        ajaxselect2("inventoryitem", "id_inventoryitem");
+        ajaxselect2("supplier_notmultiple", "id_supplier");
     </script>
 {% endblock extra_js %}
