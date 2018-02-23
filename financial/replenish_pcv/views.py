@@ -1,8 +1,8 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from utils.mixins import ReportContentMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from . models import Reppcvmain, Reppcvdetail
@@ -32,7 +32,71 @@ class IndexView(AjaxListView):
                                  Q(reppcvdate__icontains=keysearch) |
                                  Q(cvmain__cvnum__icontains=keysearch) |
                                  Q(amount__icontains=keysearch))
+
         return query
+
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        context['initialapprover'] = Companyparameter.objects.get(code='PDI').pcv_initial_approver.id
+        context['finalapprover'] = Companyparameter.objects.get(code='PDI').pcv_final_approver.id
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ApprovalView(TemplateView):
+    template_name = 'replenish_pcv/approval.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user != Companyparameter.objects.get(code='PDI').pcv_initial_approver \
+                and self.request.user != Companyparameter.objects.get(code='PDI').pcv_final_approver:
+            raise Http404
+        return super(TemplateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        context['pcv'] = Reppcvmain.objects.filter(status='A', isdeleted=0, cvmain=None)
+
+        if self.request.user == Companyparameter.objects.get(code='PDI').pcv_initial_approver \
+                and self.request.user == Companyparameter.objects.get(code='PDI').pcv_final_approver:
+            context['pcv'] = context['pcv'].filter(Q(initialapproverresponse=None)
+                               | (Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(initialapproverresponse='D') | Q(finalapproverresponse__isnull=False))
+        elif self.request.user == Companyparameter.objects.get(code='PDI').pcv_initial_approver:
+            context['pcv'] = context['pcv'].filter(Q(initialapproverresponse=None)
+                               | (Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(initialapproverresponse='D'))
+        elif self.request.user == Companyparameter.objects.get(code='PDI').pcv_final_approver:
+            context['pcv'] = context['pcv'].filter((Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(finalapproverresponse__isnull=False))
+
+        context['initialapprover'] = Companyparameter.objects.get(code='PDI').pcv_initial_approver.id
+        context['finalapprover'] = Companyparameter.objects.get(code='PDI').pcv_final_approver.id
+
+        return context
+
+
+def userpcvResponse(request):
+    if request.method == 'POST':
+        intro_remarks = '<font class="small text-primary">' + str(request.user.first_name) + ' </font><mark class="small text-warning">' + str(datetime.datetime.now().strftime("%m/%d/%y %H:%M")) + '</mark>&nbsp;&nbsp;&nbsp;'
+
+        if request.POST['response_from'] == 'initial':
+            if Companyparameter.objects.get(code='PDI').pcv_initial_approver.id == request.user.id \
+                    and Reppcvmain.objects.get(pk=request.POST['response_id'], status='A', isdeleted=0, finalapproverresponse=None):
+                if request.POST['response_type'] == 'a' or request.POST['response_type'] == 'd':
+                    pcvitem = Reppcvmain.objects.filter(pk=request.POST['response_id'],
+                                                        status='A',
+                                                        isdeleted=0,
+                                                        finalapproverresponse=None)
+                    old_remarks = '' if pcvitem.first().initialapproverremarks is None else pcvitem.first().initialapproverremarks
+                    pcvitem.update(initialapprover=request.user.id,
+                                   initialapproverresponse=request.POST['response_type'].upper(),
+                                   initialapproverresponsedate=datetime.datetime.now(),
+                                   initialapproverremarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+    return HttpResponseRedirect('/replenish_pcv/approval')
 
 
 @method_decorator(login_required, name='dispatch')

@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
     # url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),
     # url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
+    url(r'^approval$', views.ApprovalView.as_view(), name='approval'),
+    url(r'^approval/userresponse$', views.userpcvResponse, name='userpcvreponse'),
 ]

@@ -43,6 +43,13 @@
                             </button>
                         </a>
                     {% endif  %}
+                    {% if initialapprover == user.id or finalapprover == user.id %}
+                        <a href="{% url 'replenish_pcv:approval' %}">
+                            <button type="button" class="btn btn-info btn-sm waves-effect waves-light">
+                                <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Approve PCV
+                            </button>
+                        </a>
+                    {% endif  %}
                     <a href="{% url 'replenish_pcv:report' %}">
                         <button class="btn btn-info btn-sm">
                             <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
