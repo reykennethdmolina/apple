@@ -68,25 +68,22 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.dctype.errors.as_text }}</span>
                                 </div>
+                                <div class="form-group col-sm-3 {{ form.dcclasstype.errors|yesno:'has-error,' }}">
+                                    <label class="control-label" for="id_dcclasstype">DC Class Type</label>
+                                    <select class="form-control input-sm" data-validation="required" id="id_dcclasstype" name="dcclasstype">
+                                        <option value="">-- Select --</option>
+                                        {% for dcclasstype in dcclasstype %}
+                                            <option value="{{ dcclasstype.id }}" {% if form.dcclasstype.value|add:"0" == dcclasstype.id %} selected="selected" {% endif %}>[{{ dcclasstype.code }}]&nbsp;&nbsp;&nbsp;{{ dcclasstype.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.dcclasstype.errors.as_text }}</span>
+                                </div>
                                 <div class="form-group col-sm-3 {{ form.dcsubtype.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_dcsubtype">DC Subtype</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_dcsubtype" name="dcsubtype">
+                                    <select class="form-control input-sm" id="id_dcsubtype" name="dcsubtype">
                                         <option value="">-- Select --</option>
-                                        {% for dcsubtype in dcsubtype %}
-                                            <option value="{{ dcsubtype.id }}" {% if form.dcsubtype.value|add:"0" == dcsubtype.id %} selected="selected" {% endif %}>[{{ dcsubtype.code }}]&nbsp;&nbsp;&nbsp;{{ dcsubtype.description }}</option>
-                                        {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.dcsubtype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.dcartype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_dcartype">DC AR Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_dcartype" name="dcartype">
-                                        <option value="">-- Select --</option>
-                                        {% for dcartype in dcartype %}
-                                            <option value="{{ dcartype.id }}" {% if form.dcartype.value|add:"0" == dcartype.id %} selected="selected" {% endif %}>[{{ dcartype.code }}]&nbsp;&nbsp;&nbsp;{{ dcartype.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.dcartype.errors.as_text }}</span>
                                 </div>
                                 <div class="form-group col-sm-4 {{ form.customer.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_customer">Customer</label>
@@ -253,6 +250,43 @@
 
             $("#id_vat").change(function(){
                 showRate("#id_vat", "vatrate", "RATE");
+            });
+
+            $('#id_dcclasstype').change(function () {
+                if ($(this).val() == "") {
+                    $("#id_dcsubtype").html("<option value=''>-- Select --</option>");
+                    //$("#id_bankbranch").attr('disabled', true);
+                }
+                else {
+                    $.ajax({
+                        url: "{% url 'debitcreditmemo:getdcsubtypes' %}",
+                        type: "post",
+                        data: {'dcclasstype': $(this).val()},
+
+                        success: function(response) {
+                            dcsubtype = response.dcsubtype;
+                            dcsubtypelist = $.parseJSON(dcsubtype);
+
+                            $("#id_dcsubtype").html("<option value=''>-- Select --</option>");
+
+                            if (dcsubtypelist == undefined || dcsubtypelist == null || dcsubtypelist.length == 0){
+                                alert("The selected class type has no subtypes available.");
+                            }
+
+                            $.each(dcsubtypelist, function(k, v){
+                                console.log("PK: " + v.pk);
+                                console.log("Description: " + v.fields.description);
+                                $('#id_dcsubtype').append( '<option value="' + v.pk + '">' + v.fields.description
+                                        + '</option>' );
+                            });
+
+                            //$("#id_bankbranch").attr('disabled', false);
+                        }
+                        , error: function(response) {
+                        console.debug(response);
+                        }
+                    });
+                }
             });
 
             function showRate(field, rateSpan, defaultText){

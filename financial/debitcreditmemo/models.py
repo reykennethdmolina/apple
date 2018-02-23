@@ -22,7 +22,8 @@ class Dcmain(models.Model):
     dctype = models.CharField(max_length=1, choices=DC_TYPE_CHOICES)
     dcclasstype = models.ForeignKey('dcclasstype.Dcclasstype', related_name='dcmain_dcclasstype_id')
     # dcartype = models.ForeignKey('dcartype.Dcartype', related_name='dcmain_dcartype_id', null=True, blank=True)
-    dcsubtype = models.ForeignKey('debitcreditmemosubtype.Debitcreditmemosubtype', related_name='dcmain_subtype_id')
+    dcsubtype = models.ForeignKey('debitcreditmemosubtype.Debitcreditmemosubtype', related_name='dcmain_subtype_id',
+                                  null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
     branch = models.ForeignKey('branch.Branch', related_name='dcmain_branch_id', default=5)
     customer = models.ForeignKey('customer.Customer', related_name='dcmain_customer_id', null=True, blank=True)

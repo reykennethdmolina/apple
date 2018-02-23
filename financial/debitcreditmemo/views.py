@@ -11,13 +11,14 @@ from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
 from currency.models import Currency
 from customer.models import Customer
-from dcartype.models import Dcartype
+from dcclasstype.models import Dcclasstype
 from debitcreditmemosubtype.models import Debitcreditmemosubtype
 from outputvattype.models import Outputvattype
 from vat.models import Vat
 from . models import Dcmain, Dcdetail, Dcdetailbreakdown, Dcdetailtemp, Dcdetailbreakdowntemp
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
 from django.http import JsonResponse
 from easy_pdf.views import PDFTemplateView
 from endless_pagination.views import AjaxListView
@@ -49,7 +50,6 @@ class IndexView(AjaxListView):
 
         # data for lookup
         context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -63,7 +63,7 @@ class IndexView(AjaxListView):
 class CreateView(CreateView):
     model = Dcmain
     template_name = 'debitcreditmemo/create.html'
-    fields = ['dcdate', 'dctype', 'dcsubtype', 'dcartype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
+    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
               'particulars']
 
     def dispatch(self, request, *args, **kwargs):
@@ -74,7 +74,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
+        context['dcclasstype'] = Dcclasstype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -145,7 +145,6 @@ class DetailView(DetailView):
             filter(dcmain_id=self.kwargs['pk']).aggregate(Sum('creditamount'))
 
         context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -158,7 +157,7 @@ class DetailView(DetailView):
 class UpdateView(UpdateView):
     model = Dcmain
     template_name = 'debitcreditmemo/update.html'
-    fields = ['dcdate', 'dctype', 'dcsubtype', 'dcartype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
+    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
               'particulars']
 
     def dispatch(self, request, *args, **kwargs):
@@ -255,7 +254,6 @@ class UpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
         context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['dcartype'] = Dcartype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -289,7 +287,7 @@ class UpdateView(UpdateView):
         self.object.customer_code = self.object.customer.code
         self.object.customer_name = self.object.customer.name
 
-        self.object.save(update_fields=['dcdate', 'dctype', 'dcsubtype', 'dcartype', 'particulars', 'vat', 'vatrate',
+        self.object.save(update_fields=['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'vatrate',
                                         'branch', 'outputvattype', 'customer', 'customer_code', 'customer_name',
                                         'particulars', 'modifyby', 'modifydate'])
 
@@ -396,6 +394,24 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['rc_title'] = "DEBIT CREDIT MEMO BOOK"
 
         return context
+
+
+@csrf_exempt
+def getdcsubtypes(request):
+    if request.method == 'POST':
+        dcclasstype = request.POST['dcclasstype']
+        dcsubtype = Debitcreditmemosubtype.objects.filter(dcclasstype=dcclasstype, isdeleted=0).order_by('description')
+        if dcsubtype is None:
+            dcsubtype = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('description')
+        data = {
+            'status': 'success',
+            'dcsubtype': serializers.serialize("json", dcsubtype),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
 
 
 @csrf_exempt
@@ -697,7 +713,7 @@ def reportresultxlsx(request):
                 obj.branch.description,
                 obj.vat.description,
                 obj.outputvattype.description,
-                obj.dcartype.description,
+                obj.dcclasstype.description,
                 "[" + obj.customer_code + "] " + obj.customer_name,
                 obj.get_dcstatus_display(),
                 obj.amount,
