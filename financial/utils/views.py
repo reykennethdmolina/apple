@@ -19,6 +19,7 @@ from debitcreditmemo.models import Dcmain
 from acknowledgementreceipt.models import Armain
 from officialreceipt.models import Ormain
 from agent.models import Agent
+from bankaccount.models import Bankaccount
 
 
 @csrf_exempt
@@ -69,6 +70,10 @@ def ajaxSelect(request):
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
                                                     Q(departmentname__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "bankaccount":
+            items = Bankaccount.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(accountnumber__icontains=request.GET['q']))
 
         elif request.GET['table'] == "inventoryitem_SV" \
                 or request.GET['table'] == "inventoryitem_SI" \
@@ -124,6 +129,8 @@ def ajaxSelect(request):
                 text = "[" + data.accountcode + "] - " + data.description
             elif request.GET['table'] == "department":
                 text = data.departmentname
+            elif request.GET['table'] == "bankaccount":
+                text = data.code + " - " + data.accountnumber
             elif request.GET['table'] == "inventoryitem" \
                     or request.GET['table'] == "inventoryitem_SV" \
                     or request.GET['table'] == "inventoryitem_SI" \
