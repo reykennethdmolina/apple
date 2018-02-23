@@ -55,7 +55,13 @@ class Companyparameter(models.Model):
     def_bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='parameter_def_bankaccount')
     # defaults for accounting entries
 
+    # default approvers
     budgetapprover = models.ForeignKey(User, default=1, related_name='companyparameter_budgetapprover')
+    pcv_initial_approver = models.ForeignKey(User, default=1, related_name='companyparameter_pcv_initial_approver')
+    pcv_final_approver = models.ForeignKey(User, default=1, related_name='companyparameter_pcv_final_approver')
+    rfv_initial_approver = models.ForeignKey(User, default=1, related_name='companyparameter_rfv_initial_approver')
+    rfv_final_approver = models.ForeignKey(User, default=1, related_name='companyparameter_rfv_final_approver')
+    # default approvers
 
     # report footers
     report_footer1 = models.CharField(max_length=250, blank=True, null=True)

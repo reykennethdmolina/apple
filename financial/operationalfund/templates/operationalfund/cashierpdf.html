@@ -20,7 +20,7 @@
                 left: 1cm;
                 width: 19.5cm;
                 top: 2.5cm;
-                height: 21cm;
+                height: 20.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
@@ -86,10 +86,10 @@
         <td align="center" style="margin-right: 20px;">
             <div class="sign_here">{{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
         </td>
-        <td width="20%"><b>Received by</b></td>
+        <td width="20%"><b>Released to</b></td>
         <td width="5%"><b>:</b></td>
         <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-            <div class="sign_here">{{ ofmain.receiveby.first_name }}&nbsp;{{ ofmain.receiveby.last_name }}</div>
+            <div class="sign_here">{% if ofmain.paymentreceivedby %}{{ ofmain.paymentreceivedby.firstname }}&nbsp;{{ ofmain.paymentreceivedby.lastname }}{% else %}&nbsp;{% endif %}</div>
         </td>
     </tr>
     <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
@@ -101,7 +101,7 @@
         <td width="20%"><b>Date received</b></td>
         <td width="5%"><b>:</b></td>
         <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-            <div class="sign_here">{{ ofmain.receivedate|date:'Y-m-d' }}</div>
+            <div class="sign_here">{% if ofmain.paymentreceivedby %}{{ ofmain.paymentreceiveddate|date:'Y-m-d' }}{% else %}&nbsp;{% endif %}</div>
         </td>
     </tr>
 </table>
