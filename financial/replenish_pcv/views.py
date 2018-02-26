@@ -95,6 +95,20 @@ def userpcvResponse(request):
                                    initialapproverresponse=request.POST['response_type'].upper(),
                                    initialapproverresponsedate=datetime.datetime.now(),
                                    initialapproverremarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+        elif request.POST['response_from'] == 'final':
+            if Companyparameter.objects.get(code='PDI').pcv_final_approver.id == request.user.id \
+                    and Reppcvmain.objects.get(pk=request.POST['response_id'], status='A', isdeleted=0, cvmain=None, initialapproverresponse='A'):
+                if request.POST['response_type'] == 'a' or request.POST['response_type'] == 'd':
+                    pcvitem = Reppcvmain.objects.filter(pk=request.POST['response_id'],
+                                                        status='A',
+                                                        isdeleted=0,
+                                                        cvmain=None,
+                                                        initialapproverresponse='A')
+                    old_remarks = '' if pcvitem.first().finalapproverremarks is None else pcvitem.first().finalapproverremarks
+                    pcvitem.update(finalapprover=request.user.id,
+                                   finalapproverresponse=request.POST['response_type'].upper(),
+                                   finalapproverresponsedate=datetime.datetime.now(),
+                                   finalapproverremarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
 
     return HttpResponseRedirect('/replenish_pcv/approval')
 

@@ -17,11 +17,11 @@ class Reppcvmain(models.Model):
     initialapprover = models.ForeignKey(User, related_name='pcv_initialapprover', null=True, blank=True)
     initialapproverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     initialapproverresponsedate = models.DateTimeField(null=True, blank=True)
-    initialapproverremarks = models.CharField(max_length=250, null=True, blank=True)
+    initialapproverremarks = models.CharField(max_length=2500, null=True, blank=True)
     finalapprover = models.ForeignKey(User, related_name='pcv_finalapprover', null=True, blank=True)
     finalapproverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     finalapproverresponsedate = models.DateTimeField(null=True, blank=True)
-    finalapproverremarks = models.CharField(max_length=250, null=True, blank=True)
+    finalapproverremarks = models.CharField(max_length=2500, null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

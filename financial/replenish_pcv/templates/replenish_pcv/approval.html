@@ -48,6 +48,7 @@
                         <th>ID</th>
                         <th>Number</th>
                         <th>Date</th>
+                        <th style="text-align: center">Remarks</th>
                         <th style="text-align: center">Initial Approval</th>
                         <th style="text-align: center">Final Approval</th>
                         <th></th>
@@ -59,6 +60,11 @@
                             <td>{{ data.id }}</td>
                             <td>{{ data.reppcvnum }}</td>
                             <td>{{ data.reppcvdate }}</td>
+                            <td align="center">
+                                <a href="#_" class="view_remarks" data-finremarks="{{ data.finalapproverremarks|default:'' }}" data-initremarks="{{ data.initialapproverremarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
+                                    <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
+                                </a>
+                            </td>
                             <td align="center" {% if initialapprover == user.id %}class="text-warning"{% endif %}>
                                 {% if data.initialapproverresponse == 'A' %}
                                     <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
@@ -80,20 +86,25 @@
                                 {% endif %}
                             </td>
                             <td align="center">
-                                {% if data.initialapproveresponse == None or data.finalapproverresponse == None %}
-                                    <button data-type="a" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
-                                        <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                    </button>
-                                    <button data-type="d" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
-                                        <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                    </button>
-                                {% elif data.initialapproverresponse == 'A' and data.cvmain == None %}
-                                    <button data-type="a" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
-                                        <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
-                                    </button>
-                                    <button data-type="d" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
-                                        <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
-                                    </button>
+                                {% if initialapprover == request.user.id %}
+                                    {% if data.finalapproverresponse == None %}
+                                        <button data-type="a" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                        </button>
+                                        <button data-type="d" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                {% if finalapprover == request.user.id %}
+                                    {% if data.initialapproverresponse == 'A' and data.cvmain == None %}
+                                        <button data-type="a" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                        </button>
+                                        <button data-type="d" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
@@ -131,6 +142,26 @@
         </div>
     </div>
 </div>
+<div id="r_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remarks History</h4>
+            </div>
+            <div class="modal-body">
+                Initial Approver:<br><br>
+                <p id="response_inithistory"></p>
+                <br><br>
+                Final Approver:<br><br>
+                <p id="response_finhistory"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock page-content %}
 {% block extra_js %}
 <script type="text/javascript">
@@ -140,6 +171,11 @@ $(function(){
         $('#response_from').val($(this).data('from'));
         $('#response_id').val($(this).data('id'));
         $('#response_remarks').val('');
+    });
+
+    $(document).on("click", ".view_remarks", function(){
+        $('#response_inithistory').html($(this).data('initremarks'));
+        $('#response_finhistory').html($(this).data('finremarks'));
     });
 });
 </script>
