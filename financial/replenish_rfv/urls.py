@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
     url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
+    url(r'^approval$', views.ApprovalView.as_view(), name='approval'),
+    url(r'^approval/userresponse$', views.userrfvResponse, name='userrfvreponse'),
 ]

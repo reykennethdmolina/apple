@@ -36,10 +36,17 @@
                     </div>
                     <!-- pagination and search end -->
 
-                    {% if perms.replenish_pcv.add_reppcvmain %}
+                    {% if perms.replenish_rfv.add_reprfvmain %}
                         <a href="{% url 'replenish_rfv:create' %}">
                             <button type="button" class="btn btn-success btn-sm waves-effect waves-light">
                                 <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New Request
+                            </button>
+                        </a>
+                    {% endif  %}
+                    {% if initialapprover == user.id or finalapprover == user.id %}
+                        <a href="{% url 'replenish_rfv:approval' %}">
+                            <button type="button" class="btn btn-info btn-sm waves-effect waves-light">
+                                <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Approve RFV
                             </button>
                         </a>
                     {% endif  %}

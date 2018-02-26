@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
 from utils.mixins import ReportContentMixin
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
@@ -55,6 +55,83 @@ class IndexView(AjaxListView):
                                  Q(apmain__apnum__icontains=keysearch) |
                                  Q(amount__icontains=keysearch))
         return query
+
+    def get_context_data(self, **kwargs):
+        context = super(AjaxListView, self).get_context_data(**kwargs)
+
+        context['initialapprover'] = Companyparameter.objects.get(code='PDI').rfv_initial_approver.id
+        context['finalapprover'] = Companyparameter.objects.get(code='PDI').rfv_final_approver.id
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ApprovalView(TemplateView):
+    template_name = 'replenish_rfv/approval.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.request.user != Companyparameter.objects.get(code='PDI').rfv_initial_approver \
+                and self.request.user != Companyparameter.objects.get(code='PDI').rfv_final_approver:
+            raise Http404
+        return super(TemplateView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        context['rfv'] = Reprfvmain.objects.filter(status='A', isdeleted=0, apmain=None)
+
+        if self.request.user == Companyparameter.objects.get(code='PDI').rfv_initial_approver \
+                and self.request.user == Companyparameter.objects.get(code='PDI').rfv_final_approver:
+            context['rfv'] = context['rfv'].filter(Q(initialapproverresponse=None)
+                               | (Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(initialapproverresponse='D') | Q(finalapproverresponse__isnull=False))
+        elif self.request.user == Companyparameter.objects.get(code='PDI').rfv_initial_approver:
+            context['rfv'] = context['rfv'].filter(Q(initialapproverresponse=None)
+                               | (Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(initialapproverresponse='D'))
+        elif self.request.user == Companyparameter.objects.get(code='PDI').rfv_final_approver:
+            context['rfv'] = context['rfv'].filter((Q(initialapproverresponse='A') & Q(finalapproverresponse=None))
+                               | Q(finalapproverresponse__isnull=False))
+
+        context['initialapprover'] = Companyparameter.objects.get(code='PDI').rfv_initial_approver.id
+        context['finalapprover'] = Companyparameter.objects.get(code='PDI').rfv_final_approver.id
+
+        return context
+
+
+def userrfvResponse(request):
+    if request.method == 'POST':
+        intro_remarks = '<font class="small text-primary">' + str(request.user.first_name) + ' </font><mark class="small text-warning">' + str(datetime.datetime.now().strftime("%m/%d/%y %H:%M")) + '</mark>&nbsp;&nbsp;&nbsp;'
+
+        if request.POST['response_from'] == 'initial':
+            if Companyparameter.objects.get(code='PDI').rfv_initial_approver.id == request.user.id \
+                    and Reprfvmain.objects.get(pk=request.POST['response_id'], status='A', isdeleted=0, finalapproverresponse=None):
+                if request.POST['response_type'] == 'a' or request.POST['response_type'] == 'd':
+                    rfvitem = Reprfvmain.objects.filter(pk=request.POST['response_id'],
+                                                        status='A',
+                                                        isdeleted=0,
+                                                        finalapproverresponse=None)
+                    old_remarks = '' if rfvitem.first().initialapproverremarks is None else rfvitem.first().initialapproverremarks
+                    rfvitem.update(initialapprover=request.user.id,
+                                   initialapproverresponse=request.POST['response_type'].upper(),
+                                   initialapproverresponsedate=datetime.datetime.now(),
+                                   initialapproverremarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+        elif request.POST['response_from'] == 'final':
+            if Companyparameter.objects.get(code='PDI').rfv_final_approver.id == request.user.id \
+                    and Reprfvmain.objects.get(pk=request.POST['response_id'], status='A', isdeleted=0, apmain=None, initialapproverresponse='A'):
+                if request.POST['response_type'] == 'a' or request.POST['response_type'] == 'd':
+                    rfvitem = Reprfvmain.objects.filter(pk=request.POST['response_id'],
+                                                        status='A',
+                                                        isdeleted=0,
+                                                        apmain=None,
+                                                        initialapproverresponse='A')
+                    old_remarks = '' if rfvitem.first().finalapproverremarks is None else rfvitem.first().finalapproverremarks
+                    rfvitem.update(finalapprover=request.user.id,
+                                   finalapproverresponse=request.POST['response_type'].upper(),
+                                   finalapproverresponsedate=datetime.datetime.now(),
+                                   finalapproverremarks=old_remarks + intro_remarks + str(request.POST['response_remarks']) + '</br></br>')
+
+    return HttpResponseRedirect('/replenish_rfv/approval')
 
 
 @method_decorator(login_required, name='dispatch')

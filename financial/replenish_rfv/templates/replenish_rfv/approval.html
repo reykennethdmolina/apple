@@ -1,0 +1,182 @@
+{% extends 'base-form.html' %}
+{% block page-title %} RFV Approval {% endblock page-title %}
+{% block extra_css %}
+<style>
+    .resp-button{
+        width: 50px;
+    }
+{#    #approvers_panel{#}
+{#        display: none;#}
+{#    }#}
+    .fa-spin {
+      -webkit-animation: fa-spin 2s infinite linear;
+      animation: fa-spin 2s infinite linear;
+    }
+    @-webkit-keyframes fa-spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+    @keyframes fa-spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+      }
+    }
+{#    td{#}
+{#        vertical-align: middle;#}
+{#    }#}
+</style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Number</th>
+                        <th>Date</th>
+                        <th style="text-align: center">Remarks</th>
+                        <th style="text-align: center">Initial Approval</th>
+                        <th style="text-align: center">Final Approval</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in rfv %}
+                        <tr>
+                            <td>{{ data.id }}</td>
+                            <td>{{ data.reprfvnum }}</td>
+                            <td>{{ data.reprfvdate }}</td>
+                            <td align="center">
+                                <a href="#_" class="view_remarks" data-finremarks="{{ data.finalapproverremarks|default:'' }}" data-initremarks="{{ data.initialapproverremarks|default:'' }}" data-target="#r_Modal" data-toggle="modal">
+                                    <i class="icon fa-comments-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;View
+                                </a>
+                            </td>
+                            <td align="center" {% if initialapprover == user.id %}class="text-warning"{% endif %}>
+                                {% if data.initialapproverresponse == 'A' %}
+                                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                {% elif data.initialapproverresponse == 'D' %}
+                                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                {% else %}
+                                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                {% endif %}
+                            </td>
+                            <td align="center" {% if finalapprover == user.id %}class="text-warning"{% endif %}>
+                                {% if data.finalapproverresponse == 'A' %}
+                                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                                {% elif data.finalapproverresponse == 'D' %}
+                                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                                {% elif data.initialapproverresponse == None  %}
+                                    <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                                {% elif data.initialapproverresponse == 'A' %}
+                                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                                {% endif %}
+                            </td>
+                            <td align="center">
+                                {% if initialapprover == request.user.id %}
+                                    {% if data.finalapproverresponse == None %}
+                                        <button data-type="a" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                        </button>
+                                        <button data-type="d" data-from="initial" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                {% if finalapprover == request.user.id %}
+                                    {% if data.initialapproverresponse == 'A' and data.apmain == None %}
+                                        <button data-type="a" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-up" aria-hidden="true"></i>
+                                        </button>
+                                        <button data-type="d" data-from="final" data-id="{{ data.pk }}" data-target="#Modal" data-toggle="modal" class="a_response btn btn-info btn-sm resp-button">
+                                            <i class="icon fa-thumbs-o-down" aria-hidden="true"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="approval/userresponse" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Are you sure?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <label class="control-label" for="id_remarks">Remarks:</label>
+                        <textarea name="response_remarks" id="response_remarks" class="form-control" rows="3"></textarea>
+                        <br>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="response_type" id="response_type">
+                    <input type="hidden" name="response_from" id="response_from">
+                    <input type="hidden" name="response_id" id="response_id">
+                    <button type="submit" id="response_confirm" class="btn btn-info">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="r_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remarks History</h4>
+            </div>
+            <div class="modal-body">
+                Initial Approver:<br><br>
+                <p id="response_inithistory"></p>
+                <br><br>
+                Final Approver:<br><br>
+                <p id="response_finhistory"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script type="text/javascript">
+$(function(){
+    $(document).on("click", ".a_response", function(){
+        $('#response_type').val($(this).data('type'));
+        $('#response_from').val($(this).data('from'));
+        $('#response_id').val($(this).data('id'));
+        $('#response_remarks').val('');
+    });
+
+    $(document).on("click", ".view_remarks", function(){
+        $('#response_inithistory').html($(this).data('initremarks'));
+        $('#response_finhistory').html($(this).data('finremarks'));
+    });
+});
+</script>
+{% endblock extra_js %}
