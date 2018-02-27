@@ -187,8 +187,12 @@ class CreateView(CreateView):
             prfmain.totalremainingquantity = int(itemquantity)
             prfmain.netamount = total_amount
 
+            prfmain.approverlevel_required = 1
+
             approverreached = Budgetapproverlevels.objects.filter(expwithinbudget__lte=total_amount).order_by('-level').first()
-            prfmain.approverlevel_required = approverreached.level + (1 if total_amount > approverreached.expwithinbudget else 0)
+
+            if approverreached:
+                prfmain.approverlevel_required = approverreached.level + (1 if total_amount > approverreached.expwithinbudget else 0)
 
             prfmain.save()
 
