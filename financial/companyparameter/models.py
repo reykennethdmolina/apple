@@ -63,6 +63,12 @@ class Companyparameter(models.Model):
     rfv_final_approver = models.ForeignKey(User, default=1, related_name='companyparameter_rfv_final_approver')
     # default approvers
 
+    # petty cash meal expenses defaults
+    pcv_meal_expenses = models.ForeignKey('ofsubtype.Ofsubtype', related_name='companyparameter_pcv_meal_expenses',
+                                          null=True, blank=True)
+    pcv_meal_budget_limit = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    # petty cash meal expenses defaults
+
     # report footers
     report_footer1 = models.CharField(max_length=250, blank=True, null=True)
     report_footer2 = models.CharField(max_length=250, blank=True, null=True)
