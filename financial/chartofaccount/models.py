@@ -70,6 +70,12 @@ class Chartofaccount(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
+    # added for debitcreditmemo
+    reftype_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    refnum_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    refdate_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
+    # added for debitcreditmemo
+
     class Meta:
         db_table = 'chartofaccount'
         ordering = ['-pk']
@@ -123,6 +129,9 @@ class Chartofaccount(models.Model):
             'mainunit': self.mainunit,
             'product': self.product,
             'typeofexpense': self.typeofexpense,
+            'reftype_enable': dict(Chartofaccount.YESNO_CHOICES)[self.reftype_enable],
+            'refnum_enable': dict(Chartofaccount.YESNO_CHOICES)[self.refnum_enable],
+            'refdate_enable': dict(Chartofaccount.YESNO_CHOICES)[self.refdate_enable],
         }
     # @classmethod
     # def deserialize(klass, data):

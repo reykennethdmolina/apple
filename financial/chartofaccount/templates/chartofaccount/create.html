@@ -318,6 +318,20 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">&nbsp;</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_reftype_enable" class="col-sm-4 col-shrink control-label">Ref. Type: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_reftype_enable" name="reftype_enable" value="Y" {% if form.reftype_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_reftype_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_reftype_enable" name="reftype_enable" value="N" {% if form.reftype_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_reftype_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group form-group-5 form-group-sm form-material">
@@ -369,6 +383,20 @@
                                                 <div class="radio-custom radio-default radio-inline padding-top-0">
                                                     <input type="radio" id="id_unit_enable" name="unit_enable" value="N" {% if form.unit_enable.value == 'N' %} checked="checked" {% endif %}>
                                                     <label for="id_unit_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">&nbsp;</div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_refnum_enable" class="col-sm-4 col-shrink control-label">Ref. Num.: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_refnum_enable" name="refnum_enable" value="Y" {% if form.refnum_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_refnum_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_refnum_enable" name="refnum_enable" value="N" {% if form.refnum_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_refnum_enable">No</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -436,6 +464,19 @@
                                                 <div class="radio-custom radio-default radio-inline padding-top-0">
                                                     <input type="radio" id="id_ataxcode_enable" name="ataxcode_enable" value="N" {% if form.ataxcode_enable.value == 'N' %} checked="checked" {% endif %}>
                                                     <label for="id_ataxcode_enable">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group form-group-5 form-group-sm form-material">
+                                            <label for="id_refnum_enable" class="col-sm-4 col-shrink control-label">Ref. Date: </label>
+                                            <div class="col-sm-8">
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_refdate_enable" name="refdate_enable" value="Y" {% if form.refdate_enable.value == 'Y' %} checked="checked" {% endif %}>
+                                                    <label for="id_refdate_enable">Yes</label>
+                                                </div>
+                                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                    <input type="radio" id="id_refdate_enable" name="refdate_enable" value="N" {% if form.refdate_enable.value == 'N' %} checked="checked" {% endif %}>
+                                                    <label for="id_refdate_enable">No</label>
                                                 </div>
                                             </div>
                                         </div>

@@ -277,6 +277,30 @@
                                                                 {% endif %}
                                                             </td>
                                                         </tr>
+                                                        <tr>
+                                                            <td>Ref. Type</td>
+                                                            <td>
+                                                                {% if object.reftype_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Ref. Num.</td>
+                                                            <td>
+                                                                {% if object.refnum_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Ref. Date</td>
+                                                            <td>
+                                                                {% if object.refdate_enable == 'N' %}<i class="icon fa-close" aria-hidden="true"></i>
+                                                                {% else %}<i class="icon fa-check" aria-hidden="true"></i>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
                                                         </tbody>
                                                     </table>
                                                 </div>

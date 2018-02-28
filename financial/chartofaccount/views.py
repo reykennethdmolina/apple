@@ -52,7 +52,8 @@ class CreateView(CreateView):
               'department_enable', 'employee_enable', 'supplier_enable',
               'customer_enable', 'branch_enable', 'product_enable',
               'unit_enable', 'inputvat_enable', 'outputvat_enable',
-              'vat_enable', 'wtax_enable', 'ataxcode_enable']
+              'vat_enable', 'wtax_enable', 'ataxcode_enable',
+              'reftype_enable', 'refnum_enable', 'refdate_enable']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('chartofaccount.add_chartofaccount'):
@@ -113,7 +114,8 @@ class UpdateView(UpdateView):
               'department_enable', 'employee_enable', 'supplier_enable',
               'customer_enable', 'branch_enable', 'product_enable',
               'unit_enable', 'inputvat_enable', 'outputvat_enable',
-              'vat_enable', 'wtax_enable', 'ataxcode_enable']
+              'vat_enable', 'wtax_enable', 'ataxcode_enable',
+              'reftype_enable', 'refnum_enable', 'refdate_enable']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('chartofaccount.change_chartofaccount'):
@@ -165,7 +167,8 @@ class UpdateView(UpdateView):
                                         'supplier_enable', 'customer_enable',
                                         'branch_enable', 'product_enable', 'unit_enable',
                                         'inputvat_enable', 'outputvat_enable', 'vat_enable',
-                                        'wtax_enable', 'ataxcode_enable', 'modifyby', 'modifydate'])
+                                        'wtax_enable', 'ataxcode_enable', 'modifyby', 'modifydate',
+                                        'reftype_enable', 'refnum_enable', 'refdate_enable'])
         return HttpResponseRedirect('/chartofaccount')
 
 
