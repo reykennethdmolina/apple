@@ -8,6 +8,7 @@
             <th><span>ID</span></th>
             <th><span>Number</span></th>
             <th><span>Date</span></th>
+            <th colspan="2" style="text-align: center"><span>Approval</span></th>
             <th><span>AP Number</span></th>
             <th><span>AP Date</span></th>
             <th><span>Turn-Around Time</span></th>
@@ -21,6 +22,26 @@
             <td>{{ data.id }}</td>
             <td>{{ data.reprfvnum }}</td>
             <td>{{ data.reprfvdate|date:"Y-m-d" }}</td>
+            <td align="center">
+                {% if data.initialapproverresponse == 'A' %}
+                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                {% elif data.initialapproverresponse == 'D' %}
+                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                {% else %}
+                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                {% endif %}
+            </td>
+            <td align="center">
+                {% if data.finalapproverresponse == 'A' %}
+                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                {% elif data.finalapproverresponse == 'D' %}
+                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                {% elif data.initialapproverresponse == None  %}
+                    <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                {% elif data.initialapproverresponse == 'A' %}
+                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                {% endif %}
+            </td>
             <td>{{ data.apmain.apnum|default:'N/A' }}</td>
             <td>{{ data.apmain.apdate|date:'Y-m-d'|default:'N/A' }}</td>
             <td>{% if data.enterdate <= data.apmain.enterdate  %}{{ data.enterdate|timesince:data.apmain.enterdate }}{% else %}{{ data.enterdate|timesince }}{% endif %}</td>

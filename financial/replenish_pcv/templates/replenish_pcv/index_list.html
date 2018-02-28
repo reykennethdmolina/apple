@@ -8,6 +8,7 @@
             <th><span>ID</span></th>
             <th><span>Number</span></th>
             <th><span>Date</span></th>
+            <th colspan="2" style="text-align: center"><span>Approval</span></th>
             <th><span>CV Number</span></th>
             <th><span>CV Date</span></th>
             <th><span>CV Status</span></th>
@@ -22,6 +23,26 @@
             <td>{{ data.id }}</td>
             <td>{{ data.reppcvnum }}</td>
             <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
+            <td align="center">
+                {% if data.initialapproverresponse == 'A' %}
+                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                {% elif data.initialapproverresponse == 'D' %}
+                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                {% else %}
+                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                {% endif %}
+            </td>
+            <td align="center">
+                {% if data.finalapproverresponse == 'A' %}
+                    <i class="icon fa-thumbs-o-up" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Approved"></i>
+                {% elif data.finalapproverresponse == 'D' %}
+                    <i class="icon fa-thumbs-o-down" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Disapproved"></i>
+                {% elif data.initialapproverresponse == None  %}
+                    <i class="icon fa-clock-o" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Waiting"></i>
+                {% elif data.initialapproverresponse == 'A' %}
+                    <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
+                {% endif %}
+            </td>
             <td>{{ data.cvmain.cvnum|default:'N/A' }}</td>
             <td>{{ data.cvmain.cvdate|date:'Y-m-d'|default:'N/A' }}</td>
             <td>{{ data.cvmain.get_cvstatus_display|default:'N/A' }}</td>
@@ -29,7 +50,9 @@
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
             <td style="width: 115px; text-align: center;">
                 <div class="iconlist-wrap auto-0">
-                    <a href="" data-toggle="modal" data-id="{{ data.id }}" data-number="{{ data.reppcvnum }}" data-date="{{ data.reppcvdate|date:"Y-m-d" }}" data-target="#detailsModal" class="linkDetail">View Details</a>
+                    <a href="" data-toggle="modal" data-id="{{ data.id }}" data-number="{{ data.reppcvnum }}" data-date="{{ data.reppcvdate|date:"Y-m-d" }}" data-target="#detailsModal" class="linkDetail">
+                        <i style="font-size: 23px;" class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                    </a>
                 </div>
             </td>
         </tr>
