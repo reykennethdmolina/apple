@@ -158,8 +158,7 @@
                         {% if logs %}
                             <div class="col-sm-4 panel panel-bordered">
                                 <div class="panel-body padding-10">
-                                    <p id="to_html" class="small">{{ logs }}
-                                    </p>
+                                    <p id="to_html" class="small">{{ logs }}</p>
                                 </div>
                             </div>
                         {% endif %}
@@ -534,7 +533,6 @@
         ajaxselect2("agency", "id_agency");
         ajaxselect2("client", "id_client");
         ajaxselect2("agent", "id_agent");
-
         $('#span_artype').text($('#id_orsource option:selected').text());
 
         displayPayeeDropdowns();
