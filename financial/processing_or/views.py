@@ -503,6 +503,9 @@ def exportsave(request):
             ormain_list = []
             ordetail_list = []
             log_remarks = ''
+            successdebit = 0
+            successcredit = 0
+
 
             if request.POST['artype'] == 'a':
                 for data in ormain:
@@ -843,6 +846,8 @@ def exportsave(request):
                                               datalist.creditamount,
                                               'S',
                                              ])
+                        successdebit = successdebit + datalist.debitamount
+                        successcredit = successcredit + datalist.creditamount
 
             elif request.POST['artype'] == 'c':
                 for data in ormain:
@@ -1029,6 +1034,10 @@ def exportsave(request):
                                               datalist.creditamount,
                                               'S',
                                              ])
+
+                        successdebit = successdebit + datalist.debitamount
+                        successcredit = successcredit + datalist.creditamount
+
             # append failed items from temp to ormain_list, ordetail_list
             ormain_data = Temp_ormain.objects.filter(batchkey=request.POST['batchkey'], postingstatus='F')
             for datalist in ormain_data:
@@ -1056,6 +1065,8 @@ def exportsave(request):
                 'totalcount': totalcount,
                 'successcount': successcount,
                 'rate': rate,
+                'successdebit': successdebit,
+                'successcredit': successcredit,
             }
         else:
             data = {

@@ -188,7 +188,21 @@
                                     </div>
                                     <div class="col-md-12">
                                         <br>
-                                        <i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i>
+                                        <table class="table table-condensed">
+                                            <tr>
+                                                <td></td>
+                                                <td align="right" class="small"><strong>Debit</strong></td>
+                                                <td align="right" class="small"><strong>Credit</strong></td>
+                                                <td align="right" class="small"><strong>Unbalanced by</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i></td>
+                                                <td id="final_debit" class="small" align="right"></td>
+                                                <td id="final_credit" class="small" align="right"></td>
+                                                <td id="final_unbalanced" class="small text-danger" align="right"></td>
+                                            </tr>
+                                        </table>
+                                        <br>
                                     </div>
                                 </div>
                             </div>
@@ -345,6 +359,9 @@
                             $('#or_export_loading').fadeOut(300);
                             $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
                             $('#upload_rate2').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
+                            $('#final_debit').text(parseFloat(data['successdebit']).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                            $('#final_credit').text(parseFloat(data['successcredit']).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                            $('#final_unbalanced').text((parseFloat(data['successdebit']) - parseFloat(data['successcredit'])).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 
                             $('#ordata_table2 tbody').html('');
                             for (var i = 0; i < data['ordata_list'].length; i++) {
