@@ -153,6 +153,7 @@ INSTALLED_APPS = [
     'dcclasstype',
     'processing_jv',
     'budgetapproverlevels',
+    'generaljournalbook',
 ]
 
 MIDDLEWARE_CLASSES = [
