@@ -180,17 +180,17 @@
                     <td>{{ dcmain.get_dctype_display }}</td>
                 </tr>
                 <tr>
+                    <td width="25%"><b>Class Type</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ dcmain.dcclasstype.description }}</td>
                     <td width="25%"><b>Subtype</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ dcmain.dcsubtype.description }}</td>
-                    <td width="25%"><b>AR Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ dcmain.dcartype.description }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Customer</b></td>
+                    <td width="25%"><b>{% if dcmain.customer %}Customer{% elif dcmain.supplier %}Supplier{% elif dcmain.employee %}Employee{% elif dcmain.department %}Department{% elif dcmain.bankaccount %}Bank&nbsp;Account{% elif dcmain.inventory %}Inventory{% endif %}</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ dcmain.customer_name }}</td>
+                    <td>{{ dcmain.payee_name }}</td>
                     <td width="25%"><b>Branch</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ dcmain.branch.description }}</td>
@@ -204,9 +204,20 @@
                     <td>{{ dcmain.outputvattype.description }}</td>
                 </tr>
                 <tr>
+                    <td width="25%"><b>Currency</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ dcmain.currency.description }}</td>
+                    <td width="25%"><b>FX&nbsp;Rate</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ dcmain.fxrate|floatformat:2|intcomma }}</td>
+                </tr>
+                <tr>
                     <td width="25%"><b>Particulars</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td colspan="4">{{ dcmain.particulars }}</td>
+                    <td>{{ dcmain.particulars }}</td>
+                    <td width="25%"><b>Remarks</b></td>
+                    <td width="10%"><b>:</b></td>
+                    <td>{{ dcmain.remarks }}</td>
                 </tr>
             </table>
         </td>

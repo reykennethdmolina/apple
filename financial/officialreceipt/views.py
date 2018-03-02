@@ -225,8 +225,11 @@ class CreateView(CreateView):
         self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
         self.object.collector_code = self.object.collector.code
         self.object.collector_name = self.object.collector.name
-        self.object.circulationproduct_code = self.object.circulationproduct.code
-        self.object.circulationproduct_name = self.object.circulationproduct.description
+
+        if self.object.circulationproduct:
+            self.object.circulationproduct_code = self.object.circulationproduct.code
+            self.object.circulationproduct_name = self.object.circulationproduct.description
+
         self.object.save()
 
         if Ordetailtemp.objects.filter(secretkey=self.request.POST['secretkey']).count() == 0:
@@ -374,10 +377,11 @@ class UpdateView(UpdateView):
                               ]
         context['logs'] = self.object.logs
 
-        context['logs_ormain'] = Logs_ormain.objects.filter(orno=self.object.ornum, importstatus='P')
-        context['logs_ordetail'] = Logs_ordetail.objects.filter(orno=self.object.ornum, importstatus='P',
-                                                                batchkey=context['logs_ormain'].first().batchkey)
-        context['logs_orstatus'] = context['logs_ormain'].first().status if context['logs_ormain'] else ''
+        if Logs_ormain.objects.filter(orno=self.object.ornum, importstatus='P'):
+            context['logs_ormain'] = Logs_ormain.objects.filter(orno=self.object.ornum, importstatus='P')
+            context['logs_ordetail'] = Logs_ordetail.objects.filter(orno=self.object.ornum, importstatus='P',
+                                                                    batchkey=context['logs_ormain'].first().batchkey)
+            context['logs_orstatus'] = context['logs_ormain'].first().status if context['logs_ormain'] else ''
 
         context['artype'] = 'A' if self.object.orsource == 'A' else 'C' if self.object.orsource == 'C' else ''
 
@@ -479,11 +483,14 @@ class UpdateView(UpdateView):
         self.object.totalsale = non_vat_amount + self.object.vatamount - self.object.wtaxamount
         self.object.collector_code = self.object.collector.code
         self.object.collector_name = self.object.collector.name
-        self.object.circulationproduct_code = self.object.circulationproduct.code
-        self.object.circulationproduct_name = self.object.circulationproduct.description
+
+        if self.object.circulationproduct:
+            self.object.circulationproduct_code = self.object.circulationproduct.code
+            self.object.circulationproduct_name = self.object.circulationproduct.description
+
         self.object.save(update_fields=['vatamount', 'wtaxamount', 'vatablesale', 'vatexemptsale', 'vatzeroratedsale',
                                         'totalsale', 'collector_code', 'collector_name', 'circulationproduct_code',
-                                        'circulationproduct_name'])
+                                        'circulationproduct', 'circulationproduct_name'])
 
         # save ordetailtemp to ordetail
         source = 'ordetailtemp'

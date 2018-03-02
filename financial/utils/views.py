@@ -369,8 +369,8 @@ def ajaxSearch(request):
                 items = items.filter(dctype=str(request.POST['cache_dctype']))
             if request.POST['cache_dcsubtype']:
                 items = items.filter(dcsubtype=str(request.POST['cache_dcsubtype']))
-            if request.POST['cache_dcartype']:
-                items = items.filter(dcartype=int(request.POST['cache_dcartype']))
+            if request.POST['cache_dcclasstype']:
+                items = items.filter(dcclasstype=int(request.POST['cache_dcclasstype']))
             if request.POST['cache_branch']:
                 items = items.filter(branch=int(request.POST['cache_branch']))
             if request.POST['cache_vat']:

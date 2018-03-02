@@ -68,10 +68,10 @@
 									</div>
                                 </div>
                                 <div class="form-group col-sm-4 margin-bottom-10">
-                                    <label class="control-label small">DC Subtype</label>
-                                    <select class="form-control input-sm" id="cache_dcsubtype">
+                                    <label class="control-label small">DC Class Type</label>
+                                    <select class="form-control input-sm" id="cache_dcclasstype">
                                         <option value="">-- Select --</option>
-                                        {% for data in dcsubtype %}
+                                        {% for data in dcclasstype %}
                                             <option value="{{ data.id }}">{{ data.description }}</option>
                                         {% endfor %}
                                     </select>
@@ -102,11 +102,11 @@
                         <div class="form-group col-sm-12 margin-bottom-10">
                             <div class="row">
                                 <div class="form-group col-sm-6 margin-bottom-10">
-                                    <label class="control-label small">DC AR Type</label>
-                                    <select class="form-control input-sm" id="cache_dcartype">
+                                    <label class="control-label small">DC Subtype</label>
+                                    <select class="form-control input-sm" id="cache_dcsubtype">
                                         <option value="">-- Select --</option>
-                                        {% for data in dcartype %}
-                                            <option value="{{ data.id }}">[{{ data.code }}] {{ data.description }}</option>
+                                        {% for data in dcsubtype %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -189,7 +189,7 @@
                         JSON.parse(retrieveFilters)[0]['fil_dcsubtype'],
                         JSON.parse(retrieveFilters)[0]['fil_customer_name'],
                         JSON.parse(retrieveFilters)[0]['fil_branch'],
-                        JSON.parse(retrieveFilters)[0]['fil_dcartype'],
+                        JSON.parse(retrieveFilters)[0]['fil_dcclasstype'],
                         JSON.parse(retrieveFilters)[0]['fil_vat'],
                         JSON.parse(retrieveFilters)[0]['fil_outputvattype'],
                         JSON.parse(retrieveFilters)[0]['fil_particulars']
@@ -214,7 +214,7 @@
                     'cache_dcsubtype': $("#cache_dcsubtype").val(),
                     'cache_customer_name': $("#cache_customer_name").val(),
                     'cache_branch': $("#cache_branch").val(),
-                    'cache_dcartype': $("#cache_dcartype").val(),
+                    'cache_dcclasstype': $("#cache_dcclasstype").val(),
                     'cache_vat': $("#cache_vat").val(),
                     'cache_outputvattype': $("#cache_outputvattype").val(),
                     'cache_particulars': $("#cache_particulars").val(),
@@ -240,7 +240,7 @@
                                 fil_dcsubtype: $("#cache_dcsubtype").val(),
                                 fil_customer_name: $("#cache_customer_name").val(),
                                 fil_branch: $("#cache_branch").val(),
-                                fil_dcartype: $("#cache_dcartype").val(),
+                                fil_dcclasstype: $("#cache_dcclasstype").val(),
                                 fil_vat: $("#cache_vat").val(),
                                 fil_outputvattype: $("#cache_outputvattype").val(),
                                 fil_particulars: $("#cache_particulars").val()
@@ -265,7 +265,7 @@
 
         // fill form from cache function
         function cachedfillform(fil_dcnum_from, fil_dcnum_to, fil_dctype, fil_dcdate_from, fil_dcdate_to, fil_dcsubtype,
-                                fil_customer_name, fil_branch, fil_dcartype, fil_vat, fil_outputvattype, fil_particulars){
+                                fil_customer_name, fil_branch, fil_dcclasstype, fil_vat, fil_outputvattype, fil_particulars){
             $("#cache_dcnum_from").val(fil_dcnum_from);
             $("#cache_dcnum_to").val(fil_dcnum_to);
             $("#cache_dctype").val(fil_dctype);
@@ -274,7 +274,7 @@
             $("#cache_dcsubtype").val(fil_dcsubtype);
             $("#cache_customer_name").val(fil_customer_name);
             $("#cache_branch").val(fil_branch);
-            $("#cache_dcartype").val(fil_dcartype);
+            $("#cache_dcclasstype").val(fil_dcclasstype);
             $("#cache_vat").val(fil_vat);
             $("#cache_outputvattype").val(fil_outputvattype);
             $("#cache_particulars").val(fil_particulars);

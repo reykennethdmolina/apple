@@ -52,40 +52,42 @@
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>
                         <div class="col-sm-12">
                             <div class="row-lg">
-                                <div class="form-group col-sm-2">
-                                    <label class="control-label" for="id_dcnum">Number</label>
-                                    <input type="text" class="form-control input-sm" id="id_dcnum" name="dcnum" placeholder="DCxxxxxxx" value="{{ form.dcnum.value|default:'' }}" readonly="readonly">
-                                    <span class="help-block form-error">{{ form.dcnum.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2">
-                                    <label class="control-label" for="id_dcdate">DC Date</label>
-                                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_dcdate" name="dcdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.dcdate.value %}{{ form.dcdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
-                                    <span class="help-block form-error">{{ form.dcdate.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2 {{ form.dctype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_dctype">DC Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_dctype" name="dctype">
-                                        {% for id,name in form.fields.dctype.choices %}
-                                            <option value="{{ id }}"{% if form.dctype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}[{{ id }}]&nbsp;&nbsp;{{ name }}{% endifequal %}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.dctype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.dcclasstype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_dcclasstype">DC Class Type</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_dcclasstype" name="dcclasstype">
-                                        {% for dcclasstype in dcclasstype %}
-                                            <option value="{{ dcclasstype.id }}" data-item="{{ dcclasstype.code }}" {% if form.dcclasstype.value|add:"0" == dcclasstype.id %} selected="selected" {% elif dcclasstype.code == 'AR' %} selected="selected" {% endif %}>[{{ dcclasstype.code }}]&nbsp;&nbsp;&nbsp;{{ dcclasstype.description }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.dcclasstype.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-3 {{ form.dcsubtype.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_dcsubtype">DC Subtype</label>
-                                    <select class="form-control input-sm" id="id_dcsubtype" name="dcsubtype">
-                                        <option value="">-- Select --</option>
-                                    </select>
-                                    <span class="help-block form-error">{{ form.dcsubtype.errors.as_text }}</span>
+                                <div class="row col-md-12">
+                                    <div class="form-group col-sm-2">
+                                        <label class="control-label" for="id_dcnum">Number</label>
+                                        <input type="text" class="form-control input-sm" id="id_dcnum" name="dcnum" placeholder="DCxxxxxxx" value="{{ form.dcnum.value|default:'' }}" readonly="readonly">
+                                        <span class="help-block form-error">{{ form.dcnum.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-2">
+                                        <label class="control-label" for="id_dcdate">DC Date</label>
+                                        <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_dcdate" name="dcdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.dcdate.value %}{{ form.dcdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                        <span class="help-block form-error">{{ form.dcdate.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-2 {{ form.dctype.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_dctype">DC Type</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_dctype" name="dctype">
+                                            {% for id,name in form.fields.dctype.choices %}
+                                                <option value="{{ id }}"{% if form.dctype.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}[{{ id }}]&nbsp;&nbsp;{{ name }}{% endifequal %}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.dctype.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-3 {{ form.dcclasstype.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_dcclasstype">DC Class Type</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_dcclasstype" name="dcclasstype">
+                                            {% for dcclasstype in dcclasstype %}
+                                                <option value="{{ dcclasstype.id }}" data-item="{{ dcclasstype.code }}" {% if form.dcclasstype.value|add:"0" == dcclasstype.id %} selected="selected" {% elif dcclasstype.code == 'AR' %} selected="selected" {% endif %}>[{{ dcclasstype.code }}]&nbsp;&nbsp;&nbsp;{{ dcclasstype.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.dcclasstype.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-3 {{ form.dcsubtype.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_dcsubtype">DC Subtype</label>
+                                        <select class="form-control input-sm" id="id_dcsubtype" name="dcsubtype">
+                                            <option value="">-- Select --</option>
+                                        </select>
+                                        <span class="help-block form-error">{{ form.dcsubtype.errors.as_text }}</span>
+                                    </div>
                                 </div>
                                 <div class="row col-md-12">
                                     <div id="dc_item_employee" class="dc_item form-group col-sm-4 {{ form.employee.errors|yesno:'has-error,' }}">
@@ -156,11 +158,35 @@
                                         <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                                     </div>
                                 </div>
-                                <div class="form-group col-sm-5">
-                                    <label class="control-label" for="id_particulars">Particulars</label>
-                                    <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
-                                              rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
-                                    <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                                <div class="row form-group col-sm-12">
+                                    <div class="form-group col-sm-3 {{ form.currency.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_currency">Currency</label>
+                                        <select class="form-control input-sm" data-validation="required" id="id_currency" name="currency">
+                                            <option value="">-- Select --</option>
+                                            {% for currency in currency %}
+                                                <option value="{{ currency.id }}" data-rate="{{ currency.fxrate|floatformat:2 }}" {% if form.currency.value|add:0 == currency.id %} selected="selected" {% elif currency.symbol == 'PHP' %} selected="selected" {% endif %}>[{{ currency.symbol }}]&nbsp;&nbsp;&nbsp;{{ currency.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-1 {{ form.fxrate.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_fxrate">FX Rate</label>
+                                        <input type="text" class="form-control input-sm amount text-right" id="id_fxrate" name="fxrate"
+                                               data-validation="required" value="{{ form.fxrate.value|floatformat:2 }}">
+                                        <span class="help-block form-error">{{ form.fxrate.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-4 {{ form.particulars.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_particulars">Particulars</label>
+                                        <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" style="resize: vertical;"
+                                                  rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                        <span class="help-block form-error">{{ form.particulars.errors.as_text }}</span>
+                                    </div>
+                                    <div class="form-group col-sm-4 {{ form.remarks.errors|yesno:'has-error,' }}">
+                                        <label class="control-label" for="id_particulars">Remarks</label>
+                                        <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_remarks" name="remarks" style="resize: vertical;"
+                                                  rows="2" data-validation="required">{{ form.remarks.value|default:'' }}</textarea>
+                                        <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -290,6 +316,12 @@
 
             $('#id_dcclasstype').change(function () {
                 showDcsubtypeitem();
+            });
+
+            $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
+
+            $("#id_currency").change(function(){
+                $('#id_fxrate').val($('#id_currency option:selected').attr('data-rate'));
             });
 
             function showDcsubtypeitem(){

@@ -12,7 +12,7 @@
     </td>
 </tr>
 <tr>
-    {% if temp.accountnumber or temp.departmentname or temp.employeecode or temp.suppliercode or temp.customercode or temp.unitcode or temp.branchcode or temp.productcode or temp.inputvatcode or temp.outputvatcode or temp.vatcode or temp.wtaxcode or temp.ataxcode %}
+    {% if temp.accountnumber or temp.departmentname or temp.employeecode or temp.suppliercode or temp.customercode or temp.unitcode or temp.branchcode or temp.productcode or temp.inputvatcode or temp.outputvatcode or temp.vatcode or temp.wtaxcode or temp.ataxcode or temp.reftype or temp.refnum or temp.refdate %}
         <td colspan="3" style="padding: 0px;">
             <table class="table" id="breaktabledata">
                 <tr>
@@ -79,6 +79,15 @@
                     {% endif %}
                     {% if temp.ataxcode %}
                     <td style="vertical-align: top"><small><b>ATax</b></small><br>{{ temp.ataxname|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.reftype %}
+                    <td style="vertical-align: top"><small><b>Ref. Type</b></small><br>{{ temp.reftype|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.refnum %}
+                    <td style="vertical-align: top"><small><b>Ref. Num.</b></small><br>{{ temp.refnum|default:'' }}</td>
+                    {% endif %}
+                    {% if temp.refdate %}
+                    <td style="vertical-align: top"><small><b>Ref. Date</b></small><br>{{ temp.refdate|default:'' }}</td>
                     {% endif %}
                     <td></td>
                 </tr>

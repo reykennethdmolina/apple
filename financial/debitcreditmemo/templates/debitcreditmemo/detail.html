@@ -60,23 +60,23 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-70"><b>DC&nbsp;Class&nbsp;Type</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-7">[{{ object.dcclasstype.code }}]&nbsp;&nbsp;{{ object.dcclasstype.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>{% if object.customer %}Customer{% elif object.supplier %}Supplier{% elif object.employee %}Employee{% elif object.department %}Department{% elif object.bankaccount %}Bank&nbsp;Account{% elif object.inventory %}Inventory{% endif %}</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">[{{ object.payee_code }}]&nbsp;&nbsp;{{ object.payee_name }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
                                             <span class="text-info row col-md-2 margin-right-70"><b>DC&nbsp;Subtype</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
                                             <span class="row col-md-7">[{{ object.dcsubtype.code }}]&nbsp;&nbsp;{{ object.dcsubtype.description }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-info row col-md-1 margin-right-60"><b>Customer</b></span>
-                                            <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-8">[{{ object.customer_code }}]&nbsp;&nbsp;{{ object.customer_name }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <div class="first-name-profile">
-                                            <span class="text-info row col-md-2 margin-right-70"><b>DC&nbsp;AR&nbsp;Type</b></span>
-                                            <span class="text-info row col-md-3"><b>: </b></span>
-                                            <span class="row col-md-7">[{{ object.dcartype.code }}]&nbsp;&nbsp;{{ object.dcartype.description }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -109,11 +109,32 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
+                                            <span class="text-info row col-md-1 margin-right-60"><b>Currency</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-8">[{{ object.currency.symbol }}]&nbsp;&nbsp;{{ object.currency.description }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-70"><b>FX&nbsp;Rate</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-7">{{ object.fxrate|floatformat:2|intcomma }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
                                             <span class="text-info row col-md-1 margin-right-60"><b>Status</b></span>
                                             <span class="text-info row col-md-3"><b>: </b></span>
                                             <span class="{% if object.status == 'A' %} text-success
                                                          {% else %} text-danger
                                                          {% endif %} row col-md-8"><b>{{ object.get_status_display }}</b></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-info row col-md-2 margin-right-70"><b>Remarks</b></span>
+                                            <span class="text-info row col-md-3"><b>: </b></span>
+                                            <span class="row col-md-7">{{ object.remarks }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -147,14 +168,14 @@
                                     </div>
                                     <div class="master-degree">
                                         <div class="iconlist">
-                                            {% if perms.debitcreditmemo.change_jvmain and object.isdeleted == 0 %}
+                                            {% if perms.debitcreditmemo.change_dcmain and object.isdeleted == 0 %}
                                                 <a href="{% url 'debitcreditmemo:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_pencil" aria-hidden="true"></i>
                                                     </button>
                                                 </a>
                                             {% endif %}
-                                            {% if perms.debitcreditmemo.delete_jvmain and object.dcstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                                            {% if perms.debitcreditmemo.delete_dcmain and object.dcstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                                                 <a href="{% url 'debitcreditmemo:delete' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-danger btn-sm waves-effect waves-float waves-light">
                                                         <i class="icon_trash" aria-hidden="true"></i>

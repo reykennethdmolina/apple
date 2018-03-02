@@ -96,6 +96,8 @@
                         <div class="form-group col-sm-2 padding-top-30">
                             <span class="label label-primary" style="font-size: 13px;">MANUAL</span>
                         </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="col-md-12"><hr></div>
                         <div class="form-group col-sm-2 {{ form.prnum.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prnum">PR #</label>
@@ -117,6 +119,8 @@
                             </select>
                             <span class="help-block form-error">{{ form.adtype.errors.as_text }}</span>
                         </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="col-md-12"><hr></div>
                         <!--------------------------------------------------------------------------------------------->
 
@@ -167,6 +171,8 @@
                             <select class="form-control input-sm" id="id_agent" name="agent" style="width: 100%"></select>
                             <span class="help-block form-error">{{ form.agent.errors.as_text }}</span>
                         </div>
+                    </div>
+                    <div class="col-sm-12">
                         <!------------REQUIRE THE VISIBLE PAYEE TYPE--------------------------------------------->
                         <div class="col-md-12"><hr></div>
                         <!--------------------------------------------------------------------------------------------->
@@ -260,7 +266,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12"><hr></div>
+                    <div class="col-sm-12">
+                        <div class="col-md-12"><hr></div>
+                    </div>
                     <!--------------------------------------------------------------------------------------------->
                     <div class="col-md-12">
                         <div class="form-group col-sm-4 {{ form.circulationproduct.errors|yesno:'has-error,' }}">
@@ -292,6 +300,8 @@
                             </select>
                             <span class="help-block form-error">{{ form.government.errors.as_text }}</span>
                         </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="form-group col-sm-6 {{ form.particulars.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_particulars">Particulars</label>
                             <textarea id="id_particulars" class="form-control input-sm" data-validation="required" name="particulars" rows="2">{{ form.particulars.value|default:'' }}</textarea>
@@ -318,6 +328,8 @@
                             <textarea id="id_remarks" class="form-control input-sm" name="remarks" rows="2">{{ form.remarks.value|default:'' }}</textarea>
                             <span class="help-block form-error">{{ form.remarks.errors.as_text }}</span>
                         </div>
+                    </div>
+                    <div class="col-sm-12">
                         <div class="col-md-12"></div>
                         <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
                             <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
@@ -326,7 +338,7 @@
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
 {#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
                         </div>
-
+                    
                         <!-- Accounting entry start -->
                         <div class="col-sm-12" id="entryview" style="display: none">
                             <div class="panel panel-bordered">

@@ -6,6 +6,7 @@ from django.utils.decorators import method_decorator
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
 from ataxcode.models import Ataxcode
+from bankaccount.models import Bankaccount
 from branch.models import Branch
 from companyparameter.models import Companyparameter
 from creditterm.models import Creditterm
@@ -13,7 +14,11 @@ from currency.models import Currency
 from customer.models import Customer
 from dcclasstype.models import Dcclasstype
 from debitcreditmemosubtype.models import Debitcreditmemosubtype
+from department.models import Department
+from employee.models import Employee
+from inventoryitem.models import Inventoryitem
 from outputvattype.models import Outputvattype
+from supplier.models import Supplier
 from vat.models import Vat
 from . models import Dcmain, Dcdetail, Dcdetailbreakdown, Dcdetailtemp, Dcdetailbreakdowntemp
 from django.contrib.auth.models import User
@@ -49,7 +54,9 @@ class IndexView(AjaxListView):
         context = super(AjaxListView, self).get_context_data(**kwargs)
 
         # data for lookup
-        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['dcclasstype'] = Dcclasstype.objects.filter(isdeleted=0).order_by('code')
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).exclude(dcclasstype=None).\
+            order_by('pk')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
@@ -63,8 +70,8 @@ class IndexView(AjaxListView):
 class CreateView(CreateView):
     model = Dcmain
     template_name = 'debitcreditmemo/create.html'
-    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
-              'particulars']
+    fields = ['dcdate', 'dctype', 'dcclasstype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype',
+              'particulars', 'currency', 'fxrate', 'remarks']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('debitcreditmemo.add_dcmain'):
@@ -73,13 +80,15 @@ class CreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
-        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).exclude(dcclasstype=None). \
+            order_by('pk')
         context['dcclasstype'] = Dcclasstype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['pk'] = 0
         context['secretkey'] = generatekey(self)
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
 
         return context
 
@@ -110,8 +119,34 @@ class CreateView(CreateView):
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
 
-        self.object.customer_code = self.object.customer.code
-        self.object.customer_name = self.object.customer.name
+        if self.object.dcclasstype.code == 'AR' or self.object.dcclasstype.code == 'NR':
+            self.object.customer = Customer.objects.filter(pk=int(self.request.POST['customer']), isdeleted=0).first()
+            self.object.payee_code = self.object.customer.code
+            self.object.payee_name = self.object.customer.name
+        elif self.object.dcclasstype.code == 'NP':
+            self.object.supplier = Supplier.objects.filter(pk=int(self.request.POST['supplier']), isdeleted=0).first()
+            self.object.payee_code = self.object.supplier.code
+            self.object.payee_name = self.object.supplier.name
+        elif self.object.dcclasstype.code == 'AO':
+            self.object.employee = Employee.objects.filter(pk=int(self.request.POST['employee']), isdeleted=0).first()
+            self.object.payee_code = self.object.employee.code
+            self.object.payee_name = self.object.employee.firstname + ' ' + self.object.employee.lastname
+        elif self.object.dcclasstype.code == 'EX':
+            self.object.department = Department.objects.filter(pk=int(self.request.POST['department']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.department.code
+            self.object.payee_name = self.object.department.departmentname
+        elif self.object.dcclasstype.code == 'CB':
+            self.object.bankaccount = Bankaccount.objects.filter(pk=int(self.request.POST['department']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.bankaccount.code
+            self.object.payee_name = self.object.bankaccount.accountnumber
+        elif self.object.dcclasstype.code == 'IN':
+            self.object.inventory = Inventoryitem.objects.filter(pk=int(self.request.POST['inventory']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.inventory.code
+            self.object.payee_name = self.object.inventory.description
+
         self.object.vatrate = self.object.vat.rate
         self.object.save()
 
@@ -157,8 +192,8 @@ class DetailView(DetailView):
 class UpdateView(UpdateView):
     model = Dcmain
     template_name = 'debitcreditmemo/update.html'
-    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype', 'customer',
-              'particulars']
+    fields = ['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'branch', 'outputvattype',
+              'particulars', 'dcclasstype', 'currency', 'fxrate', 'remarks']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -194,6 +229,9 @@ class UpdateView(UpdateView):
             detail.vat = drow.vat_id
             detail.wtax = drow.wtax_id
             detail.ataxcode = drow.ataxcode_id
+            detail.reftype = drow.reftype
+            detail.refnum = drow.refnum
+            detail.refdate = drow.refdate
             detail.debitamount = drow.debitamount
             detail.creditamount = drow.creditamount
             detail.balancecode = drow.balancecode
@@ -253,17 +291,42 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).order_by('pk')
+        context['dcsubtype'] = Debitcreditmemosubtype.objects.filter(isdeleted=0).exclude(dcclasstype=None). \
+            order_by('pk')
+        context['dcclasstype'] = Dcclasstype.objects.filter(isdeleted=0).order_by('code')
         context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['pk'] = self.object.pk
         context['secretkey'] = generatekey(self)
+        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
 
+        context['dcnum'] = self.object.dcnum
+
+        if self.request.POST.get('employee', False):
+            context['employee'] = Employee.objects.get(pk=self.request.POST['employee'], isdeleted=0)
+        elif self.object.employee:
+            context['employee'] = Employee.objects.get(pk=self.object.employee.id, isdeleted=0)
         if self.request.POST.get('customer', False):
             context['customer'] = Customer.objects.get(pk=self.request.POST['customer'], isdeleted=0)
         elif self.object.customer:
             context['customer'] = Customer.objects.get(pk=self.object.customer.id, isdeleted=0)
+        if self.request.POST.get('bankaccount', False):
+            context['bankaccount'] = Bankaccount.objects.get(pk=self.request.POST['bankaccount'], isdeleted=0)
+        elif self.object.bankaccount:
+            context['bankaccount'] = Bankaccount.objects.get(pk=self.object.bankaccount.id, isdeleted=0)
+        if self.request.POST.get('department', False):
+            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
+        elif self.object.department:
+            context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
+        if self.request.POST.get('inventory', False):
+            context['inventory'] = Inventoryitem.objects.get(pk=self.request.POST['inventory'], isdeleted=0)
+        elif self.object.inventory:
+            context['inventory'] = Inventoryitem.objects.get(pk=self.object.inventory.id, isdeleted=0)
+        if self.request.POST.get('supplier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supplier'], isdeleted=0)
+        elif self.object.supplier:
+            context['supplier'] = Supplier.objects.get(pk=self.object.supplier.id, isdeleted=0)
 
         # accounting entry starts here
         context['secretkey'] = self.mysecretkey
@@ -284,12 +347,69 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.vatrate = self.object.vat.rate
-        self.object.customer_code = self.object.customer.code
-        self.object.customer_name = self.object.customer.name
 
-        self.object.save(update_fields=['dcdate', 'dctype', 'dcsubtype', 'particulars', 'vat', 'vatrate',
-                                        'branch', 'outputvattype', 'customer', 'customer_code', 'customer_name',
-                                        'particulars', 'modifyby', 'modifydate'])
+        if self.object.dcclasstype.code == 'AR' or self.object.dcclasstype.code == 'NR':
+            self.object.customer = Customer.objects.filter(pk=int(self.request.POST['customer']), isdeleted=0).first()
+            self.object.payee_code = self.object.customer.code
+            self.object.payee_name = self.object.customer.name
+            self.object.supplier = None
+            self.object.employee = None
+            self.object.department = None
+            self.object.bankaccount = None
+            self.object.inventory = None
+        elif self.object.dcclasstype.code == 'NP':
+            self.object.supplier = Supplier.objects.filter(pk=int(self.request.POST['supplier']), isdeleted=0).first()
+            self.object.payee_code = self.object.supplier.code
+            self.object.payee_name = self.object.supplier.name
+            self.object.customer = None
+            self.object.employee = None
+            self.object.department = None
+            self.object.bankaccount = None
+            self.object.inventory = None
+        elif self.object.dcclasstype.code == 'AO':
+            self.object.employee = Employee.objects.filter(pk=int(self.request.POST['employee']), isdeleted=0).first()
+            self.object.payee_code = self.object.employee.code
+            self.object.payee_name = self.object.employee.firstname + ' ' + self.object.employee.lastname
+            self.object.customer = None
+            self.object.supplier = None
+            self.object.department = None
+            self.object.bankaccount = None
+            self.object.inventory = None
+        elif self.object.dcclasstype.code == 'EX':
+            self.object.department = Department.objects.filter(pk=int(self.request.POST['department']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.department.code
+            self.object.payee_name = self.object.department.departmentname
+            self.object.customer = None
+            self.object.employee = None
+            self.object.supplier = None
+            self.object.bankaccount = None
+            self.object.inventory = None
+        elif self.object.dcclasstype.code == 'CB':
+            self.object.bankaccount = Bankaccount.objects.filter(pk=int(self.request.POST['department']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.bankaccount.code
+            self.object.payee_name = self.object.bankaccount.accountnumber
+            self.object.customer = None
+            self.object.employee = None
+            self.object.department = None
+            self.object.supplier = None
+            self.object.inventory = None
+        elif self.object.dcclasstype.code == 'IN':
+            self.object.inventory = Inventoryitem.objects.filter(pk=int(self.request.POST['inventory']), isdeleted=0).\
+                first()
+            self.object.payee_code = self.object.inventory.code
+            self.object.payee_name = self.object.inventory.description
+            self.object.customer = None
+            self.object.employee = None
+            self.object.department = None
+            self.object.bankaccount = None
+            self.object.supplier = None
+
+        self.object.save(update_fields=['dcdate', 'dctype', 'dcclasstype', 'dcsubtype', 'particulars', 'vat', 'vatrate',
+                                        'branch', 'outputvattype', 'currency', 'fxrate', 'remarks', 'modifyby',
+                                        'modifydate', 'customer', 'supplier', 'employee', 'department', 'bankaccount',
+                                        'inventory', 'payee_code', 'payee_name'])
 
         # accounting entry starts here..
         source = 'dcdetailtemp'

@@ -128,6 +128,25 @@
                 </select>
             </div>
         </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_reftype">
+            <label class="col-sm-3 control-label" for="id_detail_reftype">Ref. Type</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control input-sm" id="detail_reftype" name="detail_reftype">
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_refnum">
+            <label class="col-sm-3 control-label" for="id_detail_refnum">Ref. Num.</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control input-sm" id="detail_refnum" name="detail_refnum">
+            </div>
+        </div>
+        <div class="col-lg-12 form-group hide" id="v_detail_refdate">
+            <label class="col-sm-3 control-label" for="id_detail_refdate">Ref. Date</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
+                       style="padding: 5px 10px" id="detail_refdate" name="detail_refdate" placeholder="YYYY-MM-DD">
+            </div>
+        </div>
         <div class="col-lg-12 form-group">
             <div class="col-lg-6">
                 <label class="col-sm-6 control-label" for="detail_debitamount">Debit Amount</label>
@@ -215,6 +234,9 @@
                            'vat': $("#detail_vat").val(),
                            'wtax': $("#detail_wtax").val(),
                            'ataxcode': $("#detail_ataxcode").val(),
+                           'reftype': $("#detail_reftype").val(),
+                           'refnum': $("#detail_refnum").val(),
+                           'refdate': $("#detail_refdate").val(),
                            'creditamount': $("#detail_creditamount").val(),
                            'debitamount': $("#detail_debitamount").val(),
                     },
@@ -280,6 +302,9 @@
                            'vat': $("#detail_vat").val(),
                            'wtax': $("#detail_wtax").val(),
                            'ataxcode': $("#detail_ataxcode").val(),
+                           'reftype': $("#detail_reftype").val(),
+                           'refnum': $("#detail_refnum").val(),
+                           'refdate': $("#detail_refdate").val(),
                            'creditamount': $("#detail_creditamount").val(),
                            'debitamount': $("#detail_debitamount").val(),
                     },
@@ -360,6 +385,9 @@
                     $("#detail_vat").val(info[0].vat);
                     $("#detail_wtax").val(info[0].wtax);
                     $("#detail_ataxcode").val(info[0].ataxcode);
+                    $("#detail_reftype").val(info[0].reftype);
+                    $("#detail_refnum").val(info[0].refnum);
+                    $("#detail_refdate").val(info[0].refdate);
                     $("#detail_creditamount").val(info[0].creditamountformatted);
                     $("#detail_debitamount").val(info[0].debitamountformatted);
 
@@ -432,6 +460,15 @@
                     $("#v_detail_ataxcode").addClass('hide');
                     $("#detail_ataxcode").removeAttr('required');
                     $("#detail_ataxcode").prop("selectedIndex", 0);
+                    $("#v_detail_reftype").addClass('hide');
+                    $("#detail_reftype").removeAttr('required');
+                    $("#detail_reftype").val('');
+                    $("#v_detail_refnum").addClass('hide');
+                    $("#detail_refnum").removeAttr('required');
+                    $("#detail_refnum").val('');
+                    $("#v_detail_refdate").addClass('hide');
+                    $("#detail_refdate").removeAttr('required');
+                    $("#detail_refdate").val('');
                     $("#detail_creditamount").val("0.00");
                     $("#detail_debitamount").val("0.00");
 
@@ -517,6 +554,21 @@
                                     $("#detail_ataxcode").attr('required', 'required');
                                 }
 
+                                if (window.location.pathname.match("^/debitcreditmemo/")){
+                                    if (chartdata[0].fields['reftype_enable'] == 'Y') {
+                                        $("#v_detail_reftype").removeClass('hide');
+                                        $("#detail_reftype").attr('required', 'required');
+                                    }
+                                    if (chartdata[0].fields['refnum_enable'] == 'Y') {
+                                        $("#v_detail_refnum").removeClass('hide');
+                                        $("#detail_refnum").attr('required', 'required');
+                                    }
+                                    if (chartdata[0].fields['refdate_enable'] == 'Y') {
+                                        $("#v_detail_refdate").removeClass('hide');
+                                        $("#detail_refdate").attr('required', 'required');
+                                    }
+                                }
+
 
                                 if (unitselect == 1) {
                                     unit = response.unit;
@@ -562,6 +614,9 @@
             $("#detail_vat").val("");
             $("#detail_wtax").val("");
             $("#detail_ataxcode").val("");
+            $("#detail_reftype").val("");
+            $("#detail_refnum").val("");
+            $("#detail_refdate").val("");
             $("#detail_creditamount").val("0.00");
             $("#detail_debitamount").val("0.00");
         });
@@ -645,6 +700,8 @@
 </style>
 {% block extra_js %}
     {% load static %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
 {% endblock extra_js %}
