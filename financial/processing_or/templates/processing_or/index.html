@@ -199,7 +199,13 @@
                                                 <td><i class="small">** Total of <b id="upload_total2"></b> items passed (<b id="upload_rate2"></b>). **</i></td>
                                                 <td id="final_debit" class="small" align="right"></td>
                                                 <td id="final_credit" class="small" align="right"></td>
-                                                <td id="final_unbalanced" class="small text-danger" align="right"></td>
+                                                <td align="right">
+                                                    <a href="{% url 'generaljournalbook:index' %}?rep_f_datefrom=&rep_f_dateto=&rep_f_reporttype=ub&rep_f_transactiontype=or"
+                                                       class="small text-danger"
+                                                       id="final_unbalanced"
+                                                       target="_blank"
+                                                    ></a>
+                                                </td>
                                             </tr>
                                         </table>
                                         <br>
