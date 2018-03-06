@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
+        .flexiform{
+            display: none;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -16,55 +19,59 @@
         <div class="panel panel-bordered">
             <div class="panel-body">
                 <form method="get">
-                    <div class="form-group col-sm-3">
-                        <label class="control-label small">Date</label><br>
-                        <div class="input-daterange datarange">
-                            <div class="input-group">
-                                <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control input-sm datepickerfrom" id="rep_f_datefrom" name="rep_f_datefrom" value="{{ rep_f_datefrom }}">
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-addon input-sm">to</span>
-                                <input type="text" class="form-control input-sm datepickerto" id="rep_f_dateto" name="rep_f_dateto" value="{{ rep_f_dateto }}">
+                    <div class="row">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm select2" id="rep_f_reporttype" name="rep_f_reporttype">
+                                {% for data in reporttype_select %}
+                                    <option {% if rep_f_reporttype == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Transaction Type</label>
+                            <select class="form-control input-sm select2" id="rep_f_transactiontype" name="rep_f_transactiontype">
+                                {% for data in transactiontype_select %}
+                                    <option {% if rep_f_transactiontype == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="rep_f_datefrom" name="rep_f_datefrom" value="{{ rep_f_datefrom }}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="rep_f_dateto" name="rep_f_dateto" value="{{ rep_f_dateto }}">
+                                </div>
                             </div>
                         </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Order By</label>
+                            <div><select class="form-control select2 input-sm rep_f_order" name="rep_f_order_ub[]" multiple="multiple" style="width: 100%" id="rep_f_order_ub">
+                                {% for data in orderby.0 %}
+                                    <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                {% endfor %}
+                            </select></div>
+                            <div><select class="form-control select2 input-sm rep_f_order" name="rep_f_order_custom[]" multiple="multiple" style="width: 100%" id="rep_f_order_custom">
+                                {% for data in orderby.1 %}
+                                    <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                {% endfor %}
+                            </select></div>
+                        </div>
                     </div>
-                    <div class="form-group col-sm-2">
-                        <label class="control-label small">Report Type</label>
-                        <select class="form-control input-sm select2" id="rep_f_reporttype" name="rep_f_reporttype">
-                            {% for data in reporttype_select %}
-                                <option {% if rep_f_reporttype == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label class="control-label small">Transaction Type</label>
-                        <select class="form-control input-sm select2" id="rep_f_transactiontype" name="rep_f_transactiontype">
-                            {% for data in transactiontype_select %}
-                                <option {% if rep_f_transactiontype == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group col-sm-4">
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-{#                    show hide#}
-                        <label class="control-label small">Order By</label>
-                        <select class="form-control select2 input-sm rep_f_order" name="rep_f_order_ub[]" multiple="multiple" style="width: 100%" id="rep_f_order_ub">
-                            {% for data in orderby.0 %}
-                                <option value="{{ data.0 }}">{{ data.1 }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="row">
+                        <div class="form-group col-sm-3 flexiform custom">
+                            <label class="control-label small">Group By</label>
+                            <select class="form-control input-sm select2" id="rep_f_groupby" name="rep_f_groupby" style="width: 100%;">
+                                {% for data in groupby_select %}
+                                    <option {% if rep_f_groupby == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-1">
                         <br>
@@ -76,7 +83,30 @@
         <div class="panel panel-bordered">
             <div class="panel-body">
                 <table class="table small">
-                    {% if rep_f_reporttype == 'ub' %}
+                    {% if rep_f_reporttype == 'custom' %}
+                        <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Date</th>
+                            <th class="text-right">Debit</th>
+                            <th class="text-right">Credit</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% for data in data %}
+                            <tr>
+                                <td>{{ data.t_num }}</td>
+                                <td>{{ data.t_date|date:'Y-m-d' }}</td>
+                                <td align="right">{{ data.debit|floatformat:2|intcomma }}</td>
+                                <td align="right">{{ data.credit|floatformat:2|intcomma }}</td>
+                                <td align="center">
+                                    <a href="{% url datalink_detail data.t_id %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{% url datalink_update data.t_id %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% elif rep_f_reporttype == 'ub' %}
                         <thead>
                         <tr>
                             <th>No.</th>
@@ -119,6 +149,8 @@
     $(function(){
         $('.select2').select2({});
 
+        verifyReportType();
+
         $(".rep_f_order").on("select2:select", function (evt) {
             var element = evt.params.data.element;
             var $element = $(element);
@@ -126,17 +158,30 @@
             $element.detach();
             $(this).append($element);
             $(this).trigger("change");
-            alert(evt.params.data.element)
+        });
+
+        $('#rep_f_reporttype').on('change', function(){
+            verifyReportType();
         });
 
         // config order by
         stringorder = '{{ rep_f_order }}'.split(',');
         for(var i = 0; i<stringorder.length; i++){
             $('#rep_f_order_{{ rep_f_reporttype }} option[value="' + stringorder[i] + '"]').prop('selected', true);
-            $('#rep_f_order_{{ rep_f_reporttype }}').trigger('change').select2();
+            element = $('#rep_f_order_{{ rep_f_reporttype }} option[value="' + stringorder[i] + '"]');
+            element.detach();
+            $('#rep_f_order_{{ rep_f_reporttype }}').append(element);
+            $('#rep_f_order_{{ rep_f_reporttype }}').select2();
         }
 
-{#        $('#rep_f_order_{{ rep_f_reporttype }}').val('{{ rep_f_order }}'.split(',')).select2();#}
+        // check report type
+        function verifyReportType(){
+            $('.rep_f_order').parent().hide();
+            $('#rep_f_order_' + $('#rep_f_reporttype').val()).parent().show();
+
+            $('.flexiform').hide();
+            $('.' + $('#rep_f_reporttype').val()).show();
+        }
     });
 </script>
 {% endblock extra_js %}

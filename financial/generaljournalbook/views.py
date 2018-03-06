@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.apps import apps
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 
 
 # transaction keys
@@ -16,10 +16,23 @@ transactiontype = {
 transactiontype_select = [['or', 'Official Receipt'],
                           ['jv', 'Journal Voucher'],
                           ['cv', 'Check Voucher'], ]
-reporttype_select = [['ub', 'Unbalanced']]
+reporttype_select = [['custom', 'Customized'],
+                     ['ub', 'Unbalanced Accounting Entry']]
+groupby_select = [['t_id', 'Inquiry No.'],
+                  ['t_date', 'Date'],
+                  ['t_status', 'Inquiry Status'],
+                  ['vat', 'VAT'],
+                  ['branch', 'Branch']]
 
 # order by keys
-orderby = [[['t_id', 'Inquiry No.'], ['t_date', 'Date'], ['debit', 'Debit'], ['credit', 'Credit']]]
+orderby = [[['t_id', 'Inquiry No.'],
+            ['t_date', 'Date'],
+            ['-debit', 'Debit'],
+            ['-credit', 'Credit']],
+           [['t_id', 'Inquiry No.'],
+            ['t_date', 'Date'],
+            ['-debit', 'Debit'],
+            ['-credit', 'Credit']]]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -30,6 +43,7 @@ class IndexView(TemplateView):
         context = super(TemplateView, self).get_context_data(**kwargs)
         context['transactiontype_select'] = transactiontype_select
         context['reporttype_select'] = reporttype_select
+        context['groupby_select'] = groupby_select
         context['orderby'] = orderby
 
         return context
@@ -46,7 +60,7 @@ class IndexView(TemplateView):
             initialdetail = transactiontype[self.request.GET['rep_f_transactiontype']][2]
 
             # report type
-            if self.request.GET['rep_f_reporttype'] == 'ub':
+            if self.request.GET['rep_f_reporttype'] == 'custom':
                 initialquery = apps.get_model(initialapp, initialdetail).objects.all()
 
                 # universal filters
@@ -56,32 +70,51 @@ class IndexView(TemplateView):
                     initialquery = initialquery.annotate(t_date=F(initial+'main__'+initial+'date')).filter(t_date__lte=self.request.GET['rep_f_dateto'])
 
                 initialquery = initialquery \
-                    .extra(select={'t_id': initialmain.lower()+'_id', 't_num': initial+'_num'}) \
-                    .annotate(debit=Sum('debitamount'), credit=Sum('creditamount')).order_by(initial+'_num') \
-                    .values('t_id', 't_num', 'debit', 'credit') \
-                    .exclude(debit=F('credit')) \
-                    .annotate(margin=F('debit')-F('credit'), t_date=F(initial+'main__'+initial+'date'))
+                    .annotate(t_date=F(initial + 'main__' + initial + 'date'),
+                              t_status=F(initial + 'main__' + initial + 'status'),
+                              t_id=F(initialmain.lower() + '_id'),
+                              t_num=F(initial + '_num'),
+                              debit=Sum('debitamount'),
+                              credit=Sum('creditamount')).order_by(initial + '_num') \
+                    .values('t_id', 't_num', 't_date', 't_status', 'debit', 'credit') \
 
-                '''
-                query
-                    static named fields
-                    annotate sum
-                    generated values
-                    exclude
-                    primary key source fields or new field name from first annotate
-                '''
+                if self.request.GET.getlist('rep_f_order_custom[]'):
+                    initialquery = initialquery.order_by(*self.request.GET.getlist('rep_f_order_custom[]'))
+
+                context['data'] = initialquery
+                context['rep_f_order'] = ','.join(map(str, self.request.GET.getlist('rep_f_order_custom[]')))
+
+            elif self.request.GET['rep_f_reporttype'] == 'ub':
+                initialquery = apps.get_model(initialapp, initialdetail).objects.all()
+
+                # universal filters
+                if self.request.GET['rep_f_datefrom']:
+                    initialquery = initialquery.annotate(t_date=F(initial+'main__'+initial+'date')).filter(t_date__gte=self.request.GET['rep_f_datefrom'])
+                if self.request.GET['rep_f_dateto']:
+                    initialquery = initialquery.annotate(t_date=F(initial+'main__'+initial+'date')).filter(t_date__lte=self.request.GET['rep_f_dateto'])
+
+                initialquery = initialquery \
+                    .annotate(t_date=F(initial+'main__'+initial+'date'),
+                              t_status=F(initial + 'main__' + initial + 'status'),
+                              t_id=F(initialmain.lower() + '_id'),
+                              t_num=F(initial + '_num'),
+                              debit=Sum('debitamount'),
+                              credit=Sum('creditamount')).order_by(initial+'_num') \
+                    .values('t_id', 't_num', 't_date', 't_status', 'debit', 'credit') \
+                    .annotate(margin=F('debit')-F('credit')) \
+                    .exclude(debit=F('credit')) \
 
                 if self.request.GET.getlist('rep_f_order_ub[]'):
                     initialquery = initialquery.order_by(*self.request.GET.getlist('rep_f_order_ub[]'))
 
                 context['data'] = initialquery
+                context['rep_f_order'] = ','.join(map(str, self.request.GET.getlist('rep_f_order_ub[]')))
 
             # return GET
             context['rep_f_datefrom'] = self.request.GET['rep_f_datefrom']
             context['rep_f_dateto'] = self.request.GET['rep_f_dateto']
             context['rep_f_reporttype'] = self.request.GET['rep_f_reporttype']
             context['rep_f_transactiontype'] = self.request.GET['rep_f_transactiontype']
-            context['rep_f_order'] = ','.join(map(str, self.request.GET.getlist('rep_f_order_ub[]')))
 
             # links
             context['datalink_update'] = initialapp + ':update'
