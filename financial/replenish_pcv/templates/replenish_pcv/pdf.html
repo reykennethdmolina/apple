@@ -11,23 +11,23 @@
             size: {{ pagesize }} {{ orientation }};
             @frame header_frame {
                 -pdf-frame-content: header_content;
-                left: 1cm;
-                width: 19.5cm;
-                top: 1cm;
+                left: 0.25cm;
+                width: 21cm;
+                top: 0.5cm;
                 height: 2cm;
             }
             @frame content_frame {
-                left: 1cm;
-                width: 19.5cm;
+                left: 0.25cm;
+                width: 21cm;
                 top: 2.5cm;
-                height: 21cm;
+                height: 21.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
-                left: 1cm;
-                width: 19.5cm;
-                top: 23cm;
-                height: 5cm;
+                left: 0.25cm;
+                width: 21cm;
+                top: 22cm;
+                height: 7.5cm;
             }
         }
         body{
@@ -53,8 +53,8 @@
         .sign_here{
             width: 165px;
             border-bottom: 1px solid black;
-            padding-bottom: -5px;
-            margin-bottom: -5px;
+            padding-bottom: -3px;
+            margin-bottom: -3px;
         }
         .item{
             font-size: 9px;
@@ -80,44 +80,95 @@
 
 <div id="footer_content">
     <table>
-    <tr style="border-top: 2px solid black;padding: 5px; padding-bottom: 0px;">
-        <td width="20%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
-        <td width="5%"><b>:</b></td>
-        <td align="center" style="margin-right: 20px;">
-            <div class="sign_here">{{ reppcvmain.enterby.first_name }}&nbsp;{{ reppcvmain.enterby.last_name }}</div>
-        </td>
-        <td width="20%">&nbsp;</td>
-        <td width="5%">&nbsp;</td>
-        <td align="center" style="margin-right: 20px;border-right: 2px solid black;">&nbsp;</td>
-    </tr>
-    <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
-        <td width="20%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
-        <td width="5%"><b>:</b></td>
-        <td align="center" style="margin-right: 20px;">
-            <div class="sign_here">{{ reppcvmain.enterdate|date:'Y-m-d' }}</div>
-        </td>
-        <td width="20%">&nbsp;</td>
-        <td width="5%">&nbsp;</td>
-        <td align="center" style="margin-right: 20px;border-right: 2px solid black;">&nbsp;</td>
-    </tr>
-</table>
+        <tr style="border-top: 2px solid black;border-left: 2px solid black;padding: 5px; padding-bottom: 0px;">
+            <td colspan="9" style="border-right: 2px solid black;"></td>
+        </tr>
+        <tr style="padding: 5px; padding-bottom: 0px;">
+            <td width="10%" style="border-left: 2px solid black;font-size: 8px;"><b>Prepared by</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;">
+                <div class="sign_here">
+                    {% if reppcvmain.initialapproverresponse %}
+                        SGD
+                    {% endif %}
+                    {{ reppcvmain.enterby.first_name }}&nbsp;{{ reppcvmain.enterby.last_name }}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="10%" style="font-size: 8px;"><b>Noted by</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;">
+                <div class="sign_here">
+                    {% if reppcvmain.initialapprover and reppcvmain.initialapproverresponse == 'A' %}
+                        SGD {{ reppcvmain.initialapprover.first_name }}&nbsp;{{ reppcvmain.initialapprover.last_name }}
+                    {% else %}
+                        {{ reppcvmain.initialapprover.first_name }}&nbsp;{{ reppcvmain.initialapprover.last_name }}
+                    {% endif %}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+            <td width="10%" style="font-size: 8px;"><b>Approved by</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if reppcvmain.finalapprover and reppcvmain.finalapproverresponse == 'A' %}
+                        SGD {{ reppcvmain.finalapprover.first_name }}&nbsp;{{ reppcvmain.finalapprover.last_name }}
+                    {% else %}
+                        {{ reppcvmain.finalapprover.first_name }}&nbsp;{{ reppcvmain.finalapprover.last_name }}
+                    {% endif %}
+                </div>
+                <i>Signature over printed name</i>
+            </td>
+        </tr>
+        <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
+            <td width="10%" style="border-left: 2px solid black;font-size: 8px;"><b>Date prepared</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;">
+                <div class="sign_here">{{ reppcvmain.enterdate|date:'Y-m-d' }}</div>
+            </td>
+            <td width="10%" style="font-size: 8px;"><b>Date noted</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;">
+                <div class="sign_here">
+                    {% if reppcvmain.initialapprover and reppcvmain.initialapproverresponse == 'A' %}
+                        {{ reppcvmain.initialapproverresponsedate|date:'Y-m-d' }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </div>
+            </td>
+            <td width="10%" style="font-size: 8px;"><b>Date approved</b></td>
+            <td width="2%"><b>:</b></td>
+            <td align="center" style="margin-right: 5px;border-right: 2px solid black;">
+                <div class="sign_here">
+                    {% if reppcvmain.finalapprover and reppcvmain.finalapproverresponse == 'A' %}
+                        {{ reppcvmain.finalapproverresponsedate|date:'Y-m-d' }}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
     <table class="arial" style="font-size: 8.4px; margin-top: 10px;">
         <tr>
             <td>
-                {{ parameter.report_footer1 }} {{ request.user }}<br>
-                {{ parameter.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ parameter.report_footer1 }}<br>
+                {{ parameter.report_footer2 }}<br>
                 {{ parameter.report_footer3 }}<br>
                 {{ parameter.report_footer4 }}<br>
                 <b>{{ parameter.report_footer5 }}</b><br>
-                <b>{{ parameter.report_footer6 }}</b>
+                <b>{{ parameter.report_footer6 }}</b><br>
+                {{ parameter.report_footer7 }}{{ request.user }} on {% now 'Y-m-d' %}
             </td>
             <td style="margin-left: 30px;width: 600px;">
-                {{ parameter.report_footer7 }}<br>
                 {{ parameter.report_footer8 }}<br>
                 {{ parameter.report_footer9 }}<br>
                 {{ parameter.report_footer10 }}<br>
                 {{ parameter.report_footer11 }}<br>
-                {{ parameter.report_footer12 }}
+                {{ parameter.report_footer12 }}<br>
+                {{ parameter.report_footer13 }}<br>
+                {{ parameter.report_footer14 }}
             </td>
         </tr>
     </table>
