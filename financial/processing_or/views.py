@@ -9,6 +9,7 @@ from ortype.models import Ortype
 from collector.models import Collector
 from branch.models import Branch
 from vat.models import Vat
+from wtax.models import Wtax
 from bankaccount.models import Bankaccount
 from chartofaccount.models import Chartofaccount
 from customer.models import Customer
@@ -772,6 +773,7 @@ def exportsave(request):
                         circulationproduct_name=Circulationproduct.objects.get(code=temp_ormain.productcode).description,
                         wtaxrate=float(temp_ormain.wtaxrate),
                         wtaxamount=temp_ormain.totalwtax,
+                        wtax=Wtax.objects.filter(rate=int(temp_ormain.wtaxrate)).order_by('code').first(),   # conflict if wtax codes have same rates
                         importby=request.user,
                         importornum=temp_ormain.orno,
                         importdate=temp_ormain.importdate,
