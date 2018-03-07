@@ -47,9 +47,16 @@
                         </button>
                     </div>
                     <div class="btn-group pull-right padding-right-10">
-                        <button class="btn btn-info small" data-toggle='modal' data-target='#repRFVModal'>
-                            Import Revolving Fund Replenishment
+                        <button type="button" style="line-height: 0.5px;" class="btn btn-sm btn-info waves-effect waves-light"><i class="icon fa-download" aria-hidden="true"></i>&nbsp; Import</button>
+                        <button type="button" style="line-height: 0.5px;" class="btn btn-sm btn-info dropdown-toggle waves-effect waves-light" id="ColorDropdown3" data-toggle="dropdown" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Info</span>
                         </button>
+                        <ul class="dropdown-menu dropdown-menu-info" style="font-size: 12px;" aria-labelledby="ColorDropdown3" role="menu">
+                            <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=potoapv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Purchase Order</a></li>
+                            <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=apvtoapv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Accounts Payable Voucher</a></li>
+                            {% if perms.accountspayable.add_apmain %}<li><a data-toggle='modal' data-target='#repRFVModal' class="waves-effect waves-light padding-bottom-5 padding-top-5">Revolving Fund Replenishment</a></li>{% endif %}
+                        </ul>
                     </div>
                 </h3>
                 <div class="panel-body" id="ap_panel">
