@@ -42,12 +42,12 @@ class Cvmain(models.Model):
     branch = models.ForeignKey('branch.Branch', related_name='cvmain_branch_id', default='5')
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='cvmain_bankaccount_id', null=True, blank=True)
     disbursingbranch = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
-                                         related_name='cvmain_bankbranchdisburse_id')
+                                         related_name='cvmain_bankbranchdisburse_id', null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)
     amountinwords = models.CharField(max_length=500, null=True, blank=True)
     particulars = models.TextField()
     refnum = models.CharField(max_length=150, null=True, blank=True)
-    designatedapprover = models.ForeignKey(User, default=2, related_name='cvmain_designated_approver')
+    designatedapprover = models.ForeignKey(User, related_name='cvmain_designated_approver', null=True, blank=True)
     actualapprover = models.ForeignKey(User, related_name='cvmain_actual_approver', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),

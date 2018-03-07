@@ -5,7 +5,7 @@ from django.db import models
 # Create your models here.
 
 
-class Poapvtransaction(models.Model):
+class Poapvtransaction(models.Model):  # can also be Pocvtransaction
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -16,8 +16,9 @@ class Poapvtransaction(models.Model):
 
     pomain = models.ForeignKey('purchaseorder.Pomain', related_name='pomain_poapvtransaction')
     podetail = models.ForeignKey('purchaseorder.Podetail', related_name='podetail_poapvtransaction')
-    apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_poapvtransaction')
-    apamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+    apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_poapvtransaction', null=True, blank=True)
+    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_poapvtransaction', null=True, blank=True)
+    apamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)  # can also be cvamount
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
     class Meta:
@@ -34,7 +35,7 @@ class Poapvtransaction(models.Model):
         return self.pomain
 
 
-class Poapvdetailtemp(models.Model):
+class Poapvdetailtemp(models.Model):  # can also be Pocvdetailtemp
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -46,7 +47,7 @@ class Poapvdetailtemp(models.Model):
     item_counter = models.IntegerField()
     sort_num = models.IntegerField()
     secretkey = models.CharField(max_length=255, null=True, blank=True)
-    apmain = models.CharField(max_length=10, null=True, blank=True)
+    apmain = models.CharField(max_length=10, null=True, blank=True)  # can also be cvmain
     ap_num = models.CharField(max_length=10)
     ap_date = models.DateTimeField(blank=True, null=True)
     chartofaccount = models.IntegerField(blank=True, null=True)
@@ -96,7 +97,9 @@ class Apvcvtransaction(models.Model):
     )
 
     apmain = models.ForeignKey('accountspayable.Apmain', related_name='apmain_apvcvtransaction')
-    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_apvcvtransaction')
+    cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='cvmain_apvcvtransaction', null=True, blank=True)
+    new_apmain = models.ForeignKey('accountspayable.Apmain', related_name='new_apmain_apvcvtransaction', null=True,
+                                   blank=True)
     cvamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 

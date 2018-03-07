@@ -121,8 +121,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['secretkey'] = generatekey(self)
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
         context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=None).order_by('enterdate')
         # data for lookup
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('pk')
@@ -299,8 +298,7 @@ class UpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
         context['savedcvsubtype'] = Cvmain.objects.get(pk=self.object.id).cvsubtype.code
         # context['payee'] = Cvmain.objects.get(pk=self.object.id).payee.id if Cvmain.objects.get(
         #     pk=self.object.id).payee is not None else ''

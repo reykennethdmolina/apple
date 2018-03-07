@@ -38,7 +38,9 @@
                                 <select class="form-control form-material input-sm" id="id_selectprocess" name="selectprocess">
                                     <option value="">-- Select --</option>
                                     <option value="potoapv" {% if selectprocess == 'potoapv' %}selected="selected"{% endif %} >Purchase Order to Accounts Payable Voucher (PO to APV)</option>
+                                    <option value="potocv" {% if selectprocess == 'potocv' %}selected="selected"{% endif %} >Purchase Order to Check Voucher (PO to CV)</option>
                                     <option value="apvtocv" {% if selectprocess == 'apvtocv' %}selected="selected"{% endif %} >Accounts Payable Voucher to Check Voucher (APV to CV)</option>
+                                    <option value="apvtoapv" {% if selectprocess == 'apvtoapv' %}selected="selected"{% endif %} >Accounts Payable Voucher to Accounts Payable Voucher (APV to APV)</option>
                                 </select><br><br>
                             </div>
                             <div class="col-md-3 select_holder" id="datefrom_holder">
@@ -69,7 +71,7 @@
                                 <table class="table table-hover small" id="items_table">
                                     <thead>
                                         <tr>
-                                            {% if selectprocess == 'apvtocv' %}
+                                            {% if selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                 <th>
                                                     <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
                                                         <input type="checkbox" id="checkbox0" class="item-check-all"
@@ -77,11 +79,11 @@
                                                         <label for="checkbox0"><b>Number</b></label>
                                                     </div>
                                                 </th>
-                                            {% elif selectprocess == 'potoapv' %}
+                                            {% elif selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                 <th><span>Number</span></th>
                                             {% endif %}
                                             <th><span>Date</span></th>
-                                            {% if selectprocess == 'potoapv' %}
+                                            {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                 <th>
                                                     <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
                                                         <input type="checkbox" id="checkbox0" class="item-check-all"
@@ -101,7 +103,7 @@
                                         {% for data in data_list %}
                                         <tr id="tr_{{ data.pk }}">
                                             <td>
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {% ifchanged data.pomain.ponum %}
                                                         <a href="{% url 'purchaseorder:detail' data.pomain.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                             PO #{{ data.pomain.ponum }}
@@ -113,7 +115,7 @@
                                                             }
                                                         </style>
                                                     {% endifchanged %}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
                                                         <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
                                                                name="trans_checkbox" value="{{ data.id }}">
@@ -126,16 +128,16 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {% ifchanged data.pomain.ponum %}
                                                         {{ data.pomain.podate|date:"Y-m-d" }}
                                                     {% endifchanged %}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     {{ data.apdate|date:"Y-m-d" }}
                                                 {% endif %}
                                             </td>
                                             <td class="po-item-apv-supplier">
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
                                                         <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
                                                                name="trans_checkbox" value="{{ data.id }}">
@@ -143,45 +145,45 @@
                                                             {{ data.invitem_name }}
                                                         </label>
                                                     </div>
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     {{ data.payee.name }}
                                                 {% endif %}
                                             </td>
                                             <td class="po-supplier-apv-vat">
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {{ data.pomain.supplier_name }}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     {{ data.vat.description }}
                                                 {% endif %}
                                             </td>
                                             <td class="po-vat-apv-inputvattype">
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {{ data.vat.description }}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     {{ data.inputvattype.description }}
                                                 {% endif %}
                                             </td>
-                                            <td class="po-inputvattype-apv-amount" {% if selectprocess == 'apvtocv' %}style="text-align: right;"{% endif %}>
-                                                {% if selectprocess == 'potoapv' %}
+                                            <td class="po-inputvattype-apv-amount" {% if selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}style="text-align: right;"{% endif %}>
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {{ data.inputvattype.description }}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     {{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}
                                                 {% endif %}
                                             </td>
                                             <td style="text-align: right;" class="po-amount-apv-actual-amount">
-                                                {% if selectprocess == 'potoapv' %}
+                                                {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}
-                                                {% elif selectprocess == 'apvtocv' %}
+                                                {% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}
                                                     <input type="text" name="temp_actualamount" style="width: 120px; margin-right: -50px;" disabled="disabled"
                                                        class="form-control input-sm text-right input-amount
-                                                       po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
+                                                       po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
                                                 {% endif %}
                                             </td>
-                                            {% if selectprocess == 'potoapv' %}
+                                            {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                 <td align="right" class="po-actual-amount">
                                                     <input type="text" name="temp_actualamount" style="width: 120px;" disabled="disabled"
                                                            class="form-control input-sm amount text-right input-amount
-                                                           po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
+                                                           po_dynamic" maxlength="26" value="{% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}{{ data.netamount|sub:data.apvtotalamount|floatformat:2|intcomma }}{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}{{ data.amount|sub:data.cvamount|floatformat:2|intcomma }}{% endif %}">
                                                 </td>
                                             {% endif %}
                                         </tr>
@@ -189,8 +191,8 @@
                                     </tbody>
                                     <thead>
                                         <tr>
-                                            <th class="text-right" {% if selectprocess == 'potoapv' %}colspan="7"{% elif selectprocess == 'apvtocv' %}colspan="6"{% endif %} style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
-                                            <th class="text-right" id="totalamount" style="border-bottom: none; {% if selectprocess == 'potoapv' %}padding-right:19px;{% elif selectprocess == 'apvtocv' %}padding-right:25px;{% endif %}"><b>0.00</b></th>
+                                            <th class="text-right" {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}colspan="7"{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}colspan="6"{% endif %} style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
+                                            <th class="text-right" id="totalamount" style="border-bottom: none; {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}padding-right:19px;{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}padding-right:10px;{% endif %}"><b>0.00</b></th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -270,11 +272,11 @@
             var allVats = new Array();
 
             $('.item-check:checked').each(function() {
-                if($('#id_selectprocess').val() == 'potoapv') {
+                if($('#id_selectprocess').val() == 'potoapv' || $('#id_selectprocess').val() == 'potocv') {
                     allSuppliers.push($(this).parent().parent().parent().find('.po-supplier-apv-vat').text().trim());
                     allVats.push($(this).parent().parent().parent().find('.po-vat-apv-inputvattype').text().trim());
                 }
-                else if($('#id_selectprocess').val() == 'apvtocv') {
+                else if($('#id_selectprocess').val() == 'apvtocv' || $('#id_selectprocess').val() == 'apvtoapv') {
                     allSuppliers.push($(this).parent().parent().parent().find('.po-item-apv-supplier').text().trim());
                     allVats.push($(this).parent().parent().parent().find('.po-supplier-apv-vat').text().trim());
                 }
@@ -301,6 +303,24 @@
                 }
                 else if($('#id_selectprocess').val() == 'apvtocv'){
                     if(confirm("Are you sure you would like to import the selected APVs to a CV?")){
+                        $("#form-importdata").submit();
+                    }
+                    else {
+                        event.preventDefault();
+                        valid = false;
+                    }
+                }
+                else if($('#id_selectprocess').val() == 'potocv'){
+                    if(confirm("Are you sure you would like to import the selected POs to a CV?")){
+                        $("#form-importdata").submit();
+                    }
+                    else {
+                        event.preventDefault();
+                        valid = false;
+                    }
+                }
+                else if($('#id_selectprocess').val() == 'apvtoapv'){
+                    if(confirm("Are you sure you would like to import the selected APVs to another APV?")){
                         $("#form-importdata").submit();
                     }
                     else {
@@ -344,7 +364,7 @@
 
         $(document).on('change', '.input-amount', function(){
             var amountToCheck;
-            amountToCheck = ($('#id_selectprocess').val() == 'potoapv') ? '.po-amount-apv-actual-amount' : ($('#id_selectprocess').val() == 'apvtocv') ? '.po-inputvattype-apv-amount' : '';
+            amountToCheck = ($('#id_selectprocess').val() == 'potoapv' || $('#id_selectprocess').val() == 'potocv') ? '.po-amount-apv-actual-amount' : ($('#id_selectprocess').val() == 'apvtocv' || $('#id_selectprocess').val() == 'apvtoapv') ? '.po-inputvattype-apv-amount' : '';
             if(Number($(this).val().replace( /,/g, "")) > Number($(this).parent().parent().find(amountToCheck).text().replace( /,/g, ""))){
                 $(this).val($(this).parent().parent().find(amountToCheck).text());
                 $(this).focus();
@@ -362,11 +382,11 @@
             $('.item-check:checkbox:checked').each(function() {
                 sum += Number($(this).parent().parent().parent().find('.input-amount').val().replace( /,/g, ""));
                 $(this).parent().parent().parent().find('.input-amount').prop('disabled', false);
-                if($('#id_selectprocess').val() == 'apvtocv'){
+                if($('#id_selectprocess').val() == 'apvtocv' || $('#id_selectprocess').val() == 'apvtoapv'){
                     $(this).parent().parent().parent().find('.input-amount').css('background', 'white');
                     $(this).parent().parent().parent().find('.input-amount').prop('readonly', true);
                 }
-                else if($('#id_selectprocess').val() == 'potoapv'){
+                else if($('#id_selectprocess').val() == 'potoapv' || $('#id_selectprocess').val() == 'potocv'){
                     $(this).parent().parent().parent().find('.input-amount').prop('readonly', false);
                 }
             });
