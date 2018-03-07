@@ -20,7 +20,7 @@
             <div class="panel-body">
                 <form method="get">
                     <div class="row">
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-4">
                             <label class="control-label small">Report Type</label>
                             <select class="form-control input-sm select2" id="rep_f_reporttype" name="rep_f_reporttype">
                                 {% for data in reporttype_select %}
@@ -28,15 +28,15 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-2">
+                        <div class="form-group col-sm-4">
                             <label class="control-label small">Transaction Type</label>
-                            <select class="form-control input-sm select2" id="rep_f_transactiontype" name="rep_f_transactiontype">
+                            <select class="form-control select2 input-sm rep_f_transactiontype" name="rep_f_transactiontype[]" multiple="multiple" style="width: 100%" id="rep_f_transactiontype">
                                 {% for data in transactiontype_select %}
-                                    <option {% if rep_f_transactiontype == data.0 %}selected{% endif %} value="{{ data.0 }}">{{ data.1 }}</option>
+                                    <option value="{{ data.0 }}">{{ data.0.upper }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-4">
                             <label class="control-label small">Date</label><br>
                             <div class="input-daterange datarange">
                                 <div class="input-group">
@@ -49,7 +49,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group col-sm-4">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-5">
                             <label class="control-label small">Order By</label>
                             <div><select class="form-control select2 input-sm rep_f_order" name="rep_f_order_ub[]" multiple="multiple" style="width: 100%" id="rep_f_order_ub">
                                 {% for data in orderby.0 %}
@@ -62,8 +64,13 @@
                                 {% endfor %}
                             </select></div>
                         </div>
-                    </div>
-                    <div class="row">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Order Type</label>
+                            <select class="form-control input-sm" id="rep_f_ordertype" name="rep_f_ordertype" style="width: 100%;">
+                                <option {% if rep_f_ordertype == 'asc' %}selected{% endif %} value="asc">A - Z</option>
+                                <option {% if rep_f_ordertype == 'desc' %}selected{% endif %} value="desc">Z - A</option>
+                            </select>
+                        </div>
                         <div class="form-group col-sm-3 flexiform custom">
                             <label class="control-label small">Group By</label>
                             <select class="form-control input-sm select2" id="rep_f_groupby" name="rep_f_groupby" style="width: 100%;">
@@ -72,6 +79,149 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Result Type</label>
+                            <select class="form-control input-sm" id="rep_f_resulttype" name="rep_f_resulttype" style="width: 100%;">
+                                <option {% if rep_f_resulttype == 'summary' %}selected{% endif %} value="summary">Summary</option>
+                                <option {% if rep_f_resulttype == 'detailed' %}selected{% endif %} value="detailed">Detailed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row flexiform custom">
+{#                        <br>#}
+{#                        <div class="col-md-4"></div>#}
+{#                        <div class="form-group col-sm-4">#}
+{#                            <label class="control-label small">Chart of Account</label>#}
+{#                            <select class="form-control input-sm" id="rep_f_chart" name="rep_f_chart" style="width: 100%;">#}
+{#                            </select>#}
+{#                        </div>#}
+{#                        <div class="col-md-4"></div>#}
+{#                        <div class="col-md-12"></div>#}
+{#                        <div class="col-sm-4 form-group" id="v_detail_bankaccount">#}
+{#                            <label class="control-label small">Bank Account</label>#}
+{#                            <select class="form-control input-sm" id="detail_bankaccount" name="detail_bankaccount">#}
+{#                                <option value="">-- Select Bank Account --</option>#}
+{#                            </select>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_department">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_department">Department</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" style="width: 100%" id="detail_department" name="detail_department"></select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_employee">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_employee">Employee</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" style="width: 100%" id="detail_employee" name="detail_employee"></select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_supplier">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_supplier">Supplier</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" style="width: 100%" id="detail_supplier" name="detail_supplier"></select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_customer">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_customer">Customer</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" style="width: 100%" id="detail_customer" name="detail_customer"></select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_unit">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_unit">Unit</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_unit" name="detail_unit">#}
+{#                                    <option value="">-- Select Unit --</option>#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_branch">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_branch">Branch</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_branch" name="detail_branch">#}
+{#                                <option value="">-- Select Branch --</option>#}
+{#                                {% for branch in branch %}#}
+{#                                    <option value="{{ branch.id }}">{{ branch.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_product">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_product">Product</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_product" name="detail_product">#}
+{#                                <option value="">-- Select Product --</option>#}
+{#                                {% for product in product %}#}
+{#                                    <option value="{{ product.id }}">{{ product.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_inputvat">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_inputvat">Input VAT</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_inputvat" name="detail_inputvat">#}
+{#                                <option value="">-- Select Input VAT --</option>#}
+{#                                {% for inputvat in inputvat %}#}
+{#                                    <option value="{{ inputvat.id }}">{{ inputvat.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_outputvat">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_outputvat">Output VAT</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_outputvat" name="detail_outputvat">#}
+{#                                <option value="">-- Select Output VAT --</option>#}
+{#                                {% for outputvat in outputvat %}#}
+{#                                    <option value="{{ outputvat.id }}">{{ outputvat.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_vat">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_vat">VAT</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_vat" name="detail_vat">#}
+{#                                <option value="">-- Select VAT --</option>#}
+{#                                {% for vat in vat %}#}
+{#                                    <option value="{{ vat.id }}">{{ vat.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_wtax">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_wtax">WTAX</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_wtax" name="detail_wtax">#}
+{#                                <option value="">-- Select WTAX --</option>#}
+{#                                {% for wtax in wtax %}#}
+{#                                    <option value="{{ wtax.id }}">{{ wtax.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="col-lg-12 form-group hide" id="v_detail_ataxcode">#}
+{#                            <label class="col-sm-3 control-label" for="id_detail_ataxcode">ATAX Code</label>#}
+{#                            <div class="col-sm-9">#}
+{#                                <select class="form-control input-sm" id="detail_ataxcode" name="detail_ataxcode">#}
+{#                                <option value="">-- Select ATAX Code --</option>#}
+{#                                {% for ataxcode in ataxcode %}#}
+{#                                    <option value="{{ ataxcode.id }}">{{ ataxcode.description }}</option>#}
+{#                                {% endfor %}#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+
+
+
+
+
+
+
+
+
+
                     </div>
                     <div class="col-md-1">
                         <br>
@@ -84,28 +234,138 @@
             <div class="panel-body">
                 <table class="table small">
                     {% if rep_f_reporttype == 'custom' %}
-                        <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Date</th>
-                            <th class="text-right">Debit</th>
-                            <th class="text-right">Credit</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        {% for data in data %}
+                        {% if rep_f_resulttype == 'summary' %}
+                            <thead>
                             <tr>
-                                <td>{{ data.t_num }}</td>
-                                <td>{{ data.t_date|date:'Y-m-d' }}</td>
-                                <td align="right">{{ data.debit|floatformat:2|intcomma }}</td>
-                                <td align="right">{{ data.credit|floatformat:2|intcomma }}</td>
-                                <td align="center">
-                                    <a href="{% url datalink_detail data.t_id %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{% url datalink_update data.t_id %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
-                                </td>
+                                {% if rep_f_groupby == 'num' %}
+                                    <th>No.</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'date' %}
+                                    <th>Date</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'branchcode' %}
+                                    <th>Branch</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'datastatus' %}
+                                    <th style="text-align: center">Status</th>
+                                {% endif %}
+                                {% if rep_f_groupby != 'num' %}
+                                    <th style="text-align: center">Inquiry</th>
+                                {% endif %}
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                                <th></th>
                             </tr>
-                        {% endfor %}
+                            </thead>
+                            {% for data in data %}
+                                <tr>
+                                    {% if rep_f_groupby == 'num' %}
+                                        <td>{{ data.num.upper }}</td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'date' %}
+                                        <td>{{ data.date|date:'Y-m-d' }}</td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'branchcode' %}
+                                        <td>{{ data.branchcode }} - {{ data.branchdescription }}</td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'datastatus' %}
+                                        <td align="center">{{ data.datastatus }}</td>
+                                    {% endif %}
+                                    {% if rep_f_groupby != 'num' %}
+                                        <td align="center">{{ data.numcount }}</td>
+                                    {% endif %}
+                                    <td align="right">{{ data.debitamount|floatformat:2|intcomma }}</td>
+                                    <td align="right">{{ data.creditamount|floatformat:2|intcomma }}</td>
+                                    <td align="center">
+                                        <a href="{% url data.datalink_detail data.dataid %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{% url data.datalink_update data.dataid %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% elif rep_f_resulttype == 'detailed' %}
+                            <thead>
+                            <tr>
+                                {% if rep_f_groupby == 'num' %}
+                                    <th>No.</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'date' %}
+                                    <th>Date</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'branchcode' %}
+                                    <th>Branch</th>
+                                {% endif %}
+                                {% if rep_f_groupby == 'num' or rep_f_groupby == 'datastatus' %}
+                                    <th style="text-align: center">Status</th>
+                                {% endif %}
+                                {% if rep_f_groupby != 'num' %}
+                                    <th style="text-align: center">Inquiry</th>
+                                {% endif %}
+                                <th class="text-right">Debit</th>
+                                <th class="text-right">Credit</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            {% for data in data %}
+                                {% ifchanged data.num %}
+                                    <script>
+                                        datanum = $('.dataitem').last().data('num');
+                                        debittotal = 0;
+                                        credittotal = 0;
+                                        $.each($("tr[data-num="+datanum+"]"), function(){
+                                            debittotal = debittotal + parseFloat($(this).find('.debitamount').text().replace(/,/g, ''));
+                                        });
+                                        $.each($("tr[data-num="+datanum+"]"), function(){
+                                            credittotal = credittotal + parseFloat($(this).find('.creditamount').text().replace(/,/g, ''));
+                                        });
+                                        $("tr[data-num="+datanum+"]").last().parent()
+                                            .append("<tr class='warning'><td colspan='4' align='right'><b>Total</b></td>" +
+                                                "<td align='right'><b>" + debittotal.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + "</b></td>" +
+                                                "<td align='right'><b>" + credittotal.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + "</b></td><td></td></tr>");
+                                    </script>
+                                {% endifchanged %}
+                                <tr class="dataitem" data-num="{{ data.num }}">
+                                    {% if rep_f_groupby == 'num' %}
+                                        <td>
+                                            {% ifchanged data.num %}
+                                                {{ data.num.upper }}
+                                            {% endifchanged %}
+                                        </td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'date' %}
+                                        <td>
+                                            {% ifchanged data.num %}
+                                                {{ data.date|date:'Y-m-d' }}
+                                            {% endifchanged %}
+                                        </td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'branchcode' %}
+                                        <td>
+                                            {% ifchanged data.num %}
+                                                {{ data.branchcode }}
+                                            {% endifchanged %}
+                                        </td>
+                                    {% endif %}
+                                    {% if rep_f_groupby == 'num' or rep_f_groupby == 'datastatus' %}
+                                        <td align="center">
+                                            {% ifchanged data.num %}
+                                                {{ data.datastatus }}
+                                            {% endifchanged %}
+                                        </td>
+                                    {% endif %}
+                                    {% if rep_f_groupby != 'num' %}
+                                        <td align="center">{{ data.numcount }}</td>
+                                    {% endif %}
+                                    <td align="right" class="debitamount">{{ data.debitamount|floatformat:2|intcomma }}</td>
+                                    <td align="right" class="creditamount">{{ data.creditamount|floatformat:2|intcomma }}</td>
+                                    <td align="center">
+                                        <a href="{% url data.datalink_detail data.dataid %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{% url data.datalink_update data.dataid %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                     {% elif rep_f_reporttype == 'ub' %}
                         <thead>
                         <tr>
@@ -119,15 +379,15 @@
                         </thead>
                         {% for data in data %}
                             <tr>
-                                <td>{{ data.t_num }}</td>
-                                <td>{{ data.t_date|date:'Y-m-d' }}</td>
-                                <td align="right">{{ data.debit|floatformat:2|intcomma }}</td>
-                                <td align="right">{{ data.credit|floatformat:2|intcomma }}</td>
+                                <td>{{ data.num.upper }}</td>
+                                <td>{{ data.date|date:'Y-m-d' }}</td>
+                                <td align="right">{{ data.debitamount|floatformat:2|intcomma }}</td>
+                                <td align="right">{{ data.creditamount|floatformat:2|intcomma }}</td>
                                 <td align="right" class="text-danger">{{ data.margin|floatformat:2|intcomma }}</td>
                                 <td align="center">
-                                    <a href="{% url datalink_detail data.t_id %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
+                                    <a href="{% url data.datalink_detail data.dataid %}" target="_blank"><i class="icon fa-search" aria-hidden="true"></i></a>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="{% url datalink_update data.t_id %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
+                                    <a href="{% url data.datalink_update data.dataid %}" target="_blank"><i class="icon fa-pencil-square-o" aria-hidden="true"></i></a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -148,10 +408,20 @@
 <script>
     $(function(){
         $('.select2').select2({});
+        ajaxselect2("chartofaccount", "rep_f_chart");
 
         verifyReportType();
 
         $(".rep_f_order").on("select2:select", function (evt) {
+            var element = evt.params.data.element;
+            var $element = $(element);
+
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
+        });
+
+        $("#rep_f_transactiontype").on("select2:select", function (evt) {
             var element = evt.params.data.element;
             var $element = $(element);
 
@@ -172,6 +442,16 @@
             element.detach();
             $('#rep_f_order_{{ rep_f_reporttype }}').append(element);
             $('#rep_f_order_{{ rep_f_reporttype }}').select2();
+        }
+
+        // config transaction type
+        stringtrans = '{{ rep_f_transactiontype }}'.split(',');
+        for(var i = 0; i<stringtrans.length; i++){
+            $('#rep_f_transactiontype option[value="' + stringtrans[i] + '"]').prop('selected', true);
+            element = $('#rep_f_transactiontype option[value="' + stringtrans[i] + '"]');
+            element.detach();
+            $('#rep_f_transactiontype').append(element);
+            $('#rep_f_transactiontype').select2();
         }
 
         // check report type
