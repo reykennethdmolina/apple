@@ -1,0 +1,83 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Report Dashboard {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <style>
+        .price-list a{
+            display: block;
+        }
+        .price-list li {
+            text-align: left;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                <div class="col-lg-3 col-sm-6 col-xs-12">
+                    <div class="price-list">
+                        <div class="price-header">
+                            <div class="price-title bg-grey-600">
+                                <div class="small"><small>TRANSACTION FILE</small></div>
+                            </div>
+                        </div>
+                        <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'accountspayable:report' %}" target="_blank">Accounts Payable Voucher</a></li>
+                            <li class="small"><a href="{% url 'canvasssheet:report' %}" target="_blank">Canvass Sheet</a></li>
+                            <li class="small"><a href="{% url 'checkvoucher:report' %}" target="_blank">Check Voucher</a></li>
+                            <li class="small"><a href="{% url 'debitcreditmemo:report' %}" target="_blank">Debit/Credit Memo</a></li>
+                            <li class="small"><a href="{% url 'journalvoucher:report' %}" target="_blank">Journal Voucher</a></li>
+                            <li class="small"><a href="{% url 'officialreceipt:report' %}" target="_blank">Official Receipt</a></li>
+                            <li class="small"><a href="{% url 'operationalfund:report' %}" target="_blank">Operational Fund</a></li>
+                            <li class="small"><a href="{% url 'replenish_pcv:report' %}" target="_blank">Petty Cash Replenishment</a></li>
+                            <li class="small"><a href="{% url 'purchaseorder:report' %}" target="_blank">Purchase Order</a></li>
+                            <li class="small"><a href="{% url 'purchaserequisitionform:report' %}" target="_blank">Purchase Requisition Form</a></li>
+                            <li class="small"><a href="{% url 'requisitionform:report' %}" target="_blank">Requisition Form</a></li>
+                            <li class="small"><a href="{% url 'replenish_rfv:report' %}" target="_blank">Revolving Fund Replenishment</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-xs-12">
+                    <div class="price-list">
+                        <div class="price-header">
+                            <div class="price-title bg-grey-600">
+                                <div class="small"><small>GENERAL LEDGER</small></div>
+                            </div>
+                        </div>
+                        <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'rep_generalledger:cashdisbursementbook' %}" target="_blank">Cash Disbursement Book</a></li>
+                            <li class="small"><a href="{% url 'rep_generalledger:cashreceiptsbook' %}" target="_blank">Cash Receipts Book</a></li>
+                            <li class="small"><a href="{% url 'rep_generalledger:generaljournalbook' %}" target="_blank">General Journal Book</a></li>
+                            <li class="small"><a href="{% url 'cashdisbursement:index' %}" target="_blank">Cash in Bank Balances</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-xs-12">
+                    <div class="price-list">
+                        <div class="price-header">
+                            <div class="price-title bg-grey-600">
+                                <div class="small"><small>MASTER FILE</small></div>
+                            </div>
+                        </div>
+                        <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'rep_chartofaccount:index' %}" target="_blank">Chart of Account</a></li>
+                            <li class="small"><a href="{% url 'rep_customer:index' %}" target="_blank">Customer</a></li>
+                            <li class="small"><a href="{% url 'rep_department:index' %}" target="_blank">Department</a></li>
+                            <li class="small"><a href="{% url 'rep_supplier:index' %}" target="_blank">Supplier</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+{% endblock extra_js %}

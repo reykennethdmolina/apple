@@ -1,0 +1,169 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Cash Disbursement Book {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        #resulttable th{
+            min-width: 150px;
+        }
+        #resulttable td{
+            border: none !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="rep_datefrom" name="rep_datefrom" value="{{ rep_datefrom }}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="rep_dateto" name="rep_dateto" value="{{ rep_dateto }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Result Type</label>
+                            <select class="form-control input-sm" id="rep_type" name="rep_type" style="width: 100%;">
+                                <option {% if rep_type == 'd' %}selected{% endif %} value="d">Detailed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <br>
+                            <button type="submit" class="btn btn-info btn-sm">Generate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-bordered">
+            <div class="panel-body" style="overflow: auto; width: 100%">
+                <div style="position: absolute; right: 0; padding-right: 30px;">Run date: {% now "Y-m-d" %}</div>
+                <p>
+                    <b>CASH DISBURSEMENT BOOK({% if rep_type == 'd' %}Detailed{% endif %} Entries)</b><br>
+                    For the period of {{ rep_datefrom|default:'(start of time)' }} to {{ rep_dateto|default:'(current date)' }}
+                <p><br>
+
+                <table id="resulttable" class="table table-condensed table-hover small">
+                    {% if rep_type == 'd' %}
+                        <thead>
+                        <tr>
+                            <th style="min-width: 100px">Date</th>
+                            <th style="min-width: 100px">Number</th>
+                            <th style="min-width: 300px;">Payee</th>
+                            <th style="min-width: 300px;">Particulars</th>
+                            <th style="text-align:center; min-width: 100px;">Bank Code</th>
+                            <th>Check No.</th>
+                            <th style="text-align: right;">Amount</th>
+                            <th style="min-width: 100px">Account No.</th>
+                            <th style="min-width: 200px">Account Title</th>
+                            <th style="min-width: 300px;">Account Particulars</th>
+                            <th style="text-align: right">Debit</th>
+                            <th style="text-align: right">Credit</th>
+                            <th style="min-width: 50px;"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for data in query %}
+                            <tr>
+                                <td>{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.cvdate|date:'Y-m-d' }}{% endifchanged %}</td>
+                                <td>{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.cvnum }}{% endifchanged %}</td>
+                                <td>{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.payee_name }}{% endifchanged %}</td>
+                                <td>{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.particular }}{% endifchanged %}</td>
+                                <td align="center">{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.bankaccount.code }}{% endifchanged %}</td>
+                                <td>{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.checknum }}{% endifchanged %}</td>
+                                <td align="right">{% ifchanged data.cvmain.cvnum %}{{ data.cvmain.amount|floatformat:2|intcomma }}{% endifchanged %}</td>
+                                <td>{{ data.chartofaccount.accountcode }}</td>
+                                <td style="border-right: 1px solid black">{{ data.chartofaccount.title }}</td>
+                                <td>
+                                    <table>
+                                        <tr>
+                                            {% if data.bankaccount.accountnumber %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>Bank Acct. No. {{ data.bankaccount.accountnumber }}</td>
+                                            {% endif %}
+                                            {% if data.department.departmentname %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>
+                                            {% endif %}
+                                            {% if data.employee.firstname %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.employee.firstname %}{% else %}{% endifchanged %}>{{ data.employee.firstname }} {{ data.employee.lastname }}</td>
+                                            {% endif %}
+                                            {% if data.supplier.name %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.supplier.name %}{% else %}{% endifchanged %}>{{ data.supplier.name }}</td>
+                                            {% endif %}
+                                            {% if data.customer.name %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.customer.name %}{% else %}{% endifchanged %}>{{ data.customer.name }}</td>
+                                            {% endif %}
+                                            {% if data.unit.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.unit.description %}{% else %}{% endifchanged %}>{{ data.unit.description }}</td>
+                                            {% endif %}
+                                            {% if data.branch.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.branch.description %}{% else %}{% endifchanged %}>{{ data.branch.description }}</td>
+                                            {% endif %}
+                                            {% if data.product.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.product.description %}{% else %}{% endifchanged %}>{{ data.product.description }}</td>
+                                            {% endif %}
+                                            {% if data.inputvat.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.inputvat.description %}{% else %}{% endifchanged %}>{{ data.inputvat.description }}</td>
+                                            {% endif %}
+                                            {% if data.outputvat.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.outputvat.description %}{% else %}{% endifchanged %}>{{ data.outputvat.description }}</td>
+                                            {% endif %}
+                                            {% if data.vat.description or data.inputvat.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.vat.description %}{% else %}{% endifchanged %}>{{ data.vat.description|default:'---' }}</td>
+                                            {% endif %}
+                                            {% if data.wtax.description %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.wtax.description %}{% else %}{% endifchanged %}>{{ data.wtax.description }}</td>
+                                            {% endif %}
+                                            {% if data.ataxcode.code %}
+                                                <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.ataxcode.code %}{% else %}{% endifchanged %}>{{ data.ataxcode.code }}</td>
+                                            {% endif %}
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td align="right">{{ data.debitamount|floatformat:2|intcomma }}</td>
+                                <td align="right">{{ data.creditamount|floatformat:2|intcomma }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        <tr><td colspan="13"></td></tr>
+                        <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                            <td colspan="10"><b>Total</b></td>
+                            <td align="right"><b>{{ querytotal.debitamount__sum|floatformat:2|intcomma }}</b></td>
+                            <td align="right"><b>{{ querytotal.creditamount__sum|floatformat:2|intcomma }}</b></td>
+                        </tr>
+                        </tbody>
+                    {% else %}
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+    $(function(){
+    });
+</script>
+{% endblock extra_js %}

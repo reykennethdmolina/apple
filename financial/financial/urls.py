@@ -141,6 +141,8 @@ urlpatterns = [
     url(r'^dcclasstype/', include('dcclasstype.urls', app_name='dcclasstype', namespace='dcclasstype')),
     url(r'^budgetapproverlevels/', include('budgetapproverlevels.urls', app_name='budgetapproverlevels', namespace='budgetapproverlevels')),
     url(r'^generaljournalbook/', include('generaljournalbook.urls', app_name='generaljournalbook', namespace='generaljournalbook')),
+    url(r'^rep_generalledger/', include('rep_generalledger.urls', app_name='rep_generalledger', namespace='rep_generalledger')),
+    url(r'^reportdashboard/', include('reportdashboard.urls', app_name='reportdashboard', namespace='reportdashboard')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

@@ -251,6 +251,17 @@
                                 </select>
                             </div>
                             <div class="form-group col-sm-2">
+                                <label class="control-label small">Status</label>
+                                <select class="form-control input-sm" id="rep_f_status">
+                                    <option value="">-- Select --</option>
+                                    <option value="A">Active</option>
+                                    <option value="I">Inactive</option>
+                                    <option value="C">Cancelled</option>
+                                    <option value="O">Posted</option>
+                                    <option value="P">Printed</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
                                 <label class="control-label small">Approver</label>
                                 <select class="form-control input-sm" id="rep_f_approver">
                                     <option value="">-- Select --</option>
@@ -304,6 +315,7 @@
                 setCookie('rep_f_jvsubtype_{{ request.resolver_match.app_name }}', $('#rep_f_jvsubtype').val());
                 setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
                 setCookie('rep_f_jvstatus_{{ request.resolver_match.app_name }}', $('#rep_f_jvstatus').val());
+                setCookie('rep_f_status_{{ request.resolver_match.app_name }}', $('#rep_f_status').val());
                 setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
                 setCookie('rep_f_approver_{{ request.resolver_match.app_name }}', $('#rep_f_approver').val());
 
@@ -357,6 +369,7 @@
         $('#rep_f_jvsubtype').val(getCookie('rep_f_jvsubtype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_branch').val(getCookie('rep_f_branch_{{ request.resolver_match.app_name }}'));
         $('#rep_f_jvstatus').val(getCookie('rep_f_jvstatus_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_status').val(getCookie('rep_f_status_{{ request.resolver_match.app_name }}'));
         $('#rep_f_department').val(getCookie('rep_f_department_{{ request.resolver_match.app_name }}'));
         $('#rep_f_approver').val(getCookie('rep_f_approver_{{ request.resolver_match.app_name }}'));
 

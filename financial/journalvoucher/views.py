@@ -682,6 +682,9 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
                 query = query.filter(jvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(status=str(key_data))
 
             if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
@@ -737,6 +740,9 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
                 query = query.filter(jvmain__jvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(jvmain__status=str(key_data))
             if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
                 query = query.filter(jvmain__department=int(key_data))
@@ -818,6 +824,9 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
             query = query.filter(jvmain__jvstatus=str(key_data))
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(jvmain__status=str(key_data))
 
         if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))

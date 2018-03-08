@@ -154,6 +154,8 @@ INSTALLED_APPS = [
     'processing_jv',
     'budgetapproverlevels',
     'generaljournalbook',
+    'rep_generalledger',
+    'reportdashboard',
 ]
 
 MIDDLEWARE_CLASSES = [
