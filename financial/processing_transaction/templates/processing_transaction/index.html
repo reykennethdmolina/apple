@@ -22,6 +22,9 @@
         .checkbox label {
             padding-left: 5px;
         }
+        .input-sm{
+            font-size: 13px !important;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -33,7 +36,7 @@
                     {% block content %}
                     <div class="col-md-12" style="margin-right: 15px;">
                         <form method="get" id="filter" class="row form-material">
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <label class="control-label" for="id_selectprocess">Select Process:</label>
                                 <select class="form-control form-material input-sm" id="id_selectprocess" name="selectprocess">
                                     <option value="">-- Select --</option>
@@ -43,18 +46,24 @@
                                     <option value="apvtoapv" {% if selectprocess == 'apvtoapv' %}selected="selected"{% endif %} >Accounts Payable Voucher to Accounts Payable Voucher (APV to APV)</option>
                                 </select><br><br>
                             </div>
-                            <div class="col-md-3 select_holder" id="datefrom_holder">
+                            <div class="col-md-2 select_holder" id="datefrom_holder">
                                 <label class="control-label" for="id_datefrom">Date FROM:</label>
                                 <input type="text" class="form-control date-yyyymmdd datepickerfrom input-sm" readonly="readonly"
                                        style="padding: 5px 10px" id="id_datefrom" name="datefrom" placeholder="YYYY-MM-DD"
                                        value="{{ datefrom }}">
                                 <br><br>
                             </div>
-                            <div class="col-md-3 select_holder" id="dateto_holder">
+                            <div class="col-md-2 select_holder" id="dateto_holder">
                                 <label class="control-label" for="id_dateto">Date TO:</label>
                                 <input type="text" class="form-control date-yyyymmdd datepickerto input-sm" readonly="readonly"
                                        style="padding: 5px 10px" id="id_dateto" name="dateto" placeholder="YYYY-MM-DD"
                                        value="{{ dateto }}">
+                                <br><br>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="control-label" for="id_keywords">Keyword(s):</label>
+                                <input type="text" class="form-control input-sm" style="padding: 5px 10px" id="id_keywords"
+                                       name="keywords" value="{{ keywords }}">
                                 <br><br>
                             </div>
                             <div style="margin-top: 25px" class="col-md-1">
@@ -101,11 +110,11 @@
                                     </thead>
                                     <tbody>
                                         {% for data in data_list %}
-                                        <tr id="tr_{{ data.pk }}">
+                                        <tr id="tr_{{ data.pk }}" style="font-size: 13px;">
                                             <td>
                                                 {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}
                                                     {% ifchanged data.pomain.ponum %}
-                                                        <a href="{% url 'purchaseorder:detail' data.pomain.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                        <a href="{% if perms.purchaseorder.change_pomain %}{% url 'purchaseorder:update' data.pomain.pk %}{% else %}{% url 'purchaseorder:detail' data.pomain.pk %}{% endif %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                             PO #{{ data.pomain.ponum }}
                                                         </a>
                                                     {% else %}
@@ -120,7 +129,7 @@
                                                         <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
                                                                name="trans_checkbox" value="{{ data.id }}">
                                                         <label for="checkbox{{ data.id }}">
-                                                            <a href="{% url 'accountspayable:detail' data.pk %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                                                            <a href="{% if perms.accountspayable.change_apmain %}{% url 'accountspayable:update' data.pk %}{% else %}{% url 'accountspayable:detail' data.pk %}{% endif %}" target="_blank" class="text-primary" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                                                 APV # {{ data.apnum }}
                                                             </a>
                                                         </label>
@@ -190,9 +199,9 @@
                                         {% endfor %}
                                     </tbody>
                                     <thead>
-                                        <tr>
+                                        <tr style="font-size: 13px;">
                                             <th class="text-right" {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}colspan="7"{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}colspan="6"{% endif %} style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
-                                            <th class="text-right" id="totalamount" style="border-bottom: none; {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}padding-right:19px;{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}padding-right:10px;{% endif %}"><b>0.00</b></th>
+                                            <th class="text-right" id="totalamount" style="border-bottom: none; {% if selectprocess == 'potoapv' or selectprocess == 'potocv' %}padding-right:19px;{% elif selectprocess == 'apvtocv' or selectprocess == 'apvtoapv' %}padding-right:0px;{% endif %}"><b>0.00</b></th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -210,10 +219,10 @@
         </div>
     </div>
 </div>
-<div id="required-fields-error" class="custom-alert danger">Please provide filters.</div>
-<div id="checked-items-error" class="custom-alert danger">Please check at least one item.</div>
-<div id="choose-type-error" class="custom-alert danger">Please choose a process type first.</div>
-<div id="different-values-error" class="custom-alert danger">Same supplier and VAT only.</div>
+{#<div id="required-fields-error" class="custom-alert danger">Please provide filters.</div>#}
+{#<div id="checked-items-error" class="custom-alert danger">Please check at least one item.</div>#}
+{#<div id="choose-type-error" class="custom-alert danger">Please choose a process type first.</div>#}
+{#<div id="different-values-error" class="custom-alert danger">Same supplier and VAT only.</div>#}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -256,7 +265,7 @@
 
         $('#filterforms').on('click', function(){
             if($('#id_selectprocess').val() == '' || ($('#id_datefrom').val() == '' && $('#id_dateto').val() == '')){
-                customAlert($('#required-fields-error'));
+                alert("Please provide filters.");
                 event.preventDefault();
             }
         });
@@ -283,11 +292,11 @@
             });
 
             if($('.item-check:checked').length == 0){
-                customAlert($('#checked-items-error'));
+                alert("Please check at least one item.");
                 event.preventDefault();
             }
             else if(!useSome(allSuppliers) || !useSome(allVats)){
-                customAlert($('#different-values-error'));
+                alert("Only items with the same supplier and VAT can be imported.");
                 event.preventDefault();
             }
             else {
@@ -329,7 +338,7 @@
                     }
                 }
                 else {
-                    customAlert($('#checked-items-error'));
+                    alert("Please select a valid process.");
                     event.preventDefault();
                     valid = false;
                 }
