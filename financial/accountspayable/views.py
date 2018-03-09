@@ -48,6 +48,7 @@ class IndexView(AjaxListView):
             query = query.filter(Q(apnum__icontains=keysearch) |
                                  Q(apdate__icontains=keysearch) |
                                  Q(payeecode__icontains=keysearch) |
+                                 Q(payeename__icontains=keysearch) |
                                  Q(vatcode__icontains=keysearch) |
                                  Q(ataxcode__icontains=keysearch) |
                                  Q(bankbranchdisbursebranch__icontains=keysearch) |
@@ -208,6 +209,7 @@ class CreateView(CreateView):
             self.object.ataxcode = ataxobject.code
             self.object.ataxrate = ataxobject.rate
         self.object.payeecode = payeeobject.code
+        self.object.payeename = payeeobject.name
         self.object.bankbranchdisbursebranch = bankbranchdisburseobject.branch
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
@@ -430,10 +432,11 @@ class UpdateView(UpdateView):
             self.object = form.save(commit=False)
             self.object.payee = Supplier.objects.get(pk=self.request.POST['payee'])
             self.object.payeecode = self.object.payee.code
+            self.object.payeename = self.object.payee.name
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'branch',
-                                            'bankbranchdisburse', 'vat', 'atax',
+            self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
+                                            'branch', 'bankbranchdisburse', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars',
                                             'currency', 'fxrate', 'designatedapprover',
@@ -879,7 +882,7 @@ def reportresultquery(request):
                 query = query.filter(branch=int(key_data))
             if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-                query = query.filter(Q(payeecode__icontains=key_data) | Q(payee__name__icontains=key_data))
+                query = query.filter(Q(payeecode__icontains=key_data) | Q(payeename__icontains=key_data))
             # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
             #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
             #     query = query.filter(Q(checknum__icontains=key_data))
@@ -957,7 +960,7 @@ def reportresultquery(request):
                 query = query.filter(apmain__branch=int(key_data))
             if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-                query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payee__name__icontains=key_data))
+                query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payeename__icontains=key_data))
             # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
             #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
             #     query = query.filter(Q(apmain__checknum__icontains=key_data))
@@ -1063,7 +1066,7 @@ def reportresultquery(request):
             query = query.filter(apmain__branch=int(key_data))
         if request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_payee_' + request.resolver_match.app_name))
-            query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payee__name__icontains=key_data))
+            query = query.filter(Q(apmain__payeecode__icontains=key_data) | Q(apmain__payeename__icontains=key_data))
         # if request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name):
         #     key_data = str(request.COOKIES.get('rep_f_check_' + request.resolver_match.app_name))
         #     query = query.filter(Q(apmain__checknum__icontains=key_data))

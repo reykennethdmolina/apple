@@ -35,7 +35,7 @@ class Apmain(models.Model):
 
     payee = models.ForeignKey('supplier.Supplier', related_name='apmain_payee_id', null=True, blank=True)
     payeecode = models.CharField(max_length=25, null=True, blank=True)
-
+    payeename = models.CharField(max_length=250, null=True, blank=True)
     branch = models.ForeignKey('branch.Branch', related_name='ap_branch_id')
     amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)
 
