@@ -611,6 +611,15 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name))
             query = query.filter(orstatus=str(key_data))
+        if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+            if key_data == 'P':
+                query = query.filter(postby__isnull=False)
+            elif key_data == 'U':
+                query = query.filter(postby__isnull=True)
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(status=str(key_data))
         if request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name))
             query = query.filter(government=str(key_data))
@@ -718,6 +727,15 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name))
             query = query.filter(ormain__orstatus=str(key_data))
+        if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+            if key_data == 'P':
+                query = query.filter(ormain__postby__isnull=False)
+            elif key_data == 'U':
+                query = query.filter(ormain__postby__isnull=True)
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(ormain__status=str(key_data))
         if request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name))
             query = query.filter(ormain__government=str(key_data))

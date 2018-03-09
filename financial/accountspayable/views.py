@@ -870,6 +870,9 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name))
                 query = query.filter(apstatus=str(key_data))
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(status=str(key_data))
 
             if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
@@ -945,6 +948,9 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name))
                 query = query.filter(apmain__apstatus=str(key_data))
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(apmain__status=str(key_data))
 
             if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
@@ -1048,6 +1054,9 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_apstatus_' + request.resolver_match.app_name))
             query = query.filter(apmain__apstatus=str(key_data))
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(apmain__status=str(key_data))
 
         if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))

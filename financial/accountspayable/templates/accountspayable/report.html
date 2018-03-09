@@ -218,6 +218,17 @@
                                     <option value="R">Released</option>
                                 </select>
                             </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Status</label>
+                                <select class="form-control input-sm" id="rep_f_status">
+                                    <option value="">-- Select --</option>
+                                    <option value="A">Active</option>
+                                    <option value="I">Inactive</option>
+                                    <option value="C">Cancelled</option>
+                                    <option value="O">Posted</option>
+                                    <option value="P">Printed</option>
+                                </select>
+                            </div>
                             <div class="form-group col-sm-4" id="rep_f_amount_holder">
                                 <label class="control-label small">Amount</label><br>
                                 <div class="input-daterange">
@@ -345,6 +356,7 @@
                 setCookie('rep_f_aptype_{{ request.resolver_match.app_name }}', $('#rep_f_aptype').val());
                 setCookie('rep_f_apsubtype_{{ request.resolver_match.app_name }}', $('#rep_f_apsubtype').val());
                 setCookie('rep_f_apstatus_{{ request.resolver_match.app_name }}', $('#rep_f_apstatus').val());
+                setCookie('rep_f_status_{{ request.resolver_match.app_name }}', $('#rep_f_status').val());
                 setCookie('rep_f_branch_{{ request.resolver_match.app_name }}', $('#rep_f_branch').val());
                 setCookie('rep_f_payee_{{ request.resolver_match.app_name }}', $('#rep_f_payee').val());
                 setCookie('rep_f_ref_{{ request.resolver_match.app_name }}', $('#rep_f_ref').val());
@@ -411,6 +423,7 @@
         $('#rep_f_aptype').val(getCookie('rep_f_aptype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_apsubtype').val(getCookie('rep_f_apsubtype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_apstatus').val(getCookie('rep_f_apstatus_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_status').val(getCookie('rep_f_status_{{ request.resolver_match.app_name }}'));
         $('#rep_f_branch').val(getCookie('rep_f_branch_{{ request.resolver_match.app_name }}'));
         $('#rep_f_payee').val(getCookie('rep_f_payee_{{ request.resolver_match.app_name }}'));
         $('#rep_f_ref').val(getCookie('rep_f_ref_{{ request.resolver_match.app_name }}'));

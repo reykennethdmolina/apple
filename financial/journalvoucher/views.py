@@ -682,6 +682,12 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
                 query = query.filter(jvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+                if key_data == 'P':
+                    query = query.filter(postby__isnull=False)
+                elif key_data == 'U':
+                    query = query.filter(postby__isnull=True)
             if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
                 query = query.filter(status=str(key_data))
@@ -740,6 +746,12 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
                 query = query.filter(jvmain__jvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+                if key_data == 'P':
+                    query = query.filter(jvmain__postby__isnull=False)
+                elif key_data == 'U':
+                    query = query.filter(jvmain__postby__isnull=True)
             if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
                 query = query.filter(jvmain__status=str(key_data))
@@ -824,6 +836,12 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_jvstatus_' + request.resolver_match.app_name))
             query = query.filter(jvmain__jvstatus=str(key_data))
+        if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+            if key_data == 'P':
+                query = query.filter(jvmain__postby__isnull=False)
+            elif key_data == 'U':
+                query = query.filter(jvmain__postby__isnull=True)
         if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
             query = query.filter(jvmain__status=str(key_data))

@@ -195,6 +195,25 @@
                                     <option value="R">Released</option>
                                 </select>
                             </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Posted?</label>
+                                <select class="form-control input-sm" id="rep_f_posted">
+                                    <option value="">-- Select --</option>
+                                    <option value="P">Posted</option>
+                                    <option value="U">Unposted</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Status</label>
+                                <select class="form-control input-sm" id="rep_f_status">
+                                    <option value="">-- Select --</option>
+                                    <option value="A">Active</option>
+                                    <option value="I">Inactive</option>
+                                    <option value="C">Cancelled</option>
+                                    <option value="O">Posted</option>
+                                    <option value="P">Printed</option>
+                                </select>
+                            </div>
                             <div class="form-group col-sm-4">
                                 <label class="control-label small">Product</label>
                                 <select class="form-control input-sm" id="rep_f_product">
@@ -467,6 +486,8 @@
                 setCookie('rep_f_government_{{ request.resolver_match.app_name }}', $('#rep_f_government').val());
                 setCookie('rep_f_transaction_type_{{ request.resolver_match.app_name }}', $('#rep_f_transaction_type').val());
                 setCookie('rep_f_orstatus_{{ request.resolver_match.app_name }}', $('#rep_f_orstatus').val());
+                setCookie('rep_f_posted_{{ request.resolver_match.app_name }}', $('#rep_f_posted').val());
+                setCookie('rep_f_status_{{ request.resolver_match.app_name }}', $('#rep_f_status').val());
                 setCookie('rep_f_artype_{{ request.resolver_match.app_name }}', $('#rep_f_artype').val());
                 setCookie('rep_f_payee_adv_{{ request.resolver_match.app_name }}', $('#rep_f_payee_adv').val());
                 setCookie('rep_f_payee_cir_{{ request.resolver_match.app_name }}', $('#rep_f_payee_cir').val());
@@ -532,6 +553,8 @@
         $('#rep_f_government').val(getCookie('rep_f_government_{{ request.resolver_match.app_name }}'));
         $('#rep_f_transaction_type').val(getCookie('rep_f_transaction_type_{{ request.resolver_match.app_name }}'));
         $('#rep_f_orstatus').val(getCookie('rep_f_orstatus_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_posted').val(getCookie('rep_f_posted_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_status').val(getCookie('rep_f_status_{{ request.resolver_match.app_name }}'));
         $('#rep_f_artype').val(getCookie('rep_f_artype_{{ request.resolver_match.app_name }}'));
         $('#rep_f_payee_adv').val(getCookie('rep_f_payee_adv_{{ request.resolver_match.app_name }}'));
         $('#rep_f_payee_cir').val(getCookie('rep_f_payee_cir_{{ request.resolver_match.app_name }}'));

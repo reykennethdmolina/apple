@@ -896,6 +896,15 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
                 query = query.filter(cvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+                if key_data == 'P':
+                    query = query.filter(postby__isnull=False)
+                elif key_data == 'U':
+                    query = query.filter(postby__isnull=True)
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(status=str(key_data))
 
             if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
@@ -974,6 +983,15 @@ def reportresultquery(request):
             if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
                 query = query.filter(cvmain__cvstatus=str(key_data))
+            if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+                if key_data == 'P':
+                    query = query.filter(cvmain__postby__isnull=False)
+                elif key_data == 'U':
+                    query = query.filter(cvmain__postby__isnull=True)
+            if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+                key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+                query = query.filter(cvmain__status=str(key_data))
 
             if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
@@ -1080,6 +1098,15 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_cvstatus_' + request.resolver_match.app_name))
             query = query.filter(cvmain__cvstatus=str(key_data))
+        if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+            if key_data == 'P':
+                query = query.filter(cvmain__postby__isnull=False)
+            elif key_data == 'U':
+                query = query.filter(cvmain__postby__isnull=True)
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(cvmain__status=str(key_data))
 
         if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))

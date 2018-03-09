@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class RepGlRepConfig(AppConfig):
-    name = 'rep_gl_rep'
+    name = 'rep_generalledger'
