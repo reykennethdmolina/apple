@@ -11,6 +11,7 @@ from django.utils.crypto import get_random_string
 from utils.views import wccount, storeupload
 import decimal
 from dbfread import DBF
+from django.db.models import Q
 from purchaseorder.models import Pomain, Podetail
 from accountspayable.models import Apmain, Apdetail
 from checkvoucher.models import Cvmain, Cvdetail
@@ -42,17 +43,26 @@ class IndexView(TemplateView):
                                                                pomain__postatus='A', pomain__isfullyapv=0).\
                     order_by('pomain__ponum', 'pomain__supplier_name', 'pomain__inputvattype_id', 'vat_id',
                              'item_counter')
-                if self.request.GET['datefrom']:
+                if 'datefrom' in self.request.GET and self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(pomain__podate__gte=self.request.GET['datefrom'])
-                if self.request.GET['dateto']:
+                if 'dateto' in self.request.GET and self.request.GET['dateto']:
                     context['data_list'] = context['data_list'].filter(pomain__podate__lte=self.request.GET['dateto'])
+                if 'keywords' in self.request.GET and self.request.GET['keywords']:
+                    keysearch = self.request.GET['keywords']
+                    context['data_list'] = context['data_list'].filter(Q(pomain__ponum__icontains=keysearch) |
+                                                                       Q(invitem_name__icontains=keysearch) |
+                                                                       Q(pomain__supplier_name__icontains=keysearch))
             elif self.request.GET['selectprocess'] == 'apvtocv' or self.request.GET['selectprocess'] == 'apvtoapv':
-                context['data_list'] = Apmain.objects.all().filter(isdeleted=0, apstatus='R', isfullycv=0). \
-                    order_by('payeecode', 'vat_id', 'apnum')
-                if self.request.GET['datefrom']:
+                context['data_list'] = Apmain.objects.all().filter(isdeleted=0, apstatus='A', isfullycv=0). \
+                    order_by('payeename', 'vat_id', 'apnum')
+                if 'datefrom' in self.request.GET and self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(apdate__gte=self.request.GET['datefrom'])
-                if self.request.GET['dateto']:
+                if 'dateto' in self.request.GET and self.request.GET['dateto']:
                     context['data_list'] = context['data_list'].filter(apdate__lte=self.request.GET['dateto'])
+                if 'keywords' in self.request.GET and self.request.GET['keywords']:
+                    keysearch = self.request.GET['keywords']
+                    context['data_list'] = context['data_list'].filter(Q(apnum__icontains=keysearch) |
+                                                                       Q(payeename__icontains=keysearch))
 
         return self.render_to_response(context)
 
@@ -61,8 +71,12 @@ class IndexView(TemplateView):
 
         if self.request.GET:
             context['selectprocess'] = self.request.GET['selectprocess']
-            context['datefrom'] = self.request.GET['datefrom']
-            context['dateto'] = self.request.GET['dateto']
+            if 'datefrom' in self.request.GET:
+                context['datefrom'] = self.request.GET['datefrom']
+            if 'dateto' in self.request.GET:
+                context['dateto'] = self.request.GET['dateto']
+            if 'keywords' in self.request.GET:
+                context['keywords'] = self.request.GET['keywords']
 
         return context
 
@@ -111,6 +125,7 @@ def importtransdata(request):
                 newapv.apstatus = 'F'
                 newapv.payee_id = referencepo.supplier.id
                 newapv.payeecode = referencepo.supplier.code
+                newapv.payeename = referencepo.supplier.name
                 newapv.vatcode = referencepo.vat.code
                 newapv.atax = referencepo.atc
                 newapv.ataxcode = referencepo.atc.code
@@ -366,7 +381,7 @@ def importtransdata(request):
 
         elif request.POST['transtype'] == 'apvtocv' or request.POST['transtype'] == 'apvtoapv':
             referenceap = Apmain.objects.get(pk=int(request.POST.getlist('trans_checkbox')[0]))
-            allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('payeecode',
+            allaps = Apmain.objects.filter(id__in=request.POST.getlist('trans_checkbox')).order_by('payeename',
                                                                                                    'vat_id', 'apnum')
 
             ap_nums = allaps.values_list('apnum', flat=True)
@@ -420,6 +435,7 @@ def importtransdata(request):
                 newapv.apstatus = 'F'
                 newapv.payee_id = referenceap.payee_id
                 newapv.payeecode = referenceap.payeecode
+                newapv.payeename = referenceap.payeename
                 newapv.vatcode = referenceap.vatcode
                 newapv.atax = referenceap.atax
                 newapv.ataxcode = referenceap.ataxcode
