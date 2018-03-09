@@ -365,6 +365,13 @@
                                                             <label class="control-label"><small>Period To</small></label>
                                                             <input type="text" class="form-control input-sm datepickerto_month disabled-white" readonly="readonly" name="item_periodto" form="form-b" value="{{ itemtemp.periodto|date:'Y-m-d'|default:'' }}">
                                                         </div>
+                                                        <div class="form-group col-sm-2" {% if itemtemp.ofsubtype.id != mealexpense %} hidden="hidden" {% endif %}>
+                                                            <label class="control-label"><small>No. of Pax</small></label>
+                                                            <input type="number" class="form-control input-sm no_of_pax" name="item_noofpax" form="form-b" value="{{ itemtemp.noofpax|default:'' }}">
+                                                        </div>
+                                                        <div class="form-group col-sm-4" {% if itemtemp.ofsubtype.id != mealexpense %} hidden="hidden" {% endif %}>
+                                                            <code class="budget_warning" style="display: none">*The amount exceeds the {{ mealbudget }}-peso limit per pax. This shall be subject for review.</code>
+                                                        </div>
                                                     </div>
                                                     <div class="form-group col-sm-1"></div>
                                                 </div>
@@ -599,6 +606,34 @@
                 $(this).text($(this).text().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
 
+            $('.no_of_pax').each(function() {
+                if($(this).val() != '' && $(this).val() != '0'){
+                    var no_of_pax = parseFloat($(this).val());
+                    var budget_spent = parseFloat($(this).parent().parent().parent().parent().find('.item-amount').text().replace(',',''));
+                    var budget_limit = parseFloat({{ mealbudget }});
+                    if(showBudgetWarning(no_of_pax, budget_spent, budget_limit)){
+                        $(this).parent().parent().find('.budget_warning').show();
+                    }
+                    else {
+                        $(this).parent().parent().find('.budget_warning').hide();
+                    }
+                }
+            });
+
+            $('.no_of_pax').on('change', function() {
+                if($(this).val() != '' && $(this).val() != '0'){
+                    var no_of_pax = parseFloat($(this).val());
+                    var budget_spent = parseFloat($(this).parent().parent().parent().parent().find('.item-amount').text().replace(',',''));
+                    var budget_limit = parseFloat({{ mealbudget }});
+                    if(showBudgetWarning(no_of_pax, budget_spent, budget_limit)){
+                        $(this).parent().parent().find('.budget_warning').show();
+                    }
+                    else {
+                        $(this).parent().parent().find('.budget_warning').hide();
+                    }
+                }
+            });
+
             function computeItemTotal(){
                 var sum = 0;
                 $('.item-check:checkbox:checked').each(function() {
@@ -713,6 +748,10 @@
                 if($(field + " option:selected").text() == "-- Select --"){
                     $('#' + rateSpan).html("<strong>" + defaultText + "</strong>");
                 }
+            }
+
+            function showBudgetWarning(no_of_pax, budget_spent, budget_limit){
+                return budget_spent/no_of_pax > budget_limit;
             }
 
             $("#id_ofstatus").change(function(){

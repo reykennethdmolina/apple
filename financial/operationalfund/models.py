@@ -144,6 +144,7 @@ class Ofitem(models.Model):
     remarks = models.CharField(max_length=250, null=True, blank=True)
     periodfrom = models.DateField(null=True, blank=True)
     periodto = models.DateField(null=True, blank=True)
+    noofpax = models.IntegerField(null=True, blank=True)
     OF_ITEM_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),
@@ -357,6 +358,7 @@ class Ofitemtemp(models.Model):
     remarks = models.CharField(max_length=250, null=True, blank=True)
     periodfrom = models.DateField(null=True, blank=True)
     periodto = models.DateField(null=True, blank=True)
+    noofpax = models.IntegerField(null=True, blank=True)
     OF_ITEM_STATUS_CHOICES = (
         ('F', 'For Approval'),
         ('A', 'Approved'),

@@ -157,6 +157,9 @@ class DetailView(DetailView):
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         # data for lookup
 
+        context['mealexpense'] = Companyparameter.objects.get(code='PDI').pcv_meal_expenses_id
+        context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
+
         # requested items
         context['itemtemp'] = Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).order_by('item_counter')
 
@@ -194,6 +197,8 @@ class CreateViewUser(CreateView):
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['secretkey'] = self.mysecretkey
+        context['mealexpense'] = Companyparameter.objects.get(code='PDI').pcv_meal_expenses_id
+        context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
 
         return context
 
@@ -263,6 +268,7 @@ class CreateViewUser(CreateView):
                         item.fxrate = itemtemp.fxrate
                         item.periodfrom = itemtemp.periodfrom
                         item.periodto = itemtemp.periodto
+                        item.noofpax = itemtemp.noofpax
                         item.currency = Currency.objects.get(pk=itemtemp.currency)
                         item.enterby = itemtemp.enterby
                         item.modifyby = itemtemp.modifyby
@@ -443,6 +449,7 @@ class UpdateViewUser(UpdateView):
             detail.remarks = data.remarks
             detail.periodfrom = data.periodfrom
             detail.periodto = data.periodto
+            detail.noofpax = data.noofpax
             detail.ofitemstatus = data.ofitemstatus
             detail.save()
             # requested items end
@@ -487,6 +494,9 @@ class UpdateViewUser(UpdateView):
         context['itemtemp'] = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0,
                                                         secretkey=self.mysecretkey).order_by('item_counter')
 
+        context['mealexpense'] = Companyparameter.objects.get(code='PDI').pcv_meal_expenses_id
+        context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
+
         return context
 
     def form_valid(self, form):
@@ -529,6 +539,7 @@ class UpdateViewUser(UpdateView):
                         item.fxrate = itemtemp.fxrate
                         item.periodfrom = itemtemp.periodfrom
                         item.periodto = itemtemp.periodto
+                        item.noofpax = itemtemp.noofpax
                         item.currency = Currency.objects.get(pk=itemtemp.currency)
                         item.enterby = itemtemp.enterby
                         item.modifyby = itemtemp.modifyby
@@ -621,6 +632,7 @@ class UpdateViewCashier(UpdateView):
             detail.remarks = data.remarks
             detail.periodfrom = data.periodfrom
             detail.periodto = data.periodto
+            detail.noofpax = data.noofpax
             detail.ofitemstatus = data.ofitemstatus
             detail.save()
         # requested items end
@@ -756,6 +768,9 @@ class UpdateViewCashier(UpdateView):
         context['pk'] = self.object.pk
         # data for lookup
 
+        context['mealexpense'] = Companyparameter.objects.get(code='PDI').pcv_meal_expenses_id
+        context['mealbudget'] = Companyparameter.objects.get(code='PDI').pcv_meal_budget_limit
+
         # requested items
         itemtemp = Ofitemtemp.objects.filter(ofmain=self.object.pk, isdeleted=0, secretkey=self.mysecretkey).\
             order_by('item_counter')
@@ -839,6 +854,8 @@ class UpdateViewCashier(UpdateView):
                     getlist('item_periodfrom')[i] else None
                 update_item.periodto = self.request.POST.getlist('item_periodto')[i] if self.request.POST.\
                     getlist('item_periodto')[i] else None
+                update_item.noofpax = self.request.POST.getlist('item_noofpax')[i] if self.request.POST.\
+                    getlist('item_noofpax')[i] else None
                 if self.request.POST.getlist('item_currency')[i]:
                     update_item.currency = get_object_or_None(Currency, id=int(self.request.POST.
                                                                                getlist('item_currency')[i]))
@@ -1025,6 +1042,7 @@ def saveitemtemp(request):
         itemtemp.fxrate = float(request.POST['id_fxrate'])
         itemtemp.periodfrom = request.POST['id_periodfrom'] if request.POST['id_periodfrom'] != '' else None
         itemtemp.periodto = request.POST['id_periodto'] if request.POST['id_periodto'] != '' else None
+        itemtemp.noofpax = request.POST['id_noofpax'] if request.POST['id_noofpax'] != '' else None
         itemtemp.modifyby = request.user
         itemtemp.save()
         data = {
