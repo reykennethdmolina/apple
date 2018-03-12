@@ -35,7 +35,7 @@
 <div class="main-header navbar navbar-default navbar-fixed-top navbar-inverse navbar-mega">
    <div class="navbar-header">
       <!--  Template Logo -->
-      <a class="navbar-brand" href="dashboard_v1.html">
+      <a class="navbar-brand" href="/">
       <img class="navbar-brand-logo navbar-brand-logo-normal" src="{% static 'financial-layout/assets/images/logo.png' %}" title="Porish" alt="logo">
       </a>
    </div>
@@ -217,9 +217,9 @@
                   <li role="presentation">
                      <a href="javascript:void(0)" role="menuitem"><i class="icon icon_profile" aria-hidden="true"></i> {{ request.user.get_full_name }}</a>
                   </li>
-                  <li role="presentation">
+                 <!-- <li role="presentation">
                      <a href="javascript:void(0)" role="menuitem"><i class="icon icon_balance" aria-hidden="true"></i> Billing</a>
-                  </li>
+                  </li>-->
                   <li role="presentation">
                      <a href="{% url 'password_change' %}" role="menuitem"><i class="icon icon_cog" aria-hidden="true"></i> Change Password</a>
                   </li>
@@ -235,8 +235,8 @@
                <i aria-hidden="true" class="arrow_expand"></i>
                </a>
             </li>
-            <li class="dropdown">
-               <!--  Notification Box -->
+            <!--<li class="dropdown">
+               &lt;!&ndash;  Notification Box &ndash;&gt;
                <a class="waves-effect waves-light" data-toggle="dropdown" href="javascript:void(0)" title="Notifications" data-animation="scale-up" role="button">
                <i class="icon icon_document_alt" aria-hidden="true"></i>
                <span class="badge badge-danger up">5</span>
@@ -365,7 +365,7 @@
                      </a>
                   </li>
                </ul>
-            </li>
+            </li>-->
          </ul>
       </div>
    </div>
