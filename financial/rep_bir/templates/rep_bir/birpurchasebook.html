@@ -1,0 +1,150 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} BIR Purchase Book {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        #resulttable th{
+            min-width: 150px;
+        }
+        #resulttable td{
+            border: none !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="rep_datefrom" name="rep_datefrom" value="{{ rep_datefrom }}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="rep_dateto" name="rep_dateto" value="{{ rep_dateto }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">PO Status</label>
+                            <select class="form-control input-sm" id="rep_postatus" name="rep_postatus" style="width: 100%;">
+                                <option value="">-- Select --</option>
+                                <option {% if rep_postatus == 'f' %}selected{% endif %} value="f">For Approval</option>
+                                <option {% if rep_postatus == 'a' %}selected{% endif %} value="a">Approved</option>
+                                <option {% if rep_postatus == 'd' %}selected{% endif %} value="d">Disapproved</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <br>
+                            <button type="submit" class="btn btn-info btn-sm">Generate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-bordered">
+            <div class="panel-body" style="overflow: auto; width: 100%">
+                <div style="position: absolute; right: 0; padding-right: 30px;">Run date: {% now "Y-m-d" %}</div>
+                <p>
+                    <b>BIR PURCHASE BOOK({% if rep_type == 'd' %}Detailed{% endif %} Entries)</b><br>
+                    For the period of {{ rep_datefrom|default:'(start of time)' }} to {{ rep_dateto|default:'(current date)' }}
+                <p><br>
+
+                <table id="resulttable" class="table table-condensed table-hover small">
+                    <thead>
+                    <tr>
+                        <th style="min-width: 100px">po_num</th>
+                        <th style="min-width: 100px">po_date</th>
+                        <th style="min-width: 60px;">po_type</th>
+                        <th style="min-width: 70px">smf_code</th>
+                        <th style="min-width: 90px">smf_atccode</th>
+                        <th style="min-width: 70px;">smf_atcrate</th>
+                        <th style="min-width: 75px;">invat_code</th>
+                        <th style="min-width: 65px;">vat_code</th>
+                        <th style="min-width: 60px;">vat_rate</th>
+                        <th style="min-width: 70px;">po_crterms</th>
+                        <th style="min-width: 80px; text-align: right">po_qty</th>
+                        <th style="min-width: 100px; text-align: right">po_amt</th>
+                        <th style="min-width: 100px; text-align: right">po_vatpurchases</th>
+                        <th style="min-width: 100px; text-align: right">po_vatexempt</th>
+                        <th style="min-width: 100px; text-align: right">po_vatzero</th>
+                        <th style="min-width: 100px; text-align: right">po_grossamt</th>
+                        <th style="min-width: 100px; text-align: right">po_vatamt</th>
+                        <th style="min-width: 100px; text-align: right">po_wtaxamt</th>
+                        <th style="min-width: 100px; text-align: right">po_netamt</th>
+                        <th>po_ref</th>
+                        <th>po_part</th>
+                        <th style="min-width: 300px">smf_name</th>
+                        <th>smf_tin</th>
+                        <th style="min-width: 300px;">smf_add1</th>
+                        <th style="min-width: 300px;">smf_add2</th>
+                        <th style="min-width: 300px;">smf_add3</th>
+                        <th style="min-width: 60px;">status</th>
+                        <th style="min-width: 100px; text-align: right">po_discamt</th>
+                        <th style="min-width: 50px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in query %}
+                        <tr>
+                            <td>{{ data.ponum }}</td>
+                            <td>{{ data.podate|date:'Y-m-d' }}</td>
+                            <td>{{ data.inputvattype.code }}</td>
+                            <td>{{ data.supplier.code }}</td>
+                            <td>{{ data.supplier.atc.code }}</td>
+                            <td>{{ data.supplier.atcrate }}</td>
+                            <td>{{ data.inputvat.code }}</td>
+                            <td>{{ data.vat.code }}</td>
+                            <td>{{ data.vat.rate }}</td>
+                            <td>{{ data.creditterm }}</td>
+                            <td align="right">{{ data.totalquantity }}</td>
+                            <td align="right">{{ data.totalamount|intcomma }}</td>
+                            <td align="right">{{ data.vatable|intcomma }}</td>
+                            <td align="right">{{ data.vatexempt|intcomma }}</td>
+                            <td align="right">{{ data.vatzerorated|intcomma }}</td>
+                            <td align="right">{{ data.grossamount|intcomma }}</td>
+                            <td align="right">{{ data.vatamount|intcomma }}</td>
+                            <td align="right">{{ data.wtaxamount|intcomma }}</td>
+                            <td align="right">{{ data.netamount|intcomma }}</td>
+                            <td>{{ data.refnum }}</td>
+                            <td>{{ data.particulars }}</td>
+                            <td>{{ data.supplier.name }}</td>
+                            <td>{{ data.supplier.tin }}</td>
+                            <td>{{ data.supplier.address1 }}</td>
+                            <td>{{ data.supplier.address2 }}</td>
+                            <td>{{ data.supplier.address3 }}</td>
+                            <td>{{ data.status }}</td>
+                            <td align="right">{{ data.discountamount|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+    $(function(){
+    });
+</script>
+{% endblock extra_js %}

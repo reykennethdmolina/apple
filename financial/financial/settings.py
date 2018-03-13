@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     'generaljournalbook',
     'rep_generalledger',
     'reportdashboard',
+    'rep_bir',
 ]
 
 MIDDLEWARE_CLASSES = [

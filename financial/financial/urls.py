@@ -143,6 +143,7 @@ urlpatterns = [
     url(r'^generaljournalbook/', include('generaljournalbook.urls', app_name='generaljournalbook', namespace='generaljournalbook')),
     url(r'^rep_generalledger/', include('rep_generalledger.urls', app_name='rep_generalledger', namespace='rep_generalledger')),
     url(r'^reportdashboard/', include('reportdashboard.urls', app_name='reportdashboard', namespace='reportdashboard')),
+    url(r'^rep_bir/', include('rep_bir.urls', app_name='rep_bir', namespace='rep_bir')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

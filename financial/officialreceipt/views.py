@@ -632,7 +632,12 @@ def reportresultquery(request):
             query = query.filter(vat=int(key_data))
         if request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name))
-            query = query.filter(outputvattype=int(key_data))
+            if key_data == 'with':
+                query = query.filter(outputvattype__isnull=False)
+            elif key_data == 'without':
+                query = query.filter(outputvattype__isnull=True)
+            else:
+                query = query.filter(outputvattype=int(key_data))
         if request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name))
             query = query.filter(wtax=int(key_data))
@@ -748,7 +753,12 @@ def reportresultquery(request):
             query = query.filter(ormain__vat=int(key_data))
         if request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name))
-            query = query.filter(ormain__outputvattype=int(key_data))
+            if key_data == 'with':
+                query = query.filter(ormain__outputvattype__isnull=False)
+            elif key_data == 'without':
+                query = query.filter(ormain__outputvattype__isnull=True)
+            else:
+                query = query.filter(ormain__outputvattype=int(key_data))
         if request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name))
             query = query.filter(ormain__wtax=int(key_data))
