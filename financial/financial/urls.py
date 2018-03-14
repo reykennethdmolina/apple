@@ -144,6 +144,7 @@ urlpatterns = [
     url(r'^rep_generalledger/', include('rep_generalledger.urls', app_name='rep_generalledger', namespace='rep_generalledger')),
     url(r'^reportdashboard/', include('reportdashboard.urls', app_name='reportdashboard', namespace='reportdashboard')),
     url(r'^rep_bir/', include('rep_bir.urls', app_name='rep_bir', namespace='rep_bir')),
+    url(r'^rep_master/', include('rep_master.urls', app_name='rep_master', namespace='rep_master')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
