@@ -1,7 +1,7 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
 {% load humanize %}
-{% block page-title %} Bank Account Master List {% endblock page-title %}
+{% block page-title %} VAT Master List {% endblock page-title %}
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
@@ -26,16 +26,10 @@
                             <label class="control-label small">Order By</label>
                             <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_order" name="rep_order[]">
                                 <option value="code">Code</option>
-                                <option value="accountnumber">Account Number</option>
-                                <option value="bank">Bank</option>
-                                <option value="bankaccounttype">Bank Account Type</option>
-                                <option value="bankbranch">Bank Branch</option>
-                                <option value="beg_amount">Beg Amount</option>
-                                <option value="beg_code">Beg Code</option>
-                                <option value="beg_date">Beg Date</option>
-                                <option value="run_amount">Run Amount</option>
-                                <option value="run_code">Run Code</option>
-                                <option value="run_date">Run Date</option>
+                                <option value="description">Description</option>
+                                <option value="rate">Rate</option>
+                                <option value="effectivedatefrom">Effective Date From</option>
+                                <option value="effectivedateto">Effective Date To</option>
                                 <option value="enterdate">Enter Date</option>
                             </select>
                         </div>
@@ -63,18 +57,10 @@
                     <thead>
                     <tr>
                         <th style="min-width: 80px;">Code</th>
-                        <th style="min-width: 100px;">Account Number</th>
-                        <th style="min-width: 80px;">Bank</th>
-                        <th style="min-width: 100px;">Bank Acct. Type</th>
-                        <th style="min-width: 100px;">Bank Branch</th>
-                        <th style="text-align: right">Beg Amount</th>
-                        <th style="min-width: 80px;">Beg Code</th>
-                        <th style="min-width: 80px;">Beg Date</th>
-                        <th style="text-align: right">Run Amount</th>
-                        <th style="min-width: 80px;">Run Code</th>
-                        <th style="min-width: 80px;">Run Date</th>
-                        <th>Chart of Account</th>
-                        <th style="min-width: 60px;">Currency</th>
+                        <th>Description</th>
+                        <th style="text-align:center; min-width: 80px">Rate</th>
+                        <th>Effective Date From</th>
+                        <th>Effective Date To</th>
                         <th style="min-width: 80px;">Enter Date</th>
                     </tr>
                     </thead>
@@ -82,18 +68,10 @@
                     {% for data in query %}
                         <tr>
                             <td>{{ data.code }}</td>
-                            <td>{{ data.accountnumber }}</td>
-                            <td>{{ data.bank.code }}</td>
-                            <td>{{ data.bankaccounttype.code }}</td>
-                            <td>{{ data.bankbranch.code }}</td>
-                            <td align="right">{{ data.beg_amount|default:''|intcomma }}</td>
-                            <td>{{ data.beg_code|default:'' }}</td>
-                            <td>{{ data.beg_date|date:'Y-m-d' }}</td>
-                            <td align="right">{{ data.run_amount|default:''|intcomma }}</td>
-                            <td>{{ data.run_code|default:'' }}</td>
-                            <td>{{ data.run_date|date:'Y-m-d' }}</td>
-                            <td>{{ data.chartofaccount.accountcode }}</td>
-                            <td>{{ data.currency.symbol }}</td>
+                            <td>{{ data.description }}</td>
+                            <td align="center">{{ data.rate }}</td>
+                            <td>{{ data.effectivedatefrom|date:'Y-m-d' }}</td>
+                            <td>{{ data.effectivedateto|date:'Y-m-d' }}</td>
                             <td>{{ data.enterdate|date:'Y-m-d' }}</td>
                         </tr>
                     {% endfor %}
