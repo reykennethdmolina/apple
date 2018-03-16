@@ -1,0 +1,153 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Product Budget Master List {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <style>
+        #resulttable th{
+            min-width: 150px;
+        }
+        #resulttable td{
+            border: none !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="form-group col-sm-9">
+                            <label class="control-label small">Order By</label>
+                            <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_order" name="rep_order[]">
+                                <option value="year">Year</option>
+                                <option value="remarks">Remarks</option>
+                                <option value="formula">Formula</option>
+                                <option value="method">Method</option>
+                                <option value="mjan">January Amt.</option>
+                                <option value="mfeb">February Amt.</option>
+                                <option value="mmar">March Amt.</option>
+                                <option value="mapr">April Amt.</option>
+                                <option value="mmay">May Amt.</option>
+                                <option value="mjun">June Amt.</option>
+                                <option value="mjul">July Amt.</option>
+                                <option value="maug">August Amt.</option>
+                                <option value="msep">September Amt.</option>
+                                <option value="moct">October Amt.</option>
+                                <option value="mnov">November Amt.</option>
+                                <option value="mdec">December Amt.</option>
+                                <option value="chartofaccount">Chart of Account</option>
+                                <option value="product">Product</option>
+                                <option value="enterdate">Enter Date</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">&nbsp;</label>
+                            <select class="form-control input-sm" id="rep_asc_holder" name="rep_asc_holder">
+                                <option value=""> -- </option>
+                                <option value="a" {% if rep_asc_holder == 'a' %}selected{% endif %}>Ascending</option>
+                                <option value="d" {% if rep_asc_holder == 'd' %}selected{% endif %}>Descending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="control-label small">&nbsp;</label>
+                            <button type="submit" class="btn btn-info btn-sm">Generate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-bordered">
+            <div class="panel-body" style="overflow: auto; width: 100%">
+                <div style="position: absolute; right: 0; padding-right: 30px;">Run date: {% now "Y-m-d" %}</div><br>
+
+                <table id="resulttable" class="table table-condensed table-hover small">
+                    <thead>
+                    <tr>
+                        <th style="min-width: 50px;">Year</th>
+                        <th>Remarks</th>
+                        <th>Formula</th>
+                        <th>Method</th>
+                        <th style="min-width: 300px;">Chart of Account</th>
+                        <th style="min-width: 300px;">Product</th>
+                        <th style="text-align: right">January</th>
+                        <th style="text-align: right">February</th>
+                        <th style="text-align: right">March</th>
+                        <th style="text-align: right">April</th>
+                        <th style="text-align: right">May</th>
+                        <th style="text-align: right">June</th>
+                        <th style="text-align: right">July</th>
+                        <th style="text-align: right">August</th>
+                        <th style="text-align: right">September</th>
+                        <th style="text-align: right">October</th>
+                        <th style="text-align: right">November</th>
+                        <th style="text-align: right">December</th>
+                        <th>Enter Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in query %}
+                        <tr>
+                            <td>{{ data.year }}</td>
+                            <td>{{ data.remarks }}</td>
+                            <td>{{ data.formula }}</td>
+                            <td>{{ data.method }}</td>
+                            <td>{{ data.chartofaccount.accountcode }} - {{ data.chartofaccount.title }}</td>
+                            <td>{{ data.product.code }} - {{ data.product.description }}</td>
+                            <td align="right">{{ data.mjan|intcomma }}</td>
+                            <td align="right">{{ data.mfeb|intcomma }}</td>
+                            <td align="right">{{ data.mmar|intcomma }}</td>
+                            <td align="right">{{ data.mapr|intcomma }}</td>
+                            <td align="right">{{ data.mmay|intcomma }}</td>
+                            <td align="right">{{ data.mjun|intcomma }}</td>
+                            <td align="right">{{ data.mjul|intcomma }}</td>
+                            <td align="right">{{ data.maug|intcomma }}</td>
+                            <td align="right">{{ data.msep|intcomma }}</td>
+                            <td align="right">{{ data.moct|intcomma }}</td>
+                            <td align="right">{{ data.mnov|intcomma }}</td>
+                            <td align="right">{{ data.mdec|intcomma }}</td>
+                            <td>{{ data.enterdate|date:'Y-m-d' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+    $(function(){
+        $('.select2').select2({});
+
+        $("#rep_order").on("select2:select", function (evt) {
+            var element = evt.params.data.element;
+            var $element = $(element);
+
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
+        });
+
+        // config order by
+        stringorder = '{{ rep_order }}'.split(',');
+        for(var i = 0; i<stringorder.length; i++){
+            console.log(stringorder[i])
+            $('#rep_order option[value="' + stringorder[i] + '"]').prop('selected', true);
+            element = $('#rep_order option[value="' + stringorder[i] + '"]');
+            element.detach();
+            $('#rep_order').append(element);
+            $('#rep_order').select2();
+        }
+    });
+</script>
+{% endblock extra_js %}

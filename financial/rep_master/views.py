@@ -10,6 +10,10 @@ from branch.models import Branch
 from ataxcode.models import Ataxcode
 from vat.models import Vat
 from inputvat.models import Inputvat
+from collector.models import Collector
+from employee.models import Employee
+from productbudget.models import Productbudget
+
 
 @method_decorator(login_required, name='dispatch')
 class BankList(TemplateView):
@@ -281,4 +285,98 @@ class InputVatList(TemplateView):
         context['query'] = query
 
         return self.render_to_response(context)
+
+
+@method_decorator(login_required, name='dispatch')
+class CollectorCashierList(TemplateView):
+    template_name = 'rep_master/collectorcashier.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        query = Collector.objects.filter(status='A', isdeleted=0)
+
+        if self.request.GET:
+            if self.request.GET.getlist('rep_order[]'):
+                key_data = str(self.request.GET.getlist('rep_order[]'))
+                query = query.order_by(*self.request.GET.getlist('rep_order[]'))
+                context['rep_order'] = ','.join(map(str, self.request.GET.getlist('rep_order[]')))
+
+            if self.request.GET.get('rep_asc_holder'):
+                key_data = str(self.request.GET.get('rep_asc_holder'))
+                if key_data == 'd':
+                    query = query.reverse()
+                context['rep_asc_holder'] = self.request.GET.get('rep_asc_holder')
+
+        context['query'] = query
+
+        return self.render_to_response(context)
+
+
+@method_decorator(login_required, name='dispatch')
+class EmployeeList(TemplateView):
+    template_name = 'rep_master/employee.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        query = Employee.objects.filter(status='A', isdeleted=0)
+
+        if self.request.GET:
+            if self.request.GET.getlist('rep_order[]'):
+                key_data = str(self.request.GET.getlist('rep_order[]'))
+                query = query.order_by(*self.request.GET.getlist('rep_order[]'))
+                context['rep_order'] = ','.join(map(str, self.request.GET.getlist('rep_order[]')))
+
+            if self.request.GET.get('rep_asc_holder'):
+                key_data = str(self.request.GET.get('rep_asc_holder'))
+                if key_data == 'd':
+                    query = query.reverse()
+                context['rep_asc_holder'] = self.request.GET.get('rep_asc_holder')
+
+        context['query'] = query
+
+        return self.render_to_response(context)
+
+
+@method_decorator(login_required, name='dispatch')
+class ProductBudgetList(TemplateView):
+    template_name = 'rep_master/productbudget.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        query = Productbudget.objects.filter(status='A', isdeleted=0)
+
+        if self.request.GET:
+            if self.request.GET.getlist('rep_order[]'):
+                key_data = str(self.request.GET.getlist('rep_order[]'))
+                query = query.order_by(*self.request.GET.getlist('rep_order[]'))
+                context['rep_order'] = ','.join(map(str, self.request.GET.getlist('rep_order[]')))
+
+            if self.request.GET.get('rep_asc_holder'):
+                key_data = str(self.request.GET.get('rep_asc_holder'))
+                if key_data == 'd':
+                    query = query.reverse()
+                context['rep_asc_holder'] = self.request.GET.get('rep_asc_holder')
+
+        context['query'] = query
+
+        return self.render_to_response(context)
+
 
