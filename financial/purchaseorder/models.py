@@ -12,6 +12,7 @@ class Pomain(models.Model):
     refnum = models.CharField(max_length=150, null=True, blank=True)
     RF_TYPE_CHOICES = (
         ('REG', 'Regular'),
+        ('EXD', 'Exdeal'),
     )
     potype = models.CharField(max_length=10, choices=RF_TYPE_CHOICES, default='REG')
     URGENCY_CHOICES = (

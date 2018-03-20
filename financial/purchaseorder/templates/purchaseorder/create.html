@@ -154,7 +154,7 @@
                                         <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
                                             <option value="">-- Select --</option>
                                             {% for vat in vat %}
-                                                <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
+                                                <option value="{{ vat.id }}" data-code="{{ vat.code }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
                                             {% endfor %}
                                         </select>
                                         <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>

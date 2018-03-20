@@ -69,6 +69,53 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
 
+        # context['data'] = Poapvtransaction.objects.filter(Q(apmain__apmain_apvcvtransaction__cvamount=True) | Q(apmain__apmain_apvcvtransaction__cvamount=False))
+        # context['data'] = Apmain.objects.filter(apmain_apvcvtransaction__apmain=True)
+
+        # PO-based report
+        poapvtrans = Poapvtransaction.objects.filter(status='A').order_by('-pomain', '-podetail', '-apmain')
+        apvcvtrans = []
+        for data in poapvtrans:
+            apmain = get_object_or_None(Apvcvtransaction, apmain=data.apmain)
+            if apmain:
+                if apmain.new_apmain:
+                    apvcvtrans.append({
+                        'ap_to_ap_num': apmain.new_apmain.apnum,
+                        'ap_to_ap_date': apmain.new_apmain.apdate,
+                        'ap_to_cv_num': '',
+                        'ap_to_cv_date': '',
+                        'ap_or_cv_amt': apmain.cvamount
+                    })
+                elif apmain.cvmain:
+                    apvcvtrans.append({
+                        'ap_to_ap_num': '',
+                        'ap_to_ap_date': '',
+                        'ap_to_cv_num': apmain.cvmain.cvnum,
+                        'ap_to_cv_date': apmain.cvmain.cvdate,
+                        'ap_or_cv_amt': apmain.cvamount
+                    })
+                else:
+                    apvcvtrans.append({
+                        'ap_to_ap_num': '',
+                        'ap_to_ap_date': '',
+                        'ap_to_cv_num': '',
+                        'ap_to_cv_date': '',
+                        'ap_or_cv_amt': ''
+                    })
+            else:
+                apvcvtrans.append({
+                    'ap_to_ap_num': '',
+                    'ap_to_ap_date': '',
+                    'ap_to_cv_num': '',
+                    'ap_to_cv_date': '',
+                    'ap_or_cv_amt': ''
+                })
+        context['data'] = zip(poapvtrans, apvcvtrans)
+
+        # APV-based report
+        apvcv = Apvcvtransaction.objects.filter(status='A').order_by('-apmain')
+        context['data2'] = apvcv
+
         if self.request.GET:
             context['selectprocess'] = self.request.GET['selectprocess']
             if 'datefrom' in self.request.GET:
@@ -506,7 +553,7 @@ def importtransdata(request):
                 newapvcvtrans.apmain = data
                 newapvcvtrans.cvamount = float(request.POST.getlist('temp_actualamount')[i].replace(',', ''))
                 if request.POST['transtype'] == 'apvtoapv':
-                    newapvcvtrans.old_apmain = newapv
+                    newapvcvtrans.new_apmain = newapv
                 elif request.POST['transtype'] == 'apvtocv':
                     newapvcvtrans.cvmain = newapv
                 total_amount += newapvcvtrans.cvamount

@@ -181,7 +181,7 @@
                                         <select class="form-control input-sm" data-validation="required" id="id_vat" name="vat">
                                             <option value="">-- Select --</option>
                                             {% for vat in vat %}
-                                                <option value="{{ vat.id }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
+                                                <option value="{{ vat.id }}" data-code="{{ vat.code }}" data-rate="{{ vat.rate }}" {% if form.vat.value|add:0 == vat.id %} selected="selected" {% endif %}>[{{ vat.code }}]&nbsp;&nbsp;{{ vat.description }}</option>
                                             {% endfor %}
                                         </select>
                                         <span id="vatrate" class="text-success small floatright"><strong>RATE</strong></span>
@@ -565,6 +565,7 @@
                 $("#id_podate").prop("readonly", true);
                 $("#id_podate").datepicker("destroy");
                 $("#id_podate").removeClass("datepicker").removeAttr('id');
+                $("#id_potype option:selected").siblings().attr('disabled','disabled');
                 $("#id_refnum").prop("readonly", true);
                 $("#id_urgencytype option:selected").siblings().attr('disabled','disabled');
                 $("#id_dateneeded").prop("readonly", true);
@@ -575,13 +576,6 @@
                 $('#id_supplier option:selected').siblings().prop("disabled", true);
                 $('#id_supplier').select2("destroy");
                 $('#id_supplier').select2();
-                $('#id_creditterm option:selected').siblings().prop("disabled", true);
-                $('#id_vat option:selected').siblings().prop("disabled", true);
-                $('#id_atc option:selected').siblings().prop("disabled", true);
-                $('#id_currency option:selected').siblings().prop("disabled", true);
-                $('#id_inputvattype option:selected').siblings().prop("disabled", true);
-                $('#id_deferredvat option:selected').siblings().prop("disabled", true);
-                $('#id_wtax option:selected').siblings().prop("disabled", true);
                 $("#id_deliverydate").prop("readonly", true);
                 $("#id_deliverydate").datepicker("destroy");
                 $("#id_deliverydate").removeClass("datepicker").removeAttr('id');
@@ -598,6 +592,15 @@
                 $(".tblInputDiscountRate").prop("readonly", true);
                 $(".tblInputDiscountAmount").prop("readonly", true);
                 $(".tblSelectDiscountType option:selected").siblings().attr('disabled','disabled');
+                {% if editable == 'false' %}
+                    $('#id_creditterm option:selected').siblings().prop("disabled", true);
+                    $('#id_vat option:selected').siblings().prop("disabled", true);
+                    $('#id_atc option:selected').siblings().prop("disabled", true);
+                    $('#id_currency option:selected').siblings().prop("disabled", true);
+                    $('#id_inputvattype option:selected').siblings().prop("disabled", true);
+                    $('#id_deferredvat option:selected').siblings().prop("disabled", true);
+                    $('#id_wtax option:selected').siblings().prop("disabled", true);
+                {% endif %}
             }
             else{
 {#                $('#id_supplier option:selected').siblings().prop("disabled", true);#}
@@ -612,22 +615,6 @@
 
                 $("#detailsbutton").click(function (){
                     $("#detailentry").show();
-                });
-
-                $("#id_vat").change(function(){
-                    showRate("#id_vat", "vatrate", "RATE");
-                });
-
-                $("#id_atc").change(function(){
-                    showRate("#id_atc", "atcrate", "RATE");
-                });
-
-                $("#id_currency").change(function(){
-                    showRate("#id_currency", "fxrate", "FX RATE");
-                });
-
-                $("#id_wtax").change(function(){
-                    showRate("#id_wtax", "wtaxrate", "RATE");
                 });
 
                 $("#id_designatedapprover").change(function(){
@@ -684,6 +671,24 @@
                     }
                 });
             }
+
+            {% if editable == 'true' %}
+                $("#id_vat").change(function(){
+                    showRate("#id_vat", "vatrate", "RATE");
+                });
+
+                $("#id_atc").change(function(){
+                    showRate("#id_atc", "atcrate", "RATE");
+                });
+
+                $("#id_currency").change(function(){
+                    showRate("#id_currency", "fxrate", "FX RATE");
+                });
+
+                $("#id_wtax").change(function(){
+                    showRate("#id_wtax", "wtaxrate", "RATE");
+                });
+            {% endif %}
 
             $("#form-b").submit(function(event){
                 if($('.tblInputQuantity').length == 0) {

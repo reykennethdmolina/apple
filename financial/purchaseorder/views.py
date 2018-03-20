@@ -22,6 +22,7 @@ from wtax.models import Wtax
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from acctentry.views import generatekey
+from processing_transaction.models import Poapvtransaction
 import datetime
 
 # pagination and search
@@ -337,8 +338,9 @@ class UpdateView(UpdateView):
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
 
         detail = Podetail.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
+        context['editable'] = 'false' if Poapvtransaction.objects.filter(pomain=self.object.pk) else 'true'
 
-        if self.object.postatus != 'A':
+        if self.object.postatus != 'A' or context['editable'] == 'true':
             Podetailtemp.objects.filter(pomain=self.object.pk).delete()        # clear all temp data
             for d in detail:
                 detailtemp = Podetailtemp()

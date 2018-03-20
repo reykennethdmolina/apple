@@ -213,6 +213,77 @@
                     </div>
                     {% endblock %}
                 </div>
+            <br>
+            <br>
+            <br>
+            <br>
+{#            <table class="table small">#}
+{#            <thead>#}
+{#            <tr>#}
+{#                <th>PO #</th>#}
+{#                <th>PO Date</th>#}
+{#                <th>PO Item</th>#}
+{#                <th style="text-align: right; border-right: 1px solid #e0e0e0;">PO Item Amt</th>#}
+{#                <th style="text-align: center;">APV #</th>#}
+{#                <th style="text-align: center;">APV Date</th>#}
+{#                <th style="text-align: right; border-right: 1px solid #e0e0e0;">APV Amt</th>#}
+{#                <th style="text-align: center;">APV # (payment)</th>#}
+{#                <th style="text-align: center; border-right: 1px solid #e0e0e0;">APV Date (payment)</th>#}
+{#                <th style="text-align: center;">CV #</th>#}
+{#                <th style="text-align: center;border-right: 1px solid #e0e0e0;">CV Date</th>#}
+{#                <th style="text-align: right;">Amt Paid</th>#}
+{#            </tr>#}
+{#            </thead>#}
+{#            {% for poapvtrans, apvcvtrans in data %}#}
+{#            <tr>#}
+{#                <td {% ifchanged poapvtrans.pomain.ponum %}{% else %}style="border-top: none;" {% endifchanged %}>{% ifchanged poapvtrans.pomain.ponum %}{{ poapvtrans.pomain.ponum }}{% endifchanged %}</td>#}
+{#                <td {% ifchanged poapvtrans.pomain.ponum %}{% else %}style="border-top: none;" {% endifchanged %}>{% ifchanged poapvtrans.pomain.ponum %}{{ poapvtrans.pomain.podate|date:'Y-m-d' }}{% endifchanged %}</td>#}
+{#                <td {% ifchanged poapvtrans.pomain.ponum and poapvtrans.podetail.invitem_name %}{% else %}style="border-top: none;" {% endifchanged %}>{% ifchanged poapvtrans.pomain.ponum and poapvtrans.podetail.invitem_name %}{{ poapvtrans.podetail.invitem_name }}{% endifchanged %}</td>#}
+{#                <td style="border-right: 1px solid #e0e0e0;{% ifchanged poapvtrans.pomain.ponum and poapvtrans.podetail.invitem_name %}{% else %}border-top: none;{% endifchanged %}" align="right">{% ifchanged poapvtrans.pomain.ponum and poapvtrans.podetail.invitem_name %}{{ poapvtrans.podetail.netamount|floatformat:2|intcomma }}{% endifchanged %}</td>#}
+{#                <td align="center">{{ poapvtrans.apmain.apnum|default:'-' }}</td>#}
+{#                <td align="center">{{ poapvtrans.apmain.apdate|date:'Y-m-d'|default:'-' }}</td>#}
+{#                <td align="right" style="border-right: 1px solid #e0e0e0;">{% if poapvtrans.apmain %}{{ poapvtrans.apamount|floatformat:2|intcomma }}{% else %}-{% endif %}</td>#}
+{#                <td align="center">{{ apvcvtrans.ap_to_ap_num|default:'-' }}</td>#}
+{#                <td align="center" style="border-right: 1px solid #e0e0e0;">{{ apvcvtrans.ap_to_ap_date|date:'Y-m-d'|default:'-' }}</td>#}
+{#                <td align="center">{% if poapvtrans.cvmain %}{{ poapvtrans.cvmain.cvnum }}{% elif apvcvtrans.ap_to_cv_num %}{{ apvcvtrans.ap_to_cv_num }}{% else %}-{% endif %}</td>#}
+{#                <td align="center" style="border-right: 1px solid #e0e0e0;">{% if poapvtrans.cvmain %}{{ poapvtrans.cvmain.cvdate|date:'Y-m-d' }}{% elif apvcvtrans.ap_to_cv_num %}{{ apvcvtrans.ap_to_cv_date|date:'Y-m-d' }}{% else %}-{% endif %}</td>#}
+{#                <td align="right">{% if apvcvtrans.ap_to_ap_num %}{{ poapvtrans.apamount|floatformat:2|intcomma }}{% elif poapvtrans.cvmain %}{{ poapvtrans.apamount|floatformat:2|intcomma }}{% elif apvcvtrans.ap_to_cv_num %}{{ poapvtrans.apamount|floatformat:2|intcomma }}{% else %}-{% endif %}</td>#}
+{#            </tr>#}
+{#            {% endfor %}#}
+{#            </table>#}
+
+{#            <table class="table small">#}
+{#            <thead>#}
+{#                <tr>#}
+{#                    <th>APV #</th>#}
+{#                    <th>APV Date</th>#}
+{#                    <th>APV Amt</th>#}
+{#                    <th style="text-align: right; border-right: 1px solid #e0e0e0;">PO Item Amt</th>#}
+{#                    <th style="text-align: center;">APV #</th>#}
+{#                    <th style="text-align: center;">APV Date</th>#}
+{#                    <th style="text-align: right; border-right: 1px solid #e0e0e0;">APV Amt</th>#}
+{#                    <th style="text-align: center;">APV # (payment)</th>#}
+{#                    <th style="text-align: center; border-right: 1px solid #e0e0e0;">APV Date (payment)</th>#}
+{#                    <th style="text-align: center;">CV #</th>#}
+{#                    <th style="text-align: center;border-right: 1px solid #e0e0e0;">CV Date</th>#}
+{#                    <th style="text-align: right;">Amt Paid</th>#}
+{#                </tr>#}
+{#            </thead>#}
+{#            {% for data in data2 %}#}
+{#                <tr>#}
+{#                    <td>{{ data.apmain.apnum }}</td>#}
+{#                    <td>{{ data.apmain.apdate|date:'Y-m-d' }}</td>#}
+{#                    <td align="right">{{ data.apmain.amount|floatformat:2|intcomma }}</td>#}
+{#                    <td>{{ data.new_apmain.apnum|default:'-' }}</td>#}
+{#                    <td>{{ data.new_apmain.apdate|date:'Y-m-d'|default:'-' }}</td>#}
+{#                    <td align="right">{{ data.apmain.amount|floatformat:2|intcomma|default:'-' }}</td>#}
+{#                    <td>{{ data.cvmain.cvnum|default:'-' }}</td>#}
+{#                    <td>{{ data.cvmain.cvdate|date:'Y-m-d'|default:'-' }}</td>#}
+{#                    <td align="right">{{ data.apmain.amount|floatformat:2|intcomma|default:'-' }}</td>#}
+{#                </tr>#}
+{#            {% endfor %}#}
+{#            </table>#}
+
             </div>
 
             <div class="clearfix"></div>

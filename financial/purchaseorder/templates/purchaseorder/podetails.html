@@ -362,7 +362,7 @@
 
         function computeAllValues(){
             var vat = parseFloat($('#id_vat option:selected').data('rate')) / 100;
-            var vatCode = $('#id_vat option:selected').text();
+            var vatCode = $('#id_vat option:selected').data('code');
 
             $('.tblInputUnitCost').each(function(){
                 var temp_unitCost = $(this).val().replace( /,/g, "") == "" ? 0 :
