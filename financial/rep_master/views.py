@@ -13,6 +13,54 @@ from inputvat.models import Inputvat
 from collector.models import Collector
 from employee.models import Employee
 from productbudget.models import Productbudget
+from chartofaccount.models import Chartofaccount
+from customer.models import Customer
+from department.models import Department
+from supplier.models import Supplier
+from purchaseorder.models import Pomain
+from django.db.models import Q, Sum, Count
+from dateutil.relativedelta import relativedelta
+import datetime
+
+
+@method_decorator(login_required, name='dispatch')
+class IndexList(TemplateView):
+    template_name = 'rep_master/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+        context['rep_count_bank'] = Bank.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_bankbranch'] = Bankbranch.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_bankaccount'] = Bankaccount.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_product'] = Product.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_mainproduct'] = Mainproduct.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_branch'] = Branch.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_ataxcode'] = Ataxcode.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_vat'] = Vat.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_inputvat'] = Inputvat.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_collector'] = Collector.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_employee'] = Employee.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_productbudget'] = Productbudget.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_chartofaccount'] = Chartofaccount.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_customer'] = Customer.objects.filter(status='A', isdeleted=0).count()
+        context['rep_count_department'] = Department.objects.filter(isdeleted=0).count()
+        context['rep_count_supplier'] = Supplier.objects.filter(status='A', isdeleted=0).count()
+
+        context['rep_topdept'] = Employee.objects.all().filter(isdeleted=0, status='A').values('department__code')\
+                                                       .annotate(total=Count('department')).order_by('-total')[:5]
+
+        context['rep_newemp'] = Employee.objects.all().filter(isdeleted=0, status='A').order_by('-enterdate')[:5]
+
+        # filter status posted soon
+        year_ago = datetime.datetime.now() - relativedelta(years=1)
+        context['rep_topsupfrompo'] = Pomain.objects.all().filter(isdeleted=0, status='A', responsedate__gte=year_ago)\
+                                                          .values('supplier__code', 'supplier__name')\
+                                                          .annotate(totaluse=Count('supplier'))\
+                                                          .order_by('-totaluse')[:5]
+        context['rep_topsupfrompototal'] = Pomain.objects.all().filter(isdeleted=0, status='A', responsedate__gte=year_ago)\
+                                                               .exclude(supplier__isnull=True).count()
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')

@@ -1,0 +1,234 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load mathfilters %}
+{% load humanize %}
+{% block page-title %} Master List {% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/c3-chart/c3.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/infobox.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
+    {% load static %}
+    <style>
+    .rep-count{
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        margin-right: 10px;
+    }
+    .price-list .price-features li{
+        text-align: left;
+        position: relative;
+    }
+    .block-10{
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="row">
+    <div class="panel-body">
+        <div class="col-md-3">
+            <div class="price-list">
+                <ul class="price-features small" style="height: 500px; overflow-y: scroll;">
+                    <li class="small">
+                        <a href="{% url 'rep_master:ataxcode' %}" target="_blank">ATAX Code</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_ataxcode|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:bank' %}" target="_blank">Bank</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_bank|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:bankaccount' %}" target="_blank">Bank Account</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_bankaccount|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:bankbranch' %}" target="_blank">Bank Branch</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_bankbranch|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:branch' %}" target="_blank">Branch</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_branch|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_chartofaccount:index' %}" target="_blank">Chart of Account</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_chartofaccount|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:collectorcashier' %}" target="_blank">Collector/Cashier</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_collector|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_customer:index' %}" target="_blank">Customer</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_customer|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_department:index' %}" target="_blank">Department</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_department|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:employee' %}" target="_blank">Employee</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_employee|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:inputvat' %}" target="_blank">Input VAT</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_inputvat|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:mainproduct' %}" target="_blank">Main Product</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_mainproduct|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:product' %}" target="_blank">Product</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_product|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:productbudget' %}" target="_blank">Product Budget</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_productbudget|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_supplier:index' %}" target="_blank">Supplier</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_supplier|intcomma }}</span></div>
+                    </li>
+                    <li class="small">
+                        <a href="{% url 'rep_master:vat' %}" target="_blank">VAT</a>
+                        <div class="rep-count text-danger"><span class="badge badge-warning">{{ rep_count_vat|intcomma }}</span></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="widgett widgett-article widgett-shadow">
+                <div class="heading-top-index-2"><h3>Most used <span>Suppliers</span></h3></div>
+                <div class="product-main">
+                    <div class="static-box product-main-div margin-0">
+                        <h6>For the past year</h6>
+                        <div class="progress" aria-valuenow="0">
+                            {% for data in rep_topsupfrompo %}
+                                <div class="progress-bar supp-progress-bar"
+                                     data-size="{{ data.totaluse|div:rep_topsupfrompototal|mul:100|floatformat:"0" }}"
+                                     data-total="{{ data.totaluse }}"
+                                     style="width: {{ data.totaluse|div:rep_topsupfrompototal|mul:100|floatformat:"0" }}%" role="progressbar">
+                                    <span>{{ data.totaluse }}</span>
+                                </div>
+                            {% endfor %}
+                            <div class="progress-bar supp-progress-bar" data-size="0" data-total="0" role="progressbar">
+                                <span>Others</span>
+                            </div>
+						</div>
+                        <table id="table-topsupplier" class="table table-condensed small">
+                            <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th style="text-align: right">Transactions</th>
+                            </tr>
+                            </thead>
+                            {% for data in rep_topsupfrompo %}
+                                <tr>
+                                    <td>
+                                        <div class="block-10"></div>
+                                        {{ data.supplier__name }}
+                                    </td>
+                                    <td align="right">{{ data.totaluse }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>
+                                    <div class="block-10"></div>
+                                    Others
+                                </td>
+                                <td align="right"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="widgett widgett-article widgett-shadow">
+                <div class="heading-top-index-2"><h3>Newest <span>Employees</span></h3></div>
+                <div class="product-main">
+                    <div class="static-box product-main-div margin-0">
+                        <table class="table table-condensed small">
+                            {% for data in rep_newemp %}
+                                <tr>
+                                    <td><i class="icon fa-user" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;{{ data.firstname|title }} {{ data.lastname|title }}</td>
+                                    <td><i class="icon fa-envelope" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;{{ data.email }}</td>
+                                    <td>{{ data.enterdate|date:'Y-m-d' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="widgett widgett-article widgett-shadow">
+                <div class="heading-top-index-2"><h3>Top <span>Departments</span></h3></div>
+                <div class="product-main">
+                    <div class="static-box product-main-div margin-0" style="padding-top: 0px;">
+                        <div id="chart"></div><br>
+                        <table class="table table-condensed small">
+                            <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th style="text-align: right"><i class="icon fa-users" aria-hidden="true"></i></th>
+                            </tr>
+                            </thead>
+                            {% for data in rep_topdept %}
+                                <tr>
+                                    <td>{{ data.department__code }}</td>
+                                    <td align="right">{{ data.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+<script src="{% static 'financial-layout/assets/js/c3-chart/c3.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/js/c3-chart/d3.min.js' %}"></script>
+<script>
+    $(function() {
+        var chart = c3.generate({
+            data: {
+                columns: [
+                    {% for data in rep_topdept %}
+                        ['{{ data.department__code }}', {{ data.total }}],
+                    {% endfor %}
+                ],
+                type: 'pie',
+            }
+        });
+
+        var fillsize = 0;
+        var totalsize = 0;
+        $.each($('.supp-progress-bar'), function(){
+            fillsize += parseInt($(this).data('size'));
+            totalsize += parseInt($(this).data('total'));
+        });
+        $('.supp-progress-bar:eq(5)').css({'width':(100-fillsize)+'%', 'background-color':'#6a1b9a'});
+        $('#table-topsupplier tr:eq(6) td:eq(1)').text(totalsize);
+
+        $('.supp-progress-bar:eq(0)').addClass('progress-bar-success');
+        $('.supp-progress-bar:eq(1)').addClass('progress-bar-warning');
+        $('.supp-progress-bar:eq(2)').addClass('progress-bar-info');
+        $('.supp-progress-bar:eq(3)').addClass('progress-bar-danger');
+        $('.supp-progress-bar:eq(4)').addClass('progress-bar-primary');
+
+        $('#table-topsupplier tr:eq(1) td div.block-10').css({'background-color':'rgb(92, 184, 92)'});
+        $('#table-topsupplier tr:eq(2) td div.block-10').css({'background-color':'rgb(240, 173, 78)'});
+        $('#table-topsupplier tr:eq(3) td div.block-10').css({'background-color':'rgb(0, 96, 100)'});
+        $('#table-topsupplier tr:eq(4) td div.block-10').css({'background-color':'rgb(217, 83, 79)'});
+        $('#table-topsupplier tr:eq(5) td div.block-10').css({'background-color':'rgb(51, 122, 183)'});
+        $('#table-topsupplier tr:eq(6) td div.block-10').css({'background-color':'rgb(106, 27, 154)'});
+    });
+</script>
+{% endblock extra_js %}
