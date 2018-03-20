@@ -37,6 +37,16 @@
                             </div>
                         </div>
                         <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="rep_status" name="rep_status" style="width: 100%;">
+                                <option value="">-- Select --</option>
+                                <option {% if rep_status == 'F' %}selected{% endif %} value="F">For Approval</option>
+                                <option {% if rep_status == 'A' %}selected{% endif %} value="A">Approved</option>
+                                <option {% if rep_status == 'D' %}selected{% endif %} value="D">Disapproved</option>
+                                <option {% if rep_status == 'R' %}selected{% endif %} value="R">Release</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
                             <label class="control-label small">Result Type</label>
                             <select class="form-control input-sm" id="rep_type" name="rep_type" style="width: 100%;">
                                 <option {% if rep_type == 'd' %}selected{% endif %} value="d">Detailed</option>
