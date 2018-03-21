@@ -1,0 +1,184 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Report Maintenance {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/multi-select/css/multi-select.min.css' %}" />
+    <style>
+        .price-list .price-features li{
+            text-align: left;
+            position: relative;
+        }
+        .price-list a{
+            display: block;
+        }
+        .price-list li {
+            text-align: left;
+        }
+        .ms-container{
+            width: 100%;
+            margin-top: 58px;
+        }
+        .ms-list{
+            height: 402px !important;
+        }
+        #btn-container{
+            margin-top: 58px;
+        }
+        .input-search{
+            z-index: 1;
+        }
+        .rep-command{
+            display: inline-block;
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+        }
+        .rep-command a{
+            display: inline-block;
+        }
+        .btn-icon.btn-sm, .btn.icon.btn-sm{
+            font-size: 11px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        .input-edit{
+            display: none;
+        }
+        .input-edit-text{
+            display: inline-block;
+            width: 70%;
+        }
+        .input-edit-btn{
+            padding-top: 5px;
+            padding-bottom: 6px;
+            vertical-align: top;
+        }
+        .rename_report{
+            color: #006064;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="row">
+    <div class="panel-body">
+        <div class="col-md-4">
+            <div class="form-group">
+                <div class="input-search">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button id="add_report" class="input-search-button">
+                            <span class="icon_plus" aria-hidden="true"></span>
+                        </button>
+                        <input type="text" name="reportnew" class="form-control" placeholder="Add new ...">
+                    </form>
+                </div>
+            </div>
+            <br>
+            <div class="price-list">
+                <ul class="price-features small" style="height: 400px; overflow-y: scroll;">
+                    {% for data in reportlist %}
+                        <li id="rep_{{ data.pk }}" class="small" {% if data.pk|add:0 == request.GET.get|add:0 %}style="background-color: #e1e1e1;"{% endif %}>
+                            <div class="input-desc">
+                                {{ data.name }}
+                                <div class="rep-command">
+                                    <a href="{% url 'reportdashboard:maintenance' %}?get={{ data.id }}">
+                                        <button type="button" class="btn btn-pure btn-sm icon fa-search waves-effect waves-circle waves-classic"></button>
+                                    </a>
+                                    <button type="button" class="rename_report btn btn-pure btn-sm icon fa-edit waves-effect waves-circle waves-classic"></button>
+                                    <a href="{% url 'reportdashboard:maintenance' %}?delete={{ data.id }}" onclick="return confirm('Are you sure?');">
+                                        <button type="button" class="btn btn-pure btn-sm icon fa-trash waves-effect waves-circle waves-classic"></button>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="input-edit">
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" class="form-control input-sm input-edit-text" name="reportedit" value="{{ data.name }}">
+                                    <input type="hidden" name="reporteditid" value="{{ data.pk }}">
+                                    <button type="submit" class="input-edit-btn btn btn-sm"><i class="icon fa-save" aria-hidden="true"></i></button>
+                                    <button type="button" class="input_edit_cancel input-edit-btn btn btn-sm"><i class="icon fa-close" aria-hidden="true"></i></button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <form action="" method="post" id="rep-list">
+                {% csrf_token %}
+                <select multiple="multiple" id="modulelist" name="modulelist[]">
+                    {% for data in modulelist %}
+                        <option value="{{ data.id }}" class="small">{{ data.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="reportlist" value="{{ request.GET.get }}">
+            </form>
+        </div>
+        <div class="col-md-1">
+            <div id="btn-container" class="public-method-btn">
+                <button type="button" id="multi_selectall" class="btn btn-sm btn-floating waves-effect waves-float waves-light">
+                    <i class="icon fa-angle-double-right" aria-hidden="true"></i>
+                </button>
+                <br><br>
+                <button type="button" id="multi_deselectall" class="btn btn-sm btn-floating waves-effect waves-float waves-light">
+                    <i class="icon fa-angle-double-left" aria-hidden="true"></i>
+                </button>
+                <br><br>
+                <a href="" style="color: #76838f;">
+                    <button type="button" id="multi_refresh" class="btn btn-sm btn-floating waves-effect waves-float waves-light">
+                        <i class="icon fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </a>
+                <br><br>
+                <button type="submit" class="btn btn-sm btn-floating waves-effect waves-float waves-light" form="rep-list">
+                    <i class="icon fa-save" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="report-exist" class="custom-alert danger">Report Name already exists!</div>
+<div id="report-save" class="custom-alert success">Saved.</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/multi-select/js/jquery.multi-select.js' %}"></script>
+    <script>
+    $(function(){
+        $('.rename_report').on('click', function(){
+            $('.rename_report').parent().parent().show();
+            $('.rename_report').parent().parent().next().hide();
+            $(this).parent().parent().hide();
+            $(this).parent().parent().next().show();
+        });
+        $('.input_edit_cancel').on('click', function(){
+            $('.rename_report').parent().parent().show();
+            $('.rename_report').parent().parent().next().hide();
+        });
+
+        if('{{ request.GET.get }}' != ''){
+            $('.price-features').scrollTop($('.price-features').scrollTop() + $('li#rep_{{ request.GET.get }}').position().top
+                - $('.price-features').height()/2 + $('li#rep_{{ request.GET.get }}').height()/2);
+        }
+
+        $('#modulelist').multiSelect();
+
+        {% for data in reportmodule %}
+            $('#modulelist').multiSelect('select', '{{ data.reportmodule.pk }}');
+        {% endfor %}
+
+        $('#multi_selectall').on('click', function(){
+            $('#modulelist').multiSelect('select_all');
+        });
+        $('#multi_deselectall').on('click', function(){
+            $('#modulelist').multiSelect('deselect_all');
+        });
+
+        if('{{ request.GET.message }}' == 'exist') customAlert($('#report-exist'));
+        if('{{ request.GET.message }}' == 'saved') customAlert($('#report-save'));
+    });
+    </script>
+{% endblock extra_js %}
