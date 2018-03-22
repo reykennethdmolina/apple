@@ -30,6 +30,9 @@ class GeneralJournalBookView(TemplateView):
             if self.request.GET['rep_dateto']:
                 key_data = str(self.request.GET['rep_dateto'])
                 query = query.filter(jvmain__jvdate__lte=key_data)
+            if self.request.GET['rep_status']:
+                key_data = str(self.request.GET['rep_status'])
+                query = query.filter(jvmain__jvstatus=key_data)
 
             querytotal = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
@@ -89,6 +92,7 @@ class GeneralJournalBookView(TemplateView):
             context['rep_datefrom'] = self.request.GET['rep_datefrom']
             context['rep_dateto'] = self.request.GET['rep_dateto']
             context['rep_type'] = self.request.GET['rep_type']
+            context['rep_status'] = self.request.GET['rep_status']
 
         context['query'] = query
         context['querytotal'] = querytotal
@@ -119,6 +123,9 @@ class CashReceiptsBookView(TemplateView):
             if self.request.GET['rep_dateto']:
                 key_data = str(self.request.GET['rep_dateto'])
                 query = query.filter(ormain__ordate__lte=key_data)
+            if self.request.GET['rep_status']:
+                key_data = str(self.request.GET['rep_status'])
+                query = query.filter(ormain__orstatus=key_data)
 
             querytotal = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
@@ -178,6 +185,7 @@ class CashReceiptsBookView(TemplateView):
             context['rep_datefrom'] = self.request.GET['rep_datefrom']
             context['rep_dateto'] = self.request.GET['rep_dateto']
             context['rep_type'] = self.request.GET['rep_type']
+            context['rep_status'] = self.request.GET['rep_status']
 
         context['query'] = query
         context['querytotal'] = querytotal
@@ -208,6 +216,9 @@ class CashDisbursementBook(TemplateView):
             if self.request.GET['rep_dateto']:
                 key_data = str(self.request.GET['rep_dateto'])
                 query = query.filter(cvmain__cvdate__lte=key_data)
+            if self.request.GET['rep_status']:
+                key_data = str(self.request.GET['rep_status'])
+                query = query.filter(cvmain__cvstatus=key_data)
 
             querytotal = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
@@ -267,6 +278,7 @@ class CashDisbursementBook(TemplateView):
             context['rep_datefrom'] = self.request.GET['rep_datefrom']
             context['rep_dateto'] = self.request.GET['rep_dateto']
             context['rep_type'] = self.request.GET['rep_type']
+            context['rep_status'] = self.request.GET['rep_status']
 
         context['query'] = query
         context['querytotal'] = querytotal

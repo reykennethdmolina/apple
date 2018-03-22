@@ -22,7 +22,7 @@ class Mainsupplier_supplier(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='mainsupplier_supplier_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='mainsupplier_supplier_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:

@@ -38,11 +38,13 @@ class Csmain(models.Model):
     remarks = models.CharField(max_length=250, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterdate = models.DateTimeField(auto_now_add=True)
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     enterby = models.ForeignKey(User, default=1, related_name='csmain_enter')
     modifyby = models.ForeignKey(User, default=1, related_name='csmain_modify')
     postby = models.ForeignKey(User, related_name='csmain_post', null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='csmain_close', null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     approverresponse = models.CharField(max_length=1, choices=RESPONSE_CHOICES, null=True, blank=True)
     responsedate = models.DateTimeField(null=True, blank=True)
@@ -113,7 +115,7 @@ class Csdata(models.Model):
     secretkey = models.CharField(max_length=255)
     isdeleted = models.IntegerField(default=0)
     enterdate = models.DateTimeField(auto_now_add=True)
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'csdata'
@@ -172,8 +174,10 @@ class Csdetail(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='csdetail_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='csdetail_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='csdetail_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='csdetail_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     # nego vat
@@ -242,8 +246,10 @@ class Csdetailtemp(models.Model):
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='csdetailtemp_modify')
     modifydate = models.DateTimeField(default=datetime.datetime.now())
-    postby = models.ForeignKey(User, default=1, related_name='csdetailtemp_post', null=True, blank=True)
-    postdate = models.DateTimeField(default=datetime.datetime.now(), null=True, blank=True)
+    postby = models.ForeignKey(User, related_name='csdetailtemp_post', null=True, blank=True)
+    postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='csdetailtemp_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     department_code = models.CharField(max_length=25, null=True, blank=True)

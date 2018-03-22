@@ -7,6 +7,7 @@ from product.models import Product
 from typeofexpense.models import Typeofexpense
 from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
+from chartofaccountsubgroup.models import ChartofAccountSubGroup
 from django.http import HttpResponseRedirect, Http404
 
 # pagination and search
@@ -53,7 +54,7 @@ class CreateView(CreateView):
               'customer_enable', 'branch_enable', 'product_enable',
               'unit_enable', 'inputvat_enable', 'outputvat_enable',
               'vat_enable', 'wtax_enable', 'ataxcode_enable',
-              'reftype_enable', 'refnum_enable', 'refdate_enable']
+              'reftype_enable', 'refnum_enable', 'refdate_enable', 'subgroup']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('chartofaccount.add_chartofaccount'):
@@ -66,6 +67,7 @@ class CreateView(CreateView):
         context['typeofexpense'] = Typeofexpense.objects.filter(isdeleted=0).order_by('description')
         context['kindofexpense'] = Kindofexpense.objects.filter(isdeleted=0).order_by('description')
         context['mainunit'] = Mainunit.objects.filter(isdeleted=0).order_by('description')
+        context['subgroup'] = ChartofAccountSubGroup.objects.filter(isdeleted=0).order_by('description')
         return context
 
     def post(self, request, **kwargs):
@@ -115,7 +117,7 @@ class UpdateView(UpdateView):
               'customer_enable', 'branch_enable', 'product_enable',
               'unit_enable', 'inputvat_enable', 'outputvat_enable',
               'vat_enable', 'wtax_enable', 'ataxcode_enable',
-              'reftype_enable', 'refnum_enable', 'refdate_enable']
+              'reftype_enable', 'refnum_enable', 'refdate_enable', 'subgroup']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('chartofaccount.change_chartofaccount'):
@@ -128,6 +130,7 @@ class UpdateView(UpdateView):
         context['typeofexpense'] = Typeofexpense.objects.filter(isdeleted=0).order_by('description')
         context['kindofexpense'] = Kindofexpense.objects.filter(isdeleted=0).order_by('description')
         context['mainunit'] = Mainunit.objects.filter(isdeleted=0).order_by('description')
+        context['subgroup'] = ChartofAccountSubGroup.objects.filter(isdeleted=0).order_by('description')
         return context
 
     def post(self, request, **kwargs):
@@ -168,7 +171,7 @@ class UpdateView(UpdateView):
                                         'branch_enable', 'product_enable', 'unit_enable',
                                         'inputvat_enable', 'outputvat_enable', 'vat_enable',
                                         'wtax_enable', 'ataxcode_enable', 'modifyby', 'modifydate',
-                                        'reftype_enable', 'refnum_enable', 'refdate_enable'])
+                                        'reftype_enable', 'refnum_enable', 'refdate_enable', 'subgroup'])
         return HttpResponseRedirect('/chartofaccount')
 
 

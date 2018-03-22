@@ -15,7 +15,7 @@
 {% endblock extra_css %}
 {% block page-content %}
 <div class="container-fluid">
-<div class="row">
+<div class="row">  
     <div class="col-md-12">
         <div class="panel panel-bordered">
             <div class="panel-body">
@@ -60,16 +60,41 @@
                 </div>
                 <div class="col-lg-3 col-sm-6 col-xs-12">
                     <div class="price-list">
-                        <div class="price-header">
+                        <a href="{% url 'rep_master:index' %}" target="_blank"><div class="price-header">
                             <div class="price-title bg-grey-600">
                                 <div class="small"><small>MASTER FILE</small></div>
                             </div>
-                        </div>
+                        </div></a>
                         <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'rep_master:ataxcode' %}" target="_blank">ATAX Code</a></li>
+                            <li class="small"><a href="{% url 'rep_master:bank' %}" target="_blank">Bank</a></li>
+                            <li class="small"><a href="{% url 'rep_master:bankaccount' %}" target="_blank">Bank Account</a></li>
+                            <li class="small"><a href="{% url 'rep_master:bankbranch' %}" target="_blank">Bank Branch</a></li>
+                            <li class="small"><a href="{% url 'rep_master:branch' %}" target="_blank">Branch</a></li>
                             <li class="small"><a href="{% url 'rep_chartofaccount:index' %}" target="_blank">Chart of Account</a></li>
+                            <li class="small"><a href="{% url 'rep_master:collectorcashier' %}" target="_blank">Collector/Cashier</a></li>
                             <li class="small"><a href="{% url 'rep_customer:index' %}" target="_blank">Customer</a></li>
                             <li class="small"><a href="{% url 'rep_department:index' %}" target="_blank">Department</a></li>
+                            <li class="small"><a href="{% url 'rep_master:employee' %}" target="_blank">Employee</a></li>
+                            <li class="small"><a href="{% url 'rep_master:inputvat' %}" target="_blank">Input VAT</a></li>
+                            <li class="small"><a href="{% url 'rep_master:mainproduct' %}" target="_blank">Main Product</a></li>
+                            <li class="small"><a href="{% url 'rep_master:product' %}" target="_blank">Product</a></li>
+                            <li class="small"><a href="{% url 'rep_master:productbudget' %}" target="_blank">Product Budget</a></li>
                             <li class="small"><a href="{% url 'rep_supplier:index' %}" target="_blank">Supplier</a></li>
+                            <li class="small"><a href="{% url 'rep_master:vat' %}" target="_blank">VAT</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-xs-12">
+                    <div class="price-list">
+                        <div class="price-header">
+                            <div class="price-title bg-grey-600">
+                                <div class="small"><small>BIR</small></div>
+                            </div>
+                        </div>
+                        <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'rep_bir:birgeneraljournalbook' %}" target="_blank">BIR General Jounal Book</a></li>
+                            <li class="small"><a href="{% url 'rep_bir:birpurchasebook' %}" target="_blank">BIR Purchase Book</a></li>
                         </ul>
                     </div>
                 </div>

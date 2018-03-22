@@ -156,6 +156,11 @@ INSTALLED_APPS = [
     'generaljournalbook',
     'rep_generalledger',
     'reportdashboard',
+    'rep_bir',
+    'rep_master',
+    'chartofaccountmainsubgroup',
+    'chartofaccountmaingroup',
+    'chartofaccountsubgroup',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -203,15 +208,14 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_financial',
-        ## 'HOST': 'localhost',
-        'HOST': '128.1.44.22',
+        # 'HOST': 'localhost',
+        'HOST': '128.1.44.2',
         'PORT': '3306',
         'USER': 'root',
-        #'PASSWORD': '',
         'PASSWORD': 'RootToor1!@#',
-        #'PASSWORD': 'mysqld3vserver',
+        # 'PASSWORD': 'mysqld3vserver',
         'OPTIONS': {
-            'init_command': 'SET default_storage_engine=INNODB',
+            'init_command': 'SET storage_engine=INNODB',
         }
     }
 }

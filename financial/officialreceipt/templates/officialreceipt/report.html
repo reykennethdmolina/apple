@@ -298,6 +298,8 @@
                                 <label class="control-label small">Output VAT Type</label>
                                 <select class="form-control input-sm" id="rep_f_outputvattype">
                                     <option value="">-- Select --</option>
+                                    <option value="with">With Output VAT</option>
+                                    <option value="without">Without Output VAT</option>
                                     {% for data in outputvattype %}
                                         <option value="{{ data.id }}">{{ data.description }}</option>
                                     {% endfor %}

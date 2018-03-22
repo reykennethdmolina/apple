@@ -12,6 +12,7 @@ class Pomain(models.Model):
     refnum = models.CharField(max_length=150, null=True, blank=True)
     RF_TYPE_CHOICES = (
         ('REG', 'Regular'),
+        ('EXD', 'Exdeal'),
     )
     potype = models.CharField(max_length=10, choices=RF_TYPE_CHOICES, default='REG')
     URGENCY_CHOICES = (
@@ -91,6 +92,8 @@ class Pomain(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='pomain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='pomain_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     # for APV
@@ -193,6 +196,8 @@ class Podetail(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='podetail_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='podetail_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_podetail', null=True,
                                 blank=True)
@@ -269,6 +274,8 @@ class Podetailtemp(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='podetailtemp_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='podetailtemp_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     secretkey = models.CharField(max_length=255)
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_podetailtemp', null=True,
@@ -304,7 +311,7 @@ class Podata(models.Model):
     secretkey = models.CharField(max_length=255)
     isdeleted = models.IntegerField(default=0)
     enterdate = models.DateTimeField(auto_now_add=True)
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'podata'

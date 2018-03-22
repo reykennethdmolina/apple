@@ -235,6 +235,18 @@
                                             <span class="help-block form-error">{{ form.product.errors.as_text }}</span>
 							    		</div>
 							    	</div>
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_subgroup" class="col-sm-5 control-label">Subgroup</label>
+							    		<div class="col-sm-7">
+                                            <select id="id_subgroup" name="subgroup" class="form-control" data-validation="required">
+                                                <option value="">-- Select --</option>
+                                                {% for subgroup in subgroup %}
+                                                    <option value="{{ subgroup.id }}" {% if form.subgroup.value|add:0 == subgroup.id %} selected="selected" {% endif %}>{{ subgroup.description }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <span class="help-block form-error">{{ form.subgroup.errors.as_text }}</span>
+							    		</div>
+							    	</div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group form-group-5 form-group-sm form-material">
