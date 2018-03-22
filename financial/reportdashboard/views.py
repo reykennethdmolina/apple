@@ -9,11 +9,12 @@ from django.http import HttpResponseRedirect
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
-    template_name = 'reportdashboard/index.html'
+    template_name = 'reportdashboard/index-dynamic.html'
     context_object_name = 'data_list'
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
+        context['reports'] = Reportmaintenancemodule.objects.filter(isdeleted=0).order_by('reportmaintenance__name', 'reportmodule__name')
 
         return context
 

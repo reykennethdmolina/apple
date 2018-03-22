@@ -18,7 +18,7 @@
         }
         .ms-container{
             width: 100%;
-            margin-top: 58px;
+            margin-top: 31px;
         }
         .ms-list{
             height: 402px !important;
@@ -164,7 +164,10 @@
                 - $('.price-features').height()/2 + $('li#rep_{{ request.GET.get }}').height()/2);
         }
 
-        $('#modulelist').multiSelect();
+        $('#modulelist').multiSelect({
+          selectableHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Available Reports</b></h5>",
+          selectionHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Selected Reports</b></h5>"
+        });
 
         {% for data in reportmodule %}
             $('#modulelist').multiSelect('select', '{{ data.reportmodule.pk }}');

@@ -1,0 +1,56 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} Report Dashboard {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <style>
+        .price-list a{
+            display: block;
+        }
+        .price-list li {
+            text-align: left;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">  
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+
+                    {% for data in reports %}
+                        {% ifchanged data.reportmaintenance.name %}
+                            {% if not forloop.first %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="col-lg-3 col-sm-6 col-xs-12">
+                                <div class="price-list">
+                                    <div class="price-header">
+                                        <div class="price-title bg-grey-600">
+                                            <div class="small"><small>{{ data.reportmaintenance.name }}</small></div>
+                                        </div>
+                                    </div>
+                                    <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                                        <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
+                        {% else %}
+                                    <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
+                        {% endifchanged %}
+                        {% if forloop.last %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+{% endblock extra_js %}
