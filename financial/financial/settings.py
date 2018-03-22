@@ -208,7 +208,7 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_financial',
-        ###'HOST': 'localhost',
+        ####'HOST': 'localhost',
         'HOST': '128.1.44.2',
         'PORT': '3306',
         'USER': 'root',
