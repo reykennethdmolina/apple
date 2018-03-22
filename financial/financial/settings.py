@@ -215,6 +215,7 @@ DATABASES = {
         'PASSWORD': 'RootToor1!@#',
         # 'PASSWORD': 'mysqld3vserver',
         'OPTIONS': {
+            'init_command': 'SET default_storage_engine=INNODB',
         }
     }
 }
