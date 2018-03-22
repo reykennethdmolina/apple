@@ -11,6 +11,9 @@
         .price-list li {
             text-align: left;
         }
+        .block{
+            margin-bottom: 20px;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -19,32 +22,44 @@
     <div class="col-md-12">
         <div class="panel panel-bordered">
             <div class="panel-body">
-
-                    {% for data in reports %}
-                        {% ifchanged data.reportmaintenance.name %}
-                            {% if not forloop.first %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="col-lg-3 col-sm-6 col-xs-12">
-                                <div class="price-list">
-                                    <div class="price-header">
-                                        <div class="price-title bg-grey-600">
-                                            <div class="small"><small>{{ data.reportmaintenance.name }}</small></div>
-                                        </div>
-                                    </div>
-                                    <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
-                                        <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
-                        {% else %}
-                                    <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
-                        {% endifchanged %}
-                        {% if forloop.last %}
+                {% for data in reports %}
+                    {% ifchanged data.reportmaintenance.name %}
+                        {% if not forloop.first %}
                                     </ul>
                                 </div>
                             </div>
                         {% endif %}
-                    {% endfor %}
+                        <div class="block col-md-4 col-sm-6 col-xs-12">
+                            <div class="price-list">
+                                <div class="price-header">
+                                    <div class="price-title bg-grey-600">
+                                        <div class="small"><small>{{ data.reportmaintenance.name }}</small></div>
+                                    </div>
+                                </div>
+                                <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                                    <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
+                    {% else %}
+                                <li class="small"><a href="/{{ data.reportmodule.segment }}" target="_blank">{{ data.reportmodule.name }}</a></li>
+                    {% endifchanged %}
+                    {% if forloop.last %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% for data in reportsblank %}
+                    <div class="block col-md-4 col-sm-6 col-xs-12">
+                        <div class="price-list">
+                            <div class="price-header">
+                                <div class="price-title bg-grey-600">
+                                    <div class="small"><small>{{ data.name }}</small></div>
+                                </div>
+                            </div>
+                            <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>

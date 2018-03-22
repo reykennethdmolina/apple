@@ -15,6 +15,8 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
         context['reports'] = Reportmaintenancemodule.objects.filter(isdeleted=0).order_by('reportmaintenance__name', 'reportmodule__name')
+        context['reportsblank'] = Reportmaintenance.objects.exclude(id__in=[elem.reportmaintenance.id for elem in Reportmaintenancemodule.objects.filter(isdeleted=0)])
+        print context['reportsblank']
 
         return context
 
