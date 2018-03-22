@@ -60,11 +60,11 @@
                 </div>
                 <div class="col-lg-3 col-sm-6 col-xs-12">
                     <div class="price-list">
-                        <div class="price-header">
+                        <a href="{% url 'rep_master:index' %}" target="_blank"><div class="price-header">
                             <div class="price-title bg-grey-600">
                                 <div class="small"><small>MASTER FILE</small></div>
                             </div>
-                        </div>
+                        </div></a>
                         <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
                             <li class="small"><a href="{% url 'rep_master:ataxcode' %}" target="_blank">ATAX Code</a></li>
                             <li class="small"><a href="{% url 'rep_master:bank' %}" target="_blank">Bank</a></li>
@@ -93,6 +93,7 @@
                             </div>
                         </div>
                         <ul class="price-features small" style="height: 300px; overflow-y: scroll;">
+                            <li class="small"><a href="{% url 'rep_bir:birgeneraljournalbook' %}" target="_blank">BIR General Jounal Book</a></li>
                             <li class="small"><a href="{% url 'rep_bir:birpurchasebook' %}" target="_blank">BIR Purchase Book</a></li>
                         </ul>
                     </div>

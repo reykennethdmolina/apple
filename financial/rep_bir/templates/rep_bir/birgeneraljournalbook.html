@@ -1,0 +1,157 @@
+{% extends 'base-form.html' %}
+{% load staticfiles %}
+{% load humanize %}
+{% block page-title %} BIR General Journal Book {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <style>
+        #resulttable th{
+            min-width: 150px;
+        }
+        #resulttable td{
+            border: none !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="container-fluid">
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-bordered">
+            <div class="panel-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="rep_datefrom" name="rep_datefrom" value="{{ rep_datefrom }}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="rep_dateto" name="rep_dateto" value="{{ rep_dateto }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">JV Status</label>
+                            <select class="form-control input-sm" id="rep_jvstatus" name="rep_jvstatus" style="width: 100%;">
+                                <option value="">-- Select --</option>
+                                <option {% if rep_jvstatus == 'f' %}selected{% endif %} value="f">For Approval</option>
+                                <option {% if rep_jvstatus == 'a' %}selected{% endif %} value="a">Approved</option>
+                                <option {% if rep_jvstatus == 'd' %}selected{% endif %} value="d">Disapproved</option>
+                                <option {% if rep_jvstatus == 'i' %}selected{% endif %} value="i">In Process</option>
+                                <option {% if rep_jvstatus == 'r' %}selected{% endif %} value="r">Released</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="rep_status" name="rep_status" style="width: 100%;">
+                                <option {% if rep_status == 'a' %}selected{% endif %} value="a">All</option>
+                                <option {% if rep_status == 'p' %}selected{% endif %} value="p">Posted</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <br>
+                            <button type="submit" class="btn btn-info btn-sm">Generate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-bordered">
+            <div class="panel-body" style="overflow: auto; width: 100%">
+                <div style="position: absolute; right: 0; padding-right: 30px;">Run date: {% now "Y-m-d" %}</div>
+                <p>
+                    <b>BIR GENERAL JOURNAL BOOK({% if rep_type == 'd' %}Detailed{% endif %} Entries)</b><br>
+                    For the period of {{ rep_datefrom|default:'(start of time)' }} to {{ rep_dateto|default:'(current date)' }}
+                <p><br>
+
+                <table id="resulttable" class="table table-condensed table-hover small">
+                    <thead>
+                    <tr>
+                        <th style="min-width: 100px">jv_num</th>
+                        <th style="min-width: 100px">jv_date</th>
+                        <th style="min-width: 500px">particular</th>
+                        <th style="min-width: 60px">status</th>
+                        <th style="min-width: 70px">baf_acct</th>
+                        <th style="min-width: 70px">baf_bank</th>
+                        <th style="min-width: 70px">baf_at</th>
+                        <th style="min-width: 300px">dept_name</th>
+                        <th style="min-width: 70px">dept_code</th>
+                        <th style="min-width: 100px">jv_num</th>
+                        <th style="min-width: 100px">jv_date</th>
+                        <th style="min-width: 100px">jv_acct</th>
+                        <th style="min-width: 70px">jv_bank</th>
+                        <th style="min-width: 70px">jv_dept</th>
+                        <th style="min-width: 60px">jv_code</th>
+                        <th style="text-align: right">jv_amt</th>
+                        <th style="min-width: 60px">status</th>
+                        <th style="min-width: 60px">jv_item_id</th>
+                        <th style="min-width: 50px;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in query %}
+                        <tr>
+                            <td>{{ data.jv_num }}</td>
+                            <td>{{ data.jv_date|date:'Y-m-d' }}</td>
+                            <td>{{ data.jvmain.particular }}</td>
+                            <td>
+                                {% if data.jvmain.postdate %}
+                                    O
+                                {% else %}
+                                    {{ data.jvmain.status }}
+                                {% endif %}
+                            </td>
+                            <td>{{ data.bankaccount.code }}</td>
+                            <td>{{ data.bankaccount.bank.code }}</td>
+                            <td>{{ data.bankaccount.bankaccounttype.code }}</td>
+                            <td>{{ data.department.departmentname }}</td>
+                            <td>{{ data.department.code }}</td>
+                            <td>{{ data.jv_num }}</td>
+                            <td>{{ data.jv_date|date:'Y-m-d' }}</td>
+                            <td>{{ data.chartofaccount.accountcode }}</td>
+                            <td>{{ data.bankaccount.code }}</td>
+                            <td>{{ data.department.code }}</td>
+                            <td>{{ data.balancecode }}</td>
+                            <td align="right">
+                                {% if data.balancecode == 'D' %}
+                                    {{ data.debitamount|intcomma }}
+                                {% elif data.balancecode == 'C' %}
+                                    {{ data.creditamount|intcomma }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.jvmain.postdate %}
+                                    O
+                                {% else %}
+                                    {{ data.jvmain.status }}
+                                {% endif %}
+                            </td>
+                            <td>{{ data.item_counter }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+{% load staticfiles %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script>
+    $(function(){
+    });
+</script>
+{% endblock extra_js %}
