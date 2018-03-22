@@ -32,7 +32,7 @@ class Employee(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='employee_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='employee_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
     cellphone_subsidize_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,

@@ -83,6 +83,9 @@ urlpatterns = [
     url(r'^cmsadjustment/', include('cmsadjustment.urls', app_name='cmsadjustment', namespace='cmsadjustment')),
     url(r'^processing_transaction/', include('processing_transaction.urls', app_name='processing_transaction', namespace='processing_transaction')),
     url(r'^processing_jv/', include('processing_jv.urls', app_name='processing_jv', namespace='processing_jv')),
+    url(r'^chartofaccountmainsubgroup/', include('chartofaccountmainsubgroup.urls', app_name='chartofaccountmainsubgroup', namespace='chartofaccountmainsubgroup')),
+    url(r'^chartofaccountmaingroup/', include('chartofaccountmaingroup.urls', app_name='chartofaccountmaingroup', namespace='chartofaccountmaingroup')),
+    url(r'^chartofaccountsubgroup/', include('chartofaccountsubgroup.urls', app_name='chartofaccountsubgroup', namespace='chartofaccountsubgroup')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

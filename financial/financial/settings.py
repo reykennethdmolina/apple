@@ -158,6 +158,9 @@ INSTALLED_APPS = [
     'reportdashboard',
     'rep_bir',
     'rep_master',
+    'chartofaccountmainsubgroup',
+    'chartofaccountmaingroup',
+    'chartofaccountsubgroup',
 ]
 
 MIDDLEWARE_CLASSES = [

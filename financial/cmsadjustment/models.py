@@ -38,11 +38,13 @@ class Cmmain(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='cmmain_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='cmmain_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='cmmain_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
     releaseby = models.ForeignKey(User, related_name='cmmain_release', null=True, blank=True)
     releasedate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='cmmain_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 
@@ -83,9 +85,11 @@ class Cmitem(models.Model):
     enterby = models.ForeignKey(User, default=1, related_name='cmitem_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
     modifyby = models.ForeignKey(User, default=1, related_name='cmitem_modify')
-    modifydate = models.DateTimeField(default=datetime.datetime.now())
+    modifydate = models.DateTimeField(auto_now_add=True)
     postby = models.ForeignKey(User, related_name='cmitem_post', null=True, blank=True)
     postdate = models.DateTimeField(null=True, blank=True)
+    closeby = models.ForeignKey(User, related_name='cmitem_close', null=True, blank=True)
+    closedate = models.DateTimeField(null=True, blank=True)
     isdeleted = models.IntegerField(default=0)
 
     class Meta:

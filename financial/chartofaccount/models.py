@@ -76,6 +76,11 @@ class Chartofaccount(models.Model):
     refdate_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     # added for debitcreditmemo
 
+    # added for main and sub grouping
+    subgroup = models.ForeignKey('chartofaccountsubgroup.ChartofAccountSubGroup',
+                                  related_name='chartofaccount_subgroup')
+    # added for main and sub grouping
+
     class Meta:
         db_table = 'chartofaccount'
         ordering = ['-pk']
