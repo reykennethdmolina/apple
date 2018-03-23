@@ -81,6 +81,18 @@ class Chartofaccount(models.Model):
                                   related_name='chartofaccount_subgroup')
     # added for main and sub grouping
 
+    # added for subledgersummary
+    beginning_amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    beginning_code = models.CharField(max_length=10, null=True, blank=True)
+    beginning_date = models.DateTimeField(null=True, blank=True)
+    end_amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    end_code = models.CharField(max_length=10, null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    year_to_date_amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    year_to_date_code = models.CharField(max_length=10, null=True, blank=True)
+    year_to_date_date = models.DateTimeField(null=True, blank=True)
+    # added for subledgersummary
+
     class Meta:
         db_table = 'chartofaccount'
         ordering = ['-pk']
