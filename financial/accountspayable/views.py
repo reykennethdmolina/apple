@@ -145,7 +145,7 @@ class CreateView(CreateView):
     fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
-              'refno', 'deferred', 'particulars',
+              'refno', 'deferred', 'particulars', 'remarks',
               'currency', 'fxrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
@@ -257,7 +257,7 @@ class UpdateView(UpdateView):
     fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
               'bankbranchdisburse', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
-              'refno', 'deferred', 'particulars',
+              'refno', 'deferred', 'particulars', 'remarks',
               'currency', 'fxrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
@@ -270,6 +270,7 @@ class UpdateView(UpdateView):
         self.mysecretkey = generatekey(self)
 
         detailinfo = Apdetail.objects.filter(apmain=self.object.pk).order_by('item_counter')
+        print 111111111
 
         for drow in detailinfo:
             detail = Apdetailtemp()
@@ -438,7 +439,7 @@ class UpdateView(UpdateView):
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
                                             'branch', 'bankbranchdisburse', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
-                                            'refno', 'deferred', 'particulars',
+                                            'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',
                                             'modifyby', 'modifydate', 'apstatus'])
 
@@ -1427,6 +1428,10 @@ def generatedefaultentries(request):
         if debit_entries:
             Apdetailtemp.objects.filter(secretkey=request.POST['secretkey'], balancecode='C',
                                         creditamount__gt=0.00).delete()
+            Apdetailtemp.objects.filter(secretkey=request.POST['secretkey'], balancecode='D',
+                                        debitamount__gt=0.00, chartofaccount=Companyparameter.objects.get(code='PDI').
+                                        coa_inputvat_id).delete()
+
             itemcounter = debit_entries.last().item_counter + 1
             ap_totals = debit_entries.aggregate(Sum('debitamount'))
             taxable_amount = ap_totals['debitamount__sum']
@@ -1434,7 +1439,7 @@ def generatedefaultentries(request):
             vat_amount = float(taxable_amount) * (float(Vat.objects.get(pk=int(request.POST['vat'])).rate) / 100)
 
             # input VAT accounting entry
-            if Vat.objects.get(pk=int(request.POST['vat'])).rate > 0:
+            if Vat.objects.filter(pk=int(request.POST['vat'])).first().rate > 0:
                 inputvatentry = Apdetailtemp()
                 inputvatentry.item_counter = itemcounter
                 inputvatentry.secretkey = request.POST['secretkey']
@@ -1455,7 +1460,7 @@ def generatedefaultentries(request):
                 aptrade_amount += Decimal.from_float(inputvatentry.debitamount)
 
             # expanded withholding tax accounting entry
-            if request.POST['atc']:
+            if request.POST['atc'] and Ataxcode.objects.filter(pk=int(request.POST['atc'])).first().rate > 0:
                 ewtaxentry = Apdetailtemp()
                 ewtaxentry.item_counter = itemcounter
                 ewtaxentry.secretkey = request.POST['secretkey']
