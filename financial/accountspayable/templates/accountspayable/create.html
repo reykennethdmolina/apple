@@ -185,7 +185,7 @@
                             </div>
                             <div class="form-group col-sm-6 {{ form.atax.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_atax" style="display: block;">ATC</label>
-                                <select class="form-control input-sm" id="id_atax" name="atax" style="width: 70%; display: inline-block;">
+                                <select class="form-control input-sm" id="id_atax" data-validation="required" name="atax" style="width: 70%; display: inline-block;">
                                     <option value="">-- Select --</option>
                                     {% for atc in atax %}
                                         <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atax.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>
@@ -212,9 +212,13 @@
                                 <label class="control-label" for="id_apstatus">APV Status</label>
                                 <input type="text" class="form-control input-sm disabled-white" value="For Approval" disabled="disabled">
                             </div>
-                            <div class="form-group col-sm-9">
+                            <div class="form-group col-sm-5">
                                 <label class="control-label" for="id_particulars">Particulars</label>
-                                <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" rows="2" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                                <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_particulars" name="particulars" rows="3" data-validation="required">{{ form.particulars.value|default:'' }}</textarea>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label" for="id_remarks">Remarks</label>
+                                <textarea data-fv-field="standard_content" class="form-control input-sm" id="id_remarks" name="remarks" rows="3">{{ form.remarks.value|default:'' }}</textarea>
                             </div>
                         </div>
                         <div class="col-md-4 padding-right-0 padding-left-20">
