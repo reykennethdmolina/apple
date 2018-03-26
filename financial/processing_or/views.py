@@ -332,6 +332,8 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
+                                print len(data)
+
                                 if len(data) == 22:
 
                                     # log status filtering
@@ -773,7 +775,7 @@ def exportsave(request):
                         circulationproduct_name=Circulationproduct.objects.get(code=temp_ormain.productcode).description,
                         wtaxrate=float(temp_ormain.wtaxrate),
                         wtaxamount=temp_ormain.totalwtax,
-                        wtax=Wtax.objects.filter(rate=int(temp_ormain.wtaxrate)).order_by('code').first(),   # conflict if wtax codes have same rates
+                        wtax=Wtax.objects.filter(rate=int(float(temp_ormain.wtaxrate))).order_by('code').first(),   # conflict if wtax codes have same rates
                         importby=request.user,
                         importornum=temp_ormain.orno,
                         importdate=temp_ormain.importdate,
