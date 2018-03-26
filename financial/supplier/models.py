@@ -43,6 +43,8 @@ class Supplier(models.Model):
                                    related_name='supplier_creditterm_id')
     inputvattype = models.ForeignKey('inputvattype.Inputvattype',
                                      related_name='supplier_inputvattype_id')
+    inputvat = models.ForeignKey('inputvat.Inputvat',
+                                     related_name='supplier_inputvat_id', null=True)
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id',
                             validators=[MinValueValidator(1)])
@@ -67,6 +69,11 @@ class Supplier(models.Model):
     bankbranchdisburse = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
                                            related_name='supplier_bankbranchdisburse_id', null=True, blank=True)
     paytype = models.ForeignKey('paytype.Paytype', related_name='supplier_paytype_id', null=True, blank=True)
+    ccc_code = models.CharField(max_length=10, null=True, blank=True)
+    ccc_code2 = models.CharField(max_length=10, null=True, blank=True)
+    ccc_code3 = models.CharField(max_length=10, null=True, blank=True)
+    serv_code = models.CharField(max_length=10, null=True, blank=True)
+    remarks = models.CharField(max_length=250, blank=True, null=True)
 
     class Meta:
         db_table = 'supplier'

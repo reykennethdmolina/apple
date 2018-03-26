@@ -16,6 +16,13 @@ from agenttype.models import Agenttype
 from customer.models import Customer
 from customertype.models import Customertype
 from industry.models import Industry
+from supplier.models import Supplier
+from suppliertype.models import Suppliertype
+from ataxcode.models import Ataxcode
+from inputvat.models import Inputvat
+from inputvattype.models import Inputvattype
+from vat.models import Vat
+from creditterm.models import Creditterm
 
 
 upload_directory = 'processing_data/'
@@ -122,8 +129,10 @@ def upload(request):
                         and request.FILES['upload_file'].name.endswith('.txt'):
                     if request.POST['upload_type'] == 'agency':
                         upload_directory = upload_directory + 'imported_agency/'
+                        customertype = get_object_or_None(Customertype, code='A')
                     else:
                         upload_directory = upload_directory + 'imported_client/'
+                        customertype = get_object_or_None(Customertype, code='C')
 
                     if storeupload(request.FILES['upload_file'], sequence, 'txt', upload_directory):
                         breakstatus = 1
@@ -161,7 +170,7 @@ def upload(request):
                                             end_amount=data[18] if data[18].isdigit() else None,
                                             end_code=data[19],
                                             end_date=data[20] if data[20] != '' else None,
-                                            customertype=get_object_or_None(Customertype, code='A'),
+                                            customertype=customertype,
                                             status='A',
                                             enterby=request.user,
                                             modifyby=request.user,
@@ -192,10 +201,114 @@ def upload(request):
                                             end_amount=data[18] if data[18].isdigit() else None,
                                             end_code=data[19],
                                             end_date=data[20] if data[20] != '' else None,
-                                            customertype=get_object_or_None(Customertype, code='A'),
+                                            customertype=customertype,
                                             status='A',
                                             enterby=request.user,
                                             modifyby=request.user,
+                                            enterdate=datetime.now(),
+                                        ).save()
+
+                                    successdata.append(data[0] + ' - ' + data[1])
+                                    successcount += 1
+                                    breakstatus = 0
+                                else:
+                                    breakstatus = 1
+                                    break
+                        if breakstatus == 0:
+                            data = {
+                                'result': 1,
+                                'datacount': datacount,
+                                'successcount': successcount,
+                                'failedcount': failedcount,
+                                'successdata': successdata,
+                                'faileddata': faileddata,
+                            }
+                        else:
+                            data = {
+                                'result': 5
+                            }
+                    else:
+                        data = {
+                            'result': 2
+                        }
+                ####################### Supplier #####################
+                ####################### Supplier #####################
+                ####################### Supplier #####################
+                elif request.POST['upload_type'] == 'supplier' and request.FILES['upload_file'].name.endswith('.txt'):
+                    upload_directory = upload_directory + 'imported_supplier/'
+
+                    if storeupload(request.FILES['upload_file'], sequence, 'txt', upload_directory):
+                        breakstatus = 1
+
+                        with open(settings.MEDIA_ROOT + '/' + upload_directory + str(
+                                sequence) + ".txt") as textFile:
+                            for line in textFile:
+                                datacount += 1
+                                data = line.split("\t")
+                                for n, i in enumerate(data):
+                                    data[n] = data[n].replace('"', '')
+
+                                saveproceed = 1
+                                if len(data) == 20:
+                                    print data[0]
+                                    new_inputvat = data[16] if data[16] != '' else 'GOTCG'
+                                    new_vatrate = data[17] if data[17] != '' else '12'
+                                    new_vat = data[18] if data[18] != '' else 'VAT12'
+                                    new_atc = data[14] if data[14] != '' else 'WC011'
+                                    new_atcrate = data[3] if data[3] != '' else '15'
+                                    if get_object_or_None(Supplier, code=data[0]) is not None:
+                                        Supplier.objects.filter(code=data[0]).update(
+                                            name=data[1],
+                                            remarks=data[2],
+                                            atcrate=new_atcrate,
+                                            address1=strip_non_ascii(data[4]),
+                                            address2=strip_non_ascii(data[5]),
+                                            address3=strip_non_ascii(data[6]),
+                                            tin=data[7],
+                                            contactperson=strip_non_ascii(data[9]) + ' ' + strip_non_ascii(data[10]) + ' ' + strip_non_ascii(data[8]),
+                                            ccc_code=data[11],
+                                            ccc_code2=data[12],
+                                            ccc_code3=data[13],
+                                            atc=get_object_or_None(Ataxcode, code=new_atc),
+                                            zipcode=data[15],
+                                            inputvat=get_object_or_None(Inputvat, code=new_inputvat),
+                                            inputvattype=get_object_or_None(Inputvat, code=new_inputvat).inputvattype,
+                                            vatrate=new_vatrate,
+                                            vat=get_object_or_None(Vat, code=new_vat),
+                                            serv_code=data[19],
+                                            creditterm=get_object_or_None(Creditterm, pk=2),
+                                            industry=get_object_or_None(Industry, pk=1),
+                                            status='A',
+                                            modifyby=request.user,
+                                            modifydate=datetime.now(),
+                                        )
+                                    else:
+                                        Supplier.objects.create(
+                                            code=data[0],
+                                            name=strip_non_ascii(data[1]),
+                                            remarks=data[2],
+                                            atcrate=new_atcrate,
+                                            address1=strip_non_ascii(data[4]),
+                                            address2=strip_non_ascii(data[5]),
+                                            address3=strip_non_ascii(data[6]),
+                                            tin=data[7],
+                                            contactperson=strip_non_ascii(data[9]) + ' ' + strip_non_ascii(data[10]) + ' ' + strip_non_ascii(data[8]),
+                                            ccc_code=data[11],
+                                            ccc_code2=data[12],
+                                            ccc_code3=data[13],
+                                            atc=get_object_or_None(Ataxcode, code=new_atc),
+                                            zipcode=data[15],
+                                            inputvat=get_object_or_None(Inputvat, code=new_inputvat),
+                                            inputvattype=get_object_or_None(Inputvat, code=new_inputvat).inputvattype,
+                                            vatrate=new_vatrate,
+                                            vat=get_object_or_None(Vat, code=new_vat),
+                                            serv_code=data[19],
+                                            creditterm=get_object_or_None(Creditterm, pk=2),
+                                            industry=get_object_or_None(Industry, pk=1),
+                                            multiplestatus='N',
+                                            suppliertype=get_object_or_None(Suppliertype, pk=1),
+                                            status='A',
+                                            enterby=request.user,
                                             enterdate=datetime.now(),
                                         ).save()
 
@@ -239,3 +352,9 @@ def upload(request):
             'result': 2
         }
     return JsonResponse(data)
+
+
+def strip_non_ascii(string):
+    ''' Returns the string without non ASCII characters'''
+    stripped = (c for c in string if 0 < ord(c) < 127)
+    return ''.join(stripped)
