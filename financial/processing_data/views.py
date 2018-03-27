@@ -145,6 +145,7 @@ def upload(request):
                                     data[n] = data[n].replace('"', '')
 
                                 saveproceed = 1
+                                print len(data)
                                 if len(data) == 26:
                                     if get_object_or_None(Customer, code=data[0]) is not None:
                                         Customer.objects.filter(code=data[0]).update(

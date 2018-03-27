@@ -16,6 +16,7 @@ from customer.models import Customer
 from product.models import Product
 from agent.models import Agent
 from outputvattype.models import Outputvattype
+from outputvat.models import Outputvat
 from currency.models import Currency
 from adtype.models import Adtype
 from companyparameter.models import Companyparameter
@@ -604,6 +605,8 @@ def exportsave(request):
                                     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
                                     vatrate=float(data_d.vatrate),
                                     vatcode=data_d.vatcode,
+                                    outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                    payeecode=temp_ormain.payeecode,
                                     batchkey=data.batchkey,
                                     postingremarks='Processing...',
                                 ).save()
@@ -649,6 +652,8 @@ def exportsave(request):
                                     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
                                     vatrate=data.vatrate,
                                     vatcode=data.vatcode,
+                                    outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                    payeecode=temp_ormain.payeecode,
                                     batchkey=data.batchkey,
                                     postingremarks='Processing...',
                                 ).save()
@@ -719,6 +724,8 @@ def exportsave(request):
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
                             vatrate=data.vatrate,
                             vatcode=data.vatcode,
+                            outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                            payeecode=temp_ormain.payeecode,
                             batchkey=data.batchkey,
                             postingremarks='Processing...',
                         ).save()
@@ -782,14 +789,14 @@ def exportsave(request):
                         importordate=temp_ormain.ordate,
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
                         transaction_type='A',
-                        outputvattype=Outputvattype.objects.get(code='OVT - S'),
+                        outputvattype=Outputvattype.objects.get(code='OVT-S'),
                         remarks="Payee name: " + temp_ormain.payeename if temp_ormain.payeecode.upper() == 'WI' else '',
                         logs=log_remarks + "Enter by: <b>" + temp_ormain.enterby + "</b><br>OR date: <b>" + str(temp_ormain.ordate) + "</b>"
                     ).save()
 
                     # temp ordetail to ordetail
                     temp_ordetail = Temp_ordetail.objects.filter(orno=temp_ormain.orno, batchkey=temp_ormain.batchkey, postingstatus='F')\
-                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode').order_by()\
+                                                         .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'outputvatcode', 'vatcode', 'balancecode', 'bankaccountcode').order_by()\
                                                          .annotate(debit=Sum('debitamount'), credit=Sum('creditamount'))
                                                          # .values('orno', 'ordate', 'chartofaccountcode', 'payeecode', 'vatcode', 'balancecode', 'bankaccountcode', 'productcode').order_by()\
                     for index, data2 in enumerate(temp_ordetail):
@@ -807,6 +814,7 @@ def exportsave(request):
                                 status='A',
                                 chartofaccount=Chartofaccount.objects.get(pk=data2['chartofaccountcode']),
                                 customer=get_object_or_None(Customer, code=data2['payeecode']),
+                                outputvat=get_object_or_None(Outputvat, code=data2['outputvatcode']),
                                 bankaccount=get_object_or_None(Bankaccount, code=data2['bankaccountcode']),
                                 # product=get_object_or_None(Product, code=data2['productcode']),
                                 enterby=request.user,
@@ -976,7 +984,7 @@ def exportsave(request):
                         importdate=temp_ormain.importdate,
                         importordate=temp_ormain.ordate,
                         transaction_type='A',
-                        outputvattype=Outputvattype.objects.get(code='OVT - G'),
+                        outputvattype=Outputvattype.objects.get(code='OVT-G'),
                         logs="Enter by: <b>" + temp_ormain.collectordesc + "</b><br>OR date: <b>" + re.sub('\ 00:00:00$', '', str(temp_ormain.ordate)) + "</b>"
                     ).save()
 

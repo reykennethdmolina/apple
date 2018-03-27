@@ -164,6 +164,8 @@ class Temp_ordetail(models.Model):
     productcode = models.CharField(null=True, blank=True, max_length=500)
     vatrate = models.CharField(null=True, blank=True, max_length=500)
     vatcode = models.CharField(null=True, blank=True, max_length=500)
+    outputvatcode = models.CharField(null=True, blank=True, max_length=500)
+    customercode = models.CharField(null=True, blank=True, max_length=500)
     bankaccountcode = models.CharField(null=True, blank=True, max_length=500)
     batchkey = models.CharField(null=True, blank=True, max_length=500)
     postingstatus = models.CharField(max_length=1, choices=POSTING_STATUS_CHOICES, default='F')
