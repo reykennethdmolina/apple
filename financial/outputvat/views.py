@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from chartofaccount.models import Chartofaccount
 from . models import Outputvat
+from outputvattype.models import Outputvattype
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -26,7 +27,7 @@ class DetailView(DetailView):
 class CreateView(CreateView):
     model = Outputvat
     template_name = 'outputvat/create.html'
-    fields = ['code', 'description', 'chartofaccount', 'title']
+    fields = ['code', 'description', 'chartofaccount', 'title', 'outputvattype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('outputvat.add_outputvat'):
@@ -37,6 +38,7 @@ class CreateView(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         if self.request.POST.get('chartofaccount', False):
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0)
         return context
 
     def form_valid(self, form):
@@ -51,7 +53,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Outputvat
     template_name = 'outputvat/edit.html'
-    fields = ['code', 'description', 'chartofaccount', 'title']
+    fields = ['code', 'description', 'chartofaccount', 'title', 'outputvattype']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('outputvat.change_outputvat'):
@@ -64,6 +66,7 @@ class UpdateView(UpdateView):
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
         elif self.object.chartofaccount:
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.object.chartofaccount.id, isdeleted=0)
+        context['outputvattype'] = Outputvattype.objects.filter(isdeleted=0)
         return context
 
     def form_valid(self, form):
@@ -71,7 +74,7 @@ class UpdateView(UpdateView):
         self.object.modifyby = self.request.user
         self.object.modifydate = datetime.datetime.now()
         self.object.save(update_fields=['description', 'chartofaccount', 'title',
-                                        'modifyby', 'modifydate'])
+                                        'modifyby', 'modifydate', 'outputvattype'])
         return HttpResponseRedirect('/outputvat')
 
 
