@@ -12,6 +12,7 @@ class Outputvat(models.Model):
         related_name='outputvatchartofaccount_id', validators=[MinValueValidator(1)], \
         null=True, blank=True)
     title = models.CharField(max_length=50, null=True, blank=True)
+    outputvattype = models.ForeignKey('outputvattype.Outputvattype', related_name='outputvat_outputvattype')
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
