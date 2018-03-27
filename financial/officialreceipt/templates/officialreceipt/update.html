@@ -608,8 +608,8 @@
             generateTotals();
         });
 
-        $("#manualbutton").unbind().click(function (){
-            $("#entryview").show();
+
+        // Accounting entry start
             $.ajax({
                 url: "{% url 'acctentry:maccountingentry' %}",
                 type: "post",
@@ -622,7 +622,22 @@
                     console.debug(response);
                 }
             });
-        });
+
+            $("#manualbutton").unbind().click(function (){
+                $("#entryview").show();
+                $.ajax({
+                    url: "{% url 'acctentry:maccountingentry' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'table': "ordetailtemp"},
+                    success: function(response){
+                        $("#manualentryview").html(response['viewhtml']);
+                        $("#waitingbar").hide();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            });
 
         $("#validateButton").on('click', function() {
             if($('#id_orsource').val() == 'A'){
