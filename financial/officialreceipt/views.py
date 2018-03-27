@@ -373,7 +373,9 @@ class UpdateView(UpdateView):
                               self.object.enterdate, self.object.importdate,
                               self.object.modifyby.first_name + " " + self.object.modifyby.last_name if self.object.modifyby else '',
                               self.object.postby.first_name + " " + self.object.postby.last_name if self.object.postby else '',
-                              self.object.modifydate, self.object.postdate
+                              self.object.modifydate, self.object.postdate,
+                              self.object.closeby.first_name + " " + self.object.closeby.last_name if self.object.closeby else '',
+                              self.object.closedate,
                               ]
         context['logs'] = self.object.logs
 
