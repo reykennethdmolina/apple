@@ -545,6 +545,30 @@ class ReportView(ListView):
 
 
 @method_decorator(login_required, name='dispatch')
+class ReportResultHtmlView(ListView):
+    model = Ormain
+    template_name = 'officialreceipt/reportresulthtml.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+        print 123
+
+        query, context['report_type'], context['report_total'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "OFFICIAL RECEIPT"
+        context['rc_title'] = "OFFICIAL RECEIPT"
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class ReportResultView(ReportContentMixin, PDFTemplateView):
     model = Ormain
     template_name = 'officialreceipt/reportresult.html'

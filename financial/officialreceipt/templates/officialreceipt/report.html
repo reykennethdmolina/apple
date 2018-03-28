@@ -46,11 +46,14 @@
             padding-right: 12px;
             margin-left: 41px;
         }
-        #iframe{
+        #iframe, #iframehtml{
             width: 100%;
             height: 900px;
             position: relative;
             z-index: 100;
+        }
+        #iframe{
+            display: none;
         }
         #iframe_preview{
             padding: 10px;
@@ -391,6 +394,7 @@
         <div class="col-md-12" style="text-align: center">
             <div id="iframe_preview" class="panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
+                <iframe id="iframehtml" src="{% url 'officialreceipt:reportresulthtml' %}" frameborder="0" scrolling="no"></iframe>
                 <iframe id="iframe" src="{% url 'officialreceipt:reportresult' %}" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
@@ -520,6 +524,7 @@
                 setCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountfrom').val());
                 setCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountto').val());
 
+                $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'officialreceipt:reportresulthtml' %}' frameborder='0' scrolling='no'></iframe>");
                 $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'officialreceipt:reportresult' %}' frameborder='0' scrolling='no'></iframe>");
             }
             else{
