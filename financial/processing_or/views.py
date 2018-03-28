@@ -79,6 +79,7 @@ def fileupload(request):
                     if storeupload(request.FILES['or_file'], sequence, 'txt', upload_directory)\
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt', upload_d_directory):    # 2
                         orcount = 0
+                        breakmain = 0
                         status_total = len(open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt").readlines(  ))
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
@@ -88,7 +89,7 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
-                                if len(data) == 38:
+                                if len(data) == 38 and breakmain == 0:
                                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
                                     print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
@@ -102,15 +103,23 @@ def fileupload(request):
                                     elif not Bankaccount.objects.filter(code=data[13]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Bank account does not exist'
+                                        breakmain = 1
                                     elif not Adtype.objects.filter(code=data[6]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Adtype does not exist'
+                                        breakmain = 1
+                                    elif not Customer.objects.filter(code=data[7] if data[7] else data[8]):
+                                        importstatus = 'F'
+                                        importremarks = 'Failed: Customer does not exist, please upload Client/Agency'
+                                        breakmain = 1
                                     elif not Vat.objects.filter(code=data[33]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Vat Type does not exist'
+                                        breakmain = 1
                                     elif not Circulationproduct.objects.filter(code=data[35]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Circulation Product does not exist'
+                                        breakmain = 1
                                     else:
                                         importstatus = 'S'
                                         importremarks = 'Passed'
@@ -178,7 +187,7 @@ def fileupload(request):
                                     break
 
                             # inspect/insert detail
-                            if breakstatus == 0:
+                            if breakstatus == 0 and breakmain == 0:
                                 orcountd = 0
                                 status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
                                 with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt") as textFile2:
@@ -236,8 +245,7 @@ def fileupload(request):
                                         else:
                                             breakstatus = 1
                                             break
-
-                            if breakstatus == 0:    # 5
+                            if breakstatus == 0 or breakmain == 1:    # 5
                                 ordata_list = []
                                 ordata_d_list = []
 
@@ -334,6 +342,7 @@ def fileupload(request):
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt',
                                             upload_d_directory):  # 2
                         orcount = 0
+                        breakmain = 0
                         status_total = len(open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt").readlines())
 
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(
@@ -344,7 +353,7 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
-                                if len(data) == 22:
+                                if len(data) == 22 and breakmain == 0:
                                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
                                     print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
@@ -358,15 +367,17 @@ def fileupload(request):
                                     elif not Bankaccount.objects.filter(code=data[13]):
                                         importstatus = 'F'
                                         importremarks = 'Failed: Bank account does not exist'
+                                        breakmain = 1
                                     elif not Circulationpaytype.objects.filter(code=data[6]) and data[3] is 'C':
                                         importstatus = 'F'
                                         importremarks = 'Failed: Circulation Pay Type does not exist'
+                                        breakmain = 1
                                     else:
                                         importstatus = 'S'
                                         importremarks = 'Passed'
 
                                     if importstatus is not 'F':
-                                        # new collector checking
+                                        # new collector checking.
                                         if not Collector.objects.filter(code=data[4]):
                                             Collector.objects.create(code=data[4],
                                                                      name=data[18],
@@ -410,45 +421,46 @@ def fileupload(request):
                                     break
 
                             # inspect/insert detail
-                            orcountd = 0
-                            status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
+                            if breakstatus == 0 and breakmain == 0:
+                                orcountd = 0
+                                status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
 
-                            with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(
-                                    sequence) + ".txt") as textFile2:
-                                for line in textFile2:
-                                    orcountd += 1
-                                    data = line.split("\t")
-                                    for n, i in enumerate(data):
-                                        data[n] = data[n].replace('"', '')
+                                with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(
+                                        sequence) + ".txt") as textFile2:
+                                    for line in textFile2:
+                                        orcountd += 1
+                                        data = line.split("\t")
+                                        for n, i in enumerate(data):
+                                            data[n] = data[n].replace('"', '')
 
-                                    if len(data) == 17:
-                                        status_percentage = str(int((float(orcountd) / float(status_total)) * 100))
-                                        print "(2/2 - " + status_percentage + "%) Processing: " + data[0]
+                                        if len(data) == 17:
+                                            status_percentage = str(int((float(orcountd) / float(status_total)) * 100))
+                                            print "(2/2 - " + status_percentage + "%) Processing: " + data[0]
 
-                                        if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, accounttype='C'):
-                                            if not Productgroup.objects.filter(code=data[16].strip()):
-                                                importstatus = 'F'
-                                                importremarks = 'Failed: Product Group does not exist'
-                                            else:
-                                                importstatus = 'S'
-                                                importremarks = 'Passed'
+                                            if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, accounttype='C'):
+                                                if not Productgroup.objects.filter(code=data[16].strip()):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Product Group does not exist'
+                                                else:
+                                                    importstatus = 'S'
+                                                    importremarks = 'Passed'
 
-                                            Logs_ordetail.objects.create(
-                                                orno=data[0],
-                                                assignamount=data[4],
-                                                assignvatamount=0,
-                                                product=data[16].strip(),
-                                                batchkey=batchkey,
-                                                importstatus=importstatus,
-                                                importremarks=importremarks,
-                                                importby=request.user,
-                                            ).save()
-                                            breakstatus = 0
-                                    else:
-                                        breakstatus = 1
-                                        break
+                                                Logs_ordetail.objects.create(
+                                                    orno=data[0],
+                                                    assignamount=data[4],
+                                                    assignvatamount=0,
+                                                    product=data[16].strip(),
+                                                    batchkey=batchkey,
+                                                    importstatus=importstatus,
+                                                    importremarks=importremarks,
+                                                    importby=request.user,
+                                                ).save()
+                                                breakstatus = 0
+                                        else:
+                                            breakstatus = 1
+                                            break
 
-                            if breakstatus == 0:    # 5
+                            if breakstatus == 0 or breakmain == 1:    # 5
                                 ordata_list = []
                                 ordata_d_list = []
 
