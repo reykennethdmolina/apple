@@ -910,9 +910,10 @@ def exportsave(request):
                     print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     # logsormain to tempormain
+                    temp_ordate = datetime.strptime(data.ordate[:-5], '%m/%d/%Y')
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
-                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        ordate=temp_ordate,
                         prno=data.prno,
                         amount=data.amount,
                         amountinwords=data.amountinwords,
@@ -942,7 +943,7 @@ def exportsave(request):
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            ordate=temp_ordate,
                             debitamount=data.amount,
                             balancecode='D',
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
@@ -955,7 +956,7 @@ def exportsave(request):
                             # transfer ordetails
                             Temp_ordetail.objects.create(
                                 orno=data.orno,
-                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                ordate=temp_ordate,
                                 creditamount=data.amount,
                                 balancecode='C',
                                 chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_subsrev.pk,
@@ -973,7 +974,7 @@ def exportsave(request):
 
                                 Temp_ordetail.objects.create(
                                     orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    ordate=temp_ordate,
                                     amount=data_d.assignamount,
                                     vatamount=0,
                                     creditamount=data_d.assignamount,
