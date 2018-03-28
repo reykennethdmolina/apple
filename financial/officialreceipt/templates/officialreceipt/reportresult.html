@@ -102,6 +102,36 @@
             </tr>
         </tbody>
         </table>
+    {% elif report == 'ub' %}
+        <table id="table_unbalanced">
+        <thead>
+            <tr>
+                <th class="left"><span>OR Number</span></th>
+                <th class="left"><span>Date</span></th>
+                <th class="right"><span>Debit</span></th>
+                <th class="right"><span>Credit</span></th>
+                <th class="right"><span>Margin</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td>{{ data.ormain__ornum }}</td>
+                    <td>{{ data.ormain__ordate|date:'Y-m-d' }}</td>
+                    <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.margin|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="5"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="2"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.debitsum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.creditsum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.margin__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
+        </table>
     {% elif report == 'a_s' %}
         <table id="table_ae_summary">
             <thead>

@@ -79,15 +79,19 @@ def fileupload(request):
                     if storeupload(request.FILES['or_file'], sequence, 'txt', upload_directory)\
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt', upload_d_directory):    # 2
                         orcount = 0
-
+                        status_total = len(open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt").readlines(  ))
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
                                 orcount += 1
                                 data = line.split("\t")
+
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
                                 if len(data) == 38:
+                                    status_percentage = str(int((float(orcount) / float(status_total)) * 100))
+                                    print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
+
                                     # log status filtering
                                     if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
                                         importstatus = 'F'
@@ -130,26 +134,26 @@ def fileupload(request):
                                         ordate=data[1],
                                         prno=data[2],
                                         accounttype=data[3].lower(),
-                                        collector=data[4],
-                                        collectordesc=data[31],
+                                        collector=unicode_escape(data[4]),
+                                        collectordesc=unicode_escape(data[31]),
                                         payeetype=data[5],
                                         adtype=data[6],
                                         agencycode=data[7],
                                         clientcode=data[8],
                                         agentcode=data[9],
-                                        payeename=data[10],
+                                        payeename=unicode_escape(data[10]),
                                         amount=data[11],
                                         amountinwords=data[12],
                                         vatcode=data[33],
                                         vatrate=data[34],
                                         bankaccount=data[13],
-                                        particulars=data[14],
+                                        particulars=unicode_escape(data[14]),
                                         artype=data[15],
                                         status=data[16],
                                         statusdate=data[17],
-                                        enterby=data[18],
+                                        enterby=unicode_escape(data[18]),
                                         enterdate=data[19],
-                                        product=data[35],
+                                        product=unicode_escape(data[35]),
                                         initmark=data[21],
                                         glsmark=data[22],
                                         glsdate=data[23],
@@ -157,9 +161,9 @@ def fileupload(request):
                                         wtaxrate=data[36],
                                         gov=data[25],
                                         branchcode=data[26],
-                                        address1=data[27],
-                                        address2=data[28],
-                                        address3=data[29],
+                                        address1=unicode_escape(data[27]),
+                                        address2=unicode_escape(data[28]),
+                                        address3=unicode_escape(data[29]),
                                         tin=data[30],
                                         subscription=data[37].rstrip(),
                                         batchkey=batchkey,
@@ -175,13 +179,19 @@ def fileupload(request):
 
                             # inspect/insert detail
                             if breakstatus == 0:
+                                orcountd = 0
+                                status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
                                 with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt") as textFile2:
                                     for line in textFile2:
+                                        orcountd += 1
                                         data = line.split("\t")
                                         for n, i in enumerate(data):
                                             data[n] = data[n].replace('"', '')
 
                                         if len(data) == 19:
+                                            status_percentage = str(int((float(orcountd) / float(status_total)) * 100))
+                                            print "(2/2 - " + status_percentage + "%) Processing: " + data[0]
+
                                             if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey):
                                                 if not Adtype.objects.filter(code=data[16]):
                                                     importstatus = 'F'
@@ -324,6 +334,7 @@ def fileupload(request):
                             and storeupload(request.FILES['or_d_file'], sequence, 'txt',
                                             upload_d_directory):  # 2
                         orcount = 0
+                        status_total = len(open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt").readlines())
 
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(
                                 sequence) + ".txt") as textFile:
@@ -333,9 +344,9 @@ def fileupload(request):
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
-                                print len(data)
-
                                 if len(data) == 22:
+                                    status_percentage = str(int((float(orcount) / float(status_total)) * 100))
+                                    print "(1/2 - " + status_percentage + "%) Processing: " + data[0]
 
                                     # log status filtering
                                     if Logs_ormain.objects.filter(orno=data[0], importstatus='P'):
@@ -379,10 +390,10 @@ def fileupload(request):
                                         vatcode='VE',
                                         vatrate=0,
                                         artype='C',
-                                        collector=data[4],
-                                        collectordesc=data[18],
+                                        collector=unicode_escape(data[4]),
+                                        collectordesc=unicode_escape(data[18]),
                                         agentcode=data[9],
-                                        payeename=data[10],
+                                        payeename=unicode_escape(data[10]),
                                         payeetype='A',
                                         paytype=data[6],
                                         branchcode='HO',
@@ -399,14 +410,21 @@ def fileupload(request):
                                     break
 
                             # inspect/insert detail
+                            orcountd = 0
+                            status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
+
                             with open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(
                                     sequence) + ".txt") as textFile2:
                                 for line in textFile2:
+                                    orcountd += 1
                                     data = line.split("\t")
                                     for n, i in enumerate(data):
                                         data[n] = data[n].replace('"', '')
 
                                     if len(data) == 17:
+                                        status_percentage = str(int((float(orcountd) / float(status_total)) * 100))
+                                        print "(2/2 - " + status_percentage + "%) Processing: " + data[0]
+
                                         if Logs_ormain.objects.filter(orno=data[0], batchkey=batchkey, accounttype='C'):
                                             if not Productgroup.objects.filter(code=data[16].strip()):
                                                 importstatus = 'F'
@@ -510,13 +528,18 @@ def exportsave(request):
             successdebit = 0
             successcredit = 0
 
-
             if request.POST['artype'] == 'a':
+                orcount = 0
+                status_total = len(ormain)
                 for data in ormain:
                     vatamount = 0
                     vatable = 0
                     vatexempt = 0
                     vatzerorated = 0
+
+                    orcount += 1
+                    status_percentage = str(int((float(orcount) / float(status_total)) * 100))
+                    print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
@@ -862,11 +885,17 @@ def exportsave(request):
                         successcredit = successcredit + datalist.creditamount
 
             elif request.POST['artype'] == 'c':
+                orcount = 0
+                status_total = len(ormain)
                 for data in ormain:
                     vatexempt = float(data.amount)
                     vatamount = 0
                     vatable = 0
                     vatzerorated = 0
+
+                    orcount += 1
+                    status_percentage = str(int((float(orcount) / float(status_total)) * 100))
+                    print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
@@ -1086,3 +1115,35 @@ def exportsave(request):
             }
 
         return JsonResponse(data)
+
+
+def unicode_escape(unistr):
+    """
+    Tidys up unicode entities into HTML friendly entities
+
+    Takes a unicode string as an argument
+
+    Returns a unicode string
+    """
+    import htmlentitydefs
+    escaped = ""
+
+    for char in unistr:
+        if ord(char) in htmlentitydefs.codepoint2name:
+            name = htmlentitydefs.codepoint2name.get(ord(char))
+            entity = htmlentitydefs.name2codepoint.get(name)
+            # escaped +="&#" + str(entity)
+            if str(entity) == '195':
+                escaped += 'N'
+            elif str(entity) == '177':
+                escaped = escaped[:-1]
+                escaped += 'n'
+        else:
+            escaped += char
+    return strip_non_ascii(escaped)
+
+
+def strip_non_ascii(string):
+    ''' Returns the string without non ASCII characters'''
+    stripped = (c for c in string if 0 < ord(c) < 127)
+    return ''.join(stripped)

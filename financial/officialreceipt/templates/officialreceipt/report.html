@@ -60,7 +60,7 @@
             margin-left: -40px;
             margin-top: -40px;
         }
-        #rep_f_order_holder, #rep_f_asc_holder, .rep_f_ae_holder, #rep_f_amount_holder{
+        #rep_f_uborder_holder, #rep_f_order_holder, #rep_f_asc_holder, .rep_f_ae_holder, #rep_f_amount_holder{
             display: none;
         }
         .form-group {
@@ -100,6 +100,7 @@
                                     <option value="d">Detailed</option>
                                     <option value="a_s">Accounting Entry - Summary</option>
                                     <option value="a_d">Accounting Entry - Detailed</option>
+                                    <option value="ub">Unbalanced Entry</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2">
@@ -117,6 +118,16 @@
                                     <option value="ornum">OR Number</option>
                                     <option value="orstatus">Status</option>
                                     <option value="ortype">Type</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-6" id="rep_f_uborder_holder">
+                                <label class="control-label small">Order By</label>
+                                <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_uborder">
+                                    <option value="ormain__ornum">OR Number</option>
+                                    <option value="ormain__ordate">Date</option>
+                                    <option value="debitsum">Debit</option>
+                                    <option value="creditsum">Credit</option>
+                                    <option value="margin">Margin</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-2" id="rep_f_asc_holder">
@@ -498,6 +509,7 @@
                 setCookie('rep_f_payee_agent_{{ request.resolver_match.app_name }}', $('#rep_f_payee_agent').val());
 
                 setCookie('rep_f_order_{{ request.resolver_match.app_name }}', $('#rep_f_order').val());
+                setCookie('rep_f_uborder_{{ request.resolver_match.app_name }}', $('#rep_f_uborder').val());
                 setCookie('rep_f_asc_{{ request.resolver_match.app_name }}', $('#rep_f_asc').val());
                 setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
                 setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
@@ -523,7 +535,7 @@
             checkReportType();
         });
 
-        $("#rep_f_order").on("select2:select", function (evt) {
+        $("#rep_f_order, #rep_f_uborder").on("select2:select", function (evt) {
             var element = evt.params.data.element;
             var $element = $(element);
 
@@ -562,6 +574,7 @@
         $('#rep_f_payee_cir').val(getCookie('rep_f_payee_cir_{{ request.resolver_match.app_name }}'));
 
         $('#rep_f_order').val(getCookie('rep_f_order_{{ request.resolver_match.app_name }}').split(',')).select2();
+        $('#rep_f_uborder').val(getCookie('rep_f_uborder_{{ request.resolver_match.app_name }}').split(',')).select2();
         $('#rep_f_asc').val(getCookie('rep_f_asc_{{ request.resolver_match.app_name }}'));
         $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
 
@@ -580,6 +593,7 @@
                 else $('.rep_f_ae_holder').show();
 
                 $('#rep_f_order_holder').hide();
+                $('#rep_f_uborder_holder').hide();
 
                 $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').hide();
@@ -590,16 +604,29 @@
                 $('.rep_f_ae_holder').hide();
 
                 $('#rep_f_order_holder').show();
+                $('#rep_f_uborder_holder').hide();
 
                 $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();
 
                 $('#rep_f_orientation').val('l');
             }
+            else if($('#rep_f_report').val() == 'ub'){
+                $('.rep_f_ae_holder').hide();
+
+                $('#rep_f_order_holder').hide();
+                $('#rep_f_uborder_holder').show();
+
+                $('#rep_f_amount_holder').show();
+                $('#rep_f_asc_holder').show();
+
+                $('#rep_f_orientation').val('p');
+            }
             else{
                 $('.rep_f_ae_holder').hide();
 
                 $('#rep_f_order_holder').show();
+                $('#rep_f_uborder_holder').hide();
 
                 $('#rep_f_amount_holder').show();
                 $('#rep_f_asc_holder').show();

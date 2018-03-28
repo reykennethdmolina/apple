@@ -678,6 +678,115 @@ def reportresultquery(request):
             if key_data != 'null':
                 key_data = key_data.split(",")
                 query = query.order_by(*key_data)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+        report_type = "OR Unbalanced"
+        query = Ordetail.objects.filter(isdeleted=0, ormain__isdeleted=0)
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(ormain__ornum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(ormain__ornum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(ormain__ordate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(ormain__ordate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_ortype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_ortype_' + request.resolver_match.app_name))
+            query = query.filter(ormain__ortype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(ormain__branch=int(key_data))
+        if request.COOKIES.get('rep_f_collector_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_collector_' + request.resolver_match.app_name))
+            query = query.filter(ormain__collector=int(key_data))
+        if request.COOKIES.get('rep_f_product_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_product_' + request.resolver_match.app_name))
+            query = query.filter(ormain__product=int(key_data))
+        if request.COOKIES.get('rep_f_bankaccount_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_bankaccount_' + request.resolver_match.app_name))
+            query = query.filter(ormain__bankaccount=int(key_data))
+        if request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_orstatus_' + request.resolver_match.app_name))
+            query = query.filter(ormain__orstatus=str(key_data))
+        if request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_posted_' + request.resolver_match.app_name))
+            if key_data == 'P':
+                query = query.filter(ormain__postby__isnull=False)
+            elif key_data == 'U':
+                query = query.filter(ormain__postby__isnull=True)
+        if request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_status_' + request.resolver_match.app_name))
+            query = query.filter(ormain__status=str(key_data))
+        if request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_government_' + request.resolver_match.app_name))
+            query = query.filter(ormain__government=str(key_data))
+        if request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_transaction_type_' + request.resolver_match.app_name))
+            query = query.filter(ormain__transaction_type=str(key_data))
+
+        if request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_vat_' + request.resolver_match.app_name))
+            query = query.filter(ormain__vat=int(key_data))
+        if request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_outputvattype_' + request.resolver_match.app_name))
+            if key_data == 'with':
+                query = query.filter(ormain__outputvattype__isnull=False)
+            elif key_data == 'without':
+                query = query.filter(ormain__outputvattype__isnull=True)
+            else:
+                query = query.filter(ormain__outputvattype=int(key_data))
+        if request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_wtax_' + request.resolver_match.app_name))
+            query = query.filter(ormain__wtax=int(key_data))
+        if request.COOKIES.get('rep_f_deferredvat_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_deferredvat_' + request.resolver_match.app_name))
+            query = query.filter(ormain__deferredvat=str(key_data))
+
+        if request.COOKIES.get('rep_f_artype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_artype_' + request.resolver_match.app_name))
+            query = query.filter(ormain__orsource=str(key_data))
+            if request.COOKIES.get('rep_f_artype_' + request.resolver_match.app_name) == 'A':
+                if request.COOKIES.get('rep_f_payee_adv_' + request.resolver_match.app_name):
+                    key_data = str(request.COOKIES.get('rep_f_payee_adv_' + request.resolver_match.app_name))
+                    query = query.filter(ormain__payee_type=str(key_data))
+                    if request.COOKIES.get('rep_f_payee_adv_' + request.resolver_match.app_name) == 'AG':
+                        if request.COOKIES.get('rep_f_payee_agency_' + request.resolver_match.app_name)\
+                                and request.COOKIES.get('rep_f_payee_agency_' + request.resolver_match.app_name) != 'null':
+                            key_data = request.COOKIES.get('rep_f_payee_agency_' + request.resolver_match.app_name)
+                            query = query.filter(ormain__agency=int(key_data))
+                    if request.COOKIES.get('rep_f_payee_adv_' + request.resolver_match.app_name) == 'C':
+                        if request.COOKIES.get('rep_f_payee_client_' + request.resolver_match.app_name)\
+                                and request.COOKIES.get('rep_f_payee_client_' + request.resolver_match.app_name) != 'null':
+                            key_data = request.COOKIES.get('rep_f_payee_client_' + request.resolver_match.app_name)
+                            query = query.filter(ormain__client=int(key_data))
+            if request.COOKIES.get('rep_f_artype_' + request.resolver_match.app_name) == 'C':
+                if request.COOKIES.get('rep_f_payee_cir_' + request.resolver_match.app_name):
+                    key_data = str(request.COOKIES.get('rep_f_payee_cir_' + request.resolver_match.app_name))
+                    query = query.filter(ormain__payee_type=str(key_data))
+                    if request.COOKIES.get('rep_f_payee_cir_' + request.resolver_match.app_name) == 'A':
+                        if request.COOKIES.get('rep_f_payee_agent_' + request.resolver_match.app_name)\
+                                and request.COOKIES.get('rep_f_payee_agent_' + request.resolver_match.app_name) != 'null':
+                            key_data = str(request.COOKIES.get('rep_f_payee_agent_' + request.resolver_match.app_name))
+                            query = query.filter(ormain__agent=str(key_data))
+
+        query = query.values('ormain__ornum')\
+            .annotate(margin=Sum('debitamount')-Sum('creditamount'), debitsum=Sum('debitamount'), creditsum=Sum('creditamount'))\
+            .values('ormain__ornum', 'margin', 'ormain__ordate', 'debitsum', 'creditsum').order_by('ormain__ornum').exclude(margin=0)
+
+        if request.COOKIES.get('rep_f_uborder_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_uborder_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+        report_total = query.aggregate(Sum('debitsum'), Sum('creditsum'), Sum('margin'))
+
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s'\
             or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
         query = Ordetail.objects.all().filter(isdeleted=0)
@@ -902,6 +1011,8 @@ def reportresultxlsx(request):
         amount_placement = 6
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         amount_placement = 12
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+        amount_placement = 2
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 14
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -930,6 +1041,12 @@ def reportresultxlsx(request):
         worksheet.write('K1', 'Gov`t', bold)
         worksheet.write('L1', 'Status', bold)
         worksheet.write('M1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+        worksheet.write('A1', 'OR Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('C1', 'Debit', bold_right)
+        worksheet.write('D1', 'Credit', bold_right)
+        worksheet.write('E1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:A2', 'Chart of Account', bold)
         worksheet.merge_range('B1:N1', 'Details', bold_center)
@@ -1003,6 +1120,14 @@ def reportresultxlsx(request):
                 obj.get_orstatus_display(),
                 obj.amount,
             ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+            data = [
+                obj.ormain__ornum,
+                DateFormat(obj.ormain__ordate).format('Y-m-d'),
+                obj.debitsum,
+                obj.creditsum,
+                obj.margin,
+            ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
             str_lastname = obj['employee__lastname'] if obj['employee__lastname'] is not None else ''
@@ -1067,6 +1192,11 @@ def reportresultxlsx(request):
         data = [
             "", "", "", "", "", "", "", "", "", "", "",
             "Total", report_total['amount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+        data = [
+            "",
+            "Total", report_total['debitsum__sum'], report_total['creditsum__sum'], report_total['margin__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         data = [
