@@ -436,12 +436,19 @@ class UpdateView(UpdateView):
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
             self.object.bankbranchdisbursebranch = self.object.bankbranchdisburse.branch
+            self.object.vatcode = self.object.vat.code
+            self.object.vatrate = self.object.vat.rate
+            if self.object.atax:
+                self.object.ataxcode = self.object.atax.code
+                self.object.ataxrate = self.object.atax.rate
+
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
                                             'branch', 'bankbranchdisburse', 'vat', 'atax', 'bankbranchdisbursebranch',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',
-                                            'modifyby', 'modifydate', 'apstatus'])
+                                            'modifyby', 'modifydate', 'apstatus', 'vatcode', 'vatrate', 'ataxcode',
+                                            'ataxrate'])
 
             if self.object.apstatus == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
