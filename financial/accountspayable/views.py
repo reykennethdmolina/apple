@@ -435,8 +435,9 @@ class UpdateView(UpdateView):
             self.object.payeename = self.object.payee.name
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
+            self.object.bankbranchdisbursebranch = self.object.bankbranchdisburse.branch
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
-                                            'branch', 'bankbranchdisburse', 'vat', 'atax',
+                                            'branch', 'bankbranchdisburse', 'vat', 'atax', 'bankbranchdisbursebranch',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',
