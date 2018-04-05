@@ -41,10 +41,10 @@ class Budgetapproverlevels(models.Model):
         return reverse('budgetapproverlevels:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.code
+        return self.level
 
     def __unicode__(self):
-        return self.code
+        return self.level
 
     def status_verbose(self):
         return dict(Budgetapproverlevels.STATUS_CHOICES)[self.status]
