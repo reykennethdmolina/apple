@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="description" content="bootstrap material admin template">
+		<meta name="viewport" content="width=device-width">
+		<title>Inquirer Enterprise Solutions - Financial</title>
+        {% include 'favicon.html' %}
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/iconstyle.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/font-awasome/font-awesome.min.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/fonts/material-design/material-design.min.css' %}" />
+		<!-- Global plugin CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/bootstrap.min.css' %}" />
+		<!--  Global Template CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/style.css' %}" />
+		<link id="site-color" rel="stylesheet" href="{% static 'financial-layout/assets/css/colors/default.css' %}" />
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/css/global/responsive.css' %}" />
+		<!-- Page CSS -->
+		<link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/jQuery-Form-Validator/css/theme-default.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+        {% block extra_css %}
+        {% endblock extra_css %}
+        <script src="{% static 'financial-layout/assets/js/global/jquery.min.js' %}"></script>
+	</head>
+	<body class="dashboard site-navbar-small validations">
+		<div class="main-content">
+			{% block page-content %}{% endblock page-content %}
+		</div>
+		<script src="{% static 'financial-layout/assets/js/global/bootstrap.min.js' %}"></script>
+		<script src="{% static 'financial-layout/assets/plugin/jquery-ui/js/jquery-ui.min.js' %}"></script>
+        {% block extra_js %}
+            <style>
+            body{
+                padding-top: 0px;
+            }
+            .main-content, body{
+                background-color: white;
+            }
+            </style>
+        {% endblock extra_js %}
+    </body>
+</html>
