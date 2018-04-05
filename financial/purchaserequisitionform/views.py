@@ -239,7 +239,6 @@ def addRfprftransactionitem(id):
 
 
 def deleteRfprftransactionitem(prfdetail):
-    print prfdetail.id
     data = Rfprftransaction.objects.get(prfdetail=prfdetail.id, status='A')
     # update rfdetail
     remainingquantity = prfdetail.rfdetail.prfremainingquantity + data.prfquantity
@@ -432,9 +431,16 @@ class UpdateView(UpdateView):
                 prfmain.totalremainingquantity = int(itemquantity)
                 prfmain.netamount = total_amount
 
-                approverreached = Budgetapproverlevels.objects.filter(expwithinbudget__lte=total_amount).order_by('-level').first()
-                prfmain.approverlevel_required = approverreached.level \
-                                                 + (1 if total_amount > approverreached.expwithinbudget else 0) \
+                if Budgetapproverlevels.objects.order_by('level').first().expwithinbudget > total_amount:
+                    approver = Budgetapproverlevels.objects.order_by('level').first()
+                else:
+                    approver = Budgetapproverlevels.objects.filter(expwithinbudget__lte=total_amount).order_by('-level').first()
+                    
+                approverlevel = approver.level
+                approverbudget = approver.expwithinbudget
+
+                prfmain.approverlevel_required = approverlevel \
+                                                 + (1 if total_amount > approverbudget else 0) \
                                                  + (1 if prfmain.approverlevelbudget_response == 'D' else 0)
 
                 prfmain.save()

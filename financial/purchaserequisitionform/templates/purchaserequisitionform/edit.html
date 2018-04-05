@@ -290,7 +290,7 @@
                                                 </select>
                                             </td>
                                             <td><input type="number" name="temp_fxrate" form="form-b" step="any" class="form-control input-sm temp_fxrate" value="{{ prfdetailtemp.fxrate }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
-                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_amount amount" value="{{ prfdetailtemp.amount }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
+                                            <td><input type="number" name="temp_amount" form="form-b" step="any" class="form-control input-sm temp_amount" value="{{ prfdetailtemp.amount }}" {% if object.prfstatus == 'A' or object.approverlevelbudget_response != None %} disabled="disabled" {% endif %}></td>
                                             <td>
                                                 <select class="form-control input-sm temp_department" required style="width: 100%" name="temp_department" form="form-b">
                                                     {% for department in department %}
