@@ -102,12 +102,13 @@
             </tr>
         </tbody>
         </table>
-    {% elif report == 'ub' %}
+    {% elif report == 'ub' or report == 'ae' %}
         <table id="table_unbalanced">
         <thead>
             <tr>
                 <th class="left"><span>OR Number</span></th>
                 <th class="left"><span>Date</span></th>
+                <th class="left"><span>Payee</span></th>
                 <th class="right"><span>Debit</span></th>
                 <th class="right"><span>Credit</span></th>
                 <th class="right"><span>Margin</span></th>
@@ -118,14 +119,15 @@
                 <tr>
                     <td>{{ data.ormain__ornum }}</td>
                     <td>{{ data.ormain__ordate|date:'Y-m-d' }}</td>
+                    <td>{{ data.ormain__payee_code }} - {{ data.ormain__payee_name }}</td>
                     <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.margin|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="5"></td></tr>
+            <tr><td colspan="6"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="2"><b>Total</b></td>
+                <td colspan="3"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.debitsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.creditsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.margin__sum|floatformat:2|intcomma }}</b></td>
@@ -156,7 +158,7 @@
                                 {% if data.bankaccount__code %}
                                     <td>
                                         {% ifchanged data.bankaccount__code %}
-                                            {{ data.bankaccount__code }}
+                                            {{ data.bankaccount__bank__code }} - {{ data.bankaccount__code }} - {{ data.bankaccount__accountnumber }}
                                         {% endifchanged %}
                                     </td>
                                 {% endif %}
@@ -294,7 +296,7 @@
                         <table>
                             <tr>
                                 {% if data.bankaccount.accountnumber %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>{{ data.bankaccount.code }}</td>
+                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>{{ data.bankaccount.bank.code }} - {{ data.bankaccount.code }} - {{ data.bankaccount.accountnumber }}</td>
                                 {% endif %}
                                 {% if data.department.departmentname %}
                                     <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>

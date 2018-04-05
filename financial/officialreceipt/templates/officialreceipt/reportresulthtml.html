@@ -1,138 +1,122 @@
-{% extends 'reports/base.html' %}
+{% extends 'reports/base-html.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
         td{
             vertical-align: top;
         }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        body{
+            font-size: 11px;
+        }
     </style>
 {% endblock %}
 
-{% block main_content %}
-    <br>
-    <h2>{{ report_type }}</h2>
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
 
     {% if report == 's' %}
-        <table id="table_summary">
+        <table id="table_summary" class="table table-condensed table-bordered">
         <thead>
             <tr>
-                <th class="left" style="width: 20%;"><span>JV Number</span></th>
+                <th class="left" style="width: 10%;"><span>OR Number</span></th>
                 <th class="left" style="width: 10%;"><span>Date</span></th>
-                <th class="left" style="width: 20%;"><span>Type</span></th>
-                <th class="left" style="width: 25%;"><span>Subtype</span></th>
+                <th class="left" style="width: 15%;"><span>Type</span></th>
+                <th class="left" style="width: 10%;"><span>AR Type</span></th>
+                <th class="left" style="width: 35%;"><span>Payee</span></th>
                 <th class="left" style="width: 10%;"><span>Status</span></th>
-                <th class="right" style="width: 15%;"><span>Amount</span></th>
+                <th class="right" style="width: 10%;"><span>Amount</span></th>
             </tr>
         </thead>
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>JV-{{ data.jvtype.code }}-{{ data.jvnum }}</td>
-                    <td>{{ data.jvdate|date:'Y-m-d' }}</td>
-                    <td>{{ data.jvtype.description }}</td>
-                    <td>{{ data.jvsubtype.description }}</td>
-                    <td>{{ data.get_jvstatus_display }}</td>
+                    <td><a href="{% url 'officialreceipt:update' data.pk %}" target="_parent">{{ data.ornum }}</a></td>
+                    <td>{{ data.ordate|date:'Y-m-d' }}</td>
+                    <td>{{ data.ortype.description }}</td>
+                    <td>{{ data.get_orsource_display }}</td>
+                    <td>[{{ data.payee_code }}] {{ data.payee_name }}</td>
+                    <td>{{ data.get_orstatus_display }}</td>
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="6"></td></tr>
+            <tr><td colspan="7"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="5"><b>Total</b></td>
+                <td colspan="6"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
             </tr>
         </tbody>
         </table>
-
     {% elif report == 'd' %}
-        <table>
+        <table class="table">
             <tr>
-                <td style="width: 30%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Type</b>&nbsp;(N) Non JV Type, &nbsp;(A) Adjustment, &nbsp;(P) Payment, &nbsp;(C) Accruals
+                <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Type:</b> &nbsp;&nbsp;(AR) Accounts Receivable, &nbsp;&nbsp;(R) Revenue, &nbsp;&nbsp;(S) Sundries
                 </td>
                 <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Subtype</b>&nbsp;(CSV) Cellphone Subsidy Voucher, &nbsp;(MJV) Manual Journal Voucher
+                    <b>Government:</b> &nbsp;&nbsp;(G) Government, &nbsp;&nbsp;(NG) Non-Government, &nbsp;&nbsp;(M) Mixed
                 </td>
-                <td style="width: 37%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Status</b>&nbsp;(F) For Approval, &nbsp;(A) Approved, &nbsp;(I) In Process, &nbsp;(R) Released, &nbsp;(D) Disapproved
+                <td style="width: 34%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(R) Released, &nbsp;&nbsp;(D) Disapproved
                 </td>
             </tr>
         </table>
         <br><br><br>
-        <table id="table_detailed">
+        <table id="table_detailed" class="table table-condensed table-bordered">
         <thead>
             <tr>
-                <th class="left" style="width: 12%;"><span>JV Number</span></th>
+                <th class="left" style="width: 6%;"><span>OR Number</span></th>
                 <th class="left" style="width: 7%;"><span>Date</span></th>
-                <th class="left" style="width: 7%;"><span>Type</span></th>
-                <th class="left" style="width: 7%;"><span>Subtype</span></th>
-
-                <th class="left" style="width: 9%;"><span>Branch</span></th>
-                <th class="left" style="width: 25%;"><span>Department</span></th>
-
-                <th class="center" style="width: 10%;"><span>Status</span></th>
-                <th style="width: 15%"></th>
-                <th class="right" style="width: 8%;"><span>Amount</span></th>
+                <th class="left" style="width: 4%;"><span>Type</span></th>
+                <th class="left" style="width: 6%;"><span>AR Type</span></th>
+                <th class="left" style="width: 23%;"><span>Payee</span></th>
+                <th class="left" style="width: 15%;"><span>Product</span></th>
+                <th class="left" style="width: 5%;"><span>VAT</span></th>
+                <th class="left" style="width: 5%;"><span>WTAX</span></th>
+                <th class="left" style="width: 9%;"><span>Collector</span></th>
+                <th class="left" style="width: 4%;"><span>Branch</span></th>
+                <th class="left" style="width: 3%;"><span>Gov't</span></th>
+                <th class="left" style="width: 4%;"><span>Status</span></th>
+                <th class="right" style="width: 9%;"><span>Amount</span></th>
             </tr>
         </thead>
-        {% if csv == 'hide' %}
-            <tbody class="small">
-                {% for data in data_list %}
-                    <tr>
-                        <td>{{ data.jvnum }}</td>
-                        <td>{{ data.jvdate|date:'Y-m-d' }}</td>
-                        <td>{{ data.jvtype.code }}</td>
-                        <td>{{ data.jvsubtype.code }}</td>
-                        <td>{{ data.branch.description }}</td>
-                        <td>{{ data.department.departmentname }}</td>
-                        <td style="text-align: center">{{ data.jvstatus }}</td>
-                        <td></td>
-                        <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="9"></td></tr>
-                <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                    <td colspan="8"><b>Total</b></td>
-                    <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td><a href="{% url 'officialreceipt:update' data.pk %}" target="_parent">{{ data.ornum }}</a></td>
+                    <td>{{ data.ordate|date:'Y-m-d' }}</td>
+                    <td>{{ data.ortype.code }}</td>
+                    <td>{{ data.get_orsource_display }}</td>
+                    <td>[{{ data.payee_code }}] {{ data.payee_name }}</td>
+                    <td>{{ data.product.description }}</td>
+                    <td>{{ data.vat.code }}</td>
+                    <td>{{ data.wtax.code }}</td>
+                    <td>{{ data.collector.name }}</td>
+                    <td>{{ data.branch.code }}</td>
+                    <td>{{ data.government }}</td>
+                    <td>{{ data.orstatus }}</td>
+                    <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
-            </tbody>
-        {% elif csv == 'show' %}
-            <tbody class="small">
-                {% for data in data_list %}
-                    {% ifchanged data.jvmain.jvnum %}
-                        <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                            <td>{{ data.jvmain.jvnum }}</td>
-                            <td>{{ data.jvmain.jvdate|date:'Y-m-d' }}</td>
-                            <td>{{ data.jvmain.jvtype.code }}</td>
-                            <td>{{ data.jvmain.jvsubtype.code }}</td>
-                            <td>{{ data.jvmain.branch.description }}</td>
-                            <td>{{ data.jvmain.department.departmentname }}</td>
-                            <td style="text-align: center">{{ data.jvmain.jvstatus }}</td>
-                            <td></td>
-                            <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
-                        </tr>
-                    {% endifchanged %}
-                    <tr>
-                        <td colspan="5" style="padding: 7px; padding-bottom: 2px; background-color: #efefef"></td>
-                        <td colspan="1" style="padding: 7px; padding-bottom: 2px; background-color: #efefef; text-align: right">OF-{{ data.ofnum }}</td>
-                        <td colspan="1" style="padding: 7px; padding-bottom: 2px; background-color: #efefef">{{ data.ofdate|date:'Y-m-d' }}</td>
-                        <td colspan="1" style="padding: 7px; padding-bottom: 2px; background-color: #efefef; text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
-                        <td style="padding: 7px; padding-bottom: 2px; background-color: #efefef"></td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="9"></td></tr>
-                <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                    <td colspan="8"><b>Total</b></td>
-                    <td class="right"><b>{{ report_total.jvmain__amount__sum|floatformat:2|intcomma }}</b></td>
-                </tr>
-            </tbody>
-        {% endif %}
+            {% endfor %}
+            <tr><td colspan="13"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="12"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
         </table>
     {% elif report == 'ub' or report == 'ae' %}
-        <table id="table_unbalanced">
+        <table id="table_unbalanced" class="table table-condensed table-bordered">
         <thead>
             <tr>
-                <th class="left"><span>JV Number</span></th>
+                <th class="left"><span>OR Number</span></th>
                 <th class="left"><span>Date</span></th>
+                <th class="left"><span>Payee</span></th>
                 <th class="right"><span>Debit</span></th>
                 <th class="right"><span>Credit</span></th>
                 <th class="right"><span>Margin</span></th>
@@ -140,17 +124,18 @@
         </thead>
         <tbody>
             {% for data in data_list %}
-                <tr>
-                    <td>{{ data.jvmain__jvnum }}</td>
-                    <td>{{ data.jvmain__jvdate|date:'Y-m-d' }}</td>
+                <tr {% if data.margin != 0 %}class="danger"{% endif %}>
+                    <td><a href="{% url 'officialreceipt:update' data.ormain__pk %}" target="_parent">{{ data.ormain__ornum }}</a></td>
+                    <td>{{ data.ormain__ordate|date:'Y-m-d' }}</td>
+                    <td>{{ data.ormain__payee_code }} - {{ data.ormain__payee_name }}</td>
                     <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.margin|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="5"></td></tr>
+            <tr><td colspan="6"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="2"><b>Total</b></td>
+                <td colspan="3"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.debitsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.creditsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.margin__sum|floatformat:2|intcomma }}</b></td>
@@ -158,7 +143,7 @@
         </tbody>
         </table>
     {% elif report == 'a_s' %}
-        <table id="table_ae_summary">
+        <table id="table_ae_summary" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -178,10 +163,10 @@
                     <td style="width: 45%">
                         <table>
                             <tr>
-                                {% if data.bankaccount__accountnumber %}
+                                {% if data.bankaccount__code %}
                                     <td>
-                                        {% ifchanged data.bankaccount__accountnumber %}
-                                            Bank Acct. No. {{ data.bankaccount__bank__code }} - {{ data.bankaccount__code }} - {{ data.bankaccount__accountnumber }}
+                                        {% ifchanged data.bankaccount__code %}
+                                            {{ data.bankaccount__bank__code }} - {{ data.bankaccount__code }} - {{ data.bankaccount__accountnumber }}
                                         {% endifchanged %}
                                     </td>
                                 {% endif %}
@@ -297,7 +282,7 @@
 
 
     {% elif report == 'a_d' %}
-        <table id="table_ae_detailed">
+        <table id="table_ae_detailed" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -310,16 +295,16 @@
             <tbody>
             {% for data in data_list %}
                 <tr {% ifchanged data.chartofaccount.accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
-                    <td style="width: 30%">
+                    <td style="width: 27%">
                         {% ifchanged data.chartofaccount.accountcode %}
                             {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}
                         {% endifchanged %}
                     </td>
-                    <td style="width: 50%">
+                    <td style="width: 45%">
                         <table>
                             <tr>
                                 {% if data.bankaccount.accountnumber %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>Bank Acct. No. {{ data.bankaccount.bank.code }} - {{ data.bankaccount.code }} - {{ data.bankaccount.accountnumber }}</td>
+                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>{{ data.bankaccount.bank.code }} - {{ data.bankaccount.code }} - {{ data.bankaccount.accountnumber }}</td>
                                 {% endif %}
                                 {% if data.department.departmentname %}
                                     <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>
@@ -360,13 +345,13 @@
                             </tr>
                         </table>
                     </td>
-                    <td style="width: 6%;">{{ data.jv_date|date:'Y-m-d' }}</td>
-                    <td class="right" style="width: 7%;">
+                    <td style="width:10%;">{{ data.or_date|date:'Y-m-d' }}</td>
+                    <td class="right" style="width: 9%;">
                         {% if data.balancecode == 'D' %}
                             {{ data.debitamount__sum|floatformat:2|intcomma }}
                         {% endif %}
                     </td>
-                    <td class="right" style="width: 7%;">
+                    <td class="right" style="width: 9%;">
                         {% if data.balancecode == 'C' %}
                             {{ data.creditamount__sum|floatformat:2|intcomma }}
                         {% endif %}
@@ -382,4 +367,4 @@
             </tbody>
         </table>
     {% endif %}
-{% endblock main_content %}
+{% endblock page-content %}

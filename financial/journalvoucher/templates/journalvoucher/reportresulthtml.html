@@ -1,19 +1,27 @@
-{% extends 'reports/base.html' %}
+{% extends 'reports/base-html.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
         td{
             vertical-align: top;
         }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        body{
+            font-size: 11px;
+        }
     </style>
 {% endblock %}
 
-{% block main_content %}
-    <br>
-    <h2>{{ report_type }}</h2>
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
 
     {% if report == 's' %}
-        <table id="table_summary">
+        <table id="table_summary" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 20%;"><span>JV Number</span></th>
@@ -27,7 +35,7 @@
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>JV-{{ data.jvtype.code }}-{{ data.jvnum }}</td>
+                    <td><a href="{% url 'journalvoucher:update' data.pk %}" target="_parent">JV-{{ data.jvtype.code }}-{{ data.jvnum }}</a></td>
                     <td>{{ data.jvdate|date:'Y-m-d' }}</td>
                     <td>{{ data.jvtype.description }}</td>
                     <td>{{ data.jvsubtype.description }}</td>
@@ -42,7 +50,6 @@
             </tr>
         </tbody>
         </table>
-
     {% elif report == 'd' %}
         <table>
             <tr>
@@ -58,7 +65,7 @@
             </tr>
         </table>
         <br><br><br>
-        <table id="table_detailed">
+        <table id="table_detailed" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 12%;"><span>JV Number</span></th>
@@ -78,7 +85,7 @@
             <tbody class="small">
                 {% for data in data_list %}
                     <tr>
-                        <td>{{ data.jvnum }}</td>
+                        <td><a href="{% url 'journalvoucher:update' data.pk %}" target="_parent">{{ data.jvnum }}</a></td>
                         <td>{{ data.jvdate|date:'Y-m-d' }}</td>
                         <td>{{ data.jvtype.code }}</td>
                         <td>{{ data.jvsubtype.code }}</td>
@@ -100,7 +107,7 @@
                 {% for data in data_list %}
                     {% ifchanged data.jvmain.jvnum %}
                         <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                            <td>{{ data.jvmain.jvnum }}</td>
+                            <td><a href="{% url 'journalvoucher:update' data.jvmain.pk %}" target="_parent">{{ data.jvmain.jvnum }}</a></td>
                             <td>{{ data.jvmain.jvdate|date:'Y-m-d' }}</td>
                             <td>{{ data.jvmain.jvtype.code }}</td>
                             <td>{{ data.jvmain.jvsubtype.code }}</td>
@@ -128,7 +135,7 @@
         {% endif %}
         </table>
     {% elif report == 'ub' or report == 'ae' %}
-        <table id="table_unbalanced">
+        <table id="table_unbalanced" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left"><span>JV Number</span></th>
@@ -158,7 +165,7 @@
         </tbody>
         </table>
     {% elif report == 'a_s' %}
-        <table id="table_ae_summary">
+        <table id="table_ae_summary" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -297,7 +304,7 @@
 
 
     {% elif report == 'a_d' %}
-        <table id="table_ae_detailed">
+        <table id="table_ae_detailed" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -382,4 +389,4 @@
             </tbody>
         </table>
     {% endif %}
-{% endblock main_content %}
+{% endblock page-content %}
