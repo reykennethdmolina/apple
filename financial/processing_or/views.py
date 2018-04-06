@@ -556,7 +556,8 @@ def exportsave(request):
                     # logsormain to tempormain
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
-                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                        ordate=data.ordate,
                         prno=data.prno,
                         accounttype=data.accounttype,
                         bankaccountcode=data.bankaccount,
@@ -594,7 +595,8 @@ def exportsave(request):
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            ordate=data.ordate,
                             debitamount=data.amount,
                             balancecode='D',
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
@@ -611,7 +613,8 @@ def exportsave(request):
                             for data_d in ordetail:
                                 Temp_ordetail.objects.create(
                                     orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    ordate=data.ordate,
                                     adtypecode=data_d.adtype,
                                     amount=data_d.assignamount,
                                     vatamount=data_d.assignvatamount,
@@ -634,7 +637,8 @@ def exportsave(request):
                                 # do vat here
                                 Temp_ordetail.objects.create(
                                     orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    ordate=data.ordate,#datetime.strptime(data.ordate, '%m/%d/%Y'),
                                     creditamount=data_d.assignvatamount,
                                     balancecode='C',
                                     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
@@ -659,7 +663,8 @@ def exportsave(request):
                                 leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
                                 Temp_ordetail.objects.create(
                                     orno=data.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    ordate=data.ordate, #datetime.strptime(data.ordate, '%m/%d/%Y'),
                                     adtypecode=data.adtype,
                                     amount=leftover_amount,
                                     vatamount=leftover_vatamount,
@@ -681,7 +686,8 @@ def exportsave(request):
                                 # do vat here
                                 Temp_ordetail.objects.create(
                                     orno=data.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                    ordate=data.ordate,#datetime.strptime(data.ordate, '%m/%d/%Y'),
                                     creditamount=leftover_vatamount,
                                     balancecode='C',
                                     chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
@@ -701,7 +707,8 @@ def exportsave(request):
                         elif temp_ormain.subscription == '1':
                             Temp_ordetail.objects.create(
                                 orno=data.orno,
-                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                ordate=data.ordate,#datetime.strptime(data.ordate, '%m/%d/%Y'),
                                 creditamount=data.amount,
                                 balancecode='C',
                                 chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_unsubscribe.pk,
@@ -713,7 +720,8 @@ def exportsave(request):
                         # cash in bank
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            ordate=data.ordate,#datetime.strptime(data.ordate, '%m/%d/%Y'),
                             debitamount=data.amount,
                             balancecode='D',
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
@@ -731,7 +739,8 @@ def exportsave(request):
                         re_vatamount = float(format(re_amount * (float(data.vatrate) * 0.01), '.2f'))
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            ordate=data.ordate,#datetime.strptime(data.ordate, '%m/%d/%Y'),
                             adtypecode=data.adtype,
                             amount=re_amount,
                             vatamount=re_vatamount,
@@ -753,7 +762,8 @@ def exportsave(request):
                         # do vat here
                         Temp_ordetail.objects.create(
                             orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            #ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                            ordate=data.ordate,
                             creditamount=re_vatamount,
                             balancecode='C',
                             chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
@@ -910,7 +920,8 @@ def exportsave(request):
                     print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     # logsormain to tempormain
-                    temp_ordate = datetime.strptime(data.ordate[:-5], '%m/%d/%Y')
+                    #temp_ordate = datetime.strptime(data.ordate[:-5], '%m/%d/%Y')
+                    temp_ordate = data.ordate #datetime.strptime(data.ordate[:-5], '%m/%d/%Y')
                     temp_ormain = Temp_ormain.objects.create(
                         orno=data.orno,
                         ordate=temp_ordate,
