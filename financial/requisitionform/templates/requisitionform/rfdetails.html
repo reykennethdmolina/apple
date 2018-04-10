@@ -1,4 +1,4 @@
-<form class="form-horizontal" id="detailform" method="get" action="">
+<div class="form-horizontal" id="detailform">
 {% csrf_token %}
     <div class="row">
         <label style="display: none;" id="itemno">1</label>
@@ -33,7 +33,7 @@
             <button type="button" class="btn btn-round btn-dark waves-effect waves-light" id="btn_detailclose">Close</button>
         </div>
     </div>
-</form>
+</div>
 <script type="text/javascript">
     $(document).ready(function() {
         summary = $("#summary tbody");
