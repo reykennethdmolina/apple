@@ -1,19 +1,27 @@
-{% extends 'reports/base.html' %}
+{% extends 'reports/base-html.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
         td{
             vertical-align: top;
         }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        body{
+            font-size: 11px;
+        }
     </style>
 {% endblock %}
 
-{% block main_content %}
-    <br>
-    <h2>{{ report_type }}</h2>
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
 
     {% if report == 's' %}
-        <table id="table_summary">
+        <table id="table_summary" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 10%;"><span>CV Number</span></th>
@@ -28,7 +36,7 @@
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>{{ data.cvnum }}</td>
+                    <td><a href="{% url 'checkvoucher:update' data.pk %}" target="_parent">{{ data.cvnum }}</a></td>
                     <td>{{ data.cvdate|date:'Y-m-d' }}</td>
                     <td>{{ data.cvtype.description }}</td>
                     <td>{{ data.cvsubtype.description }}</td>
@@ -37,15 +45,13 @@
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="7"></td></tr>
+            <tr><td colspan="5"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="6"><b>Total</b></td>
+                <td colspan="4"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
             </tr>
         </tbody>
         </table>
-
-
     {% elif report == 'd' %}
         <table>
             <tr>
@@ -83,7 +89,7 @@
             <tbody class="small">
                 {% for data in data_list %}
                     <tr>
-                        <td>{{ data.cvnum }}</td>
+                        <td><a href="{% url 'checkvoucher:update' data.pk %}">{{ data.cvnum }}</a></td>
                         <td>{{ data.cvdate|date:'Y-m-d' }}</td>
                         <td>{{ data.cvtype.description }}</td>
                         <td>{{ data.cvsubtype.code }}</td>
@@ -109,7 +115,7 @@
                 {% for data in data_list %}
                     {% ifchanged data.cvmain.cvnum %}
                         <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                            <td>{{ data.cvmain.cvnum }}</td>
+                            <td><a href="{% url 'checkvoucher:update' data.cvmain.pk %}">{{ data.cvmain.cvnum }}</a></td>
                             <td>{{ data.cvmain.cvdate|date:'Y-m-d' }}</td>
                             <td>{{ data.cvmain.cvtype.description }}</td>
                             <td>{{ data.cvmain.cvsubtype.code }}</td>
@@ -140,9 +146,8 @@
             </tbody>
         {% endif %}
         </table>
-
     {% elif report == 'ub' or report == 'ae' %}
-        <table id="table_unbalanced">
+        <table id="table_unbalanced" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left"><span>CV Number</span></th>
@@ -154,8 +159,8 @@
         </thead>
         <tbody>
             {% for data in data_list %}
-                <tr>
-                    <td>{{ data.cvmain__cvnum }}</td>
+                <tr {% if data.margin != 0 %}class="danger"{% endif %}>
+                    <td><a href="{% url 'checkvoucher:update' data.cvmain__pk %}" target="_parent">{{ data.cvmain__cvnum }}</a></td>
                     <td>{{ data.cvmain__cvdate|date:'Y-m-d' }}</td>
                     <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
@@ -172,7 +177,7 @@
         </tbody>
         </table>
     {% elif report == 'a_s' %}
-        <table id="table_ae_summary">
+        <table id="table_ae_summary" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -311,7 +316,7 @@
 
 
     {% elif report == 'a_d' %}
-        <table id="table_ae_detailed">
+        <table id="table_ae_detailed" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -375,6 +380,8 @@
                     <td style="width: 26%">
                         {% if data.supplier %}
                             {{ data.supplier.name }}
+                        {% elif data.ofitem.payee %}
+                            {{ data.ofitem.payee_name }}
                         {% else %}
                             -
                         {% endif %}
@@ -401,4 +408,4 @@
             </tbody>
         </table>
     {% endif %}
-{% endblock main_content %}
+{% endblock page-content %}
