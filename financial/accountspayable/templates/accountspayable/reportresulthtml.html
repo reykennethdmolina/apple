@@ -70,15 +70,16 @@
         <table id="table_detailed" class="table table-condensed table-bordered">
         <thead>
             <tr>
-                <th class="left" style="width: 8%;"><span>AP Number</span></th>
-                <th class="left" style="width: 8%;"><span>Date</span></th>
-                <th class="left" style="width: 8%;"><span>Type</span></th>
-                <th class="left" style="width: 7%;"><span>Subtype</span></th>
-                <th class="left" style="width: 24%;"><span>Payee</span></th>
-                <th class="left" style="width: 6%;"><span>VAT</span></th>
-                <th class="left" style="width: 6%;"><span>ATC</span></th>
-                <th class="center" style="width: 6%;"><span>In/VAT</span></th>
-                <th class="center" style="width: 6%;"><span>Status</span></th>
+                <th class="left" style="width: 6%;"><span>AP No.</span></th>
+                <th class="left" style="width: 6%;"><span>Date</span></th>
+                <th class="left" style="width: 5%;"><span>Type</span></th>
+                <th class="left" style="width: 5%;"><span>Subtype</span></th>
+                <th class="left" style="width: 20%;"><span>Payee</span></th>
+                <th class="left" style="width: 5%;"><span>VAT</span></th>
+                <th class="left" style="width: 5%;"><span>ATC</span></th>
+                <th class="center" style="width: 5%;"><span>In/VAT</span></th>
+                <th class="center" style="width: 5%;"><span>Status</span></th>
+                <th class="left" style="width: 17%;"><span>Particulars</span></th>
                 <th style="width: 12%"></th>
                 <th class="right" style="width: 9%;"><span>Amount</span></th>
             </tr>
@@ -96,13 +97,14 @@
                         <td>{{ data.atax.code }}</td>
                         <td style="text-align: center">{{ data.inputvattype.code }}</td>
                         <td style="text-align: center">{{ data.apstatus }}</td>
+                        <td>{{ data.particulars }}</td>
                         <td></td>
                         <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="11"></td></tr>
+                <tr><td colspan="12"></td></tr>
                 <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                    <td colspan="10"><b>Total</b></td>
+                    <td colspan="11"><b>Total</b></td>
                     <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
                 </tr>
             </tbody>
@@ -120,6 +122,7 @@
                             <td>{{ data.apmain.atax.code }}</td>
                             <td style="text-align: center">{{ data.apmain.inputvattype.code }}</td>
                             <td style="text-align: center">{{ data.apmain.apstatus }}</td>
+                            <td>{{ data.particulars }}</td>
                             <td></td>
                             <td class="right">{{ data.apmain.amount|floatformat:2|intcomma }}</td>
                         </tr>
@@ -128,13 +131,13 @@
                         <td colspan="5" style="padding: 7px; padding-bottom: 2px; background-color: #efefef"></td>
                         <td colspan="2" style="padding: 7px; padding-bottom: 2px; background-color: #efefef">RFV-{{ data.reprfvnum }}</td>
                         <td colspan="2" style="padding: 7px; padding-bottom: 2px; background-color: #efefef">{{ data.reprfvdate|date:'Y-m-d' }}</td>
-                        <td colspan="1" style="padding: 7px; padding-bottom: 2px; background-color: #efefef; text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
+                        <td colspan="2" style="padding: 7px; padding-bottom: 2px; background-color: #efefef; text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
                         <td style="padding: 7px; padding-bottom: 2px; background-color: #efefef"></td>
                     </tr>
                 {% endfor %}
-                <tr><td colspan="11"></td></tr>
+                <tr><td colspan="12"></td></tr>
                 <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                    <td colspan="10"><b>Total</b></td>
+                    <td colspan="11"><b>Total</b></td>
                     <td class="right"><b>{{ report_total.apmain__amount__sum|floatformat:2|intcomma }}</b></td>
                 </tr>
             </tbody>
@@ -146,6 +149,11 @@
             <tr>
                 <th class="left"><span>AP Number</span></th>
                 <th class="left"><span>Date</span></th>
+                <th class="left"><span>APV Type</span></th>
+                <th class="left"><span>APV Subtype</span></th>
+                <th class="left"><span>Payee</span></th>
+                <th class="left"><span>Disbursing Branch</span></th>
+                <th class="left"><span>APV Status</span></th>
                 <th class="right"><span>Debit</span></th>
                 <th class="right"><span>Credit</span></th>
                 <th class="right"><span>Margin</span></th>
@@ -156,6 +164,11 @@
                 <tr>
                     <td><a href="{% url 'accountspayable:update' data.apmain__pk %}" target="_parent">{{ data.apmain__apnum }}</td>
                     <td>{{ data.apmain__apdate|date:'Y-m-d' }}</td>
+                    <td>{{ data.apmain__aptype__code }}</td>
+                    <td>{{ data.apmain__apsubtype__code }}</td>
+                    <td>{{ data.apmain__payeename }}</td>
+                    <td>{{ data.apmain__bankbranchdisburse__branch }}</td>
+                    <td>{{ data.apmain__apstatus }}</td>
                     <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.margin|floatformat:2|intcomma }}</td>
@@ -182,106 +195,108 @@
             </thead>
             <tbody>
             {% for data in data_list %}
-                <tr {% ifchanged data.chartofaccount__accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+{#                <tr {% ifchanged data.chartofaccount__accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>#}
+                <tr>
                     <td style="width: 35%">
-                        {% ifchanged data.chartofaccount__accountcode %}
-                            {{ data.chartofaccount__accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount__description }}
-                        {% endifchanged %}
+{#                        {% ifchanged data.chartofaccount__accountcode %}#}
+{#                            {{ data.chartofaccount__accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount__description }}#}
+{#                        {% endifchanged %}#}
+                        {{ data.chartofaccount__accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount__description }}
                     </td>
                     <td style="width: 45%">
                         <table>
                             <tr>
                                 {% if data.bankaccount__accountnumber %}
                                     <td>
-                                        {% ifchanged data.bankaccount__accountnumber %}
+{#                                        {% ifchanged data.bankaccount__accountnumber %}#}
                                             Bank Acct. No. {{ data.bankaccount__bank__code }} - {{ data.bankaccount__code }} - {{ data.bankaccount__accountnumber }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.department__departmentname %}
                                     <td>
-                                        {% ifchanged data.department__departmentname %}
+{#                                        {% ifchanged data.department__departmentname %}#}
                                             {{ data.department__departmentname }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.employee__firstname %}
                                     <td>
-                                        {% ifchanged data.employee__firstname %}
-                                            {% ifchanged data.employee__lastname %}
+{#                                        {% ifchanged data.employee__firstname %}#}
+{#                                            {% ifchanged data.employee__lastname %}#}
                                                 {{ data.employee__firstname }} {{ data.employee__lastname }}
-                                            {% endifchanged %}
-                                        {% endifchanged %}
+{#                                            {% endifchanged %}#}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.supplier__name %}
                                     <td>
-                                        {% ifchanged data.supplier__name %}
+{#                                        {% ifchanged data.supplier__name %}#}
                                             {{ data.supplier__name }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.customer__name %}
                                     <td>
-                                        {% ifchanged data.customer__name %}
+{#                                        {% ifchanged data.customer__name %}#}
                                             {{ data.customer__name }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.unit__description %}
                                     <td>
-                                        {% ifchanged data.unit__description %}
+{#                                        {% ifchanged data.unit__description %}#}
                                             {{ data.unit__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.branch__description %}
                                     <td>
-                                        {% ifchanged data.branch__description %}
+{#                                        {% ifchanged data.branch__description %}#}
                                             {{ data.branch__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.product__description %}
                                     <td>
-                                        {% ifchanged data.product__description %}
+{#                                        {% ifchanged data.product__description %}#}
                                             {{ data.product__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.inputvat__description %}
                                     <td>
-                                        {% ifchanged data.inputvat__description %}
+{#                                        {% ifchanged data.inputvat__description %}#}
                                             {{ data.inputvat__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.outputvat__description %}
                                     <td>
-                                        {% ifchanged data.outputvat__description %}
+{#                                        {% ifchanged data.outputvat__description %}#}
                                             {{ data.outputvat__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.vat__description or data.inputvat.description %}
                                     <td>
-                                        {% ifchanged data.vat__description %}
+{#                                        {% ifchanged data.vat__description %}#}
                                             {{ data.vat__description|default:'---' }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.wtax__description %}
                                     <td>
-                                        {% ifchanged data.wtax__description %}
+{#                                        {% ifchanged data.wtax__description %}#}
                                             {{ data.wtax__description }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                                 {% if data.ataxcode__code %}
                                     <td>
-                                        {% ifchanged data.ataxcode__code %}
+{#                                        {% ifchanged data.ataxcode__code %}#}
                                             {{ data.ataxcode__code }}
-                                        {% endifchanged %}
+{#                                        {% endifchanged %}#}
                                     </td>
                                 {% endif %}
                             </tr>
@@ -323,11 +338,13 @@
             </thead>
             <tbody>
             {% for data in data_list %}
-                <tr {% ifchanged data.chartofaccount.accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
+{#                <tr {% ifchanged data.chartofaccount.accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>#}
+                <tr>
                     <td style="width: 20%">
-                        {% ifchanged data.chartofaccount.accountcode %}
-                            {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}
-                        {% endifchanged %}
+{#                        {% ifchanged data.chartofaccount.accountcode %}#}
+{#                            {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}#}
+{#                        {% endifchanged %}#}
+                        {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}
                     </td>
                     <td style="width: 34%">
                         <table>

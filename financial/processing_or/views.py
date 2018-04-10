@@ -422,6 +422,10 @@ def fileupload(request):
 
                             # inspect/insert detail
                             if breakstatus == 0 and breakmain == 0:
+                                from django.db import connection
+                                cursor = connection.cursor()
+                                cursor.execute("UPDATE logs_ormain SET ordate = DATE_FORMAT(STR_TO_DATE(SUBSTRING(ordate, 1, 10), '%m/%d/%Y'), '%m/%d/%Y') WHERE batchkey = batchkey")
+
                                 orcountd = 0
                                 status_total = len(open(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + ".txt").readlines())
 

@@ -1126,7 +1126,7 @@ def reportresultquery(request):
             query = query.values('apmain__apnum') \
                 .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
                           creditsum=Sum('creditamount')) \
-                .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum', 'apmain__pk').order_by(
+                .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum', 'apmain__pk', 'apmain__aptype__code', 'apmain__apsubtype__code', 'apmain__payeename', 'apmain__bankbranchdisburse__branch', 'apmain__apstatus').order_by(
                 'apmain__apnum')
 
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
@@ -1334,7 +1334,7 @@ def reportresultquery(request):
                                  'balancecode')\
                          .annotate(Sum('debitamount'), Sum('creditamount'))\
                          .order_by('-balancecode',
-                                   '-chartofaccount__accountcode',
+                                   'chartofaccount__accountcode',
                                    'bankaccount__code',
                                    'bankaccount__accountnumber',
                                    'bankaccount__bank__code',
@@ -1354,7 +1354,7 @@ def reportresultquery(request):
             report_type = "AP Acctg Entry - Detailed"
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
-                                                                                     '-chartofaccount__accountcode',
+                                                                                     'chartofaccount__accountcode',
                                                                                      'bankaccount__code',
                                                                                      'bankaccount__accountnumber',
                                                                                      'bankaccount__bank__code',
@@ -1452,9 +1452,14 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         worksheet.write('A1', 'AP Number', bold)
         worksheet.write('B1', 'Date', bold)
-        worksheet.write('C1', 'Debit', bold_right)
-        worksheet.write('D1', 'Credit', bold_right)
-        worksheet.write('E1', 'Margin', bold_right)
+        worksheet.write('C1', 'APV Type', bold)
+        worksheet.write('D1', 'APV Subtype ', bold)
+        worksheet.write('E1', 'Payee', bold)
+        worksheet.write('F1', 'Disbursing Branch', bold)
+        worksheet.write('G1', 'APV Status', bold)
+        worksheet.write('H1', 'Debit', bold_right)
+        worksheet.write('I1', 'Credit', bold_right)
+        worksheet.write('J1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:A2', 'Chart of Account', bold)
         worksheet.merge_range('B1:N1', 'Details', bold_center)
@@ -1543,6 +1548,11 @@ def reportresultxlsx(request):
             data = [
                 obj.apmain__apnum,
                 DateFormat(obj.apmain__apdate).format('Y-m-d'),
+                obj.apmain__aptype__code,
+                obj.apmain__apsubtype__code,
+                obj.apmain__payeename,
+                obj.apmain__bankbranchdisburse__branch,
+                obj.apmain__apstatus,
                 obj.debitsum,
                 obj.creditsum,
                 obj.margin,
@@ -1618,9 +1628,9 @@ def reportresultxlsx(request):
                 "", "", "", "", "", "", "", "", "", "",
                 "Total", report_total['amount__sum'],
             ]
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         data = [
-            "",
+            "", "", "", "", "", "",
             "Total", report_total['debitsum__sum'], report_total['creditsum__sum'], report_total['margin__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
