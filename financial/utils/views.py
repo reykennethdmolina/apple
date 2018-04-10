@@ -435,7 +435,8 @@ def ajaxSearch(request):
             elif request.POST['cache_ordate_to']:
                 items = items.filter(ordate__lte=request.POST['cache_ordate_to'])
             if request.POST['cache_artype']:
-                items = items.filter(orsource=int(request.POST['cache_artype']))
+                print request.POST['cache_artype']
+                items = items.filter(orsource=request.POST['cache_artype'])
             if request.POST['cache_amount_from'] and request.POST['cache_amount_to']:
                 items = items.filter(amount__range=[request.POST['cache_amount_from'].replace(',', ''),
                                                     request.POST['cache_amount_to'].replace(',', '')])
