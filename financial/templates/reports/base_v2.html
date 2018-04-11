@@ -14,7 +14,7 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 2cm;
+                height: 4cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
@@ -25,15 +25,15 @@
             }
             {% if rc_orientation == 'landscape' and rc_pagesize == 'letter' %}
                 @frame content_frame {
-                    top: 2.5cm; left: 1cm;
+                    top: 4cm; left: 1cm;
                     width: 26cm;
-                    height: 15.4cm;
+                    height: 15.5cm;
                 }
             {% elif rc_orientation == 'portrait' and rc_pagesize == 'letter'  %}
                 @frame content_frame {
-                    top: 2.5cm; left: 1cm;
+                    top: 4cm; left: 1cm;
                     width: 19.5cm;
-                    height: 24cm;
+                    height: 22.5cm;
                 }
             {% endif %}
         }
@@ -77,27 +77,31 @@
             <td width="20%"><img src="{{ rc_logo | get64 }}"/><br></td>
             {# <td><p class="title center">{{ rc_title }}</p></td> #}
             <td width="60%"><p class="title center">{{ report_type }}</p></td>
-            <td width="20%">{% block rc_title_right %}{% endblock rc_title_right %}</td>
+{#            <td width="20%">{% block rc_title_right %}{% now "F d, Y H:i" %}{% endblock rc_title_right %}</td>#}
+            <td width="20%" align="right">
+                {% if datefrom != dateto %}
+                    From: <b>{{ datefrom }}</b><br>To: <b>{{ dateto }}</b>
+                {% elif datefrom == dateto and datefrom != '' %}
+                    Date: <b>{{ datefrom }}</b>
+                {% endif %}
+            </td>
         </tr>
     </table>
     {% if report == 'a_s' %}
         <table>
-        <thead>
             <tr>
-                <th class="border center" colspan="2">General Ledger</th>
-                <th class="border center" colspan="2">Subsidiary Ledger</th>
-                <th class="border center" colspan="2">Amount</th>
+                <td class="border center" colspan="2">General Ledger</td>
+                <td class="border center" colspan="2">Subsidiary Ledger</td>
+                <td class="border center" colspan="2">Amount</td>
             </tr>
             <tr>
-                <th style="width: 10%" class="border left">Acct Code</th>
-                <th style="width: 35%" class="border left">Account Title</th>
-                <th style="width: 10%" class="border left">Code</th>
-                <th style="width: 30%" class="border left">Particulars</th>
-                <th style="width: 10%" class="border right">Debit</th>
-                <th style="width: 10%" class="border right">Credit</th>
+                <td  style="width: 10%" class="border left">Acct Code</td>
+                <td  style="width: 35%" class="border left">Account Title</td>
+                <td  style="width: 10%" class="border left">Code</td>
+                <td  style="width: 30%" class="border left">Particulars</td>
+                <td  style="width: 10%" class="border right">Debit</td>
+                <td  style="width: 10%" class="border right">Credit</td>
             </tr>
-            <tr></tr>
-        </thead>
         </table>
     {% endif %}
 </div>
@@ -131,18 +135,18 @@
 </div>
 
 {% block subheader_content %}
-    <table>
-        <tr><td colspan="3"></td></tr>
-        <tr>
-            <td colspan="3" style="line-height: 15px;">
-                <span class="title">{{ rc_param.description|upper }}</span><br>
-                {{ rc_param.address1 }}<br>
-                {{ rc_param.address2 }}<br>
-                Tel: ({{ rc_param.telno1 }}, {{ rc_param.telno2 }}<br>
-                VAT REG TIN: {{ rc_param.tinnum }}
-            </td>
-        </tr>
-    </table>
+{#    <table>#}
+{#        <tr><td colspan="3"></td></tr>#}
+{#        <tr>#}
+{#            <td colspan="3" style="line-height: 15px;">#}
+{#                <span class="title">{{ rc_param.description|upper }}</span><br>#}
+{#                {{ rc_param.address1 }}<br>#}
+{#                {{ rc_param.address2 }}<br>#}
+{#                Tel: ({{ rc_param.telno1 }}, {{ rc_param.telno2 }}<br>#}
+{#                VAT REG TIN: {{ rc_param.tinnum }}#}
+{#            </td>#}
+{#        </tr>#}
+{#    </table>#}
 {% endblock subheader_content %}
 
 {% block main_content %}{% endblock %}
