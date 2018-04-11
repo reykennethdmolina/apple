@@ -34,6 +34,17 @@ from pprint import pprint
 from utils.mixins import ReportContentMixin
 from django.utils.dateformat import DateFormat
 from django.contrib.humanize.templatetags.humanize import intcomma
+from department.models import Department
+from unit.models import Unit
+from inputvat.models import Inputvat
+from outputvat.models import Outputvat
+from ataxcode.models import Ataxcode
+from employee.models import Employee
+from chartofaccount.models import Chartofaccount
+from bankaccount.models import Bankaccount
+from product.models import Product
+from customer.models import Customer
+from annoying.functions import get_object_or_None
 import decimal
 
 
@@ -102,12 +113,39 @@ class ReportView(ListView):
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('description')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('description')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
-        # context['user'] = User.objects.filter(is_active=1).order_by('first_name')
         context['user'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
+        context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
+        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultHtmlView(ListView):
+    model = Ofmain
+    template_name = 'operationalfund/reportresulthtml.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        query, context['report_type'], context['report_total'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "OPERATIONAL FUND"
+        context['rc_title'] = "OPERATIONAL FUND"
 
         return context
 
@@ -1460,9 +1498,140 @@ def reportresultquery(request):
             if key_data != 'null':
                 key_data = key_data.split(",")
                 query = query.order_by(*key_data)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get(
+                    'rep_f_report_' + request.resolver_match.app_name) == 'ae':
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+            report_type = "OF Unbalanced Entries"
+        else:
+            report_type = "OF All Entries"
+
+        query = Ofdetail.objects.filter(isdeleted=0, ofmain__isdeleted=0)
+
+        if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__ofnum__gte=int(key_data))
+        if request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_numto_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__ofnum__lte=int(key_data))
+
+        if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__ofdate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__ofdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__oftype=int(key_data))
+        if request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_branch_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__branch=int(key_data))
+        if request.COOKIES.get('rep_f_ofstatus_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_ofstatus_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__ofstatus=str(key_data))
+
+        if request.COOKIES.get('rep_f_employee_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_employee_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__requestor=int(key_data))
+        if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+            query = query.filter(ofmain__department=int(key_data))
+        if request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_approver_' + request.resolver_match.app_name))
+            query = query.filter(Q(ofmain__actualapprover=int(key_data)), Q(ofmain__designatedapprover=int(key_data)))
+
+        query = query.values('ofmain__ofnum') \
+            .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
+                      creditsum=Sum('creditamount')) \
+            .values('ofmain__ofnum', 'margin', 'ofmain__ofdate', 'debitsum', 'creditsum', 'ofmain__pk').order_by('ofmain__ofnum')
+
+        if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
+            query = query.exclude(margin=0)
+
+        if request.COOKIES.get('rep_f_uborder_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_uborder_' + request.resolver_match.app_name))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.order_by(*key_data)
+
+        report_total = query.aggregate(Sum('debitsum'), Sum('creditsum'), Sum('margin'))
+
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s'\
             or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
         query = Ofdetail.objects.all().filter(isdeleted=0)
+
+        if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
+            gl_request = request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name)
+
+            query = query.filter(chartofaccount=int(gl_request))
+
+            enable_check = Chartofaccount.objects.get(pk=gl_request)
+            if enable_check.bankaccount_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name)
+                query = query.filter(bankaccount=get_object_or_None(Bankaccount, pk=int(gl_item)))
+            if enable_check.department_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name)
+                query = query.filter(department=get_object_or_None(Department, pk=int(gl_item)))
+            if enable_check.unit_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name)
+                query = query.filter(unit=get_object_or_None(Unit, pk=int(gl_item)))
+            if enable_check.branch_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name)
+                query = query.filter(branch=get_object_or_None(Branch, pk=int(gl_item)))
+            if enable_check.product_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name)
+                query = query.filter(product=get_object_or_None(Product, pk=int(gl_item)))
+            if enable_check.inputvat_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name)
+                query = query.filter(inputvat=get_object_or_None(Inputvat, pk=int(gl_item)))
+            if enable_check.outputvat_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name)
+                query = query.filter(outputvat=get_object_or_None(Outputvat, pk=int(gl_item)))
+            if enable_check.vat_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name)
+                query = query.filter(vat=get_object_or_None(Vat, pk=int(gl_item)))
+            if enable_check.wtax_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name)
+                query = query.filter(wtax=get_object_or_None(Wtax, pk=int(gl_item)))
+            if enable_check.ataxcode_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name)
+                query = query.filter(ataxcode=get_object_or_None(Ataxcode, pk=int(gl_item)))
+            if enable_check.employee_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name)
+                query = query.filter(employee=get_object_or_None(Employee, pk=int(gl_item)))
+            if enable_check.supplier_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name)
+                query = query.filter(supplier=get_object_or_None(Supplier, pk=int(gl_item)))
+            if enable_check.customer_enable == 'Y' \
+                    and request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name) \
+                    and request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name) != 'null':
+                gl_item = request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name)
+                query = query.filter(customer=get_object_or_None(Customer, pk=int(gl_item)))
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
             if request.COOKIES.get('rep_f_debit_amountfrom_' + request.resolver_match.app_name):
@@ -1549,7 +1718,9 @@ def reportresultquery(request):
             query = query.values('chartofaccount__accountcode',
                                  'chartofaccount__title',
                                  'chartofaccount__description',
+                                 'bankaccount__code',
                                  'bankaccount__accountnumber',
+                                 'bankaccount__bank__code',
                                  'department__departmentname',
                                  'employee__firstname',
                                  'employee__lastname',
@@ -1567,7 +1738,9 @@ def reportresultquery(request):
                          .annotate(Sum('debitamount'), Sum('creditamount'))\
                          .order_by('-balancecode',
                                    '-chartofaccount__accountcode',
+                                   'bankaccount__code',
                                    'bankaccount__accountnumber',
+                                   'bankaccount__bank__code',
                                    'department__departmentname',
                                    'employee__firstname',
                                    'supplier__name',
@@ -1585,7 +1758,9 @@ def reportresultquery(request):
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      '-chartofaccount__accountcode',
+                                                                                     'bankaccount__code',
                                                                                      'bankaccount__accountnumber',
+                                                                                     'bankaccount__bank__code',
                                                                                      'department__departmentname',
                                                                                      'employee__firstname',
                                                                                      'supplier__name',
@@ -1650,6 +1825,8 @@ def reportresultxlsx(request):
         amount_placement = 4
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         amount_placement = 9
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
+        amount_placement = 2
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 14
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -1673,6 +1850,12 @@ def reportresultxlsx(request):
         worksheet.write('H1', 'In/VAT', bold)
         worksheet.write('I1', 'Status', bold)
         worksheet.write('J1', 'Amount', bold_right)
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
+        worksheet.write('A1', 'OF Number', bold)
+        worksheet.write('B1', 'Date', bold)
+        worksheet.write('D1', 'Debit', bold_right)
+        worksheet.write('E1', 'Credit', bold_right)
+        worksheet.write('F1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:A2', 'Chart of Account', bold)
         worksheet.merge_range('B1:N1', 'Details', bold_center)
@@ -1742,6 +1925,14 @@ def reportresultxlsx(request):
                 str_inputvattype,
                 obj.get_ofitemstatus_display(),
                 obj.amount,
+            ]
+        elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
+            data = [
+                obj.ofmain__ofnum,
+                DateFormat(obj.ofmain__ofdate).format('Y-m-d'),
+                obj.debitsum,
+                obj.creditsum,
+                obj.margin,
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
@@ -1816,6 +2007,11 @@ def reportresultxlsx(request):
         data = [
             "", "", "", "", "", "", "", "",
             "Total", report_total['amount__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
+        data = [
+            "",
+            "Total", report_total['debitsum__sum'], report_total['creditsum__sum'], report_total['margin__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         data = [

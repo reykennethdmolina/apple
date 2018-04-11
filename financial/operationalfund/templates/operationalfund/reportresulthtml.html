@@ -1,19 +1,27 @@
-{% extends 'reports/base.html' %}
+{% extends 'reports/base-html.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
         td{
             vertical-align: top;
         }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        body{
+            font-size: 11px;
+        }
     </style>
 {% endblock %}
 
-{% block main_content %}
-    <br>
-    <h2>{{ report_type }}</h2>
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
 
     {% if report == 's' %}
-        <table id="table_summary">
+        <table id="table_summary" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 20%;"><span>OF Number</span></th>
@@ -26,7 +34,7 @@
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
+                    <td><a href="{% url 'operationalfund:cashierupdate' data.pk %}" target="_parent">OF-{{ data.oftype.code }}-{{ data.ofnum }}</a></td>
                     <td>{{ data.ofdate|date:'Y-m-d' }}</td>
                     <td>{{ data.requestor.firstname }}&nbsp;{{ data.requestor.lastname }}</td>
                     <td>{{ data.get_ofstatus_display }}</td>
@@ -40,15 +48,13 @@
             </tr>
         </tbody>
         </table>
-
-
     {% elif report == 'd' %}
         <div class="right">
             <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services<br>
             <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(D) Disapproved
         </div>
         <br>
-        <table id="table_detailed">
+        <table id="table_detailed" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 11%;"><span>OF Number</span></th>
@@ -70,7 +76,7 @@
                 <tr {% ifchanged data.ofmain.ofnum %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>
                     <td>
                         {% ifchanged data.ofmain.ofnum %}
-                            OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}
+                            <a href="{% url 'operationalfund:cashierupdate' data.ofmain.pk %}" target="_parent">OF-{{ data.ofmain.oftype.code }}-{{ data.ofmain.ofnum }}</a>
                         {% endifchanged %}
                     </td>
                     <td>
@@ -106,7 +112,7 @@
         </tbody>
         </table>
     {% elif report == 'ub' or report == 'ae' %}
-        <table id="table_unbalanced">
+        <table id="table_unbalanced" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left"><span>OF Number</span></th>
@@ -118,8 +124,8 @@
         </thead>
         <tbody>
             {% for data in data_list %}
-                <tr>
-                    <td>{{ data.ofmain__ofnum }}</td>
+                <tr {% if data.margin != 0 %}class="danger"{% endif %}>
+                    <td><a href="{% url 'operationalfund:cashierupdate' data.ofmain__pk %}" target="_parent">{{ data.ofmain__ofnum }}</a></td>
                     <td>{{ data.ofmain__ofdate|date:'Y-m-d' }}</td>
                     <td class="right">{{ data.debitsum|floatformat:2|intcomma }}</td>
                     <td class="right">{{ data.creditsum|floatformat:2|intcomma }}</td>
@@ -136,7 +142,7 @@
         </tbody>
         </table>
     {% elif report == 'a_s' %}
-        <table id="table_ae_summary">
+        <table id="table_ae_summary" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -275,7 +281,7 @@
 
 
     {% elif report == 'a_d' %}
-        <table id="table_ae_detailed">
+        <table id="table_ae_detailed" class="table table-condensed table-bordered">
             <thead>
                 <tr>
                     <th class="left">Chart of Account</th>
@@ -367,4 +373,4 @@
             </tbody>
         </table>
     {% endif %}
-{% endblock main_content %}
+{% endblock page-content %}
