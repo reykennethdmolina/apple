@@ -1310,7 +1310,7 @@ def reportresultquery(request):
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
-            report_type = "AP Acctg Entry - Summary"
+            report_type = "Accounts Payable Accounting Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1369,7 +1369,7 @@ def reportresultquery(request):
                                    'department__code',
                                    'branch__code')
         else:
-            report_type = "AP Acctg Entry - Detailed"
+            report_type = "Accounts Payable Accounting Entry - Detailed"
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      'chartofaccount__accountcode',
