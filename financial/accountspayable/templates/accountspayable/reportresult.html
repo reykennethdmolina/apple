@@ -1,4 +1,4 @@
-{% extends 'reports/base.html' %}
+{% extends 'reports/base_v2.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
@@ -10,7 +10,6 @@
 
 {% block main_content %}
     <br>
-    <h2>{{ report_type }}</h2>
 
     {% if report == 's' %}
         <table id="table_summary">
@@ -179,22 +178,6 @@
         </table>
     {% elif report == 'a_s' %}
         <table id="table_ae_summary">
-            <thead>
-                <tr>
-                    <th class="border center" colspan="2">General Ledger</th>
-                    <th class="border center" colspan="2">Subsidiary Ledger</th>
-                    <th class="border center" colspan="2">Amount</th>
-                </tr>
-                <tr>
-                    <th class="border left">Acct Code</th>
-                    <th class="border left">Account Title</th>
-                    <th class="border left">Code</th>
-                    <th class="border left">Particulars</th>
-                    <th class="border right">Debit</th>
-                    <th class="border right">Credit</th>
-                </tr>
-                <tr></tr>
-            </thead>
             <tbody>
             {% for data in data_list %}
 {#                <tr {% ifchanged data.chartofaccount__accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>#}
@@ -205,13 +188,13 @@
                         <table>
                             <tr>
                                 {% if data.bankaccount__code %}
-                                    <td>Bank Acct. No. {{ data.bankaccount__code }}</td>
+                                    <td> {{ data.bankaccount__code }} </td>
                                 {% endif %}
                                 {% if data.department__code %}
-                                    <td>{{ data.department__code }}</td>
+                                    <td> {{ data.department__code }} </td>
                                 {% endif %}
                                 {% if data.branch__code %}
-                                    <td>{{ data.branch__code }}</td>
+                                    <td> {{ data.branch__code }} </td>
                                 {% endif %}
 {#                                {% if data.employee__firstname %}#}
 {#                                    <td>{{ data.employee__firstname }} {{ data.employee__lastname }}</td>#}
@@ -250,10 +233,10 @@
                         <table>
                             <tr>
                                 {% if data.bankaccount__accountnumber %}
-                                    <td>{{ data.bankaccount__accountnumber }}</td>
+                                    <td> {{ data.bankaccount__accountnumber }} </td>
                                 {% endif %}
                                 {% if data.department__departmentname %}
-                                    <td>{{ data.department__departmentname }}</td>
+                                    <td> {{ data.department__departmentname }} </td>
                                 {% endif %}
 {#                                {% if data.employee__firstname %}#}
 {#                                    <td>{{ data.employee__firstname }} {{ data.employee__lastname }}</td>#}

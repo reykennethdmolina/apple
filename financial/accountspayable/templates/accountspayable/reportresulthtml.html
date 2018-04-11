@@ -220,13 +220,13 @@
                         <table>
                             <tr>
                                 {% if data.bankaccount__code %}
-                                    <td>Bank Acct. No. {{ data.bankaccount__code }}</td>
+                                    <td> {{ data.bankaccount__code }} </td>
                                 {% endif %}
                                 {% if data.department__code %}
-                                    <td>{{ data.department__code }}</td>
+                                    <td> {{ data.department__code }} </td>
                                 {% endif %}
                                 {% if data.branch__code %}
-                                    <td>{{ data.branch__code }}</td>
+                                    <td> {{ data.branch__code }} </td>
                                 {% endif %}
 {#                                {% if data.employee__firstname %}#}
 {#                                    <td>{{ data.employee__firstname }} {{ data.employee__lastname }}</td>#}

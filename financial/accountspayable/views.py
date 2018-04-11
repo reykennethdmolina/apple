@@ -835,7 +835,7 @@ class ReportResultHtmlView(ListView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['rfv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['rfv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -858,7 +858,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['rfv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['rfv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -875,6 +875,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
 def reportresultquery(request):
     query = ''
     report_type = ''
+    report_xls = ''
     report_total = ''
     rfv = 'hide'
 
@@ -893,8 +894,10 @@ def reportresultquery(request):
                     and (subtype == '' or subtype == '2')):
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
                 report_type = "AP Detailed"
+                report_xls = "AP Detailed"
             else:
                 report_type = "AP Summary"
+                report_xls = "AP Summary"
 
             query = Apmain.objects.all().filter(isdeleted=0)
 
@@ -972,6 +975,7 @@ def reportresultquery(request):
 
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
             report_type = "AP Detailed"
+            report_xls = "AP Detailed"
             rfv = "show"
 
             query = Reprfvmain.objects.all().filter(isdeleted=0).exclude(apmain__isnull=True)
@@ -1056,8 +1060,10 @@ def reportresultquery(request):
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
                 report_type = "AP Unbalanced Entries"
+                report_xls = "AP Unbalanced Entries"
             else:
                 report_type = "AP All Entries"
+                report_xls = "AP All Entries"
 
             query = Apdetail.objects.filter(isdeleted=0, apmain__isdeleted=0)
 
@@ -1311,6 +1317,7 @@ def reportresultquery(request):
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             report_type = "Accounts Payable Accounting Entry - Summary"
+            report_xls = "AP Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1370,6 +1377,7 @@ def reportresultquery(request):
                                    'branch__code')
         else:
             report_type = "Accounts Payable Accounting Entry - Detailed"
+            report_xls = "AP Entry - Detailed"
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      'chartofaccount__accountcode',
@@ -1390,7 +1398,7 @@ def reportresultquery(request):
                                                                                      'ataxcode__code',
                                                                                      'ap_num')
 
-    return query, report_type, report_total, rfv
+    return query, report_type, report_total, rfv, report_xls
 
 
 @csrf_exempt
@@ -1405,7 +1413,7 @@ def reportresultxlsx(request):
     workbook = xlsxwriter.Workbook(output)
 
     # query and default variables
-    queryset, report_type, report_total, rfv = reportresultquery(request)
+    queryset, report_type, report_total, rfv, report_xls = reportresultquery(request)
     report_type = report_type if report_type != '' else 'AP Report'
     worksheet = workbook.add_worksheet(report_type)
     bold = workbook.add_format({'bold': 1})
@@ -1669,7 +1677,7 @@ def reportresultxlsx(request):
     workbook.close()
     output.seek(0)
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response
 
 
