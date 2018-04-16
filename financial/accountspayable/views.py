@@ -1389,24 +1389,43 @@ def reportresultquery(request):
             report_type = "Accounts Payable Accounting Entry - Detailed"
             report_xls = "AP Entry - Detailed"
 
-            query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
-                                                                                     'chartofaccount__accountcode',
-                                                                                     'bankaccount__code',
-                                                                                     'bankaccount__accountnumber',
-                                                                                     'bankaccount__bank__code',
-                                                                                     'department__departmentname',
-                                                                                     'employee__firstname',
-                                                                                     'supplier__name',
-                                                                                     'customer__name',
-                                                                                     'unit__description',
-                                                                                     'branch__description',
-                                                                                     'product__description',
-                                                                                     'inputvat__description',
-                                                                                     'outputvat__description',
-                                                                                     '-vat__description',
-                                                                                     'wtax__description',
-                                                                                     'ataxcode__code',
-                                                                                     'ap_num')
+            query = query.values('ap_num')\
+                    .annotate(Sum('debitamount'), Sum('creditamount'))\
+                    .values('apmain__payeename',
+                            'apmain__apdate',
+                            'ap_num',
+                            'apmain__payee__tin',
+                            'apmain__payee__address1',
+                            'apmain__payee__address2',
+                            'apmain__particulars',
+                            'item_counter',
+                            'chartofaccount__accountcode',
+                            'chartofaccount__title',
+                            'department__code',
+                            'department__departmentname',
+                            'debitamount__sum',
+                            'creditamount__sum')\
+                    .order_by('ap_num',
+                              'item_counter')\
+
+            # query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
+            #                                                                          'chartofaccount__accountcode',
+            #                                                                          'bankaccount__code',
+            #                                                                          'bankaccount__accountnumber',
+            #                                                                          'bankaccount__bank__code',
+            #                                                                          'department__departmentname',
+            #                                                                          'employee__firstname',
+            #                                                                          'supplier__name',
+            #                                                                          'customer__name',
+            #                                                                          'unit__description',
+            #                                                                          'branch__description',
+            #                                                                          'product__description',
+            #                                                                          'inputvat__description',
+            #                                                                          'outputvat__description',
+            #                                                                          '-vat__description',
+            #                                                                          'wtax__description',
+            #                                                                          'ataxcode__code',
+            #                                                                          'ap_num')
 
     return query, report_type, report_total, rfv, report_xls
 

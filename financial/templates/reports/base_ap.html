@@ -147,17 +147,26 @@
             </tr>
         </table>
     {% elif report == 'a_d' %}
-        <br>
         <table>
             <tr>
-                <td style="width: 20%" class="border left">Chart of Account</td>
-                <td style="width: 34%" class="border left">Details</td>
-                <td style="width: 26%" class="border left">Payee</td>
-                <td style="width: 6%" class="border left">Date</td>
-                <td style="width: 7%" class="border right">Debit</td>
-                <td style="width: 7%" class="border right">Credit</td>
+                <td class="border center" colspan="3">Accounts Payable</td>
+                <td class="border center" style="width: 6%" rowspan="2">Account Number</td>
+                <td class="border center" style="width: 19%" rowspan="2">Account Title</td>
+                <td class="border center" style="width: 3%" rowspan="2">Dept. Code</td>
+                <td class="border center" style="width: 12%" rowspan="2">Department Name</td>
+                <td class="border right" style="width: 7%" rowspan="2">Debit</td>
+                <td class="border right" style="width: 7%" rowspan="2">Credit</td>
+            </tr>
+            <tr>
+                <td class="border left" style="width: 6%">Date</td>
+                <td class="border left" style="width: 22%">Number
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Payee</td>
+                <td class="border center" style="width: 18%">Particulars</td>
             </tr>
         </table>
+         <br>
     {% elif report == 'ub' or report == 'ae' %}
         <br>
         <table>
