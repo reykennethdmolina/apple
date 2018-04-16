@@ -1381,10 +1381,10 @@ def reportresultquery(request):
                                  'balancecode')\
                          .annotate(Sum('debitamount'), Sum('creditamount'))\
                          .order_by('-balancecode',
-                                   'chartofaccount__accountcode',
-                                   'bankaccount__code',
+                                   'branch__code',
                                    'department__code',
-                                   'branch__code')
+                                   'bankaccount__code',
+                                   'chartofaccount__accountcode')
         else:
             report_type = "Accounts Payable Accounting Entry - Detailed"
             report_xls = "AP Entry - Detailed"
