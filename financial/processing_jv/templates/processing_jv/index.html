@@ -104,6 +104,9 @@
                                                     <option value="SUB-REG" data-filename-main="{{ sub_regular.0 }}" data-filename-detail="{{ sub_regular.1 }}">SUB - Regular</option>
                                                     <option value="SUB-COM" data-filename-main="{{ sub_complimentary.0 }}" data-filename-detail="{{ sub_complimentary.1 }}">SUB - Complimentary</option>
                                                 </optgroup>
+                                                <optgroup label="Others">
+                                                    <option value="OTH-PAY" data-filename-main="{{ oth_payroll.0 }}" data-filename-detail="{{ oth_payroll.1 }}">PAYROLL</option>
+                                                </optgroup>
                                             </select>
                                         </div>
                                         <div class="form-group col-sm-4">
@@ -263,6 +266,7 @@
                 });
             }
             else {
+                alert('hey');
                 customAlert($('#upload-file-error'));
             }
         });

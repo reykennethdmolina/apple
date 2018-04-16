@@ -240,8 +240,8 @@
             <b>ACCOUNTING ENTRIES</b>
 <table style="padding-left: 5px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>
-        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>
+        <td style="border-left: 2px solid black;width: 40%;"><b><i>-------General Ledger---------</i></b></td>
+        <td style="width: 30%;" align="center"><b><i>---------Account Details---------</i></b></td>
         <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>
     </tr>
     <tr class="left" style="border-bottom: 2px solid black;">
@@ -276,7 +276,7 @@
                 <table style="padding-bottom: -5px;">
                     <tr>
                         <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>
-                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>
+                        <td style="width: 70%{% if detail.balancecode == 'C' %}; padding-left: 20px;{% endif %}">{{ detail.chartofaccount.description }}</td>
                     </tr>
                 </table>
             </td>

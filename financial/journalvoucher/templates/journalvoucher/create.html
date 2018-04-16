@@ -217,6 +217,7 @@
                                     </th>
                                     <th><span>Date</span></th>
                                     <th><span>Requestor</span></th>
+                                    <th><span>Department</span></th>
                                     <th class="text-right"><span>Amount</span></th>
                                 </tr>
                             </thead>
@@ -232,13 +233,14 @@
                                     </td>
                                     <td>{{ data.ofdate|date:"Y-m-d" }}</td>
                                     <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
+                                    <td>{{ data.department.departmentname }}</td>
                                     <td style="text-align: right;" class="item-amount">{{ data.approvedamount|floatformat:2|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <thead>
                                 <tr>
-                                    <th class="text-right" colspan="3" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
+                                    <th class="text-right" colspan="4" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
                                     <th class="text-right" id="totalamount" style="border-bottom: none"><b>0.00</b></th>
                                 </tr>
                             </thead>

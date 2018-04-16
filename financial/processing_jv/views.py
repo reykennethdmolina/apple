@@ -34,6 +34,7 @@ from dbfread import DBF
 from django.utils.crypto import get_random_string
 from django.db.models import Q
 from django.conf import settings
+import datetime
 
 
 upload_directory = 'processing_jv/imported_main/'
@@ -54,6 +55,12 @@ sub_headers = ["jv_main_", "jv_detail_"]
 sub_regular = [sub_headers[0] + "regular", sub_headers[1] + "regular"]
 sub_complimentary = [sub_headers[0] + "complimentary", sub_headers[1] + "complimentary"]
 
+today = datetime.datetime.today()
+first = today.replace(day=1)
+lastMonth = first - datetime.timedelta(days=1)
+oth_payroll_header = str(lastMonth.strftime("%y")) + str(lastMonth.strftime("%m")) + '0003'
+oth_payroll = [oth_payroll_header + "MAIN", oth_payroll_header + "DET"]
+
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
@@ -72,6 +79,7 @@ class IndexView(TemplateView):
         context['adv_si'] = adv_si
         context['sub_regular'] = sub_regular
         context['sub_complimentary'] = sub_complimentary
+        context['oth_payroll'] = oth_payroll
 
         return context
 
@@ -95,7 +103,7 @@ def fileupload(request):
                 and request.FILES['jv_d_file'].name.endswith('.txt'):     # 3
             if request.FILES['jv_file']._size < float(upload_size)*1024*1024 \
                     and request.FILES['jv_d_file']._size < float(upload_size)*1024*1024:  # 4
-                sequence = datetime.now().isoformat().replace(':', '-')
+                sequence = datetime.datetime.today().isoformat().replace(':', '-')
                 batchkey = generatekey(1)
                 if storeupload(request.FILES['jv_file'], sequence, 'txt', upload_directory)\
                         and storeupload(request.FILES['jv_d_file'], sequence, 'txt', upload_d_directory):    # 2
@@ -104,7 +112,8 @@ def fileupload(request):
                         request.POST['upload_type'] == 'ADV-ADJ' or request.POST['upload_type'] == 'ADV-EXD' or \
                             request.POST['upload_type'] == 'ADV-CAI' or request.POST['upload_type'] == 'ADV-PPD' or \
                             request.POST['upload_type'] == 'ADV-RAR' or request.POST['upload_type'] == 'ADV-TAX' or \
-                            request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI': # 6
+                            request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI' or \
+                            request.POST['upload_type'] == 'OTH-PAY':  # 6
                         with open(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + ".txt") as textFile:
                             for line in textFile:
                                 jvcount += 1
@@ -125,21 +134,38 @@ def fileupload(request):
                                         importstatus = 'S'
                                         importremarks = 'Passed'
 
-                                    Logs_jvmain.objects.create(
-                                        jvnum=data[0],
-                                        jvdate=data[1],
-                                        particulars=data[2],
-                                        remarks=data[3],
-                                        comments=data[8],
-                                        status=data[9],
-                                        datecreated=data[10],
-                                        datemodified=data[12],
-                                        batchkey=batchkey,
-                                        importstatus=importstatus,
-                                        importremarks=importremarks,
-                                        importby=request.user,
-                                        jvsubtype=request.POST['upload_type'],
-                                    ).save()
+                                    if request.POST['upload_type'] == 'OTH-PAY':
+                                        Logs_jvmain.objects.create(
+                                            jvnum=data[0],
+                                            jvdate=data[1],
+                                            particulars=data[6],
+                                            remarks=data[7],
+                                            comments=data[8],
+                                            status=data[9],
+                                            datecreated=data[10],
+                                            datemodified=data[12],
+                                            batchkey=batchkey,
+                                            importstatus=importstatus,
+                                            importremarks=importremarks,
+                                            importby=request.user,
+                                            jvsubtype=request.POST['upload_type'],
+                                        ).save()
+                                    else:
+                                        Logs_jvmain.objects.create(
+                                            jvnum=data[0],
+                                            jvdate=data[1],
+                                            particulars=data[2],
+                                            remarks=data[3],
+                                            comments=data[8],
+                                            status=data[9],
+                                            datecreated=data[10],
+                                            datemodified=data[12],
+                                            batchkey=batchkey,
+                                            importstatus=importstatus,
+                                            importremarks=importremarks,
+                                            importby=request.user,
+                                            jvsubtype=request.POST['upload_type'],
+                                        ).save()
                                     breakstatus = 0
                                 else:
                                     breakstatus = 1
@@ -193,6 +219,41 @@ def fileupload(request):
                                                     importby=request.user,
                                                 ).save()
                                                 breakstatus = 0
+                                        elif len(data) == 17 and request.POST['upload_type'] == 'OTH-PAY':
+                                            if Logs_jvmain.objects.filter(jvnum=data[0], batchkey=batchkey):
+                                                if not Chartofaccount.objects.filter(accountcode=str(data[2]).strip()+'0000'):
+                                                    importstatus = 'F'
+                                                    importremarks = 'Failed: Chart of account does not exist'
+                                                elif data[4].strip() != '' and not Department.objects.filter(
+                                                        code=data[4].strip()):
+                                                        importstatus = 'F'
+                                                        importremarks = 'Failed: Department does not exist'
+                                                elif data[13].strip() != '' and not Branch.objects.filter(
+                                                        code=data[13].strip()):
+                                                        importstatus = 'F'
+                                                        importremarks = 'Failed: Branch does not exist'
+                                                else:
+                                                    importstatus = 'S'
+                                                    importremarks = 'Passed'
+
+                                                Logs_jvdetail.objects.create(
+                                                    jvnum=data[0],
+                                                    jvdate=data[1],
+                                                    chartofaccount=data[2],
+                                                    department=data[4],
+                                                    charttype=data[5],
+                                                    amount=data[6],
+                                                    status=data[7],
+                                                    datecreated=data[8],
+                                                    datemodified=data[10],
+                                                    sortnum=data[11],
+                                                    branch=data[13],
+                                                    batchkey=batchkey,
+                                                    importstatus=importstatus,
+                                                    importremarks=importremarks,
+                                                    importby=request.user,
+                                                ).save()
+                                                breakstatus = 0
                                         else:
                                             breakstatus = 1
                                             break
@@ -230,7 +291,7 @@ def fileupload(request):
                                                           debitamount,
                                                           creditamount,
                                                           data.importstatus,
-                                                          data.bankaccount,
+                                                          data.bankaccount if data.bankaccount else '',
                                                           data.branch,
                                                           data.importremarks,
                                                           ])
@@ -291,7 +352,8 @@ def exportsave(request):
                         request.POST['upload_type'] == 'ADV-ADJ' or request.POST['upload_type'] == 'ADV-EXD' or \
                         request.POST['upload_type'] == 'ADV-CAI' or request.POST['upload_type'] == 'ADV-PPD' or \
                         request.POST['upload_type'] == 'ADV-RAR' or request.POST['upload_type'] == 'ADV-TAX' or \
-                        request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI':
+                        request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI' or \
+                        request.POST['upload_type'] == 'OTH-PAY':
             jvmain = Logs_jvmain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
             jvmain_list = []
             jvdetail_list = []
@@ -332,28 +394,52 @@ def exportsave(request):
                     )
                     temp_jvdetail.save()
 
-                # generate jvnum, get jvyear
-                dt = datetime.strptime(data.jvdate, '%Y-%m-%d')
-                jvyear = dt.year
-                num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
-                padnum = '{:06d}'.format(num)
-                actualjvnum = str(jvyear) + str(padnum)
+                if request.POST['upload_type'] == 'OTH-PAY':
+                    # generate jvnum, get jvyear
+                    dt = datetime.datetime.strptime(data.jvdate, '%m/%d/%Y')
+                    jvyear = dt.year
+                    num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+                    padnum = '{:06d}'.format(num)
+                    actualjvnum = str(jvyear) + str(padnum)
 
-                # temp jvmain to jvmain
-                finaljvmain = Jvmain.objects.create(
-                    jvnum=actualjvnum,
-                    jvdate=datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%Y-%m-%d %X'),
-                    jvtype=Jvtype.objects.get(pk=1),
-                    jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
-                    currency=Currency.objects.get(pk=1),
-                    branch=Branch.objects.get(code='HO'),
-                    particular=temp_jvmain.particulars,
-                    enterby=temp_jvmain.importby,
-                    modifyby=temp_jvmain.importby,
-                    importedjvnum=temp_jvmain.importedjvnum,
-                    designatedapprover=request.user,
-                )
-                finaljvmain.save()
+                    # temp jvmain to jvmain
+                    finaljvmain = Jvmain.objects.create(
+                        jvnum=actualjvnum,
+                        jvdate=datetime.datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%m/%d/%Y %X'),
+                        jvtype=Jvtype.objects.get(pk=1),
+                        jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
+                        currency=Currency.objects.get(pk=1),
+                        branch=Branch.objects.get(code='HO'),
+                        particular=temp_jvmain.particulars,
+                        enterby=temp_jvmain.importby,
+                        modifyby=temp_jvmain.importby,
+                        importedjvnum=temp_jvmain.importedjvnum,
+                        designatedapprover=request.user,
+                    )
+                    finaljvmain.save()
+                else:
+                    # generate jvnum, get jvyear
+                    dt = datetime.datetime.strptime(data.jvdate, '%Y-%m-%d')
+                    jvyear = dt.year
+                    num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+                    padnum = '{:06d}'.format(num)
+                    actualjvnum = str(jvyear) + str(padnum)
+
+                    # temp jvmain to jvmain
+                    finaljvmain = Jvmain.objects.create(
+                        jvnum=actualjvnum,
+                        jvdate=datetime.datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%Y-%m-%d %X'),
+                        jvtype=Jvtype.objects.get(pk=1),
+                        jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
+                        currency=Currency.objects.get(pk=1),
+                        branch=Branch.objects.get(code='HO'),
+                        particular=temp_jvmain.particulars,
+                        enterby=temp_jvmain.importby,
+                        modifyby=temp_jvmain.importby,
+                        importedjvnum=temp_jvmain.importedjvnum,
+                        designatedapprover=request.user,
+                    )
+                    finaljvmain.save()
 
                 # temp jvdetail to jvdetail
                 temp_jvdetail = Temp_jvdetail.objects.filter(importedjvnum=temp_jvmain.importedjvnum,
@@ -376,13 +462,13 @@ def exportsave(request):
                         modifyby=request.user,
                     )
                     finaljvdetail.save()
-                    if data3.department.strip() != '' and data3.department.strip() is not None:
+                    if data3.department and data3.department.strip() != '' and data3.department.strip() is not None:
                         finaljvdetail.department = Department.objects.get(code=data3.department.strip())
                         finaljvdetail.save(update_fields=['department'])
-                    if data3.bankaccount.strip() != '' and data3.bankaccount.strip() is not None:
+                    if data3.bankaccount and data3.bankaccount.strip() != '' and data3.bankaccount.strip() is not None:
                         finaljvdetail.bankaccount = Bankaccount.objects.get(code=data3.bankaccount.strip())
                         finaljvdetail.save(update_fields=['bankaccount'])
-                    if data3.branch.strip() != '' and data3.branch.strip() is not None:
+                    if data3.branch and data3.branch.strip() != '' and data3.branch.strip() is not None:
                         finaljvdetail.branch = Branch.objects.get(code=data3.branch.strip())
                         finaljvdetail.save(update_fields=['branch'])
 
@@ -418,7 +504,8 @@ def exportsave(request):
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-RAR')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-TAX')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-VOD')) |
-                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-USI'))).\
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='ADV-USI')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='OTH-PAY'))).\
                     order_by('jvnum')
 
                 for datalist in jvmain_data:
