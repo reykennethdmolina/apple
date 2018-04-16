@@ -919,7 +919,9 @@ def reportresultquery(request):
 
             if request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name))
-                query = query.filter(aptype=int(key_data))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.filter(aptype__in=key_data)
             if request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name))
                 query = query.filter(apsubtype=int(key_data))
@@ -998,7 +1000,9 @@ def reportresultquery(request):
 
             if request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name))
-                query = query.filter(apmain__aptype=int(key_data))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.filter(apmain__aptype__in=key_data)
             if request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name))
                 query = query.filter(apmain__apsubtype=int(key_data))
@@ -1085,7 +1089,9 @@ def reportresultquery(request):
 
             if request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name))
-                query = query.filter(apmain__aptype=int(key_data))
+                if key_data != 'null':
+                    key_data = key_data.split(",")
+                    query = query.filter(apmain__aptype__in=key_data)
             if request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name):
                 key_data = str(request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name))
                 query = query.filter(apmain__apsubtype=int(key_data))
@@ -1265,7 +1271,9 @@ def reportresultquery(request):
 
         if request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_aptype_' + request.resolver_match.app_name))
-            query = query.filter(apmain__aptype=int(key_data))
+            if key_data != 'null':
+                key_data = key_data.split(",")
+                query = query.filter(apmain__aptype__in=key_data)
         if request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_apsubtype_' + request.resolver_match.app_name))
             query = query.filter(apmain__apsubtype=int(key_data))
@@ -1434,7 +1442,7 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         amount_placement = 11 if rfv == 'show' else 9
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
-        amount_placement = 2
+        amount_placement = 8
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 4
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -1489,17 +1497,22 @@ def reportresultxlsx(request):
         worksheet.write('I1', 'Credit', bold_right)
         worksheet.write('J1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
-        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
-        worksheet.merge_range('B1:D1', 'Details', bold_center)
-        worksheet.merge_range('E1:E2', 'Debit', bold_right)
-        worksheet.merge_range('F1:F2', 'Credit', bold_right)
-        worksheet.write('B2', 'Bank Account', bold)
-        worksheet.write('C2', 'Department', bold)
+        worksheet.merge_range('A1:B1', 'General Ledger', bold_center)
+        worksheet.write('A2', 'Acct. Code', bold)
+        worksheet.write('B2', 'Account Title', bold)
+        worksheet.merge_range('C1:D1', 'Subsidiary Ledger', bold_center)
+        worksheet.write('C2', 'Code', bold)
+        worksheet.write('D2', 'Particulars', bold)
+        worksheet.merge_range('E1:F1', 'Amount', bold_center)
+        worksheet.write('E2', 'Debit', bold_right)
+        worksheet.write('F2', 'Credit', bold_right)
+        # worksheet.write('B2', 'Bank Account', bold)
+        # worksheet.write('C2', 'Department', bold)
         # worksheet.write('D2', 'Employee', bold)
         # worksheet.write('E2', 'Supplier', bold)
         # worksheet.write('F2', 'Customer', bold)
         # worksheet.write('G2', 'Unit', bold)
-        worksheet.write('D2', 'Branch', bold)
+        # worksheet.write('D2', 'Branch', bold)
         # worksheet.write('I2', 'Product', bold)
         # worksheet.write('J2', 'Input VAT', bold)
         # worksheet.write('K2', 'Output VAT', bold)
@@ -1574,30 +1587,37 @@ def reportresultxlsx(request):
                 ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
             data = [
-                obj.apmain__apnum,
-                DateFormat(obj.apmain__apdate).format('Y-m-d'),
-                obj.apmain__aptype__code,
-                obj.apmain__apsubtype__code,
-                obj.apmain__payeename,
-                obj.apmain__bankbranchdisburse__branch,
-                obj.apmain__apstatus,
-                obj.debitsum,
-                obj.creditsum,
-                obj.margin,
+                obj['apmain__apnum'],
+                DateFormat(obj['apmain__apdate']).format('Y-m-d'),
+                obj['apmain__aptype__code'],
+                obj['apmain__apsubtype__code'],
+                obj['apmain__payeename'],
+                obj['apmain__bankbranchdisburse__branch'],
+                obj['apmain__apstatus'],
+                obj['debitsum'],
+                obj['creditsum'],
+                obj['margin'],
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             # str_firstname = obj['employee__firstname'] if obj['employee__firstname'] is not None else ''
             # str_lastname = obj['employee__lastname'] if obj['employee__lastname'] is not None else ''
 
+            bankaccount__code = obj['bankaccount__code'] if obj['bankaccount__code'] is not None else ''
+            department__code = obj['department__code'] if obj['department__code'] is not None else ''
+            branch__code = obj['branch__code'] if obj['branch__code'] is not None else ''
+            bankaccount__accountnumber = obj['bankaccount__accountnumber'] if obj['bankaccount__accountnumber'] is not None else ''
+            department__departmentname = obj['department__departmentname'] if obj['department__departmentname'] is not None else ''
+
             data = [
-                obj['chartofaccount__accountcode'] + " - " + obj['chartofaccount__description'],
-                obj['bankaccount__accountnumber'],
-                obj['department__departmentname'],
+                obj['chartofaccount__accountcode'],
+                obj['chartofaccount__description'],
+                bankaccount__code + ' ' + department__code + ' ' + branch__code,
+                bankaccount__accountnumber + ' ' + department__departmentname,
                 # str_firstname + " " + str_lastname,
                 # obj['supplier__name'],
                 # obj['customer__name'],
                 # obj['unit__description'],
-                obj['branch__description'],
+                # obj['branch__description'],
                 # obj['product__description'],
                 # obj['inputvat__description'],
                 # obj['outputvat__description'],
@@ -1648,12 +1668,12 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         if rfv == 'show':
             data = [
-                "", "", "", "", "", "", "", "", "", "", "",
+                "", "", "", "", "", "", "", "", "",
                 "Total", report_total['apmain__amount__sum'],
             ]
         else:
             data = [
-                "", "", "", "", "", "", "", "", "", "",
+                "", "", "", "", "", "", "", "",
                 "Total", report_total['amount__sum'],
             ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':

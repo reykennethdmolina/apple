@@ -1,4 +1,4 @@
-{% extends 'reports/base_v2.html' %}
+{% extends 'reports/base_ap.html' %}
 {% load humanize %}
 {% block extra_css %}
     <style>
@@ -11,27 +11,16 @@
 {% block main_content %}
     {% if report == 's' %}
         <table id="table_summary">
-        <thead>
-            <tr>
-                <th class="left" style="width: 10%;"><span>AP Number</span></th>
-                <th class="left" style="width: 10%;"><span>Date</span></th>
-                <th class="left" style="width: 10%;"><span>Type</span></th>
-                <th class="left" style="width: 20%;"><span>Subtype</span></th>
-                <th class="left" style="width: 30%;"><span>Payee</span></th>
-                <th class="left" style="width: 10%;"><span>Status</span></th>
-                <th class="right" style="width: 10%;"><span>Amount</span></th>
-            </tr>
-        </thead>
         <tbody>
             {% for data in data_list %}
                 <tr>
-                    <td>{{ data.apnum }}</td>
-                    <td>{{ data.apdate|date:'Y-m-d' }}</td>
-                    <td>{{ data.aptype.description }}</td>
-                    <td>{{ data.apsubtype.description }}</td>
-                    <td>{{ data.payee.name }}</td>
-                    <td>{{ data.get_apstatus_display }}</td>
-                    <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
+                    <td style="width: 10%">{{ data.apnum }}</td>
+                    <td style="width: 10%">{{ data.apdate|date:'Y-m-d' }}</td>
+                    <td style="width: 10%">{{ data.aptype.description }}</td>
+                    <td style="width: 20%">{{ data.apsubtype.description }}</td>
+                    <td style="width: 30%">{{ data.payee.name }}</td>
+                    <td style="width: 10%">{{ data.get_apstatus_display }}</td>
+                    <td style="width: 10%" class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="7"></td></tr>
@@ -41,56 +30,24 @@
             </tr>
         </tbody>
         </table>
-
-
     {% elif report == 'd' %}
-        <table>
-            <tr>
-                <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Subtype:</b> &nbsp;&nbsp;(RFR) Revolving Fund Replenishment, &nbsp;&nbsp;(MAP) Manual Accounts Payable Voucher
-                </td>
-                <td style="width: 28%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services
-                </td>
-                <td style="width: 39%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(I) In Process, &nbsp;&nbsp;(R) Released, &nbsp;&nbsp;(D) Disapproved
-                </td>
-            </tr>
-        </table>
-        <br><br><br>
         <table id="table_detailed">
-        <thead>
-            <tr>
-                <th class="left" style="width: 6%;"><span>AP Number</span></th>
-                <th class="left" style="width: 6%;"><span>Date</span></th>
-                <th class="left" style="width: 5%;"><span>Type</span></th>
-                <th class="left" style="width: 5%;"><span>Subtype</span></th>
-                <th class="left" style="width: 20%;"><span>Payee</span></th>
-                <th class="left" style="width: 5%;"><span>VAT</span></th>
-                <th class="left" style="width: 5%;"><span>ATC</span></th>
-                <th class="center" style="width: 5%;"><span>In/VAT</span></th>
-                <th class="center" style="width: 5%;"><span>Status</span></th>
-                <th class="left" style="width: 17%;"><span>Particulars</span></th>
-                <th style="width: 12%"></th>
-                <th class="right" style="width: 9%;"><span>Amount</span></th>
-            </tr>
-        </thead>
         {% if rfv == 'hide' %}
             <tbody class="small">
                 {% for data in data_list %}
                     <tr>
-                        <td>{{ data.apnum }}</td>
-                        <td>{{ data.apdate|date:'Y-m-d' }}</td>
-                        <td>{{ data.aptype.description }}</td>
-                        <td>{{ data.apsubtype.code }}</td>
-                        <td>{{ data.payee.name }}</td>
-                        <td>{{ data.vat.code }}</td>
-                        <td>{{ data.atax.code }}</td>
-                        <td style="text-align: center">{{ data.inputvattype.code }}</td>
-                        <td style="text-align: center">{{ data.apstatus }}</td>
-                        <td>{{ data.particulars }}</td>
-                        <td></td>
-                        <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
+                        <td style="width: 6%">{{ data.apnum }}</td>
+                        <td style="width: 6%">{{ data.apdate|date:'Y-m-d' }}</td>
+                        <td style="width: 5%">{{ data.aptype.description }}</td>
+                        <td style="width: 5%">{{ data.apsubtype.code }}</td>
+                        <td style="width: 20%">{{ data.payee.name }}</td>
+                        <td style="width: 5%">{{ data.vat.code }}</td>
+                        <td style="width: 5%">{{ data.atax.code }}</td>
+                        <td style="width: 5%; text-align: center">{{ data.inputvattype.code }}</td>
+                        <td style="width: 5%; text-align: center">{{ data.apstatus }}</td>
+                        <td style="width: 17%">{{ data.particulars }}</td>
+                        <td style="width: 12%"></td>
+                        <td style="width: 9%" class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                     </tr>
                 {% endfor %}
                 <tr><td colspan="12"></td></tr>
@@ -104,18 +61,18 @@
                 {% for data in data_list %}
                     {% ifchanged data.apmain.apnum %}
                         <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                            <td>{{ data.apmain.apnum }}</td>
-                            <td>{{ data.apmain.apdate|date:'Y-m-d' }}</td>
-                            <td>{{ data.apmain.aptype.description }}</td>
-                            <td>{{ data.apmain.apsubtype.code }}</td>
-                            <td>{{ data.apmain.payee.name }}</td>
-                            <td>{{ data.apmain.vat.code }}</td>
-                            <td>{{ data.apmain.atax.code }}</td>
-                            <td style="text-align: center">{{ data.apmain.inputvattype.code }}</td>
-                            <td style="text-align: center">{{ data.apmain.apstatus }}</td>
-                            <td>{{ data.particulars }}</td>
-                            <td></td>
-                            <td class="right">{{ data.apmain.amount|floatformat:2|intcomma }}</td>
+                            <td style="width: 6%">{{ data.apmain.apnum }}</td>
+                            <td style="width: 6%">{{ data.apmain.apdate|date:'Y-m-d' }}</td>
+                            <td style="width: 5%">{{ data.apmain.aptype.description }}</td>
+                            <td style="width: 5%">{{ data.apmain.apsubtype.code }}</td>
+                            <td style="width: 20%">{{ data.apmain.payee.name }}</td>
+                            <td style="width: 5%">{{ data.apmain.vat.code }}</td>
+                            <td style="width: 5%">{{ data.apmain.atax.code }}</td>
+                            <td style="width: 5%; text-align: center">{{ data.apmain.inputvattype.code }}</td>
+                            <td style="width: 5%; text-align: center">{{ data.apmain.apstatus }}</td>
+                            <td style="width: 17%">{{ data.particulars }}</td>
+                            <td style="width: 12%"></td>
+                            <td style="width: 9%" class="right">{{ data.apmain.amount|floatformat:2|intcomma }}</td>
                         </tr>
                     {% endifchanged %}
                     <tr>
@@ -136,20 +93,6 @@
         </table>
     {% elif report == 'ub' or report == 'ae' %}
         <table id="table_unbalanced">
-        <thead>
-            <tr>
-                <th class="left"><span>AP Number</span></th>
-                <th class="left"><span>Date</span></th>
-                <th class="left"><span>APV Type</span></th>
-                <th class="left"><span>APV Subtype</span></th>
-                <th class="left"><span>Payee</span></th>
-                <th class="left"><span>Disbursing Branch</span></th>
-                <th class="left"><span>APV Status</span></th>
-                <th class="right"><span>Debit</span></th>
-                <th class="right"><span>Credit</span></th>
-                <th class="right"><span>Margin</span></th>
-            </tr>
-        </thead>
         <tbody>
             {% for data in data_list %}
                 <tr>
@@ -289,20 +232,8 @@
             </tr>
             </tbody>
         </table>
-
-
     {% elif report == 'a_d' %}
         <table id="table_ae_detailed">
-            <thead>
-                <tr>
-                    <th class="left">Chart of Account</th>
-                    <th class="left">Details</th>
-                    <th class="left">Payee</th>
-                    <th class="left">Date</th>
-                    <th class="right">Debit</th>
-                    <th class="right">Credit</th>
-                </tr>
-            </thead>
             <tbody>
             {% for data in data_list %}
 {#                <tr {% ifchanged data.chartofaccount.accountcode %}style="border-top: 1px solid grey; padding-top: 5px;"{% endifchanged %}>#}
