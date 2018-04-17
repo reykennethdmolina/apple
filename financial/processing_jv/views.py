@@ -240,6 +240,7 @@ def fileupload(request):
                                                     jvnum=data[0],
                                                     jvdate=data[1],
                                                     chartofaccount=data[2],
+                                                    bankaccount=data[3],
                                                     department=data[4],
                                                     charttype=data[5],
                                                     amount=data[6],
