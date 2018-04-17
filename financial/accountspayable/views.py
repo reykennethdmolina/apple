@@ -1408,25 +1408,6 @@ def reportresultquery(request):
                     .order_by('ap_num',
                               'item_counter')\
 
-            # query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
-            #                                                                          'chartofaccount__accountcode',
-            #                                                                          'bankaccount__code',
-            #                                                                          'bankaccount__accountnumber',
-            #                                                                          'bankaccount__bank__code',
-            #                                                                          'department__departmentname',
-            #                                                                          'employee__firstname',
-            #                                                                          'supplier__name',
-            #                                                                          'customer__name',
-            #                                                                          'unit__description',
-            #                                                                          'branch__description',
-            #                                                                          'product__description',
-            #                                                                          'inputvat__description',
-            #                                                                          'outputvat__description',
-            #                                                                          '-vat__description',
-            #                                                                          'wtax__description',
-            #                                                                          'ataxcode__code',
-            #                                                                          'ap_num')
-
     return query, report_type, report_total, rfv, report_xls
 
 
@@ -1465,7 +1446,7 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 4
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
-        amount_placement = 15
+        amount_placement = 7
 
     # config: header
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
@@ -1525,39 +1506,18 @@ def reportresultxlsx(request):
         worksheet.merge_range('E1:F1', 'Amount', bold_center)
         worksheet.write('E2', 'Debit', bold_right)
         worksheet.write('F2', 'Credit', bold_right)
-        # worksheet.write('B2', 'Bank Account', bold)
-        # worksheet.write('C2', 'Department', bold)
-        # worksheet.write('D2', 'Employee', bold)
-        # worksheet.write('E2', 'Supplier', bold)
-        # worksheet.write('F2', 'Customer', bold)
-        # worksheet.write('G2', 'Unit', bold)
-        # worksheet.write('D2', 'Branch', bold)
-        # worksheet.write('I2', 'Product', bold)
-        # worksheet.write('J2', 'Input VAT', bold)
-        # worksheet.write('K2', 'Output VAT', bold)
-        # worksheet.write('L2', 'VAT', bold)
-        # worksheet.write('M2', 'WTAX', bold)
-        # worksheet.write('N2', 'ATAX Code', bold)
         row += 1
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
-        worksheet.merge_range('A1:A2', 'Chart of Account', bold)
-        worksheet.merge_range('B1:M1', 'Details', bold_center)
-        worksheet.merge_range('N1:N2', 'Payee', bold)
-        worksheet.merge_range('O1:O2', 'Date', bold)
-        worksheet.merge_range('P1:P2', 'Debit', bold_right)
-        worksheet.merge_range('Q1:Q2', 'Credit', bold_right)
-        worksheet.write('B2', 'Bank Account', bold)
-        worksheet.write('C2', 'Department', bold)
-        worksheet.write('D2', 'Employee', bold)
-        worksheet.write('E2', 'Customer', bold)
-        worksheet.write('F2', 'Unit', bold)
-        worksheet.write('G2', 'Branch', bold)
-        worksheet.write('H2', 'Product', bold)
-        worksheet.write('I2', 'Input VAT', bold)
-        worksheet.write('J2', 'Output VAT', bold)
-        worksheet.write('K2', 'VAT', bold)
-        worksheet.write('L2', 'WTAX', bold)
-        worksheet.write('M2', 'ATAX Code', bold)
+        worksheet.merge_range('A1:C1', 'Accounts Payable', bold_center)
+        worksheet.merge_range('D1:D2', 'Account Number', bold_center)
+        worksheet.merge_range('E1:E2', 'Account Title', bold_center)
+        worksheet.merge_range('F1:F2', 'Dept. Code', bold_center)
+        worksheet.merge_range('G1:G2', 'Dept. Name', bold_center)
+        worksheet.merge_range('H1:H2', 'Debit', bold_right)
+        worksheet.merge_range('I1:I2', 'Credit', bold_right)
+        worksheet.write('A2', 'Date', bold)
+        worksheet.write('B2', 'Number / Payee', bold)
+        worksheet.write('C2', 'Particulars', bold)
         row += 1
 
     for obj in queryset:
@@ -1632,43 +1592,70 @@ def reportresultxlsx(request):
                 obj['chartofaccount__description'],
                 bankaccount__code + ' ' + department__code + ' ' + branch__code,
                 bankaccount__accountnumber + ' ' + department__departmentname,
-                # str_firstname + " " + str_lastname,
-                # obj['supplier__name'],
-                # obj['customer__name'],
-                # obj['unit__description'],
-                # obj['branch__description'],
-                # obj['product__description'],
-                # obj['inputvat__description'],
-                # obj['outputvat__description'],
-                # obj['vat__description'],
-                # obj['wtax__description'],
-                # obj['ataxcode__code'],
                 obj['debitamount__sum'],
                 obj['creditamount__sum'],
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
-            str_firstname = obj.employee.firstname if obj.employee is not None else ''
-            str_lastname = obj.employee.lastname if obj.employee is not None else ''
-
-            data = [
-                obj.chartofaccount.accountcode + " - " + obj.chartofaccount.description,
-                obj.bankaccount.accountnumber if obj.bankaccount is not None else '',
-                obj.department.departmentname if obj.department is not None else '',
-                str_firstname + " " + str_lastname,
-                obj.customer.name if obj.customer is not None else '',
-                obj.unit.description if obj.unit is not None else '',
-                obj.branch.description if obj.branch is not None else '',
-                obj.product.description if obj.product is not None else '',
-                obj.inputvat.description if obj.inputvat is not None else '',
-                obj.outputvat.description if obj.outputvat is not None else '',
-                obj.vat.description if obj.vat is not None else '',
-                obj.wtax.description if obj.wtax is not None else '',
-                obj.ataxcode.code if obj.ataxcode is not None else '',
-                obj.supplier.name if obj.supplier is not None else '',
-                DateFormat(obj.ap_date).format('Y-m-d'),
-                obj.debitamount__sum,
-                obj.creditamount__sum,
-            ]
+            if obj['item_counter'] == 1:
+                data = [
+                    DateFormat(obj['apmain__apdate']).format('Y-m-d'),
+                    obj['ap_num'] + ' ' + obj['apmain__payeename'],
+                    obj['apmain__particulars'],
+                    obj['chartofaccount__accountcode'],
+                    obj['chartofaccount__title'],
+                    obj['department__code'],
+                    obj['department__departmentname'],
+                    obj['debitamount__sum'],
+                    obj['creditamount__sum'],
+                ]
+            elif obj['item_counter'] == 2:
+                data = [
+                    ' ',
+                    'TIN: ' + obj['apmain__payee__tin'],
+                    ' ',
+                    obj['chartofaccount__accountcode'],
+                    obj['chartofaccount__title'],
+                    obj['department__code'],
+                    obj['department__departmentname'],
+                    obj['debitamount__sum'],
+                    obj['creditamount__sum'],
+                ]
+            elif obj['item_counter'] == 3:
+                data = [
+                    ' ',
+                    obj['apmain__payee__address1'],
+                    ' ',
+                    obj['chartofaccount__accountcode'],
+                    obj['chartofaccount__title'],
+                    obj['department__code'],
+                    obj['department__departmentname'],
+                    obj['debitamount__sum'],
+                    obj['creditamount__sum'],
+                ]
+            elif obj['item_counter'] == 4:
+                data = [
+                    ' ',
+                    obj['apmain__payee__address2'],
+                    ' ',
+                    obj['chartofaccount__accountcode'],
+                    obj['chartofaccount__title'],
+                    obj['department__code'],
+                    obj['department__departmentname'],
+                    obj['debitamount__sum'],
+                    obj['creditamount__sum'],
+                ]
+            elif obj['item_counter'] > 4:
+                data = [
+                    ' ',
+                    ' ',
+                    ' ',
+                    obj['chartofaccount__accountcode'],
+                    obj['chartofaccount__title'],
+                    obj['department__code'],
+                    obj['department__departmentname'],
+                    obj['debitamount__sum'],
+                    obj['creditamount__sum'],
+                ]
 
         temp_amount_placement = amount_placement
         for col_num in xrange(len(data)):
@@ -1711,8 +1698,8 @@ def reportresultxlsx(request):
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
         data = [
-            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-            "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
+            "", "", "", "", "", "",
+            "Grand Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
         ]
 
     row += 1
