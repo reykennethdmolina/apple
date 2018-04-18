@@ -136,7 +136,6 @@ class CreateView(CreateView):
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
             self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
-            self.object.totalremainingamount = self.object.totalamount
             self.object.save()
             # END: save po main
 
@@ -267,7 +266,8 @@ class CreateView(CreateView):
                        vatamount=po_main_aggregates['vatamount__sum'], vatexempt=po_main_aggregates['vatexempt__sum'],
                        vatzerorated=po_main_aggregates['vatzerorated__sum'],
                        totalamount=pomain_totalamount,
-                       totalquantity=po_main_aggregates['quantity__sum'])
+                       totalquantity=po_main_aggregates['quantity__sum'],
+                       totalremainingamount=pomain_totalamount)
             # END: update total fields in po main
 
             # START: update po-related fields in prf main
