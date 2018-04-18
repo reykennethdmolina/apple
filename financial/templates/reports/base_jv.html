@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ rc_headtitle }}</title>
+    <style>
+        @page {
+            size: {{ rc_pagesize }} {{ rc_orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 4cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                right: 1cm;
+                bottom: -2cm;
+                height: 3cm;
+            }
+            {% if rc_orientation == 'landscape' and rc_pagesize == 'letter' %}
+                @frame content_frame {
+                    top: 4cm; left: 1cm;
+                    width: 26cm;
+                    height: 15.5cm;
+                }
+            {% elif rc_orientation == 'portrait' and rc_pagesize == 'letter'  %}
+                @frame content_frame {
+                    top: 4cm; left: 1cm;
+                    width: 19.5cm;
+                    height: 22.5cm;
+                }
+            {% endif %}
+        }
+        body{
+            font-size: 9px;
+            font-family: {{ rc_font }};
+        }
+        .title{
+            font-size: 150%;
+            font-weight: bold;
+        }
+        .center{
+            text-align: center;
+        }
+        .left{
+            text-align: left;
+        }
+        .right{
+            text-align: right;
+        }
+        #footer_content_table{
+            font-size: 8.4px;
+        }
+        #footer_right{
+            margin-left: 30px;
+            width: 600px;
+        }
+        .border{
+            border: 1px solid black;
+            padding-top: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+    </style>
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+<body>
+<div id="header_content">
+    <table>
+        <tr>
+            <td width="20%"><img src="{{ rc_logo | get64 }}"/><br></td>
+            <td width="60%"><p class="title center">{{ report_type }}</p></td>
+            <td width="20%" align="right">
+                {% if datefrom != dateto %}
+                    From: <b>{{ datefrom }}</b><br>To: <b>{{ dateto }}</b>
+                {% elif datefrom == dateto and datefrom != '' %}
+                    Date: <b>{{ datefrom }}</b>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    {% if report == 's' %}
+        <br>
+        <table id="table_summary">
+            <tr>
+                <td class="border left" style="width: 20%;"><span>JV Number</span></td>
+                <td class="border left" style="width: 10%;"><span>Date</span></td>
+                <td class="border left" style="width: 20%;"><span>Type</span></td>
+                <td class="border left" style="width: 25%;"><span>Subtype</span></td>
+                <td class="border left" style="width: 10%;"><span>Status</span></td>
+                <td class="border right" style="width: 15%;"><span>Amount</span></td>
+            </tr>
+        </table>
+
+    {% elif report == 'd' %}
+        <table>
+            <tr>
+                <td style="width: 30%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Type</b>&nbsp;(N) Non JV Type, &nbsp;(A) Adjustment, &nbsp;(P) Payment, &nbsp;(C) Accruals
+                </td>
+                <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Subtype</b>&nbsp;(CSV) Cellphone Subsidy Voucher, &nbsp;(MJV) Manual Journal Voucher
+                </td>
+                <td style="width: 37%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Status</b>&nbsp;(F) For Approval, &nbsp;(A) Approved, &nbsp;(I) In Process, &nbsp;(R) Released, &nbsp;(D) Disapproved
+                </td>
+            </tr>
+        </table>
+        <table id="table_detailed">
+            <tr>
+                <td class="border left" style="width: 12%;"><span>JV Number</span></td>
+                <td class="border left" style="width: 7%;"><span>Date</span></td>
+                <td class="border left" style="width: 7%;"><span>Type</span></td>
+                <td class="border left" style="width: 7%;"><span>Subtype</span></td>
+
+                <td class="border left" style="width: 9%;"><span>Branch</span></td>
+                <td class="border left" style="width: 25%;"><span>Department</span></td>
+
+                <td class="border center" style="width: 10%;"><span>Status</span></td>
+                <td class="border" style="width: 15%"></td>
+                <td class="border right" style="width: 8%;"><span>Amount</span></td>
+            </tr>
+        </table>
+    {% elif report == 'ub' or report == 'ae' %}
+        <br>
+        <table id="table_unbalanced">
+            <tr>
+                <td class="border left"><span>JV Number</span></td>
+                <td class="border left"><span>Date</span></td>
+                <td class="border right"><span>Debit</span></td>
+                <td class="border right"><span>Credit</span></td>
+                <td class="border right"><span>Margin</span></td>
+            </tr>
+        </table>
+    {% elif report == 'a_s' %}
+        <table>
+            <tr>
+                <td class="border center" colspan="2">General Ledger</td>
+                <td class="border center" colspan="2">Subsidiary Ledger</td>
+                <td class="border center" colspan="2">Amount</td>
+            </tr>
+            <tr>
+                <td  style="width: 10%" class="border left">Acct Code</td>
+                <td  style="width: 35%" class="border left">Account Title</td>
+                <td  style="width: 10%" class="border left">Code</td>
+                <td  style="width: 30%" class="border left">Particulars</td>
+                <td  style="width: 10%" class="border right">Debit</td>
+                <td  style="width: 10%" class="border right">Credit</td>
+            </tr>
+        </table>
+
+
+    {% elif report == 'a_d' %}
+        <table id="table_ae_detailed">
+            <tr>
+                <td class="border left" style="width: 30%">Chart of Account</td>
+                <td class="border left" style="width: 50%">Details</td>
+                <td class="border left" style="width: 6%">Date</td>
+                <td class="border right" style="width: 7%">Debit</td>
+                <td class="border right" style="width: 7%">Credit</td>
+            </tr>
+        </table>
+    {% endif %}
+</div>
+
+<div id="footer_content">
+    <!-- {% block extra_footer_content %}{% endblock extra_footer_content %}
+    <table id="footer_content_table">
+        <tr>
+            <td id="footer_left">
+                {{ rc_param.report_footer1 }} {{ request.user }}<br>
+                {{ rc_param.report_footer2 }} {% now 'Y-m-d' %}<br>
+                {{ rc_param.report_footer3 }}<br>
+                {{ rc_param.report_footer4 }}<br>
+                <b>{{ rc_param.report_footer5 }}</b><br>
+                <b>{{ rc_param.report_footer6 }}</b>
+            </td>
+            <td id="footer_right">
+                {{ rc_param.report_footer7 }}<br>
+                {{ rc_param.report_footer8 }}<br>
+                {{ rc_param.report_footer9 }}<br>
+                {{ rc_param.report_footer10 }}<br>
+                {{ rc_param.report_footer11 }}<br>
+                {{ rc_param.report_footer12 }}
+            </td>
+        </tr>
+    </table>
+    <div class="right">
+        Page <pdf:pagenumber /> of <pdf:pagecount />
+    </div> -->
+    Page <pdf:pagenumber /> of <pdf:pagecount /> {{ request.user.username }} {% now "F d, Y H:i" %}
+</div>
+
+{% block subheader_content %}
+{#    <table>#}
+{#        <tr><td colspan="3"></td></tr>#}
+{#        <tr>#}
+{#            <td colspan="3" style="line-height: 15px;">#}
+{#                <span class="title">{{ rc_param.description|upper }}</span><br>#}
+{#                {{ rc_param.address1 }}<br>#}
+{#                {{ rc_param.address2 }}<br>#}
+{#                Tel: ({{ rc_param.telno1 }}, {{ rc_param.telno2 }}<br>#}
+{#                VAT REG TIN: {{ rc_param.tinnum }}#}
+{#            </td>#}
+{#        </tr>#}
+{#    </table>#}
+{% endblock subheader_content %}
+
+{% block main_content %}{% endblock %}
+</body>
+</html>
