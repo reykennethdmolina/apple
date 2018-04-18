@@ -481,9 +481,9 @@
                 });
             });
             $("#validateButton").on('click', function () {
-                var total_creditamount = $("#total_creditamount").text().replace(',', '');
-                var total_debitamount = $("#total_debitamount").text().replace(',', '');
-                var total_cvamount = $("#id_amount").val().replace(',', '');
+                var total_creditamount = $("#total_creditamount").text().replace(/\,/g, '');
+                var total_debitamount = $("#total_debitamount").text().replace(/\,/g, '');
+                var total_cvamount = $("#id_amount").val().replace(/\,/g, '');
 
                 if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
                     customAlert($('#zero-debit-credit-error'));
@@ -496,6 +496,8 @@
                     return false;
                 }
                 if (parseFloat(total_creditamount) != parseFloat(total_cvamount)) {
+                    console.log(total_creditamount)
+                    console.log(parseFloat(total_cvamount))
                     customAlert($('#not-equal-accounting-entries-total-amount-error'));
                     event.preventDefault();
                     return false;

@@ -186,9 +186,9 @@
                     <td class="right">{{ data.margin|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="5"></td></tr>
+            <tr><td colspan="10"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="2"><b>Total</b></td>
+                <td colspan="7"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.debitsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.creditsum__sum|floatformat:2|intcomma }}</b></td>
                 <td class="right"><b>{{ report_total.margin__sum|floatformat:2|intcomma }}</b></td>

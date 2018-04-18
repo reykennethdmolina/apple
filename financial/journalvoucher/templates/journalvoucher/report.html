@@ -81,7 +81,7 @@
             <div class="panel panel-bordered is-collapse">
                 <div class="panel-heading">
                     <h3 class="panel-title">
-                        <a href="#_" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
+                        <a href="{% url 'journalvoucher:reportresult' %}" target="_blank" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
                             <i class="icon fa-print" aria-hidden="true"></i>
                         </a>
                         <a href="{% url 'journalvoucher:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
@@ -456,7 +456,6 @@
             <div id="iframe_preview" class="panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
                 <iframe id="iframehtml" src="{% url 'journalvoucher:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
-                <iframe id="iframe" src="{% url 'journalvoucher:reportresult' %}" frameborder="0" scrolling="yes"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -604,16 +603,11 @@
                 setCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_credit_amountto').val());
 
                 $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'journalvoucher:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
-                $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'journalvoucher:reportresult' %}' frameborder='0' scrolling='yes'></iframe>");
             }
             else{
                 customAlert($('#report-search-error'));
             }
 	    });
-
-        $('#rep_b_print').on('click', function(){
-           document.getElementById("iframe").contentWindow.print();
-        });
 
         $('#rep_f_report').on('change', function(){
             checkReportType();
