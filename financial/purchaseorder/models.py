@@ -20,7 +20,7 @@ class Pomain(models.Model):
         ('R', 'Rush'),
     )
     urgencytype = models.CharField(max_length=1, choices=URGENCY_CHOICES, default='N')
-    dateneeded = models.DateField()
+    dateneeded = models.DateField(null=True, blank=True)
     particulars = models.TextField()
     PO_STATUS_CHOICES = (
         ('F', 'For Approval'),
@@ -48,7 +48,8 @@ class Pomain(models.Model):
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     currency = models.ForeignKey('currency.Currency', related_name='pomain_currency_id', default=1)
     fxrate = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=5, max_digits=18)
-    wtax = models.ForeignKey('wtax.Wtax', related_name='pomain_wtax_id', validators=[MinValueValidator(1)])
+    wtax = models.ForeignKey('wtax.Wtax', related_name='pomain_wtax_id', validators=[MinValueValidator(1)], null=True,
+                             blank=True)
     wtaxrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     wtaxamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     totalquantity = models.IntegerField(default=0)

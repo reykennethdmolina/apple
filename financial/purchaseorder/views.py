@@ -132,10 +132,14 @@ class CreateView(CreateView):
             self.object.supplier_name = Supplier.objects.get(pk=self.request.POST['supplier']).name
             self.object.enterby = self.request.user
             self.object.modifyby = self.request.user
-            self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
-            self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
-            self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
-            self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
+            if self.request.POST['vat']:
+                self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            if self.request.POST['atc']:
+                self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+            if self.request.POST['currency']:
+                self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
+            if self.request.POST['wtax']:
+                self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
             self.object.save()
             # END: save po main
 
@@ -411,6 +415,15 @@ class UpdateView(UpdateView):
             self.object = form.save(commit=False)
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
+            if self.request.POST['vat']:
+                self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
+            if self.request.POST['atc']:
+                self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
+            if self.request.POST['currency']:
+                self.object.fxrate = Currency.objects.get(pk=self.request.POST['currency']).fxrate
+            if self.request.POST['wtax']:
+                self.object.wtaxrate = Wtax.objects.get(pk=self.request.POST['wtax']).rate
+            self.object.save()
 
             # if self.object.rfstatus == 'A':  the save line below will be used for APPROVED purchase orders
             #     self.object.save(update_fields=['particulars', 'modifyby', 'modifydate'])
@@ -418,7 +431,7 @@ class UpdateView(UpdateView):
             self.object.save(update_fields=['podate', 'potype', 'refnum', 'urgencytype', 'dateneeded',
                                             'supplier', 'inputvattype', 'deferredvat', 'creditterm', 'particulars',
                                             'creditterm', 'vat', 'atc', 'currency', 'deliverydate',
-                                            'wtax'])
+                                            'wtax', 'vatrate', 'atcrate', 'fxrate', 'wtaxrate'])
 
             if self.request.POST['postatus'] == 'F':
                 self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
