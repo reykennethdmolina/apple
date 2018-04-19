@@ -784,7 +784,7 @@ def savedetailtemp(request):
     if request.method == 'POST':
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
-        detailtemp.branch = Branch.objects.get(pk=request.POST['id_branch'])
+        detailtemp.branch = Branch.objects.filter(pk=request.POST['id_branch']).first()
         detailtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
         detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
         if request.POST['id_employee']:

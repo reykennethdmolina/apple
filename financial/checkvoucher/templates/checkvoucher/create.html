@@ -495,13 +495,13 @@
                     event.preventDefault();
                     return false;
                 }
-                if (parseFloat(total_creditamount) != parseFloat(total_cvamount)) {
+                /**if (parseFloat(total_creditamount) != parseFloat(total_cvamount)) {
                     console.log(total_creditamount)
                     console.log(parseFloat(total_cvamount))
                     customAlert($('#not-equal-accounting-entries-total-amount-error'));
                     event.preventDefault();
                     return false;
-                }
+                }**/
                 var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
                 if (checkbreakdownstatus) {
                     customAlert($('#unbalanced-entries-error'));

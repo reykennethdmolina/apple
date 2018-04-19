@@ -284,7 +284,7 @@ def importtransdata(request):
                         data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':  # remove this soon
                     inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
                 # elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
-                    # special entry for SERVICES when available
+                    # special entry for SERVICES when available, should include department and branch if any
                 inventory_entry.balancecode = 'D'
                 inventory_entry.debitamount = float(newpoapvtrans.apamount) / (1 + (float(data.vatrate) / 100.0))
                 inventory_entry.save()
