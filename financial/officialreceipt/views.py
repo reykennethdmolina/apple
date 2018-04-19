@@ -1158,7 +1158,7 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         amount_placement = 12
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
-        amount_placement = 2
+        amount_placement = 3
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         amount_placement = 4
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':
@@ -1260,7 +1260,6 @@ def reportresultxlsx(request):
                 obj.amount,
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
-            print obj
             data = [
                 obj['ormain__ornum'],
                 DateFormat(obj['ormain__ordate']).format('Y-m-d'),
