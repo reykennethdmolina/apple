@@ -174,84 +174,72 @@
 
 
     {% elif report == 'a_d' %}
-        <table id="table_ae_detailed">
-            <tbody>
-            {% for data in data_list %}
-                <tr>
-                    <td style="width: 20%">
-                        {% ifchanged data.chartofaccount.accountcode %}
-                            {{ data.chartofaccount.accountcode }}&nbsp;&nbsp;&nbsp;{{ data.chartofaccount.description }}
+        <table>
+        {% for data in data_list %}
+            <tr>
+                {% ifchanged data.ap_num %}
+                    <tr>
+                        <td style="width: 6%"></td>
+                        <td style="width: 22%"></td>
+                        <td style="width: 18%"></td>
+                        <td style="width: 6%"></td>
+                        <td style="width: 19%"></td>
+                        <td style="width: 3%"></td>
+                        <td style="width: 12%"></td>
+                        <td style="width: 7%"></td>
+                        <td style="width: 7%"></td>
+                    </tr>
+                {% endifchanged %}
+                {% ifchanged data.cv_num %}
+                    <td style="vertical-align: top">
+                        {{ data.cvmain__cvdate|date:'m/d/Y' }}
+                    </td>
+                    <td style="vertical-align: top">
+                        {% ifchanged data.cv_num %}
+                            {{ data.cv_num }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ data.cvmain__payee_name|slice:":30" }}
                         {% endifchanged %}
                     </td>
-                    <td style="width: 34%">
-                        <table>
-                            <tr>
-                                {% if data.bankaccount.accountnumber %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.bankaccount.accountnumber %}{% else %}{% endifchanged %}>Bank Acct. No. {{ data.bankaccount.bank.code }} - {{ data.bankaccount.code }} - {{ data.bankaccount.accountnumber }}</td>
-                                {% endif %}
-                                {% if data.department.departmentname %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.department.departmentname %}{% else %}{% endifchanged %}>{{ data.department.departmentname }}</td>
-                                {% endif %}
-                                {% if data.employee.firstname %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.employee.firstname %}{% else %}{% endifchanged %}>{{ data.employee.firstname }} {{ data.employee.lastname }}</td>
-                                {% endif %}
-                                {% if data.customer.name %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.customer.name %}{% else %}{% endifchanged %}>{{ data.customer.name }}</td>
-                                {% endif %}
-                                {% if data.unit.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.unit.description %}{% else %}{% endifchanged %}>{{ data.unit.description }}</td>
-                                {% endif %}
-                                {% if data.branch.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.branch.description %}{% else %}{% endifchanged %}>{{ data.branch.description }}</td>
-                                {% endif %}
-                                {% if data.product.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.product.description %}{% else %}{% endifchanged %}>{{ data.product.description }}</td>
-                                {% endif %}
-                                {% if data.inputvat.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.inputvat.description %}{% else %}{% endifchanged %}>{{ data.inputvat.description }}</td>
-                                {% endif %}
-                                {% if data.outputvat.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.outputvat.description %}{% else %}{% endifchanged %}>{{ data.outputvat.description }}</td>
-                                {% endif %}
-                                {% if data.vat.description or data.inputvat.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.vat.description %}{% else %}{% endifchanged %}>{{ data.vat.description|default:'---' }}</td>
-                                {% endif %}
-                                {% if data.wtax.description %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.wtax.description %}{% else %}{% endifchanged %}>{{ data.wtax.description }}</td>
-                                {% endif %}
-                                {% if data.ataxcode.code %}
-                                    <td style="vertical-align: top; padding-right: 1px;" {% ifchanged data.ataxcode.code %}{% else %}{% endifchanged %}>{{ data.ataxcode.code }}</td>
-                                {% endif %}
-                            </tr>
-                        </table>
+                    <td style="vertical-align: top">
+                        {% ifchanged data.cv_num %}
+                            {{ data.cvmain__particulars|slice:":30" }}
+                        {% endifchanged %}
                     </td>
-                    <td style="width: 26%">
-                        {% if data.supplier %}
-                            {{ data.supplier.name }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td style="width: 6%;">{{ data.of_date|date:'Y-m-d' }}</td>
-                    <td class="right" style="width: 7%;">
-                        {% if data.balancecode == 'D' %}
-                            {{ data.debitamount__sum|floatformat:2|intcomma }}
-                        {% endif %}
-                    </td>
-                    <td class="right" style="width: 7%;">
-                        {% if data.balancecode == 'C' %}
-                            {{ data.creditamount__sum|floatformat:2|intcomma }}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-            <tr><td colspan="4"></td></tr>
-            <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="4"><b>Total</b></td>
-                <td class="right"><b>{{ report_total.debitamount__sum|floatformat:2|intcomma }}</b></td>
-                <td class="right"><b>{{ report_total.creditamount__sum|floatformat:2|intcomma }}</b></td>
+                {% else %}
+                    {% if data.item_counter == 2 %}
+                        <td style="vertical-align: top"></td>
+                        <td style="vertical-align: top">TIN: {{ data.cvmain__payee__tin|default:'-' }}</td>
+                        <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"30:60" }}</td>
+                    {% elif data.item_counter == 3 %}
+                        <td style="vertical-align: top"></td>
+                        <td style="vertical-align: top">{{ data.cvmain__payee__address1 }}</td>
+                        <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"60:90" }}</td>
+                    {% elif data.item_counter == 4 %}
+                        <td style="vertical-align: top"></td>
+                        <td style="vertical-align: top">{{ data.cvmain__payee__address2 }}</td>
+                        <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"90:120" }}</td>
+                    {% elif data.item_counter > 4 %}
+                        <td style="vertical-align: top"></td>
+                        <td style="vertical-align: top"></td>
+                        <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"120:150" }}</td>
+                    {% endif %}
+                {% endifchanged %}
+                <td style="vertical-align: top">{{ data.chartofaccount__accountcode }}</td>
+                <td style="vertical-align: top">{{ data.chartofaccount__title }}</td>
+                <td style="vertical-align: top">{{ data.department__code|default:'' }}</td>
+                <td style="vertical-align: top">{{ data.department__departmentname|slice:":20"|default:'' }}</td>
+                <td style="vertical-align: top" align="right">{{ data.debitamount__sum|default:''|intcomma }}</td>
+                <td style="vertical-align: top" align="right">{{ data.creditamount__sum|default:''|intcomma }}</td>
             </tr>
-            </tbody>
-        </table>
+        {% endfor %}
+        <tr><td colspan="9"></td></tr>
+        <tr style="border-top: 1px solid grey; padding-top: 5px;">
+            <td colspan="6"></td>
+            <td><b>GRAND TOTAL</b></td>
+            <td class="right"><b>{{ report_total.debitamount__sum|floatformat:2|intcomma }}</b></td>
+            <td class="right"><b>{{ report_total.creditamount__sum|floatformat:2|intcomma }}</b></td>
+        </tr>
+        </table><br><br>
+        Checked by: ____________________________<br>
+        Date Checked: __________________________
     {% endif %}
 {% endblock main_content %}

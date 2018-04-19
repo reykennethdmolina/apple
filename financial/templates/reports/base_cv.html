@@ -164,14 +164,24 @@
     {% elif report == 'a_d' %}
         <table>
             <tr>
-                <th class="border left" style="width: 20%">Chart of Account</th>
-                <th class="border left" style="width: 34%">Details</th>
-                <th class="border left" style="width: 26%">Payee</th>
-                <th class="border left" style="width: 6%">Date</th>
-                <th class="border right" style="width: 7%">Debit</th>
-                <th class="border right" style="width: 7%">Credit</th>
+                <td class="border center" colspan="3">Check Voucher</td>
+                <td class="border center" style="width: 6%" rowspan="2">Account Number</td>
+                <td class="border center" style="width: 19%" rowspan="2">Account Title</td>
+                <td class="border center" style="width: 3%" rowspan="2">Dept. Code</td>
+                <td class="border center" style="width: 12%" rowspan="2">Department Name</td>
+                <td class="border right" style="width: 7%" rowspan="2">Debit</td>
+                <td class="border right" style="width: 7%" rowspan="2">Credit</td>
+            </tr>
+            <tr>
+                <td class="border left" style="width: 6%">Date</td>
+                <td class="border left" style="width: 22%">Number
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Payee</td>
+                <td class="border center" style="width: 18%">Particulars</td>
             </tr>
         </table>
+         <br>
     {% endif %}
 </div>
 
