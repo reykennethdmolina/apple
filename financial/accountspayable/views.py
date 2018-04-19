@@ -895,10 +895,10 @@ def reportresultquery(request):
                 or (request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd'
                     and (subtype == '' or subtype == '2')):
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-                report_type = "AP Detailed"
+                report_type = "Accounts Payable Detailed"
                 report_xls = "AP Detailed"
             else:
-                report_type = "AP Summary"
+                report_type = "Accounts Payable Summary"
                 report_xls = "AP Summary"
 
             query = Apmain.objects.all().filter(isdeleted=0)
@@ -978,7 +978,7 @@ def reportresultquery(request):
             report_total = query.aggregate(Sum('amount'))\
 
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-            report_type = "AP Detailed"
+            report_type = "Accounts Payable Detailed"
             report_xls = "AP Detailed"
             rfv = "show"
 
@@ -1065,10 +1065,10 @@ def reportresultquery(request):
 
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
-                report_type = "AP Unbalanced Entries"
+                report_type = "Accounts Payable Unbalanced Entries"
                 report_xls = "AP Unbalanced Entries"
             else:
-                report_type = "AP All Entries"
+                report_type = "Accounts Payable All Entries"
                 report_xls = "AP All Entries"
 
             query = Apdetail.objects.filter(isdeleted=0, apmain__isdeleted=0)
@@ -1327,7 +1327,7 @@ def reportresultquery(request):
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             report_type = "Accounts Payable Accounting Entry - Summary"
-            report_xls = "AP Entry - Summary"
+            report_xls = "AP Acctg Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1387,7 +1387,7 @@ def reportresultquery(request):
                                    'chartofaccount__accountcode')
         else:
             report_type = "Accounts Payable Accounting Entry - Detailed"
-            report_xls = "AP Entry - Detailed"
+            report_xls = "AP Acctg Entry - Detailed"
 
             query = query.values('ap_num')\
                     .annotate(Sum('debitamount'), Sum('creditamount'))\

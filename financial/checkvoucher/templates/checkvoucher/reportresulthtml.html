@@ -57,9 +57,9 @@
                     <td class="right">{{ data.amount|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
-            <tr><td colspan="5"></td></tr>
+            <tr><td colspan="6"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="4"><b>Total</b></td>
+                <td colspan="6"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
             </tr>
         </tbody>
@@ -67,19 +67,19 @@
     {% elif report == 'd' %}
         <table>
             <tr>
-                <td style="width: 33%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Subtype:</b> &nbsp;&nbsp;(PCR) Petty Cash Replenishment, &nbsp;&nbsp;(MCV) Manual Check Voucher
+                <td style="width: 31%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Subtype:</b> &nbsp;&nbsp;(PCR) Petty Cash Repln, &nbsp;&nbsp;(MCV) Manual Check Voucher
                 </td>
-                <td style="width: 28%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                <td style="width: 29%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
                     <b>In/VAT:</b> &nbsp;&nbsp;(F) Fixed Assets, &nbsp;&nbsp;(S) Supplies Inventory, &nbsp;&nbsp;(V) Services
                 </td>
-                <td style="width: 39%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
-                    <b>Status</b> &nbsp;&nbsp;(F) For Approval, &nbsp;&nbsp;(A) Approved, &nbsp;&nbsp;(I) In Process, &nbsp;&nbsp;(R) Released, &nbsp;&nbsp;(D) Disapproved
+                <td style="width: 40%;border: 1px solid grey;padding: 3px; padding-bottom: 0px">
+                    <b>Status</b> &nbsp;&nbsp;(F)For Approval, &nbsp;&nbsp;(A)Approved, &nbsp;&nbsp;(I)In Process, &nbsp;&nbsp;(R)Released, &nbsp;&nbsp;(D)Disapproved
                 </td>
             </tr>
         </table>
-        <br><br><br>
-        <table id="table_detailed">
+        <br>
+        <table id="table_detailed" class="table table-condensed table-bordered">
         <thead>
             <tr>
                 <th class="left" style="width: 7%;"><span>CV Number</span></th>

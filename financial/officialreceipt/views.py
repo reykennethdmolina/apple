@@ -567,7 +567,7 @@ class ReportResultHtmlView(ListView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -590,7 +590,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -612,9 +612,11 @@ def reportresultquery(request):
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
             or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-            report_type = "OR Summary"
+            report_type = "Official Receipt Summary"
+            report_xls = "OR Summary"
         else:
-            report_type = "OR Detailed"
+            report_type = "Official Receipt Detailed"
+            report_xls = "OR Detailed"
         query = Ormain.objects.all().filter(isdeleted=0)
 
         if request.COOKIES.get('rep_f_numfrom_' + request.resolver_match.app_name):
@@ -716,9 +718,11 @@ def reportresultquery(request):
                 query = query.order_by(*key_data)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
-            report_type = "OR Unbalanced Entries"
+            report_type = "Official Receipt Unbalanced Entries"
+            report_xls = "OR Unbalanced Entries"
         else:
-            report_type = "OR All Entries"
+            report_type = "Official Receipt All Entries"
+            report_xls = "OR All Entries"
 
         query = Ordetail.objects.filter(isdeleted=0, ormain__isdeleted=0)
 
@@ -1022,7 +1026,8 @@ def reportresultquery(request):
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
-            report_type = "OR Acctg Entry - Summary"
+            report_type = "Official Receipt Accounting Entry - Summary"
+            report_xls = "OR Acctg Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1081,7 +1086,8 @@ def reportresultquery(request):
                           'bankaccount__code',
                           'chartofaccount__accountcode')
         else:
-            report_type = "OR Acctg Entry - Detailed"
+            report_type = "Official Receipt Accounting Entry - Detailed"
+            report_xls = "OR Acctg Entry - Detailed"
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      '-chartofaccount__accountcode',
@@ -1118,7 +1124,7 @@ def reportresultquery(request):
 
         report_total = query.aggregate(Sum('amount'))
 
-    return query, report_type, report_total
+    return query, report_type, report_total, report_xls
 
 
 @csrf_exempt
@@ -1132,9 +1138,9 @@ def reportresultxlsx(request):
     workbook = xlsxwriter.Workbook(output)
 
     # query and default variables
-    queryset, report_type, report_total = reportresultquery(request)
+    queryset, report_type, report_total, report_xls = reportresultquery(request)
     report_type = report_type if report_type != '' else 'OR Report'
-    worksheet = workbook.add_worksheet(report_type)
+    worksheet = workbook.add_worksheet(report_xls)
     bold = workbook.add_format({'bold': 1})
     bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
     bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
@@ -1344,7 +1350,7 @@ def reportresultxlsx(request):
     workbook.close()
     output.seek(0)
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response
 
 

@@ -605,7 +605,7 @@ class ReportResultHtmlView(ListView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['pcv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['pcv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -628,7 +628,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['pcv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['pcv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -905,9 +905,11 @@ def reportresultquery(request):
                 or (request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd'
                     and (subtype == '' or subtype == '2')):
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-                report_type = "CV Detailed"
+                report_type = "Check Voucher Detailed"
+                report_xls = "CV Detailed"
             else:
-                report_type = "CV Summary"
+                report_type = "Check Voucher Summary"
+                report_xls = "CV Summary"
 
             query = Cvmain.objects.all().filter(isdeleted=0)
 
@@ -993,7 +995,8 @@ def reportresultquery(request):
             report_total = query.aggregate(Sum('amount'))\
 
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-            report_type = "CV Detailed"
+            report_type = "Check Voucher Detailed"
+            report_xls = "CV Detailed"
             pcv = "show"
 
             query = Reppcvmain.objects.all().filter(isdeleted=0).exclude(cvmain__isnull=True)
@@ -1092,9 +1095,11 @@ def reportresultquery(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get(
                     'rep_f_report_' + request.resolver_match.app_name) == 'ae':
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
-            report_type = "CV Unbalanced Entries"
+            report_type = "Check Voucher Unbalanced Entries"
+            report_xls = "CV Unbalanced Entries"
         else:
-            report_type = "CV All Entries"
+            report_type = "Check Voucher All Entries"
+            report_xls = "CV All Entries"
 
         query = Cvdetail.objects.filter(isdeleted=0)
 
@@ -1362,7 +1367,8 @@ def reportresultquery(request):
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
-            report_type = "CV Acctg Entry - Summary"
+            report_type = "Check Voucher Accounting Entry - Summary"
+            report_xls = "CV Acctg Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1421,7 +1427,8 @@ def reportresultquery(request):
                           'bankaccount__code',
                           'chartofaccount__accountcode')
         else:
-            report_type = "CV Acctg Entry - Detailed"
+            report_type = "Check Voucher Accounting Entry - Detailed"
+            report_xls = "CV Acctg Entry - Detailed"
 
             query = query.values('cv_num') \
                 .annotate(Sum('debitamount'), Sum('creditamount')) \
@@ -1442,7 +1449,7 @@ def reportresultquery(request):
                 .order_by('cv_num',
                           'item_counter')\
 
-    return query, report_type, report_total, pcv
+    return query, report_type, report_total, pcv, report_xls
 
 
 @csrf_exempt
@@ -1457,9 +1464,9 @@ def reportresultxlsx(request):
     workbook = xlsxwriter.Workbook(output)
 
     # query and default variables
-    queryset, report_type, report_total, pcv = reportresultquery(request)
+    queryset, report_type, report_total, pcv, report_xls = reportresultquery(request)
     report_type = report_type if report_type != '' else 'CV Report'
-    worksheet = workbook.add_worksheet(report_type)
+    worksheet = workbook.add_worksheet(report_xls)
     bold = workbook.add_format({'bold': 1})
     bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
     bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
@@ -1526,9 +1533,9 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         worksheet.write('A1', 'CV Number', bold)
         worksheet.write('B1', 'Date', bold)
-        worksheet.write('D1', 'Debit', bold_right)
-        worksheet.write('E1', 'Credit', bold_right)
-        worksheet.write('F1', 'Margin', bold_right)
+        worksheet.write('C1', 'Debit', bold_right)
+        worksheet.write('D1', 'Credit', bold_right)
+        worksheet.write('E1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:B1', 'General Ledger', bold_center)
         worksheet.write('A2', 'Acct. Code', bold)
@@ -1603,11 +1610,11 @@ def reportresultxlsx(request):
                 ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
             data = [
-                obj.cvmain__cvnum,
-                DateFormat(obj.cvmain__cvdate).format('Y-m-d'),
-                obj.debitsum,
-                obj.creditsum,
-                obj.margin,
+                obj['cvmain__cvnum'],
+                DateFormat(obj['cvmain__cvdate']).format('Y-m-d'),
+                obj['debitsum'],
+                obj['creditsum'],
+                obj['margin'],
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             bankaccount__code = obj['bankaccount__code'] if obj['bankaccount__code'] is not None else ''
@@ -1736,5 +1743,5 @@ def reportresultxlsx(request):
     workbook.close()
     output.seek(0)
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response

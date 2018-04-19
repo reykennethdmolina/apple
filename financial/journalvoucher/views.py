@@ -634,7 +634,7 @@ class ReportResultHtmlView(ListView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['csv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['csv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -657,7 +657,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['csv'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['csv'], context['report_xls'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -689,9 +689,11 @@ def reportresultquery(request):
                 or (request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd'
                     and (subtype == '' or subtype == '2')):
             if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-                report_type = "JV Detailed"
+                report_type = "Journal Voucher Detailed"
+                report_xls = "JV Detailed"
             else:
-                report_type = "JV Summary"
+                report_type = "Journal Voucher Summary"
+                report_xls = "JV Summary"
 
             query = Jvmain.objects.all().filter(isdeleted=0)
 
@@ -754,7 +756,8 @@ def reportresultquery(request):
             report_total = query.aggregate(Sum('amount'))\
 
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
-            report_type = "JV Detailed"
+            report_type = "Journal Voucher Detailed"
+            report_xls = "JV Detailed"
             csv = "show"
 
             query = Ofmain.objects.all().filter(isdeleted=0).exclude(jvmain=None)
@@ -828,9 +831,11 @@ def reportresultquery(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get(
                     'rep_f_report_' + request.resolver_match.app_name) == 'ae':
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub':
-            report_type = "JV Unbalanced Entries"
+            report_type = "Journal Voucher Unbalanced Entries"
+            report_xls = "JV Unbalanced Entries"
         else:
-            report_type = "JV All Entries"
+            report_type = "Journal Voucher All Entries"
+            report_xls = "JV All Entries"
 
         query = Jvdetail.objects.filter(isdeleted=0, jvmain__isdeleted=0)
 
@@ -1043,7 +1048,8 @@ def reportresultquery(request):
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
 
         if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
-            report_type = "JV Acctg Entry - Summary"
+            report_type = "Journal Voucher Accounting Entry - Summary"
+            report_xls = "JV Acctg Entry - Summary"
 
             # query = query.values('chartofaccount__accountcode',
             #                      'chartofaccount__title',
@@ -1102,7 +1108,8 @@ def reportresultquery(request):
                           'bankaccount__code',
                           'chartofaccount__accountcode')
         else:
-            report_type = "JV Acctg Entry - Detailed"
+            report_type = "Journal Voucher Accounting Entry - Detailed"
+            report_xls = "JV Acctg Entry - Detailed"
 
             query = query.annotate(Sum('debitamount'), Sum('creditamount')).order_by('-balancecode',
                                                                                      '-chartofaccount__accountcode',
@@ -1123,7 +1130,7 @@ def reportresultquery(request):
                                                                                      'ataxcode__code',
                                                                                      'jv_num')
 
-    return query, report_type, report_total, csv
+    return query, report_type, report_total, csv, report_xls
 
 
 @csrf_exempt
@@ -1138,9 +1145,9 @@ def reportresultxlsx(request):
     workbook = xlsxwriter.Workbook(output)
 
     # query and default variables
-    queryset, report_type, report_total, csv = reportresultquery(request)
+    queryset, report_type, report_total, csv, report_xls = reportresultquery(request)
     report_type = report_type if report_type != '' else 'JV Report'
-    worksheet = workbook.add_worksheet(report_type)
+    worksheet = workbook.add_worksheet(report_xls)
     bold = workbook.add_format({'bold': 1})
     bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
     bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
@@ -1269,7 +1276,7 @@ def reportresultxlsx(request):
                     obj.jvsubtype.description if obj.jvsubtype else '',
                     obj.branch.description,
                     obj.department.departmentname,
-                    obj.get_cvstatus_display(),
+                    obj.get_jvstatus_display(),
                     obj.amount,
                 ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
@@ -1369,5 +1376,5 @@ def reportresultxlsx(request):
     workbook.close()
     output.seek(0)
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename="+report_type+".xlsx"
+    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response
