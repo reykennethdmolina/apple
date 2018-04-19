@@ -607,6 +607,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
 def reportresultquery(request):
     query = ''
     report_type = ''
+    report_xls = ''
     report_total = ''
 
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
@@ -1259,13 +1260,14 @@ def reportresultxlsx(request):
                 obj.amount,
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
+            print obj
             data = [
-                obj.ormain__ornum,
-                DateFormat(obj.ormain__ordate).format('Y-m-d'),
-                obj.ormain__payee_code + ' - ' + obj.ormain__payee_name,
-                obj.debitsum,
-                obj.creditsum,
-                obj.margin,
+                obj['ormain__ornum'],
+                DateFormat(obj['ormain__ordate']).format('Y-m-d'),
+                obj['ormain__payee_code'] + ' - ' + obj['ormain__payee_name'],
+                obj['debitsum'],
+                obj['creditsum'],
+                obj['margin'],
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             bankaccount__code = obj['bankaccount__code'] if obj['bankaccount__code'] is not None else ''
@@ -1329,12 +1331,12 @@ def reportresultxlsx(request):
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         data = [
-            "",
+            "", "",
             "Total", report_total['debitsum__sum'], report_total['creditsum__sum'], report_total['margin__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         data = [
-            "", "", "",
+            "", "",
             "Total", report_total['debitamount__sum'], report_total['creditamount__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_d':

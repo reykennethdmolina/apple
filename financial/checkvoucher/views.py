@@ -890,6 +890,7 @@ def manualcvautoentry(request):
 def reportresultquery(request):
     query = ''
     report_type = ''
+    report_xls = ''
     report_total = ''
     pcv = 'hide'
 

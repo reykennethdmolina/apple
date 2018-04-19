@@ -64,6 +64,7 @@ def fileupload(request):
         #   4: failed - file size too large (> 3mb)
         #   5: failed - file array columns does not match requirement
         #   6: failed - invalid artype
+        #   7: failed - some file array columns does not match requirement
 
         if request.POST['or_artype'] == 'a':    # 6
             if request.FILES['or_file'] \
@@ -418,7 +419,15 @@ def fileupload(request):
                                     breakstatus = 0
                                 else:
                                     breakstatus = 1
+                                    check = data[0]
                                     break
+
+                            if breakstatus == 1:
+                                data = {
+                                    'result': 7,
+                                    'check': check
+                                }
+                                return JsonResponse(data)
 
                             # inspect/insert detail
                             if breakstatus == 0 and breakmain == 0:

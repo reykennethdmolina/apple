@@ -675,6 +675,7 @@ def reportresultquery(request):
     query = ''
     report_type = ''
     report_total = ''
+
     csv = 'hide'
 
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's'\
@@ -1205,9 +1206,9 @@ def reportresultxlsx(request):
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
         worksheet.write('A1', 'JV Number', bold)
         worksheet.write('B1', 'Date', bold)
-        worksheet.write('D1', 'Debit', bold_right)
-        worksheet.write('E1', 'Credit', bold_right)
-        worksheet.write('F1', 'Margin', bold_right)
+        worksheet.write('C1', 'Debit', bold_right)
+        worksheet.write('D1', 'Credit', bold_right)
+        worksheet.write('E1', 'Margin', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
         worksheet.merge_range('A1:B1', 'General Ledger', bold_center)
         worksheet.write('A2', 'Acct. Code', bold)
@@ -1269,23 +1270,24 @@ def reportresultxlsx(request):
                     obj.jvmain.amount,
                 ]
             else:
+                str_department = obj.department.departmentname if obj.department else ''
                 data = [
                     obj.jvnum,
                     DateFormat(obj.jvdate).format('Y-m-d'),
                     obj.jvtype.description if obj.jvtype else '',
                     obj.jvsubtype.description if obj.jvsubtype else '',
                     obj.branch.description,
-                    obj.department.departmentname,
+                    str_department,
                     obj.get_jvstatus_display(),
                     obj.amount,
                 ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
             data = [
-                obj.jvmain__jvnum,
-                DateFormat(obj.jvmain__jvdate).format('Y-m-d'),
-                obj.debitsum,
-                obj.creditsum,
-                obj.margin,
+                obj['jvmain__jvnum'],
+                DateFormat(obj['jvmain__jvdate']).format('Y-m-d'),
+                obj['debitsum'],
+                obj['creditsum'],
+                obj['margin'],
             ]
         elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'a_s':
             bankaccount__code = obj['bankaccount__code'] if obj['bankaccount__code'] is not None else ''

@@ -335,6 +335,10 @@
                             case 6:
                                 customAlert($('#upload-error-artype'));
                                 break;
+                            case 7:
+                                customAlert($('#upload-file-error'));
+                                alert("Error in OR# " + data['check'] + ". Please check your file!");
+                                break;
                             default:            
                         }
                         showUploadForm();
