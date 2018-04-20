@@ -702,7 +702,7 @@ def updateTransaction(pk, status):
 
                 if csdetail:
                     data.negocost = csdetail.negocost
-                    data.vat = Vat.objects.get(pk.csdetail.vat).pk
+                    data.vat = Vat.objects.get(pk=csdetail.vat.pk)
                     data.vatable = csdetail.vatable
                     data.vatexempt = csdetail.vatexempt
                     data.vatzerorated = csdetail.vatzerorated
