@@ -9,6 +9,7 @@
                 <th><span>Date</span></th>
                 <th><span>JV Subtype</span></th>
                 <th><span>Approver</span></th>
+                <th><span>Created by</span></th>
                 <th><span>Status</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
@@ -22,6 +23,7 @@
                 <td>{{ data.jvdate|date:'Y-m-d' }}</td>
                 <td>{{ data.jvsubtype.description }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- Not assigned yet --{% endif %}</td>
+                <td>{{ data.enterby }}</td>
                 <td class="tdJvStatus
                         {% if data.jvstatus == 'A' %} text-success
                         {% elif data.jvstatus == 'D' %} text-danger
