@@ -830,6 +830,15 @@
         $('#rep_f_credit_amountfrom').val(getCookie('rep_f_credit_amountfrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_credit_amountto').val(getCookie('rep_f_credit_amountto_{{ request.resolver_match.app_name }}'));
 
+        searchParams = new URLSearchParams(window.location.search);
+        param = searchParams.get('reporttype');
+        if(param == 'ub'){
+            $('#rep_f_report').val('ub');
+            setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
+            $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'officialreceipt:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
+            checkReportType();
+        }
+
         function checkReportType(){
             if($('#rep_f_report').val() == 'a_s' || $('#rep_f_report').val() == 'a_d'){
 

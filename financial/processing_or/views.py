@@ -922,6 +922,27 @@ def exportsave(request):
                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
                     print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
+                    if data.accounttype == 'c':
+                        ortype_accounttype = 'r'
+                    else:
+                        ortype_accounttype = data.accounttype
+
+                    if data.status.upper() == 'C':
+                        if ortype_accounttype == 's' and data.agentcode == '':
+                            orpayeecode = get_object_or_None(Agent, code='SUNDRIES').code
+                        elif data.agentcode == '':
+                            orpayeecode = get_object_or_None(Agent, code='CANCELLED').code
+
+                        if ortype_accounttype == 's' and data.payeename == '':
+                            orpayeename = get_object_or_None(Agent, code='SUNDRIES').name
+                        elif data.payeename == '':
+                            orpayeename = get_object_or_None(Agent, code='CANCELLED').name
+
+                    else:
+                        orpayeecode = data.agentcode
+                        orpayeename = data.payeename
+
+
                     # logsormain to tempormain
                     temp_ordate = datetime.strptime(data.ordate, '%m/%d/%Y')
                     temp_ormain = Temp_ormain.objects.create(
@@ -937,9 +958,9 @@ def exportsave(request):
                         artype=data.artype,
                         collectorcode=data.collector,
                         collectordesc=data.collectordesc,
-                        agentcode=data.agentcode,
-                        payeecode=data.agentcode,
-                        payeename=data.payeename,
+                        agentcode=orpayeecode,
+                        payeecode=orpayeecode,
+                        payeename=orpayeename,
                         payeetype=data.payeetype,
                         paytype=data.paytype,
                         branchcode=data.branchcode,
@@ -1000,10 +1021,6 @@ def exportsave(request):
                                 ).save()
 
                     # temp ormain to ormain
-                    if temp_ormain.accounttype == 'c':
-                        ortype_accounttype = 'r'
-                    else:
-                        ortype_accounttype = temp_ormain.accounttype
 
                     Ormain.objects.create(
                         ornum=temp_ormain.orno,
