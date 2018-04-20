@@ -356,6 +356,7 @@ class UpdateView(UpdateView):
         }
         context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
         # accounting entry ends here
+        context['datainfo'] = self.object
 
         return context
 

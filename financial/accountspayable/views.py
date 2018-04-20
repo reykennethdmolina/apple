@@ -433,6 +433,7 @@ class UpdateView(UpdateView):
         context['totalpayment'] = aptrade_total['creditamount__sum']
         context['wtaxamount'] = wtax_total['creditamount__sum']
         context['wtaxrate'] = self.object.ataxrate
+        context['datainfo'] = self.object
 
         return context
 

@@ -278,6 +278,7 @@ class UpdateView(UpdateView):
         #lookup
         # context['pk'] = 0
         context['pk'] = self.object.pk
+        context['datainfo'] = self.object
         return context
 
     def form_valid(self, form):
