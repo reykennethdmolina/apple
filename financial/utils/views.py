@@ -55,17 +55,17 @@ def ajaxSelect(request):
                                                   Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "chartofaccount":
-            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).order_by('accountcode')
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_posting":
-            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(accounttype='P').order_by('accountcode')
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(accounttype='P').order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_arcode":
-            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(main=1).order_by('accountcode')
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(main=1).order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_revcode":
-            items = Chartofaccount.objects.all().filter(Q(accountcode__icontains=request.GET['q']) |
-                                                        Q(title__icontains=request.GET['q'])).filter(main__in=[2, 4]).order_by('accountcode')
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(main__in=[2, 4]).order_by('accountcode')
 
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
