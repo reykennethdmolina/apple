@@ -66,6 +66,10 @@ def ajaxSelect(request):
         elif request.GET['table'] == "chartofaccount_revcode":
             items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
                                                         Q(description__startswith=request.GET['q'].upper())).filter(main__in=[2, 4]).order_by('accountcode')
+        elif request.GET['table'] == "chartofaccount_subgroup":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(accounttype='P').order_by('accountcode')
+            items = items.filter(subgroup__in=request.GET.getlist('subgroup[]'))
 
         elif request.GET['table'] == "department":
             items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
@@ -125,7 +129,8 @@ def ajaxSelect(request):
             elif request.GET['table'] == "chartofaccount" \
                     or request.GET['table'] == "chartofaccount_posting" \
                     or request.GET['table'] == "chartofaccount_arcode" \
-                    or request.GET['table'] == "chartofaccount_revcode":
+                    or request.GET['table'] == "chartofaccount_revcode" \
+                    or request.GET['table'] == "chartofaccount_subgroup":
                 text = "[" + data.accountcode + "] - " + data.description
             elif request.GET['table'] == "department":
                 text = data.departmentname
@@ -515,10 +520,6 @@ def storeupload(file, file_name, file_extension, upload_directory):
     fs = FileSystemStorage()
     filename = fs.save(upload_directory+file_name+'.'+file_extension, file)
     fs.url(filename)
-
-    # with open(upload_directory + str(file_name) + '.' + str(file_extension), 'wb+') as destination:
-    #     for chunk in file.chunks():
-    #         destination.write(chunk)       
     return True
 
 
