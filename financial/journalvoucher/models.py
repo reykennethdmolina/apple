@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 class Jvmain(models.Model):
     jvnum = models.CharField(unique=True, max_length=10)
     jvprefix = models.CharField(default='JV', max_length=5)
-    jvdate = models.DateTimeField()
+    jvdate = models.DateField()
     jvtype = models.ForeignKey('jvtype.Jvtype', related_name='jvtype_jvmain_id')
     jvsubtype = models.ForeignKey('jvsubtype.Jvsubtype', related_name='jvsubtype_jvmain_id')
     refnum = models.CharField(max_length=150, blank=True, null=True)

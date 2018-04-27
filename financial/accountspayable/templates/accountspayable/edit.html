@@ -70,6 +70,12 @@
                     </div>
                 </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
+                    {% if perms.accountspayable.add_apmain %}
+                        <a href="{% url 'accountspayable:create' %}" class="floatright">
+                            <button type="button" class="btn btn-success btn-round btn-sm waves-effect waves-light">
+                                <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp; New APV
+                            </button></a>
+                    {% endif %}
                     {% if perms.accountspayable.delete_apmain and object.apstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                     <a href="{% url 'accountspayable:delete' object.id %}" class="floatright">
                         <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect

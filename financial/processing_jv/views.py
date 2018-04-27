@@ -51,6 +51,8 @@ adv_tax = [adv_headers[0] + "tax", adv_headers[1] + "tax"]
 adv_vod = [adv_headers[0] + "vod", adv_headers[1] + "vod"]
 adv_si = [adv_headers[0] + "si", adv_headers[1] + "si"]
 
+cir_headers = ["pjv_m", "pjv_a"]
+
 sub_headers = ["jv_main_", "jv_detail_"]
 sub_regular = [sub_headers[0] + "regular", sub_headers[1] + "regular"]
 sub_complimentary = [sub_headers[0] + "complimentary", sub_headers[1] + "complimentary"]
@@ -77,6 +79,7 @@ class IndexView(TemplateView):
         context['adv_tax'] = adv_tax
         context['adv_vod'] = adv_vod
         context['adv_si'] = adv_si
+        context['cir_all'] = cir_headers
         context['sub_regular'] = sub_regular
         context['sub_complimentary'] = sub_complimentary
         context['oth_payroll'] = oth_payroll
@@ -336,6 +339,170 @@ def fileupload(request):
                     'result': 4
                 }
                 return JsonResponse(data)
+        elif request.FILES['jv_file'] \
+                and request.FILES['jv_file'].name.endswith('.dbf') \
+                and request.FILES['jv_d_file'] \
+                and request.FILES['jv_d_file'].name.endswith('.dbf'):     # 3
+            print "------------------"
+            if request.FILES['jv_file']._size < float(upload_size)*1024*1024 \
+                    and request.FILES['jv_d_file']._size < float(upload_size)*1024*1024:  # 4
+                sequence = datetime.datetime.today().isoformat().replace(':', '-')
+                batchkey = generatekey(1)
+                if storeupload(request.FILES['jv_file'], sequence, 'dbf', upload_directory)\
+                        and storeupload(request.FILES['jv_d_file'], sequence, 'dbf', upload_d_directory):    # 2
+                    jvcount = 0
+                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR' or \
+                        request.POST['upload_type'] == 'CIR-INCS' or request.POST['upload_type'] == 'CIR-REIM' or \
+                            request.POST['upload_type'] == 'CIR-RS':  # 6
+                        for data in DBF(settings.MEDIA_ROOT + '/' + upload_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                            jvcount += 1
+                            if len(data) == 13:
+                                # log status filtering
+                                if Logs_jvmain.objects.filter(jvdate=data['JV_DATE'], importstatus='P',
+                                                              jvsubtype=request.POST['upload_type']):
+                                    importstatus = 'F'
+                                    importremarks = 'Skipped: Already posted'
+                                elif Logs_jvmain.objects.filter(jvnum=data['JV_NUM'], batchkey=batchkey, importstatus='S'):
+                                    importstatus = 'F'
+                                    importremarks = 'Skipped: Already exists in this batch'
+                                else:
+                                    importstatus = 'S'
+                                    importremarks = 'Passed'
+
+                                Logs_jvmain.objects.create(
+                                    jvnum=data['JV_NUM'],
+                                    jvdate=str(data['JV_DATE']),
+                                    particulars=data['JV_PART1'],
+                                    remarks=data['JV_PART2'],
+                                    comments=data['JV_PART3'],
+                                    status=data['STATUS'],
+                                    datecreated=data['STATUS_D'],
+                                    datemodified=data['USER_D'],
+                                    batchkey=batchkey,
+                                    importstatus=importstatus,
+                                    importremarks=importremarks,
+                                    importby=request.user,
+                                    jvsubtype=request.POST['upload_type'],
+                                ).save()
+                                breakstatus = 0
+                            else:
+                                breakstatus = 1
+                                break
+
+                        # inspect/insert detail
+                        if breakstatus == 0:
+                            for data in DBF(settings.MEDIA_ROOT + '/' + upload_d_directory + str(sequence) + '.dbf', char_decode_errors='ignore'):
+                                if len(data) == 13:
+                                    if Logs_jvmain.objects.filter(jvnum=data['JV_NUM'], batchkey=batchkey):
+                                        if not Chartofaccount.objects.filter(accountcode=str(data['JV_ACCT']).strip()+'0000'):
+                                            importstatus = 'F'
+                                            importremarks = 'Failed: Chart of account does not exist'
+                                        elif data['JV_DEPT'].strip() != '' and not Department.objects.filter(code=data['JV_DEPT'].strip()):
+                                                importstatus = 'F'
+                                                importremarks = 'Failed: Department does not exist'
+                                        else:
+                                            importstatus = 'S'
+                                            importremarks = 'Passed'
+
+                                        Logs_jvdetail.objects.create(
+                                            jvnum=data['JV_NUM'],
+                                            jvdate=data['JV_DATE'],
+                                            chartofaccount=data['JV_ACCT'],
+                                            bankaccount=data['JV_BANK'],
+                                            department=data['JV_DEPT'],
+                                            charttype=data['JV_CODE'],
+                                            amount=data['JV_AMT'],
+                                            status=data['STATUS'],
+                                            datecreated=data['STATUS_D'],
+                                            datemodified=data['USER_D'],
+                                            sortnum=data['JV_ITEM_ID'],
+                                            batchkey=batchkey,
+                                            importstatus=importstatus,
+                                            importremarks=importremarks,
+                                            importby=request.user,
+                                        ).save()
+                                        breakstatus = 0
+                                else:
+                                    breakstatus = 1
+                                    break
+
+                        if breakstatus == 0:    # 5
+                            jvdata_list = []
+                            jvdata_d_list = []
+                            jvdata_d_total_list = []
+
+                            jvdata = Logs_jvmain.objects.filter(batchkey=batchkey).order_by('jvnum')
+                            jvdata_d = Logs_jvdetail.objects.filter(batchkey=batchkey).extra(
+                                select={'myinteger': 'CAST(sortnum AS SIGNED)'}
+                            ).order_by('jvnum', '-myinteger')
+
+                            jvdata_d_debit = jvdata_d.filter(charttype='D').values('jvnum').annotate(total=Sum('amount')).order_by('jvnum')
+                            jvdata_d_credit = jvdata_d.filter(charttype='C').values('jvnum').annotate(total=Sum('amount')).order_by('jvnum')
+
+                            for data in jvdata:
+                                jvdata_list.append([data.jvnum,
+                                                    data.jvdate,
+                                                    data.particulars,
+                                                    data.importstatus,
+                                                    data.importremarks,
+                                                    ])
+                            for data in jvdata_d:
+                                debitamount = ''
+                                creditamount = ''
+                                if data.charttype == 'D':
+                                    debitamount = data.amount
+                                elif data.charttype == 'C':
+                                    creditamount = data.amount
+                                jvdata_d_list.append([data.jvnum,
+                                                      data.chartofaccount,
+                                                      data.department,
+                                                      debitamount,
+                                                      creditamount,
+                                                      data.importstatus,
+                                                      data.bankaccount if data.bankaccount else '',
+                                                      data.branch,
+                                                      data.importremarks,
+                                                      ])
+
+                            for index, data in enumerate(jvdata_d_debit):
+                                jvdata_d_total_list.append([data['jvnum'],
+                                                            data['total'],
+                                                            jvdata_d_credit[index]['total'],
+                                                            ])
+
+                            successcount = jvdata.filter(importstatus='S').count()
+                            rate = (float(successcount) / float(jvcount)) * 100
+                            data = {
+                                'result': 1,
+                                'upload_type': request.POST['upload_type'],
+                                'jvcount': jvcount,
+                                'jvdata_list': jvdata_list,
+                                'jvdata_d_list': jvdata_d_list,
+                                'jvdata_d_total_list': jvdata_d_total_list,
+                                'successcount': successcount,
+                                'rate': rate,
+                                'batchkey': batchkey,
+                            }
+                        else:
+                            data = {
+                                'result': 5
+                            }
+                        return JsonResponse(data)
+                    else:
+                        data = {
+                            'result': 6
+                        }
+                    return JsonResponse(data)
+                else:
+                    data = {
+                        'result': 2
+                    }
+                return JsonResponse(data)
+            else:
+                data = {
+                    'result': 4
+                }
+                return JsonResponse(data)
         else:
             data = {
                 'result': 3
@@ -354,7 +521,9 @@ def exportsave(request):
                         request.POST['upload_type'] == 'ADV-CAI' or request.POST['upload_type'] == 'ADV-PPD' or \
                         request.POST['upload_type'] == 'ADV-RAR' or request.POST['upload_type'] == 'ADV-TAX' or \
                         request.POST['upload_type'] == 'ADV-VOD' or request.POST['upload_type'] == 'ADV-USI' or \
-                        request.POST['upload_type'] == 'OTH-PAY':
+                        request.POST['upload_type'] == 'OTH-PAY' or request.POST['upload_type'] == 'CIR-CTR' or \
+                        request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-INCS' or \
+                        request.POST['upload_type'] == 'CIR-REIM' or request.POST['upload_type'] == 'CIR-RS':
             jvmain = Logs_jvmain.objects.filter(importstatus='S', batchkey=request.POST['batchkey'])
             jvmain_list = []
             jvdetail_list = []
@@ -395,18 +564,30 @@ def exportsave(request):
                     )
                     temp_jvdetail.save()
 
-                if request.POST['upload_type'] == 'OTH-PAY':
+                if request.POST['upload_type'] == 'OTH-PAY' or request.POST['upload_type'] == 'CIR-CTR' or \
+                        request.POST['upload_type'] == 'CIR-DR' or request.POST['upload_type'] == 'CIR-INCS' or \
+                        request.POST['upload_type'] == 'CIR-REIM' or request.POST['upload_type'] == 'CIR-RS':
+
                     # generate jvnum, get jvyear
-                    dt = datetime.datetime.strptime(data.jvdate, '%m/%d/%Y')
+                    if request.POST['upload_type'] == 'CIR-CTR' or request.POST['upload_type'] == 'CIR-DR' \
+                            or request.POST['upload_type'] == 'CIR-INCS' or request.POST['upload_type'] == 'CIR-REIM' \
+                            or request.POST['upload_type'] == 'CIR-RS':
+                        dt = datetime.datetime.strptime(data.jvdate, '%Y-%m-%d')
+                        temp_date = datetime.datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%Y-%m-%d %X')
+                    else:
+                        dt = datetime.datetime.strptime(data.jvdate, '%m/%d/%Y')
+                        temp_date = datetime.datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%m/%d/%Y %X')
+
                     jvyear = dt.year
-                    num = len(Jvmain.objects.all().filter(jvdate__year=jvyear)) + 1
+
+                    num = Jvmain.objects.all().filter(jvdate__year=jvyear).count() + 1
                     padnum = '{:06d}'.format(num)
                     actualjvnum = str(jvyear) + str(padnum)
 
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(
                         jvnum=actualjvnum,
-                        jvdate=datetime.datetime.strptime(temp_jvmain.jvdate + ' 00:00:00', '%m/%d/%Y %X'),
+                        jvdate=temp_date,
                         jvtype=Jvtype.objects.get(pk=1),
                         jvsubtype=Jvsubtype.objects.get(code=request.POST['upload_type']),
                         currency=Currency.objects.get(pk=1),
@@ -462,6 +643,7 @@ def exportsave(request):
                         enterby=request.user,
                         modifyby=request.user,
                     )
+
                     finaljvdetail.save()
                     if data3.department and data3.department.strip() != '' and data3.department.strip() is not None:
                         finaljvdetail.department = Department.objects.get(code=data3.department.strip())
@@ -506,12 +688,16 @@ def exportsave(request):
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-TAX')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-VOD')) |
                                                  Q(jvsubtype=Jvsubtype.objects.get(code='ADV-USI')) |
-                                                 Q(jvsubtype=Jvsubtype.objects.get(code='OTH-PAY'))).\
-                    order_by('jvnum')
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='OTH-PAY')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-CTR')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-DR')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-INCS')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-REIM')) |
+                                                 Q(jvsubtype=Jvsubtype.objects.get(code='CIR-RS'))).order_by('jvnum')
 
                 for datalist in jvmain_data:
                     jvmain_list.append([datalist.jvnum,
-                                        datalist.jvdate.date(),
+                                        datalist.jvdate,
                                         datalist.importedjvnum,
                                         datalist.particular,
                                         'S',

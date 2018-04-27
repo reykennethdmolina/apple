@@ -25,7 +25,7 @@
             text-align: right;
         }
         .heading-top-index-2 {
-            padding: 27px 15px 26px 15px;
+            padding: 26px 15px 12px 15px;
         }
         #prfcontainer {
             height: 358px;
@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="form-group col-sm-4 {{ form.creditterm.errors|yesno:'has-error,' }}">
                                         <label class="control-label" for="id_creditterm">Credit Term</label>
-                                        <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
+                                        <select class="form-control input-sm" id="id_creditterm" name="creditterm">
                                             <option value="">-- Select --</option>
                                             {% for creditterm in creditterm %}
                                                 <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
@@ -288,6 +288,9 @@
                                             <td><small><b>Total&nbsp;Amount:</b></small></td>
                                             <td class="form-group form-material"><input type="text" class="form-control input-sm amount" id="lblTotalAmount" disabled="disabled" value="0"></td>
                                         </tr>
+                                        <tr>
+                                            <td colspan="2" style="font-size: 12px; text-align: right; padding-right: 0px; padding-top: 10px;"><code id="disp_note">&nbsp;</code></td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>
@@ -385,6 +388,7 @@
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Purchase</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Add&nbsp;VAT</th>
                                                 <th style="min-width: 100px; text-align: center; vertical-align: middle;">Total&nbsp;Amount</th>
+                                                <th style="min-width: 80px; text-align: center; vertical-align: middle;">WTax</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -396,7 +400,13 @@
                                                               data-itemid="{{ podetailtemp.invitem.id }}" data-podetailid="{{ podetailtemp.id }}"
                                                               data-prfmainid="{{ podetailtemp.prfmain.id }}" data-prfdetailid="{{ podetailtemp.prfdetail.id }}">
                                                             {% if postatus != 'Approved' %}<i class="icon fa-trash text-info" aria-hidden="true"></i>{% endif %}
-                                                        </span>&nbsp;&nbsp;{{ podetailtemp.invitem_code }}</td>
+                                                        </span>&nbsp;&nbsp;{{ podetailtemp.invitem_code }}
+                                                        <input type='hidden' form='form-b' class='hdn_tblVatable' name='hdn_tblVatable' value='{{ podetailtemp.vatable }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblVatExempt' name='hdn_tblVatExempt' value='{{ podetailtemp.vatexempt|floatformat:2|intcomma }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblZeroRated' name='hdn_tblZeroRated' value='{{ podetailtemp.vatzerorated|floatformat:2|intcomma }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblAddedVat' name='hdn_tblAddedVat' value='{{ podetailtemp.vatamount|floatformat:2|intcomma }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblWTax' name='hdn_tblWTax' value='{{ podetailtemp.atcamount|floatformat:2|intcomma }}'>
+                                                    </td>
                                                     <td class="tblItemName">{{ podetailtemp.invitem_name }}</td>
                                                     <td class="tblRemarks">
                                                         <input type="text" name="temp_remarks" form="form-b" step="any" value="{{ podetailtemp.remarks }}" class="form-control input-sm tblInputRemarks">
@@ -415,7 +425,8 @@
                                                     <td class="text-center tblPRFNumber">{{ podetailtemp.prfmain.prfnum|default:'-' }}</td>
                                                     <td class="tblBranch">
                                                         <select name="temp_branch" form="form-b" id="id_temp_branch" class="form-control input-sm tblSelectBranch"
-                                                                required="required" style="width: 100%">
+                                                                style="width: 100%">
+                                                            <option value="">-- Select --</option>
                                                             {% for branch in branch %}
                                                                 <option value="{{ branch.id }}"
                                                                         {% if branch.id == podetailtemp.branch.id %} selected="selected" {% endif %}>
@@ -425,7 +436,8 @@
                                                     </td>
                                                     <td class="tblDepartment">
                                                         <select name="temp_department" form="form-b" id="id_temp_department" class="form-control input-sm tblSelectDepartment"
-                                                                required="required" style="width: 100%">
+                                                                style="width: 100%">
+                                                            <option value="">-- Select --</option>
                                                             {% for department in department %}
                                                                 <option value="{{ department.id }}"
                                                                         {% if department.id == podetailtemp.department.id %} selected="selected" {% endif %}>
@@ -486,7 +498,8 @@
                                                         {{ podetailtemp.vatable|add:podetailtemp.vatexempt|add:podetailtemp.vatzerorated|floatformat:2|intcomma }}
                                                     </td>
                                                     <td class="text-right tblAddedVat">{{ podetailtemp.vatamount|floatformat:2|intcomma }}</td>
-                                                    <td class="text-right tblTotalAmount"><strong>{{ podetailtemp.netamount|floatformat:2|intcomma }}</strong></td>
+                                                    <td class='text-right tblTotalAmount'><strong><a href='#amountsModal' class='link_amount' data-toggle='modal' data-target='#amountsModal'>{{ podetailtemp.netamount|floatformat:2|intcomma }}</a></strong></td>
+                                                    <td class="text-right tblWTax">{{ podetailtemp.atcamount|floatformat:2|intcomma }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -539,6 +552,63 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-info" id="importconfirm" data-dismiss="modal" disabled="disabled">Confirm</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="amountsModal" class="modal fade" role="dialog">
+                <div class="modal-dialog" style="width: 350px;">
+                    <div class="modal-content">
+                        <div class="shade" id="shadePRFImport"><div class="loader two-color"></div></div>
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Edit Values</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>VATable:</b></div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control input-sm amount text-right" id="modal_vatable" name="modal_vatable" maxlength="26">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>VAT-Exempt:</b></div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control input-sm amount text-right" id="modal_vatexempt" name="modal_vatexempt" maxlength="26">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>VAT Zero-Rated:</b></div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control input-sm amount text-right" id="modal_vatzerorated" name="modal_vatzerorated" maxlength="26">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>VAT Amount:</b></div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control input-sm amount text-right" id="modal_vatamount" name="modal_vatamount" maxlength="26">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>Total:</b></div>
+                                    <div class="col-sm-6 padding-top-5 text-right padding-right-25"><b><span id="modal_totalamount">0.00</span></b></div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <div class="col-sm-6 padding-top-5"><b>Withholding Tax:</b></div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control input-sm amount text-right" id="modal_withholdingtax" name="modal_withholdingtax" maxlength="26">
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <span id="total_warning" class="text-danger" style="display: none">*Total should still be equal to <span id="original_total">&nbsp;</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" id="item_index">
+                            <button type="button" class="btn btn-info" id="amountsconfirm" data-dismiss="modal">Confirm</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>

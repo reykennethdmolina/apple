@@ -42,9 +42,9 @@ class Supplier(models.Model):
     creditterm = models.ForeignKey('creditterm.Creditterm',
                                    related_name='supplier_creditterm_id')
     inputvattype = models.ForeignKey('inputvattype.Inputvattype',
-                                     related_name='supplier_inputvattype_id')
+                                     related_name='supplier_inputvattype_id', null=True, blank=True)
     inputvat = models.ForeignKey('inputvat.Inputvat',
-                                     related_name='supplier_inputvat_id', null=True)
+                                     related_name='supplier_inputvat_id', null=True, blank=True)
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     vat = models.ForeignKey('vat.Vat', related_name='supplier_vat_id',
                             validators=[MinValueValidator(1)])

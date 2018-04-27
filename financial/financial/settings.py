@@ -163,6 +163,9 @@ INSTALLED_APPS = [
     'chartofaccountsubgroup',
     'subledger',
     'subledgersummary',
+    'generalledgerbook',
+    'transactionclosing',
+    'transactionposting',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -100,6 +100,13 @@
                                                     <option value="ADV-VOD" data-filename-main="{{ adv_vod.0 }}" data-filename-detail="{{ adv_vod.1 }}">ADV - Volume Discount</option>
                                                     <option value="ADV-USI" data-filename-main="{{ adv_si.0 }}" data-filename-detail="{{ adv_si.1 }}">ADV - Upload SI</option>
                                                 </optgroup>
+                                                <optgroup label="Circulation">
+                                                    <option value="CIR-CTR" data-filename-main="{{ cir_all.0 }}" data-filename-detail="{{ cir_all.1 }}">CIR - CTR</option>
+                                                    <option value="CIR-DR" data-filename-main="{{ cir_all.0 }}" data-filename-detail="{{ cir_all.1 }}">CIR - DR</option>
+                                                    <option value="CIR-INCS" data-filename-main="{{ cir_all.0 }}" data-filename-detail="{{ cir_all.1 }}">CIR - INCS</option>
+                                                    <option value="CIR-REIM" data-filename-main="{{ cir_all.0 }}" data-filename-detail="{{ cir_all.1 }}">CIR - REIM</option>
+                                                    <option value="CIR-RS" data-filename-main="{{ cir_all.0 }}" data-filename-detail="{{ cir_all.1 }}">CIR - RS</option>
+                                                </optgroup>
                                                 <optgroup label="Subscription">
                                                     <option value="SUB-REG" data-filename-main="{{ sub_regular.0 }}" data-filename-detail="{{ sub_regular.1 }}">SUB - Regular</option>
                                                     <option value="SUB-COM" data-filename-main="{{ sub_complimentary.0 }}" data-filename-detail="{{ sub_complimentary.1 }}">SUB - Complimentary</option>
@@ -272,9 +279,14 @@
         });
 
         $('#upload_type').on('change', function(){
+            def_filetype = '.txt'
+            if($(this.options[this.selectedIndex]).closest('optgroup').prop('label') == 'Circulation'){
+                def_filetype = '.dbf'
+            }
+
             if($(this).val() != ''){
-                $('#main_filename').text($(this).find('option:selected').data('filename-main') + '.txt');
-                $('#detail_filename').text($(this).find('option:selected').data('filename-detail') + '.txt');
+                $('#main_filename').text($(this).find('option:selected').data('filename-main') + def_filetype);
+                $('#detail_filename').text($(this).find('option:selected').data('filename-detail') + def_filetype);
             }
             else {
                 $('#main_filename').text('N/A');

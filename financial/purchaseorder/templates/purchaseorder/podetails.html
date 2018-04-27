@@ -126,14 +126,14 @@
         unitofmeasure_list += "</select>";
 
         //branch list
-        branch_list = "<select name='temp_branch' form='form-b' id='id_temp_branch' class='form-control input-sm tblSelectBranch' required style='width: 100%'>";
+        branch_list = "<select name='temp_branch' form='form-b' id='id_temp_branch' class='form-control input-sm tblSelectBranch' style='width: 100%'><option value=''>-- Select --</option>";
         {% for data in branch %}
             branch_list += "<option value='{{ data.id }}'>{{ data.description }}</option>";
         {% endfor %}
         branch_list += "</select>";
 
         //department list
-        department_list = "<select name='temp_department' form='form-b' id='id_temp_department' class='form-control input-sm tblSelectDepartment' required style='width: 100%'>";
+        department_list = "<select name='temp_department' form='form-b' id='id_temp_department' class='form-control input-sm tblSelectDepartment' style='width: 100%'><option value=''>-- Select --</option>";
         {% for data in department %}
             department_list += "<option value='{{ data.id }}'>{{ data.code }} | {{ data.departmentname }}</option>";
         {% endfor %}
@@ -149,8 +149,6 @@
         filterDiscount();
         filterExtraFields();
         computeTotalAmounts();
-
-        $('#id_branch').val(5).trigger('change');
 
         $('#id_item_name').select2().on("change", function(e) {
             dataSelected = $('#id_item_name').select2('data')[0];
@@ -191,6 +189,15 @@
             else if($('#id_vat').val() == ''){
                 alert("Please select VAT first.");
             }
+            else if($('#id_item_name').val() == null){
+                alert("Please select an item first.");
+            }
+            else if($('#id_qty').val() == ''){
+                alert("Please supply quantity first.");
+            }
+            else if($('#id_unitcost').val() == ''){
+                alert("Please supply cost first.");
+            }
             else {
                 $('.shade').fadeIn();
 
@@ -207,9 +214,11 @@
                         parseFloat($.trim($("#id_discountrate").val()));
                 var discountAmount = $("#id_discountamount").val().replace( /,/g, "") == "" ? 0 :
                         parseFloat($("#id_discountamount").val().replace( /,/g, ""));
+                var withholdingTaxRate = $('#id_atc option:selected').data('rate') == null ? 0 :
+                        parseFloat($('#id_atc option:selected').data('rate')) / 100;
 
                 var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate,
-                        discountAmount);
+                        discountAmount, withholdingTaxRate);
 
                 $.ajax({
                     url: "{% url 'purchaseorder:savedetailtemp' %}",
@@ -238,7 +247,10 @@
                         'id_vatzerorated': computedValues.vatZeroRated,
                         'id_assetnum': $('#id_assetnum').val(),
                         'id_expirationdate': $('#id_expirationdate').val(),
-                        'id_serialnum': $('#id_serialnum').val()
+                        'id_serialnum': $('#id_serialnum').val(),
+                        'id_atc': $("#id_atc").val(),
+                        'id_atcrate': withholdingTaxRate * 100,
+                        'id_atcamount': computedValues.withholdingTaxAmount
                     },
                     success: function(response) {
                         $("#itemno").text(parseInt($("#itemno").text()) + 1);
@@ -252,6 +264,11 @@
                                     "' data-itemid='" + $('#id_item_name').val() + "' data-podetailid='" + response.podetailid + "'>" +
                                         "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
                                     "</span> &nbsp;&nbsp;" + dataSelected.code +
+                                    "<input type='hidden' form='form-b' class='hdn_tblVatable' name='hdn_tblVatable' value='" + computedValues.vatable + "'>" +
+                                    "<input type='hidden' form='form-b' class='hdn_tblVatExempt' name='hdn_tblVatExempt' value='" + computedValues.vatExempt + "'>" +
+                                    "<input type='hidden' form='form-b' class='hdn_tblZeroRated' name='hdn_tblZeroRated' value='" + computedValues.vatZeroRated + "'>" +
+                                    "<input type='hidden' form='form-b' class='hdn_tblAddedVat' name='hdn_tblAddedVat' value='" + computedValues.addedVat + "'>" +
+                                    "<input type='hidden' form='form-b' class='hdn_tblWTax' name='hdn_tblWTax' value='" + computedValues.withholdingTaxAmount + "'>" +
                                 "</td>" +
                                 "<td class='tblItemName'>" + $("option:selected", $("#id_item_name")).text() + "</td>" +
                                 "<td class='tblRemarks'>" +
@@ -302,14 +319,17 @@
                                 "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                 "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                 "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
+                                "<td class='text-right tblTotalAmount'><strong><a href='#amountsModal' class='link_amount' data-toggle='modal' data-target='#amountsModal'>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</a></strong></td>" +
+                                "<td class='text-right tblWTax'>" + computedValues.withholdingTaxAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                             "</tr>");
 
                         initMaskMoney('po_dynamic');
 
                         summary.find("tr").last().find("#id_temp_item_um option[value=" + um_selected + "]").attr('selected','selected');
-                        summary.find("tr").last().find("#id_temp_branch option[value=" + $('#id_branch').val() + "]").attr('selected','selected');
-                        summary.find("tr").last().find("#id_temp_department option[value=" + $('#id_department').val() + "]").attr('selected','selected');
+                        if($('#id_branch').val())
+                            summary.find("tr").last().find("#id_temp_branch option[value=" + $('#id_branch').val() + "]").attr('selected','selected');
+                        if($('#id_department').val())
+                            summary.find("tr").last().find("#id_temp_department option[value=" + $('#id_department').val() + "]").attr('selected','selected');
                         summary.find("tr").last().find(".temp_discount_type option[value=" + discountType + "]")
                                 .attr('selected','selected');
 
@@ -327,7 +347,7 @@
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');
                         $("#id_unitcost").val('');
-                        $("#id_branch").val('5').trigger('change.select2');
+                        $("#id_branch").val('').trigger('change.select2');
                         $("#id_department").val('').trigger('change.select2');
                         $("#id_remarks").val('');
                         $("#id_discountrate").val('');
@@ -341,7 +361,6 @@
                         reorderItems();
                         warnUnitCost();
                         computeTotalAmounts();
-
                         $('.shade').fadeOut();
                     }
 
@@ -355,13 +374,14 @@
 
         });
 
-        $(document).on('change', '#id_vat, .tblInputUnitCost, .tblInputQuantity, .tblInputDiscountRate, .tblInputDiscountAmount', function(){
+        $(document).on('change', '#id_vat, .tblInputUnitCost, .tblInputQuantity, .tblInputDiscountRate, .tblInputDiscountAmount, #id_atc', function(){
             warnUnitCost();
             computeAllValues();
         });
 
         function computeAllValues(){
             var vat = parseFloat($('#id_vat option:selected').data('rate')) / 100;
+            var atc = $('#id_atc option:selected').data('rate') == null ? 0 : parseFloat($('#id_atc option:selected').data('rate')) / 100;
             var vatCode = $('#id_vat option:selected').data('code');
 
             $('.tblInputUnitCost').each(function(){
@@ -385,6 +405,7 @@
                 var temp_totalPurchase = 0;
                 var temp_addedVat = 0;
                 var temp_totalAmount = 0;
+                var temp_withholdingTaxAmount = 0;
 
                 temp_grossUnitCost = temp_unitCost / ( 1 + vat );
                 temp_grossAmount = temp_grossUnitCost * temp_qty;
@@ -395,6 +416,7 @@
                 temp_totalPurchase = temp_discountedAmount;
                 temp_addedVat = temp_totalPurchase * vat;
                 temp_totalAmount = temp_totalPurchase + temp_addedVat;
+                temp_withholdingTaxAmount = temp_vatable * atc;
 
                 $(this).parent().siblings('.tblGrossUnitCost').html(temp_grossUnitCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $(this).parent().siblings('.tblGrossAmount').html(temp_grossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
@@ -405,6 +427,7 @@
                 $(this).parent().siblings('.tblTotalPurchase').html(temp_totalPurchase.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $(this).parent().siblings('.tblAddedVat').html(temp_addedVat.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $(this).parent().siblings('.tblTotalAmount').html("<strong>" + temp_totalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong>");
+                $(this).parent().siblings('.tblWTax').html(temp_withholdingTaxAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
 
             computeTotalAmounts();
@@ -547,7 +570,8 @@
             $('.datepicker.week').datepicker('setStartDate', d);
         }
 
-        function computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount){
+        function computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount,
+                               withholdingTaxRate){
             var grossUnitCost = unitCost / ( 1 + vat );
             var grossAmount = grossUnitCost * qty;
             var discountAmt = discountType == "rate" ? grossAmount * discountRate / 100 : discountAmount;
@@ -561,11 +585,14 @@
             var addedVat = totalPurchase * vat;
             var totalAmount = totalPurchase + addedVat;
 
+            var withholdingTaxAmount = vatable * withholdingTaxRate;
+
             return {grossUnitCost: grossUnitCost.toFixed(2), grossAmount: grossAmount.toFixed(2),
                 discountAmt: discountAmt.toFixed(2), vatable: vatable.toFixed(2),
                 vatExempt: vatExempt.toFixed(2), vatZeroRated: vatZeroRated.toFixed(2),
                 totalPurchase: totalPurchase.toFixed(2), addedVat: addedVat.toFixed(2),
-                totalAmount: totalAmount.toFixed(2)};
+                totalAmount: totalAmount.toFixed(2),
+                withholdingTaxAmount: withholdingTaxAmount.toFixed(2)};
         }
 
         function computeTotalAmounts(){
@@ -578,6 +605,7 @@
             var totalTotalPurchase = 0;
             var totalAddVAT = 0;
             var totalTotalAmount = 0;
+            var totalWithholdingTaxAmount = 0;
 
             $('.tblInputQuantity').each(function(index) {
                 totalQuantity += parseFloat($(this).val());
@@ -589,6 +617,7 @@
                 totalTotalPurchase += parseFloat($(this).parent().siblings('.tblTotalPurchase').text().replace( /,/g, ""));
                 totalAddVAT += parseFloat($(this).parent().siblings('.tblAddedVat').text().replace( /,/g, ""));
                 totalTotalAmount += parseFloat($(this).parent().siblings('.tblTotalAmount').text().replace( /,/g, ""));
+                totalWithholdingTaxAmount += parseFloat($(this).parent().siblings('.tblWTax').text().replace( /,/g, ""));
 
                 $('#lblQuantity').val(totalQuantity);
                 $('#lblGrossAmount').val(totalGrossAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
@@ -599,6 +628,10 @@
                 $('#lblTotalPurchase').val(totalTotalPurchase.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $('#lblAddVAT').val(totalAddVAT.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                 $('#lblTotalAmount').val(totalTotalAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                if(totalWithholdingTaxAmount > 0)
+                    $('#disp_note').html('Noted: ' + $('#id_atc option:selected').data('rate') + '% wtax -------> ' + totalWithholdingTaxAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                else
+                    $('#disp_note').html(' ');
             });
         }
 
@@ -758,7 +791,9 @@
                                 var discountType = "rate";
                                 var discountRate = 0;
                                 var discountAmount = 0;
-                                var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount);
+                                var withholdingTaxRate = $('#id_atc option:selected').data('rate') == null ? 0 :
+                                    parseFloat($('#id_atc option:selected').data('rate')) / 100;
+                                var computedValues = computeValues(unitCost, vat, vatCode, qty, discountType, discountRate, discountAmount, withholdingTaxRate);
 
                                 $("#itemno").text(parseInt($("#itemno").text()) + 1);
 
@@ -770,6 +805,11 @@
                                             response.podetail[i][13] + "' data-prfdetailid='" + response.podetail[i][14] + "'>" +
                                                 "<i class='icon fa-trash text-info' aria-hidden='true'></i>" +
                                             "</span> &nbsp;&nbsp;" + response.podetail[i][3] +
+                                            "<input type='hidden' form='form-b' class='hdn_tblVatable' name='hdn_tblVatable' value='" + computedValues.vatable + "'>" +
+                                            "<input type='hidden' form='form-b' class='hdn_tblVatExempt' name='hdn_tblVatExempt' value='" + computedValues.vatExempt + "'>" +
+                                            "<input type='hidden' form='form-b' class='hdn_tblZeroRated' name='hdn_tblZeroRated' value='" + computedValues.vatZeroRated + "'>" +
+                                            "<input type='hidden' form='form-b' class='hdn_tblAddedVat' name='hdn_tblAddedVat' value='" + computedValues.addedVat + "'>" +
+                                            "<input type='hidden' form='form-b' class='hdn_tblWTax' name='hdn_tblWTax' value='" + computedValues.withholdingTaxAmount + "'>" +
                                         "</td>" +
                                         "<td class='tblItemName'>" + response.podetail[i][4] + "</td>" +
                                         "<td class='tblRemarks'>" +
@@ -820,7 +860,8 @@
                                         "<td class='text-right tblZeroRated'>" + computedValues.vatZeroRated.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "<td class='text-right tblTotalPurchase'>" + computedValues.totalPurchase.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "<td class='text-right tblAddedVat'>" + computedValues.addedVat.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
-                                        "<td class='text-right tblTotalAmount'><strong>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</strong></td>" +
+                                        "<td class='text-right tblTotalAmount'><strong><a href='#amountsModal' class='link_amount' data-toggle='modal' data-target='#amountsModal'>" + computedValues.totalAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</a></strong></td>" +
+                                        "<td class='text-right tblWTax'>" + computedValues.withholdingTaxAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "</td>" +
                                         "</tr>");
 
                                 initMaskMoney('po_dynamic');
@@ -860,7 +901,7 @@
                         $("#id_item_name").val('').trigger('change.select2');
                         $("#id_qty").val('');
                         $("#id_unitcost").val('');
-                        $("#id_branch").val('5').trigger('change.select2');
+                        $("#id_branch").val('').trigger('change.select2');
                         $("#id_department").val('').trigger('change.select2');
                         $("#id_remarks").val('');
                         $("#id_discountrate").val('');
@@ -923,6 +964,69 @@
                     $(this).parent().parent().addClass('danger');
                 }
             });
+        }
+
+        $(document).on('click', '.link_amount', function () {
+            var mainParent = $(this).parent().parent().parent();
+            $('#modal_vatable').val(mainParent.find('.tblVatable').html());
+            $('#modal_vatexempt').val(mainParent.find('.tblVatExempt').html());
+            $('#modal_vatzerorated').val(mainParent.find('.tblZeroRated').html());
+            $('#modal_vatamount').val(mainParent.find('.tblAddedVat').html());
+            $('#modal_withholdingtax').val(mainParent.find('.tblWTax').html());
+            $('#original_total').text($(this).text());
+            $('#total_warning').hide();
+            $('#amountsconfirm').prop('disabled', false);
+            $('#item_index').val($(this).index('.link_amount'));
+            getModalTotal();
+        });
+
+        $('#modal_vatable, #modal_vatexempt, #modal_vatzerorated, #modal_vatamount').on('keyup', function () {
+            getModalTotal();
+            if($('#modal_totalamount').text() != $('#original_total').text()){
+                $('#total_warning').show();
+                $('#amountsconfirm').prop('disabled', true);
+            }
+            else {
+                $('#total_warning').hide();
+                $('#amountsconfirm').prop('disabled', false);
+            }
+        });
+
+        $('#amountsconfirm').on('click', function () {
+            var mainParent = $('.link_amount').eq($('#item_index').val()).parent().parent().parent();
+            mainParent.find('.tblVatable').html($('#modal_vatable').val());
+            mainParent.find('.tblVatExempt').html($('#modal_vatexempt').val());
+            mainParent.find('.tblZeroRated').html($('#modal_vatzerorated').val());
+            mainParent.find('.tblAddedVat').html($('#modal_vatamount').val());
+            mainParent.find('.tblWTax').html($('#modal_withholdingtax').val());
+
+            var vatable = $('#modal_vatable').val() == '' ? 0 : parseFloat($('#modal_vatable').val().replace( /,/g, ''));
+            var vatexempt = $('#modal_vatexempt').val() == '' ? 0 : parseFloat($('#modal_vatexempt').val().replace( /,/g, ''));
+            var vatzerorated = $('#modal_vatzerorated').val() == '' ? 0 : parseFloat($('#modal_vatzerorated').val().replace( /,/g, ''));
+            var totalpurchase = vatable + vatexempt + vatzerorated;
+
+            mainParent.find('.tblTotalPurchase').html(parseFloat(totalpurchase).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+
+            mainParent.find('.hdn_tblVatable').val(parseFloat($('#modal_vatable').val().replace( /,/g, '')));
+            mainParent.find('.hdn_tblVatExempt').val(parseFloat($('#modal_vatexempt').val().replace( /,/g, '')));
+            mainParent.find('.hdn_tblZeroRated').val(parseFloat($('#modal_vatzerorated').val().replace( /,/g, '')));
+            mainParent.find('.hdn_tblAddedVat').val(parseFloat($('#modal_vatamount').val().replace( /,/g, '')));
+            mainParent.find('.hdn_tblWTax').val(parseFloat($('#modal_withholdingtax').val().replace( /,/g, '')));
+
+            reorderItems();
+            warnUnitCost();
+            computeTotalAmounts();
+        });
+
+        function getModalTotal() {
+            var vatable = $('#modal_vatable').val() == '' ? 0 : parseFloat($('#modal_vatable').val().replace( /,/g, ''));
+            var vatexempt = $('#modal_vatexempt').val() == '' ? 0 : parseFloat($('#modal_vatexempt').val().replace( /,/g, ''));
+            var vatzerorated = $('#modal_vatzerorated').val() == '' ? 0 : parseFloat($('#modal_vatzerorated').val().replace( /,/g, ''));
+            var vatamount = $('#modal_vatamount').val() == '' ? 0 : parseFloat($('#modal_vatamount').val().replace( /,/g, ''));
+
+            var total = vatable + vatexempt + vatzerorated + vatamount;
+
+            $('#modal_totalamount').text(parseFloat(total).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
         }
 
         ajaxselect2("inventoryitem", "id_item_name");

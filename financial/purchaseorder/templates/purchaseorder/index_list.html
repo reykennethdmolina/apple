@@ -9,6 +9,7 @@
                 <th><span>Date</span></th>
                 <th><span>Particulars</span></th>
                 <th><span>Approver</span></th>
+                <th><span>Created by</span></th>
                 <th><span>Status</span></th>
                 <th class="text-center" style="width: 150px"><span>Action</span></th>
             </tr>
@@ -21,6 +22,7 @@
                 <td>{{ data.podate }}</td>
                 <td>{{ data.particulars }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
+                <td>{{ data.enterby }}</td>
                 <td>{{ data.get_postatus_display }}</td>
                 <td style="width: 150px; padding-left: 30px">
                     <div class="iconlist-wrap auto-0">

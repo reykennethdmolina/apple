@@ -35,9 +35,10 @@ class Pomain(models.Model):
     apnum = models.CharField(max_length=150, null=True, blank=True)
     apdate = models.DateField(null=True, blank=True)
     inputvat = models.ForeignKey('inputvat.Inputvat', related_name='pomain_inputvat_id', null=True, blank=True)
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='pomain_creditterm_id')
+    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='pomain_creditterm_id', null=True, blank=True)
     atc = models.ForeignKey('ataxcode.Ataxcode', related_name='pomain_atc_id', validators=[MinValueValidator(1)])
     atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    atcamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     vat = models.ForeignKey('vat.Vat', related_name='pomain_vat_id', validators=[MinValueValidator(1)])
     vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='pomain_inputvattype_id')
@@ -161,7 +162,7 @@ class Podetail(models.Model):
     quantity = models.IntegerField(default=0)
     unitcost = models.FloatField(default=0.00)
     currency = models.ForeignKey('currency.Currency', related_name='podetail_currency')
-    branch = models.ForeignKey('branch.Branch', related_name='podetail_branch_id')
+    branch = models.ForeignKey('branch.Branch', related_name='podetail_branch_id', null=True, blank=True)
     department = models.ForeignKey('department.Department', related_name='podetail_department_id', blank=True,
                                    null=True)
     department_code = models.CharField(max_length=10)
@@ -183,6 +184,11 @@ class Podetail(models.Model):
     assetnum = models.CharField(max_length=250, blank=True, null=True)
     serialnum = models.CharField(max_length=250, blank=True, null=True)
     expirationdate = models.DateTimeField(null=True, blank=True)
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='podetail_atc_id', validators=[MinValueValidator(1)],
+                            null=True, blank=True)
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    atcamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
@@ -203,7 +209,7 @@ class Podetail(models.Model):
     prfmain = models.ForeignKey('purchaserequisitionform.Prfmain', related_name='prfmain_podetail', null=True,
                                 blank=True)
     prfdetail = models.ForeignKey('purchaserequisitionform.Prfdetail', related_name='prfdetail_podetail', null=True,
-                              blank=True)
+                                  blank=True)
 
     # additional columns for PO-APV transactions
     isfullyapv = models.IntegerField(default=0)
@@ -239,7 +245,7 @@ class Podetailtemp(models.Model):
     quantity = models.IntegerField(default=0)
     unitcost = models.FloatField(default=0.00)
     currency = models.ForeignKey('currency.Currency', related_name='podetailtemp_currency')
-    branch = models.ForeignKey('branch.Branch', related_name='podetailtemp_branch_id')
+    branch = models.ForeignKey('branch.Branch', related_name='podetailtemp_branch_id', null=True, blank=True)
     department = models.ForeignKey('department.Department', related_name='podetailtemp_department_id', blank=True,
                                    null=True)
     department_code = models.CharField(max_length=10)
@@ -261,6 +267,11 @@ class Podetailtemp(models.Model):
     assetnum = models.CharField(max_length=250, blank=True, null=True)
     serialnum = models.CharField(max_length=250, blank=True, null=True)
     expirationdate = models.DateTimeField(null=True, blank=True)
+    atc = models.ForeignKey('ataxcode.Ataxcode', related_name='podetailtemp_atc_id', validators=[MinValueValidator(1)],
+                            null=True, blank=True)
+    atcrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
+    atcamount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
+
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),

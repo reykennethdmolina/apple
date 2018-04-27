@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from chartofaccountmaingroup.models import ChartofAccountMainGroup
 from chartofaccountsubgroup.models import ChartofAccountSubGroup
 from . models import MainGroupSubgroup
+from django.core import serializers
 
 
 @method_decorator(login_required, name='dispatch')
@@ -53,4 +54,29 @@ def savesubgroups(request):
             'status': 'error',
         }
 
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def getsubgroups(request):
+    if request.method == 'POST':
+        maingroup = request.POST['maingroup']
+        subgroup = MainGroupSubgroup.objects.filter(main=maingroup, isdeleted=0, sub__isdeleted=0)
+
+        subgroup_list = []
+
+        for data in subgroup:
+            subgroup_list.append([data.sub.pk,
+                                  data.sub.code,
+                                  data.sub.description,
+                                  ])
+
+        data = {
+            'status': 'success',
+            'subgroup': subgroup_list,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
     return JsonResponse(data)

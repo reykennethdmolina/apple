@@ -174,12 +174,15 @@ class CreateView(CreateView):
                     detail.modifydate = dt.modifydate
                     detail.postdate = dt.postdate
                     detail.isdeleted = dt.isdeleted
-                    detail.branch = Branch.objects.get(pk=self.request.POST.getlist('temp_branch')[i - 1], isdeleted=0,
-                                                       status='A')
-                    detail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i - 1],
-                                                               isdeleted=0)
-                    detail.department_code = detail.department.code
-                    detail.department_name = detail.department.departmentname
+                    if self.request.POST.getlist('temp_branch')[i - 1]:
+                        detail.branch = Branch.objects.filter(pk=self.request.POST.getlist('temp_branch')[i - 1],
+                                                              isdeleted=0, status='A').first()
+                    if self.request.POST.getlist('temp_department')[i - 1]:
+                        detail.department = Department.objects.filter(pk=self.request.POST.
+                                                                      getlist('temp_department')[i - 1], isdeleted=0).\
+                            first()
+                        detail.department_code = detail.department.code
+                        detail.department_name = detail.department.departmentname
                     detail.enterby = dt.enterby
                     detail.modifyby = dt.modifyby
                     detail.postby = dt.postby
@@ -191,22 +194,38 @@ class CreateView(CreateView):
                     detail.grossamount = grossUnitCost * float(detail.quantity)
                     detail.discountamount = detail.grossamount * float(detail.discountrate) / 100 if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(self.request.POST.getlist('temp_discountamount')[i - 1])
                     discountedAmount = detail.grossamount - detail.discountamount
-                    detail.vatamount = discountedAmount * (float(detail.vatrate) / 100)
-                    detail.netamount = discountedAmount + detail.vatamount
-                    detail.apvremainingamount = detail.netamount
 
-                    if detail.vatrate > 0:
-                        detail.vatable = discountedAmount
-                        detail.vatexempt = 0
-                        detail.vatzerorated = 0
-                    elif detail.vat.code == "VE":
-                        detail.vatable = 0
-                        detail.vatexempt = discountedAmount
-                        detail.vatzerorated = 0
-                    elif detail.vat.code == "ZE":
-                        detail.vatable = 0
-                        detail.vatexempt = 0
-                        detail.vatzerorated = discountedAmount
+                    # replaced the computed values with values provided by user on screens
+
+                    # detail.vatamount = discountedAmount * (float(detail.vatrate) / 100)
+                    # detail.netamount = discountedAmount + detail.vatamount
+                    # detail.apvremainingamount = detail.netamount
+                    #
+                    # if detail.vatrate > 0:
+                    #     detail.vatable = discountedAmount
+                    #     detail.vatexempt = 0
+                    #     detail.vatzerorated = 0
+                    # elif detail.vat.code == "VE":
+                    #     detail.vatable = 0
+                    #     detail.vatexempt = discountedAmount
+                    #     detail.vatzerorated = 0
+                    # elif detail.vat.code == "ZE":
+                    #     detail.vatable = 0
+                    #     detail.vatexempt = 0
+                    #     detail.vatzerorated = discountedAmount
+
+                    detail.vatable = self.request.POST.getlist('hdn_tblVatable')[i - 1]
+                    detail.vatexempt = self.request.POST.getlist('hdn_tblVatExempt')[i - 1]
+                    detail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
+                    detail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
+                    detail.netamount = float(detail.vatable) + float(detail.vatexempt) + float(detail.vatzerorated) + float(detail.vatamount)
+
+                    # replaced the computed values with values provided by user on screens
+
+                    if self.request.POST['atc']:
+                        detail.atc = Ataxcode.objects.get(pk=self.request.POST['atc'], isdeleted=0, status='A')
+                        detail.atcrate = detail.atc.rate
+                        detail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
 
                     if 'temp_expirationdate' in self.request.POST:
                         if self.request.POST.getlist('temp_expirationdate')[i - 1] != '':
@@ -261,7 +280,8 @@ class CreateView(CreateView):
                                                                                         Sum('vatexempt'),
                                                                                         Sum('vatzerorated'),
                                                                                         Sum('unitcost'),
-                                                                                        Sum('quantity'))
+                                                                                        Sum('quantity'),
+                                                                                        Sum('atcamount'))
 
             Pomain.objects.filter(ponum=ponum, isdeleted=0, status='A').\
                 update(discountamount=po_main_aggregates['discountamount__sum'],
@@ -271,6 +291,7 @@ class CreateView(CreateView):
                        vatzerorated=po_main_aggregates['vatzerorated__sum'],
                        totalamount=pomain_totalamount,
                        totalquantity=po_main_aggregates['quantity__sum'],
+                       atcamount=po_main_aggregates['atcamount__sum'],
                        totalremainingamount=pomain_totalamount)
             # END: update total fields in po main
 
@@ -391,6 +412,9 @@ class UpdateView(UpdateView):
                 detailtemp.prfdetail = d.prfdetail
                 detailtemp.prfmain = d.prfmain
                 detailtemp.inputvattype = d.inputvattype
+                detailtemp.atc = d.atc
+                detailtemp.atcrate = d.atcrate
+                detailtemp.atcamount = d.atcamount
                 detailtemp.save()
             podetailtemp = Podetailtemp.objects.filter(isdeleted=0, pomain=self.object.pk).order_by('item_counter')
         else:
@@ -480,12 +504,15 @@ class UpdateView(UpdateView):
                 alldetail.modifydate = atd.modifydate
                 alldetail.postdate = atd.postdate
                 alldetail.isdeleted = atd.isdeleted
-                alldetail.branch = Branch.objects.get(pk=self.request.POST.getlist('temp_branch')[i - 1], isdeleted=0,
-                                                      status='A')
-                alldetail.department = Department.objects.get(pk=self.request.POST.getlist('temp_department')[i - 1],
-                                                              isdeleted=0)
-                alldetail.department_code = alldetail.department.code
-                alldetail.department_name = alldetail.department.departmentname
+                if self.request.POST.getlist('temp_branch')[i - 1]:
+                    alldetail.branch = Branch.objects.filter(pk=self.request.POST.getlist('temp_branch')[i - 1],
+                                                             isdeleted=0, status='A').first()
+                if self.request.POST.getlist('temp_department')[i - 1]:
+                    alldetail.department = Department.objects.filter(pk=self.request.POST.
+                                                                     getlist('temp_department')[i - 1], isdeleted=0).\
+                        first()
+                    alldetail.department_code = alldetail.department.code
+                    alldetail.department_name = alldetail.department.departmentname
                 alldetail.enterby = atd.enterby
                 alldetail.modifyby = atd.modifyby
                 alldetail.postby = atd.postby
@@ -495,27 +522,48 @@ class UpdateView(UpdateView):
                 alldetail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.getlist('temp_item_um')[i - 1],
                                                                     isdeleted=0, status='A')
 
-                grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
-                alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
-                alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
-                    self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
-                    self.request.POST.getlist('temp_discountamount')[i - 1])
-                discountedAmount = alldetail.grossamount - alldetail.discountamount
-                alldetail.vatamount = discountedAmount * (float(alldetail.vatrate) / 100)
-                alldetail.netamount = discountedAmount + alldetail.vatamount
+                # replaced the computed values with values provided by user on screens
 
-                if alldetail.vatrate > 0:
-                    alldetail.vatable = discountedAmount
-                    alldetail.vatexempt = 0
-                    alldetail.vatzerorated = 0
-                elif alldetail.vat.code == "VE":
-                    alldetail.vatable = 0
-                    alldetail.vatexempt = discountedAmount
-                    alldetail.vatzerorated = 0
-                elif alldetail.vat.code == "ZE":
-                    alldetail.vatable = 0
-                    alldetail.vatexempt = 0
-                    alldetail.vatzerorated = discountedAmount
+                alldetail.vatable = self.request.POST.getlist('hdn_tblVatable')[i - 1]
+                alldetail.vatexempt = self.request.POST.getlist('hdn_tblVatExempt')[i - 1]
+                alldetail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
+                alldetail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
+                alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + \
+                                      float(alldetail.vatzerorated) + float(alldetail.vatamount)
+
+                if self.request.POST['atc']:
+                    alldetail.atc = Ataxcode.objects.get(pk=self.request.POST['atc'], isdeleted=0, status='A')
+                    alldetail.atcrate = alldetail.atc.rate
+                    alldetail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
+
+                # grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
+                # alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
+                # alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
+                #     self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
+                #     self.request.POST.getlist('temp_discountamount')[i - 1])
+                # discountedAmount = alldetail.grossamount - alldetail.discountamount
+                # alldetail.vatamount = discountedAmount * (float(alldetail.vatrate) / 100)
+                # alldetail.netamount = discountedAmount + alldetail.vatamount
+                #
+                # if alldetail.vatrate > 0:
+                #     alldetail.vatable = discountedAmount
+                #     alldetail.vatexempt = 0
+                #     alldetail.vatzerorated = 0
+                # elif alldetail.vat.code == "VE":
+                #     alldetail.vatable = 0
+                #     alldetail.vatexempt = discountedAmount
+                #     alldetail.vatzerorated = 0
+                # elif alldetail.vat.code == "ZE":
+                #     alldetail.vatable = 0
+                #     alldetail.vatexempt = 0
+                #     alldetail.vatzerorated = discountedAmount
+                #
+                # if self.request.POST['atc']:
+                #     alldetail.atc = Ataxcode.objects.get(pk=self.request.POST['atc'], isdeleted=0, status='A')
+                #     alldetail.atcrate = alldetail.atc.rate
+                #     alldetail.atcamount = alldetail.vatable * (float(alldetail.atcrate) / 100)
+
+                # replaced the computed values with values provided by user on screens
 
                 if 'temp_expirationdate' in self.request.POST:
                     if self.request.POST.getlist('temp_expirationdate')[i - 1] != '':
@@ -589,7 +637,8 @@ class UpdateView(UpdateView):
                                                                                           Sum('vatexempt'),
                                                                                           Sum('vatzerorated'),
                                                                                           Sum('unitcost'),
-                                                                                          Sum('quantity'))
+                                                                                          Sum('quantity'),
+                                                                                          Sum('atcamount'))
 
             Pomain.objects.filter(pk=self.object.pk, isdeleted=0, status='A'). \
                 update(discountamount=po_main_aggregates['discountamount__sum'],
@@ -598,7 +647,8 @@ class UpdateView(UpdateView):
                        vatamount=po_main_aggregates['vatamount__sum'], vatexempt=po_main_aggregates['vatexempt__sum'],
                        vatzerorated=po_main_aggregates['vatzerorated__sum'],
                        totalamount=pomain_totalamount,
-                       totalquantity=po_main_aggregates['quantity__sum'])
+                       totalquantity=po_main_aggregates['quantity__sum'],
+                       atcamount=po_main_aggregates['atcamount__sum'])
             # END: update total fields in po main
 
             # START: update po data
@@ -784,9 +834,11 @@ def savedetailtemp(request):
     if request.method == 'POST':
         detailtemp = Podetailtemp()
         detailtemp.item_counter = request.POST['itemno']
-        detailtemp.branch = Branch.objects.filter(pk=request.POST['id_branch']).first()
+        if request.POST['id_branch']:
+            detailtemp.branch = Branch.objects.get(pk=request.POST['id_branch'])
+        if request.POST['id_department']:
+            detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
         detailtemp.currency = Currency.objects.get(pk=request.POST['id_currency'])
-        detailtemp.department = Department.objects.get(pk=request.POST['id_department'])
         if request.POST['id_employee']:
             detailtemp.employee = Employee.objects.get(pk=request.POST['id_employee'])
             detailtemp.employee_code = Employee.objects.get(pk=request.POST['id_employee']).code
@@ -820,9 +872,14 @@ def savedetailtemp(request):
         if request.POST['id_expirationdate']:
             detailtemp.expirationdate = request.POST['id_expirationdate']
         detailtemp.serialnum = request.POST['id_serialnum']
-        detailtemp.department_code = Department.objects.get(pk=request.POST['id_department']).code
-        detailtemp.department_name = Department.objects.get(pk=request.POST['id_department']).departmentname
+        if request.POST['id_department']:
+            detailtemp.department_code = Department.objects.get(pk=request.POST['id_department']).code
+            detailtemp.department_name = Department.objects.get(pk=request.POST['id_department']).departmentname
         detailtemp.inputvattype = detailtemp.invitem.inventoryitemclass.inventoryitemtype.inputvattype
+        if request.POST['id_atc']:
+            detailtemp.atc = Ataxcode.objects.get(pk=request.POST['id_atc'])
+            detailtemp.atcrate = request.POST['id_atcrate']
+            detailtemp.atcamount = request.POST['id_atcamount']
         detailtemp.save()
 
         data = {
@@ -1348,7 +1405,7 @@ class Pdf(PDFTemplateView):
         context['detail_total_netamount'] = po_detail_aggregates['netamount__sum']
 
         context['pagesize'] = 'Letter'
-        context['orientation'] = 'landscape'
+        context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
         printedpo = Pomain.objects.get(pk=self.kwargs['pk'], isdeleted=0, status='A')

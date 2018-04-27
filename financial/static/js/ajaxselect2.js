@@ -1,7 +1,7 @@
 /**
  * Created by kelvin on 6/28/2017.
  */
-function ajaxselect2(table, customid){
+function ajaxselect2(table, customid, subgroup){
 
     url = "/utils/ajaxselect/";
     toCall = customid != null ? $('#'+customid) : $('.ajaxselect2');
@@ -16,7 +16,8 @@ function ajaxselect2(table, customid){
                 return {
                     q: params.term,
                     page: params.page || 1,
-                    table: table
+                    table: table,
+                    subgroup: subgroup
                 };
             },
             processResults: function (data, params) {

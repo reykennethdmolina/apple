@@ -6,4 +6,5 @@ from . import views
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^savesubgroups/$', views.savesubgroups, name='savesubgroups'),
+    url(r'^getsubgroups/$', views.getsubgroups, name='getsubgroups'),
 ]
