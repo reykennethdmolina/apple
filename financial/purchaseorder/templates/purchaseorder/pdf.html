@@ -72,7 +72,7 @@
                 <p class="title center"><br>PURCHASE ORDER</p>
             </td>
             <td>
-                <p class="number right">PO No. {{ pomain.ponum }}</p>
+                <p class="number right">PO No. {{ pomain.ponum }}<br>PO Date: {{ pomain.podate|date:'m/d/Y' }}</p>
             </td>
         </tr>
     </table>
@@ -84,7 +84,7 @@
             <td colspan="6" style="border-right: 2px solid black;"></td>
         </tr>
         <tr style="padding: 5px; padding-bottom: 0px;">
-            <td width="15%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
+            <td width="22%" style="border-left: 2px solid black;"><b>Prepared by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">
@@ -95,7 +95,7 @@
                 </div>
                 <i>Signature over printed name</i>
             </td>
-            <td width="15%"><b>Approved by</b></td>
+            <td width="22%"><b>Approved by</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
@@ -109,12 +109,12 @@
             </td>
         </tr>
         <tr style="border-bottom: 2px solid black; padding: 5px; padding-top: 3px; padding-bottom: 2px;">
-            <td width="15%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
+            <td width="22%" style="border-left: 2px solid black;"><b>Date prepared</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">{{ pomain.enterdate|date:'Y-m-d' }}</div>
             </td>
-            <td width="15%"><b>Date approved</b></td>
+            <td width="22%"><b>Date approved</b></td>
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
@@ -172,115 +172,109 @@
             <br>
             <table>
                 <tr>
-                    <td width="15%" style="vertical-align: top"><b>PO Date</b></td>
+                    <td width="17%" style="vertical-align: top"><b>PO&nbsp;Date</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top; padding-right: 20px;">{{ pomain.podate|date:'Y-m-d' }}</td>
-                    <td width="15%" style="vertical-align: top"><b>PO Type</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.get_potype_display }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Ref. No.</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.refnum }}</td>
-                </tr>
-                <tr>
                     <td width="15%" style="vertical-align: top"><b>Urgency</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top; padding-right: 20px;">{{ pomain.get_urgencytype_display }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Date&nbsp;Needed</b></td>
+                    <td width="40%" style="vertical-align: top"><b>VATable&nbsp;Purchase</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.dateneeded|date:'Y-m-d' }}</td>
-                    <td width="15%" style="vertical-align: top"><b>PO Status</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.get_postatus_display }}</td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ pomain.vatable|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="15%" style="vertical-align: top"><b>Supplier</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top; padding-right: 20px;">[{{ pomain.supplier_code }}]&nbsp;{{ pomain.supplier_name }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Credit&nbsp;Terms</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.creditterm.description }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Input&nbsp;VAT&nbsp;Type</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.inputvattype.description }}</td>
-                </tr>
-                <tr>
-                    <td width="15%" style="vertical-align: top"><b>VAT</b></td>
+                    <td width="17%" style="vertical-align: top"><b>VAT</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top; padding-right: 20px;">{{ pomain.vat.description }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Withholding&nbsp;Tax</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.wtax.description }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Deferred</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.get_deferredvat_display }}</td>
-                </tr>
-                <tr>
                     <td width="15%" style="vertical-align: top"><b>ATC</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top; padding-right: 20px;">[{{ pomain.atc.code }}]&nbsp;{{ pomain.atc.description }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Delivery&nbsp;Status</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">[{{ pomain.atc.code }}]&nbsp;{{ pomain.atc.rate }}%</td>
+                    <td width="40%" style="vertical-align: top"><b>VAT&nbsp;Exempt&nbsp;Purchase</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.get_deliverystatus_display|default:'N/A' }}</td>
-                    <td width="15%" style="vertical-align: top"><b>Delivery&nbsp;Date</b></td>
-                    <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ pomain.deliverydate|date:'Y-m-d'|default:'N/A' }}</td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ pomain.vatexempt|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="15%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="17%" style="vertical-align: top"><b>Type</b></td>
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top; padding-right: 20px;">{{ pomain.particulars }}</td>
+                    <td style="vertical-align: top">{{ pomain.inputvattype.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>PO&nbsp;Status</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ pomain.get_postatus_display }}</td>
+                    <td width="40%" style="vertical-align: top"><b>VAT&nbsp;Zero-Rated&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ pomain.vatzerorated|floatformat:2|intcomma }}</td>
+                </tr>
+                <tr>
+                    <td colspan="9">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td width="17%" style="vertical-align: top"><b>Supplier</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">[{{ pomain.supplier_code }}]&nbsp;{{ pomain.supplier_name }}</td>
+                    <td width="40%" style="vertical-align: top"><b>Total&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ detail_total_vatable|floatformat:2|intcomma }}</td>
+                </tr>
+                <tr>
+                    <td width="17%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">{{ pomain.particulars }}</td>
+                    <td width="40%" style="vertical-align: top"><b>Add&nbsp;VAT</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ pomain.vatamount|floatformat:2|intcomma }}</td>
+                </tr>
+                <tr>
+                    <td colspan="6">&nbsp;</td>
+                    <td width="40%" style="vertical-align: top"><b>Total&nbsp;Amount</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;"><b>{{ pomain.netamount|floatformat:2|intcomma }}</b></td>
+                </tr>
+                <tr>
+                    <td colspan="6">&nbsp;</td>
+                    <td width="40%" style="vertical-align: top"><b><small>Noted&nbsp;{{ pomain.atc.rate }}%&nbsp;wtax</small></b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;"><small>{{ pomain.atcamount|floatformat:2|intcomma }}</small></td>
                 </tr>
             </table>
         </td>
     </tr>
     <tr><td></td></tr>
 </table>
-
-
 <b>ITEMS</b>
-<table style="font-size: 10px;">
-    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;">
+<table>
+    <tr class="left" style="border-top: 2px solid black;border-bottom: 2px solid black;padding-top: 5px;font-size: 10px;">
         <td style="border-left: 2px solid black; padding-left: 5px;"></td>
         <td style="padding-left: 5px;"><b><i>Code</i></b></td>
         <td><b><i>Item Name</i></b></td>
-        <td style="text-align: center;"><b><i>Branch/<br>Dept.</i></b></td>
+        <td style="text-align: center;"><b><i>Dept. - Branch</i></b></td>
         <td style="text-align: right;"><b><i>Unit Cost</i></b></td>
         <td style="text-align: right;"><b><i>Qty</i></b></td>
-        <td style="text-align: right;"><b><i>Gross<br>Amount</i></b></td>
-        <td style="text-align: right;"><b><i>Discount</i></b></td>
-        <td style="text-align: right;"><b><i>VAT<br>Rate</i></b></td>
-        <td style="text-align: right;"><b><i>VATable/<br>VATExempt/<br>VATZero</i></b></td>
-        <td style="text-align: right;"><b><i>VAT<br>Amount</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Net<br>Amount</i></b></td>
+        <td style="text-align: right;"><b><i>VAT-Exclusive</i></b></td>
+        <td style="text-align: right;"><b><i>VAT Amount</i></b></td>
+        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;"><b><i>Total Amount</i></b></td>
     </tr>
     {% for data in detail %}
         <tr>
             <td width="2%" style="padding-top: 5px; padding-left: 5px;"><i>{{ forloop.counter }}</i></td>
-            <td width="8%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
-            <td width="15%" style="padding-top: 5px;">{{ data.invitem_name }} ({{ data.unitofmeasure.code }})</td>
-            <td width="6%" style="text-align: center; padding-top: 5px;">{{ data.branch.code }}<br>{{ data.department.code }}</td>
-            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.unitcost|floatformat:2|intcomma }}</td>
-            <td width="4%" style="text-align: right; padding-top: 5px;">{{ data.quantity }}</td>
-            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.grossamount|floatformat:2|intcomma }}</td>
-            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.discountamount|floatformat:2|intcomma }}{% if data.discountrate > 0 %}<br>({{ data.discountrate }}%){% endif %}</td>
-            <td width="5%" style="text-align: right; padding-top: 5px;">{{ data.vatrate }}%</td>
-            <td width="10%" style="text-align: right; padding-top: 5px;">{% if data.vatable > 0 %}{{ data.vatable|floatformat:2|intcomma }}{% elif data.vatexempt > 0 %}{{ data.vatexempt|floatformat:2|intcomma }}{% elif data.vatzerorated > 0 %}{{ data.vatzerorated|floatformat:2|intcomma }}{% endif %}</td>
-            <td width="10%" style="text-align: right; padding-top: 5px;">{{ data.vatamount|floatformat:2|intcomma }}</td>
-            <td width="10%" style="text-align: right; padding-top: 5px; padding-right: 5px;">{{ data.netamount|floatformat:2|intcomma }}</td>
+            <td width="12%" style="padding-top: 5px; padding-left: 5px;">{{ data.invitem_code }}</td>
+            <td width="22%" style="padding-top: 5px;">{{ data.invitem_name }} ({{ data.unitofmeasure.code }})</td>
+            <td width="10%" style="text-align: center; padding-top: 5px;">{{ data.department.code }}&nbsp;{{ data.branch.code }}</td>
+            <td width="12%" style="text-align: right; padding-top: 5px;">{{ data.unitcost|floatformat:2|intcomma }}</td>
+            <td width="5%" style="text-align: right; padding-top: 5px;">{{ data.quantity }}</td>
+            <td width="12%" style="text-align: right; padding-top: 5px;">{% if data.vatable > 0 %}{{ data.vatable|floatformat:2|intcomma }}{% elif data.vatexempt > 0 %}{{ data.vatexempt|floatformat:2|intcomma }}{% elif data.vatzerorated > 0 %}{{ data.vatzerorated|floatformat:2|intcomma }}{% endif %}</td>
+            <td width="12%" style="text-align: right; padding-top: 5px;">{{ data.vatamount|floatformat:2|intcomma }}</td>
+            <td width="13%" style="text-align: right; padding-top: 5px; padding-right: 5px;">{{ data.netamount|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
+        <tr><td colspan="9">&nbsp;</td></tr>
+        <tr><td colspan="9">&nbsp;</td></tr>
         <tr>
-        <td colspan="5" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
-        <td width="4%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
-        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_grossamount|floatformat:2|intcomma }}</b></td>
-        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_discountamount|floatformat:2|intcomma }}</b></td>
-        <td width="5%" style="text-align: right; padding-top: 5px;">&nbsp;</td>
-        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatable|floatformat:2|intcomma }}</b></td>
-        <td width="10%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatamount|floatformat:2|intcomma }}</b></td>
-        <td width="10%" style="text-align: right; padding-top: 5px; padding-right: 5px;"><b>{{ detail_total_netamount|floatformat:2|intcomma }}</b></td>
-    </tr>
+            <td colspan="5" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+            <td width="5%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
+            <td width="12%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatable|floatformat:2|intcomma }}</b></td>
+            <td width="12%" style="text-align: right; padding-top: 5px;"><b>{{ detail_total_vatamount|floatformat:2|intcomma }}</b></td>
+            <td width="13%" style="text-align: right; padding-top: 5px; padding-right: 5px;"><b>{{ detail_total_netamount|floatformat:2|intcomma }}</b></td>
+        </tr>
 </table>
-
 </body>
 </html>

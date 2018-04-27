@@ -522,6 +522,13 @@ class UpdateView(UpdateView):
                 alldetail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.getlist('temp_item_um')[i - 1],
                                                                     isdeleted=0, status='A')
 
+                grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
+                alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
+                alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
+                    self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
+                    self.request.POST.getlist('temp_discountamount')[i - 1])
+                discountedAmount = alldetail.grossamount - alldetail.discountamount
+
                 # replaced the computed values with values provided by user on screens
 
                 alldetail.vatable = self.request.POST.getlist('hdn_tblVatable')[i - 1]
@@ -536,12 +543,6 @@ class UpdateView(UpdateView):
                     alldetail.atcrate = alldetail.atc.rate
                     alldetail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
 
-                # grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
-                # alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
-                # alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
-                #     self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
-                #     self.request.POST.getlist('temp_discountamount')[i - 1])
-                # discountedAmount = alldetail.grossamount - alldetail.discountamount
                 # alldetail.vatamount = discountedAmount * (float(alldetail.vatrate) / 100)
                 # alldetail.netamount = discountedAmount + alldetail.vatamount
                 #

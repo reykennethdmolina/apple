@@ -402,10 +402,10 @@
                                                             {% if postatus != 'Approved' %}<i class="icon fa-trash text-info" aria-hidden="true"></i>{% endif %}
                                                         </span>&nbsp;&nbsp;{{ podetailtemp.invitem_code }}
                                                         <input type='hidden' form='form-b' class='hdn_tblVatable' name='hdn_tblVatable' value='{{ podetailtemp.vatable }}'>
-                                                        <input type='hidden' form='form-b' class='hdn_tblVatExempt' name='hdn_tblVatExempt' value='{{ podetailtemp.vatexempt|floatformat:2|intcomma }}'>
-                                                        <input type='hidden' form='form-b' class='hdn_tblZeroRated' name='hdn_tblZeroRated' value='{{ podetailtemp.vatzerorated|floatformat:2|intcomma }}'>
-                                                        <input type='hidden' form='form-b' class='hdn_tblAddedVat' name='hdn_tblAddedVat' value='{{ podetailtemp.vatamount|floatformat:2|intcomma }}'>
-                                                        <input type='hidden' form='form-b' class='hdn_tblWTax' name='hdn_tblWTax' value='{{ podetailtemp.atcamount|floatformat:2|intcomma }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblVatExempt' name='hdn_tblVatExempt' value='{{ podetailtemp.vatexempt }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblZeroRated' name='hdn_tblZeroRated' value='{{ podetailtemp.vatzerorated }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblAddedVat' name='hdn_tblAddedVat' value='{{ podetailtemp.vatamount }}'>
+                                                        <input type='hidden' form='form-b' class='hdn_tblWTax' name='hdn_tblWTax' value='{{ podetailtemp.atcamount }}'>
                                                     </td>
                                                     <td class="tblItemName">{{ podetailtemp.invitem_name }}</td>
                                                     <td class="tblRemarks">
