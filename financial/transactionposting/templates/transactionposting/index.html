@@ -7,23 +7,11 @@
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
     <style>
-{#        .iconlist {#}
-{#            text-align: left;#}
-{#            margin-left: 40px;#}
-{#            margin-right: 40px;#}
-{#        }#}
-        .btns-icon{
-            padding: 2px;
-            margin: auto;
-        }
         td{
             vertical-align: middle !important;
         }
         .checkbox label {
             padding-left: 5px;
-        }
-        .input-sm{
-            font-size: 13px !important;
         }
         .price-list{
             background-color: white;
@@ -124,14 +112,14 @@
                                 <div class="price-price teal-a400" id="formupload">
                                     <div class="col-md-6 select_holder" id="datefrom_holder">
                                         <label class="control-label small" for="id_datefrom">Date FROM:</label>
-                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom white" readonly="readonly"
+                                        <input type="text" class="form-control date-yyyymmdd dateinput datepickerfrom white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_datefrom" name="datefrom" placeholder="YYYY-MM-DD"
                                                value="{{ datefrom }}">
                                         <br><br>
                                     </div>
                                     <div class="col-md-6 select_holder" id="dateto_holder">
                                         <label class="control-label small" for="id_dateto">Date TO:</label>
-                                        <input type="text" class="form-control date-yyyymmdd datepickerto white" readonly="readonly"
+                                        <input type="text" class="form-control date-yyyymmdd dateinput datepickerto white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_dateto" name="dateto" placeholder="YYYY-MM-DD"
                                                value="{{ dateto }}">
                                         <br><br>
@@ -143,7 +131,7 @@
                                     <i class="icon fa-exchange font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     Verify
                                 </button>
-                                <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="or_upload_loading">
+                                <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="trans_verify_loading">
                                     <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     VERIFYING ...
                                 </button>
@@ -190,6 +178,9 @@
                                                             <p>
                                                                 Items checked: <span class="text-warning item_count">-</span><br>
                                                                 Elapsed: <span class="text-warning elapsed_count">-</span>
+                                                                <br><br>
+                                                                <span class="trans_message text-danger"></span>
+                                                                <span class="trans_message text-success"></span>
                                                             </p>
                                                         </div>
                                                     </div>
@@ -214,6 +205,9 @@
                                                             <p>
                                                                 Items checked: <span class="text-warning item_count">-</span><br>
                                                                 Elapsed: <span class="text-warning elapsed_count">-</span>
+                                                                <br><br>
+                                                                <span class="trans_message text-danger"></span>
+                                                                <span class="trans_message text-success"></span>
                                                             </p>
                                                         </div>
                                                     </div>
@@ -238,6 +232,9 @@
                                                             <p>
                                                                 Items checked: <span class="text-warning item_count">-</span><br>
                                                                 Elapsed: <span class="text-warning elapsed_count">-</span>
+                                                                <br><br>
+                                                                <span class="trans_message text-danger"></span>
+                                                                <span class="trans_message text-success"></span>
                                                             </p>
                                                         </div>
                                                     </div>
@@ -262,17 +259,27 @@
                                                             <p>
                                                                 Items checked: <span class="text-warning item_count">-</span><br>
                                                                 Elapsed: <span class="text-warning elapsed_count">-</span>
+                                                                <br><br>
+                                                                <span class="trans_message text-danger"></span>
+                                                                <span class="trans_message text-success"></span>
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <class class="col-md-12">
+                                                    <br><br>
+                                                    <div class="animatebar clearfix">
+                                                        <div class="animatebar-bar progress-bar-info"></div>
+                                                        <div class="animatebar-bar-percent"></div>
+                                                    </div>
+                                                </class>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="price-footer">
-                                <button type="button" class="btn btn-info waves-effect waves-light" id="trans_post">
+                                <button type="button" class="btn btn-info waves-effect waves-light" id="trans_post" disabled="disabled">
                                     <i class="icon fa-check-square-o font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     Post
                                 </button>
@@ -280,36 +287,6 @@
                                     <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     VERIFYING ...
                                 </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-</div>
-<br><br>
-<div id="trans_step_final">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="page-wrap">
-                    <div class="col-md-12">
-                        <div class="price-list margin-sm-0">
-                            <div class="price-header">
-                                <div class="price-title bg-teal-a400">STEP 3: POSTING RESULTS</div>
-                                <div class="price-price teal-a400" id="formupload">
-                                    <div class="col-md-12 ">
-                                        <br><br>
-                                        <div class="animatebar clearfix">
-                                            <div class="animatebar-bar progress-bar-info"></div>
-                                            <div class="animatebar-bar-percent"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="price-footer">
                             </div>
                         </div>
                     </div>
@@ -334,6 +311,12 @@
     <script>
     $(function () {
         $(document).on('click', '#trans_verify', function(){
+            $('html, body').animate({scrollTop: $('#trans_step_post').offset().top -80 }, 'slow');
+            $('#trans_verify').hide();
+            $('#trans_verify_loading').fadeIn();
+            $('.select_holder').hide();
+            $('#trans_post').attr('disabled', 'disabled');
+
             $('#trans_ap').find('.tr_transition').hide();
             $('#trans_ap').find('.tr_content').removeClass('gray-back').addClass('info-back');
             $('#trans_ap').find('.tr_load').show();
@@ -345,30 +328,18 @@
                 start_time: new Date().getTime(),
                 data: {
                     'csrfmiddlewaretoken': "{{csrf_token}}",
-                    'type': "ap"
+                    'type': "ap",
+                    'id_datefrom': $('#id_datefrom').val(),
+                    'id_dateto': $('#id_dateto').val()
                 },
                 success: function(response) {
                     //--------------- ACCOUNTS PAYABLE ---------------
-                    //--------------- ACCOUNTS PAYABLE ---------------
-                    //--------------- ACCOUNTS PAYABLE ---------------
                     reply = response.response;
                     item_count = response.item_count;
+                    message = response.message;
+                    ublist = response.ub_list;
 
-                    $('#trans_ap').find('.tr_transition').hide();
-
-                    if(reply == 'success'){
-                        var tr_content = $('#trans_ap').find('.tr_content').find('p');
-                        $('#trans_ap').find('.tr_success').show();
-                        tr_content.find('.item_count').html(item_count);
-                        tr_content.find('.elapsed_count').html(((new Date().getTime() - this.start_time) / 1000).toFixed(1) + " sec");
-                    }
-                    else{
-                        $('#trans_ap').find('.tr_failed').show();
-                        $('#trans_ap').find('.tr_content').removeClass('info-back').addClass('gray-back');
-                    }
-                    $('#trans_cv').find('.tr_transition').hide();
-                    $('#trans_cv').find('.tr_content').removeClass('gray-back').addClass('info-back');
-                    $('#trans_cv').find('.tr_load').show();
+                    posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, ublist);
 
                     $('#batchkey').val(response.batchkey);
 
@@ -380,29 +351,17 @@
                         data: {
                             'csrfmiddlewaretoken': "{{csrf_token}}",
                             'type': "cv",
-                            'batchkey': $('#batchkey').val()
+                            'batchkey': $('#batchkey').val(),
+                            'id_datefrom': $('#id_datefrom').val(),
+                            'id_dateto': $('#id_dateto').val()
                         },
                         success: function(response) {
                             //--------------- CHECK VOUCHER ---------------
-                            //--------------- CHECK VOUCHER ---------------
-                            //--------------- CHECK VOUCHER ---------------
                             reply = response.response;
                             item_count = response.item_count;
+                            message = response.message;
 
-                            $('#trans_cv').find('.tr_transition').hide();
-                            if(reply == 'success'){
-                                var tr_content = $('#trans_cv').find('.tr_content').find('p');
-                                $('#trans_cv').find('.tr_success').show();
-                                tr_content.find('.item_count').html(item_count);
-                                tr_content.find('.elapsed_count').html(((new Date().getTime() - this.start_time) / 1000).toFixed(1) + " sec");
-                            }
-                            else{
-                                $('#trans_cv').find('.tr_failed').show();
-                                $('#trans_cv').find('.tr_content').removeClass('info-back').addClass('gray-back');
-                            }
-                            $('#trans_jv').find('.tr_transition').hide();
-                            $('#trans_jv').find('.tr_content').removeClass('gray-back').addClass('info-back');
-                            $('#trans_jv').find('.tr_load').show();
+                            posttransition($('#trans_cv'), $('#trans_jv'), reply, item_count, message, this.start_time);
 
                             $.ajax({
                                 url: "{% url 'transactionposting:verifytransactions' %}",
@@ -412,29 +371,17 @@
                                 data: {
                                     'csrfmiddlewaretoken': "{{csrf_token}}",
                                     'type': "jv",
-                                    'batchkey': $('#batchkey').val()
+                                    'batchkey': $('#batchkey').val(),
+                                    'id_datefrom': $('#id_datefrom').val(),
+                                    'id_dateto': $('#id_dateto').val()
                                 },
                                 success: function(response) {
                                     //--------------- JOURNAL VOUCHER ---------------
-                                    //--------------- JOURNAL VOUCHER ---------------
-                                    //--------------- JOURNAL VOUCHER ---------------
                                     reply = response.response;
                                     item_count = response.item_count;
+                                    message = response.message;
 
-                                    $('#trans_jv').find('.tr_transition').hide();
-                                    if(reply == 'success'){
-                                        var tr_content = $('#trans_jv').find('.tr_content').find('p');
-                                        $('#trans_jv').find('.tr_success').show();
-                                        tr_content.find('.item_count').html(item_count);
-                                        tr_content.find('.elapsed_count').html(((new Date().getTime() - this.start_time) / 1000).toFixed(1) + " sec");
-                                    }
-                                    else{
-                                        $('#trans_jv').find('.tr_failed').show();
-                                        $('#trans_jv').find('.tr_content').removeClass('info-back').addClass('gray-back');
-                                    }
-                                    $('#trans_or').find('.tr_transition').hide();
-                                    $('#trans_or').find('.tr_content').removeClass('gray-back').addClass('info-back');
-                                    $('#trans_or').find('.tr_load').show();
+                                    posttransition($('#trans_jv'), $('#trans_or'), reply, item_count, message, this.start_time);
 
                                     $.ajax({
                                         url: "{% url 'transactionposting:verifytransactions' %}",
@@ -444,25 +391,23 @@
                                         data: {
                                             'csrfmiddlewaretoken': "{{csrf_token}}",
                                             'type': "or",
-                                            'batchkey': $('#batchkey').val()
+                                            'batchkey': $('#batchkey').val(),
+                                            'id_datefrom': $('#id_datefrom').val(),
+                                            'id_dateto': $('#id_dateto').val()
                                         },
                                         success: function(response) {
                                             //--------------- OFFICIAL RECEIPT ---------------
-                                            //--------------- OFFICIAL RECEIPT ---------------
-                                            //--------------- OFFICIAL RECEIPT ---------------
                                             reply = response.response;
                                             item_count = response.item_count;
+                                            message = response.message;
 
-                                            $('#trans_or').find('.tr_transition').hide();
-                                            if(reply == 'success'){
-                                                var tr_content = $('#trans_or').find('.tr_content').find('p');
-                                                $('#trans_or').find('.tr_success').show();
-                                                tr_content.find('.item_count').html(item_count);
-                                                tr_content.find('.elapsed_count').html(((new Date().getTime() - this.start_time) / 1000).toFixed(1) + " sec");
-                                            }
-                                            else{
-                                                $('#trans_or').find('.tr_failed').show();
-                                                $('#trans_or').find('.tr_content').removeClass('info-back').addClass('gray-back');
+                                            posttransition($('#trans_or'), '', reply, item_count, message, this.start_time);
+
+                                            $('#trans_verify_loading').hide();
+                                            $('#trans_verify').fadeIn();
+                                            $('.select_holder').fadeIn();
+                                            if($('.tr_success:visible').length == 4){
+                                                $('#trans_post').removeAttr('disabled');
                                             }
                                         }
                                     });
@@ -493,6 +438,54 @@
             posting(0);
         });
 
+        function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, ublist){
+
+            tr_content.find('.tr_transition').hide();
+
+            if(reply == 'success'){
+                tr_content.find('.tr_success').show();
+                tr_content.find('.item_count').html(item_count);
+                tr_content.find('.elapsed_count').html(((new Date().getTime() - elapsed) / 1000).toFixed(1) + " sec");
+                tr_content.find('.trans_message.text-success').html(message);
+                tr_content.find('.trans_message.text-danger').html('');
+            }
+            else{
+                tr_content.find('.tr_failed').show();
+                tr_content.find('.tr_content').removeClass('info-back').addClass('gray-back');
+                tr_content.find('.trans_message.text-danger').html(message);
+                tr_content.find('.trans_message.text-success').html('');
+
+                if(ublist != null){
+                    for(i=0;i<ublist.length;i++){
+                        console.log(ublist[i][1]);
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+{#                        you stopped here#}
+
+{#                        display unbalanced in index and apply it to other transactions#}
+                    }
+                }
+            }
+
+            if(tr_after != ''){
+                tr_after.find('.tr_transition').hide();
+                tr_after.find('.tr_content').removeClass('gray-back').addClass('info-back');
+                tr_after.find('.tr_load').show();
+            }
+        }
+
         function posting(sequence){
             $.ajax({
                 url: "{% url 'transactionposting:posttransactions' %}",
@@ -507,8 +500,6 @@
                 success: function(response) {
                     $('.animatebar-bar').css({'width': response.percentage + '%'});
                     $('.animatebar-bar-percent').html(response.percentage + '%');
-                    console.log(response.sequence)
-                    console.log(response.total)
                     if(response.sequence < response.total){
                         posting(response.sequence);
                     }
