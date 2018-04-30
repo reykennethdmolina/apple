@@ -298,6 +298,27 @@
 </div>
 <br><br><br>
 <input type="hidden" id="batchkey">
+<div id="ubModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-body small">
+                <table class="table" id="ub_trans">
+                    <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Date</th>
+                        <th style="text-align: right">Debit</th>
+                        <th style="text-align: right">Credit</th>
+                        <th style="text-align: right">Margin</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% endblock page-content %}
 {% block extra_js %}
@@ -338,8 +359,9 @@
                     item_count = response.item_count;
                     message = response.message;
                     ublist = response.ub_list;
+                    ubtype = response.ub_type;
 
-                    posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, ublist);
+                    posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, ublist, ubtype);
 
                     $('#batchkey').val(response.batchkey);
 
@@ -360,8 +382,10 @@
                             reply = response.response;
                             item_count = response.item_count;
                             message = response.message;
+                            ublist = response.ub_list;
+                            ubtype = response.ub_type;
 
-                            posttransition($('#trans_cv'), $('#trans_jv'), reply, item_count, message, this.start_time);
+                            posttransition($('#trans_cv'), $('#trans_jv'), reply, item_count, message, this.start_time, ublist, ubtype);
 
                             $.ajax({
                                 url: "{% url 'transactionposting:verifytransactions' %}",
@@ -380,8 +404,10 @@
                                     reply = response.response;
                                     item_count = response.item_count;
                                     message = response.message;
+                                    ublist = response.ub_list;
+                                    ubtype = response.ub_type;
 
-                                    posttransition($('#trans_jv'), $('#trans_or'), reply, item_count, message, this.start_time);
+                                    posttransition($('#trans_jv'), $('#trans_or'), reply, item_count, message, this.start_time, ublist, ubtype);
 
                                     $.ajax({
                                         url: "{% url 'transactionposting:verifytransactions' %}",
@@ -400,8 +426,10 @@
                                             reply = response.response;
                                             item_count = response.item_count;
                                             message = response.message;
+                                            ublist = response.ub_list;
+                                            ubtype = response.ub_type;
 
-                                            posttransition($('#trans_or'), '', reply, item_count, message, this.start_time);
+                                            posttransition($('#trans_or'), '', reply, item_count, message, this.start_time, ublist, ubtype);
 
                                             $('#trans_verify_loading').hide();
                                             $('#trans_verify').fadeIn();
@@ -415,21 +443,6 @@
                             });
                         }
                     });
-
-
-
-
-{#                        subgroup = response.subgroup;#}
-{#    #}
-{#                        $('#rep_f_subgroup').html('');#}
-{#                        for(i=0;i<subgroup.length;i++){#}
-{#                            $('#rep_f_subgroup').prepend("<option value='"+subgroup[i][0]+"' label='"+subgroup[i][1]+"'>"+subgroup[i][1]+" - "+subgroup[i][2]+"</option>")#}
-{#                        }#}
-{#                        $('#rep_f_subgroup').select2("destroy").select2({#}
-{#                            templateSelection: function(item) {#}
-{#                                return $(item.element).attr('label');#}
-{#                            }#}
-{#                        });#}
                 }
             });
         });
@@ -438,7 +451,7 @@
             posting(0);
         });
 
-        function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, ublist){
+        function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, ublist, ubtype){
 
             tr_content.find('.tr_transition').hide();
 
@@ -452,29 +465,20 @@
             else{
                 tr_content.find('.tr_failed').show();
                 tr_content.find('.tr_content').removeClass('info-back').addClass('gray-back');
-                tr_content.find('.trans_message.text-danger').html(message);
+                tr_content.find('.trans_message.text-danger').html("<a href='#_' data-toggle='modal' data-target='#ubModal' class='text-danger'>" + message + "</a>");
                 tr_content.find('.trans_message.text-success').html('');
 
                 if(ublist != null){
+                    if(ubtype == 'AP'){
+                        $('#ub_trans tbody').html('');
+                    }
                     for(i=0;i<ublist.length;i++){
-                        console.log(ublist[i][1]);
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-{#                        you stopped here#}
-
-{#                        display unbalanced in index and apply it to other transactions#}
+                        $('#ub_trans tbody').append("<tr><td><a href='"+ublist[i][0]+"' target='_blank'>"+ubtype+"-"+ublist[i][1]+"</a></td>" +
+                            "<td>"+ublist[i][2]+"</td>" +
+                            "<td align='right'>"+ublist[i][3]+"</td>" +
+                            "<td align='right'>"+ublist[i][4]+"</td>" +
+                            "<td align='right'>"+ublist[i][5]+"</td>" +
+                            "</tr>");
                     }
                 }
             }
