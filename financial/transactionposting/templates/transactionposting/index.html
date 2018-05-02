@@ -298,6 +298,8 @@
 </div>
 <br><br><br>
 <input type="hidden" id="batchkey">
+<input type="hidden" id="datefrom_hidden">
+<input type="hidden" id="dateto_hidden">
 <div id="ubModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="shade"><div class="loader two-color"></div></div>
@@ -364,6 +366,8 @@
                     posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, ublist, ubtype);
 
                     $('#batchkey').val(response.batchkey);
+                    $('#datefrom_hidden').val($('#id_datefrom').val());
+                    $('#dateto_hidden').val($('#id_dateto').val());
 
                     $.ajax({
                         url: "{% url 'transactionposting:verifytransactions' %}",
@@ -499,7 +503,9 @@
                 data: {
                     'csrfmiddlewaretoken': "{{csrf_token}}",
                     'batchkey': $('#batchkey').val(),
-                    'sequence': sequence
+                    'sequence': sequence,
+                    'datefrom': $('#datefrom_hidden').val(),
+                    'dateto': $('#dateto_hidden').val()
                 },
                 success: function(response) {
                     $('.animatebar-bar').css({'width': response.percentage + '%'});

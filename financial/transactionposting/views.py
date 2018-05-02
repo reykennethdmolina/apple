@@ -36,8 +36,6 @@ def verifytransactions(request):
             validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom-timedelta(days=1)).count()
             if datetime.today().date() > datefrom and validate_date > 0:
                 if request.POST['type'] == 'ap':
-                    # date filter soon
-                    # validations soon
                     unbalanced = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
                                                  .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto)\
                                                  .values('apmain__apnum') \
@@ -126,8 +124,6 @@ def verifytransactions(request):
                         }
 
                 elif request.POST['type'] == 'cv':
-                    # date filter soon
-                    # validations soon
                     unbalanced = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A', cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
                                                  .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto)\
                                                  .values('cvmain__cvnum') \
@@ -215,8 +211,6 @@ def verifytransactions(request):
                         }
 
                 elif request.POST['type'] == 'jv':
-                    # date filter soon
-                    # validations soon
                     unbalanced = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
                                                  .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto)\
                                                  .values('jvmain__jvnum') \
@@ -291,8 +285,6 @@ def verifytransactions(request):
                         }
 
                 elif request.POST['type'] == 'or':
-                    # date filter soon
-                    # validations soon
                     unbalanced = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A', ormain__postby__isnull=True, ormain__postdate__isnull=True) \
                                                  .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto)\
                                                  .values('ormain__ornum') \
@@ -411,9 +403,24 @@ def posttransactions(request):
         seq_item = items.values_list('pk', flat=True)[sequence-skipcount:sequence]
         logs_subledger.objects.filter(pk__in=list(seq_item), importstatus='S').update(importstatus='P')
 
+        # unbalanced = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True,
+        #                                      apmain__postdate__isnull=True) \
+        #     .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
+        #     .values('apmain__apnum') \
+        #     .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
+        #               creditsum=Sum('creditamount')) \
+        #     .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum', 'apmain__pk').order_by(
+        #     'apmain__apnum') \
+        #     .exclude(margin=0)
+        #
+        # if unbalanced.count() == 0:
+        #     batchkey = generatekey(1)
+        #     item = Apdetail.objects.filter(isdeleted=0, apmain__apstatus='R', apmain__status='A',
+        #                                    apmain__postby__isnull=True, apmain__postdate__isnull=True) \
+        #                .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto)[0:10]
+
         # add subledger
         seq_item = items[sequence-skipcount:sequence]
-
         items_set=[
             Subledger(
                 chartofaccount=data.chartofaccount,
@@ -493,8 +500,15 @@ def posttransactions(request):
         Subledger.objects.bulk_create(items_set)
 
         percentage = int((float(sequence) / items.count()) * 100)
-        if percentage > 100:
+        if percentage >= 100:
             percentage = 100
+            Logs_posted.objects.create(datefrom=datetime.strptime(request.POST['datefrom'], "%Y-%m-%d").date(),
+                                       dateto=datetime.strptime(request.POST['dateto'], "%Y-%m-%d").date(),
+                                       transactioncount=items.count(),
+                                       status='P',
+                                       postedon=datetime.now(),
+                                       postedby=request.user,
+                                       )
 
         data = {
             'status': 'success',
