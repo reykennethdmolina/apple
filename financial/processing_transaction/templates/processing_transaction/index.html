@@ -207,7 +207,23 @@
                                 </table>
                                 <input type="hidden" id="hdnamount" name="hdnamount" value="0.00">
                                 <input type="hidden" id="hdnamountinwords" name="hdnamountinwords" value="">
-                                <input type="submit" id="importButton" value="Import Transaction Data" class="btn btn-round btn-success btn-sm">
+                                {% if selectprocess == 'potoapv' or selectprocess == 'apvtoapv' %}
+                                <div id="apvtypecontainer">
+                                    <div class="row col-sm-1 padding-top-5 margin-right-10">
+                                        <label class="control-label" for="id_selectapvtype"><small>Select&nbsp;APV&nbsp;Type:</small></label>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <select class="form-control form-material input-sm" id="id_selectapvtype" name="selectapvtype">
+                                            <option value="N">NON-UB</option>
+                                            <option value="S">SB</option>
+                                            <option value="U">UB</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="col-sm-4">
+                                    <input type="submit" id="importButton" value="Import Transaction Data" class="btn btn-round btn-success btn-sm">
+                                </div>
                             {% endif %}
                         </form>
                     </div>
@@ -427,6 +443,7 @@
                     $('#transtype').val($(this).val());
                     $('#items_table').html('');
                     $('#importButton').hide();
+                    $('#apvtypecontainer').hide();
                 }
                 else {
                     $(this).val($('#transtype').val());
