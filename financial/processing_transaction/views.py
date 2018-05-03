@@ -12,6 +12,7 @@ from utils.views import wccount, storeupload
 import decimal
 from dbfread import DBF
 from django.db.models import Q
+from department.models import Department
 from purchaseorder.models import Pomain, Podetail
 from accountspayable.models import Apmain, Apdetail
 from checkvoucher.models import Cvmain, Cvdetail
@@ -24,6 +25,7 @@ from cvsubtype.models import Cvsubtype
 from chartofaccount.models import Chartofaccount
 from companyparameter.models import Companyparameter
 from inputvat.models import Inputvat
+from inventoryitemclass.models import Inventoryitemclass
 from vat.models import Vat
 from ataxcode.models import Ataxcode
 from . models import Poapvtransaction, Apvcvtransaction, Poapvdetailtemp
@@ -53,8 +55,8 @@ class IndexView(TemplateView):
                                                                        Q(invitem_name__icontains=keysearch) |
                                                                        Q(pomain__supplier_name__icontains=keysearch))
             elif self.request.GET['selectprocess'] == 'apvtocv' or self.request.GET['selectprocess'] == 'apvtoapv':
-                context['data_list'] = Apmain.objects.all().filter(isdeleted=0, apstatus='A', isfullycv=0). \
-                    order_by('payeename', 'vat_id', 'apnum')
+                context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R')), isdeleted=0,
+                                                                   isfullycv=0).order_by('payeename', 'vat_id', 'apnum')
                 if 'datefrom' in self.request.GET and self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(apdate__gte=self.request.GET['datefrom'])
                 if 'dateto' in self.request.GET and self.request.GET['dateto']:
@@ -164,7 +166,8 @@ def importtransdata(request):
                 print 'apnum: ' + apnum
 
                 newapv = Apmain()
-                newapv.aptype = Aptype.objects.get(description='PO')
+                if 'selectapvtype' in request.POST:
+                    newapv.aptype = Aptype.objects.filter(code=request.POST['selectapvtype']).first()
                 newapv.apsubtype = Apsubtype.objects.get(code='IPO')
                 newapv.apnum = apnum
                 newapv.apprefix = 'AP'
@@ -279,14 +282,38 @@ def importtransdata(request):
                 elif request.POST['transtype'] == 'potocv':
                     inventory_entry.ap_num = newapv.cvnum
                     inventory_entry.ap_date = newapv.cvdate
-                if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or \
-                    data.invitem.inventoryitemclass.inventoryitemtype.code == 'SI' or \
-                        data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':  # remove this soon
+                if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or data.invitem.inventoryitemclass.\
+                        inventoryitemtype.code == 'SI':
                     inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
-                # elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
-                    # special entry for SERVICES when available, should include department and branch if any
+                elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
+                    if data.department:
+                        department_expchartofaccount_accountcode_prefix = str(
+                            Chartofaccount.objects.get(pk=Department.objects.get(
+                                pk=data.department.id).expchartofaccount_id).accountcode)[:2]
+                        if str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale.
+                                       accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                                get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
+                        elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).
+                                         chartexpgenandadmin.
+                                         accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                                get(pk=data.invitem.inventoryitemclass.id).chartexpgenandadmin_id
+                        elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp.
+                                         accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                                get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp_id
+                        else:
+                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                                get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
+                        inventory_entry.department = data.department.id
+                    else:
+                        inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
+
                 inventory_entry.balancecode = 'D'
-                inventory_entry.debitamount = float(newpoapvtrans.apamount) / (1 + (float(data.vatrate) / 100.0))
+                # inventory_entry.debitamount = float(newpoapvtrans.apamount) / (1 + (float(data.vatrate) / 100.0))
+                # follow VATable amount in PODETAIL
+                inventory_entry.debitamount = float(data.vatable) + float(data.vatexempt) + float(data.vatzerorated)
                 inventory_entry.save()
 
                 # 2nd entry for current item: Input VAT (for Office Supplies and Fixed Assets) or
@@ -313,7 +340,9 @@ def importtransdata(request):
                         inputvattype=data.invitem.inventoryitemclass.inventoryitemtype.inputvattype).first().id
                     inputvat_entry.vat = data.vat_id
                     inputvat_entry.balancecode = 'D'
-                    inputvat_entry.debitamount = inventory_entry.debitamount * (float(data.vatrate) / 100.0)
+                    # inputvat_entry.debitamount = inventory_entry.debitamount * (float(data.vatrate) / 100.0) follow
+                    # VAT amount in PODETAIL
+                    inputvat_entry.debitamount = data.vatamount
                     inputvat_entry.save()
 
                 # 3rd entry for current item: Expanded Withholding Tax
@@ -332,7 +361,9 @@ def importtransdata(request):
                     ewt_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_ewtax_id
                     ewt_entry.ataxcode = data_main.atc_id
                     ewt_entry.balancecode = 'C'
-                    ewt_entry.creditamount = float(newpoapvtrans.apamount) * (float(data_main.atcrate) / 100.0)
+                    # ewt_entry.creditamount = float(newpoapvtrans.apamount) * (float(data_main.atcrate) / 100.0) follow
+                    # EWT amount in PODETAIL
+                    ewt_entry.creditamount = float(data.atcamount)
                     ewt_entry.save()
 
                 # 4th entry for current item: AP Trade if PO - APV, Cash In Bank if PO - CV
@@ -407,6 +438,8 @@ def importtransdata(request):
                         final_detail.vat = Vat.objects.get(pk=entry.vat)
                     if entry.ataxcode:
                         final_detail.ataxcode = Ataxcode.objects.get(pk=entry.ataxcode)
+                    if entry.department:
+                        final_detail.department = Department.objects.get(pk=entry.department)
                     final_detail.balancecode = entry.balancecode
                     final_detail.debitamount = entry.debitamount
                     final_detail.creditamount = entry.creditamount
@@ -474,7 +507,8 @@ def importtransdata(request):
                 print 'apnum: ' + apnum
 
                 newapv = Apmain()
-                newapv.aptype = Aptype.objects.get(description='NON PO')
+                if 'selectapvtype' in request.POST:
+                    newapv.aptype = Aptype.objects.filter(code=request.POST['selectapvtype']).first()
                 newapv.apsubtype = Apsubtype.objects.get(code='IAP')
                 newapv.apnum = apnum
                 newapv.apprefix = 'AP'
