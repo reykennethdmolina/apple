@@ -110,14 +110,24 @@
                             <div class="price-header">
                                 <div class="price-title bg-teal-a400">STEP 1: VERIFICATION</div>
                                 <div class="price-price teal-a400" id="formupload">
-                                    <div class="col-md-6 select_holder" id="datefrom_holder">
+                                    <div class="col-md-4 select_holder" id="transtype_holder">
+                                        <label class="control-label small" for="id_transtype">Transaction Type:</label>
+                                        <select class="form-control input-sm" multiple="" style="width: 100%" id="id_transtype">
+                                            <option value="ap" label="AP">Accounts Payable</option>
+                                            <option value="cv" label="CV">Check Voucher</option>
+                                            <option value="jv" label="JV">Journal Voucher</option>
+                                            <option value="or" label="OR">Official Receipt</option>
+                                        </select>
+                                        <br><br>
+                                    </div>
+                                    <div class="col-md-4 select_holder" id="datefrom_holder">
                                         <label class="control-label small" for="id_datefrom">Date FROM:</label>
                                         <input type="text" class="form-control date-yyyymmdd dateinput datepickerfrom white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_datefrom" name="datefrom" placeholder="YYYY-MM-DD"
                                                value="{{ datefrom }}">
                                         <br><br>
                                     </div>
-                                    <div class="col-md-6 select_holder" id="dateto_holder">
+                                    <div class="col-md-4 select_holder" id="dateto_holder">
                                         <label class="control-label small" for="id_dateto">Date TO:</label>
                                         <input type="text" class="form-control date-yyyymmdd dateinput datepickerto white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_dateto" name="dateto" placeholder="YYYY-MM-DD"
@@ -300,6 +310,12 @@
 <input type="hidden" id="batchkey">
 <input type="hidden" id="datefrom_hidden">
 <input type="hidden" id="dateto_hidden">
+<select multiple="" id="transtype_hidden" style="display: none">
+    <option value="ap">Accounts Payable</option>
+    <option value="cv">Check Voucher</option>
+    <option value="jv">Journal Voucher</option>
+    <option value="or">Official Receipt</option>
+</select>
 <div id="ubModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="shade"><div class="loader two-color"></div></div>
@@ -353,7 +369,8 @@
                     'csrfmiddlewaretoken': "{{csrf_token}}",
                     'type': "ap",
                     'id_datefrom': $('#id_datefrom').val(),
-                    'id_dateto': $('#id_dateto').val()
+                    'id_dateto': $('#id_dateto').val(),
+                    'id_transtype': $('#id_transtype').val()
                 },
                 success: function(response) {
                     //--------------- ACCOUNTS PAYABLE ---------------
@@ -368,6 +385,7 @@
                     $('#batchkey').val(response.batchkey);
                     $('#datefrom_hidden').val($('#id_datefrom').val());
                     $('#dateto_hidden').val($('#id_dateto').val());
+                    $('#transtype_hidden').val($('#id_transtype').val());
 
                     $.ajax({
                         url: "{% url 'transactionposting:verifytransactions' %}",
@@ -379,7 +397,8 @@
                             'type': "cv",
                             'batchkey': $('#batchkey').val(),
                             'id_datefrom': $('#id_datefrom').val(),
-                            'id_dateto': $('#id_dateto').val()
+                            'id_dateto': $('#id_dateto').val(),
+                            'id_transtype': $('#id_transtype').val()
                         },
                         success: function(response) {
                             //--------------- CHECK VOUCHER ---------------
@@ -401,7 +420,8 @@
                                     'type': "jv",
                                     'batchkey': $('#batchkey').val(),
                                     'id_datefrom': $('#id_datefrom').val(),
-                                    'id_dateto': $('#id_dateto').val()
+                                    'id_dateto': $('#id_dateto').val(),
+                                    'id_transtype': $('#id_transtype').val()
                                 },
                                 success: function(response) {
                                     //--------------- JOURNAL VOUCHER ---------------
@@ -423,7 +443,8 @@
                                             'type': "or",
                                             'batchkey': $('#batchkey').val(),
                                             'id_datefrom': $('#id_datefrom').val(),
-                                            'id_dateto': $('#id_dateto').val()
+                                            'id_dateto': $('#id_dateto').val(),
+                                            'id_transtype': $('#id_transtype').val()
                                         },
                                         success: function(response) {
                                             //--------------- OFFICIAL RECEIPT ---------------
@@ -453,6 +474,12 @@
 
         $(document).on('click', '#trans_post', function(){
             posting(0);
+        });
+
+        $('#id_transtype').select2({
+            templateSelection: function(item) {
+                return $(item.element).attr('label');
+            }
         });
 
         function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, ublist, ubtype){
@@ -505,7 +532,9 @@
                     'batchkey': $('#batchkey').val(),
                     'sequence': sequence,
                     'datefrom': $('#datefrom_hidden').val(),
-                    'dateto': $('#dateto_hidden').val()
+                    'dateto': $('#dateto_hidden').val(),
+                    'transtype': $('#transtype_hidden').val(),
+                    'id_transtype': $('#id_transtype').val()
                 },
                 success: function(response) {
                     $('.animatebar-bar').css({'width': response.percentage + '%'});

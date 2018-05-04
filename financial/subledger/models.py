@@ -108,6 +108,7 @@ class Subledger(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='subledger_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    breakdownsource_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'subledger'
@@ -244,6 +245,7 @@ class logs_subledger(models.Model):
     importremarks = models.CharField(max_length=255, null=True, blank=True)
     importdate = models.DateTimeField(auto_now_add=True)
     importby = models.ForeignKey(User, default=1, related_name='logs_subledger_importby')
+    breakdownsource_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'logs_subledger'

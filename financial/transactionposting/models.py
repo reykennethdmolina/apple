@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 class Logs_posted(models.Model):
     datefrom = models.DateTimeField()
     dateto = models.DateTimeField()
+    doctype = models.CharField(max_length=2)
     transactioncount = models.IntegerField(default=0)
     postedby = models.ForeignKey(User, related_name='transactions_postedby')
     postedon = models.DateTimeField()
