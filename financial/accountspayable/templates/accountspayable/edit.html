@@ -193,7 +193,7 @@
                         <div class="row col-md-8 padding-left-0 padding-right-0">
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_creditterm">Credit Terms</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_creditterm" name="creditterm">
+                                <select class="form-control input-sm" id="id_creditterm" name="creditterm">
                                     <option value="" data-days="0">-- Select --</option>
                                     {% for creditterm in creditterm %}
                                         <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %} data-days="{{ creditterm.daysdue }}">{{ creditterm.description }}</option>
@@ -238,7 +238,7 @@
                             </div>
                             <div class="form-group col-sm-6 {{ form.atax.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_atax" style="display: block;">ATC</label>
-                                <select class="form-control input-sm" id="id_atax" name="atax" data-validation="required" style="width: 70%; display: inline-block;">
+                                <select class="form-control input-sm" id="id_atax" name="atax" style="width: 70%; display: inline-block;">
                                     <option value="">-- Select --</option>
                                     {% for atc in atax %}
                                         <option value="{{ atc.id }}" data-rate="{{ atc.rate }}" {% if form.atax.value|add:0 == atc.id %} selected="selected" {% endif %}>[{{ atc.code }}]&nbsp;&nbsp;{{ atc.description }}</option>

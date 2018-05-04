@@ -52,7 +52,7 @@ class Apmain(models.Model):
     bankbranchdisbursebranch = models.CharField(max_length=10, null=True, blank=True)
 
     inputvattype = models.ForeignKey('inputvattype.Inputvattype', related_name='ap_inputvattype_id')
-    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ap_creditterm_id')
+    creditterm = models.ForeignKey('creditterm.Creditterm', related_name='ap_creditterm_id', null=True, blank=True)
     duedate = models.DateField()
     refno = models.CharField(max_length=250, null=True, blank=True)
     particulars = models.CharField(max_length=250)

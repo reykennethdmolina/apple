@@ -35,11 +35,11 @@
                             <i class="icon md-edit" style="font-size: 20px;" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
                         {% endif %}
-{#                        {% if perms.purchaseorder.delete_pomain and data.postatus == 'F' and data.isdeleted == 0 and data.status == 'A' %}#}
+                        {% if perms.purchaseorder.delete_pomain and data.postatus == 'F' and data.isdeleted == 0 and data.status == 'A' %}
                         <a href="{% url 'purchaseorder:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
                             <i class="icon md-delete" style="font-size: 20px;" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
-{#                        {% endif %}#}
+                        {% endif %}
                         </div>
                     </div>
                 </td>
