@@ -55,8 +55,10 @@ class IndexView(TemplateView):
                                                                        Q(invitem_name__icontains=keysearch) |
                                                                        Q(pomain__supplier_name__icontains=keysearch))
             elif self.request.GET['selectprocess'] == 'apvtocv' or self.request.GET['selectprocess'] == 'apvtoapv':
-                context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R')), isdeleted=0,
-                                                                   isfullycv=0).order_by('payeename', 'vat_id', 'apnum')
+                # added FOR APPROVAL status, making all active APVs eligible for importation regardless of status
+                context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R') | Q(apstatus='F')
+                                                                    ), isdeleted=0, isfullycv=0, status='A').\
+                    order_by('payeename', 'vat_id', 'apnum',)
                 if 'datefrom' in self.request.GET and self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(apdate__gte=self.request.GET['datefrom'])
                 if 'dateto' in self.request.GET and self.request.GET['dateto']:
@@ -183,7 +185,8 @@ def importtransdata(request):
                 newapv.refno = 'PO No.(s) ' + refnum
                 newapv.deferred = referencepo.deferredvat
                 newapv.creditterm = referencepo.creditterm
-                newapv.duedate = datetime.datetime.now().date() + datetime.timedelta(days=newapv.creditterm.daysdue)
+                if newapv.creditterm:
+                    newapv.duedate = datetime.datetime.now().date() + datetime.timedelta(days=newapv.creditterm.daysdue)
             elif request.POST['transtype'] == 'potocv':
                 year = str(datetime.date.today().year)
                 yearqs = Cvmain.objects.filter(cvnum__startswith=year)

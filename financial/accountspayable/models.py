@@ -46,6 +46,8 @@ class Apmain(models.Model):
     atax = models.ForeignKey('ataxcode.Ataxcode', related_name='ap_ataxcode_id', null=True, blank=True)
     ataxcode = models.CharField(max_length=10, null=True, blank=True)
     ataxrate = models.IntegerField(default=0, null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='apmain_bankaccount_id', null=True,
+                                    blank=True)
 
     bankbranchdisburse = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
                                            related_name='ap_bankbranchdisburse_id', null=True, blank=True)

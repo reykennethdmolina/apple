@@ -40,7 +40,8 @@ class Cvmain(models.Model):
     )
     deferredvat = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
     branch = models.ForeignKey('branch.Branch', related_name='cvmain_branch_id', default='5')
-    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='cvmain_bankaccount_id', null=True, blank=True)
+    bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='cvmain_bankaccount_id', null=True,
+                                    blank=True)
     disbursingbranch = models.ForeignKey('bankbranchdisburse.Bankbranchdisburse',
                                          related_name='cvmain_bankbranchdisburse_id', null=True, blank=True)
     amount = models.DecimalField(decimal_places=2, max_digits=18, validators=[MinValueValidator(1)], default=0.00)

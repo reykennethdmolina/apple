@@ -49,8 +49,15 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="margin-bottom-20">
-                    <h3 class="panel-title" style="padding:0px 10px 15px 25px;">UPDATE
-                    {% if perms.purchaseorder.delete_pomain and object.postatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
+                <h3 class="panel-title" style="padding:0px 10px 15px 25px;">UPDATE</h3>
+                <div style="padding-right: 10px; padding-bottom: 50px;">
+                        {% if perms.purchaseorder.add_pomain %}
+                        <a href="{% url 'purchaseorder:create' %}" class="floatright" target="_blank">
+                            <button type="button" class="btn btn-success btn-round btn-sm waves-effect waves-light">
+                                <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp; New PO
+                            </button></a>
+                        {% endif %}
+                        {% if perms.purchaseorder.delete_pomain and object.postatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
                         <a href="{% url 'purchaseorder:delete' object.id %}" class="floatright">
                             <button type="button" id="delete" class="btn btn-round btn-info btn-sm waves-effect
                             waves-light get_report">
@@ -70,8 +77,7 @@
                                 <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
                             </button>
                         </a>
-                    </h3>
-                <br>
+                </div>
                     <form method="post" id="form-b">
                         {% csrf_token %}
                         <input type="hidden" name="secretkey" id="secretkey" value="{{ secretkey }}"/>

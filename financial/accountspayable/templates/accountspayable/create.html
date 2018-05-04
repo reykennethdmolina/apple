@@ -117,17 +117,27 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3 {{ form.bankbranchdisburse.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_bankbranchdisburse">Disbursing Branch</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_bankbranchdisburse" name="bankbranchdisburse">
+{#                            <div class="form-group col-sm-3 {{ form.bankbranchdisburse.errors|yesno:'has-error,' }}">#}
+{#                                <label class="control-label" for="id_bankbranchdisburse">Disbursing Branch</label>#}
+{#                                <select class="form-control input-sm" data-validation="required" id="id_bankbranchdisburse" name="bankbranchdisburse">#}
+{#                                    <option value="">-- Select --</option>#}
+{#                                    {% for data in bankbranchdisburse %}#}
+{#                                        <option value="{{ data.id }}" {% if form.bankbranchdisburse.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.branch }}] {{ data.bank.code }}, {{ data.address1 }}</option>#}
+{#                                    {% endfor %}#}
+{#                                </select>#}
+{#                                <span class="help-block form-error">{{ form.bankbranchdisburse.errors.as_text }}</span>#}
+{#                            </div>#}
+                            <div class="form-group col-sm-4 {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_bankaccount">Bank Account</label>
+                                <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
                                     <option value="">-- Select --</option>
-                                    {% for data in bankbranchdisburse %}
-                                        <option value="{{ data.id }}" {% if form.bankbranchdisburse.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.branch }}] {{ data.bank.code }}, {{ data.address1 }}</option>
+                                    {% for bankaccount in bankaccount %}
+                                        <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.accountnumber }}]</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.bankbranchdisburse.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-sm-2 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_designatedapprover">Approver</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>

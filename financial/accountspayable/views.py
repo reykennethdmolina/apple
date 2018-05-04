@@ -152,7 +152,7 @@ class CreateView(CreateView):
     model = Apmain
     template_name = 'accountspayable/create.html'
     fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
-              'bankbranchdisburse', 'vat', 'atax',
+              'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
               'currency', 'fxrate', 'designatedapprover']
@@ -178,7 +178,7 @@ class CreateView(CreateView):
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
@@ -213,7 +213,7 @@ class CreateView(CreateView):
         if self.request.POST['atax']:
             ataxobject = Ataxcode.objects.get(pk=self.request.POST['atax'], isdeleted=0)
         payeeobject = Supplier.objects.get(pk=self.request.POST['payee'], isdeleted=0)
-        bankbranchdisburseobject = Bankbranchdisburse.objects.get(pk=self.request.POST['bankbranchdisburse'], isdeleted=0)
+        # bankbranchdisburseobject = Bankbranchdisburse.objects.get(pk=self.request.POST['bankbranchdisburse'], isdeleted=0)
 
         self.object.apnum = apnum
         self.object.apstatus = 'F'
@@ -224,7 +224,7 @@ class CreateView(CreateView):
             self.object.ataxrate = ataxobject.rate
         self.object.payeecode = payeeobject.code
         self.object.payeename = payeeobject.name
-        self.object.bankbranchdisbursebranch = bankbranchdisburseobject.branch
+        # self.object.bankbranchdisbursebranch = bankbranchdisburseobject.branch
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
@@ -269,7 +269,7 @@ class UpdateView(UpdateView):
     model = Apmain
     template_name = 'accountspayable/edit.html'
     fields = ['apdate', 'aptype', 'apsubtype', 'payee', 'branch',
-              'bankbranchdisburse', 'vat', 'atax',
+              'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
               'currency', 'fxrate', 'designatedapprover']
@@ -372,7 +372,7 @@ class UpdateView(UpdateView):
         elif self.object.payee:
             context['payee'] = Supplier.objects.get(pk=self.object.payee.id, isdeleted=0)
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['bankbranchdisburse'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('branch')
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('code')
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
@@ -438,7 +438,17 @@ class UpdateView(UpdateView):
         context['totalpayment'] = aptrade_total['creditamount__sum']
         context['wtaxamount'] = wtax_total['creditamount__sum']
         context['wtaxrate'] = self.object.ataxrate
-        context['datainfo'] = self.object
+        # context['datainfo'] = self.object
+        context['footers'] = [
+            self.object.enterby.first_name + " " + self.object.enterby.last_name if self.object.enterby else '',
+            self.object.enterdate,
+            self.object.modifyby.first_name + " " + self.object.modifyby.last_name if self.object.modifyby else '',
+            self.object.modifydate,
+            self.object.postby.first_name + " " + self.object.postby.last_name if self.object.postby else '',
+            self.object.postdate,
+            self.object.closeby.first_name + " " + self.object.closeby.last_name if self.object.closeby else '',
+            self.object.closedate,
+            ]
 
         return context
 
@@ -450,7 +460,7 @@ class UpdateView(UpdateView):
             self.object.payeename = self.object.payee.name
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()
-            self.object.bankbranchdisbursebranch = self.object.bankbranchdisburse.branch
+            # self.object.bankbranchdisbursebranch = self.object.bankbranchdisburse.branch
             self.object.vatcode = self.object.vat.code
             self.object.vatrate = self.object.vat.rate
             if self.object.atax:
@@ -458,7 +468,7 @@ class UpdateView(UpdateView):
                 self.object.ataxrate = self.object.atax.rate
 
             self.object.save(update_fields=['apdate', 'aptype', 'apsubtype', 'payee', 'payeecode', 'payeename',
-                                            'branch', 'bankbranchdisburse', 'vat', 'atax', 'bankbranchdisbursebranch',
+                                            'branch', 'bankaccount', 'vat', 'atax',
                                             'inputvattype', 'creditterm', 'duedate',
                                             'refno', 'deferred', 'particulars', 'remarks',
                                             'currency', 'fxrate', 'designatedapprover',

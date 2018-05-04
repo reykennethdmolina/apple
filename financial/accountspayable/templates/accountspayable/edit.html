@@ -71,7 +71,7 @@
                 </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
                     {% if perms.accountspayable.add_apmain %}
-                        <a href="{% url 'accountspayable:create' %}" class="floatright">
+                        <a href="{% url 'accountspayable:create' %}" class="floatright" target="_blank">
                             <button type="button" class="btn btn-success btn-round btn-sm waves-effect waves-light">
                                 <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp; New APV
                             </button></a>
@@ -170,17 +170,27 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.branch.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3 {{ form.bankbranchdisburse.errors|yesno:'has-error,' }}">
-                                <label class="control-label" for="id_bankbranchdisburse">Disbursing Branch</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_bankbranchdisburse" name="bankbranchdisburse">
+{#                            <div class="form-group col-sm-3 {{ form.bankbranchdisburse.errors|yesno:'has-error,' }}">#}
+{#                                <label class="control-label" for="id_bankbranchdisburse">Disbursing Branch</label>#}
+{#                                <select class="form-control input-sm" data-validation="required" id="id_bankbranchdisburse" name="bankbranchdisburse">#}
+{#                                    <option value="">-- Select --</option>#}
+{#                                    {% for data in bankbranchdisburse %}#}
+{#                                        <option value="{{ data.id }}" {% if form.bankbranchdisburse.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.branch }}] {{ data.bank.code }}, {{ data.address1 }}</option>#}
+{#                                    {% endfor %}#}
+{#                                </select>#}
+{#                                <span class="help-block form-error">{{ form.bankbranchdisburse.errors.as_text }}</span>#}
+{#                            </div>#}
+                            <div class="form-group col-sm-4 {{ form.bankaccount.errors|yesno:'has-error,' }}">
+                                <label class="control-label" for="id_bankaccount">Bank Account</label>
+                                <select id="id_bankaccount" class="form-control input-sm select2" name="bankaccount">
                                     <option value="">-- Select --</option>
-                                    {% for data in bankbranchdisburse %}
-                                        <option value="{{ data.id }}" {% if form.bankbranchdisburse.value|add:0 == data.id %} selected="selected" {% endif %}>[{{ data.branch }}] {{ data.bank.code }}, {{ data.address1 }}</option>
+                                    {% for bankaccount in bankaccount %}
+                                        <option value="{{ bankaccount.id }}" {% if form.bankaccount.value|add:0 == bankaccount.id %} selected="selected" {% endif %}>{{ bankaccount.code }} [{{ bankaccount.bank.description }} - {{ bankaccount.bankaccounttype.description }}, {{ bankaccount.accountnumber }}]</option>
                                     {% endfor %}
                                 </select>
-                                <span class="help-block form-error">{{ form.bankbranchdisburse.errors.as_text }}</span>
+                                <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                             </div>
-                            <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                            <div class="form-group col-sm-2 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_designatedapprover">Approver</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>
@@ -401,12 +411,22 @@
                     <!-- Accounting entry end -->
                 </div>
             </div>
-            <div class="col-sm-12 padding-left-0 padding-right-0">
-                <div class="col-sm-3"><strong>Created By: </strong> {{ datainfo.enterby }} {{ datainfo.enterdate }}</div>
-                <div class="col-sm-3"><strong>Modified By: </strong>{{ datainfo.modifyby }} {{ datainfo.modifydate }}</div>
-                <div class="col-sm-3"><strong>Posted By: </strong>{{ datainfo.postby|default:'' }} {{ datainfo.postdate|default:'' }}</div>
-                <div class="col-sm-3"><strong>Closed By: </strong>{{ datainfo.closeby|default:'' }} {{ datainfo.closedate|default:'' }}</div>
+            <div class="col-md-12 small">
+                <div class="col-sm-1">Created&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.0 }}</b></div>
+                <div class="col-sm-1">Modified&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.2 }}</b></div>
+                <div class="col-sm-1">Posted&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.4|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Closed&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.6|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Create&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.1 }}</b></div>
+                <div class="col-sm-1">Modify&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.3 }}</b></div>
+                <div class="col-sm-1">Post&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.5|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Close&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.7|default:'N/A' }}</b></div>
             </div>
+{#            <div class="col-sm-12 padding-left-0 padding-right-0">#}
+{#                <div class="col-sm-3"><strong>Created By: </strong> {{ datainfo.enterby }} {{ datainfo.enterdate }}</div>#}
+{#                <div class="col-sm-3"><strong>Modified By: </strong>{{ datainfo.modifyby }} {{ datainfo.modifydate }}</div>#}
+{#                <div class="col-sm-3"><strong>Posted By: </strong>{{ datainfo.postby|default:'' }} {{ datainfo.postdate|default:'' }}</div>#}
+{#                <div class="col-sm-3"><strong>Closed By: </strong>{{ datainfo.closeby|default:'' }} {{ datainfo.closedate|default:'' }}</div>#}
+{#            </div>#}
             <div class="clearfix"></div>
             <div id="repRFVModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">

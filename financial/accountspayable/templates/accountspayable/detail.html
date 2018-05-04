@@ -75,14 +75,14 @@
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info">Disbursing Branch&nbsp;: </span>
-                                            <span class="detail-profile">[{{ object.bankbranchdisburse.branch }}] {{ object.bankbranchdisburse.bank.code }}, {{ object.bankbranchdisburse.address1 }}</span>
+                                            <span class="text-name-profile text-info">Bank Account&nbsp;: </span>
+                                            <span class="detail-profile">{{ object.bankaccount.code }} [{{ object.bankaccount.bank.description }} - {{ object.bankaccount.bankaccounttype.description }}, {{ object.bankaccount.accountnumber }}]</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         <div class="first-name-profile">
                                             <span class="text-name-profile text-info">Reference No.&nbsp;: </span>
-                                            <span class="detail-profile">{{ object.refno }}</span>
+                                            <span class="detail-profile">{{ object.refno|default:'N/A' }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
