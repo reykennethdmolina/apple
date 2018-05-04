@@ -197,7 +197,7 @@
                                 <div class="form-group col-sm-4 {{ form.payee.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_payee">Payee</label>
                                     {% if originalcvstatus != 'R' %}
-                                        <select class="form-control input-sm select2" id="id_payee" name="payee">
+                                        <select class="form-control input-sm select2" id="id_payee" name="payee" data-validation="required">
                                             {% if payee.id != None %}
                                                 <option value="{{ payee.id }}">{{ payee.name }}</option>
                                             {% endif %}
