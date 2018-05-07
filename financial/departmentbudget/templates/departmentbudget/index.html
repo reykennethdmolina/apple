@@ -20,8 +20,7 @@
                                 <tr>
                                     <th><span>Id</span></th>
                                     <th><span>Year</span></th>
-                                    <th><span>Department Code</span></th>
-                                    <th><span>Department Name</span></th>
+                                    <th><span>Department</span></th>
                                     <th><span>Account</span></th>
                                     <th class="text-center"><span>Action</span></th>
                                 </tr>
@@ -31,9 +30,8 @@
                                 <tr>
                                     <td>{{ data.id }}</td>
                                     <td>{{ data.year }}</td>
-                                    <td>{{ data.department.code }}</td>
-                                    <td>{{ data.department.departmentname }}</td>
-                                    <td>{{ data.chartofaccount.accountcode }}</td>
+                                    <td>[{{ data.department.code }}] {{ data.department.departmentname }}</td>
+                                    <td>[{{ data.chartofaccount.accountcode }}] {{ data.chartofaccount.description }}</td>
                                     <td class="text-center">
                                         <div class="iconlist-wrap auto-0">
                                             <div class="iconlist">
