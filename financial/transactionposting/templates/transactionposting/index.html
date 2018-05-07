@@ -293,9 +293,9 @@
                                     <i class="icon fa-check-square-o font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
                                     Post
                                 </button>
-                                <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="or_upload_loading">
+                                <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="trans_post_loading">
                                     <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
-                                    VERIFYING ...
+                                    POSTING ...
                                 </button>
                             </div>
                         </div>
@@ -473,6 +473,11 @@
         });
 
         $(document).on('click', '#trans_post', function(){
+            $('#trans_verify').hide();
+            $('#trans_verify_loading').fadeIn();
+            $('.select_holder').hide();
+            $('#trans_post').hide();
+            $('#trans_post_loading').fadeIn();
             posting(0);
         });
 
@@ -521,7 +526,7 @@
             }
         }
 
-        function posting(sequence){
+        function posting(){
             $.ajax({
                 url: "{% url 'transactionposting:posttransactions' %}",
                 type: "post",
@@ -530,7 +535,6 @@
                 data: {
                     'csrfmiddlewaretoken': "{{csrf_token}}",
                     'batchkey': $('#batchkey').val(),
-                    'sequence': sequence,
                     'datefrom': $('#datefrom_hidden').val(),
                     'dateto': $('#dateto_hidden').val(),
                     'transtype': $('#transtype_hidden').val(),
@@ -539,8 +543,15 @@
                 success: function(response) {
                     $('.animatebar-bar').css({'width': response.percentage + '%'});
                     $('.animatebar-bar-percent').html(response.percentage + '%');
-                    if(response.sequence < response.total){
-                        posting(response.sequence);
+                    if(response.percentage < 100){
+                        posting();
+                    }
+                    else{
+                        $('#trans_verify').fadeIn();
+                        $('#trans_verify_loading').hide();
+                        $('.select_holder').fadeIn();
+                        $('#trans_post').fadeIn();
+                        $('#trans_post_loading').hide();
                     }
                 }
             });

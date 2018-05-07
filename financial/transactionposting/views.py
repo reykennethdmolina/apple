@@ -667,210 +667,151 @@ def logor(datefrom, dateto, batchkey, user):
 
 @csrf_exempt
 def posttransactions(request):
-    skipcount = 10
+    skipcount = 100
 
     if request.method == 'POST':
-        sequence = int(request.POST['sequence']) + skipcount
         # locking/posting of transactions goes here
+        items = logs_subledger.objects.filter(batchkey=request.POST['batchkey'], importstatus='S')
 
-        items = logs_subledger.objects.filter(batchkey=request.POST['batchkey'])
+        print items.count()
+        print items.count()
+        print items.count()
+        if items.count() > 0:
+            # add subledger
+            seq_item = items[:skipcount]
+            for data in seq_item:
+                if data.document_type == 'AP':
+                    trans_main = Apmain.objects.filter(apnum=data.document_num, apstatus='R')
+                    trans_detail = Apdetail.objects.all()
+                    trans_detailbreakdown = Apdetailbreakdown.objects.all()
+                elif data.document_type == 'CV':
+                    trans_main = Cvmain.objects.filter(cvnum=data.document_num, cvstatus='R')
+                    trans_detail = Cvdetail.objects.all()
+                    trans_detailbreakdown = Cvdetailbreakdown.objects.all()
+                elif data.document_type == 'JV':
+                    trans_main = Jvmain.objects.filter(jvnum=data.document_num, jvstatus='R')
+                    trans_detail = Jvdetail.objects.all()
+                    trans_detailbreakdown = Jvdetailbreakdown.objects.all()
+                elif data.document_type == 'OR':
+                    trans_main = Ormain.objects.filter(ornum=data.document_num, orstatus='R')
+                    trans_detail = Ordetail.objects.all()
+                    trans_detailbreakdown = Ordetailbreakdown.objects.all()
 
-        # update to posted
-        seq_item = items.values_list('pk', flat=True)[sequence-skipcount:sequence]
-        logs_subledger.objects.filter(pk__in=list(seq_item), importstatus='S').update(importstatus='P')
-
-        # add subledger
-        seq_item = items[sequence-skipcount:sequence]
-
-        for data in seq_item:
-            if data.document_type == 'AP':
-                trans_main = Apmain.objects.filter(apnum=data.document_num, apstatus='R')
-                trans_detail = Apdetail.objects.all()
-                trans_detailbreakdown = Apdetailbreakdown.objects.all()
-            elif data.document_type == 'CV':
-                trans_main = Cvmain.objects.filter(cvnum=data.document_num, cvstatus='R')
-                trans_detail = Cvdetail.objects.all()
-                trans_detailbreakdown = Cvdetailbreakdown.objects.all()
-            elif data.document_type == 'JV':
-                trans_main = Jvmain.objects.filter(jvnum=data.document_num, jvstatus='R')
-                trans_detail = Jvdetail.objects.all()
-                trans_detailbreakdown = Jvdetailbreakdown.objects.all()
-            elif data.document_type == 'OR':
-                trans_main = Ormain.objects.filter(ornum=data.document_num, orstatus='R')
-                trans_detail = Ordetail.objects.all()
-                trans_detailbreakdown = Ordetailbreakdown.objects.all()
-
-            # main
-            trans_main\
-                .filter(status='A', postby__isnull=True, postdate__isnull=True)\
-                .update(postby=request.user, postdate=datetime.now())
-
-            # detail
-            if data.breakdownsource_id is None:
-                trans_detail\
-                    .filter(pk=data.document_id)\
+                # main
+                trans_main\
                     .filter(status='A', postby__isnull=True, postdate__isnull=True)\
                     .update(postby=request.user, postdate=datetime.now())
-            else:
-                trans_detailbreakdown \
-                    .filter(pk=data.breakdownsource_id) \
-                    .filter(status='A', postby__isnull=True, postdate__isnull=True) \
-                    .update(postby=request.user, postdate=datetime.now())
 
-            Subledger.objects.create(
-                chartofaccount=data.chartofaccount,
-                item_counter=data.item_counter,
-                document_type=data.document_type,
-                document_id=data.document_id,
-                document_num=data.document_num,
-                document_date=data.document_date,
-                subtype=data.subtype,
-                dcsubtype=data.dcsubtype,
-                bankaccount=data.bankaccount,
-                product=data.product,
-                branch=data.branch,
-                unit=data.unit,
-                inputvat=data.inputvat,
-                outputvat=data.outputvat,
-                ataxcode=data.ataxcode,
-                atccode=data.atccode,
-                atcrate=data.atcrate,
-                vat=data.vat,
-                vatcode=data.vatcode,
-                vatrate=data.vatrate,
-                wtax=data.wtax,
-                wtaxcode=data.wtaxcode,
-                wtaxrate=data.wtaxrate,
-                balancecode=data.balancecode,
-                amount=data.amount,
-                particulars=data.particulars,
-                remarks=data.remarks,
-                comments=data.comments,
-                currency=data.currency,
-                fxrate=data.fxrate,
-                fxamount=data.fxamount,
-                document_reftype=data.document_reftype,
-                document_refnum=data.document_refnum,
-                document_refdate=data.document_refdate,
-                document_refamount=data.document_refamount,
-                document_refjv=data.document_refjv,
-                document_refjvnum=data.document_refjvnum,
-                document_refjvdate=data.document_refjvdate,
-                document_refap=data.document_refap,
-                document_refapnum=data.document_refapnum,
-                document_refapdate=data.document_refapdate,
-                document_status=data.document_status,
-                document_supplier=data.document_supplier,
-                document_supplieratc=data.document_supplieratc,
-                document_supplieratccode=data.document_supplieratccode,
-                document_supplieratcrate=data.document_supplieratcrate,
-                document_suppliervat=data.document_suppliervat,
-                document_suppliervatcode=data.document_suppliervatcode,
-                document_suppliervatrate=data.document_suppliervatrate,
-                document_supplierinputvat=data.document_supplierinputvat,
-                document_customer=data.document_customer,
-                document_customervat=data.document_customervat,
-                document_customervatcode=data.document_customervatcode,
-                document_customervatrate=data.document_customervatrate,
-                document_customerwtax=data.document_customerwtax,
-                document_customerwtaxcode=data.document_customerwtaxcode,
-                document_customerwtaxrate=data.document_customerwtaxrate,
-                document_customeroutputvat=data.document_customeroutputvat,
-                document_branch=data.document_branch,
-                document_payee=data.document_payee,
-                document_bankaccount=data.document_bankaccount,
-                document_checknum=data.document_checknum,
-                document_checkdate=data.document_checkdate,
-                document_amount=data.document_amount,
-                document_duedate=data.document_duedate,
-                document_currency=data.document_currency,
-                document_fxrate=data.document_fxrate,
-                document_fxamount=data.document_fxamount,
-                document_collector=data.document_collector,
-                enterby=data.enterby,
-                modifyby=data.modifyby,
-                breakdownsource_id=data.breakdownsource_id,
-            )
-        # items_set=[
-        #     Subledger(
-        #         chartofaccount=data.chartofaccount,
-        #         item_counter=data.item_counter,
-        #         document_type=data.document_type,
-        #         document_id=data.document_id,
-        #         document_num=data.document_num,
-        #         document_date=data.document_date,
-        #         subtype=data.subtype,
-        #         dcsubtype=data.dcsubtype,
-        #         bankaccount=data.bankaccount,
-        #         product=data.product,
-        #         branch=data.branch,
-        #         unit=data.unit,
-        #         inputvat=data.inputvat,
-        #         outputvat=data.outputvat,
-        #         ataxcode=data.ataxcode,
-        #         atccode=data.atccode,
-        #         atcrate=data.atcrate,
-        #         vat=data.vat,
-        #         vatcode=data.vatcode,
-        #         vatrate=data.vatrate,
-        #         wtax=data.wtax,
-        #         wtaxcode=data.wtaxcode,
-        #         wtaxrate=data.wtaxrate,
-        #         balancecode=data.balancecode,
-        #         amount=data.amount,
-        #         particulars=data.particulars,
-        #         remarks=data.remarks,
-        #         comments=data.comments,
-        #         currency=data.currency,
-        #         fxrate=data.fxrate,
-        #         fxamount=data.fxamount,
-        #         document_reftype=data.document_reftype,
-        #         document_refnum=data.document_refnum,
-        #         document_refdate=data.document_refdate,
-        #         document_refamount=data.document_refamount,
-        #         document_refjv=data.document_refjv,
-        #         document_refjvnum=data.document_refjvnum,
-        #         document_refjvdate=data.document_refjvdate,
-        #         document_refap=data.document_refap,
-        #         document_refapnum=data.document_refapnum,
-        #         document_refapdate=data.document_refapdate,
-        #         document_status=data.document_status,
-        #         document_supplier=data.document_supplier,
-        #         document_supplieratc=data.document_supplieratc,
-        #         document_supplieratccode=data.document_supplieratccode,
-        #         document_supplieratcrate=data.document_supplieratcrate,
-        #         document_suppliervat=data.document_suppliervat,
-        #         document_suppliervatcode=data.document_suppliervatcode,
-        #         document_suppliervatrate=data.document_suppliervatrate,
-        #         document_supplierinputvat=data.document_supplierinputvat,
-        #         document_customer=data.document_customer,
-        #         document_customervat=data.document_customervat,
-        #         document_customervatcode=data.document_customervatcode,
-        #         document_customervatrate=data.document_customervatrate,
-        #         document_customerwtax=data.document_customerwtax,
-        #         document_customerwtaxcode=data.document_customerwtaxcode,
-        #         document_customerwtaxrate=data.document_customerwtaxrate,
-        #         document_customeroutputvat=data.document_customeroutputvat,
-        #         document_branch=data.document_branch,
-        #         document_payee=data.document_payee,
-        #         document_bankaccount=data.document_bankaccount,
-        #         document_checknum=data.document_checknum,
-        #         document_checkdate=data.document_checkdate,
-        #         document_amount=data.document_amount,
-        #         document_duedate=data.document_duedate,
-        #         document_currency=data.document_currency,
-        #         document_fxrate=data.document_fxrate,
-        #         document_fxamount=data.document_fxamount,
-        #         document_collector=data.document_collector,
-        #         enterby=data.enterby,
-        #         modifyby=data.modifyby,
-        #         breakdownsource_id=data.breakdownsource_id,
-        #     )
-        #     for data in seq_item
-        # ]
-        # Subledger.objects.bulk_create(items_set)
+                # detail
+                if data.breakdownsource_id is None:
+                    trans_detail\
+                        .filter(pk=data.document_id)\
+                        .filter(status='A', postby__isnull=True, postdate__isnull=True)\
+                        .update(postby=request.user, postdate=datetime.now())
+                else:
+                    trans_detailbreakdown \
+                        .filter(pk=data.breakdownsource_id) \
+                        .filter(status='A', postby__isnull=True, postdate__isnull=True) \
+                        .update(postby=request.user, postdate=datetime.now())
 
-        percentage = int((float(sequence) / items.count()) * 100)
+                Subledger.objects.create(
+                    chartofaccount=data.chartofaccount,
+                    item_counter=data.item_counter,
+                    document_type=data.document_type,
+                    document_id=data.document_id,
+                    document_num=data.document_num,
+                    document_date=data.document_date,
+                    subtype=data.subtype,
+                    dcsubtype=data.dcsubtype,
+                    bankaccount=data.bankaccount,
+                    product=data.product,
+                    branch=data.branch,
+                    unit=data.unit,
+                    inputvat=data.inputvat,
+                    outputvat=data.outputvat,
+                    ataxcode=data.ataxcode,
+                    atccode=data.atccode,
+                    atcrate=data.atcrate,
+                    vat=data.vat,
+                    vatcode=data.vatcode,
+                    vatrate=data.vatrate,
+                    wtax=data.wtax,
+                    wtaxcode=data.wtaxcode,
+                    wtaxrate=data.wtaxrate,
+                    balancecode=data.balancecode,
+                    amount=data.amount,
+                    particulars=data.particulars,
+                    remarks=data.remarks,
+                    comments=data.comments,
+                    currency=data.currency,
+                    fxrate=data.fxrate,
+                    fxamount=data.fxamount,
+                    document_reftype=data.document_reftype,
+                    document_refnum=data.document_refnum,
+                    document_refdate=data.document_refdate,
+                    document_refamount=data.document_refamount,
+                    document_refjv=data.document_refjv,
+                    document_refjvnum=data.document_refjvnum,
+                    document_refjvdate=data.document_refjvdate,
+                    document_refap=data.document_refap,
+                    document_refapnum=data.document_refapnum,
+                    document_refapdate=data.document_refapdate,
+                    document_status=data.document_status,
+                    document_supplier=data.document_supplier,
+                    document_supplieratc=data.document_supplieratc,
+                    document_supplieratccode=data.document_supplieratccode,
+                    document_supplieratcrate=data.document_supplieratcrate,
+                    document_suppliervat=data.document_suppliervat,
+                    document_suppliervatcode=data.document_suppliervatcode,
+                    document_suppliervatrate=data.document_suppliervatrate,
+                    document_supplierinputvat=data.document_supplierinputvat,
+                    document_customer=data.document_customer,
+                    document_customervat=data.document_customervat,
+                    document_customervatcode=data.document_customervatcode,
+                    document_customervatrate=data.document_customervatrate,
+                    document_customerwtax=data.document_customerwtax,
+                    document_customerwtaxcode=data.document_customerwtaxcode,
+                    document_customerwtaxrate=data.document_customerwtaxrate,
+                    document_customeroutputvat=data.document_customeroutputvat,
+                    document_branch=data.document_branch,
+                    document_payee=data.document_payee,
+                    document_bankaccount=data.document_bankaccount,
+                    document_checknum=data.document_checknum,
+                    document_checkdate=data.document_checkdate,
+                    document_amount=data.document_amount,
+                    document_duedate=data.document_duedate,
+                    document_currency=data.document_currency,
+                    document_fxrate=data.document_fxrate,
+                    document_fxamount=data.document_fxamount,
+                    document_collector=data.document_collector,
+                    enterby=data.enterby,
+                    modifyby=data.modifyby,
+                    breakdownsource_id=data.breakdownsource_id,
+                )
+
+            # update to posted
+            seq_item = items.values_list('pk', flat=True)[:skipcount]
+            logs_subledger.objects.filter(pk__in=list(seq_item)).update(importstatus='P')
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            print items.count()
+            percentage = int((float(skipcount) / items.count()) * 100)
+
+        else:
+            percentage = 100
+
         if percentage >= 100:
             percentage = 100
 
@@ -887,7 +828,6 @@ def posttransactions(request):
         data = {
             'status': 'success',
             'response': 'success',
-            'sequence': sequence,
             'total': items.count(),
             'percentage': percentage,
         }

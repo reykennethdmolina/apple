@@ -7,6 +7,9 @@ from departmentbudget.models import Departmentbudget
 from department.models import Department
 from unit.models import Unit
 from chartofaccount.models import Chartofaccount
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q, Sum
+from annoying.functions import get_object_or_None
 
 
 @method_decorator(login_required, name='dispatch')
@@ -113,3 +116,215 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/departmentbudget')
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportView(ListView):
+    model = Departmentbudget
+    template_name = 'departmentbudget/report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultHtmlView(ListView):
+    model = Departmentbudget
+    template_name = 'departmentbudget/reportresulthtml.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "DEPARTMENT BUDGET"
+        context['rc_title'] = "DEPARTMENT BUDGET"
+
+        return context
+
+
+@csrf_exempt
+def reportresultquery(request):
+    query = ''
+    report_type = ''
+    report_xls = ''
+    report_total = ''
+
+    query = Departmentbudget.objects.all().filter(isdeleted=0)
+
+    if request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name))
+        query = query.filter(year=key_data)
+    if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
+        key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
+        query = query.filter(department=int(key_data))
+    if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) is not None \
+            and request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
+        key_data = str(request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name))
+        query = query.filter(chartofaccount=get_object_or_None(Chartofaccount, pk=int(key_data)))
+
+    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
+
+        report_type = "Department Budget (Department Summary)"
+        report_xls = "Dept. Budget (Dept. Summary)"
+
+        query = query.values('department', 'department__departmentname', 'department__code')\
+                     .annotate(
+                               Sum('mjan'),
+                               Sum('mfeb'),
+                               Sum('mmar'),
+                               Sum('mapr'),
+                               Sum('mmay'),
+                               Sum('mjun'),
+                               Sum('mjul'),
+                               Sum('maug'),
+                               Sum('msep'),
+                               Sum('moct'),
+                               Sum('mnov'),
+                               Sum('mdec'),
+                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                               )\
+                     .order_by('department__code')\
+
+        report_total = query.aggregate(
+                                        Sum('mjan__sum'),
+                                        Sum('mfeb__sum'),
+                                        Sum('mmar__sum'),
+                                        Sum('mapr__sum'),
+                                        Sum('mmay__sum'),
+                                        Sum('mjun__sum'),
+                                        Sum('mjul__sum'),
+                                        Sum('maug__sum'),
+                                        Sum('msep__sum'),
+                                        Sum('moct__sum'),
+                                        Sum('mnov__sum'),
+                                        Sum('mdec__sum'),
+                                        Sum('total'),
+                                      )
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+
+        report_type = "Department Budget (Account Summary)"
+        report_xls = "Dept. Budget (Acct. Summary)"
+
+        query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
+                     .annotate(
+                               Sum('mjan'),
+                               Sum('mfeb'),
+                               Sum('mmar'),
+                               Sum('mapr'),
+                               Sum('mmay'),
+                               Sum('mjun'),
+                               Sum('mjul'),
+                               Sum('maug'),
+                               Sum('msep'),
+                               Sum('moct'),
+                               Sum('mnov'),
+                               Sum('mdec'),
+                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                               )\
+                     .order_by('chartofaccount__accountcode')\
+
+        report_total = query.aggregate(
+                                        Sum('mjan__sum'),
+                                        Sum('mfeb__sum'),
+                                        Sum('mmar__sum'),
+                                        Sum('mapr__sum'),
+                                        Sum('mmay__sum'),
+                                        Sum('mjun__sum'),
+                                        Sum('mjul__sum'),
+                                        Sum('maug__sum'),
+                                        Sum('msep__sum'),
+                                        Sum('moct__sum'),
+                                        Sum('mnov__sum'),
+                                        Sum('mdec__sum'),
+                                        Sum('total'),
+                                      )
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
+
+        report_type = "Department Budget (Department Detailed)"
+        report_xls = "Dept. Budget (Dept. Detailed)"
+
+        query = query.values('department', 'department__departmentname', 'department__code', 'chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
+                     .annotate(
+                               Sum('mjan'),
+                               Sum('mfeb'),
+                               Sum('mmar'),
+                               Sum('mapr'),
+                               Sum('mmay'),
+                               Sum('mjun'),
+                               Sum('mjul'),
+                               Sum('maug'),
+                               Sum('msep'),
+                               Sum('moct'),
+                               Sum('mnov'),
+                               Sum('mdec'),
+                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                               )\
+                     .order_by('department__code', 'chartofaccount__accountcode')\
+
+        report_total = query.aggregate(
+                                        Sum('mjan__sum'),
+                                        Sum('mfeb__sum'),
+                                        Sum('mmar__sum'),
+                                        Sum('mapr__sum'),
+                                        Sum('mmay__sum'),
+                                        Sum('mjun__sum'),
+                                        Sum('mjul__sum'),
+                                        Sum('maug__sum'),
+                                        Sum('msep__sum'),
+                                        Sum('moct__sum'),
+                                        Sum('mnov__sum'),
+                                        Sum('mdec__sum'),
+                                        Sum('total'),
+                                      )
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+
+        report_type = "Department Budget (Account Detailed)"
+        report_xls = "Dept. Budget (Acct Detailed)"
+
+        query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description', 'department', 'department__departmentname', 'department__code')\
+                     .annotate(
+                               Sum('mjan'),
+                               Sum('mfeb'),
+                               Sum('mmar'),
+                               Sum('mapr'),
+                               Sum('mmay'),
+                               Sum('mjun'),
+                               Sum('mjul'),
+                               Sum('maug'),
+                               Sum('msep'),
+                               Sum('moct'),
+                               Sum('mnov'),
+                               Sum('mdec'),
+                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                               )\
+                     .order_by('chartofaccount__accountcode', 'department__code')\
+
+        report_total = query.aggregate(
+                                        Sum('mjan__sum'),
+                                        Sum('mfeb__sum'),
+                                        Sum('mmar__sum'),
+                                        Sum('mapr__sum'),
+                                        Sum('mmay__sum'),
+                                        Sum('mjun__sum'),
+                                        Sum('mjul__sum'),
+                                        Sum('maug__sum'),
+                                        Sum('msep__sum'),
+                                        Sum('moct__sum'),
+                                        Sum('mnov__sum'),
+                                        Sum('mdec__sum'),
+                                        Sum('total'),
+                                      )
+
+    return query, report_type, report_total, report_xls

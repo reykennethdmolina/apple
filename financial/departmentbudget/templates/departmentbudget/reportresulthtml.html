@@ -1,0 +1,280 @@
+{% extends 'reports/base-html.html' %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        td{
+            vertical-align: top;
+        }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        .center{
+            text-align: center;
+        }
+        .border{
+            border: 1px solid black;
+            padding-top: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        #table_ae_detailed td{
+            border: none !important;
+        }
+        body{
+            font-size: 11px;
+        }
+    </style>
+{% endblock %}
+
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
+
+    {% if report == 'ds' %}
+        <table id="table_summary" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th class="left" style="min-width: 250px">Department</th>
+                <th class="right">Jan</th>
+                <th class="right">Feb</th>
+                <th class="right">Mar</th>
+                <th class="right">Apr</th>
+                <th class="right">May</th>
+                <th class="right">Jun</th>
+                <th class="right">Jul</th>
+                <th class="right">Aug</th>
+                <th class="right">Sep</th>
+                <th class="right">Oct</th>
+                <th class="right">Nov</th>
+                <th class="right">Dec</th>
+                <th class="right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td class="left">{{ data.department__code }} - {{ data.department__departmentname }}</td>
+                    <td class="right">{{ data.mjan__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mfeb__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmar__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mapr__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmay__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjun__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjul__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.maug__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.msep__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.moct__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mnov__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mdec__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.total|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="14"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="1"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.mjan__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mfeb__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmar__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mapr__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmay__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjun__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjul__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.maug__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.msep__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.moct__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mnov__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mdec__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.total__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
+        </table>
+    {% elif report == 'as' %}
+        <table id="table_summary" class="table table-condensed table-bordered">
+        <thead>
+            <tr>
+                <th class="left" style="min-width: 300px">Account</th>
+                <th class="right">Jan</th>
+                <th class="right">Feb</th>
+                <th class="right">Mar</th>
+                <th class="right">Apr</th>
+                <th class="right">May</th>
+                <th class="right">Jun</th>
+                <th class="right">Jul</th>
+                <th class="right">Aug</th>
+                <th class="right">Sep</th>
+                <th class="right">Oct</th>
+                <th class="right">Nov</th>
+                <th class="right">Dec</th>
+                <th class="right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td class="left">{{ data.chartofaccount__accountcode }} - {{ data.chartofaccount__description }}</td>
+                    <td class="right">{{ data.mjan__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mfeb__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmar__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mapr__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmay__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjun__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjul__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.maug__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.msep__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.moct__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mnov__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mdec__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.total|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="14"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="1"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.mjan__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mfeb__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmar__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mapr__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmay__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjun__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjul__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.maug__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.msep__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.moct__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mnov__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mdec__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.total__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
+        </table>
+    {% elif report == 'dd' %}
+        <table id="table_summary" class="table table-condensed">
+        <thead>
+            <tr>
+                <th class="left" style="min-width: 250px">Department</th>
+                <th class="left" style="min-width: 300px">Account</th>
+                <th class="right">Jan</th>
+                <th class="right">Feb</th>
+                <th class="right">Mar</th>
+                <th class="right">Apr</th>
+                <th class="right">May</th>
+                <th class="right">Jun</th>
+                <th class="right">Jul</th>
+                <th class="right">Aug</th>
+                <th class="right">Sep</th>
+                <th class="right">Oct</th>
+                <th class="right">Nov</th>
+                <th class="right">Dec</th>
+                <th class="right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td class="left">
+                        {% ifchanged data.department__code %}
+                            {{ data.department__code }} - {{ data.department__departmentname }}
+                        {% endifchanged %}
+                    </td>
+                    <td class="left">{{ data.chartofaccount__accountcode }} - {{ data.chartofaccount__description }}</td>
+                    <td class="right">{{ data.mjan__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mfeb__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmar__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mapr__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmay__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjun__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjul__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.maug__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.msep__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.moct__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mnov__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mdec__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.total|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="15"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="2"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.mjan__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mfeb__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmar__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mapr__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmay__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjun__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjul__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.maug__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.msep__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.moct__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mnov__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mdec__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.total__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
+        </table>
+    {% elif report == 'ad' %}
+        <table id="table_summary" class="table table-condensed">
+        <thead>
+            <tr>
+                <th class="left" style="min-width: 300px">Account</th>
+                <th class="left" style="min-width: 250px">Department</th>
+                <th class="right">Jan</th>
+                <th class="right">Feb</th>
+                <th class="right">Mar</th>
+                <th class="right">Apr</th>
+                <th class="right">May</th>
+                <th class="right">Jun</th>
+                <th class="right">Jul</th>
+                <th class="right">Aug</th>
+                <th class="right">Sep</th>
+                <th class="right">Oct</th>
+                <th class="right">Nov</th>
+                <th class="right">Dec</th>
+                <th class="right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    <td class="left">
+                        {% ifchanged data.chartofaccount__accountcode %}
+                            {{ data.chartofaccount__accountcode }} - {{ data.chartofaccount__description }}
+                        {% endifchanged %}
+                    </td>
+                    <td class="left">{{ data.department__code }} - {{ data.department__departmentname }}</td>
+                    <td class="right">{{ data.mjan__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mfeb__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmar__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mapr__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mmay__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjun__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mjul__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.maug__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.msep__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.moct__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mnov__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.mdec__sum|floatformat:2|intcomma }}</td>
+                    <td class="right">{{ data.total|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="15"></td></tr>
+            <tr style="border-top: 1px solid grey; padding-top: 5px;">
+                <td colspan="2"><b>Total</b></td>
+                <td class="right"><b>{{ report_total.mjan__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mfeb__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmar__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mapr__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mmay__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjun__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mjul__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.maug__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.msep__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.moct__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mnov__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.mdec__sum__sum|floatformat:2|intcomma }}</b></td>
+                <td class="right"><b>{{ report_total.total__sum|floatformat:2|intcomma }}</b></td>
+            </tr>
+        </tbody>
+        </table>
+    {% endif %}
+{% endblock page-content %}
