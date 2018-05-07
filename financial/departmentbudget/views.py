@@ -7,19 +7,31 @@ from departmentbudget.models import Departmentbudget
 from department.models import Department
 from unit.models import Unit
 from chartofaccount.models import Chartofaccount
+# pagination and search
+from endless_pagination.views import AjaxListView
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Sum
 from annoying.functions import get_object_or_None
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Departmentbudget
     template_name = 'departmentbudget/index.html'
     context_object_name = 'data_list'
 
+    # pagination and search
+    page_template = 'departmentbudget/index_list.html'
+
     def get_queryset(self):
-        return Departmentbudget.objects.all().filter(isdeleted=0).order_by('-pk')
+        query = Departmentbudget.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(department__code__icontains=keysearch) |
+                                 Q(department__departmentname__icontains=keysearch) |
+                                 Q(chartofaccount__accountcode__icontains=keysearch) |
+                                 Q(chartofaccount__description__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')
@@ -47,8 +59,7 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['unit'] = Unit.objects.filter(isdeleted=0).order_by('description')
-        if self.request.POST.get('department', False):
-            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
         if self.request.POST.get('chartofaccount', False):
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
         return context
@@ -58,7 +69,7 @@ class CreateView(CreateView):
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
         self.object.save()
-        return HttpResponseRedirect('/departmentbudget')
+        return HttpResponseRedirect('/departmentbudget/' + str(self.object.id) + '/update')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -84,10 +95,7 @@ class UpdateView(UpdateView):
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.request.POST['chartofaccount'], isdeleted=0)
         elif self.object.chartofaccount:
             context['chartofaccount'] = Chartofaccount.objects.get(pk=self.object.chartofaccount.id, isdeleted=0)
-        if self.request.POST.get('department', False):
-            context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
-        elif self.object.department:
-            context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
         return context
 
     def form_valid(self, form):
