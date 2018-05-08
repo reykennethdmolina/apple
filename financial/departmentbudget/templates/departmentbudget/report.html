@@ -81,9 +81,9 @@
                         <a href="{% url 'departmentbudget:reportresult' %}" target="_blank" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
                             <i class="icon fa-print" aria-hidden="true"></i>
                         </a>
-                        <a href="{% url 'departmentbudget:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
-                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>
-                        </a>
+{#                        <a href="{% url 'accountspayable:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">#}
+{#                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>#}
+{#                        </a>#}
                         <div id="rep_f_keyword"></div>
                     </h3>
                     <div class="panel-actions">
@@ -96,11 +96,17 @@
                 <div class="panel-body" style="padding: 20px;">
                     <div class="row">
                         <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                            <div class="form-group col-sm-1">
-                                <label class="control-label small">Year</label>
-                                <input type="text" id="rep_f_year" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Print Orientation</label>
+                                <select class="form-control input-sm select2" id="rep_f_orientation">
+                                    <option value="l">Landscape</option>
+                                </select>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Year</label>
+                                <input type="text" id="rep_f_month" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
+                            </div>
+                            <div class="form-group col-sm-8">
                                 <label class="control-label small">Department</label>
                                 <select class="form-control input-sm select2" id="rep_f_department">
                                     <option value="">-- Select --</option>
@@ -109,7 +115,8 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group col-sm-3">
+                            <div class="col-md-12"></div>
+                            <div class="form-group col-sm-4">
                                 <label class="control-label small">Group by</label>
                                 <select class="form-control input-sm select2" id="rep_f_group">
                                     <option value="ds">Department - Summary</option>
@@ -118,7 +125,7 @@
                                     <option value="ad">Account - Detailed</option>
                                 </select>
                             </div>
-                            <div class="form-group col-md-5">
+                            <div class="form-group col-md-8">
                                 <label class="row col-md-12 control-label small">Chart of Account</label>
                                 <div class="row col-md-11">
                                     <select class="form-control input-sm" required style="width: 100%" id="rep_f_gl"></select><br><br>
@@ -175,7 +182,7 @@
             if($('#rep_f_group').val() != ''){
                 setCookie('rep_f_group_{{ request.resolver_match.app_name }}', $('#rep_f_group').val());
                 setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
-                setCookie('rep_f_year_{{ request.resolver_match.app_name }}', $('#rep_f_year').val());
+                setCookie('rep_f_month_{{ request.resolver_match.app_name }}', $('#rep_f_month').val());
                 setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
                 setCookie('rep_f_gl_{{ request.resolver_match.app_name }}', $('#rep_f_gl').val());
 
@@ -194,14 +201,14 @@
             $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
         }
         if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
-            $('#rep_f_year').val(getCookie('rep_f_year_{{ request.resolver_match.app_name }}'));
+            $('#rep_f_month').val(getCookie('rep_f_month_{{ request.resolver_match.app_name }}'));
         }
         if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
             $('#rep_f_department').val(getCookie('rep_f_department_{{ request.resolver_match.app_name }}'));
         }
 {#        $('#rep_f_gl').val(getCookie('rep_f_gl_{{ request.resolver_match.app_name }}'));#}
 
-        $('#rep_f_year').datepicker( {
+        $('#rep_f_month').datepicker( {
             format: "yyyy",
             weekStart: 1,
             orientation: "bottom",

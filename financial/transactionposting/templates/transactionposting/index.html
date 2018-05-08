@@ -96,6 +96,9 @@
         .tr_content > p{
             text-align: left;
         }
+        #loading_full{
+            display: none;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -276,13 +279,19 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <class class="col-md-12">
+                                                <div class="col-md-12">
                                                     <br><br>
-                                                    <div class="animatebar clearfix">
+                                                    <div id="loading_load" class="animatebar clearfix">
                                                         <div class="animatebar-bar progress-bar-info"></div>
                                                         <div class="animatebar-bar-percent"></div>
                                                     </div>
-                                                </class>
+                                                    <div id="loading_full" class="animatebar clearfix">
+                                                        <div class="animatebar-bar progress-bar-warning" style="width: 100%">
+                                                            <div class="animatebar-title progress-bar-warning"><span></span></div>
+                                                        </div>
+                                                        <div class="animatebar-bar-percent">100%</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -324,11 +333,27 @@
                 <table class="table" id="ub_trans">
                     <thead>
                     <tr>
+                        <th colspan="5">Unbalanced Error</th>
+                    </tr>
+                    <tr>
                         <th>Number</th>
                         <th>Date</th>
                         <th style="text-align: right">Debit</th>
                         <th style="text-align: right">Credit</th>
                         <th style="text-align: right">Margin</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <br><br>
+                <table class="table" id="ud_trans">
+                    <thead>
+                    <tr>
+                        <th colspan="2">Department Error</th>
+                    </tr>
+                    <tr>
+                        <th>Number</th>
+                        <th>Date</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -356,6 +381,9 @@
             $('.select_holder').hide();
             $('#trans_post').attr('disabled', 'disabled');
 
+            $('#loading_load').fadeIn();
+            $('#loading_full').hide();
+
             $('#trans_ap').find('.tr_transition').hide();
             $('#trans_ap').find('.tr_content').removeClass('gray-back').addClass('info-back');
             $('#trans_ap').find('.tr_load').show();
@@ -377,10 +405,15 @@
                     reply = response.response;
                     item_count = response.item_count;
                     message = response.message;
+                    udlist = response.ud_list;
+                    udtype = response.ud_type;
                     ublist = response.ub_list;
                     ubtype = response.ub_type;
 
-                    posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, ublist, ubtype);
+                    $('#ub_trans tbody').html('');
+                    $('#ud_trans tbody').html('');
+
+                    posttransition($('#trans_ap'), $('#trans_cv'), reply, item_count, message, this.start_time, udlist, udtype, ublist, ubtype);
 
                     $('#batchkey').val(response.batchkey);
                     $('#datefrom_hidden').val($('#id_datefrom').val());
@@ -405,10 +438,11 @@
                             reply = response.response;
                             item_count = response.item_count;
                             message = response.message;
+                            udlist = response.ud_list;
+                            udtype = response.ud_type;
                             ublist = response.ub_list;
                             ubtype = response.ub_type;
-
-                            posttransition($('#trans_cv'), $('#trans_jv'), reply, item_count, message, this.start_time, ublist, ubtype);
+                            posttransition($('#trans_cv'), $('#trans_jv'), reply, item_count, message, this.start_time, udlist, udtype, ublist, ubtype);
 
                             $.ajax({
                                 url: "{% url 'transactionposting:verifytransactions' %}",
@@ -428,10 +462,11 @@
                                     reply = response.response;
                                     item_count = response.item_count;
                                     message = response.message;
+                                    udlist = response.ud_list;
+                                    udtype = response.ud_type;
                                     ublist = response.ub_list;
                                     ubtype = response.ub_type;
-
-                                    posttransition($('#trans_jv'), $('#trans_or'), reply, item_count, message, this.start_time, ublist, ubtype);
+                                    posttransition($('#trans_jv'), $('#trans_or'), reply, item_count, message, this.start_time, udlist, udtype, ublist, ubtype);
 
                                     $.ajax({
                                         url: "{% url 'transactionposting:verifytransactions' %}",
@@ -451,10 +486,11 @@
                                             reply = response.response;
                                             item_count = response.item_count;
                                             message = response.message;
+                                            udlist = response.ud_list;
+                                            udtype = response.ud_type;
                                             ublist = response.ub_list;
                                             ubtype = response.ub_type;
-
-                                            posttransition($('#trans_or'), '', reply, item_count, message, this.start_time, ublist, ubtype);
+                                            posttransition($('#trans_or'), '', reply, item_count, message, this.start_time, udlist, udtype, ublist, ubtype);
 
                                             $('#trans_verify_loading').hide();
                                             $('#trans_verify').fadeIn();
@@ -478,6 +514,9 @@
             $('.select_holder').hide();
             $('#trans_post').hide();
             $('#trans_post_loading').fadeIn();
+
+            $('#loading_load').fadeIn();
+            $('#loading_full').hide();
             posting(0);
         });
 
@@ -487,8 +526,7 @@
             }
         });
 
-        function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, ublist, ubtype){
-
+        function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, udlist, udtype, ublist, ubtype){
             tr_content.find('.tr_transition').hide();
 
             if(reply == 'success'){
@@ -504,16 +542,21 @@
                 tr_content.find('.trans_message.text-danger').html("<a href='#_' data-toggle='modal' data-target='#ubModal' class='text-danger'>" + message + "</a>");
                 tr_content.find('.trans_message.text-success').html('');
 
-                if(ublist != null){
-                    if(ubtype == 'AP'){
-                        $('#ub_trans tbody').html('');
-                    }
+                if(ubtype != null){
                     for(i=0;i<ublist.length;i++){
                         $('#ub_trans tbody').append("<tr><td><a href='"+ublist[i][0]+"' target='_blank'>"+ubtype+"-"+ublist[i][1]+"</a></td>" +
                             "<td>"+ublist[i][2]+"</td>" +
                             "<td align='right'>"+ublist[i][3]+"</td>" +
                             "<td align='right'>"+ublist[i][4]+"</td>" +
                             "<td align='right'>"+ublist[i][5]+"</td>" +
+                            "</tr>");
+                    }
+                }
+
+                if(udtype != null) {
+                    for (i=0;i<udlist.length;i++) {
+                        $('#ud_trans tbody').append("<tr><td><a href='" + udlist[i][0] + "' target='_blank'>" + udtype + "-" + udlist[i][1] + "</a></td>" +
+                            "<td>" + udlist[i][2] + "</td>" +
                             "</tr>");
                     }
                 }
@@ -552,6 +595,11 @@
                         $('.select_holder').fadeIn();
                         $('#trans_post').fadeIn();
                         $('#trans_post_loading').hide();
+
+                        $('#loading_load').hide();
+                        $('#loading_full').fadeIn();
+{#                        $('.progress-bar-warning span').html("Success! " + response.total + " accounts processed.");#}
+                        $('.progress-bar-warning span').html("Success!");
                     }
                 }
             });

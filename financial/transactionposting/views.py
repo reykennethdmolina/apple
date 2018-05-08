@@ -13,7 +13,7 @@ from transactionposting.models import Logs_posted
 from acctentry.views import generatekey
 from annoying.functions import get_object_or_None
 from datetime import datetime, timedelta
-from django.db.models import Q, Sum
+from django.db.models import F, Sum
 
 
 @method_decorator(login_required, name='dispatch')
@@ -50,11 +50,27 @@ def verifytransactions(request):
                                                      .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum', 'apmain__pk').order_by('apmain__apnum')\
                                                      .exclude(margin=0)
 
-                        if unbalanced.count() == 0:
+                        undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
+                                                 .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
+                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+
+                        if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)
                             status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'AP'
+                            for data in undept:
+                                ud_list.append(['/accountspayable/' + str(data.apmain.pk) + '/update',
+                                                data.apmain.apnum,
+                                                data.apmain.apdate,
+                                                ])
+                            status_undept = 1
                         else:
                             ub_list = []
+                            ub_type = 'AP'
                             for data in unbalanced:
                                 ub_list.append(['/accountspayable/' + str(data['apmain__pk']) + '/update',
                                                 data['apmain__apnum'],
@@ -80,11 +96,27 @@ def verifytransactions(request):
                                                      .values('cvmain__cvnum', 'margin', 'cvmain__cvdate', 'debitsum', 'creditsum', 'cvmain__pk').order_by('cvmain__cvnum')\
                                                      .exclude(margin=0)
 
-                        if unbalanced.count() == 0:
+                        undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A', cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
+                                                 .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
+                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+
+                        if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logcv(datefrom, dateto, batchkey, request.user)
                             status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'CV'
+                            for data in undept:
+                                ud_list.append(['/checkvoucher/' + str(data.cvmain.pk) + '/update',
+                                                data.cvmain.cvnum,
+                                                data.cvmain.cvdate,
+                                                ])
+                            status_undept = 1
                         else:
                             ub_list = []
+                            ub_type = 'CV'
                             for data in unbalanced:
                                 ub_list.append(['/checkvoucher/' + str(data['cvmain__pk']) + '/update',
                                                 data['cvmain__cvnum'],
@@ -109,11 +141,28 @@ def verifytransactions(request):
                                                      .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),creditsum=Sum('creditamount')) \
                                                      .values('jvmain__jvnum', 'margin', 'jvmain__jvdate', 'debitsum', 'creditsum', 'jvmain__pk').order_by('jvmain__jvnum')\
                                                      .exclude(margin=0)
-                        if unbalanced.count() == 0:
+
+                        undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
+                                                 .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
+                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+
+                        if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logjv(datefrom, dateto, batchkey, request.user)
                             status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'JV'
+                            for data in undept:
+                                ud_list.append(['/journalvoucher/' + str(data.jvmain.pk) + '/update',
+                                                data.jvmain.jvnum,
+                                                data.jvmain.jvdate,
+                                                ])
+                            status_undept = 1
                         else:
                             ub_list = []
+                            ub_type = 'JV'
                             for data in unbalanced:
                                 ub_list.append(['/journalvoucher/' + str(data['jvmain__pk']) + '/update',
                                                 data['jvmain__jvnum'],
@@ -139,11 +188,27 @@ def verifytransactions(request):
                                                      .values('ormain__ornum', 'margin', 'ormain__ordate', 'debitsum', 'creditsum', 'ormain__pk').order_by('ormain__ornum')\
                                                      .exclude(margin=0)
 
-                        if unbalanced.count() == 0:
+                        undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A', ormain__postby__isnull=True, ormain__postdate__isnull=True) \
+                                                 .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
+                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+
+                        if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logor(datefrom, dateto, batchkey, request.user)
                             status_success = 1
-                        else:
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'OR'
+                            for data in undept:
+                                ud_list.append(['/officialreceipt/' + str(data.ormain.pk) + '/update',
+                                                data.ormain.ornum,
+                                                data.ormain.ordate,
+                                                ])
+                            status_undept = 1
+                        elif unbalanced.count() != 0:
                             ub_list = []
+                            ub_type = 'OR'
                             for data in unbalanced:
                                 ub_list.append(['/officialreceipt/' + str(data['ormain__pk']) + '/update',
                                                 data['ormain__ornum'],
@@ -170,8 +235,17 @@ def verifytransactions(request):
                 data = {
                     'status': 'success',
                     'response': 'success',
+                    'item_count': '0',
                     'batchkey': batchkey,
                     'message': 'Skipped',
+                }
+            elif status_undept == 1:
+                data = {
+                    'status': 'success',
+                    'response': 'failed',
+                    'message': 'Found ' + str(undept.count()) + ' error in department entry',
+                    'ud_list': ud_list,
+                    'ud_type': ud_type,
                 }
             elif status_unbalanced == 1:
                 data = {
@@ -179,7 +253,7 @@ def verifytransactions(request):
                     'response': 'failed',
                     'message': 'Found ' + str(unbalanced.count()) + ' unbalanced entry',
                     'ub_list': ub_list,
-                    'ub_type': 'OR',
+                    'ub_type': ub_type,
                 }
             elif status_invaliddate == 1:
                 data = {
@@ -667,15 +741,12 @@ def logor(datefrom, dateto, batchkey, user):
 
 @csrf_exempt
 def posttransactions(request):
-    skipcount = 100
+    skipcount = 55
 
     if request.method == 'POST':
         # locking/posting of transactions goes here
         items = logs_subledger.objects.filter(batchkey=request.POST['batchkey'], importstatus='S')
 
-        print items.count()
-        print items.count()
-        print items.count()
         if items.count() > 0:
             # add subledger
             seq_item = items[:skipcount]
@@ -789,26 +860,12 @@ def posttransactions(request):
                     breakdownsource_id=data.breakdownsource_id,
                 )
 
+            itemstotal = logs_subledger.objects.filter(batchkey=request.POST['batchkey'])
+            percentage = 100 - int((float(items.count()) / float(itemstotal.count())) * 100)
+
             # update to posted
             seq_item = items.values_list('pk', flat=True)[:skipcount]
             logs_subledger.objects.filter(pk__in=list(seq_item)).update(importstatus='P')
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            print items.count()
-            percentage = int((float(skipcount) / items.count()) * 100)
-
         else:
             percentage = 100
 
