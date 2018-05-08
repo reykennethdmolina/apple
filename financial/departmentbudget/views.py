@@ -12,6 +12,8 @@ from endless_pagination.views import AjaxListView
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Sum
 from annoying.functions import get_object_or_None
+from utils.mixins import ReportContentMixin
+from easy_pdf.views import PDFTemplateView
 
 
 @method_decorator(login_required, name='dispatch')
@@ -146,6 +148,29 @@ class ReportResultHtmlView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
+        context['report_type'] = ''
+        context['report_total'] = 0
+
+        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
+
+        context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
+        context['data_list'] = query
+
+        # pdf config
+        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
+        context['rc_headtitle'] = "DEPARTMENT BUDGET"
+        context['rc_title'] = "DEPARTMENT BUDGET"
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ReportResultView(ReportContentMixin, PDFTemplateView):
+    model = Departmentbudget
+    template_name = 'departmentbudget/reportresult.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportResultView, self).get_context_data(**kwargs)
         context['report_type'] = ''
         context['report_total'] = 0
 
