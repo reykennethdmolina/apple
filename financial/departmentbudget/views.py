@@ -2,7 +2,7 @@ import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from departmentbudget.models import Departmentbudget
 from department.models import Department
 from unit.models import Unit
@@ -151,7 +151,7 @@ class ReportResultHtmlView(ListView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['report_xls'], context['year'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -174,7 +174,7 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         context['report_type'] = ''
         context['report_total'] = 0
 
-        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
+        query, context['report_type'], context['report_total'], context['report_xls'], context['year'] = reportresultquery(self.request)
 
         context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
         context['data_list'] = query
@@ -193,11 +193,13 @@ def reportresultquery(request):
     report_type = ''
     report_xls = ''
     report_total = ''
+    report_year = ''
 
     query = Departmentbudget.objects.all().filter(isdeleted=0)
 
     if request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name):
         key_data = str(request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name))
+        report_year = key_data
         query = query.filter(year=key_data)
     if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
         key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
@@ -209,8 +211,8 @@ def reportresultquery(request):
 
     if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
 
-        report_type = "Department Budget (Department Summary)"
-        report_xls = "Dept. Budget (Dept. Summary)"
+        report_type = "Department Budget " + str(report_year) + " (Department Summary)"
+        report_xls = "Dept. Budget " + str(report_year) + " (Dept. SM)"
 
         query = query.values('department', 'department__departmentname', 'department__code')\
                      .annotate(
@@ -247,8 +249,8 @@ def reportresultquery(request):
                                       )
     elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
 
-        report_type = "Department Budget (Account Summary)"
-        report_xls = "Dept. Budget (Acct. Summary)"
+        report_type = "Department Budget " + str(report_year) + " (Account Summary)"
+        report_xls = "Dept. Budget " + str(report_year) + " (Acct. SM)"
 
         query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
                      .annotate(
@@ -285,8 +287,8 @@ def reportresultquery(request):
                                       )
     elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
 
-        report_type = "Department Budget (Department Detailed)"
-        report_xls = "Dept. Budget (Dept. Detailed)"
+        report_type = "Department Budget " + str(report_year) + " (Department Detailed)"
+        report_xls = "Dept. Budget " + str(report_year) + " (Dept. DT)"
 
         query = query.values('department', 'department__departmentname', 'department__code', 'chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
                      .annotate(
@@ -323,8 +325,8 @@ def reportresultquery(request):
                                       )
     elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
 
-        report_type = "Department Budget (Account Detailed)"
-        report_xls = "Dept. Budget (Acct Detailed)"
+        report_type = "Department Budget " + str(report_year) + " (Account Detailed)"
+        report_xls = "Dept. Budget " + str(report_year) + " (Acct. DT)"
 
         query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description', 'department', 'department__departmentname', 'department__code')\
                      .annotate(
@@ -360,4 +362,209 @@ def reportresultquery(request):
                                         Sum('total'),
                                       )
 
-    return query, report_type, report_total, report_xls
+    return query, report_type, report_total, report_xls, report_year
+
+
+@csrf_exempt
+def reportresultxlsx(request):
+    # imports and workbook config
+    import xlsxwriter
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+
+    # query and default variables
+    queryset, report_type, report_total, report_xls, report_year = reportresultquery(request)
+    worksheet = workbook.add_worksheet(report_xls)
+    bold = workbook.add_format({'bold': 1})
+    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
+    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
+    money_format = workbook.add_format({'num_format': '#,##0.00'})
+    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
+    worksheet.set_column(1, 1, 15)
+    row = 0
+    data = []
+
+    # config: placement
+    amount_placement = 0
+    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
+        amount_placement = 1
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+        amount_placement = 1
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
+        amount_placement = 2
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+        amount_placement = 2
+
+    # config: header
+    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
+        worksheet.write('A1', 'Departmet', bold)
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+        worksheet.write('A1', 'Account', bold)
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
+        worksheet.write('A1', 'Department', bold)
+        worksheet.write('B1', 'Account', bold)
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+        worksheet.write('A1', 'Account', bold)
+        worksheet.write('B1', 'Department', bold)
+
+    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+        worksheet.write('B1', 'Jan', bold_right)
+        worksheet.write('C1', 'Feb', bold_right)
+        worksheet.write('D1', 'Mar', bold_right)
+        worksheet.write('E1', 'Apr', bold_right)
+        worksheet.write('F1', 'May', bold_right)
+        worksheet.write('G1', 'Jun', bold_right)
+        worksheet.write('H1', 'Jul', bold_right)
+        worksheet.write('I1', 'Aug', bold_right)
+        worksheet.write('J1', 'Sep', bold_right)
+        worksheet.write('K1', 'Oct', bold_right)
+        worksheet.write('L1', 'Nov', bold_right)
+        worksheet.write('M1', 'Dec', bold_right)
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+        worksheet.write('C1', 'Jan', bold_right)
+        worksheet.write('D1', 'Feb', bold_right)
+        worksheet.write('E1', 'Mar', bold_right)
+        worksheet.write('F1', 'Apr', bold_right)
+        worksheet.write('G1', 'May', bold_right)
+        worksheet.write('H1', 'Jun', bold_right)
+        worksheet.write('I1', 'Jul', bold_right)
+        worksheet.write('J1', 'Aug', bold_right)
+        worksheet.write('K1', 'Sep', bold_right)
+        worksheet.write('L1', 'Oct', bold_right)
+        worksheet.write('M1', 'Nov', bold_right)
+        worksheet.write('N1', 'Dec', bold_right)
+        worksheet.write('O1', 'Total', bold_right)
+
+    for obj in queryset:
+        row += 1
+
+        # config: content
+        if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
+            data = [
+                obj['department__code'] + ' - ' + obj['department__departmentname'],
+                obj['mjan__sum'],
+                obj['mfeb__sum'],
+                obj['mmar__sum'],
+                obj['mapr__sum'],
+                obj['mmay__sum'],
+                obj['mjun__sum'],
+                obj['mjul__sum'],
+                obj['maug__sum'],
+                obj['msep__sum'],
+                obj['moct__sum'],
+                obj['mnov__sum'],
+                obj['mdec__sum'],
+                obj['total'],
+            ]
+        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+            data = [
+                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
+                obj['mjan__sum'],
+                obj['mfeb__sum'],
+                obj['mmar__sum'],
+                obj['mapr__sum'],
+                obj['mmay__sum'],
+                obj['mjun__sum'],
+                obj['mjul__sum'],
+                obj['maug__sum'],
+                obj['msep__sum'],
+                obj['moct__sum'],
+                obj['mnov__sum'],
+                obj['mdec__sum'],
+                obj['total'],
+            ]
+        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
+            data = [
+                obj['department__code'] + ' - ' + obj['department__departmentname'],
+                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
+                obj['mjan__sum'],
+                obj['mfeb__sum'],
+                obj['mmar__sum'],
+                obj['mapr__sum'],
+                obj['mmay__sum'],
+                obj['mjun__sum'],
+                obj['mjul__sum'],
+                obj['maug__sum'],
+                obj['msep__sum'],
+                obj['moct__sum'],
+                obj['mnov__sum'],
+                obj['mdec__sum'],
+                obj['total'],
+            ]
+        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+            data = [
+                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
+                obj['department__code'] + ' - ' + obj['department__departmentname'],
+                obj['mjan__sum'],
+                obj['mfeb__sum'],
+                obj['mmar__sum'],
+                obj['mapr__sum'],
+                obj['mmay__sum'],
+                obj['mjun__sum'],
+                obj['mjul__sum'],
+                obj['maug__sum'],
+                obj['msep__sum'],
+                obj['moct__sum'],
+                obj['mnov__sum'],
+                obj['mdec__sum'],
+                obj['total'],
+            ]
+
+        temp_amount_placement = amount_placement
+        for col_num in xrange(len(data)):
+            if col_num == temp_amount_placement:
+                temp_amount_placement += 1
+                worksheet.write_number(row, col_num, data[col_num], money_format)
+            else:
+                worksheet.write(row, col_num, data[col_num])
+
+    # config: totals
+    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
+        data = [
+            "Total",
+            report_total['mjan__sum__sum'],
+            report_total['mfeb__sum__sum'],
+            report_total['mmar__sum__sum'],
+            report_total['mapr__sum__sum'],
+            report_total['mmay__sum__sum'],
+            report_total['mjun__sum__sum'],
+            report_total['mjul__sum__sum'],
+            report_total['maug__sum__sum'],
+            report_total['msep__sum__sum'],
+            report_total['moct__sum__sum'],
+            report_total['mnov__sum__sum'],
+            report_total['mdec__sum__sum'],
+            report_total['total__sum'],
+        ]
+    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
+        data = [
+            "",
+            "Total",
+            report_total['mjan__sum__sum'],
+            report_total['mfeb__sum__sum'],
+            report_total['mmar__sum__sum'],
+            report_total['mapr__sum__sum'],
+            report_total['mmay__sum__sum'],
+            report_total['mjun__sum__sum'],
+            report_total['mjul__sum__sum'],
+            report_total['maug__sum__sum'],
+            report_total['msep__sum__sum'],
+            report_total['moct__sum__sum'],
+            report_total['mnov__sum__sum'],
+            report_total['mdec__sum__sum'],
+            report_total['total__sum'],
+        ]
+
+    row += 1
+    for col_num in xrange(len(data)):
+        worksheet.write(row, col_num, data[col_num], bold_money_format)
+
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
+    return response
