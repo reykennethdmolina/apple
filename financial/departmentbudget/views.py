@@ -424,6 +424,7 @@ def reportresultxlsx(request):
         worksheet.write('K1', 'Oct', bold_right)
         worksheet.write('L1', 'Nov', bold_right)
         worksheet.write('M1', 'Dec', bold_right)
+        worksheet.write('N1', 'Total', bold_right)
     elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
         worksheet.write('C1', 'Jan', bold_right)
         worksheet.write('D1', 'Feb', bold_right)
