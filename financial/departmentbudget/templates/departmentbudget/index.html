@@ -20,9 +20,17 @@
                     </div>
                     <!-- pagination and search end -->
 
-                    {% if perms.departmentbudget.add_departmentbudget %}
-                    <div class="text-right"><a href="{% url 'departmentbudget:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a></div>
-                    {% endif  %}
+
+                    <div class="text-right">
+                        <a href="{% url 'departmentbudget:report' %}">
+                            <button class="btn btn-info btn-sm">
+                                <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
+                            </button>
+                        </a>
+                        {% if perms.departmentbudget.add_departmentbudget %}
+                        <a href="{% url 'departmentbudget:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a>
+                        {% endif  %}
+                    </div>
                 </div>
             </div>
             <!-- pagination and search start -->
