@@ -53,8 +53,7 @@ def verifytransactions(request):
                         undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
                                                  .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
                                                  .filter(department__isnull=False) \
-                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
-                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=str(F('chartofaccount__accountcode__main')) + str(F('chartofaccount__accountcode__clas')))
 
                         if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)

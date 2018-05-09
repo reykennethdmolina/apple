@@ -923,7 +923,7 @@ def exportsave(request):
                     print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     if data.accounttype == 'c':
-                        ortype_accounttype = 'r'
+                        ortype_accounttype = 'a'
                     else:
                         ortype_accounttype = data.accounttype
 
