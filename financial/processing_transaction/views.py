@@ -319,8 +319,7 @@ def importtransdata(request):
                 inventory_entry.debitamount = float(data.vatable) + float(data.vatexempt) + float(data.vatzerorated)
                 inventory_entry.save()
 
-                # 2nd entry for current item: Input VAT (for Office Supplies and Fixed Assets) or
-                # Deferred Input VAT (for Services)
+                # 2nd entry for current item: Input VAT or Deferred Input VAT depending on Supplier Master file
                 if data.vatrate > 0:
                     inputvat_entry = Poapvdetailtemp()
                     inputvat_entry.item_counter = i + 1
@@ -333,11 +332,16 @@ def importtransdata(request):
                     elif request.POST['transtype'] == 'potocv':
                         inputvat_entry.ap_num = newapv.cvnum
                         inputvat_entry.ap_date = newapv.cvdate
-                    if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or \
-                                    data.invitem.inventoryitemclass.inventoryitemtype.code == 'SI':
+                    if data_main.supplier.deferredvat == 'N' or data_main.supplier.deferredvat is None:
                         inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
-                    elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
+                    elif data_main.supplier.deferredvat == 'Y':
                         inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_deferredinputvat_id
+                    # if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or \
+                    #                 data.invitem.inventoryitemclass.inventoryitemtype.code == 'SI':
+                    #     inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat_id
+                    # elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
+                    #     inputvat_entry.chartofaccount = Companyparameter.objects.get(code='PDI').
+                    # coa_deferredinputvat_id
                     inputvat_entry.supplier = data_main.supplier_id
                     inputvat_entry.inputvat = Inputvat.objects.filter(
                         inputvattype=data.invitem.inventoryitemclass.inventoryitemtype.inputvattype).first().id
@@ -563,7 +567,7 @@ def importtransdata(request):
                 newapv.atc = referenceap.atax
                 newapv.atcrate = referenceap.ataxrate
                 newapv.deferredvat = referenceap.deferred
-                newapv.refnum = 'PO No.(s) ' + cvrefnum
+                newapv.refnum = 'APV No.(s) ' + cvrefnum
                 newapv.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
                 newapv.disbursingbranch = referenceap.bankbranchdisburse
                 newapv.amountinwords = request.POST['hdnamountinwords']

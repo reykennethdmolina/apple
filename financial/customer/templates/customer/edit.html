@@ -294,17 +294,18 @@
                                         <span class="help-block form-error">{{ form.currency.errors.as_text }}</span>
                                     </div>
                                 </div>
-{#                                <div class="{{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
-{#                                    <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
-{#                                    <div class="col-sm-7">#}
-{#                                        <select id="id_multiplestatus" name="multiplestatus" class="form-control">#}
-{#                                            {% for id,name in form.fields.multiplestatus.choices %}#}
-{#                                                <option value="{{ id }}"{% if form.multiplestatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>#}
-{#                                            {% endfor %}#}
-{#                                        </select>#}
-{#                                        <span class="help-block form-error">{{ form.multiplestatus.errors.as_text }}</span>#}
-{#                                    </div>#}
-{#                                </div>#}
+                                <div class="{{ form.vat.errors|yesno:'has-error,' }}">
+                                    <label for="id_vat" class="col-sm-4 control-label">VAT</label>
+                                    <div class="col-sm-7">
+                                        <select id="id_vat" name="vat" class="form-control">
+                                            <option value="">-- Select --</option>
+                                            {% for data in vat %}
+                                                <option value="{{ id }}"{% if form.vat.value == data.id %} selected{% endif %}>[{{ data.code }}]&nbsp;{{ data.description }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="help-block form-error">{{ form.vat.errors.as_text }}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group form-group-0 col-md-6 {{ form.remarks.errors|yesno:'has-error,' }}">
                                 <label class="col-sm-6 control-label" for="id_remarks">Remarks (<span id="max-len">250</span> characters left)</label>

@@ -8,6 +8,7 @@ from creditterm.models import Creditterm
 from currency.models import Currency
 from bankaccount.models import Bankaccount
 from industry.models import Industry
+from vat.models import Vat
 from . models import Customer
 
 # pagination and search
@@ -49,7 +50,7 @@ class CreateView(CreateView):
               'contactposition', 'contactemail', 'remarks',
               'beg_amount', 'beg_code', 'beg_date',
               'end_amount', 'end_code', 'end_date', 'bankaccount',
-              'creditterm', 'currency', 'customertype', 'industry']
+              'creditterm', 'currency', 'customertype', 'industry', 'vat']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('customer.add_customer'):
@@ -61,6 +62,10 @@ class CreateView(CreateView):
         self.object.multiplestatus = 'N'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
+
+        if self.object.vat:
+            self.object.vatrate = self.object.vat.rate
+
         self.object.save()
         return HttpResponseRedirect('/customer')
 
@@ -71,6 +76,7 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
         return context
 
 
@@ -85,7 +91,7 @@ class UpdateView(UpdateView):
               'contactposition', 'contactemail', 'remarks',
               'beg_amount', 'beg_code', 'beg_date',
               'end_amount', 'end_code', 'end_date', 'bankaccount',
-              'creditterm', 'currency', 'customertype', 'industry']
+              'creditterm', 'currency', 'customertype', 'industry', 'vat']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('customer.change_customer'):
@@ -97,6 +103,10 @@ class UpdateView(UpdateView):
         self.object.multiplestatus = 'Y'
         self.object.enterby = self.request.user
         self.object.modifyby = self.request.user
+
+        if self.object.vat:
+            self.object.vatrate = self.object.vat.rate
+
         self.object.save(update_fields=['name', 'address1', 'address2', 'address3', 'telno1',
                                         'telno2', 'telno3',
                                         'faxno1', 'faxno2', 'tin', 'pagerno',
@@ -107,7 +117,7 @@ class UpdateView(UpdateView):
                                         'beg_date', 'end_amount',
                                         'end_code', 'end_date', 'bankaccount',
                                         'creditterm', 'currency', 'customertype',
-                                        'industry', 'modifyby', 'modifydate'])
+                                        'industry', 'modifyby', 'modifydate', 'vat'])
         return HttpResponseRedirect('/customer')
 
     def get_context_data(self, **kwargs):
@@ -117,6 +127,7 @@ class UpdateView(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('bank')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('description')
+        context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
         return context
 
 

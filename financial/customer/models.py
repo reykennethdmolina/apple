@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 class Customer(models.Model):
@@ -77,6 +77,10 @@ class Customer(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='customer_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+
+    vat = models.ForeignKey('vat.Vat', related_name='customer_vat_id', validators=[MinValueValidator(1)], null=True,
+                            blank=True)
+    vatrate = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
 
     class Meta:
         db_table = 'customer'
