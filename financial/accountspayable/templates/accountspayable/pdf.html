@@ -235,44 +235,6 @@
                     <td width="5%" style="vertical-align: top"><b>:</b></td>
                     <td style="vertical-align: top; padding-right: 20px; text-align: right;"><small>{{ wtaxamount|floatformat:2|intcomma }}</small></td>
                 </tr>
-{#                <tr>#}
-{#                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>[{{ apmain.bankbranchdisburse.branch }}] {{ apmain.bankbranchdisburse.bank.code }}, {{ apmain.bankbranchdisburse.address1 }}</td>#}
-{#                    <td width="25%"><b>Status</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>{{ apmain.get_apstatus_display }}</td>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td width="25%"><b>Credit&nbsp;Terms</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>{{ apmain.creditterm.description }}</td>#}
-{#                    <td width="25%"><b>Due&nbsp;Date</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>{{ apmain.duedate|date:'Y-m-d' }}</td>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td width="25%"><b>VAT</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>[{{ apmain.vat.code }}]&nbsp;{{ apmain.vat.description }}</td>#}
-{#                    <td width="25%"><b>ATC</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>[{{ apmain.atax.code }}]&nbsp;{{ apmain.ataxrate }}%</td>#}
-{#                </tr>#}
-{#                <tr>#}
-{#                    <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>{{ apmain.inputvattype.description }}</td>#}
-{#                    <td width="25%"><b>Deferred&nbsp;VAT</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td>{{ apmain.get_deferred_display }}</td></td>#}
-{#                </tr>#}
-{#                <tr><td>&nbsp;</td></tr>#}
-{#                <tr>#}
-{#                    <td width="25%"><b>Particulars</b></td>#}
-{#                    <td width="10%"><b>:</b></td>#}
-{#                    <td colspan="4">{{ apmain.particulars }}</td>#}
-{#                </tr>#}
             </table>
         </td>
     </tr>
@@ -301,141 +263,236 @@
     </tr>
 </table><br>
 {% endif %}
-            <b>ACCOUNTING ENTRIES</b>
-<table style="padding-left: 5px;">
+
+<table style="padding-left: 5px; margin-top: 20px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>
-        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>
+        <td colspan="2" style="border-left: 2px solid black;"><b><i>------------------------General Ledger------------------------</i></b></td>
+        <td colspan="2" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+        <td colspan="2" style="border-right: 2px solid black; text-align: right;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr class="left" style="border-bottom: 2px solid black;">
-        <td style="border-left: 2px solid black;">
-            <table>
-                <tr>
-                    <td style="width: 30%"><b><i>Acct Code</i></b></td>
-                    <td style="width: 70%"><b><i>Acct Title</i></b></td>
-                </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 30%"><b><i>Detail</i></b></td>
-                    <td style="width: 70%"><b><i>Description</i></b></td>
-                </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 50%; text-align: right;"><b><i>Debit</i></b></td>
-                    <td style="width: 50%; text-align: right; border-right: 2px solid black; padding-right: 5px;"><b><i>Credit</i></b></td>
-                </tr>
-            </table>
-        </td>
+        <td style="width: 9%; border-left: 2px solid black">Acct Code</td>
+        <td style="width: 28%" align="center">Acct Title</td>
+        <td style="width: 10%">Code</td>
+        <td style="width: 30%">Particulars</td>
+        <td style="width: 11%" align="right">Debit</td>
+        <td style="width: 11%; border-right: 2px solid black" align="right">Credit&nbsp;&nbsp;&nbsp;</td>
     </tr>
     {% for detail in detail %}
-        <tr style="padding-top: 5px;">
-            <td>
-                <table style="padding-bottom: -5px;">
-                    <tr>
-                        <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>
-                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>
-                    </tr>
-                </table>
+        <tr style="padding-top: 5px;padding-left: 0px;">
+            <td style="width: 9%; vertical-align: top;">{{ detail.chartofaccount.accountcode }}</td>
+            <td style="width: 28%; vertical-align: top{% if detail.balancecode == 'C' %}; padding-left: 10px;{% endif %}">{{ detail.chartofaccount.description }}</td>
+            <td style="width: 10%; vertical-align: top;">
+                {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                {% if detail.bankaccount %}
+                    {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.department %}
+                    {{ detail.department.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.branch %}
+                    {{ detail.branch.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.employee %}
+                    {{ detail.employee.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.supplier %}
+                    {{ detail.supplier.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.customer %}
+                    {{ detail.customer.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.unit %}
+                    {{ detail.unit.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.product %}
+                    {{ detail.product.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.inputvat %}
+                    {{ detail.inputvat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.outputvat %}
+                    {{ detail.outputvat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.vat %}
+                    {{ detail.vat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.wtax %}
+                    {{ detail.wtax.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.ataxcode %}
+                    {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                {% endif %}
             </td>
-            <td>
-                <table style="padding-bottom: -5px;">
-                    {% if detail.bankaccount %}
-                        <tr>
-                            <td width="30%">Account no.:</td>
-                            <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.department %}
-                        <tr>
-                            <td width="30%">Department:</td>
-                            <td width="70%">{{ detail.department.departmentname }}</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.employee %}
-                        <tr>
-                            <td width="30%">Employee:</td>
-                            <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
-                        </tr>{% endif %}
-                    {% if detail.supplier %}
-                        <tr>
-                            <td width="30%">Supplier:</td>
-                            <td width="70%">{{ detail.supplier.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.customer %}
-                        <tr>
-                            <td width="30%">Customer:</td>
-                            <td width="70%">{{ detail.customer.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.unit %}
-                        <tr>
-                            <td width="30%">Unit:</td>
-                            <td width="70%">{{ detail.unit.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.branch %}
-                        <tr>
-                            <td width="30%">Branch:</td>
-                            <td width="70%">{{ detail.branch.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.product %}
-                        <tr>
-                            <td width="30%">Product:</td>
-                            <td width="70%">{{ detail.product.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.inputvat %}
-                        <tr>
-                            <td width="30%">Input VAT:</td>
-                            <td width="70%">{{ detail.inputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.outputvat %}
-                        <tr>
-                            <td width="30%">Ouptut VAT:</td>
-                            <td width="70%">{{ detail.outputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.vat %}
-                        <tr>
-                            <td width="30%">VAT:</td>
-                            <td width="70%">{{ detail.vat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.wtax %}
-                        <tr>
-                            <td width="30%">WTax:</td>
-                            <td width="70%">{{ detail.wtax.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.ataxcode %}
-                        <tr>
-                            <td width="30%">ATax:</td>
-                            <td width="70%">{{ detail.ataxcode.description }}</td>
-                        </tr>{% endif %}
-                </table>
+            <td style="width: 30%; vertical-align: top;">
+                {% if detail.bankaccount %}
+                    {{ detail.bankaccount.accountnumber }}
+                {% endif %}
+                {% if detail.department %}
+                    {{ detail.department.departmentname }}
+                {% endif %}
+                {% if detail.employee %}
+                    {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                {% endif %}
+                {% if detail.supplier %}
+                    {{ detail.supplier.name }}
+                {% endif %}
+                {% if detail.customer %}
+                    {{ detail.customer.name }}
+                {% endif %}
+                {% if detail.unit %}
+                    {{ detail.unit.description }}
+                {% endif %}
+                {% if detail.product %}
+                    {{ detail.product.description }}
+                {% endif %}
+                {% if detail.ataxcode %}
+                    {{ detail.ataxcode.description }}
+                {% endif %}
             </td>
-            <td>
-                <table>
-                    <tr>
-                        <td style="width: 50%; text-align: right;">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}</td>
-                        <td style="width: 50%; text-align: right; padding-right: 5px;">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}</td>
-                    </tr>
-                </table>
-            </td>
+            <td style="width: 11%; vertical-align: top;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+            <td style="width: 11%; vertical-align: top;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
         </tr>
     {% endfor %}
     <tr style="padding-top: 5px;">
-        <td colspan="2" align="right"><b>TOTAL:</b></td>
-        <td>
-            <table style="padding-top: 2.5px;">
-                <tr>
-                    <td style="width: 50%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
-                    <td style="width: 50%; text-align: right; padding-right: 5px;"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
-                </tr>
-            </table>
-        </td>
+        <td colspan="4" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+        <td align="right"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
+        <td align="right"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
     </tr>
+{##}
+{#    <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">#}
+{#        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>#}
+{#        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>#}
+{#        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>#}
+{#    </tr>#}
+{#    <tr class="left" style="border-bottom: 2px solid black;">#}
+{#        <td style="border-left: 2px solid black;">#}
+{#            <table>#}
+{#                <tr>#}
+{#                    <td style="width: 30%"><b><i>Acct Code</i></b></td>#}
+{#                    <td style="width: 70%"><b><i>Acct Title</i></b></td>#}
+{#                </tr>#}
+{#            </table>#}
+{#        </td>#}
+{#        <td>#}
+{#            <table>#}
+{#                <tr>#}
+{#                    <td style="width: 30%"><b><i>Detail</i></b></td>#}
+{#                    <td style="width: 70%"><b><i>Description</i></b></td>#}
+{#                </tr>#}
+{#            </table>#}
+{#        </td>#}
+{#        <td>#}
+{#            <table>#}
+{#                <tr>#}
+{#                    <td style="width: 50%; text-align: right;"><b><i>Debit</i></b></td>#}
+{#                    <td style="width: 50%; text-align: right; border-right: 2px solid black; padding-right: 5px;"><b><i>Credit</i></b></td>#}
+{#                </tr>#}
+{#            </table>#}
+{#        </td>#}
+{#    </tr>#}
+{#    {% for detail in detail %}#}
+{#        <tr style="padding-top: 5px;">#}
+{#            <td>#}
+{#                <table style="padding-bottom: -5px;">#}
+{#                    <tr>#}
+{#                        <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>#}
+{#                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>#}
+{#                    </tr>#}
+{#                </table>#}
+{#            </td>#}
+{#            <td>#}
+{#                <table style="padding-bottom: -5px;">#}
+{#                    {% if detail.bankaccount %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Account no.:</td>#}
+{#                            <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>#}
+{#                        </tr>#}
+{#                    {% endif %}#}
+{#                    {% if detail.department %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Department:</td>#}
+{#                            <td width="70%">{{ detail.department.departmentname }}</td>#}
+{#                        </tr>#}
+{#                    {% endif %}#}
+{#                    {% if detail.employee %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Employee:</td>#}
+{#                            <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.supplier %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Supplier:</td>#}
+{#                            <td width="70%">{{ detail.supplier.name }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.customer %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Customer:</td>#}
+{#                            <td width="70%">{{ detail.customer.name }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.unit %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Unit:</td>#}
+{#                            <td width="70%">{{ detail.unit.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.branch %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Branch:</td>#}
+{#                            <td width="70%">{{ detail.branch.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.product %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Product:</td>#}
+{#                            <td width="70%">{{ detail.product.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.inputvat %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Input VAT:</td>#}
+{#                            <td width="70%">{{ detail.inputvat.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.outputvat %}#}
+{#                        <tr>#}
+{#                            <td width="30%">Ouptut VAT:</td>#}
+{#                            <td width="70%">{{ detail.outputvat.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.vat %}#}
+{#                        <tr>#}
+{#                            <td width="30%">VAT:</td>#}
+{#                            <td width="70%">{{ detail.vat.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.wtax %}#}
+{#                        <tr>#}
+{#                            <td width="30%">WTax:</td>#}
+{#                            <td width="70%">{{ detail.wtax.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                    {% if detail.ataxcode %}#}
+{#                        <tr>#}
+{#                            <td width="30%">ATax:</td>#}
+{#                            <td width="70%">{{ detail.ataxcode.description }}</td>#}
+{#                        </tr>{% endif %}#}
+{#                </table>#}
+{#            </td>#}
+{#            <td>#}
+{#                <table>#}
+{#                    <tr>#}
+{#                        <td style="width: 50%; text-align: right;">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}</td>#}
+{#                        <td style="width: 50%; text-align: right; padding-right: 5px;">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}</td>#}
+{#                    </tr>#}
+{#                </table>#}
+{#            </td>#}
+{#        </tr>#}
+{#    {% endfor %}#}
+{#    <tr style="padding-top: 5px;">#}
+{#        <td colspan="2" align="right"><b>TOTAL:</b></td>#}
+{#        <td>#}
+{#            <table style="padding-top: 2.5px;">#}
+{#                <tr>#}
+{#                    <td style="width: 50%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>#}
+{#                    <td style="width: 50%; text-align: right; padding-right: 5px;"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>#}
+{#                </tr>#}
+{#            </table>#}
+{#        </td>#}
+{#    </tr>#}
 </table>
 </body>
 </html>
