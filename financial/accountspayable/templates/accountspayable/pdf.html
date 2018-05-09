@@ -72,7 +72,7 @@
                 <p class="title center"><br>ACCOUNTS PAYABLE VOUCHER</p>
             </td>
             <td>
-                <p class="right number">APV No. {{ apmain.apnum }}</p>
+                <p class="number right">APV No. {{ apmain.apnum }}<br>APV Date: {{ apmain.apdate|date:'m/d/Y' }}</p>
             </td>
         </tr>
     </table>
@@ -172,67 +172,107 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%"><b>APV&nbsp;Date</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.apdate|date:'Y-m-d' }}</td>
-                    <td width="25%"><b>Ref.&nbsp;No.</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.refno }}</td>
+                    <td width="17%" style="vertical-align: top"><b>APV&nbsp;Date</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ apmain.apdate|date:'Y-m-d' }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Ref.&nbsp;No.</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ apmain.refno|default:'N/A' }}</td>
+                    <td width="40%" style="vertical-align: top"><b>VATable&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ vatablesale|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.aptype.description }}</td>
-                    <td width="25%"><b>Subtype</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.apsubtype.description }}</td>
+                    <td width="17%" style="vertical-align: top"><b>Type</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ apmain.aptype.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>Subtype</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;">{{ apmain.apsubtype.code }}</td>
+                    <td width="40%" style="vertical-align: top"><b>VAT&nbsp;Exempt&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ vatexemptsale|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Payee</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.payee.name }}</td>
-                    <td width="25%"><b>Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.branch.description }}</td>
+                    <td width="17%" style="vertical-align: top"><b>VAT</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ apmain.vat.description }}</td>
+                    <td width="15%" style="vertical-align: top"><b>APV&nbsp;Status</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top">{{ apmain.get_apstatus_display }}</td>
+                    <td width="40%" style="vertical-align: top"><b>VAT&nbsp;Zero-Rated&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ vatzeroratedsale|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ apmain.bankbranchdisburse.branch }}] {{ apmain.bankbranchdisburse.bank.code }}, {{ apmain.bankbranchdisburse.address1 }}</td>
-                    <td width="25%"><b>Status</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.get_apstatus_display }}</td>
+                    <td colspan="9">&nbsp;</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Credit&nbsp;Terms</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.creditterm.description }}</td>
-                    <td width="25%"><b>Due&nbsp;Date</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.duedate|date:'Y-m-d' }}</td>
+                    <td width="17%" style="vertical-align: top"><b>Payee</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">[{{ apmain.payee.code }}]&nbsp;{{ apmain.payeename }}</td>
+                    <td width="40%" style="vertical-align: top"><b>Total&nbsp;Purchase</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ totalsale|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>VAT</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ apmain.vat.code }}]&nbsp;{{ apmain.vat.description }}</td>
-                    <td width="25%"><b>ATC</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>[{{ apmain.atax.code }}]&nbsp;{{ apmain.ataxrate }}%</td>
+                    <td width="17%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px;" colspan="4">{{ apmain.particulars }}</td>
+                    <td width="40%" style="vertical-align: top"><b>Add&nbsp;VAT</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;">{{ addvat|floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
-                    <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.inputvattype.description }}</td>
-                    <td width="25%"><b>Deferred&nbsp;VAT</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td>{{ apmain.get_deferred_display }}</td></td>
+                    <td colspan="6">&nbsp;</td>
+                    <td width="40%" style="vertical-align: top"><b>Total&nbsp;Amount</b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;"><b>{{ totalpayment|floatformat:2|intcomma }}</b></td>
                 </tr>
-                <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td width="25%"><b>Particulars</b></td>
-                    <td width="10%"><b>:</b></td>
-                    <td colspan="4">{{ apmain.particulars }}</td>
+                    <td colspan="6">&nbsp;</td>
+                    <td width="40%" style="vertical-align: top"><b><small>Noted&nbsp;{{ wtaxrate }}%&nbsp;wtax</small></b></td>
+                    <td width="5%" style="vertical-align: top"><b>:</b></td>
+                    <td style="vertical-align: top; padding-right: 20px; text-align: right;"><small>{{ wtaxamount|floatformat:2|intcomma }}</small></td>
                 </tr>
+{#                <tr>#}
+{#                    <td width="25%"><b>Disbursing&nbsp;Branch</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>[{{ apmain.bankbranchdisburse.branch }}] {{ apmain.bankbranchdisburse.bank.code }}, {{ apmain.bankbranchdisburse.address1 }}</td>#}
+{#                    <td width="25%"><b>Status</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>{{ apmain.get_apstatus_display }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                    <td width="25%"><b>Credit&nbsp;Terms</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>{{ apmain.creditterm.description }}</td>#}
+{#                    <td width="25%"><b>Due&nbsp;Date</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>{{ apmain.duedate|date:'Y-m-d' }}</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                    <td width="25%"><b>VAT</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>[{{ apmain.vat.code }}]&nbsp;{{ apmain.vat.description }}</td>#}
+{#                    <td width="25%"><b>ATC</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>[{{ apmain.atax.code }}]&nbsp;{{ apmain.ataxrate }}%</td>#}
+{#                </tr>#}
+{#                <tr>#}
+{#                    <td width="25%"><b>Input&nbsp;VAT&nbsp;Type</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>{{ apmain.inputvattype.description }}</td>#}
+{#                    <td width="25%"><b>Deferred&nbsp;VAT</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td>{{ apmain.get_deferred_display }}</td></td>#}
+{#                </tr>#}
+{#                <tr><td>&nbsp;</td></tr>#}
+{#                <tr>#}
+{#                    <td width="25%"><b>Particulars</b></td>#}
+{#                    <td width="10%"><b>:</b></td>#}
+{#                    <td colspan="4">{{ apmain.particulars }}</td>#}
+{#                </tr>#}
             </table>
         </td>
     </tr>

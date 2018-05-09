@@ -621,6 +621,38 @@ class Pdf(PDFTemplateView):
         context['orientation'] = 'portrait'
         context['logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
 
+        taxable_entries = context['detail'].filter(balancecode='D', debitamount__gt=0.00).exclude(
+            chartofaccount=Companyparameter.objects.get(code='PDI').coa_inputvat).order_by('item_counter')
+        taxable_total = taxable_entries.aggregate(Sum('debitamount'))
+        vat_entries = context['detail'].filter(balancecode='D', debitamount__gt=0.00, chartofaccount=Companyparameter.
+                                            objects.get(code='PDI').coa_inputvat).order_by('item_counter')
+        vat_total = vat_entries.aggregate(Sum('debitamount'))
+        aptrade_entries = context['detail'].filter(balancecode='C', creditamount__gt=0.00).exclude(
+            chartofaccount=Companyparameter.objects.get(code='PDI').coa_ewtax).order_by('item_counter')
+        aptrade_total = aptrade_entries.aggregate(Sum('creditamount'))
+        wtax_entries = context['detail'].filter(balancecode='C', creditamount__gt=0.00, chartofaccount=Companyparameter.
+                                             objects.get(code='PDI').coa_ewtax).order_by('item_counter')
+        wtax_total = wtax_entries.aggregate(Sum('creditamount'))
+
+        if context['apmain'].vatrate > 0:
+            context['vatablesale'] = taxable_total['debitamount__sum']
+            context['vatexemptsale'] = 0
+            context['vatzeroratedsale'] = 0
+        elif context['apmain'].vatcode == 'VE':
+            context['vatablesale'] = 0
+            context['vatexemptsale'] = taxable_total['debitamount__sum']
+            context['vatzeroratedsale'] = 0
+        elif context['apmain'].vatcode == 'ZE' or context['apmain'].vatcode == 'VATNA':
+            context['vatablesale'] = 0
+            context['vatexemptsale'] = 0
+            context['vatzeroratedsale'] = taxable_total['debitamount__sum']
+
+        context['totalsale'] = taxable_total['debitamount__sum']
+        context['addvat'] = vat_total['debitamount__sum']
+        context['totalpayment'] = aptrade_total['creditamount__sum']
+        context['wtaxamount'] = wtax_total['creditamount__sum']
+        context['wtaxrate'] = context['apmain'].ataxrate
+
         printedap = Apmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         printedap.print_ctr += 1
         printedap.save()
