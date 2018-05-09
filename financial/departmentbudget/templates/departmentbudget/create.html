@@ -178,7 +178,9 @@
 								    </div>
                                 </div>
                             </div>
-                            <div class="col-md-12"><br></div>
+{#                            <div class="col-md-12"><br></div>#}
+                            <div class="col-md-12 padding-bottom-10 padding-top-0"><button type="button" style="line-height: 1;" class="btn btn-info btn-sm" id="duplicate">Duplicate</button></div>
+
                             <div class="col-md-12">Budget for the Year: &nbsp;&nbsp;&nbsp;
                                 <span id="budgetTotal" class="text-warning amount" style="background-color: #5a5a5a; padding-left: 5px; padding-right: 5px;"></span>
                             </div>
@@ -206,7 +208,24 @@
 {#            ajaxselect2("department", "id_department");#}
             $( window ).load(showSelected).load(showTotal)
             $('#id_department, #id_chartofaccount, #id_unit').on('change', showSelected)
-            $('.amount').on('click keyup', showTotal)
+            $('.amount').on('click keyup', showTotal);
+
+            $('#duplicate').on('click', function(){
+                var january = $('#id_mjan').val();
+                $('#id_mfeb').val(january);
+                $('#id_mmar').val(january);
+                $('#id_mapr').val(january);
+                $('#id_mmay').val(january);
+                $('#id_mjun').val(january);
+                $('#id_mjul').val(january);
+                $('#id_maug').val(january);
+                $('#id_msep').val(january);
+                $('#id_moct').val(january);
+                $('#id_mnov').val(january);
+                $('#id_mdec').val(january);
+                showTotal();
+            });
+
             function showSelected(){
                 $('#department_description').text($('#id_department').find(':selected').data('departmentname'))
                 $('#account_description').text($('#id_chartofaccount').find(':selected').data('description'))
