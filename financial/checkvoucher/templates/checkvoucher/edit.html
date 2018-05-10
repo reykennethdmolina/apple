@@ -217,17 +217,17 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.disbursingbranch.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_disbursingbranch">Disbursing Branch</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_disbursingbranch" name="disbursingbranch">
-                                        <option value="">-- Select --</option>
-                                        {% for disbursingbranch in disbursingbranch %}
-                                            <option value="{{ disbursingbranch.id }}" {% if form.disbursingbranch.value|add:0 == disbursingbranch.id %} selected="selected" {% endif %}>[{{ disbursingbranch.branch }}] {{ disbursingbranch.bank.code }}, {{ disbursingbranch.address1 }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2">
+{#                                <div class="form-group col-sm-3 {{ form.disbursingbranch.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_disbursingbranch">Disbursing Branch</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_disbursingbranch" name="disbursingbranch">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for disbursingbranch in disbursingbranch %}#}
+{#                                            <option value="{{ disbursingbranch.id }}" {% if form.disbursingbranch.value|add:0 == disbursingbranch.id %} selected="selected" {% endif %}>[{{ disbursingbranch.branch }}] {{ disbursingbranch.bank.code }}, {{ disbursingbranch.address1 }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>#}
+{#                                </div>#}
+                                <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_refnum">Reference #</label>
                                     <input type="text" style="background: white;" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
@@ -247,12 +247,12 @@
                                     <input type="text" style="background: white;" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.checknum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2">
+                                <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_checkdate">Check Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.checkdate.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_designatedapprover">Approver</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                         <option value="">-- Select --</option>
@@ -402,12 +402,22 @@
                     <!-- Accounting entry end -->
                 </div>
                 </div>
-            <div class="col-sm-12 padding-left-0 padding-right-0">
-                <div class="col-sm-3"><strong>Created By: </strong> {{ datainfo.enterby }} {{ datainfo.enterdate }}</div>
-                <div class="col-sm-3"><strong>Modified By: </strong>{{ datainfo.modifyby }} {{ datainfo.modifydate }}</div>
-                <div class="col-sm-3"><strong>Posted By: </strong>{{ datainfo.postby|default:'' }} {{ datainfo.postdate|default:'' }}</div>
-                <div class="col-sm-3"><strong>Closed By: </strong>{{ datainfo.closeby|default:'' }} {{ datainfo.closedate|default:'' }}</div>
+            <div class="col-md-12 small">
+                <div class="col-sm-1">Created&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.0 }}</b></div>
+                <div class="col-sm-1">Modified&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.2 }}</b></div>
+                <div class="col-sm-1">Posted&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.4|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Closed&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.6|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Create&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.1 }}</b></div>
+                <div class="col-sm-1">Modify&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.3 }}</b></div>
+                <div class="col-sm-1">Post&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.5|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Close&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.7|default:'N/A' }}</b></div>
             </div>
+{#            <div class="col-sm-12 padding-left-0 padding-right-0">#}
+{#                <div class="col-sm-3"><strong>Created By: </strong> {{ datainfo.enterby }} {{ datainfo.enterdate }}</div>#}
+{#                <div class="col-sm-3"><strong>Modified By: </strong>{{ datainfo.modifyby }} {{ datainfo.modifydate }}</div>#}
+{#                <div class="col-sm-3"><strong>Posted By: </strong>{{ datainfo.postby|default:'' }} {{ datainfo.postdate|default:'' }}</div>#}
+{#                <div class="col-sm-3"><strong>Closed By: </strong>{{ datainfo.closeby|default:'' }} {{ datainfo.closedate|default:'' }}</div>#}
+{#            </div>#}
             <div class="clearfix"></div>
             <div id="repPCVModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
@@ -586,6 +596,9 @@
             var approved = $('#id_cvstatus').val() != 'F';
             var approverResponse = "";
             var released = $('#id_cvstatus').val() == 'R';
+
+            var words = toWords($("#id_amount").val());
+                $("#id_amountinwords").val(words);
 
             $("#id_cvsubtype option:selected").siblings().attr('disabled','disabled');
 

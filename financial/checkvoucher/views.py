@@ -137,7 +137,7 @@ class CreateView(CreateView):
         context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        # context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
@@ -210,8 +210,8 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = Cvmain
     template_name = 'checkvoucher/edit.html'
-    fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc', 'bankaccount',
-              'disbursingbranch', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
+    fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
+              'bankaccount', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
               'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
@@ -336,7 +336,7 @@ class UpdateView(UpdateView):
         context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        # context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
@@ -356,7 +356,18 @@ class UpdateView(UpdateView):
         }
         context['datatable'] = render_to_string('acctentry/datatable.html', contextdatatable)
         # accounting entry ends here
-        context['datainfo'] = self.object
+        # context['datainfo'] = self.object
+
+        context['footers'] = [
+            self.object.enterby.first_name + " " + self.object.enterby.last_name if self.object.enterby else '',
+            self.object.enterdate,
+            self.object.modifyby.first_name + " " + self.object.modifyby.last_name if self.object.modifyby else '',
+            self.object.modifydate,
+            self.object.postby.first_name + " " + self.object.postby.last_name if self.object.postby else '',
+            self.object.postdate,
+            self.object.closeby.first_name + " " + self.object.closeby.last_name if self.object.closeby else '',
+            self.object.closedate,
+        ]
 
         return context
 
@@ -378,7 +389,7 @@ class UpdateView(UpdateView):
             self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             self.object.save(update_fields=['cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum',
-                                            'particulars', 'vat', 'atc', 'bankaccount', 'disbursingbranch',
+                                            'particulars', 'vat', 'atc', 'bankaccount',
                                             'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
                                             'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'payee',
                                             'payee_code', 'payee_name', 'modifyby', 'modifydate'])

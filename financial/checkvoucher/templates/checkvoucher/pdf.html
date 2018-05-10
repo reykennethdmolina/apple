@@ -72,7 +72,7 @@
                 <p class="title center"><br>CHECK VOUCHER</p>
             </td>
             <td>
-                <p class="number right">CV No. {{ cvmain.cvnum }}</p>
+                <p class="number right">CV No. {{ cvmain.cvnum }}<br>CV Date: {{ cvmain.cvdate|date:'m/d/Y' }}</p>
             </td>
         </tr>
     </table>
@@ -172,79 +172,59 @@
             <br>
             <table>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>CV&nbsp;Date</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.cvdate|date:'Y-m-d' }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Type</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.cvtype.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>CV&nbsp;Date</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ cvmain.cvdate|date:'Y-m-d' }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Type</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ cvmain.cvtype.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Subtype</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="29%" style="vertical-align: top;">{{ cvmain.cvsubtype.description }}</td>
                 </tr>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Branch</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.branch.description }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Subtype</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.cvsubtype.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Branch</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="17%" style="vertical-align: top; padding-right: 20px;">{{ cvmain.branch.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Status</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ cvmain.get_cvstatus_display }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Bank&nbsp;Acct</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="29%" style="vertical-align: top;">{{ cvmain.bankaccount.code }} [{{ cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
                 </tr>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Ref.&nbsp;No.</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.refnum }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Status</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.get_cvstatus_display }}</td>
-{#                    <td width="25%" style="vertical-align: top"><b>Ref.&nbsp;AP</b></td>#}
-{#                    <td width="10%" style="vertical-align: top"><b>:</b></td>#}
-{#                    <td style="vertical-align: top">N/A</td>#}
+                    <td width="10%" style="vertical-align: top"><b>Check&nbsp;No.</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="17%" style="vertical-align: top">{{ cvmain.checknum }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Amount</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="15%" style="vertical-align: top">{{ cvmain.currency.symbol }}&nbsp;{{ cvmain.amount|floatformat:2|intcomma }}</td>
+                    <td width="10%" style="vertical-align: top"><b>In&nbsp;Words</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="29%" style="vertical-align: top;">{{ cvmain.amountinwords }}</td>
                 </tr>
                 <tr>
-                    <td width="65%"><b>Bank&nbsp;Account</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.bankaccount.code }} [{{ cvmain.bankaccount.bank.description }} - {{ cvmain.bankaccount.bankaccounttype.description }}]</td>
-                    <td width="25%" style="vertical-align: top"><b>Disbursing&nbsp;Branch</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">[{{ cvmain.disbursingbranch.branch }}] {{ cvmain.disbursingbranch.bank.code }}, {{ cvmain.disbursingbranch.address1 }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Check&nbsp;Date</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="17%"  style="vertical-align: top; padding-right: 20px;">{{ cvmain.checkdate|date:'Y-m-d' }}</td>
+                    <td width="10%" style="vertical-align: top"><b>VAT</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="15%" style="vertical-align: top; padding-right: 20px;">{{ cvmain.vat.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Payee</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="29%" style="vertical-align: top;">{{ cvmain.payee_name }}</td>
                 </tr>
                 <tr>
-                    <td width="25%" style="vertical-align: top"><b>Check&nbsp;No.</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.checknum }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Check&nbsp;Date</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.checkdate|date:'Y-m-d' }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>Amount</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.currency.symbol }}&nbsp;{{ cvmain.amount|floatformat:2|intcomma }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Amount in words</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.amountinwords }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>Payee</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.payee_name }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Particulars</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.particulars }}</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>VAT</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">[{{ cvmain.vat.code }}]&nbsp;{{ cvmain.vat.description }}</td>
-                    <td width="25%" style="vertical-align: top"><b>ATC</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">[{{ cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
-                </tr>
-                <tr>
-                    <td width="25%" style="vertical-align: top"><b>Input&nbsp;VAT&nbsp;Type</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.inputvattype.description }}</td>
-                    <td width="25%" style="vertical-align: top"><b>Deferred&nbsp;VAT</b></td>
-                    <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ cvmain.get_deferredvat_display }}</td>
+                    <td width="10%" style="vertical-align: top"><b>Input&nbsp;VAT</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="17%"  style="vertical-align: top">{{ cvmain.inputvattype.description }}</td>
+                    <td width="10%" style="vertical-align: top"><b>ATC</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="15%" style="vertical-align: top">[{{ cvmain.atc.code }}]&nbsp;{{ cvmain.atcrate }}%</td>
+                    <td width="10%" style="vertical-align: top"><b>Particulars</b></td>
+                    <td width="3%" style="vertical-align: top"><b>:</b></td>
+                    <td width="29%" style="vertical-align: top;">{{ cvmain.particulars }}</td>
                 </tr>
             </table>
         </td>
@@ -274,140 +254,100 @@
     </tr>
 </table><br>
 {% endif %}
-            <b>ACCOUNTING ENTRIES</b>
-<table style="padding-left: 5px;">
+<table style="padding-left: 5px; margin-top: 20px;">
     <tr class="left" style="border-top: 2px solid black;padding-top: 5px;">
-        <td style="border-left: 2px solid black;width: 30%;"><b><i>-------General Ledger---------</i></b></td>
-        <td style="width: 40%;" align="center"><b><i>------------------------Account Details------------------------</i></b></td>
-        <td style="border-right: 2px solid black; text-align: right; padding-right: 5px;width: 30%;"><b><i>------------Amount (PHP)------------</i></b></td>
+        <td colspan="2" style="border-left: 2px solid black;"><b><i>------------------------General Ledger------------------------</i></b></td>
+        <td colspan="2" align="left"><b><i>-------------------------Subsidiary Ledger-------------------------</i></b></td>
+        <td colspan="2" style="border-right: 2px solid black; text-align: right;"><b><i>---------Amount (PHP)---------</i></b>&nbsp;&nbsp;&nbsp;</td>
     </tr>
     <tr class="left" style="border-bottom: 2px solid black;">
-        <td style="border-left: 2px solid black;">
-            <table>
-                <tr>
-                    <td style="width: 30%"><b><i>Acct Code</i></b></td>
-                    <td style="width: 70%"><b><i>Acct Title</i></b></td>
-                </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 30%"><b><i>Detail</i></b></td>
-                    <td style="width: 70%"><b><i>Description</i></b></td>
-                </tr>
-            </table>
-        </td>
-        <td>
-            <table>
-                <tr>
-                    <td style="width: 50%; text-align: right;"><b><i>Debit</i></b></td>
-                    <td style="width: 50%; text-align: right; border-right: 2px solid black; padding-right: 5px;"><b><i>Credit</i></b></td>
-                </tr>
-            </table>
-        </td>
+        <td style="width: 9%; border-left: 2px solid black">Acct Code</td>
+        <td style="width: 28%" align="center">Acct Title</td>
+        <td style="width: 10%">Code</td>
+        <td style="width: 30%">Particulars</td>
+        <td style="width: 11%" align="right">Debit</td>
+        <td style="width: 11%; border-right: 2px solid black" align="right">Credit&nbsp;&nbsp;&nbsp;</td>
     </tr>
     {% for detail in detail %}
-        <tr style="padding-top: 5px;">
-            <td>
-                <table style="padding-bottom: -5px;">
-                    <tr>
-                        <td style="width: 30%">{{ detail.chartofaccount.accountcode }}</td>
-                        <td style="width: 70%">{{ detail.chartofaccount.description }}</td>
-                    </tr>
-                </table>
+        <tr style="padding-top: 5px;padding-left: 0px;">
+            <td style="width: 9%; vertical-align: top;">{{ detail.chartofaccount.accountcode }}</td>
+            <td style="width: 28%; vertical-align: top{% if detail.balancecode == 'C' %}; padding-left: 10px;{% endif %}">{{ detail.chartofaccount.description }}</td>
+            <td style="width: 10%; vertical-align: top;">
+                {% if detail.balancecode == 'C' %}&nbsp;&nbsp;&nbsp;{% endif %}
+                {% if detail.bankaccount %}
+                    {{ detail.bankaccount.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.department %}
+                    {{ detail.department.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.branch %}
+                    {{ detail.branch.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.employee %}
+                    {{ detail.employee.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.supplier %}
+                    {{ detail.supplier.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.customer %}
+                    {{ detail.customer.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.unit %}
+                    {{ detail.unit.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.product %}
+                    {{ detail.product.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.inputvat %}
+                    {{ detail.inputvat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.outputvat %}
+                    {{ detail.outputvat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.vat %}
+                    {{ detail.vat.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.wtax %}
+                    {{ detail.wtax.code }}&nbsp;&nbsp;
+                {% endif %}
+                {% if detail.ataxcode %}
+                    {{ detail.ataxcode.code }}&nbsp;&nbsp;
+                {% endif %}
             </td>
-            <td>
-                <table style="padding-bottom: -5px;">
-                    {% if detail.bankaccount %}
-                        <tr>
-                            <td width="30%">Account no.:</td>
-                            <td width="70%">{{ detail.bankaccount.accountnumber }} ({{ detail.bankaccount.code }})</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.department %}
-                        <tr>
-                            <td width="30%">Department:</td>
-                            <td width="70%">{{ detail.department.departmentname }}</td>
-                        </tr>
-                    {% endif %}
-                    {% if detail.employee %}
-                        <tr>
-                            <td width="30%">Employee:</td>
-                            <td width="70%">{{ detail.employee.firstname }} {{ detail.employee.lastname }}</td>
-                        </tr>{% endif %}
-                    {% if detail.supplier %}
-                        <tr>
-                            <td width="30%">Supplier:</td>
-                            <td width="70%">{{ detail.supplier.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.customer %}
-                        <tr>
-                            <td width="30%">Customer:</td>
-                            <td width="70%">{{ detail.customer.name }}</td>
-                        </tr>{% endif %}
-                    {% if detail.unit %}
-                        <tr>
-                            <td width="30%">Unit:</td>
-                            <td width="70%">{{ detail.unit.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.branch %}
-                        <tr>
-                            <td width="30%">Branch:</td>
-                            <td width="70%">{{ detail.branch.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.product %}
-                        <tr>
-                            <td width="30%">Product:</td>
-                            <td width="70%">{{ detail.product.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.inputvat %}
-                        <tr>
-                            <td width="30%">Input VAT:</td>
-                            <td width="70%">{{ detail.inputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.outputvat %}
-                        <tr>
-                            <td width="30%">Ouptut VAT:</td>
-                            <td width="70%">{{ detail.outputvat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.vat %}
-                        <tr>
-                            <td width="30%">VAT:</td>
-                            <td width="70%">{{ detail.vat.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.wtax %}
-                        <tr>
-                            <td width="30%">WTax:</td>
-                            <td width="70%">{{ detail.wtax.description }}</td>
-                        </tr>{% endif %}
-                    {% if detail.ataxcode %}
-                        <tr>
-                            <td width="30%">ATax:</td>
-                            <td width="70%">{{ detail.ataxcode.description }}</td>
-                        </tr>{% endif %}
-                </table>
+            <td style="width: 30%; vertical-align: top;">
+                {% if detail.bankaccount %}
+                    {{ detail.bankaccount.accountnumber }}
+                {% endif %}
+                {% if detail.department %}
+                    {{ detail.department.departmentname }}
+                {% endif %}
+                {% if detail.employee %}
+                    {{ detail.employee.firstname }}&nbsp;{{ detail.employee.lastname }}
+                {% endif %}
+                {% if detail.supplier %}
+                    {{ detail.supplier.name }}
+                {% endif %}
+                {% if detail.customer %}
+                    {{ detail.customer.name }}
+                {% endif %}
+                {% if detail.unit %}
+                    {{ detail.unit.description }}
+                {% endif %}
+                {% if detail.product %}
+                    {{ detail.product.description }}
+                {% endif %}
+                {% if detail.ataxcode %}
+                    {{ detail.ataxcode.description }}
+                {% endif %}
             </td>
-            <td>
-                <table>
-                    <tr>
-                        <td style="width: 50%; text-align: right;">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}</td>
-                        <td style="width: 50%; text-align: right; padding-right: 5px;">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}</td>
-                    </tr>
-                </table>
-            </td>
+            <td style="width: 11%; vertical-align: top;" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
+            <td style="width: 11%; vertical-align: top;" align="right">{% if detail.balancecode == 'C' %}{{ detail.creditamount|floatformat:2|intcomma }}{% endif %}
         </tr>
     {% endfor %}
     <tr style="padding-top: 5px;">
-        <td colspan="2" align="right"><b>TOTAL:</b></td>
-        <td>
-            <table style="padding-top: 2.5px;">
-                <tr>
-                    <td style="width: 50%; text-align: right;"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
-                    <td style="width: 50%; text-align: right; padding-right: 5px;"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
-                </tr>
-            </table>
-        </td>
+        <td colspan="4" align="right"><b>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+        <td align="right"><b>{{ totaldebitamount.debitamount__sum|intcomma }}</b></td>
+        <td align="right"><b>{{ totalcreditamount.creditamount__sum|intcomma }}</b></td>
     </tr>
 </table>
 </body>

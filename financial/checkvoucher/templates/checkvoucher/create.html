@@ -136,17 +136,17 @@
                                     </select>
                                     <span class="help-block form-error">{{ form.bankaccount.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.disbursingbranch.errors|yesno:'has-error,' }}">
-                                    <label class="control-label" for="id_disbursingbranch">Disbursing Branch</label>
-                                    <select class="form-control input-sm" data-validation="required" id="id_disbursingbranch" name="disbursingbranch">
-                                        <option value="">-- Select --</option>
-                                        {% for disbursingbranch in disbursingbranch %}
-                                            <option value="{{ disbursingbranch.id }}" {% if form.disbursingbranch.value|add:0 == disbursingbranch.id %} selected="selected" {% endif %}>[{{ disbursingbranch.branch }}] {{ disbursingbranch.bank.code }}, {{ disbursingbranch.address1 }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>
-                                </div>
-                                <div class="form-group col-sm-2">
+{#                                <div class="form-group col-sm-3 {{ form.disbursingbranch.errors|yesno:'has-error,' }}">#}
+{#                                    <label class="control-label" for="id_disbursingbranch">Disbursing Branch</label>#}
+{#                                    <select class="form-control input-sm" data-validation="required" id="id_disbursingbranch" name="disbursingbranch">#}
+{#                                        <option value="">-- Select --</option>#}
+{#                                        {% for disbursingbranch in disbursingbranch %}#}
+{#                                            <option value="{{ disbursingbranch.id }}" {% if form.disbursingbranch.value|add:0 == disbursingbranch.id %} selected="selected" {% endif %}>[{{ disbursingbranch.branch }}] {{ disbursingbranch.bank.code }}, {{ disbursingbranch.address1 }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                    <span class="help-block form-error">{{ form.disbursingbranch.errors.as_text }}</span>#}
+{#                                </div>#}
+                                <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_refnum">Reference #</label>
                                     <input type="text" class="form-control input-sm" id="id_refnum" name="refnum" placeholder="Reference #" value="{{ form.refnum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.refnum.errors.as_text }}</span>
@@ -166,12 +166,12 @@
                                     <input type="text" class="form-control input-sm" id="id_checknum" data-validation="required" name="checknum" value="{{ form.checknum.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.checknum.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-2">
+                                <div class="form-group col-sm-3">
                                     <label class="control-label" for="id_checkdate">Check Date</label>
                                     <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px" id="id_checkdate" name="checkdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.checkdate.value %}{{ form.checkdate.value }}{% else %}{% now "Y-m-d" %}{% endif %}">
                                     <span class="help-block form-error">{{ form.checkdate.errors.as_text }}</span>
                                 </div>
-                                <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
+                                <div class="form-group col-sm-4 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_designatedapprover">Approver</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                         <option value="">-- Select --</option>

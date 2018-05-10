@@ -221,7 +221,7 @@ def importtransdata(request):
                 newapv.refnum = 'PO No.(s) ' + refnum
                 newapv.cvtype = Cvtype.objects.get(description='NON-AP')
                 newapv.cvsubtype = Cvsubtype.objects.get(code='IPO')
-                newapv.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
+                # newapv.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
                 newapv.amountinwords = request.POST['hdnamountinwords']
 
             newapv.vat = referencepo.vat
@@ -534,6 +534,7 @@ def importtransdata(request):
                 newapv.duedate = referenceap.duedate
                 newapv.bankbranchdisbursebranch = referenceap.bankbranchdisbursebranch
                 newapv.bankbranchdisburse = referenceap.bankbranchdisburse
+                newapv.bankaccount = referenceap.bankaccount
             elif request.POST['transtype'] == 'apvtocv':
                 year = str(datetime.date.today().year)
                 yearqs = Cvmain.objects.filter(cvnum__startswith=year)
@@ -568,7 +569,7 @@ def importtransdata(request):
                 newapv.atcrate = referenceap.ataxrate
                 newapv.deferredvat = referenceap.deferred
                 newapv.refnum = 'APV No.(s) ' + cvrefnum
-                newapv.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
+                newapv.bankaccount = referenceap.bankaccount
                 newapv.disbursingbranch = referenceap.bankbranchdisburse
                 newapv.amountinwords = request.POST['hdnamountinwords']
             newapv.vat = referenceap.vat
@@ -607,18 +608,21 @@ def importtransdata(request):
 
                 apv_detail = Apdetail.objects.filter(apmain=data, status='A')
                 for detail in apv_detail:
-                    if detail.balancecode == 'D':
-                        if 'DEFERRED' in detail.chartofaccount.title.upper():   # if deferred input vat
-                            inputvat_debit_amount += detail.debitamount
-                            deferredinputvat_credit_amount += detail.debitamount
-                            aptrade_debit_amount -= detail.debitamount
-                        else:
-                            cashinbank_credit_amount += detail.debitamount
-                    elif detail.balancecode == 'C':
+                    if detail.balancecode == 'C' and detail.chartofaccount.id == Companyparameter.objects.get(code='PDI').coa_aptrade_id:
                         aptrade_debit_amount += detail.creditamount
+                        cashinbank_credit_amount += detail.creditamount
+                    # if detail.balancecode == 'D':
+                    #     if 'DEFERRED' in detail.chartofaccount.title.upper():   # if deferred input vat
+                    #         inputvat_debit_amount += detail.debitamount
+                    #         deferredinputvat_credit_amount += detail.debitamount
+                    #         aptrade_debit_amount -= detail.debitamount
+                    #     else:
+                    #         cashinbank_credit_amount += detail.debitamount
+                    # elif detail.balancecode == 'C':
+                    #     aptrade_debit_amount += detail.creditamount
                 i += 1
 
-            newapv.amount = total_amount
+            newapv.amount = cashinbank_credit_amount
             newapv.save()
 
             cvdetail_item_counter = 1
@@ -647,52 +651,52 @@ def importtransdata(request):
             cvdetail_item_counter += 1
 
             # 2nd entry: Input VAT (if there is a Deferred Input VAT from APV which only comes from Services)
-            if inputvat_debit_amount > 0:
-                if request.POST['transtype'] == 'apvtoapv':
-                    inputvat_cv_entry = Apdetail()
-                    inputvat_cv_entry.apmain = newapv
-                    inputvat_cv_entry.ap_num = newapv.apnum
-                    inputvat_cv_entry.ap_date = newapv.apdate
-                    inputvat_cv_entry.supplier = Supplier.objects.filter(id=newapv.payee_id).first()
-                elif request.POST['transtype'] == 'apvtocv':
-                    inputvat_cv_entry = Cvdetail()
-                    inputvat_cv_entry.cvmain = newapv
-                    inputvat_cv_entry.cv_num = newapv.cvnum
-                    inputvat_cv_entry.cv_date = newapv.cvdate
-                    inputvat_cv_entry.supplier = newapv.payee
-                inputvat_cv_entry.item_counter = cvdetail_item_counter
-                inputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat
-                inputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
-                inputvat_cv_entry.vat = newapv.vat
-                inputvat_cv_entry.balancecode = 'D'
-                inputvat_cv_entry.debitamount = inputvat_debit_amount
-                inputvat_cv_entry.enterby = request.user
-                inputvat_cv_entry.modifyby = request.user
-                inputvat_cv_entry.save()
-                cvdetail_item_counter += 1
-                # 3rd entry: Deferred Input VAT
-                if request.POST['transtype'] == 'apvtoapv':
-                    deferredinputvat_cv_entry = Apdetail()
-                    deferredinputvat_cv_entry.apmain = newapv
-                    deferredinputvat_cv_entry.ap_num = newapv.apnum
-                    deferredinputvat_cv_entry.ap_date = newapv.apdate
-                    deferredinputvat_cv_entry.supplier = Supplier.objects.filter(id=newapv.payee_id).first()
-                elif request.POST['transtype'] == 'apvtocv':
-                    deferredinputvat_cv_entry = Cvdetail()
-                    deferredinputvat_cv_entry.cvmain = newapv
-                    deferredinputvat_cv_entry.cv_num = newapv.cvnum
-                    deferredinputvat_cv_entry.cv_date = newapv.cvdate
-                    deferredinputvat_cv_entry.supplier = newapv.payee
-                deferredinputvat_cv_entry.item_counter = cvdetail_item_counter
-                deferredinputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_deferredinputvat
-                deferredinputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
-                deferredinputvat_cv_entry.vat = newapv.vat
-                deferredinputvat_cv_entry.balancecode = 'C'
-                deferredinputvat_cv_entry.creditamount = deferredinputvat_credit_amount
-                deferredinputvat_cv_entry.enterby = request.user
-                deferredinputvat_cv_entry.modifyby = request.user
-                deferredinputvat_cv_entry.save()
-                cvdetail_item_counter += 1
+            # if inputvat_debit_amount > 0:
+            #     if request.POST['transtype'] == 'apvtoapv':
+            #         inputvat_cv_entry = Apdetail()
+            #         inputvat_cv_entry.apmain = newapv
+            #         inputvat_cv_entry.ap_num = newapv.apnum
+            #         inputvat_cv_entry.ap_date = newapv.apdate
+            #         inputvat_cv_entry.supplier = Supplier.objects.filter(id=newapv.payee_id).first()
+            #     elif request.POST['transtype'] == 'apvtocv':
+            #         inputvat_cv_entry = Cvdetail()
+            #         inputvat_cv_entry.cvmain = newapv
+            #         inputvat_cv_entry.cv_num = newapv.cvnum
+            #         inputvat_cv_entry.cv_date = newapv.cvdate
+            #         inputvat_cv_entry.supplier = newapv.payee
+            #     inputvat_cv_entry.item_counter = cvdetail_item_counter
+            #     inputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_inputvat
+            #     inputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
+            #     inputvat_cv_entry.vat = newapv.vat
+            #     inputvat_cv_entry.balancecode = 'D'
+            #     inputvat_cv_entry.debitamount = inputvat_debit_amount
+            #     inputvat_cv_entry.enterby = request.user
+            #     inputvat_cv_entry.modifyby = request.user
+            #     inputvat_cv_entry.save()
+            #     cvdetail_item_counter += 1
+            #     # 3rd entry: Deferred Input VAT
+            #     if request.POST['transtype'] == 'apvtoapv':
+            #         deferredinputvat_cv_entry = Apdetail()
+            #         deferredinputvat_cv_entry.apmain = newapv
+            #         deferredinputvat_cv_entry.ap_num = newapv.apnum
+            #         deferredinputvat_cv_entry.ap_date = newapv.apdate
+            #         deferredinputvat_cv_entry.supplier = Supplier.objects.filter(id=newapv.payee_id).first()
+            #     elif request.POST['transtype'] == 'apvtocv':
+            #         deferredinputvat_cv_entry = Cvdetail()
+            #         deferredinputvat_cv_entry.cvmain = newapv
+            #         deferredinputvat_cv_entry.cv_num = newapv.cvnum
+            #         deferredinputvat_cv_entry.cv_date = newapv.cvdate
+            #         deferredinputvat_cv_entry.supplier = newapv.payee
+            #     deferredinputvat_cv_entry.item_counter = cvdetail_item_counter
+            #     deferredinputvat_cv_entry.chartofaccount = Companyparameter.objects.get(code='PDI').coa_deferredinputvat
+            #     deferredinputvat_cv_entry.inputvat = Inputvat.objects.filter(title='SERVICES').first()
+            #     deferredinputvat_cv_entry.vat = newapv.vat
+            #     deferredinputvat_cv_entry.balancecode = 'C'
+            #     deferredinputvat_cv_entry.creditamount = deferredinputvat_credit_amount
+            #     deferredinputvat_cv_entry.enterby = request.user
+            #     deferredinputvat_cv_entry.modifyby = request.user
+            #     deferredinputvat_cv_entry.save()
+            #     cvdetail_item_counter += 1
 
             # 4th entry: Cash in Bank
             if request.POST['transtype'] == 'apvtoapv':
@@ -700,7 +704,7 @@ def importtransdata(request):
                 cashinbank_cv_entry.apmain = newapv
                 cashinbank_cv_entry.ap_num = newapv.apnum
                 cashinbank_cv_entry.ap_date = newapv.apdate
-                cashinbank_cv_entry.bankaccount = Companyparameter.objects.get(code='PDI').def_bankaccount
+                cashinbank_cv_entry.bankaccount = newapv.bankaccount
             elif request.POST['transtype'] == 'apvtocv':
                 cashinbank_cv_entry = Cvdetail()
                 cashinbank_cv_entry.cvmain = newapv
