@@ -1,0 +1,88 @@
+{% extends 'reports/base-html.html' %}
+{% load humanize %}
+{% block extra_css %}
+    <style>
+        td{
+            vertical-align: top;
+        }
+        .right{
+            text-align: right;
+        }
+        .left{
+            text-align: left;
+        }
+        .center{
+            text-align: center;
+        }
+        .border{
+            border: 1px solid black;
+            padding-top: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        #table_ae_detailed td{
+            border: none !important;
+        }
+        body{
+            font-size: 11px;
+        }
+    </style>
+{% endblock %}
+
+{% block page-content %}
+    <h4>{{ report_type }}</h4><br>
+
+    {% if report == 'tb' %}
+        <table class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+            <th>code</th>
+            <th style="min-width: 300px;">acct_des</th>
+            <th>beg_debit_amt</th>
+            <th>beg_credit_amt</th>
+            <th>mon_debit_amt</th>
+            <th>mon_credit_amt</th>
+            <th>end_debit_amt</th>
+            <th>end_credit_amt</th>
+            <th>inc_debit_amt</th>
+            <th>inc_credit_amt</th>
+            <th>bal_debit_amt</th>
+            <th>bal_credit_amt</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for data in data_list %}
+            <tr>
+            <td>{{ data.chartofaccount__accountcode|slice:'6' }}</td>
+            <td>{{ data.chartofaccount__description }}</td>
+            <td>{{ data.count }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% elif report == 'bs' or report == 'sie' %}
+        <table class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for data in data_list %}
+            <tr>
+            <td>{{ data.chartofaccount__subgroup__code }} {{ data.chartofaccount__subgroup__description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    {% endif %}
+{% endblock page-content %}

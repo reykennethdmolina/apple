@@ -102,7 +102,9 @@
                             <div class="form-group col-sm-3">
                                 <label class="control-label small">Report Type</label>
                                 <select class="form-control select2 input-sm" id="rep_f_report">
-                                    <option value="custom">Customized</option>
+                                    <option value="tb">Trial Balance</option>
+                                    <option value="bs">Balance Sheet</option>
+                                    <option value="sie">Statement of Income and Expenses</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-3">
@@ -304,7 +306,7 @@
         <div class="col-md-12" style="text-align: center">
             <div id="iframe_preview" class="panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
-                <iframe id="iframehtml" src="{% url 'accountspayable:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
+                <iframe id="iframehtml" src="{% url 'generalledgerbook:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -331,6 +333,7 @@
 
         $('#rep_f_gl').on('change', function(){
             $('.rep_f_gl_input').hide();
+            resetGL();
 
             $.ajax({
                 url: "{% url 'acctentry:checkchartvalidation' %}",
@@ -391,11 +394,13 @@
             if(target.attr('id') == 'rep_f_gl'){
                 target.html("").select2({});
                 ajaxselect2("chartofaccount_posting", "rep_f_gl");
-                $('#rep_f_gl').trigger('change');
+
+                $('.rep_f_gl_input').hide();
             }
             else if(target.attr('id') == 'rep_f_gl_employee'){
                 target.html("").select2({});
                 ajaxselect2("employee_notmultiple", "rep_f_gl_employee");
+{#                $('#rep_f_gl_employee').trigger('change');#}
             }
             else if(target.attr('id') == 'rep_f_gl_customer'){
                 target.html("").select2({});
@@ -406,6 +411,37 @@
                 ajaxselect2("supplier_notmultiple", "rep_f_gl_supplier");
             }
         });
+
+        function resetGLmain(){
+            $('.rep_f_gl_input').hide();
+
+            $('#rep_f_gl').html("").select2({});
+            ajaxselect2("chartofaccount_posting", "rep_f_gl");
+        }
+
+        function resetGL(){
+            $('.rep_f_gl_input').hide();
+
+            $('#rep_f_gl_employee').html("").select2({});
+            ajaxselect2("employee_notmultiple", "rep_f_gl_employee");
+
+            $('#rep_f_gl_customer').html("").select2({});
+            ajaxselect2("customer_notmultiple", "rep_f_gl_customer");
+
+            $('#rep_f_gl_supplier').html("").select2({});
+            ajaxselect2("supplier_notmultiple", "rep_f_gl_supplier");
+
+            $('#rep_f_gl_bankaccount').val('').select2({});
+            $('#rep_f_gl_department').val('').select2({});
+            $('#rep_f_gl_unit').val('').select2({});
+            $('#rep_f_gl_branch').val('').select2({});
+            $('#rep_f_gl_product').val('').select2({});
+            $('#rep_f_gl_inputvat').val('').select2({});
+            $('#rep_f_gl_outputvat').val('').select2({});
+            $('#rep_f_gl_vat').val('').select2({});
+            $('#rep_f_gl_wtax').val('').select2({});
+            $('#rep_f_gl_ataxcode').val('').select2({});
+        }
 
 	    $('#rep_b_search').on('click', function(){
 
@@ -425,29 +461,19 @@
                 setCookie('rep_f_gl_supplier_{{ request.resolver_match.app_name }}', $('#rep_f_gl_supplier').val());
                 setCookie('rep_f_gl_customer_{{ request.resolver_match.app_name }}', $('#rep_f_gl_customer').val());
 
-                $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'accountspayable:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
+                setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
+                setCookie('rep_f_transactiontype_{{ request.resolver_match.app_name }}', $('#rep_f_transactiontype').val());
+                setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
+                setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
+                setCookie('rep_f_maingroup_{{ request.resolver_match.app_name }}', $('#rep_f_maingroup').val());
+                setCookie('rep_f_subgroup_{{ request.resolver_match.app_name }}', $('#rep_f_subgroup').val());
+
+                $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'generalledgerbook:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
             }
             else{
                 customAlert($('#report-search-error'));
             }
 	    });
-
-{#        $('#rep_f_report').on('change', function(){#}
-{#            checkReportType();#}
-{#        });#}
-{##}
-{#        $(document).ready(function(){#}
-{#            checkReportType();#}
-{#        });#}
-
-        // assign values
-{#        $('#rep_f_numfrom').val(getCookie('rep_f_numfrom_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_numto').val(getCookie('rep_f_numto_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_datefrom').val(getCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_amountfrom').val(getCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_amountto').val(getCookie('rep_f_amountto_{{ request.resolver_match.app_name }}'));#}
-{#        $('#rep_f_aptype').val(getCookie('rep_f_aptype_{{ request.resolver_match.app_name }}'));#}
 
         $("#rep_f_transactiontype").on("select2:select", function (evt) {
             var element = evt.params.data.element;
@@ -458,13 +484,9 @@
             $(this).trigger("change");
         });
 
-        $('#rep_f_transactiontype').select2({
-            templateSelection: function(item) {
-                return $(item.element).attr('label');
-            }
-        });
-
         $(document).on('change', '#rep_f_maingroup', function(){
+            resetGLmain();
+            resetGL();
             $.ajax({
                 url: "{% url 'chartofaccountmainsubgroup:getsubgroups' %}",
                 type: "post",
@@ -490,6 +512,8 @@
         });
 
         $(document).on('change', '#rep_f_subgroup', function(){
+            resetGLmain();
+            resetGL();
             if($('#rep_f_subgroup').val() != null){
                 ajaxselect2("chartofaccount_subgroup", "rep_f_gl", $('#rep_f_subgroup').val());
             }
@@ -499,6 +523,20 @@
         });
 
         ajaxselect2("chartofaccount_posting", "rep_f_gl");
+
+        // assign values
+        $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_transactiontype').val(getCookie('rep_f_transactiontype_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_datefrom').val(getCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_maingroup').val(getCookie('rep_f_maingroup_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_subgroup').val(getCookie('rep_f_subgroup_{{ request.resolver_match.app_name }}'));
+
+        $('#rep_f_transactiontype').select2({
+            templateSelection: function(item) {
+                return $(item.element).attr('label');
+            }
+        });
 	});
     </script>
 {% endblock extra_js %}
