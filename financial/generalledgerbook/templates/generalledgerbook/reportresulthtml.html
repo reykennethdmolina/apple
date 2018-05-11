@@ -53,34 +53,78 @@
         <tbody>
         {% for data in data_list %}
             <tr>
-            <td>{{ data.chartofaccount__accountcode|slice:'6' }}</td>
-            <td>{{ data.chartofaccount__description }}</td>
-            <td>{{ data.count }}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+                <td>{{ data.chartofaccount__accountcode|slice:'6' }}</td>
+                <td>{{ data.chartofaccount__description }}</td>
+                <td>{{ data.count }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
         {% endfor %}
         </tbody>
         </table>
     {% elif report == 'bs' or report == 'sie' %}
-        <table class="table table-condensed table-bordered">
+        <table class="table table-condensed">
         <thead>
         <tr>
+            <th></th>
             <th></th>
         </tr>
         </thead>
         <tbody>
         {% for data in data_list %}
+
+            <!-- Hide totals if not yet needed in loop -->
+            {% ifchanged data.chartofaccount__subgroup__mapped_subgroup__main__description %}
+            {% else %}
+                <style>
+                    .index{{ forloop.counter }}{
+                        display: none;
+                    }
+                </style>
+            {% endifchanged %}
+
+            <!-- Generate totals -->
+            {% if not forloop.first %}
+                <tr class="index{{ forloop.counter }}">
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total {{ data.chartofaccount__subgroup__mapped_subgroup__main__description }}</td>
+                    <td></td>
+                </tr>
+                <tr class="index{{ forloop.counter }}">
+                    <td colspan="2"><br><br></td>
+                </tr>
+            {% endif %}
+
+            <!-- Show Main Group -->
+            {% ifchanged data.chartofaccount__subgroup__mapped_subgroup__main__description %}
+                <tr>
+                    <td colspan="2"><b>{{ data.chartofaccount__subgroup__mapped_subgroup__main__description }}</b></td>
+                </tr>
+            {% endifchanged %}
+
+            <!-- Show Sub Groups -->
             <tr>
-            <td>{{ data.chartofaccount__subgroup__code }} {{ data.chartofaccount__subgroup__description }}</td>
+                <td>{{ data.chartofaccount__subgroup__code }} {{ data.chartofaccount__subgroup__description }}</td>
+                <td>{{ data.count }}</td>
             </tr>
+
+            <!-- Show Last totals -->
+            {% if forloop.last %}
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Total {{ data.chartofaccount__subgroup__mapped_subgroup__main__description }}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><br><br></td>
+                </tr>
+            {% endif %}
+
         {% endfor %}
         </tbody>
         </table>

@@ -18,6 +18,9 @@ from outputvat.models import Outputvat
 from ataxcode.models import Ataxcode
 from product.models import Product
 from wtax.models import Wtax
+from employee.models import Employee
+from supplier.models import Supplier
+from customer.models import Customer
 from annoying.functions import get_object_or_None
 from django.db.models import Q
 
@@ -88,7 +91,7 @@ def reportresultquery(request):
         key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
         query = query.filter(document_date__lte=key_data)
 
-    if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
+    if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) and request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
         gl_request = request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name)
 
         query = query.filter(chartofaccount=int(gl_request))
@@ -160,7 +163,7 @@ def reportresultquery(request):
             gl_item = request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name)
             query = query.filter(customer=get_object_or_None(Customer, pk=int(gl_item)))
 
-    elif request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name) != 'null':
+    elif request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name) and request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name) != 'null':
         key_data = str(request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name))
         query = query.filter(chartofaccount__subgroup__in=key_data.split(","))
     elif request.COOKIES.get('rep_f_maingroup_' + request.resolver_match.app_name):
@@ -181,15 +184,15 @@ def reportresultquery(request):
         report_xls = "Balance Sheet"
 
         query = query.filter(Q(chartofaccount__subgroup__code__startswith='A') | Q(chartofaccount__subgroup__code__startswith='L'))\
-            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description') \
+            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description', 'chartofaccount__subgroup__mapped_subgroup__main__description') \
             .annotate(count=Count('pk')) \
             .order_by('chartofaccount__subgroup__code')
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'sie':
         report_type = "Statement of Income and Expenses"
         report_xls = "Statement of Income and Expenses"
 
-        query = query.filter(Q(chartofaccount__subgroup__code__startswith='R') | Q(chartofaccount__subgroup__code__startswith='E'))\
-            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description') \
+        query = query.filter(Q(chartofaccount__subgroup__code__startswith='R') | Q(chartofaccount__subgroup__code__startswith='E')) \
+            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description', 'chartofaccount__subgroup__mapped_subgroup__main__description') \
             .annotate(count=Count('pk')) \
             .order_by('-chartofaccount__subgroup__code')
 
