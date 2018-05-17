@@ -8,12 +8,14 @@ from checkvoucher.models import Cvmain, Cvdetail, Cvdetailbreakdown
 from journalvoucher.models import Jvmain, Jvdetail, Jvdetailbreakdown
 from officialreceipt.models import Ormain, Ordetail, Ordetailbreakdown
 from customer.models import Customer
+from chartofaccount.models import Chartofaccount
+from accountexpensebalance.models import Accountexpensebalance
 from subledger.models import Subledger, logs_subledger
 from transactionposting.models import Logs_posted
 from acctentry.views import generatekey
-from annoying.functions import get_object_or_None
 from datetime import datetime, timedelta
 from django.db.models import F, Sum
+from django.db.models.functions import Concat
 
 
 @method_decorator(login_required, name='dispatch')
@@ -53,7 +55,10 @@ def verifytransactions(request):
                         undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
                                                  .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
                                                  .filter(department__isnull=False) \
-                                                 .exclude(department__expchartofaccount__accountcode__startswith=str(F('chartofaccount__accountcode__main')) + str(F('chartofaccount__accountcode__clas')))
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
+
+                        for data in undept:
+                            print str(data.department.expchartofaccount.accountcode) + '--' + str(data.chartofaccount.main) + str(data.chartofaccount.clas)
 
                         if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)
@@ -98,8 +103,7 @@ def verifytransactions(request):
                         undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A', cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
                                                  .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
                                                  .filter(department__isnull=False) \
-                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
-                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
                         if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logcv(datefrom, dateto, batchkey, request.user)
@@ -144,8 +148,7 @@ def verifytransactions(request):
                         undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
                                                  .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
                                                  .filter(department__isnull=False) \
-                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
-                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
                         if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logjv(datefrom, dateto, batchkey, request.user)
@@ -190,8 +193,7 @@ def verifytransactions(request):
                         undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A', ormain__postby__isnull=True, ormain__postdate__isnull=True) \
                                                  .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
                                                  .filter(department__isnull=False) \
-                                                 .exclude(department__expchartofaccount__main=F('chartofaccount__main')) \
-                                                 .exclude(department__expchartofaccount__clas=F('chartofaccount__clas'))
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
                         if unbalanced.count() == 0 and undept.count() == 0:
                             item_count, batchkey = logor(datefrom, dateto, batchkey, request.user)
@@ -784,80 +786,149 @@ def posttransactions(request):
                         .filter(status='A', postby__isnull=True, postdate__isnull=True) \
                         .update(postby=request.user, postdate=datetime.now())
 
-                Subledger.objects.create(
-                    chartofaccount=data.chartofaccount,
-                    item_counter=data.item_counter,
-                    document_type=data.document_type,
-                    document_id=data.document_id,
-                    document_num=data.document_num,
-                    document_date=data.document_date,
-                    subtype=data.subtype,
-                    dcsubtype=data.dcsubtype,
-                    bankaccount=data.bankaccount,
-                    product=data.product,
-                    branch=data.branch,
-                    unit=data.unit,
-                    inputvat=data.inputvat,
-                    outputvat=data.outputvat,
-                    ataxcode=data.ataxcode,
-                    atccode=data.atccode,
-                    atcrate=data.atcrate,
-                    vat=data.vat,
-                    vatcode=data.vatcode,
-                    vatrate=data.vatrate,
-                    wtax=data.wtax,
-                    wtaxcode=data.wtaxcode,
-                    wtaxrate=data.wtaxrate,
-                    balancecode=data.balancecode,
-                    amount=data.amount,
-                    particulars=data.particulars,
-                    remarks=data.remarks,
-                    comments=data.comments,
-                    currency=data.currency,
-                    fxrate=data.fxrate,
-                    fxamount=data.fxamount,
-                    document_reftype=data.document_reftype,
-                    document_refnum=data.document_refnum,
-                    document_refdate=data.document_refdate,
-                    document_refamount=data.document_refamount,
-                    document_refjv=data.document_refjv,
-                    document_refjvnum=data.document_refjvnum,
-                    document_refjvdate=data.document_refjvdate,
-                    document_refap=data.document_refap,
-                    document_refapnum=data.document_refapnum,
-                    document_refapdate=data.document_refapdate,
-                    document_status=data.document_status,
-                    document_supplier=data.document_supplier,
-                    document_supplieratc=data.document_supplieratc,
-                    document_supplieratccode=data.document_supplieratccode,
-                    document_supplieratcrate=data.document_supplieratcrate,
-                    document_suppliervat=data.document_suppliervat,
-                    document_suppliervatcode=data.document_suppliervatcode,
-                    document_suppliervatrate=data.document_suppliervatrate,
-                    document_supplierinputvat=data.document_supplierinputvat,
-                    document_customer=data.document_customer,
-                    document_customervat=data.document_customervat,
-                    document_customervatcode=data.document_customervatcode,
-                    document_customervatrate=data.document_customervatrate,
-                    document_customerwtax=data.document_customerwtax,
-                    document_customerwtaxcode=data.document_customerwtaxcode,
-                    document_customerwtaxrate=data.document_customerwtaxrate,
-                    document_customeroutputvat=data.document_customeroutputvat,
-                    document_branch=data.document_branch,
-                    document_payee=data.document_payee,
-                    document_bankaccount=data.document_bankaccount,
-                    document_checknum=data.document_checknum,
-                    document_checkdate=data.document_checkdate,
-                    document_amount=data.document_amount,
-                    document_duedate=data.document_duedate,
-                    document_currency=data.document_currency,
-                    document_fxrate=data.document_fxrate,
-                    document_fxamount=data.document_fxamount,
-                    document_collector=data.document_collector,
-                    enterby=data.enterby,
-                    modifyby=data.modifyby,
-                    breakdownsource_id=data.breakdownsource_id,
-                )
+                sub_item = Subledger.objects.create(
+                               chartofaccount=data.chartofaccount,
+                               item_counter=data.item_counter,
+                               document_type=data.document_type,
+                               document_id=data.document_id,
+                               document_num=data.document_num,
+                               document_date=data.document_date,
+                               subtype=data.subtype,
+                               dcsubtype=data.dcsubtype,
+                               bankaccount=data.bankaccount,
+                               department=data.department,
+                               employee=data.employee,
+                               customer=data.customer,
+                               inventory=data.inventory,
+                               product=data.product,
+                               branch=data.branch,
+                               unit=data.unit,
+                               inputvat=data.inputvat,
+                               outputvat=data.outputvat,
+                               ataxcode=data.ataxcode,
+                               atccode=data.atccode,
+                               atcrate=data.atcrate,
+                               vat=data.vat,
+                               vatcode=data.vatcode,
+                               vatrate=data.vatrate,
+                               wtax=data.wtax,
+                               wtaxcode=data.wtaxcode,
+                               wtaxrate=data.wtaxrate,
+                               balancecode=data.balancecode,
+                               amount=data.amount,
+                               particulars=data.particulars,
+                               remarks=data.remarks,
+                               comments=data.comments,
+                               currency=data.currency,
+                               fxrate=data.fxrate,
+                               fxamount=data.fxamount,
+                               document_reftype=data.document_reftype,
+                               document_refnum=data.document_refnum,
+                               document_refdate=data.document_refdate,
+                               document_refamount=data.document_refamount,
+                               document_refjv=data.document_refjv,
+                               document_refjvnum=data.document_refjvnum,
+                               document_refjvdate=data.document_refjvdate,
+                               document_refap=data.document_refap,
+                               document_refapnum=data.document_refapnum,
+                               document_refapdate=data.document_refapdate,
+                               document_status=data.document_status,
+                               document_supplier=data.document_supplier,
+                               document_supplieratc=data.document_supplieratc,
+                               document_supplieratccode=data.document_supplieratccode,
+                               document_supplieratcrate=data.document_supplieratcrate,
+                               document_suppliervat=data.document_suppliervat,
+                               document_suppliervatcode=data.document_suppliervatcode,
+                               document_suppliervatrate=data.document_suppliervatrate,
+                               document_supplierinputvat=data.document_supplierinputvat,
+                               document_customer=data.document_customer,
+                               document_customervat=data.document_customervat,
+                               document_customervatcode=data.document_customervatcode,
+                               document_customervatrate=data.document_customervatrate,
+                               document_customerwtax=data.document_customerwtax,
+                               document_customerwtaxcode=data.document_customerwtaxcode,
+                               document_customerwtaxrate=data.document_customerwtaxrate,
+                               document_customeroutputvat=data.document_customeroutputvat,
+                               document_branch=data.document_branch,
+                               document_payee=data.document_payee,
+                               document_bankaccount=data.document_bankaccount,
+                               document_checknum=data.document_checknum,
+                               document_checkdate=data.document_checkdate,
+                               document_amount=data.document_amount,
+                               document_duedate=data.document_duedate,
+                               document_currency=data.document_currency,
+                               document_fxrate=data.document_fxrate,
+                               document_fxamount=data.document_fxamount,
+                               document_collector=data.document_collector,
+                               enterby=data.enterby,
+                               modifyby=data.modifyby,
+                               breakdownsource_id=data.breakdownsource_id,
+                           )
+
+                # set end_code and year_to_date_code
+                # set end_code and year_to_date_code
+                # set end_code and year_to_date_code
+                chart_item = Chartofaccount.objects.filter(pk=sub_item.chartofaccount.pk)
+                if sub_item.chartofaccount.end_code is None or sub_item.chartofaccount.end_code == '':
+                    chart_item.update(end_code=sub_item.chartofaccount.balancecode)
+                if sub_item.chartofaccount.year_to_date_code is None or sub_item.chartofaccount.year_to_date_code == '':
+                    chart_item.update(year_to_date_code=sub_item.chartofaccount.balancecode)
+
+                # check if end_amount and year_to_date_amount exists
+                # check if end_amount and year_to_date_amount exists
+                # check if end_amount and year_to_date_amount exists
+                # check if end_amount and year_to_date_amount exists
+                if chart_item.first().end_amount is None or chart_item.first().end_amount == '':
+                    end_amount = 0
+                else:
+                    end_amount = chart_item.first().end_amount
+                if chart_item.first().year_to_date_amount is None or chart_item.first().year_to_date_amount == '':
+                    year_to_date_amount = 0
+                else:
+                    year_to_date_amount = chart_item.first().year_to_date_amount
+
+                # end code
+                # end code
+                # end code
+                # end code
+                if sub_item.balancecode == sub_item.chartofaccount.end_code:
+                    chart_item.update(end_amount=float(end_amount) + float(sub_item.amount))
+                else:
+                    if chart_item.first().end_amount < sub_item.amount:
+                        chart_item.update(end_code=sub_item.balancecode)
+
+                    chart_item.update(end_amount=abs(float(end_amount) - float(sub_item.amount)))
+
+                chart_item.update(end_date=datetime.now())
+
+                # year code
+                # year code
+                # year code
+                # year code
+                if sub_item.balancecode == sub_item.chartofaccount.year_to_date_code:
+                    chart_item.update(year_to_date_amount=float(year_to_date_amount) + float(sub_item.amount))
+                else:
+                    if chart_item.first().year_to_date_amount < sub_item.amount:
+                        chart_item.update(year_to_date_code=sub_item.balancecode)
+
+                    chart_item.update(year_to_date_amount=abs(float(year_to_date_amount) - float(sub_item.amount)))
+
+                chart_item.update(year_to_date_date=datetime.now())
+
+                # account expense balance
+                # account expense balance
+                # account expense balance
+                if sub_item.department is not None:
+                    Accountexpensebalance.objects.create(
+                        year=sub_item.document_date.year,
+                        month=sub_item.document_date.month,
+                        chartofaccount=sub_item.chartofaccount,
+                        department=sub_item.department,
+                        amount=sub_item.amount,
+                        code=sub_item.balancecode,
+                        date=sub_item.document_date,
+                        enterby=request.user,
+                    )
 
             itemstotal = logs_subledger.objects.filter(batchkey=request.POST['batchkey'])
             percentage = 100 - int((float(items.count()) / float(itemstotal.count())) * 100)

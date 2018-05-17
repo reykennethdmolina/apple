@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="06a24460-34fc-4c22-8466-41f5e274a69b" name="Default" comment="">
+    <list default="true" readonly="true" id="06a24460-34fc-4c22-8466-41f5e274a69b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/financial/settings.py" afterPath="$PROJECT_DIR$/financial/settings.py" />
     </list>
     <list id="0f65d2d2-0901-491a-a58b-f004d7807527" name="Failed commit: Default" comment="" />
@@ -15,7 +15,6 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/financial$context_processors.coverage" NAME="context_processors Coverage Results" MODIFIED="1484189666393" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/financial" />
   </component>
@@ -30,7 +29,79 @@
     <favorites_list name="financial" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/transactionposting/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1161">
+              <caret line="922" column="56" lean-forward="false" selection-start-line="922" selection-start-column="29" selection-end-line="922" selection-end-column="56" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+                <element signature="e#1184#16512#0" expanded="false" />
+                <element signature="e#16577#22756#0" expanded="false" />
+                <element signature="e#22821#28870#0" expanded="false" />
+                <element signature="e#28935#33144#0" expanded="false" />
+                <element signature="e#33209#38096#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/accountexpensebalance/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="544">
+              <caret line="34" column="78" lean-forward="false" selection-start-line="34" selection-start-column="78" selection-end-line="34" selection-end-column="78" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index_list.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/index_list.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-144">
+              <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="291">
+              <caret line="64" column="29" lean-forward="false" selection-start-line="64" selection-start-column="29" selection-end-line="64" selection-end-column="29" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/subledger/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="496">
+              <caret line="82" column="61" lean-forward="true" selection-start-line="82" selection-start-column="61" selection-end-line="82" selection-end-column="61" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fxtype/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="15" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -42,28 +113,43 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>rep_f_gl_supplier</find>
+      <find>main</find>
+      <find>rep_f_transactiontype</find>
+      <find>maingrou</find>
+      <find>rep_f_subgroup_</find>
+      <find>rep_f_subgroup</find>
+      <find>Q</find>
+      <find>query = query.filter(char</find>
+      <find>query = query.filter(chartofaccount=int</find>
+      <find>mapped_subgroup</find>
+      <find>mapped</find>
+      <find>partic</find>
+      <find>parti</find>
+      <find>print</find>
+      <find>rep_f_type</find>
+      <find>reportresult</find>
+      <find>reportresultxlsx</find>
+      <find>AGENT</find>
+      <find>customer</find>
+      <find>if chart_item.end_amount &lt; sub_item</find>
+      <find>art_item.update(end_code=sub_item.balanc</find>
+      <find>e(end_amount=abs(float(F('end_amount')) - float(su</find>
+      <find>pdate(end_amount=float(F('end_amount')) + float(sub_item.amount))</find>
+      <find>end_amount</find>
+      <find>depa</find>
+      <find>depar</find>
+      <find>de</find>
+      <find>department</find>
+      <find>subled</find>
+      <find>uniq</find>
+    </findStrings>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/ataxcode/templates/ataxcode/create.html" />
-        <option value="$PROJECT_DIR$/aptype/templates/aptype/create.html" />
-        <option value="$PROJECT_DIR$/aptype/templates/aptype/edit.html" />
-        <option value="$PROJECT_DIR$/bankaccounttype/templates/bankaccounttype/create.html" />
-        <option value="$PROJECT_DIR$/bankaccounttype/templates/bankaccounttype/edit.html" />
-        <option value="$PROJECT_DIR$/creditterm/templates/creditterm/create.html" />
-        <option value="$PROJECT_DIR$/creditterm/templates/creditterm/edit.html" />
-        <option value="$PROJECT_DIR$/currency/templates/currency/create.html" />
-        <option value="$PROJECT_DIR$/currency/templates/currency/edit.html" />
-        <option value="$PROJECT_DIR$/customertype/templates/customertype/create.html" />
-        <option value="$PROJECT_DIR$/customertype/templates/customertype/edit.html" />
-        <option value="$PROJECT_DIR$/cvtype/templates/cvtype/create.html" />
-        <option value="$PROJECT_DIR$/cvtype/templates/cvtype/edit.html" />
-        <option value="$PROJECT_DIR$/industry/templates/industry/create.html" />
-        <option value="$PROJECT_DIR$/industry/templates/industry/edit.html" />
-        <option value="$PROJECT_DIR$/mainunit/templates/mainunit/create.html" />
-        <option value="$PROJECT_DIR$/mainunit/templates/mainunit/edit.html" />
-        <option value="$PROJECT_DIR$/typeofexpense/templates/typeofexpense/create.html" />
-        <option value="$PROJECT_DIR$/typeofexpense/templates/typeofexpense/edit.html" />
         <option value="$PROJECT_DIR$/unit/templates/unit/create.html" />
         <option value="$PROJECT_DIR$/unit/templates/unit/edit.html" />
         <option value="$PROJECT_DIR$/vat/templates/vat/create.html" />
@@ -73,7 +159,6 @@
         <option value="$PROJECT_DIR$/product/models.py" />
         <option value="$PROJECT_DIR$/product/templates/product/index.html" />
         <option value="$PROJECT_DIR$/product/urls.py" />
-        <option value="$PROJECT_DIR$/financial/urls.py" />
         <option value="$PROJECT_DIR$/adtype/models.py" />
         <option value="$PROJECT_DIR$/adtype/templates/adtype/index.html" />
         <option value="$PROJECT_DIR$/adtype/urls.py" />
@@ -94,33 +179,42 @@
         <option value="$PROJECT_DIR$/product/views.py" />
         <option value="$PROJECT_DIR$/financial/context_processors.py" />
         <option value="$PROJECT_DIR$/templates/header-section.html" />
+        <option value="$PROJECT_DIR$/utils/views.py" />
+        <option value="$PROJECT_DIR$/purchaseorder/templates/purchaseorder/index_list.html" />
+        <option value="$PROJECT_DIR$/transactionposting/models.py" />
+        <option value="$PROJECT_DIR$/accountspayable/views.py" />
+        <option value="$PROJECT_DIR$/departmentbudget/templates/departmentbudget/reportresulthtml.html" />
+        <option value="$PROJECT_DIR$/templates/reports/base_deptbudget.html" />
+        <option value="$PROJECT_DIR$/departmentbudget/templates/departmentbudget/reportresult.html" />
+        <option value="$PROJECT_DIR$/departmentbudget/urls.py" />
+        <option value="$PROJECT_DIR$/departmentbudget/templates/departmentbudget/report.html" />
+        <option value="$PROJECT_DIR$/transactionposting/templates/transactionposting/index.html" />
+        <option value="$PROJECT_DIR$/generalledgerbook/urls.py" />
+        <option value="$PROJECT_DIR$/generalledgerbook/templates/generalledgerbook/reportresulthtml.html" />
+        <option value="$PROJECT_DIR$/generalledgerbook/templates/generalledgerbook/index.html" />
+        <option value="$PROJECT_DIR$/generalledgerbook/views.py" />
+        <option value="$PROJECT_DIR$/departmentbudget/views.py" />
+        <option value="$PROJECT_DIR$/fxtype/views.py" />
+        <option value="$PROJECT_DIR$/subledger/models.py" />
         <option value="$PROJECT_DIR$/financial/settings.py" />
         <option value="$PROJECT_DIR$/financial/settings.py" />
+        <option value="$PROJECT_DIR$/financial/urls.py" />
+        <option value="$PROJECT_DIR$/transactionposting/views.py" />
+        <option value="$PROJECT_DIR$/accountexpensebalance/models.py" />
       </list>
     </option>
   </component>
-  <component name="JsBuildToolGruntFileManager" detection-done="true" />
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsGulpfileManager">
     <detection-done>true</detection-done>
-  </component>
-  <component name="NamedScopeManager">
-    <order />
+    <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1382" />
-    <option name="height" value="744" />
-  </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
-    <OptionsSetting value="true" id="Add" />
-    <OptionsSetting value="true" id="Remove" />
-    <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
-    <OptionsSetting value="true" id="Status" />
-    <OptionsSetting value="true" id="Edit" />
-    <ConfirmationsSetting value="0" id="Add" />
-    <ConfirmationsSetting value="0" id="Remove" />
+    <option name="x" value="-9" />
+    <option name="y" value="-9" />
+    <option name="width" value="1938" />
+    <option name="height" value="1048" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -133,10 +227,10 @@
       <autoscrollToSource />
       <autoscrollFromSource />
       <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -144,14 +238,8 @@
               <option name="myItemId" value="financial" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-          </PATH>
-          <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="financial" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="financial" />
+              <option name="myItemId" value="Apple3" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -161,25 +249,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="financial" />
+              <option name="myItemId" value="Apple3" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="typeofexpense" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="financial" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="financial" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="static" />
+              <option name="myItemId" value="transactionposting" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -189,36 +263,134 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="subledger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
               <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="accountspayable" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="accountspayable" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="templates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="accountspayable" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="accountexpensebalance" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="financial" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Apple3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="accountexpensebalance" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="migrations" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Font" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="DefaultHtmlFileTemplate" value="Html5" />
-    <property name="FullScreen" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Python Projects/Apple3/fxtype/views.py" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/financial" />
-      <recent name="$PROJECT_DIR$/adtype/templates/adtype" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/adtype/templates/adtype" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Python Projects\Apple3\generalledgerbook\templates\generalledgerbook" />
+      <recent name="C:\Python Projects\Apple3\templates\reports" />
+      <recent name="C:\Python Projects\Apple3\departmentbudget\templates\departmentbudget" />
+      <recent name="$PROJECT_DIR$/financial" />
+      <recent name="$PROJECT_DIR$/adtype/templates/adtype" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
   </component>
   <component name="RunManager" selected="Python.context_processors">
     <configuration default="false" name="context_processors" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -237,6 +409,7 @@
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/financial/context_processors.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
@@ -257,6 +430,19 @@
       <option name="CUSTOM_SETTINGS" value="false" />
       <option name="USE_OPTIONS" value="false" />
       <option name="OPTIONS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
+      <node-interpreter value="project" />
+      <working-dir value="" />
+      <envs />
+      <scope-kind value="ALL" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
@@ -329,18 +515,10 @@
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
-      <node-options />
-      <gulpfile />
-      <tasks />
-      <arguments />
-      <pass-parent-envs>true</pass-parent-envs>
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Attests">
+    <configuration default="true" type="Tox" factoryName="Tox">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -349,15 +527,25 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="financial" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
+      <module name="financial" />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <pass-parent-envs>true</pass-parent-envs>
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run" />
+      <scripts />
+      <node-interpreter value="project" />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
@@ -391,15 +579,10 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="financial" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
@@ -413,16 +596,9 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="financial" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PUREUNITTEST" value="true" />
-      <option name="PARAMS" value="" />
-      <option name="USE_PARAM" value="false" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="py.test">
@@ -436,18 +612,10 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="financial" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="testToRun" value="" />
-      <option name="keywords" value="" />
-      <option name="params" value="" />
-      <option name="USE_PARAM" value="false" />
-      <option name="USE_KEYWORD" value="false" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
     <configuration default="false" name="financial" type="Python.DjangoServer" factoryName="Django server">
@@ -483,85 +651,98 @@
         <item index="0" class="java.lang.String" itemvalue="Python.context_processors" />
       </list>
     </recent_temporary>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="financial" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
   </component>
-  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
   <component name="SvnConfiguration" myAutoUpdateAfterCommit="true" cleanupOnStartRun="true">
-    <configuration>$USER_HOME$/.subversion</configuration>
+    <configuration>C:\Users\user\AppData\Roaming\Subversion</configuration>
     <supportedVersion>125</supportedVersion>
     <option name="FORCE_UPDATE" value="true" />
     <option name="IGNORE_EXTERNALS" value="true" />
     <option name="UPDATE_DEPTH" value="infinity" />
-  </component>
-  <component name="SvnFileUrlMappingImpl">
-    <option name="myMappingRoots">
-      <list>
-        <SvnCopyRootSimple>
-          <option name="myVcsRoot" value="$PROJECT_DIR$" />
-          <option name="myCopyRoot" value="$PROJECT_DIR$" />
-        </SvnCopyRootSimple>
-      </list>
-    </option>
-    <option name="myMoreRealMappingRoots">
-      <list>
-        <SvnCopyRootSimple>
-          <option name="myVcsRoot" value="$PROJECT_DIR$" />
-          <option name="myCopyRoot" value="$PROJECT_DIR$" />
-        </SvnCopyRootSimple>
-      </list>
-    </option>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="06a24460-34fc-4c22-8466-41f5e274a69b" name="Default" comment="" />
       <created>1483692625132</created>
       <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
       <updated>1483692625132</updated>
     </task>
     <task id="LOCAL-00001">
       <created>1484033389069</created>
       <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
       <updated>1484033389069</updated>
     </task>
     <task id="LOCAL-00002">
       <created>1484033549028</created>
       <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
       <updated>1484033549028</updated>
     </task>
     <task id="LOCAL-00003">
       <created>1484045274056</created>
       <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
       <updated>1484045274056</updated>
     </task>
     <task id="LOCAL-00004">
       <created>1484201946264</created>
       <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
       <updated>1484201946264</updated>
     </task>
     <task id="LOCAL-00005">
       <created>1484201979029</created>
       <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
       <updated>1484201979029</updated>
     </task>
     <task id="LOCAL-00006">
       <created>1484202156030</created>
       <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
       <updated>1484202156030</updated>
     </task>
     <task id="LOCAL-00007">
       <created>1484206576054</created>
       <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
       <updated>1484206576054</updated>
     </task>
     <task id="LOCAL-00008" summary="Failed commit: Default (2)">
       <created>1485164842063</created>
       <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
       <updated>1485164842063</updated>
     </task>
@@ -569,31 +750,59 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="false" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15204236" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3296875" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="SVN Properties" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3296875" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16004297" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32924694" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="SVN Properties" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="SVN Properties" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16648765" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3296875" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="processedProjectFiles" value="true" />
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -607,398 +816,444 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="USE_COMMIT_MESSAGE_MARGIN" value="true" />
     <ignored-roots>
-      <path value="$PROJECT_DIR$/../.." />
+      <path value="C:" />
     </ignored-roots>
     <MESSAGE value="Failed commit: Default (2)" />
     <option name="LAST_COMMIT_MESSAGE" value="Failed commit: Default (2)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="1" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="django-line">
+          <url>file://$PROJECT_DIR$/processing_or/templates/processing_or/index.html</url>
+          <line>2</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="11" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/module/templates/module/create.html">
+    <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/create2.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="16" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
-          <folding />
+        <state relative-caret-position="340">
+          <caret line="24" column="82" lean-forward="true" selection-start-line="24" selection-start-column="82" selection-end-line="24" selection-end-column="82" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/currency/templates/currency/edit.html">
+    <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/create.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="25" column="48" selection-start-line="25" selection-start-column="48" selection-end-line="25" selection-end-column="48" />
+        <state relative-caret-position="302">
+          <caret line="44" column="104" lean-forward="false" selection-start-line="44" selection-start-column="93" selection-end-line="44" selection-end-column="104" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/customertype/templates/customertype/create.html">
+    <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/search.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="29" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="29" />
+        <state relative-caret-position="663">
+          <caret line="186" column="6" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="186" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/customertype/templates/customertype/edit.html">
+    <entry file="file://$PROJECT_DIR$/subledgersummary/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="214" selection-start-line="16" selection-start-column="214" selection-end-line="16" selection-end-column="214" />
+        <state relative-caret-position="-364">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cvtype/templates/cvtype/create.html">
+    <entry file="file://$PROJECT_DIR$/purchaseorder/templates/purchaseorder/index_list.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="194" selection-start-line="16" selection-start-column="194" selection-end-line="16" selection-end-column="194" />
+        <state relative-caret-position="357">
+          <caret line="21" column="42" lean-forward="true" selection-start-line="21" selection-start-column="42" selection-end-line="21" selection-end-column="42" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cvtype/templates/cvtype/edit.html">
+    <entry file="file://$PROJECT_DIR$/officialreceipt/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="214" selection-start-line="16" selection-start-column="214" selection-end-line="16" selection-end-column="214" />
+        <state relative-caret-position="-492">
+          <caret line="826" column="18" lean-forward="false" selection-start-line="826" selection-start-column="11" selection-end-line="826" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/industry/templates/industry/create.html">
+    <entry file="file://$PROJECT_DIR$/financial/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.43814433">
-          <caret line="21" column="195" selection-start-line="21" selection-start-column="195" selection-end-line="21" selection-end-column="195" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/industry/templates/industry/edit.html">
+    <entry file="file://$PROJECT_DIR$/officialreceipt/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.61340207">
-          <caret line="21" column="195" selection-start-line="21" selection-start-column="195" selection-end-line="21" selection-end-column="195" />
+        <state relative-caret-position="-1530">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainunit/templates/mainunit/create.html">
+    <entry file="file://$PROJECT_DIR$/accountspayable/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="194" selection-start-line="16" selection-start-column="194" selection-end-line="16" selection-end-column="194" />
+        <state relative-caret-position="238">
+          <caret line="14" column="4" lean-forward="true" selection-start-line="14" selection-start-column="4" selection-end-line="17" selection-end-column="95" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainunit/templates/mainunit/edit.html">
+    <entry file="file://$PROJECT_DIR$/static/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="214" selection-start-line="16" selection-start-column="214" selection-end-line="16" selection-end-column="214" />
+        <state relative-caret-position="656">
+          <caret line="229" column="15" lean-forward="false" selection-start-line="229" selection-start-column="1" selection-end-line="229" selection-end-column="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/typeofexpense/templates/typeofexpense/create.html">
+    <entry file="file://$PROJECT_DIR$/departmentbudget/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="595">
+          <caret line="18" column="4" lean-forward="true" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="8" />
+          <caret line="20" column="4" lean-forward="true" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="8" />
+          <caret line="22" column="4" lean-forward="true" selection-start-line="22" selection-start-column="4" selection-end-line="22" selection-end-column="8" />
+          <caret line="24" column="4" lean-forward="true" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="8" />
+          <caret line="26" column="4" lean-forward="true" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="8" />
+          <caret line="28" column="4" lean-forward="true" selection-start-line="28" selection-start-column="4" selection-end-line="28" selection-end-column="8" />
+          <caret line="30" column="4" lean-forward="true" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="8" />
+          <caret line="32" column="4" lean-forward="true" selection-start-line="32" selection-start-column="4" selection-end-line="32" selection-end-column="8" />
+          <caret line="34" column="4" lean-forward="true" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="8" />
+          <caret line="36" column="4" lean-forward="true" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="8" />
+          <caret line="38" column="4" lean-forward="true" selection-start-line="38" selection-start-column="4" selection-end-line="38" selection-end-column="8" />
+          <caret line="40" column="4" lean-forward="true" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/typeofexpense/templates/typeofexpense/edit.html">
+    <entry file="file://$PROJECT_DIR$/templates/reports/base_deptbudget.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735394">
-          <caret line="16" column="214" selection-start-line="16" selection-start-column="214" selection-end-line="16" selection-end-column="214" />
+        <state relative-caret-position="695">
+          <caret line="147" column="75" lean-forward="false" selection-start-line="147" selection-start-column="75" selection-end-line="147" selection-end-column="75" />
+          <caret line="148" column="70" lean-forward="false" selection-start-line="148" selection-start-column="70" selection-end-line="148" selection-end-column="70" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/unit/templates/unit/create.html">
+    <entry file="file://$PROJECT_DIR$/transactionposting/templates/transactionposting/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33273056">
-          <caret line="28" column="194" selection-start-line="28" selection-start-column="194" selection-end-line="28" selection-end-column="194" />
+        <state relative-caret-position="536">
+          <caret line="599" column="52" lean-forward="true" selection-start-line="599" selection-start-column="52" selection-end-line="599" selection-end-column="52" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vat/templates/vat/create.html">
+    <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/report.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16998191">
-          <caret line="40" column="59" selection-start-line="40" selection-start-column="59" selection-end-line="40" selection-end-column="59" />
+        <state relative-caret-position="260">
+          <caret line="708" column="114" lean-forward="true" selection-start-line="678" selection-start-column="8" selection-end-line="708" selection-end-column="114" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vat/templates/vat/edit.html">
+    <entry file="file://C:/Python27/Lib/site-packages/django/http/response.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35738832">
-          <caret line="45" column="56" selection-start-line="45" selection-start-column="56" selection-end-line="45" selection-end-column="56" />
+        <state relative-caret-position="284">
+          <caret line="272" column="6" lean-forward="false" selection-start-line="272" selection-start-column="6" selection-end-line="272" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wtax/templates/wtax/delete.html">
+    <entry file="file://$PROJECT_DIR$/generalledgerbook/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="85">
+          <caret line="5" column="36" lean-forward="false" selection-start-line="5" selection-start-column="36" selection-end-line="6" selection-end-column="56" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wtax/templates/wtax/create.html">
+    <entry file="file://$PROJECT_DIR$/departmentbudget/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.846293">
-          <caret line="38" column="139" selection-start-line="38" selection-start-column="139" selection-end-line="38" selection-end-column="139" />
+        <state relative-caret-position="187">
+          <caret line="12" column="4" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="14" selection-end-column="95" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wtax/templates/wtax/edit.html">
+    <entry file="file://$PROJECT_DIR$/departmentbudget/templates/departmentbudget/reportresulthtml.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7594502">
-          <caret line="38" column="139" selection-start-line="38" selection-start-column="139" selection-end-line="38" selection-end-column="139" />
+        <state relative-caret-position="511">
+          <caret line="35" column="78" lean-forward="true" selection-start-line="35" selection-start-column="34" selection-end-line="35" selection-end-column="78" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base-login.html">
+    <entry file="file://$PROJECT_DIR$/generaljournalbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="-1326">
+          <caret line="60" column="85" lean-forward="true" selection-start-line="60" selection-start-column="85" selection-end-line="60" selection-end-column="85" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/currency/models.py">
+    <entry file="file://$PROJECT_DIR$/generaljournalbook/templates/generaljournalbook/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="361">
+          <caret line="311" column="47" lean-forward="false" selection-start-line="311" selection-start-column="26" selection-end-line="311" selection-end-column="47" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/css/form-advanced/custom-smart_wizard.css">
+    <entry file="file://$PROJECT_DIR$/chartofaccountsubgroup/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1118421">
-          <caret line="4" column="24" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+        <state relative-caret-position="119">
+          <caret line="7" column="30" lean-forward="false" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/js/form-wizad/customer-form-wizard/customer.custom.min.js">
+    <entry file="file://$PROJECT_DIR$/accountspayable/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5538847">
-          <caret line="118" column="32" selection-start-line="118" selection-start-column="32" selection-end-line="118" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/css/form-advanced/smart_wizard.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-8.24138">
-          <caret line="286" column="29" selection-start-line="286" selection-start-column="29" selection-end-line="286" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/components/tabs-accordions.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3866279">
-          <caret line="637" column="52" selection-start-line="637" selection-start-column="52" selection-end-line="637" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/js/form-wizad/jquery.smartWizard.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.085213035">
-          <caret line="50" column="11" selection-start-line="50" selection-start-column="11" selection-end-line="50" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/jquery.maskMoney.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/plugin/jQuery-Form-Validator/js/jquery.form-validator.min.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="52.910713">
-          <caret line="8" column="23360" selection-start-line="8" selection-start-column="23352" selection-end-line="8" selection-end-column="23360" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/plugin/jQuery-Form-Validator/js/theme-default.min.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5430108">
-          <caret line="0" column="59460" selection-start-line="0" selection-start-column="59460" selection-end-line="0" selection-end-column="59460" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/custom-maskMoney.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.38345864">
-          <caret line="9" column="28" selection-start-line="9" selection-start-column="28" selection-end-line="9" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/plugin/jQuery-Form-Validator/js/lang/sv.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.045698926">
-          <caret line="1" column="25" selection-start-line="1" selection-start-column="25" selection-end-line="1" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/plugin/jQuery-Form-Validator/js/jquery.form-validator.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-83.965515">
-          <caret line="1843" column="0" selection-start-line="1843" selection-start-column="0" selection-end-line="1843" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/financial-layout/assets/plugin/jQuery-Form-Validator/css/theme-default.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3315508">
-          <caret line="54" column="0" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/customer/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6683673">
-          <caret line="72" column="30" selection-start-line="72" selection-start-column="30" selection-end-line="72" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/currency/templates/currency/create.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41333333">
-          <caret line="23" column="34" selection-start-line="20" selection-start-column="28" selection-end-line="23" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mainproduct/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.4705882">
-          <caret line="60" column="0" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+        <state relative-caret-position="187">
+          <caret line="52" column="13" lean-forward="false" selection-start-line="52" selection-start-column="12" selection-end-line="52" selection-end-column="13" />
           <folding>
             <element signature="e#0#89#0" expanded="false" />
+            <element signature="e#4116#7979#0" expanded="false" />
+            <element signature="e#8067#13693#0" expanded="false" />
+            <element signature="e#13781#29065#0" expanded="false" />
+            <element signature="e#29153#31256#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainproduct/urls.py">
+    <entry file="file://$PROJECT_DIR$/generalledgerbook/templates/generalledgerbook/reportresulthtml.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="384">
+          <caret line="90" column="30" lean-forward="true" selection-start-line="90" selection-start-column="30" selection-end-line="90" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/adtype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="64" column="0" lean-forward="true" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainproduct/templates/mainproduct/index.html">
+    <entry file="file://$PROJECT_DIR$/journalvoucher/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="55" selection-start-line="8" selection-start-column="55" selection-end-line="8" selection-end-column="55" />
+        <state relative-caret-position="250">
+          <caret line="157" column="17" lean-forward="true" selection-start-line="157" selection-start-column="17" selection-end-line="157" selection-end-column="56" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mainproduct/models.py">
+    <entry file="file://C:/Python27/Lib/site-packages/endless_pagination/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5588235">
-          <caret line="26" column="68" selection-start-line="26" selection-start-column="68" selection-end-line="26" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mainproduct/templates/mainproduct/detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2857143">
-          <caret line="61" column="70" selection-start-line="61" selection-start-column="52" selection-end-line="61" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module/templates/module/edit.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.38265306">
-          <caret line="15" column="61" selection-start-line="15" selection-start-column="61" selection-end-line="15" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base-form.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-15.0">
-          <caret line="51" column="18" selection-start-line="51" selection-start-column="18" selection-end-line="51" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.36764705">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#89#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4488778">
-          <caret line="12" column="48" selection-start-line="12" selection-start-column="48" selection-end-line="12" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/context_processors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5931624">
-          <caret line="57" column="32" selection-start-line="57" selection-start-column="32" selection-end-line="57" selection-end-column="32" />
-          <folding>
-            <element signature="e#33#82#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/product/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#89#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/module/templates/module/create.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="16" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
+        <state relative-caret-position="164">
+          <caret line="133" column="37" lean-forward="false" selection-start-line="133" selection-start-column="34" selection-end-line="133" selection-end-column="37" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/header-section.html">
+    <entry file="file://C:/Python27/Lib/site-packages/endless_pagination/loaders.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.39605734">
-          <caret line="75" column="29" selection-start-line="75" selection-start-column="29" selection-end-line="75" selection-end-column="29" />
+        <state relative-caret-position="379">
+          <caret line="20" column="5" lean-forward="false" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/endless_pagination/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="164" column="27" lean-forward="false" selection-start-line="164" selection-start-column="24" selection-end-line="164" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/endless_pagination/decorators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="85" column="8" lean-forward="false" selection-start-line="79" selection-start-column="38" selection-end-line="79" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generalledgerbook/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chartofaccountmaingroup/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chartofaccountmainsubgroup/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="64">
+          <caret line="7" column="8" lean-forward="false" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generalledgerbook/templates/generalledgerbook/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="456" column="95" lean-forward="false" selection-start-line="456" selection-start-column="76" selection-end-line="456" selection-end-column="95" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/departmentbudget/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="287">
+          <caret line="190" column="31" lean-forward="false" selection-start-line="190" selection-start-column="31" selection-end-line="190" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#15#0" expanded="false" />
+            <element signature="e#845#1690#0" expanded="false" />
+            <element signature="e#1778#1853#0" expanded="false" />
+            <element signature="e#7047#7908#0" expanded="false" />
+            <element signature="e#7960#17298#0" expanded="false" />
+            <element signature="e#17349#26152#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/departmentbudget/templates/departmentbudget/reportresult.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-799">
+          <caret line="88" column="25" lean-forward="false" selection-start-line="88" selection-start-column="23" selection-end-line="88" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/departmentbudget/templates/departmentbudget/report.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="294">
+          <caret line="83" column="74" lean-forward="false" selection-start-line="83" selection-start-column="58" selection-end-line="83" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/processing_or/templates/processing_or/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5344">
+          <caret line="403" column="68" lean-forward="false" selection-start-line="403" selection-start-column="55" selection-end-line="403" selection-end-column="68" />
+          <folding>
+            <element signature="n#block#1;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/processing_or/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="111" column="53" lean-forward="false" selection-start-line="111" selection-start-column="45" selection-end-line="111" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/newfile/ies_export/client.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-238981">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/processing_data/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="496">
+          <caret line="86" column="41" lean-forward="true" selection-start-line="86" selection-start-column="41" selection-end-line="86" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generalledgerbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="821">
+          <caret line="186" column="137" lean-forward="false" selection-start-line="186" selection-start-column="122" selection-end-line="186" selection-end-column="137" />
+          <folding>
+            <element signature="e#0#45#0" expanded="false" />
+            <element signature="e#1159#2412#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transactionposting/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="17" column="43" lean-forward="false" selection-start-line="17" selection-start-column="43" selection-end-line="17" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fxtype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/acctentry/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#39#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/subledger/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="64" column="29" lean-forward="false" selection-start-line="64" selection-start-column="29" selection-end-line="64" selection-end-column="29" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46575344">
-          <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+        <state relative-caret-position="496">
+          <caret line="167" column="25" lean-forward="true" selection-start-line="167" selection-start-column="25" selection-end-line="167" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/productbudget/models.py">
+    <entry file="file://$PROJECT_DIR$/subledger/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="496">
+          <caret line="82" column="61" lean-forward="true" selection-start-line="82" selection-start-column="61" selection-end-line="82" selection-end-column="61" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/accountspayable/templates/accountspayable/index_list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-144">
+          <caret line="3" column="6" lean-forward="false" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/transactionposting/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1161">
+          <caret line="922" column="56" lean-forward="false" selection-start-line="922" selection-start-column="29" selection-end-line="922" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+            <element signature="e#1184#16512#0" expanded="false" />
+            <element signature="e#16577#22756#0" expanded="false" />
+            <element signature="e#22821#28870#0" expanded="false" />
+            <element signature="e#28935#33144#0" expanded="false" />
+            <element signature="e#33209#38096#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/accountexpensebalance/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="34" column="78" lean-forward="false" selection-start-line="34" selection-start-column="78" selection-end-line="34" selection-end-column="78" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/productbudget/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40753424">
-          <caret line="83" column="51" selection-start-line="83" selection-start-column="38" selection-end-line="83" selection-end-column="51" />
-          <folding>
-            <element signature="e#0#89#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.5719178">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
