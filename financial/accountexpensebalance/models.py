@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 
 
 class Accountexpensebalance(models.Model):
+    transactiontype = models.CharField(max_length=2)
+    transactionnum = models.CharField(max_length=25)
     year = models.PositiveSmallIntegerField(validators=[MaxValueValidator(2100), MinValueValidator(1980)])
     month = models.PositiveIntegerField(validators=[MaxValueValidator(1), MinValueValidator(12)])
     chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
@@ -32,7 +34,7 @@ class Accountexpensebalance(models.Model):
         db_table = 'accountexpensebalance'
         ordering = ['-pk']
         permissions = (("view_accountexpensebalance", "Can view accountexpensebalance"),)
-        unique_together = (('year', 'month', 'chartofaccount', 'department'),)
+        # unique_together = (('year', 'month', 'chartofaccount', 'department'),)
 
     def get_absolute_url(self):
         return reverse('accountexpensebalance:detail', kwargs={'pk': self.pk})

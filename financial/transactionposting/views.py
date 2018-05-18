@@ -920,6 +920,8 @@ def posttransactions(request):
                 # account expense balance
                 if sub_item.department is not None:
                     Accountexpensebalance.objects.create(
+                        transactiontype=sub_item.document_type,
+                        transactionnum=sub_item.document_num,
                         year=sub_item.document_date.year,
                         month=sub_item.document_date.month,
                         chartofaccount=sub_item.chartofaccount,

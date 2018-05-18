@@ -209,9 +209,6 @@ def fileupload(request):
                                                 elif not Vat.objects.filter(code=data[17]):
                                                     importstatus = 'F'
                                                     importremarks = 'Failed: Vat Type does not exist'
-                                                # elif data[1] == "":
-                                                #     importstatus = 'F'
-                                                #     importremarks = 'Failed: Doc Type does not exist'
                                                 else:
                                                     importstatus = 'S'
                                                     importremarks = 'Passed'
@@ -262,7 +259,6 @@ def fileupload(request):
                                                         data.importremarks,
                                                        ])
                                 for data in ordata_d:
-                                    totalassign = 0
                                     totalassignamount = 0
                                     totalvatamount = 0
 
@@ -920,7 +916,7 @@ def exportsave(request):
 
                     orcount += 1
                     status_percentage = str(int((float(orcount) / float(status_total)) * 100))
-                    print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
+                    # print "(1/1 - " + status_percentage + "%) Processing: " + data.orno
 
                     if data.accounttype == 'c':
                         ortype_accounttype = 'a'
