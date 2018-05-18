@@ -29,8 +29,8 @@ class Ofmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('O', 'On Hand'),
-        ('P', 'Process JV'),
+        ('O', 'For JV'),
+        ('P', 'JV in Process'),
         ('R', 'Released'),
     )
     ofstatus = models.CharField(max_length=1, choices=OF_STATUS_CHOICES, default='F')

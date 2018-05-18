@@ -126,7 +126,7 @@ def fileupload(request):
 
                                 if len(data) == 13:
                                     # log status filtering
-                                    if Logs_jvmain.objects.filter(jvnum=data[0], importstatus='P',
+                                    if Logs_jvmain.objects.filter(jvnum=data[1], importstatus='P',
                                                                   jvsubtype=request.POST['upload_type']):
                                         importstatus = 'F'
                                         importremarks = 'Skipped: Already posted'
