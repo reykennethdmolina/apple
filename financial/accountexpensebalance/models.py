@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 
 
 class Accountexpensebalance(models.Model):
-    transactiontype = models.CharField(max_length=2)
-    transactionnum = models.CharField(max_length=25)
     year = models.PositiveSmallIntegerField(validators=[MaxValueValidator(2100), MinValueValidator(1980)])
     month = models.PositiveIntegerField(validators=[MaxValueValidator(1), MinValueValidator(12)])
     chartofaccount = models.ForeignKey('chartofaccount.Chartofaccount',
@@ -15,6 +13,7 @@ class Accountexpensebalance(models.Model):
     department = models.ForeignKey('department.Department', related_name='accountexpensebalance_department_id')
     amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2, max_digits=18)
     code = models.CharField(max_length=1)
+    unit = models.CharField(max_length=5, null=True, blank=True)
     date = models.DateField()
     STATUS_CHOICES = (
         ('A', 'Active'),

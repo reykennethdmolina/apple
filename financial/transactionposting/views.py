@@ -12,6 +12,7 @@ from chartofaccount.models import Chartofaccount
 from accountexpensebalance.models import Accountexpensebalance
 from subledger.models import Subledger, logs_subledger
 from transactionposting.models import Logs_posted
+from bankaccount.models import Bankaccount
 from acctentry.views import generatekey
 from datetime import datetime, timedelta
 from django.db.models import F, Sum
@@ -865,19 +866,20 @@ def posttransactions(request):
                                breakdownsource_id=data.breakdownsource_id,
                            )
 
-                # set end_code and year_to_date_code
-                # set end_code and year_to_date_code
-                # set end_code and year_to_date_code
+                # ************************ set beg_code, end_code, year_to_date_code
                 chart_item = Chartofaccount.objects.filter(pk=sub_item.chartofaccount.pk)
+                if sub_item.chartofaccount.beginning_code is None or sub_item.chartofaccount.beginning_code == '':
+                    chart_item.update(beginning_code=sub_item.chartofaccount.balancecode)
                 if sub_item.chartofaccount.end_code is None or sub_item.chartofaccount.end_code == '':
                     chart_item.update(end_code=sub_item.chartofaccount.balancecode)
                 if sub_item.chartofaccount.year_to_date_code is None or sub_item.chartofaccount.year_to_date_code == '':
                     chart_item.update(year_to_date_code=sub_item.chartofaccount.balancecode)
 
-                # check if end_amount and year_to_date_amount exists
-                # check if end_amount and year_to_date_amount exists
-                # check if end_amount and year_to_date_amount exists
-                # check if end_amount and year_to_date_amount exists
+                # ************************ check if beg_code, end_amount, year_to_date_amount exists
+                # if chart_item.first().beginning_amount is None or chart_item.first().beginning_amount == '':
+                #     beginning_amount = 0
+                # else:
+                #     beginning_amount = chart_item.first().beginning_amount
                 if chart_item.first().end_amount is None or chart_item.first().end_amount == '':
                     end_amount = 0
                 else:
@@ -887,10 +889,19 @@ def posttransactions(request):
                 else:
                     year_to_date_amount = chart_item.first().year_to_date_amount
 
-                # end code
-                # end code
-                # end code
-                # end code
+                # ************************ beg code
+                # if sub_item.balancecode == sub_item.chartofaccount.beginning_code:
+                #     chart_item.update(beginning_amount=float(beginning_amount) + float(sub_item.amount))
+                # else:
+                #     if chart_item.first().beginning_amount < sub_item.amount:
+                #         chart_item.update(beginning_code=sub_item.balancecode)
+                #
+                #     chart_item.update(beginning_amount=abs(float(beginning_amount) - float(sub_item.amount)))
+                #
+                # if chart_item.filter(beginning_date__lt=sub_item.document_date).count() > 0 or chart_item.filter(beginning_date__isnull=True).count() > 0:
+                #     chart_item.update(beginning_date=sub_item.document_date)
+
+                # ************************ end code
                 if sub_item.balancecode == sub_item.chartofaccount.end_code:
                     chart_item.update(end_amount=float(end_amount) + float(sub_item.amount))
                 else:
@@ -899,12 +910,10 @@ def posttransactions(request):
 
                     chart_item.update(end_amount=abs(float(end_amount) - float(sub_item.amount)))
 
-                chart_item.update(end_date=datetime.now())
+                if chart_item.filter(end_date__lt=sub_item.document_date).count() > 0 or chart_item.filter(end_date__isnull=True).count() > 0:
+                    chart_item.update(end_date=sub_item.document_date)
 
-                # year code
-                # year code
-                # year code
-                # year code
+                # ************************ year code
                 if sub_item.balancecode == sub_item.chartofaccount.year_to_date_code:
                     chart_item.update(year_to_date_amount=float(year_to_date_amount) + float(sub_item.amount))
                 else:
@@ -913,24 +922,84 @@ def posttransactions(request):
 
                     chart_item.update(year_to_date_amount=abs(float(year_to_date_amount) - float(sub_item.amount)))
 
-                chart_item.update(year_to_date_date=datetime.now())
+                if chart_item.filter(year_to_date_date__lt=sub_item.document_date).count() > 0 or chart_item.filter(year_to_date_date__isnull=True).count() > 0:
+                    chart_item.update(year_to_date_date=sub_item.document_date)
 
-                # account expense balance
-                # account expense balance
-                # account expense balance
+                # ************************ account expense balance
                 if sub_item.department is not None:
-                    Accountexpensebalance.objects.create(
-                        transactiontype=sub_item.document_type,
-                        transactionnum=sub_item.document_num,
+                    accexp_item = Accountexpensebalance.objects.filter(
                         year=sub_item.document_date.year,
                         month=sub_item.document_date.month,
                         chartofaccount=sub_item.chartofaccount,
                         department=sub_item.department,
-                        amount=sub_item.amount,
-                        code=sub_item.balancecode,
-                        date=sub_item.document_date,
-                        enterby=request.user,
                     )
+
+                    if accexp_item.count() > 0:
+                        accexp_amount = accexp_item.first().amount
+
+                        if sub_item.balancecode == accexp_item.first().code:
+                            accexp_item.update(amount=float(accexp_amount) + float(sub_item.amount))
+                        else:
+                            if accexp_item.first().amount < sub_item.amount:
+                                accexp_item.update(code=sub_item.balancecode)
+
+                            accexp_item.update(amount=abs(float(accexp_amount) - float(sub_item.amount)))
+
+                        if accexp_item.filter(date__lt=sub_item.document_date).count() > 0:
+                            accexp_item.update(date=sub_item.document_date)
+                    else:
+                        Accountexpensebalance.objects.create(
+                            year=sub_item.document_date.year,
+                            month=sub_item.document_date.month,
+                            chartofaccount=sub_item.chartofaccount,
+                            department=sub_item.department,
+                            amount=sub_item.amount,
+                            code=sub_item.balancecode,
+                            enterby=request.user,
+                            date=sub_item.document_date,
+                        )
+
+                # ************************ bank account
+                if sub_item.bankaccount is not None:
+                    bank_item = Bankaccount.objects.filter(pk=sub_item.bankaccount.pk)
+
+                    if bank_item.first().run_code is None or bank_item.first().run_code == '':
+                        bank_item.update(run_code=sub_item.balancecode)
+                    if bank_item.first().year_to_date_code is None or bank_item.first().year_to_date_code == '':
+                        bank_item.update(year_to_date_code=sub_item.balancecode)
+
+                    if sub_item.bankaccount.run_amount is None or sub_item.bankaccount.run_amount == '':
+                        run_amount = 0
+                    else:
+                        run_amount = sub_item.bankaccount.run_amount
+                    if sub_item.bankaccount.year_to_date_amount is None or sub_item.bankaccount.year_to_date_amount == '':
+                        year_to_date_amount = 0
+                    else:
+                        year_to_date_amount = sub_item.bankaccount.year_to_date_amount
+
+                    if sub_item.balancecode == sub_item.bankaccount.run_code:
+                        bank_item.update(run_amount=float(run_amount) + float(sub_item.amount))
+                    else:
+                        if sub_item.bankaccount.run_amount < sub_item.amount:
+                            bank_item.update(run_code=sub_item.balancecode)
+
+                        bank_item.update(run_amount=abs(float(run_amount) - float(sub_item.amount)))
+                    if sub_item.balancecode == sub_item.bankaccount.year_to_date_code:
+                        bank_item.update(year_to_date_amount=float(year_to_date_amount) + float(sub_item.amount))
+                    else:
+                        if sub_item.bankaccount.year_to_date_amount < sub_item.amount:
+                            bank_item.update(year_to_date_code=sub_item.balancecode)
+
+                        bank_item.update(year_to_date_amount=abs(float(year_to_date_amount) - float(sub_item.amount)))
+
+                    if sub_item.bankaccount.run_date is None:
+                        bank_item.update(run_date=sub_item.document_date)
+                    elif sub_item.bankaccount.run_date < sub_item.document_date:
+                        bank_item.update(run_date=sub_item.document_date)
+                    if sub_item.bankaccount.year_to_date_date is None:
+                        bank_item.update(year_to_date_date=sub_item.document_date)
+                    elif sub_item.bankaccount.year_to_date_date < sub_item.document_date:
+                        bank_item.update(year_to_date_date=sub_item.document_date)
 
             itemstotal = logs_subledger.objects.filter(batchkey=request.POST['batchkey'])
             percentage = 100 - int((float(items.count()) / float(itemstotal.count())) * 100)

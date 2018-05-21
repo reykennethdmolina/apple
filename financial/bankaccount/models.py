@@ -27,6 +27,9 @@ class Bankaccount(models.Model):
     run_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     run_code = models.CharField(max_length=1, null=True, blank=True, choices=DEBITCREDIT_CHOICES)
     run_date = models.DateField(null=True, blank=True)
+    year_to_date_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    year_to_date_code = models.CharField(max_length=1, null=True, blank=True, choices=DEBITCREDIT_CHOICES)
+    year_to_date_date = models.DateField(null=True, blank=True)
     STATUS_CHOICES = (
         ('A', 'Active'),
         ('I', 'Inactive'),
