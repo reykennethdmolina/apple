@@ -773,19 +773,19 @@ def posttransactions(request):
                 # main
                 trans_main\
                     .filter(status='A', postby__isnull=True, postdate__isnull=True)\
-                    .update(postby=request.user, postdate=datetime.now())
+                    .update(postby=request.user, postdate=datetime.now(), status='O')
 
                 # detail
                 if data.breakdownsource_id is None:
                     trans_detail\
                         .filter(pk=data.document_id)\
                         .filter(status='A', postby__isnull=True, postdate__isnull=True)\
-                        .update(postby=request.user, postdate=datetime.now())
+                        .update(postby=request.user, postdate=datetime.now(), status='O')
                 else:
                     trans_detailbreakdown \
                         .filter(pk=data.breakdownsource_id) \
                         .filter(status='A', postby__isnull=True, postdate__isnull=True) \
-                        .update(postby=request.user, postdate=datetime.now())
+                        .update(postby=request.user, postdate=datetime.now(), status='O')
 
                 sub_item = Subledger.objects.create(
                                chartofaccount=data.chartofaccount,

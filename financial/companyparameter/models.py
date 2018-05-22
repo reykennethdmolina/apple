@@ -86,6 +86,16 @@ class Companyparameter(models.Model):
     report_footer14 = models.CharField(max_length=250, blank=True, null=True)
     # report footers
 
+    # closing
+    last_closed_date = models.DateField(null=True)
+    income_tax_rate = models.IntegerField(null=True)
+    coa_provisionincometax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_provisionincometax',
+                                               blank=True, null=True)
+    coa_incometaxespayable = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_incometaxespayable',
+                                               blank=True, null=True)
+    coa_retainedearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_retainedearnings',
+                                               blank=True, null=True)
+
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
