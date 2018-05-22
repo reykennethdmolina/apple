@@ -10,7 +10,7 @@ class ReportContentMixin(ContextMixin):
 
         # required contents
         context['rc_logo'] = "http://" + self.request.META['HTTP_HOST'] + "/static/images/pdi.jpg"
-        context['rc_param'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
+        context['rc_param'] = Companyparameter.objects.first()
         # context['rc_user'] = request.user
 
         # should be altered in views

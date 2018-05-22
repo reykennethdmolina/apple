@@ -298,6 +298,7 @@ def fileupload(request):
                                                           data.bankaccount if data.bankaccount else '',
                                                           data.branch,
                                                           data.importremarks,
+                                                          Chartofaccount.objects.get(accountcode=data.chartofaccount+'0000').description
                                                           ])
 
                                 for index, data in enumerate(jvdata_d_debit):
@@ -453,6 +454,7 @@ def fileupload(request):
                                     debitamount = data.amount
                                 elif data.charttype == 'C':
                                     creditamount = data.amount
+
                                 jvdata_d_list.append([data.jvnum,
                                                       data.chartofaccount,
                                                       data.department,
@@ -462,6 +464,8 @@ def fileupload(request):
                                                       data.bankaccount if data.bankaccount else '',
                                                       data.branch,
                                                       data.importremarks,
+                                                      Chartofaccount.objects.get(
+                                                          accountcode=data.chartofaccount + '0000').description
                                                       ])
 
                             for index, data in enumerate(jvdata_d_debit):
@@ -472,6 +476,7 @@ def fileupload(request):
 
                             successcount = jvdata.filter(importstatus='S').count()
                             rate = (float(successcount) / float(jvcount)) * 100
+
                             data = {
                                 'result': 1,
                                 'upload_type': request.POST['upload_type'],

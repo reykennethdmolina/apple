@@ -6,16 +6,25 @@ from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from adtype.models import Adtype
 from chartofaccount.models import Chartofaccount
+from endless_pagination.views import AjaxListView
+from django.db.models import Q
 
 
 @method_decorator(login_required, name='dispatch')
-class IndexView(ListView):
+class IndexView(AjaxListView):
     model = Adtype
     template_name = 'adtype/index.html'
     context_object_name = 'data_list'
 
+    page_template = 'adtype/index_list.html'
+
     def get_queryset(self):
-        return Adtype.objects.all().filter(isdeleted=0).order_by('-pk')
+        query = Adtype.objects.all().filter(isdeleted=0)
+        if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+            keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+            query = query.filter(Q(code__icontains=keysearch) |
+                                 Q(description__icontains=keysearch))
+        return query
 
 
 @method_decorator(login_required, name='dispatch')

@@ -75,7 +75,10 @@
     <script src="{% static 'financial-layout/assets/plugin/quicksearch/jquery.quicksearch.js' %}"></script>
     <script>
     $(function(){
-        $('#id_subgroups').multiSelect();
+        $('#id_subgroups').multiSelect({
+            selectableHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Available Sub-Groups</b></h5>",
+          selectionHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Selected Sub-Groups</b></h5>"
+        });
 
         {% for subgroup in selected_subgroups %}
             $('#id_subgroups').multiSelect('select', '{{ subgroup.sub.pk }}');

@@ -88,6 +88,7 @@ urlpatterns = [
     url(r'^chartofaccountsubgroup/', include('chartofaccountsubgroup.urls', app_name='chartofaccountsubgroup', namespace='chartofaccountsubgroup')),
     url(r'^transactionposting/', include('transactionposting.urls', app_name='transactionposting', namespace='transactionposting')),
     url(r'^transactionclosing/', include('transactionclosing.urls', app_name='transactionclosing', namespace='transactionclosing')),
+    url(r'^rep_booksofaccounts/', include('rep_booksofaccounts.urls', app_name='rep_booksofaccounts', namespace='rep_booksofaccounts')),
 
     # Apps Kelvin
     url(r'^ataxcode/', include('ataxcode.urls', app_name='ataxcode', namespace='ataxcode')),

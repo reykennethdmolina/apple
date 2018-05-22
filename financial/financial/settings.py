@@ -167,6 +167,8 @@ INSTALLED_APPS = [
     'transactionclosing',
     'transactionposting',
     'accountexpensebalance',
+    'rep_budget',
+    'rep_booksofaccounts',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -213,7 +215,8 @@ DATABASES = {
         #'ENGINE': 'django.db.backends.sqlite3',
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_posting',
+        'NAME': 'db_test',
+        # 'NAME': 'db_financial_migrate',
         ####'HOST': 'localhost',
         'HOST': '128.1.44.22',
         'PORT': '3306',
