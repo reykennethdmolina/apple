@@ -39,6 +39,7 @@ def verifytransactions(request):
             status_skipped = 0
             status_unbalanced = 0
             status_invaliddate = 0
+            status_undept = 0
 
             validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom - timedelta(days=1))
 

@@ -51,20 +51,112 @@
         </tr>
         </thead>
         <tbody>
-        {% for data in data_list %}
+        {% for data, balances in data_list %}
             <tr>
-                <td>{{ data.chartofaccount__accountcode|slice:'6' }}</td>
-                <td>{{ data.chartofaccount__description }}</td>
-                <td>{{ data.count }}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ data.chartofaccount.accountcode|slice:'6' }}</td>
+                <td>{{ data.chartofaccount.description }}</td>
+                <td>
+                    {% if data.chartofaccount.main < 4 %}
+                        {% if data.end_code == 'D' %}
+                            {{ data.end_amount|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        {% if data.year_to_date_code == 'D' %}
+                            {{ data.year_to_date_amount|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.chartofaccount.main < 4 %}
+                        {% if data.end_code == 'C' %}
+                            {{ data.end_amount|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        {% if data.year_to_date_code == 'C' %}
+                            {{ data.year_to_date_amount|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if balances.1 == 'D' %}
+                        {{ balances.0|floatformat:2|intcomma }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if balances.1 == 'C' %}
+                        {{ balances.0|floatformat:2|intcomma }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if balances.3 == 'D' %}
+                        {{ balances.2|floatformat:2|intcomma }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if balances.3 == 'C' %}
+                        {{ balances.2|floatformat:2|intcomma }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.chartofaccount.main > 3 %}
+                        {% if balances.3 == 'D' %}
+                            {{ balances.2|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.chartofaccount.main > 3 %}
+                        {% if balances.3 == 'C' %}
+                            {{ balances.2|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.chartofaccount.main < 4 %}
+                        {% if balances.3 == 'D' %}
+                            {{ balances.2|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.chartofaccount.main < 4 %}
+                        {% if balances.3 == 'C' %}
+                            {{ balances.2|floatformat:2|intcomma }}
+                        {% else %}
+                            0.00
+                        {% endif %}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>

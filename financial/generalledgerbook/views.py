@@ -6,6 +6,7 @@ from chartofaccountsubgroup.models import ChartofAccountSubGroup
 from chartofaccountmainsubgroup.models import MainGroupSubgroup
 from chartofaccount.models import Chartofaccount
 from subledger.models import Subledger
+from subledgersummary.models import Subledgersummary
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from branch.models import Branch
@@ -22,7 +23,9 @@ from employee.models import Employee
 from supplier.models import Supplier
 from customer.models import Customer
 from annoying.functions import get_object_or_None
-from django.db.models import Q
+from django.db.models import Q, Sum
+from dateutil.relativedelta import relativedelta
+import datetime
 
 
 @method_decorator(login_required, name='dispatch')
@@ -73,7 +76,6 @@ class ReportResultHtmlView(TemplateView):
 
 @csrf_exempt
 def reportresultquery(request):
-    query = ''
     report_type = ''
     report_xls = ''
     report_total = ''
@@ -172,14 +174,7 @@ def reportresultquery(request):
         query = query.filter(chartofaccount__subgroup__in=key_data)
 
     # report type filter
-    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'tb':
-        report_type = "Trial Balance"
-        report_xls = "Trial Balance"
-
-        query = query.values('chartofaccount__accountcode', 'chartofaccount__description')\
-            .annotate(count=Count('pk'))\
-            .order_by('chartofaccount__accountcode')
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'bs':
+    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'bs':
         report_type = "Balance Sheet"
         report_xls = "Balance Sheet"
 
@@ -195,5 +190,73 @@ def reportresultquery(request):
             .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description', 'chartofaccount__subgroup__mapped_subgroup__main__description') \
             .annotate(count=Count('pk')) \
             .order_by('-chartofaccount__subgroup__code')
+    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'tb':
+        report_type = "Trial Balance"
+        report_xls = "Trial Balance"
+
+        dt = datetime.datetime.strptime('2018-01-01', "%Y-%m-%d").date()
+        # prev = dt + relativedelta(months=-1)
+        # prev = dt + relativedelta(months=-1)
+        # prev = dt + relativedelta(months=-1)
+        prev = dt + relativedelta(months=0)
+
+        query = Subledgersummary.objects.filter(month=prev.month, year=prev.year, status='A', isdeleted=0).order_by('chartofaccount__accountcode')
+
+        tb_current_query = Subledger.objects.filter(document_date__month=dt.month, document_date__year=dt.year)
+
+        tb_balances = []
+
+        for data in query:
+            tb_result = tb_current_query.filter(chartofaccount=data.chartofaccount)
+            if tb_result.count() > 0:
+                tb_result_d = tb_result.filter(balancecode='D').aggregate(Sum('amount'))['amount__sum']
+                tb_result_c = tb_result.filter(balancecode='C').aggregate(Sum('amount'))['amount__sum']
+
+                tb_result_amt = abs(float(tb_result_d if tb_result_d is not None else 0) - float(tb_result_c if tb_result_c is not None else 0))
+
+                if tb_result_d > tb_result_c:
+                    tb_result_bal = 'D'
+                elif tb_result_d < tb_result_c:
+                    tb_result_bal = 'C'
+                else:
+                    if data.chartofaccount.main < 4:
+                        tb_result_bal = data.chartofaccount.end_code
+                    else:
+                        tb_result_bal = data.chartofaccount.year_to_date_code
+
+                if data.chartofaccount.main < 4:
+                    tb_chart_amt = data.end_amount
+                    tb_chart_bal = data.end_code
+                else:
+                    tb_chart_amt = data.year_to_date_amount
+                    tb_chart_bal = data.year_to_date_code
+
+                if tb_chart_bal != tb_result_bal:
+                    tb_next_amt = abs(tb_result_amt - float(tb_chart_amt))
+
+                    if tb_chart_amt > tb_result_amt:
+                        tb_next_bal = tb_chart_bal
+                    else:
+                        tb_next_bal = tb_result_bal
+                else:
+                    tb_next_amt = tb_result_amt + float(tb_chart_amt)
+                    tb_next_bal = tb_chart_bal
+
+                # tb_prev - tb_result - tb_next
+
+                tb_balances.append([
+                    tb_result_amt,
+                    tb_result_bal,
+                    tb_next_amt,
+                    tb_next_bal,
+                ])
+            else:
+                tb_balances.append([
+                    '',
+                    '',
+                    '',
+                    '',
+                ])
+        query = zip(query, tb_balances)
 
     return query, report_type, report_total, report_xls
