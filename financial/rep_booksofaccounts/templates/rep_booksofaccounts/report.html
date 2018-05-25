@@ -46,18 +46,16 @@
                             <div class="form-group col-sm-6">
                                 <label class="control-label small">Report Type</label>
                                 <select class="form-control input-sm" id="report_type">
-                                    <option value="GJB_S">General Journal Book - SUMMARY ENTRIES</option>
-                                    <option value="GJB_D">General Journal Book - DETAILED ENTRIES</option>
-                                    <option value="CDB_S">Cash Disbursement Book - SUMMARY ENTRIES</option>
-                                    <option value="CDB_D">Cash Disbursement Book - DETAILED ENTRIES</option>
-                                    <option value="CRB_S">Cash Receipts Book - SUMMARY ENTRIES</option>
-                                    <option value="CRB_D">Cash Receipts Book - DETAILED ENTRIES</option>
-                                    <option value="APB_S">Accounts Payable Book - SUMMARY ENTRIES</option>
-                                    <option value="APB_D">Accounts Payable Book - DETAILED ENTRIES</option>
-                                    <option value="SAP_S">Schedule of Accrual - AP Trade - SUMMARY ENTRIES</option>
-                                    <option value="SAP_WB_S">Schedule of Accrual - AP Trade (with Branch) - SUMMARY ENTRIES</option>
-                                    <option value="SAP_D">Schedule of Accrual - AP Trade - DETAILED ENTRIES</option>
-                                    <option value="PURCHASE">Purchase Book</option>
+                                    <option value="GJB_S" data-cashinbank="1">General Journal Book - SUMMARY ENTRIES</option>
+                                    <option value="GJB_D" data-cashinbank="0">General Journal Book - DETAILED ENTRIES</option>
+                                    <option value="CDB_S" data-cashinbank="1">Cash Disbursement Book - SUMMARY ENTRIES</option>
+                                    <option value="CDB_D" data-cashinbank="0">Cash Disbursement Book - DETAILED ENTRIES</option>
+                                    <option value="CRB_S" data-cashinbank="1">Cash Receipts Book - SUMMARY ENTRIES</option>
+                                    <option value="CRB_D" data-cashinbank="0">Cash Receipts Book - DETAILED ENTRIES</option>
+                                    <option value="SAP_S" data-cashinbank="0">Schedule of Accrual - AP Trade - SUMMARY ENTRIES</option>
+                                    <option value="SAP_WB_S" data-cashinbank="0">Schedule of Accrual - AP Trade (with Branch) - SUMMARY ENTRIES</option>
+                                    <option value="SAP_D" data-cashinbank="0">Schedule of Accrual - AP Trade - DETAILED ENTRIES</option>
+                                    <option value="PURCHASE" data-cashinbank="0">Purchase Book</option>
                                 </select>
                             </div>
                             <div class="form-group col-sm-4">
@@ -85,16 +83,16 @@
                 <input type="hidden" value="{{ userrole }}" id="user_role">
             </div>
         </div>
-        <div class="col-md-6" style="text-align: center">
+        <div class="col-md-6" style="text-align: center" id="report_container">
             <div class="iframe_preview panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
                 <iframe id="iframe" src="{% url 'rep_booksofaccounts:reportresultpdf' %}" frameborder="0" scrolling="yes"></iframe>
             </div>
         </div>
-        <div class="col-md-6" style="text-align: center">
+        <div class="col-md-6" style="text-align: center" id="cashinbank_container">
             <div class="iframe_preview panel">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
-                <iframe id="iframe_cash_in_bank" src="{% url 'rep_booksofaccounts:cashinbankpdf' %}" frameborder="0" scrolling="yes"></iframe>
+                <iframe id="iframe_cash_in_bank" frameborder="0" scrolling="yes"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -112,10 +110,6 @@
     <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
     <script>
     $(function () {
-        var date = new Date();
-        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
 	    $('#search_results').on('click', function(){
             if($('#report_type').val() == '' || $('#report_type').val() == null){
                 customAlert($('#report-type-error'));
@@ -132,30 +126,53 @@
                 setCookie('date_to_{{ request.resolver_match.app_name }}', $('#date_to').val());
 
                 $('#iframe').replaceWith("<iframe id='iframe' src='{% url 'rep_booksofaccounts:reportresultpdf' %}' frameborder='0' scrolling='yes'></iframe>");
-                $('#iframe_cash_in_bank').replaceWith("<iframe id='iframe_cash_in_bank' src='{% url 'rep_booksofaccounts:cashinbankpdf' %}' frameborder='0' scrolling='yes'></iframe>");
+
+                if($('#report_type option:selected').data('cashinbank') == '0'){
+                    $('#cashinbank_container').hide();
+                    $('#report_container').removeClass('col-md-6');
+                    $('#report_container').addClass('col-md-12');
+                }
+                else if($('#report_type option:selected').data('cashinbank') == '1'){
+                    $('#cashinbank_container').show();
+                    $('#report_container').removeClass('col-md-12');
+                    $('#report_container').addClass('col-md-6');
+                    $('#iframe_cash_in_bank').replaceWith("<iframe id='iframe_cash_in_bank' src='{% url 'rep_booksofaccounts:cashinbankpdf' %}' frameborder='0' scrolling='yes'></iframe>");
+                }
             }
 	    });
 
         // assign values
-{#        if(!getCookie('report_type_{{ request.resolver_match.app_name }}') ||#}
-{#            getCookie('report_type_{{ request.resolver_match.app_name }}') == '' ||#}
-{#            getCookie('report_type_{{ request.resolver_match.app_name }}') == null){#}
-{#            setCookie('report_type_{{ request.resolver_match.app_name }}', 'GJB_S');#}
-{#        }#}
-{#        if(!getCookie('date_from_{{ request.resolver_match.app_name }}') ||#}
-{#            getCookie('date_from_{{ request.resolver_match.app_name }}') == '' ||#}
-{#            getCookie('date_from_{{ request.resolver_match.app_name }}') == null){#}
-{#            setCookie('date_from_{{ request.resolver_match.app_name }}', firstDay);#}
-{#        }#}
-{#        if(!getCookie('date_to_{{ request.resolver_match.app_name }}') ||#}
-{#            getCookie('date_to_{{ request.resolver_match.app_name }}') == '' ||#}
-{#            getCookie('date_to_{{ request.resolver_match.app_name }}') == null){#}
-{#            setCookie('date_to_{{ request.resolver_match.app_name }}', lastDay);#}
-{#        }#}
+        if(!getCookie('report_type_{{ request.resolver_match.app_name }}') ||
+            getCookie('report_type_{{ request.resolver_match.app_name }}') == '' ||
+            getCookie('report_type_{{ request.resolver_match.app_name }}') == null){
+            setCookie('report_type_{{ request.resolver_match.app_name }}', 'GJB_S');
+        }
+        if(!getCookie('date_from_{{ request.resolver_match.app_name }}') ||
+            getCookie('date_from_{{ request.resolver_match.app_name }}') == '' ||
+            getCookie('date_from_{{ request.resolver_match.app_name }}') == null){
+            setCookie('date_from_{{ request.resolver_match.app_name }}', '{{ default_datefrom|date:'Y-m-d' }}');
+        }
+        if(!getCookie('date_to_{{ request.resolver_match.app_name }}') ||
+            getCookie('date_to_{{ request.resolver_match.app_name }}') == '' ||
+            getCookie('date_to_{{ request.resolver_match.app_name }}') == null){
+            setCookie('date_to_{{ request.resolver_match.app_name }}', '{{ default_dateto|date:'Y-m-d' }}');
+        }
 
         $('#report_type').val(getCookie('report_type_{{ request.resolver_match.app_name }}'));
-        $('#date_from').val(getCookie('date_from_{{ request.resolver_match.app_name }}'));
-        $('#date_to').val(getCookie('date_to_{{ request.resolver_match.app_name }}'));
+        $("#date_from").datepicker("setDate", getCookie('date_from_{{ request.resolver_match.app_name }}'));
+        $('#date_to').datepicker("setDate", getCookie('date_to_{{ request.resolver_match.app_name }}'));
+
+        if($('#report_type option:selected').data('cashinbank') == '0'){
+            $('#cashinbank_container').hide();
+            $('#report_container').removeClass('col-md-6');
+            $('#report_container').addClass('col-md-12');
+        }
+        else if($('#report_type option:selected').data('cashinbank') == '1'){
+            $('#cashinbank_container').show();
+            $('#report_container').removeClass('col-md-12');
+            $('#report_container').addClass('col-md-6');
+            $('#iframe_cash_in_bank').replaceWith("<iframe id='iframe_cash_in_bank' src='{% url 'rep_booksofaccounts:cashinbankpdf' %}' frameborder='0' scrolling='yes'></iframe>");
+        }
 	});
     </script>
 {% endblock extra_js %}
