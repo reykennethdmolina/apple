@@ -33,21 +33,21 @@
     <h4>{{ report_type }}</h4><br>
 
     {% if report == 'tb' %}
-        <table class="table table-condensed table-bordered">
+        <table class="table table-condensed">
         <thead>
         <tr>
             <th>code</th>
             <th style="min-width: 300px;">acct_des</th>
-            <th>beg_debit_amt</th>
-            <th>beg_credit_amt</th>
-            <th>mon_debit_amt</th>
-            <th>mon_credit_amt</th>
-            <th>end_debit_amt</th>
-            <th>end_credit_amt</th>
-            <th>inc_debit_amt</th>
-            <th>inc_credit_amt</th>
-            <th>bal_debit_amt</th>
-            <th>bal_credit_amt</th>
+            <th class="text-right">beg_debit_amt</th>
+            <th class="text-right">beg_credit_amt</th>
+            <th class="text-right">mon_debit_amt</th>
+            <th class="text-right">mon_credit_amt</th>
+            <th class="text-right">end_debit_amt</th>
+            <th class="text-right">end_credit_amt</th>
+            <th class="text-right">inc_debit_amt</th>
+            <th class="text-right">inc_credit_amt</th>
+            <th class="text-right">bal_debit_amt</th>
+            <th class="text-right">bal_credit_amt</th>
         </tr>
         </thead>
         <tbody>
@@ -55,7 +55,7 @@
             <tr>
                 <td>{{ data.chartofaccount.accountcode|slice:'6' }}</td>
                 <td>{{ data.chartofaccount.description }}</td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main < 4 %}
                         {% if data.end_code == 'D' %}
                             {{ data.end_amount|floatformat:2|intcomma }}
@@ -70,7 +70,7 @@
                         {% endif %}
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main < 4 %}
                         {% if data.end_code == 'C' %}
                             {{ data.end_amount|floatformat:2|intcomma }}
@@ -85,35 +85,35 @@
                         {% endif %}
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if balances.1 == 'D' %}
                         {{ balances.0|floatformat:2|intcomma }}
                     {% else %}
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if balances.1 == 'C' %}
                         {{ balances.0|floatformat:2|intcomma }}
                     {% else %}
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if balances.3 == 'D' %}
                         {{ balances.2|floatformat:2|intcomma }}
                     {% else %}
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if balances.3 == 'C' %}
                         {{ balances.2|floatformat:2|intcomma }}
                     {% else %}
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main > 3 %}
                         {% if balances.3 == 'D' %}
                             {{ balances.2|floatformat:2|intcomma }}
@@ -124,7 +124,7 @@
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main > 3 %}
                         {% if balances.3 == 'C' %}
                             {{ balances.2|floatformat:2|intcomma }}
@@ -135,7 +135,7 @@
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main < 4 %}
                         {% if balances.3 == 'D' %}
                             {{ balances.2|floatformat:2|intcomma }}
@@ -146,7 +146,7 @@
                         0.00
                     {% endif %}
                 </td>
-                <td>
+                <td class="text-right">
                     {% if data.chartofaccount.main < 4 %}
                         {% if balances.3 == 'C' %}
                             {{ balances.2|floatformat:2|intcomma }}
