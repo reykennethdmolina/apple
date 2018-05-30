@@ -11,19 +11,68 @@
 {% block main_content %}
     <table>
     {% if report_subtype == '(Summary Entries)' %}
-        {% for data in data_list %}
-            <tr>
-                <td width="15%" style="padding-left: 5px;">{{ data.chartofaccount__accountcode }}</td>
-                <td width="55%">{{ data.chartofaccount__description }}</td>
-                <td width="15%" class="right">{% if data.debitdifference > 0 %}{{ data.debitdifference|floatformat:2|intcomma }}{% endif %}</td>
-                <td width="15%" class="right">{% if data.creditdifference > 0 %}{{ data.creditdifference|floatformat:2|intcomma }}{% endif %}</td>
+        {% if report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' or report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)' %}
+            {% for data in data_list1 %}
+                <tr>
+                    <td width="5%">&nbsp;</td>
+                    <td width="5%">&nbsp;</td>
+                    <td width="75%">{{ data.chartofaccount__description }}</td>
+                    <td width="15%" class="right" style="padding-right: 3px;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            {% for data in data_list2 %}
+                <tr>
+                    {% if report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)' %}
+                        <td width="5%">{{ data.department__code }}</td>
+                        <td width="5%">{{ data.branch__code }}</td>
+                    {% else %}
+                        <td width="5%">{{ data.department__code }}</td>
+                        <td width="5%">&nbsp;</td>
+                    {% endif %}
+                    <td width="75%">{{ data.department__departmentname }}</td>
+                    <td width="15%" class="right" style="padding-right: 3px;">{{ data.debitamount__sum|floatformat:2|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            {% for data in data_list3 %}
+                <tr>
+                    <td width="5%">&nbsp;</td>
+                    <td width="5%">&nbsp;</td>
+                    <td width="75%">{{ data.chartofaccount__description }}</td>
+                    <td width="15%" class="right" style="padding-right: 3px;">({{ data.creditamount__sum|floatformat:2|intcomma }})</td>
+                </tr>
+            {% endfor %}
+            {% for data in data_list4 %}
+                <tr>
+                    {% if report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)' %}
+                        <td width="5%">{{ data.department__code }}</td>
+                        <td width="5%">{{ data.branch__code }}</td>
+                    {% else %}
+                        <td width="5%">{{ data.department__code }}</td>
+                        <td width="5%">&nbsp;</td>
+                    {% endif %}
+                    <td width="75%">{{ data.department__departmentname }}</td>
+                    <td width="15%" class="right" style="padding-right: 3px;">({{ data.creditamount__sum|floatformat:2|intcomma }})</td>
+                </tr>
+            {% endfor %}
+            <tr style="padding-top: 5px;">
+                <td colspan="3" class="center"><b>t o t a l</b></td>
+                <td width="15%" class="right" style="padding-right: 5px;"><b><u>{{ report_total|floatformat:2|intcomma }}</u></b></td>
             </tr>
-        {% endfor %}
-        <tr style="padding-top: 5px;">
-            <td colspan="2" class="center"><b>t o t a l</b></td>
-            <td width="15%" class="right"><b><u>{{ report_total.debitdifference__sum|floatformat:2|intcomma }}</u></b></td>
-            <td width="15%" class="right"><b><u>{{ report_total.creditdifference__sum|floatformat:2|intcomma }}</u></b></td>
-        </tr>
+        {% else %}
+            {% for data in data_list %}
+                <tr>
+                    <td width="15%" style="padding-left: 5px;">{{ data.chartofaccount__accountcode }}</td>
+                    <td width="55%">{{ data.chartofaccount__description }}</td>
+                    <td width="15%" class="right">{% if data.debitdifference > 0 %}{{ data.debitdifference|floatformat:2|intcomma }}{% endif %}</td>
+                    <td width="15%" class="right">{% if data.creditdifference > 0 %}{{ data.creditdifference|floatformat:2|intcomma }}{% endif %}</td>
+                </tr>
+            {% endfor %}
+            <tr style="padding-top: 5px;">
+                <td colspan="2" class="center"><b>t o t a l</b></td>
+                <td width="15%" class="right"><b><u>{{ report_total.debitdifference__sum|floatformat:2|intcomma }}</u></b></td>
+                <td width="15%" class="right"><b><u>{{ report_total.creditdifference__sum|floatformat:2|intcomma }}</u></b></td>
+            </tr>
+        {% endif %}
     {% elif report_subtype == '(Detailed Entries)' %}
         {% for data, sort in data_list %}
             <tr style="font-size: 10px;">
@@ -43,7 +92,7 @@
                     {% endifchanged %}
                     {% ifchanged data.jv_num %}
                         <td style="vertical-align: top; font-size: 10px;">
-                            {{ data.jvmain__jvdate|date:'m/d/Y' }}
+                            {{ data.jvmain.jvdate|date:'m/d/Y' }}
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.jv_num %}
@@ -52,26 +101,26 @@
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.jv_num %}
-                                {{ data.jvmain__particular|slice:":70" }}
+                                {{ data.jvmain.particular|slice:":70" }}
                             {% endifchanged %}
                         </td>
                     {% else %}
                         {% if sort.sort_number == 2 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.jvmain__particular|slice:"70:140" }}</td>
+                            <td style="vertical-align: top">{{ data.jvmain.particular|slice:"70:140" }}</td>
                         {% elif sort.sort_number == 3 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.jvmain__particular|slice:"140:210" }}</td>
+                            <td style="vertical-align: top">{{ data.jvmain.particular|slice:"140:210" }}</td>
                         {% elif sort.sort_number == 4 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.jvmain__particular|slice:"210:280" }}</td>
+                            <td style="vertical-align: top">{{ data.jvmain.particular|slice:"210:280" }}</td>
                         {% elif sort.sort_number > 4 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.jvmain__particular|slice:"280:350" }}</td>
+                            <td style="vertical-align: top">{{ data.jvmain.particular|slice:"280:350" }}</td>
                         {% endif %}
                     {% endifchanged %}
                 {% elif report_type == 'CASH DISBURSEMENT BOOK' %}
@@ -92,41 +141,41 @@
                     {% endifchanged %}
                     {% ifchanged data.cv_num %}
                         <td style="vertical-align: top; font-size: 10px;">
-                            {{ data.cvmain__cvdate|date:'m/d/Y' }}
+                            {{ data.cvmain.cvdate|date:'m/d/Y' }}
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.cv_num %}
-                                {{ data.cv_num }}&nbsp;&nbsp;&nbsp;{{ data.cvmain__payee_name }}
+                                {{ data.cv_num }}&nbsp;&nbsp;&nbsp;{{ data.cvmain.payee_name }}
                             {% endifchanged %}
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.cv_num %}
-                                {{ data.cvmain__particulars|slice:":40" }}
+                                {{ data.cvmain.particulars|add:data.cvmain.refnum|slice:":40" }}
                             {% endifchanged %}
                         </td>
-                        <td style="vertical-align: top; font-size: 10px;">{{ data.cvmain__bankaccount__code }}</td>
-                        <td style="vertical-align: top; font-size: 10px;">{{ data.cvmain__checknum }}</td>
-                        <td style="vertical-align: top; font-size: 10px; text-align: right; padding-right: 5px;">{{ data.cvmain__amount|floatformat:2|intcomma }}</td>
+                        <td style="vertical-align: top; font-size: 10px;">{{ data.cvmain.bankaccount.code }}</td>
+                        <td style="vertical-align: top; font-size: 10px;">{{ data.cvmain.checknum }}</td>
+                        <td style="vertical-align: top; font-size: 10px; text-align: right; padding-right: 5px;">{{ data.cvmain.amount|floatformat:2|intcomma }}</td>
                     {% else %}
                         {% if sort.sort_number == 2 %}
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">TIN: {{ data.cvmain__payee__tin }}</td>
-                            <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"40:80" }}</td>
+                            <td style="vertical-align: top">TIN: {{ data.cvmain.payee.tin }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.particulars|add:data.cvmain.refnum|slice:"40:80" }}</td>
                             <td style="vertical-align: top;" colspan="3"></td>
                         {% elif sort.sort_number == 3 %}
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.cvmain__payee__address1 }}</td>
-                            <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"80:120" }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.payee.address1 }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.particulars|add:data.cvmain.refnum|slice:"80:120" }}</td>
                             <td style="vertical-align: top;" colspan="3"></td>
                         {% elif sort.sort_number == 4 %}
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.cvmain__payee__address2 }}</td>
-                            <td style="vertical-align: top">{{ data.cvmain__refnum }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.payee.address2 }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.particulars|add:data.cvmain.refnum|slice:"120:160" }}</td>
                             <td style="vertical-align: top;" colspan="3"></td>
                         {% elif sort.sort_number > 4 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.cvmain__particulars|slice:"120:160" }}</td>
+                            <td style="vertical-align: top">{{ data.cvmain.particulars|add:data.cvmain.refnum|slice:"160:200" }}</td>
                             <td style="vertical-align: top;" colspan="3"></td>
                         {% endif %}
                     {% endifchanged %}
@@ -149,7 +198,7 @@
                     {% endifchanged %}
                     {% ifchanged data.or_num %}
                         <td style="vertical-align: top; font-size: 10px;">
-                            {{ data.ormain__ordate|date:'m/d/Y' }}
+                            {{ data.ormain.ordate|date:'m/d/Y' }}
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.or_num %}
@@ -158,65 +207,115 @@
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.or_num %}
-                                {{ data.ormain__payee_name|slice:":70" }}
+                                {{ data.ormain.payee_name|slice:":70" }}
                             {% endifchanged %}
                         </td>
                         <td style="vertical-align: top; font-size: 10px;">
                             {% ifchanged data.or_num %}
-                                {{ data.ormain__particulars|slice:":60" }}
+                                {{ data.ormain.particulars|slice:":60" }}
                             {% endifchanged %}
                         </td>
-                        <td style="vertical-align: top; font-size: 10px; text-align: right; padding-right: 5px;">{{ data.ormain__amount|floatformat:2|intcomma }}</td>
-                        <td style="vertical-align: top; font-size: 10px;">{{ data.ormain__bankaccount__bank__code }}</td>
+                        <td style="vertical-align: top; font-size: 10px; text-align: right; padding-right: 5px;">{{ data.ormain.amount|floatformat:2|intcomma }}</td>
+                        <td style="vertical-align: top; font-size: 10px;">{{ data.ormain.bankaccount.bank.code }}</td>
                     {% else %}
                         {% if sort.sort_number == 2 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.ormain__payee_name|slice:"70:140" }}</td>
-                            <td style="vertical-align: top">{{ data.ormain__particulars|slice:"60:120" }}</td>
+                            <td style="vertical-align: top">{{ data.ormain.payee_name|slice:"70:140" }}</td>
+                            <td style="vertical-align: top">{{ data.ormain.particulars|slice:"60:120" }}</td>
                             <td style="vertical-align: top" colspan="2"></td>
                         {% elif sort.sort_number == 3 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.ormain__particulars|slice:"120:180" }}</td>
+                            <td style="vertical-align: top">{{ data.ormain.particulars|slice:"120:180" }}</td>
                             <td style="vertical-align: top" colspan="2"></td>
                         {% elif sort.sort_number == 4 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.ormain__particulars|slice:"180:240" }}</td>
+                            <td style="vertical-align: top">{{ data.ormain.particulars|slice:"180:240" }}</td>
                             <td style="vertical-align: top" colspan="2"></td>
                         {% elif sort.sort_number > 4 %}
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
                             <td style="vertical-align: top"></td>
-                            <td style="vertical-align: top">{{ data.ormain__particulars|slice:"240:300" }}</td>
+                            <td style="vertical-align: top">{{ data.ormain.particulars|slice:"240:300" }}</td>
                             <td style="vertical-align: top" colspan="2"></td>
                         {% endif %}
                     {% endifchanged %}
+                {% elif report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' %}
+                    {% ifchanged data.ap_num %}
+                        <tr>
+                            <td width="5%"></td>
+                            <td width="23%"></td>
+                            <td width="19%"></td>
+                            <td width="5%"></td>
+                            <td width="17%"></td>
+                            <td width="3%"></td>
+                            <td width="11%"></td>
+                            <td width="5%"></td>
+                            <td width="5%"></td>
+                        </tr>
+                    {% endifchanged %}
+                    {% ifchanged data.ap_num %}
+                        <td style="vertical-align: top; font-size: 10px;">
+                            {{ data.apmain.apdate|date:'m/d/Y' }}
+                        </td>
+                        <td style="vertical-align: top; font-size: 10px;">
+                            {% ifchanged data.ap_num %}
+                                {{ data.ap_num }}&nbsp;&nbsp;&nbsp;{{ data.apmain.payeename }}
+                            {% endifchanged %}
+                        </td>
+                        <td style="vertical-align: top; font-size: 10px;">
+                            {% ifchanged data.ap_num %}
+                                {{ data.apmain.particulars|add:data.apmain.refno|slice:":40" }}
+                            {% endifchanged %}
+                        </td>
+                    {% else %}
+                        {% if sort.sort_number == 2 %}
+                            <td style="vertical-align: top"></td>
+                            <td style="vertical-align: top">TIN: {{ data.apmain.payee.tin }}</td>
+                            <td style="vertical-align: top">{{ data.apmain.particulars|add:data.apmain.refno|slice:"40:80" }}</td>
+                        {% elif sort.sort_number == 3 %}
+                            <td style="vertical-align: top"></td>
+                            <td style="vertical-align: top">{{ data.apmain.payee.address1 }}</td>
+                            <td style="vertical-align: top">{{ data.apmain.particulars|add:data.apmain.refno|slice:"80:120" }}</td>
+                        {% elif sort.sort_number == 4 %}
+                            <td style="vertical-align: top"></td>
+                            <td style="vertical-align: top">{{ data.apmain.payee.address2 }}</td>
+                            <td style="vertical-align: top">{{ data.apmain.particulars|add:data.apmain.refno|slice:"120:160" }}</td>
+                        {% elif sort.sort_number > 4 %}
+                            <td style="vertical-align: top"></td>
+                            <td style="vertical-align: top"></td>
+                            <td style="vertical-align: top">{{ data.apmain.particulars|add:data.apmain.refno|slice:"160:200" }}</td>
+                        {% endif %}
+                    {% endifchanged %}
                 {% endif %}
-                <td style="vertical-align: top; font-size: 10px;">{{ data.chartofaccount__accountcode }}</td>
-                <td style="vertical-align: top; font-size: 10px;">{{ data.chartofaccount__description }}</td>
+                <td style="vertical-align: top; font-size: 10px;">{{ data.chartofaccount.accountcode }}</td>
+                <td style="vertical-align: top; font-size: 10px;">{{ data.chartofaccount.description }}</td>
                 {% if report_type == 'CASH DISBURSEMENT BOOK' %}
-                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount__code %}{{ data.bankaccount__code }} {{ data.bankaccount__bank__code }} {{ data.bankaccount__bankaccounttype__code }}A{% elif data.department__code %}{{ data.department__code }}{% else %}&nbsp;{% endif %}</td>
+                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount %}{{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.bankaccounttype.code }}A{% elif data.department %}{{ data.department.code }}{% else %}&nbsp;{% endif %}</td>
+                {% elif report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' %}
+                    <td style="vertical-align: top; font-size: 10px;">{% if data.department %}{{ data.department.code }}{% else %}&nbsp;{% endif %}</td>
+                    <td style="vertical-align: top; font-size: 10px;">{% if data.department %}{{ data.department.departmentname }}{% elif data.employee %}{{ data.employee.lastname }}, {{ data.employee.firstname }} {{ data.employee.middlename|slice:":1" }}.{% else %}&nbsp;{% endif %}</td>
                 {% else %}
-                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount__code %}{{ data.bankaccount__code }}{% elif data.department__code %}{{ data.department__code }}{% else %}&nbsp;{% endif %}</td>
-                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount__code %}{{ data.bankaccount__bank__code }} {{ data.bankaccount__bankaccounttype__code }}A{% elif data.department__code %}{{ data.department__departmentname }}{% else %}&nbsp;{% endif %}</td>
+                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount %}{{ data.bankaccount.code }}{% elif data.department %}{{ data.department.code }}{% else %}&nbsp;{% endif %}</td>
+                    <td style="vertical-align: top; font-size: 10px;">{% if data.bankaccount %}{{ data.bankaccount.bank.code }} {{ data.bankaccount.bankaccounttype.code }}A{% elif data.department %}{{ data.department.departmentname }}{% else %}&nbsp;{% endif %}</td>
                 {% endif %}
-                <td style="vertical-align: top; font-size: 10px;" align="right">{{ data.debitamount__sum|default:''|floatformat:2|intcomma }}</td>
-                <td style="vertical-align: top; font-size: 10px;" align="right">{{ data.creditamount__sum|default:''|floatformat:2|intcomma }}</td>
+                <td style="vertical-align: top; font-size: 10px;" align="right">{{ data.debitamount|default:''|floatformat:2|intcomma }}</td>
+                <td style="vertical-align: top; font-size: 10px;" align="right">{{ data.creditamount|default:''|floatformat:2|intcomma }}</td>
             </tr>
         {% endfor %}
-        <tr style="border-top: 1px solid grey; padding-top: 5px;">
-            <td colspan="{% if report_type == 'CASH DISBURSEMENT BOOK' %}7{% elif report_type == 'CASH RECEIPTS BOOK' %}8{% else %}5{% endif %}" class="right"><b>T o t a l</b></td>
-            <td colspan="2">&nbsp;</td>
-            <td class="right" {% if report_type == 'CASH DISBURSEMENT BOOK' or report_type == 'CASH RECEIPTS BOOK' %}style="font-size: 10px;"{% endif %}><b>{{ report_total.debitamount__sum__sum|floatformat:2|intcomma }}</b></td>
-            <td class="right" {% if report_type == 'CASH DISBURSEMENT BOOK' or report_type == 'CASH RECEIPTS BOOK' %}style="font-size: 10px; padding-right: -3px;"{% endif %}><b>{{ report_total.creditamount__sum__sum|floatformat:2|intcomma }}</b></td>
-        </tr>
+{#        <tr style="border-top: 1px solid grey; padding-top: 5px;">#}
+{#            <td colspan="{% if report_type == 'CASH DISBURSEMENT BOOK' %}7{% elif report_type == 'CASH RECEIPTS BOOK' %}8{% else %}5{% endif %}" class="right"><b>T o t a l</b></td>#}
+{#            <td colspan="2">&nbsp;</td>#}
+{#            <td class="right" {% if report_type == 'CASH DISBURSEMENT BOOK' or report_type == 'CASH RECEIPTS BOOK' %}style="font-size: 10px;"{% endif %}><b>{{ report_total.debitamount__sum|floatformat:2|intcomma }}</b></td>#}
+{#            <td class="right" {% if report_type == 'CASH DISBURSEMENT BOOK' or report_type == 'CASH RECEIPTS BOOK' %}style="font-size: 10px; padding-right: -3px;"{% endif %}><b>{{ report_total.creditamount__sum|floatformat:2|intcomma }}</b></td>#}
+{#        </tr>#}
     {% endif %}
     </table>
-    {% if report_subtype == '(Detailed Entries)' %}
+    {% if report_subtype == '(Detailed Entries)' or report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' or report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)' %}
         <p class="table-header" style="margin-top: 50px;">Checked by:&nbsp;&nbsp;&nbsp;________________________</p>
         <p class="table-header">Date checked:&nbsp;&nbsp;&nbsp;________________________</p>
     {% endif %}

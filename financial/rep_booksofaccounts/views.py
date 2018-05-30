@@ -9,7 +9,7 @@ from accountspayable.models import Apdetail
 from utils.mixins import ReportContentMixin
 from easy_pdf.views import PDFTemplateView
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Sum, Case, Value, When, F
+from django.db.models import Sum, Case, Value, When, F, Q
 import datetime
 
 
@@ -39,7 +39,8 @@ class ReportResultPdfView(ReportContentMixin, PDFTemplateView):
         context['report_total'] = 0
 
         query, context['report_type'], context['report_subtype'], context['report_total'], context['report_xls'], \
-            context['orientation'], context['pagesize'] = reportresultquery(self.request)
+            context['orientation'], context['pagesize'], accounts_debits, departments_debits, accounts_credits, \
+            departments_credits = reportresultquery(self.request)
 
         if self.request.COOKIES.get('date_from_' + self.request.resolver_match.app_name):
             context['datefrom'] = datetime.datetime.strptime(self.request.COOKIES.get('date_from_' + self.request.
@@ -53,7 +54,18 @@ class ReportResultPdfView(ReportContentMixin, PDFTemplateView):
                                                            "%Y-%m-%d")
         else:
             context['dateto'] = last_day_of_month(datetime.date.today())
-        context['data_list'] = query
+
+        if context['report_subtype'] == '(Summary Entries)':
+            if context['report_type'] == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' or context['report_type'] == \
+                    'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)':
+                context['data_list1'] = accounts_debits
+                context['data_list2'] = departments_debits
+                context['data_list3'] = accounts_credits
+                context['data_list4'] = departments_credits
+            else:
+                context['data_list'] = query
+        else:
+            context['data_list'] = query
 
         return context
 
@@ -67,6 +79,10 @@ def reportresultquery(request):
     report_xls = ''
     orientation = ''
     pagesize = ''
+    accounts_debits = ''
+    departments_debits = ''
+    accounts_credits = ''
+    departments_credits = ''
 
     set_report_type = request.COOKIES.get('report_type_' + request.resolver_match.app_name) if request.COOKIES.get(
         'report_type_' + request.resolver_match.app_name) else 'GJB_S'
@@ -103,20 +119,83 @@ def reportresultquery(request):
             else 'CRB Summary'
         report_subtype = '(Summary Entries)' if set_report_type == 'CRB_S' else '(Detailed Entries)' if \
             set_report_type == 'CRB_D' else 'CRB Summary'
+    elif set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S' or set_report_type == 'SAP_D':
+        report_type = 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE'
+        if set_report_type == 'SAP_WB_S':
+            report_type += ' (WITH BRANCH)'
+        query = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+        query = query.filter(apmain__apdate__gte=date_from)
+        query = query.filter(apmain__apdate__lte=date_to)
+        report_xls = 'SAP Summary' if set_report_type == 'SAP_S' else 'SAP-WB Summary' \
+            if set_report_type == 'SAP_WB_S' else 'SAP Detailed' if set_report_type == 'SAP_D' else 'SAP Summary'
+        report_subtype = '(Summary Entries)' if set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S' \
+            else '(Detailed Entries)' if set_report_type == 'SAP_D' else '(Summary Entries)'
 
     # set common configurations for all Transaction Types with SUMMARY ENTRIES subtype
     if report_subtype == '(Summary Entries)':
         orientation = 'portrait'
         pagesize = 'letter'
-        query = query.values('chartofaccount__accountcode',
-                             'chartofaccount__description') \
-            .annotate(Sum('debitamount'), Sum('creditamount'),
-                      debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
-                                           default=Sum('debitamount') - Sum('creditamount')),
-                      creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
-                                            default=Sum('creditamount') - Sum('debitamount'))) \
-            .order_by('chartofaccount__accountcode')
-        report_total = query.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        if set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S':
+            # debit amounts for assets and liabilities excluding cash in bank and ap trade
+            accounts_debits = query
+            accounts_debits = Apdetail.objects.filter((Q(chartofaccount__accountcode__startswith='1') |
+                                                       Q(chartofaccount__accountcode__startswith='2'))). \
+                exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank). \
+                exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
+            accounts_debits = accounts_debits.values('chartofaccount__description').annotate(Sum('debitamount')). \
+                filter(debitamount__sum__gt=0). \
+                order_by('chartofaccount__accountcode')
+            accounts_debits_total = accounts_debits.aggregate(Sum('debitamount__sum'))
+
+            # debit amounts per department
+            departments_debits = query
+            departments_debits = Apdetail.objects.exclude(department=None)
+            if set_report_type == 'SAP_S':
+                departments_debits = departments_debits.values('department__code', 'department__departmentname')\
+                    .annotate(Sum('debitamount')).filter(debitamount__sum__gt=0).order_by('department__code')
+            else:
+                departments_debits = departments_debits.values('department__code', 'department__departmentname',
+                                                               'branch__code') \
+                    .annotate(Sum('debitamount')).filter(debitamount__sum__gt=0).order_by('department__code')
+            departments_debits_total = departments_debits.aggregate(Sum('debitamount__sum'))
+
+            # credit amounts for assets and liabilities excluding cash in bank and ap trade
+            accounts_credits = query
+            accounts_credits = Apdetail.objects.filter((Q(chartofaccount__accountcode__startswith='1') |
+                                                        Q(chartofaccount__accountcode__startswith='2'))). \
+                exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank). \
+                exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
+            accounts_credits = accounts_credits.values('chartofaccount__description').annotate(Sum('creditamount')). \
+                filter(creditamount__sum__gt=0). \
+                order_by('chartofaccount__accountcode')
+            accounts_credits_total = accounts_credits.aggregate(Sum('creditamount__sum'))
+
+            # credit amounts per department
+            departments_credits = query
+            departments_credits = Apdetail.objects.exclude(department=None)
+            if set_report_type == 'SAP_S':
+                departments_credits = departments_credits.values('department__code', 'department__departmentname')\
+                    .annotate(Sum('creditamount')).filter(creditamount__sum__gt=0).order_by('department__code')
+            else:
+                departments_credits = departments_credits.values('department__code', 'department__departmentname',
+                                                                 'branch__code') \
+                    .annotate(Sum('creditamount')).filter(creditamount__sum__gt=0).order_by('department__code')
+            departments_credits_total = departments_credits.aggregate(Sum('creditamount__sum'))
+
+            report_total = (accounts_debits_total['debitamount__sum__sum'] +
+                            departments_debits_total['debitamount__sum__sum']) - \
+                           (accounts_credits_total['creditamount__sum__sum'] +
+                            departments_credits_total['creditamount__sum__sum'])
+        else:
+            query = query.values('chartofaccount__accountcode',
+                                 'chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
+            report_total = query.aggregate(Sum('debitdifference'), Sum('creditdifference'))
 
     # set common configurations for each Transaction Type with DETAILED ENTRIES subtype
     elif report_subtype == '(Detailed Entries)':
@@ -126,79 +205,29 @@ def reportresultquery(request):
 
         # General Journal Book (JOURNAL VOUCHER)
         if set_report_type == 'GJB_D':
-            query = query.values('jv_num') \
-                .annotate(Sum('debitamount'), Sum('creditamount')) \
-                .values('jvmain__jvdate',
-                        'jv_num',
-                        'jvmain__particular',
-                        'chartofaccount__accountcode',
-                        'chartofaccount__description',
-                        'bankaccount__code',
-                        'bankaccount__bank__code',
-                        'bankaccount__bankaccounttype__code',
-                        'department__code',
-                        'department__departmentname',
-                        'item_counter',
-                        'debitamount__sum',
-                        'creditamount__sum') \
-                .order_by('jv_num', 'item_counter')
+            query = query.order_by('jv_num', 'item_counter')
             sort_numbers = preserve_sort(query, 'jv_num')
 
         # Cash Disbursement Book (CHECK VOUCHER)
         elif set_report_type == 'CDB_D':
-            query = query.values('cv_num') \
-                .annotate(Sum('debitamount'), Sum('creditamount')) \
-                .values('cvmain__cvdate',
-                        'cv_num',
-                        'cvmain__payee_name',
-                        'cvmain__payee__tin',
-                        'cvmain__payee__address1',
-                        'cvmain__payee__address2',
-                        'cvmain__particulars',
-                        'cvmain__refnum',
-                        'cvmain__bankaccount__code',
-                        'cvmain__checknum',
-                        'cvmain__amount',
-                        'chartofaccount__accountcode',
-                        'chartofaccount__description',
-                        'bankaccount__code',
-                        'bankaccount__bank__code',
-                        'bankaccount__bankaccounttype__code',
-                        'department__code',
-                        'department__departmentname',
-                        'item_counter',
-                        'debitamount__sum',
-                        'creditamount__sum') \
-                .order_by('cv_num', '-balancecode', 'item_counter')
+            query = query.order_by('cv_num', '-balancecode', 'item_counter')
             sort_numbers = preserve_sort(query, 'cv_num')
 
         # Cash Receipts Book (OFFICIAL RECEIPT)
         elif set_report_type == 'CRB_D':
-            query = query.values('or_num') \
-                .annotate(Sum('debitamount'), Sum('creditamount')) \
-                .values('ormain__ordate',
-                        'or_num',
-                        'ormain__payee_name',
-                        'ormain__particulars',
-                        'ormain__amount',
-                        'ormain__bankaccount__bank__code',
-                        'chartofaccount__accountcode',
-                        'chartofaccount__description',
-                        'bankaccount__code',
-                        'bankaccount__bank__code',
-                        'bankaccount__bankaccounttype__code',
-                        'department__code',
-                        'department__departmentname',
-                        'item_counter',
-                        'debitamount__sum',
-                        'creditamount__sum') \
-                .order_by('or_num', '-balancecode', 'item_counter')
+            query = query.order_by('or_num', '-balancecode', 'item_counter')
             sort_numbers = preserve_sort(query, 'or_num')
 
-        report_total = query.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
-        query = zip(query[:10], sort_numbers[:10])
+        # Schedule of Accruals - Accts. Payable-Trade (ACCOUNTS PAYABLE VOUCHER)
+        elif set_report_type == 'SAP_D':
+            query = query.order_by('ap_num', '-balancecode', 'item_counter')
+            sort_numbers = preserve_sort(query, 'ap_num')
 
-    return query, report_type, report_subtype, report_total, report_xls, orientation, pagesize
+        report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
+        query = zip(query[160:260], sort_numbers[160:260])
+
+    return query, report_type, report_subtype, report_total, report_xls, orientation, pagesize, accounts_debits, \
+        departments_debits, accounts_credits, departments_credits
 
 
 @method_decorator(login_required, name='dispatch')
@@ -309,25 +338,51 @@ def preserve_sort(query, field):
     sort_number = 0
     for data in query:
         if last_item is not None:
-            if last_item[field] == data[field]:
-                sort_numbers.append({'sort_number': sort_number})
-                sort_number += 1
+            if field == 'jv_num':
+                if last_item.jv_num == data.jv_num:
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+                else:
+                    sort_number = 1
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+            elif field == 'cv_num':
+                if last_item.cv_num == data.cv_num:
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+                else:
+                    sort_number = 1
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+            elif field == 'or_num':
+                if last_item.or_num == data.or_num:
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+                else:
+                    sort_number = 1
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+            elif field == 'ap_num':
+                if last_item.ap_num == data.ap_num:
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+                else:
+                    sort_number = 1
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
             else:
-                sort_number = 1
-                sort_numbers.append({'sort_number': sort_number})
-                sort_number += 1
+                if last_item[field] == data[field]:
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
+                else:
+                    sort_number = 1
+                    sort_numbers.append({'sort_number': sort_number})
+                    sort_number += 1
         else:
             sort_number = 1
             sort_numbers.append({'sort_number': sort_number})
             sort_number += 1
         last_item = data
-
-    test_query = Apdetail.objects.filter(isdeleted=0).exclude(apmain__status='C')
-    test_query = test_query.values('chartofaccount__accountcode',
-                                   'chartofaccount__description').annotate(Sum('debitamount'))\
-        .filter(chartofaccount__accountcode__startswith='2', debitamount__sum__gt=0)\
-        .order_by('chartofaccount__accountcode')
-    print test_query
 
     return sort_numbers
 
