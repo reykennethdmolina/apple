@@ -6,6 +6,7 @@ from journalvoucher.models import Jvdetail
 from checkvoucher.models import Cvdetail
 from officialreceipt.models import Ordetail
 from accountspayable.models import Apdetail
+from purchaseorder.models import Pomain
 from utils.mixins import ReportContentMixin
 from easy_pdf.views import PDFTemplateView
 from django.views.decorators.csrf import csrf_exempt
@@ -130,6 +131,13 @@ def reportresultquery(request):
             if set_report_type == 'SAP_WB_S' else 'SAP Detailed' if set_report_type == 'SAP_D' else 'SAP Summary'
         report_subtype = '(Summary Entries)' if set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S' \
             else '(Detailed Entries)' if set_report_type == 'SAP_D' else '(Summary Entries)'
+    elif set_report_type == 'PURCHASE':
+        report_type = 'PURCHASE BOOK'
+        query = Pomain.objects.all().filter(isdeleted=0).exclude(status='C')
+        query = query.filter(podate__gte=date_from)
+        query = query.filter(podate__lte=date_to)
+        report_xls = 'Purchase Book'
+        report_subtype = ''
 
     # set common configurations for all Transaction Types with SUMMARY ENTRIES subtype
     if report_subtype == '(Summary Entries)':
@@ -225,6 +233,12 @@ def reportresultquery(request):
 
         report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
         query = zip(query[160:260], sort_numbers[160:260])
+
+    elif report_subtype == '' and set_report_type == 'PURCHASE':
+        orientation = 'landscape'
+        pagesize = 'legal'
+
+        query = query.order_by('ponum')
 
     return query, report_type, report_subtype, report_total, report_xls, orientation, pagesize, accounts_debits, \
         departments_debits, accounts_credits, departments_credits
