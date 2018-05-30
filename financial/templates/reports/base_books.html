@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: {{ pagesize }} {{ orientation }};
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 4.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm;
+                right: 1cm;
+                bottom: -2cm;
+                height: 4cm;
+            }
+            {% if orientation == 'landscape' and pagesize == 'legal' %}
+                @frame content_frame {
+                    top: 5cm; left: 1cm;
+                    width: 36cm;
+                    height: 14cm;
+                }
+            {% elif orientation == 'portrait' and pagesize == 'letter'  %}
+                @frame content_frame {
+                    top: 5cm; left: 1cm;
+                    width: 19.5cm;
+                    height: 21cm;
+                }
+            {% endif %}
+        }
+        body{
+            font-size: 12px;
+            font-family: {{ rc_font }};
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .subtitle{
+            font-size: 120%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table-header{
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .center{
+            text-align: center;
+        }
+        .left{
+            text-align: left;
+        }
+        .right{
+            text-align: right;
+        }
+        #footer_content_table{
+            font-size: 8.4px;
+        }
+        #footer_right{
+            margin-left: 30px;
+            width: 600px;
+        }
+        .border{
+            border: 1px solid black;
+            padding-top: 4px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+    </style>
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+<body>
+<div id="header_content" class="header">
+    <table>
+        <tr>
+            <td width="50%"><p class="title">{{ rc_param.description|upper }}</p></td>
+            <td width="50%"><p class="right">run date: {% now 'm/d/Y' %}</p></td>
+        </tr>
+        <tr>
+            <td width="75%"><p class="title">{{ report_type|upper }}{% if report_subtype == '(Detailed Entries)' %} {{ report_subtype }}{% endif %}</p></td>
+            <td width="25%"><p class="right">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+        </tr>
+    {% if report_subtype == '(Summary Entries)' or report_subtype == 'Summary of Cash in Bank' %}
+        <tr>
+            <td><p class="subtitle">{{ report_subtype }}</p></td>
+        </tr>
+    {% endif %}
+        <tr>
+            <td><p class="subtitle">
+                {% if datefrom != dateto %}
+                    for the period {{ datefrom|date:'N d, Y' }} to {{ dateto|date:'N d, Y' }}
+                {% elif datefrom == dateto and datefrom != '' %}
+                    for the date {{ datefrom }}
+                {% endif %}
+            </p></td>
+        </tr>
+    </table>
+    <br>
+    <table>
+        {% if report_subtype == '(Detailed Entries)' %}
+            {% if report_type == 'GENERAL JOURNAL BOOK' %}
+            <tr style="border-top: solid 2px black; padding-top: 5px; padding-bottom: 0px;
+                        padding-left: 5px;">
+                <td colspan="5" class="table-header"><i>Journal Voucher</i></td>
+                <td colspan="4" class="table-header"><i>-------------Subsidiary Ledger--------------</i></td>
+            </tr>
+            <tr style="border-bottom: solid 2px black; padding-bottom: 0px; padding-left: 5px;">
+                <td width="7%" class="table-header"><i>Date</i></td>
+                <td width="6%" class="table-header"><i>Number</i></td>
+                <td width="26%" class="table-header"><i>Particulars</i></td>
+                <td width="9%" class="table-header left"><i>Account Number</i></td>
+                <td width="17%" class="table-header left"><i>Account Title</i></td>
+                <td width="6%" class="table-header"><i>Code</i></td>
+                <td width="16%" class="table-header"><i>Particulars</i></td>
+                <td width="7%" class="table-header center"><i>Debit</i></td>
+                <td width="7%" class="table-header center"><i>Credit</i></td>
+            </tr>
+            {% elif report_type == 'CASH DISBURSEMENT BOOK' %}
+            <tr style="border-top: solid 2px black; padding-top: 5px; padding-bottom: 0px;
+                        padding-left: 5px;">
+                <td colspan="6" class="table-header"><i>Check Voucher</i></td>
+                <td colspan="5" class="table-header"><i>Account</i></td>
+            </tr>
+            <tr style="border-bottom: solid 2px black; padding-bottom: 0px; padding-left: 5px;">
+                <td width="5%" class="table-header"><i>Date</i></td>
+                <td width="20%" class="table-header"><i>Number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Payee</i></td>
+                <td width="20%" class="table-header"><i>Particulars</i></td>
+                <td width="4%" class="table-header"><i>Bank</i></td>
+                <td width="5%" class="table-header"><i>Check No.</i></td>
+                <td width="5%" class="table-header"><i>Amount</i></td>
+                <td width="5%" class="table-header left"><i>Number</i></td>
+                <td width="17%" class="table-header left"><i>Account Title</i></td>
+                <td width="9%" class="table-header"><i>Subs Ledger</i></td>
+                <td width="5%" class="table-header center"><i>Debit</i></td>
+                <td width="5%" class="table-header center"><i>Credit</i></td>
+            </tr>
+            {% elif report_type == 'CASH RECEIPTS BOOK' %}
+            <tr style="border-top: solid 2px black; padding-top: 5px; padding-bottom: 0px;
+                        padding-left: 5px;">
+                <td colspan="5" class="table-header"><i>Official Receipt</i></td>
+                <td class="table-header"><i>Bank</i></td>
+                <td colspan="6" class="table-header"><i>Account</i></td>
+            </tr>
+            <tr style="border-bottom: solid 2px black; padding-bottom: 0px; padding-left: 5px;">
+                <td width="4%" class="table-header"><i>Date</i></td>
+                <td width="7%" class="table-header"><i>Number</i></td>
+                <td width="20%" class="table-header"><i>Payee</i></td>
+                <td width="20%" class="table-header"><i>Particulars</i></td>
+                <td width="5%" class="table-header"><i>Amount</i></td>
+                <td width="4%" class="table-header"><i>Code</i></td>
+                <td width="5%" class="table-header left"><i>Number</i></td>
+                <td width="13%" class="table-header left"><i>Account Title</i></td>
+                <td width="5%" class="table-header"><i>Code</i></td>
+                <td width="10%" class="table-header"><i>Particulars</i></td>
+                <td width="5%" class="table-header center"><i>Debit</i></td>
+                <td width="5%" class="table-header center"><i>Credit</i></td>
+            </tr>
+            {% elif report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' %}
+            <tr style="border-top: solid 2px black; padding-top: 5px; padding-bottom: 0px;
+                        padding-left: 5px;">
+                <td colspan="3" class="table-header"><i>Accounts Payable</i></td>
+                <td colspan="2" class="table-header"><i>Account</i></td>
+                <td colspan="4" class="table-header"><i>Dept</i></td>
+            </tr>
+            <tr style="border-bottom: solid 2px black; padding-bottom: 0px; padding-left: 5px;">
+                <td width="5%" class="table-header"><i>Date</i></td>
+                <td width="20%" class="table-header"><i>Number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Payee</i></td>
+                <td width="20%" class="table-header"><i>Particulars</i></td>
+                <td width="5%" class="table-header left"><i>Number</i></td>
+                <td width="20%" class="table-header left"><i>Account Title</i></td>
+                <td width="5%" class="table-header left"><i>Code</i></td>
+                <td width="15%" class="table-header"><i>Department Name</i></td>
+                <td width="5%" class="table-header center"><i>Debit</i></td>
+                <td width="5%" class="table-header center"><i>Credit</i></td>
+            </tr>
+            {% endif %}
+        {% elif report_subtype == '' and report_type == 'PURCHASE BOOK' %}
+            <tr style="border-top: solid 2px black; border-bottom: solid 2px black; padding-bottom: 0px; padding-top: 5px; padding-left: 5px;">
+                <td width="6%" class="table-header"><i>PO Number</i></td>
+                <td width="6%" class="table-header"><i>PO Date</i></td>
+                <td width="21%" class="table-header"><i>Supplier Name</i></td>
+                <td width="17%" class="table-header"><i>Particulars</i></td>
+                <td width="9%" class="table-header"><i>Reference No.</i></td>
+                <td width="5%" class="table-header"><i>Input VAT</i></td>
+                <td width="5%" class="table-header left"><i>Quantity</i></td>
+                <td width="6%" class="table-header center"><i>Amt before Discount</i></td>
+                <td width="6%" class="table-header center"><i>Discount Amount</i></td>
+                <td width="6%" class="table-header center"><i>Gross Amount</i></td>
+                <td width="6%" class="table-header center"><i>VAT Amount</i></td>
+                <td width="6%" class="table-header center"><i>Net Amount</i></td>
+            </tr>
+        {% else %}
+        <tr style="border-top: solid 2px black; padding-top: 5px; border-bottom: solid 2px black; padding-bottom: 0px;
+                    padding-left: 5px;">
+            {% if report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' or report_type == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)' %}
+                <td width="10%"><p class="table-header"><i>Dept. Code</i></p></td>
+                <td width="75%" class="center"><p class="table-header"><i>Department Name</i></p></td>
+                <td width="15%" class="right" style="padding-right: 5px;"><p class="table-header"><i>Amount</i></p></td>
+            {% else %}
+                {% if report_subtype == 'Summary of Cash in Bank' %}
+                    <td width="15%"><p class="table-header"><i>Bank Account</i></p></td>
+                    <td width="55%" class="center"><p class="table-header"><i>Bank Description</i></p></td>
+                {% elif report_subtype == '(Summary Entries)' %}
+                    <td width="15%"><p class="table-header"><i>Account Number</i></p></td>
+                    <td width="55%" class="center"><p class="table-header"><i>Account Title</i></p></td>
+                {% endif %}
+                <td width="15%" class="center"><p class="table-header"><i>Debit</i></p></td>
+                <td width="15%" class="center"><p class="table-header"><i>Credit</i></p></td>
+            {% endif %}
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
+<div id="footer_content">
+{% if report_subtype == 'Summary of Cash in Bank' %}
+    <p class="table-header">Checked by:&nbsp;&nbsp;&nbsp;________________________</p>
+    <p class="table-header">Date checked:&nbsp;&nbsp;&nbsp;________________________</p>
+{% endif %}
+</div>
+
+{% block subheader_content %}
+{% endblock subheader_content %}
+
+{% block main_content %}{% endblock %}
+</body>
+</html>
