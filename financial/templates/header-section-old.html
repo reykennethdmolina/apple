@@ -1,0 +1,242 @@
+{% load staticfiles %}
+{#{% for test in test %}#}
+{#    {{ test.content_type.model }}#}
+{#{% endfor %}#}
+{#{% regroup userpermission by mainmoduledescp as mainmodule_list %}#}
+{##}
+{#<ul>#}
+{#{% for mainmodule in mainmodule_list %}#}
+{#    <li>{{ mainmodule.list.0.mainiconfile }}#}
+{#    <li>{{ mainmodule.grouper }}#}
+{#    <ul>#}
+{#        {% for module in mainmodule.list %}#}
+{#          <li>{{ module.app_label }}: {{ module.modulename }}</li>#}
+{#        {% endfor %}#}
+{#    </ul>#}
+{#    </li>#}
+{#{% endfor %}#}
+{#</ul>#}
+{##}
+{#{{ userpermission }}#}
+
+{#{% for key, value, data in userpermission.items %}#}
+{#    {{ key }} {{ value.0 }}#}
+{#    {% for item, data in value %}#}
+{#        {{ item }} {{ item.modulename }}</br>#}
+{#    {% endfor %}#}
+{#{% endfor %}#}
+
+{#{% for key, value in userpermission.items %}#}
+{#    {{ key }}#}
+{#    {% for x, y in value %}#}
+{#        {{ x }} : {{ y }}#}
+{#    {% endfor %}#}
+{#{% endfor %}#}
+<div class="main-header navbar navbar-default navbar-fixed-top navbar-inverse navbar-mega">
+   <div class="navbar-header">
+      <!--  Template Logo -->
+      <a class="navbar-brand" href="/">
+      <img class="navbar-brand-logo navbar-brand-logo-normal" src="{% static 'financial-layout/assets/images/logo.png' %}" title="Porish" alt="logo">
+      </a>
+   </div>
+    <div class="navbar-container container-fluid">
+      <div class="collapse navbar-collapse navbar-block navbar-collapse-toolbar" id="site-navbar-collapse">
+         <!--  Menu -->
+         <div class="utmenucontainer">
+            <div class="overlapblackbg"></div>
+            <a id="wsnavtoggle" class="animated-arrow"><span></span></a>
+            <nav class="utmenu">
+               <ul class="mobile-sub utmenu-list">
+                  <li>
+                     <div class="navbar-header mobile-res-logo">
+                        <a class="navbar-brand" href="javascript:void(0)">
+                        <img class="navbar-brand-logo navbar-brand-logo-normal" src="{% static 'financial-layout/assets/images/logo.png' %}" title="Porish" alt="logo">
+                        </a>
+                     </div>
+                  </li>
+{#                {% for key, value, data in userpermission.items %}#}
+{#                    <li>#}
+{#                       <a class="waves-effect waves-light" href="javascript:void(0)"> <i class="layout-icon {{ value.0 }}" aria-hidden="true"></i> {{ key }} <span class="arrow_carrot-down" aria-hidden="true"></span></a>#}
+{#                       <ul class="utmenu-submenu">#}
+{#                          {% for item, data in value %}#}
+{#                              <li><a class="waves-effect waves-light" href="/{{item.app_label}}/">{{ item.modulename }}</a></li>#}
+{#                          {% endfor %}#}
+{#                       </ul>#}
+{#                    </li>#}
+{#                    <li>#}
+{#                {% endfor %}#}
+                  {% regroup userpermission by mainmoduledescp as mainmodule_list %}
+                    {% for mainmodule in mainmodule_list %}
+                    <li>
+                        <a class="waves-effect waves-light" href="javascript:void(0)"> <i class="layout-icon {{ mainmodule.list.0.mainiconfile }}" aria-hidden="true"></i> {{ mainmodule.grouper }} <span class="arrow_carrot-down" aria-hidden="true"></span></a>
+                        <ul class="utmenu-submenu" style="height: auto; overflow:auto; max-height: 400px;">
+                            {% for module in mainmodule.list %}
+                            <li><a class="waves-effect waves-light" href="/{{module.app_label}}/">{{ module.modulename }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+               </ul>
+            </nav>
+         </div>
+         <!--<ul class="nav navbar-nav navbar-toolbar">
+            &lt;!&ndash;  Mega Menu &ndash;&gt;
+            <li class="dropdown dropdown-fw dropdown-mega">
+               <a href="javascript:void(0)" class="dropdown-toggle waves-effect waves-light" data-hover="dropdown" data-toggle="dropdown"><i class="layout-icon icon_genius" aria-hidden="true"></i><span class="mega-text">Extra Features </span><span class="arrow_carrot-down"></span></a>
+               <ul class="dropdown-menu" role="menu">
+                  <li>
+                     <div class="mega-menu-content">
+                        <div class="row">
+                           <div class="col-sm-12 col-md-3 col-lg-2 col-xs-12">
+                              <h5 class="mobile-megamenu waves-effect waves-light">Page Layouts <span class="icon_plus"></span> </h5>
+                              <ul class="list-menu">
+                                 <li class="mega-menu">
+                                    <a href="features/userlist.html">
+                                    <i class="arrow_triangle-right" aria-hidden="true"></i>
+                                    User List
+                                    </a>
+                                 </li>
+                                 <li>
+                                    <a href="features/Invoice.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Invoice</a>
+                                 </li>
+                                 <li>
+                                    <a href="features/profile.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Profile</a>
+                                 </li>
+                                 <li>
+                                    <a href="features/gallery.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Gallery</a>
+                                 </li>
+                                 <li>
+                                    <a href="features/gallery-grid.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Gallery grid</a>
+                                 </li>
+                                 <li>
+                                    <a href="features/email.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Email</a>
+                                 </li>
+                              </ul>
+                           </div>
+                           <div class="col-sm-12 col-md-3 col-lg-2 col-xs-12">
+                              <h5 class="mobile-megamenu waves-effect waves-light">Charts & Forms <span class="icon_plus"></span></h5>
+                              <ul class="list-menu">
+                                 <li>
+                                    <a href="components/flot.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Flot</a>
+                                 </li>
+                                 <li>
+                                    <a href="components/chartist.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Chartist</a>
+                                 </li>
+                                 <li>
+                                    <a href="components/validation.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Form validation</a>
+                                 </li>
+                                 <li>
+                                    <a href="components/layouts.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Form layouts</a>
+                                 </li>
+                                 <li>
+                                    <a href="components/jsgrid.html"><i class="arrow_triangle-right" aria-hidden="true"></i>JsGrid</a>
+                                 </li>
+                                 <li>
+                                    <a href="components/footable.html"><i class="arrow_triangle-right" aria-hidden="true"></i>FooTable</a>
+                                 </li>
+                              </ul>
+                           </div>
+                           <div class="col-sm-12 col-md-6 col-lg-4 col-xs-12">
+                              <h5 class="mobile-megamenu waves-effect waves-light mobile-margin">UI & Components <span class="icon_plus"></span></h5>
+                              <ul class="list-menu mega-item">
+                                 <li class="mega-menu">
+                                    <ul>
+                                       <li>
+                                          <a href="components/animation.html">
+                                          <i class="arrow_triangle-right" aria-hidden="true"></i>
+                                          Animation
+                                          </a>
+                                       </li>
+                                       <li>
+                                          <a href="components/buttons.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Buttons</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/colors.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Colors</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/dropdowns.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Dropdowns</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/icons.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Icons</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/lightbox.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Lightbox</a>
+                                       </li>
+                                    </ul>
+                                 </li>
+                                 <li class="mega-menu">
+                                    <ul>
+                                       <li>
+                                          <a href="components/tooltip-popover.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Tooltip &amp; popover</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/progress_bars.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Progress bars</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/sortable-nestable.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Sortable nestable</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/bootbox_sweetalert.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Bootbox &amp; sweetalert</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/ribbon.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Ribbon</a>
+                                       </li>
+                                       <li>
+                                          <a href="components/pricing-tables.html"><i class="arrow_triangle-right" aria-hidden="true"></i>Pricing tables</a>
+                                       </li>
+                                    </ul>
+                                 </li>
+                              </ul>
+                           </div>
+                           <div class="col-sm-12 col-lg-4 col-xs-12 mobile-image-mega">
+                              <h5>Image</h5>
+                              <ul class="list-menu">
+                                 <li class="mega-menu">
+                                    <a href="javascript:void(0)">
+                                    <img src="{% static 'financial-layout/assets/images/global/img_470x160.png' %}" alt="features-img"/>
+                                    </a>
+                                 </li>
+                              </ul>
+                           </div>
+                        </div>
+                     </div>
+                  </li>
+               </ul>
+            </li>
+         </ul>-->
+         <ul class="nav navbar-nav navbar-toolbar navbar-right">
+            <li class="dropdown">
+               <!--  Profile Section -->
+               <a class="navbar-avatar dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="javascript:void(0)" data-animation="scale-up" role="button">
+               <span class="avatar avatar-online">
+               <img src="{% static 'financial-layout/assets/images/global/img_240x265.png' %}" alt="Profile Image">
+               <i></i>
+               </span>
+               </a>
+               <ul class="dropdown-menu position-absolute" role="menu">
+                  <li role="presentation">
+                     <a href="javascript:void(0)" role="menuitem"><i class="icon icon_profile" aria-hidden="true"></i> {{ request.user.get_full_name }}</a>
+                  </li>
+                 <!-- <li role="presentation">
+                     <a href="javascript:void(0)" role="menuitem"><i class="icon icon_balance" aria-hidden="true"></i> Billing</a>
+                  </li>-->
+                  <li role="presentation">
+                     <a href="{% url 'password_change' %}" role="menuitem"><i class="icon icon_cog" aria-hidden="true"></i> Change Password</a>
+                  </li>
+                  <li class="divider" role="presentation"></li>
+                  <li role="presentation">
+                     <a href="{% url 'django.contrib.auth.views.logout' %}?next=/login" role="menuitem"><i class="icon icon_lock_alt" aria-hidden="true"></i> Logout</a>
+                  </li>
+               </ul>
+            </li>
+            <li id="toggleFullscreen">
+               <!--  Full Screen -->
+               <a class="icon icon-fullscreen waves-effect waves-light" id="toggle" data-toggle="fullscreen" href="javascript:void(0)" role="button">
+               <i aria-hidden="true" class="arrow_expand"></i>
+               </a>
+            </li>
+
+         </ul>
+      </div>
+   </div>
+</div>
