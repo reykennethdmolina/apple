@@ -72,6 +72,10 @@
         .select2{
             width: 100% !important;
         }
+
+        .datepicker{
+            z-index: 999999999;
+        }
     </style>
 {% endblock extra_css %}
 {% block page-content %}
@@ -136,11 +140,11 @@
                                 <div class="input-daterange datarange">
                                     <div class="input-group">
                                         <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
-                                        <input type="text" class="form-control input-sm datepickerfrom" id="rep_f_datefrom" name="rep_f_datefrom" value="{{ rep_f_datefrom }}">
+                                        <input type="text" class="form-control input-sm datepickerfrom datepicker" id="rep_f_datefrom" name="rep_f_datefrom" value="{{ rep_f_datefrom }}">
                                     </div>
                                     <div class="input-group">
                                         <span class="input-group-addon input-sm">to</span>
-                                        <input type="text" class="form-control input-sm datepickerto" id="rep_f_dateto" name="rep_f_dateto" value="{{ rep_f_dateto }}">
+                                        <input type="text" class="form-control input-sm datepickerto datepicker" id="rep_f_dateto" name="rep_f_dateto" value="{{ rep_f_dateto }}">
                                     </div>
                                 </div>
                             </div>
