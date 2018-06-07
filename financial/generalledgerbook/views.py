@@ -1,31 +1,38 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from chartofaccountmaingroup.models import ChartofAccountMainGroup
-from chartofaccountsubgroup.models import ChartofAccountSubGroup
-from chartofaccountmainsubgroup.models import MainGroupSubgroup
+# from chartofaccountmaingroup.models import ChartofAccountMainGroup
+# from chartofaccountsubgroup.models import ChartofAccountSubGroup
+# from chartofaccountmainsubgroup.models import MainGroupSubgroup
 from chartofaccount.models import Chartofaccount
 from subledger.models import Subledger
 from subledgersummary.models import Subledgersummary
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count
-from branch.models import Branch
-from vat.models import Vat
-from department.models import Department
-from unit.models import Unit
-from bankaccount.models import Bankaccount
-from inputvat.models import Inputvat
-from outputvat.models import Outputvat
-from ataxcode.models import Ataxcode
-from product.models import Product
-from wtax.models import Wtax
-from employee.models import Employee
-from supplier.models import Supplier
-from customer.models import Customer
-from annoying.functions import get_object_or_None
-from django.db.models import Q, Sum
-from dateutil.relativedelta import relativedelta
+from django.template.loader import render_to_string
+from companyparameter.models import Companyparameter
+# from django.db.models import Count
+# from branch.models import Branch
+# from vat.models import Vat
+# from department.models import Department
+# from unit.models import Unit
+# from bankaccount.models import Bankaccount
+# from inputvat.models import Inputvat
+# from outputvat.models import Outputvat
+# from ataxcode.models import Ataxcode
+# from product.models import Product
+# from wtax.models import Wtax
+# from employee.models import Employee
+# from supplier.models import Supplier
+# from customer.models import Customer
+# from annoying.functions import get_object_or_None
+# from django.db.models import Q, Sum
+# from dateutil.relativedelta import relativedelta
+from django.http import JsonResponse
+from django.db import connection
+from collections import namedtuple
 import datetime
+from datetime import timedelta
+
 
 
 @method_decorator(login_required, name='dispatch')
@@ -35,21 +42,119 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
 
-        context['coa_maingroup'] = ChartofAccountMainGroup.objects.filter(status='A', isdeleted=0).order_by('code')
-        context['coa_subgroup'] = ChartofAccountSubGroup.objects.filter(status='A', isdeleted=0).order_by('code')
+        # context['coa_maingroup'] = ChartofAccountMainGroup.objects.filter(status='A', isdeleted=0).order_by('code')
+        # context['coa_subgroup'] = ChartofAccountSubGroup.objects.filter(status='A', isdeleted=0).order_by('code')
+        #
+        # print context['coa_maingroup']
+        # context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        # context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        # context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        # context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        # context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
+        # context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
+        # context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        # context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
+        # context['wtax'] = Wtax.objects.filter(isdeleted=0).order_by('code')
 
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
-        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
-        context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
-        context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
-        context['wtax'] = Wtax.objects.filter(isdeleted=0).order_by('code')
+        months = ([0, '***** Year End *****'], [1, 'January'], [2, 'February'], [3, 'March'], [4, 'April'], [5, 'May'], [6 ,'June'], \
+                  [7, 'July'], [8, 'August'], [9, 'September'], [10, 'October'], [11, 'November'], [12, 'December'])
+
+        context['months'] = months
+        today = datetime.datetime.now()
+        context['this_month'] = 1#today.month
+        context['this_year'] = today.year
 
         return context
+
+@csrf_exempt
+def generate(request):
+
+    report =  request.GET["report"]
+    type =  request.GET["type"]
+    year =  request.GET["year"]
+    month = request.GET["month"]
+
+    prevdate = datetime.date(int(year), int(month), 10) - timedelta(days=15)
+    prevyear = prevdate.year
+    prevmonth = prevdate.month
+
+    # RETAINED EARNINGS
+    retained_earnings = Companyparameter.objects.first().coa_retainedearnings_id
+    current_earnings = Companyparameter.objects.first().coa_currentearnings_id
+
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT  chart.id AS chartid, chart.main AS chartmain, " \
+            "chart.accountcode, chart.description, chart.balancecode, " \
+            "chart.beginning_amount, chart.beginning_code, IFNULL(chart.end_amount, 0) AS end_amount, " \
+            "chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
+            "IF (chart.id = "+str(retained_earnings)+" AND summary.month = "+str(prevmonth)+", IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
+            "IF (chart.id = "+str(retained_earnings)+" AND summary.month = "+str(prevmonth)+", chart.beginning_code , summary.end_code) AS summary_end_code, " \
+            "IF (chart.main >= 4 AND summary.month = "+str(prevmonth)+" , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
+            "AS summary_year_to_date_amount, " \
+            "IF (chart.main >= 4 AND summary.month = "+str(prevmonth)+", chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
+            "subled_d.balancecode AS debit_code, IFNULL(subled_d.amount, 0) AS debit_amount, " \
+            "subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
+            "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code, " \
+            "ABS(IFNULL(subled_d.amount, 0) - IFNULL(subled_c.amount, 0)) AS trans_mon_amount " \
+            "FROM chartofaccount AS chart " \
+            "LEFT OUTER JOIN (" \
+            "   SELECT summary.chartofaccount_id, " \
+            "   summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code,	" \
+            "   summary.end_amount, summary.end_code, " \
+            "   summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
+            "   FROM subledgersummary AS summary " \
+            "   WHERE summary.year = "+str(prevyear)+" AND summary.month = "+str(prevmonth)+"" \
+            ") AS summary ON summary.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+                "SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
+                "FROM subledger AS subled " \
+                "WHERE YEAR(subled.document_date) = '"+str(year)+"' AND MONTH(subled.document_date) = '"+str(month)+"' " \
+                "AND subled.balancecode = 'D' " \
+                "GROUP BY subled.chartofaccount_id, subled.balancecode " \
+            ") AS subled_d ON subled_d.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+                "SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
+                "FROM subledger AS subled " \
+                "WHERE YEAR(subled.document_date) = '"+str(year)+"' AND MONTH(subled.document_date) = '"+str(month)+"' " \
+                "AND subled.balancecode = 'C' " \
+                "GROUP BY subled.chartofaccount_id, subled.balancecode " \
+            ") AS subled_c ON subled_c.chartofaccount_id = chart.id " \
+            "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id != "+str(current_earnings)+" " \
+            "ORDER BY chart.accountcode ASC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    context = {}
+    context['result'] = result
+
+    if report == 'TB':
+        print "trial balance"
+        viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
+    elif report == 'BS':
+        print "balance sheet"
+        viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
+    elif report == 'IS':
+        print "income statement"
+        viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
+    else:
+        print "no report"
+
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml,
+    }
+    return JsonResponse(data)
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -194,7 +299,7 @@ def reportresultquery(request):
         report_type = "Trial Balance"
         report_xls = "Trial Balance"
 
-        dt = datetime.datetime.strptime('2018-01-01', "%Y-%m-%d").date()
+        dt = datetime.datetime.strptime('2018-02-01', "%Y-%m-%d").date()
         # prev = dt + relativedelta(months=-1)
         # prev = dt + relativedelta(months=-1)
         # prev = dt + relativedelta(months=-1)

@@ -1,0 +1,554 @@
+{% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
+{% load staticfiles %}
+{% block page-title %}<div style="line-height: 25px;">General Ledger Book<br><small><small>Report</small></small></div>{% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout//assets/css/global/panel-transition.min.css' %}" />
+    <style>
+        .panel-title{
+            padding: 12px;
+        }
+        .panel-actions{
+            margin-right: -29px;
+        }
+        .panel-actions a{
+            margin-right: -1px;
+        }
+        .btn-panel{
+            font-size: 15px;
+            padding: 15px;
+        }
+        #rep_f_keyword{
+            border: none;
+            font-size: 15px;
+            font-weight: normal;
+            color: #616161;
+            padding-left: 65px;
+            padding-right: 180px;
+            padding-top: 2px;
+            margin-left: 110px;
+            height: 21px;
+        }
+        #rep_b_print, #rep_b_xls{
+            position: absolute;
+            padding: 15px;
+            margin: -12px;
+            color: white;
+            font-size: 15px;
+            padding-left: 20px;
+            padding-right: 12px;
+        }
+        #rep_b_xls{
+            padding-left: 20px;
+            padding-right: 12px;
+            margin-left: 41px;
+        }
+        #iframehtml{
+            width: 100%;
+            height: 900px;
+            position: relative;
+            z-index: 100;
+        }
+        #iframe_preview{
+            padding: 10px;
+            margin: auto;
+        }
+        .shade{
+            margin-left: -40px;
+            margin-top: -40px;
+        }
+        .rep_f_gl_input{
+            display: none;
+        }
+        .rep_f_gl_input > div{
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .select2{
+            width: 100% !important;
+        }
+
+        .datepicker{
+            z-index: 999999999;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel-body container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-bordered is-collapse">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="{% url 'accountspayable:reportresult' %}" target="_blank" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
+                            <i class="icon fa-print" aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'accountspayable:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
+                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                        <div id="rep_f_keyword"></div>
+                    </h3>
+                    <div class="panel-actions">
+                        <a class="btn btn-panel btn-info waves-effect waves-dark" id="rep_b_search" style="padding-left: 23px;padding-right: 23px;margin-right: -3px;">
+                            <i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search
+                        </a>
+                        <a class="btn btn-panel btn-info icon_minus-06 waves-effect waves-dark" data-toggle="panel-collapse" aria-hidden="true" style="padding: 16px"></a>
+                    </div>
+                </div>
+                <div class="panel-body" style="padding: 20px;">
+                    <div class="row">
+                        <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Report Type</label>
+                                <select class="form-control input-sm" id="rep_f_report">
+                                    <option value="">-- Select --</option>
+                                    <option value="tb">Trial Balance</option>
+                                    <option value="bs">Balance Sheet</option>
+                                    <option value="sie">Statement of Income and Expenses</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Source</label>
+                                <select class="form-control input-sm" id="rep_f_type">
+                                    <option value="p">Preliminary</option>
+                                    <option value="f">Final</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Print Orientation</label>
+                                <select class="form-control input-sm" id="rep_f_orientation">
+                                    <option value="p">Portrait</option>
+                                    <option value="l">Landscape</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Transaction Type</label>
+                                <select class="form-control select2 input-sm rep_f_transactiontype" name="rep_f_transactiontype[]" multiple="multiple" style="width: 100%" id="rep_f_transactiontype">
+                                    <option value="ap" label="AP">Accounts Payable</option>
+                                    <option value="cv" label="CV">Check Voucher</option>
+                                    <option value="jv" label="JV">Journal Voucher</option>
+                                    <option value="or" label="OR">Official Receipt</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Date</label><br>
+                                <div class="input-daterange datarange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control input-sm datepickerfrom datepicker" id="rep_f_datefrom" name="rep_f_datefrom" value="{{ rep_f_datefrom }}">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="text" class="form-control input-sm datepickerto datepicker" id="rep_f_dateto" name="rep_f_dateto" value="{{ rep_f_dateto }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12" style="padding-top:0px; padding-left: 0px; padding-right: 0px;" id="fil_gl">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Chart of Account - Main Group</label>
+                                <select class="form-control select2 input-sm" id="rep_f_maingroup">
+                                    <option value="">-- Select --</option>
+                                    {% for data in coa_maingroup %}
+                                        <option value="{{ data.pk }}">{{ data.code }} - {{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-8">
+                                <label class="control-label small">Chart of Account - Sub Group</label>
+                                <select class="form-control input-sm select2" id="rep_f_subgroup" multiple="multiple"></select>
+                            </div>
+                            <label class="col-sm-3 control-label small">Chart of Account</label>
+                            <div class="col-md-11" style="margin-bottom: 10px">
+                                <select class="form-control input-sm" required style="width: 100%" id="rep_f_gl"></select><br>
+                            </div>
+                            <div class="col-sm-1">
+                                <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Employee</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_employee"></select><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Supplier</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_supplier"></select><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Customer</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_customer"></select><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Bank Account</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_bankaccount">
+                                        <option value="">-- Select Bank Account --</option>
+                                        {% for data in bankaccount %}
+                                            <option value="{{ data.id }}">{{ data.accountnumber }} - {{ data.code }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Department</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_department">
+                                        <option value="">-- Select Department --</option>
+                                        {% for data in department %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Unit</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_unit">
+                                        <option value="">-- Select Unit --</option>
+                                        {% for data in unit %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Branch</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_branch">
+                                        <option value="">-- Select Branch --</option>
+                                        {% for data in branch %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Product</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_product">
+                                        <option value="">-- Select Product --</option>
+                                        {% for data in product %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Input VAT</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_inputvat">
+                                    <option value="">-- Select Input VAT --</option>
+                                        {% for data in inputvat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">Output VAT</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_outputvat">
+                                        <option value="">-- Select Output VAT --</option>
+                                        {% for data in outputvat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">VAT</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_vat">
+                                        <option value="">-- Select VAT --</option>
+                                        {% for data in vat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">WTAX</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_wtax">
+                                        <option value="">-- Select WTAX --</option>
+                                        {% for data in wtax %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-12 control-label small">ATAX Code</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_ataxcode">
+                                        <option value="">-- Select ATAX Code --</option>
+                                        {% for data in ataxcode %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <input type="hidden" value="{{ userrole }}" id="user_role">
+            </div>
+        </div>
+        <div class="col-md-12" style="text-align: center">
+            <div id="iframe_preview" class="panel">
+                <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
+                <iframe id="iframehtml" src="{% url 'generalledgerbook:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<div id="report-search-error" class="custom-alert danger">Select Report Type first.</div>
+{% endblock page-content %}
+{% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function () {
+        $('.select2').select2({});
+        ajaxselect2("chartofaccount_posting", "rep_f_gl");
+        ajaxselect2("employee_notmultiple", "rep_f_gl_employee");
+        ajaxselect2("supplier_notmultiple", "rep_f_gl_supplier");
+        ajaxselect2("customer_notmultiple", "rep_f_gl_customer");
+
+        $('#rep_f_gl').on('change', function(){
+            $('.rep_f_gl_input').hide();
+            resetGL();
+
+            $.ajax({
+                url: "{% url 'acctentry:checkchartvalidation' %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'chartid':  $(this).val()
+                },
+                success: function(response) {
+                    chart = response.chart;
+                    chartdata = $.parseJSON(chart);
+                    if (chartdata[0].fields['bankaccount_enable'] == 'Y') {
+                        $("#rep_f_gl_bankaccount").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['department_enable'] == 'Y') {
+                        $("#rep_f_gl_department").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['employee_enable'] == 'Y') {
+                        $("#rep_f_gl_employee").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['supplier_enable'] == 'Y') {
+                        $("#rep_f_gl_supplier").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['customer_enable'] == 'Y') {
+                        $("#rep_f_gl_customer").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['unit_enable'] == 'Y') {
+                        $("#rep_f_gl_unit").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['branch_enable'] == 'Y') {
+                        $("#rep_f_gl_branch").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['product_enable'] == 'Y') {
+                        $("#rep_f_gl_product").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['inputvat_enable'] == 'Y') {
+                        $("#rep_f_gl_inputvat").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['outputvat_enable'] == 'Y') {
+                        $("#rep_f_gl_outputvat").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['vat_enable'] == 'Y') {
+                        $("#rep_f_gl_vat").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['wtax_enable'] == 'Y') {
+                        $("#rep_f_gl_wtax").parent().parent().show();
+                    }
+                    if (chartdata[0].fields['ataxcode_enable'] == 'Y') {
+                        $("#rep_f_gl_ataxcode").parent().parent().show();
+                    }
+                }
+            });
+        });
+
+        $('.clear_gl').on('click', function(){
+            var target = $(this).parent().prev().find('select');
+            if(target.attr('id') == 'rep_f_gl'){
+                target.html("").select2({});
+                ajaxselect2("chartofaccount_posting", "rep_f_gl");
+
+                $('.rep_f_gl_input').hide();
+            }
+            else if(target.attr('id') == 'rep_f_gl_employee'){
+                target.html("").select2({});
+                ajaxselect2("employee_notmultiple", "rep_f_gl_employee");
+{#                $('#rep_f_gl_employee').trigger('change');#}
+            }
+            else if(target.attr('id') == 'rep_f_gl_customer'){
+                target.html("").select2({});
+                ajaxselect2("customer_notmultiple", "rep_f_gl_customer");
+            }
+            else if(target.attr('id') == 'rep_f_gl_supplier'){
+                target.html("").select2({});
+                ajaxselect2("supplier_notmultiple", "rep_f_gl_supplier");
+            }
+        });
+
+        function resetGLmain(){
+            $('.rep_f_gl_input').hide();
+
+            $('#rep_f_gl').html("").select2({});
+            ajaxselect2("chartofaccount_posting", "rep_f_gl");
+        }
+
+        function resetGL(){
+            $('.rep_f_gl_input').hide();
+
+            $('#rep_f_gl_employee').html("").select2({});
+            ajaxselect2("employee_notmultiple", "rep_f_gl_employee");
+
+            $('#rep_f_gl_customer').html("").select2({});
+            ajaxselect2("customer_notmultiple", "rep_f_gl_customer");
+
+            $('#rep_f_gl_supplier').html("").select2({});
+            ajaxselect2("supplier_notmultiple", "rep_f_gl_supplier");
+
+            $('#rep_f_gl_bankaccount').val('').select2({});
+            $('#rep_f_gl_department').val('').select2({});
+            $('#rep_f_gl_unit').val('').select2({});
+            $('#rep_f_gl_branch').val('').select2({});
+            $('#rep_f_gl_product').val('').select2({});
+            $('#rep_f_gl_inputvat').val('').select2({});
+            $('#rep_f_gl_outputvat').val('').select2({});
+            $('#rep_f_gl_vat').val('').select2({});
+            $('#rep_f_gl_wtax').val('').select2({});
+            $('#rep_f_gl_ataxcode').val('').select2({});
+        }
+
+	    $('#rep_b_search').on('click', function(){
+
+            if($('#rep_f_report').val() != ''){
+                setCookie('rep_f_gl_{{ request.resolver_match.app_name }}', $('#rep_f_gl').val());
+                setCookie('rep_f_gl_bankaccount_{{ request.resolver_match.app_name }}', $('#rep_f_gl_bankaccount').val());
+                setCookie('rep_f_gl_department_{{ request.resolver_match.app_name }}', $('#rep_f_gl_department').val());
+                setCookie('rep_f_gl_unit_{{ request.resolver_match.app_name }}', $('#rep_f_gl_unit').val());
+                setCookie('rep_f_gl_branch_{{ request.resolver_match.app_name }}', $('#rep_f_gl_branch').val());
+                setCookie('rep_f_gl_product_{{ request.resolver_match.app_name }}', $('#rep_f_gl_product').val());
+                setCookie('rep_f_gl_inputvat_{{ request.resolver_match.app_name }}', $('#rep_f_gl_inputvat').val());
+                setCookie('rep_f_gl_outputvat_{{ request.resolver_match.app_name }}', $('#rep_f_gl_outputvat').val());
+                setCookie('rep_f_gl_vat_{{ request.resolver_match.app_name }}', $('#rep_f_gl_vat').val());
+                setCookie('rep_f_gl_wtax_{{ request.resolver_match.app_name }}', $('#rep_f_gl_wtax').val());
+                setCookie('rep_f_gl_ataxcode_{{ request.resolver_match.app_name }}', $('#rep_f_gl_ataxcode').val());
+                setCookie('rep_f_gl_employee_{{ request.resolver_match.app_name }}', $('#rep_f_gl_employee').val());
+                setCookie('rep_f_gl_supplier_{{ request.resolver_match.app_name }}', $('#rep_f_gl_supplier').val());
+                setCookie('rep_f_gl_customer_{{ request.resolver_match.app_name }}', $('#rep_f_gl_customer').val());
+
+                setCookie('rep_f_report_{{ request.resolver_match.app_name }}', $('#rep_f_report').val());
+                setCookie('rep_f_transactiontype_{{ request.resolver_match.app_name }}', $('#rep_f_transactiontype').val());
+                setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
+                setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
+                setCookie('rep_f_maingroup_{{ request.resolver_match.app_name }}', $('#rep_f_maingroup').val());
+                setCookie('rep_f_subgroup_{{ request.resolver_match.app_name }}', $('#rep_f_subgroup').val());
+
+                $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'generalledgerbook:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
+            }
+            else{
+                customAlert($('#report-search-error'));
+            }
+	    });
+
+        $("#rep_f_transactiontype").on("select2:select", function (evt) {
+            var element = evt.params.data.element;
+            var $element = $(element);
+
+            $element.detach();
+            $(this).append($element);
+            $(this).trigger("change");
+        });
+
+        $(document).on('change', '#rep_f_maingroup', function(){
+            resetGLmain();
+            resetGL();
+            $.ajax({
+                url: "{% url 'chartofaccountmainsubgroup:getsubgroups' %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'maingroup':  $(this).val()
+                },
+                success: function(response) {
+                    subgroup = response.subgroup;
+
+                    $('#rep_f_subgroup').html('');
+                    for(i=0;i<subgroup.length;i++){
+                        $('#rep_f_subgroup').prepend("<option value='"+subgroup[i][0]+"' label='"+subgroup[i][1]+"'>"+subgroup[i][1]+" - "+subgroup[i][2]+"</option>")
+                    }
+                    $('#rep_f_subgroup').select2("destroy").select2({
+                        templateSelection: function(item) {
+                            return $(item.element).attr('label');
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on('change', '#rep_f_subgroup', function(){
+            resetGLmain();
+            resetGL();
+            if($('#rep_f_subgroup').val() != null){
+                ajaxselect2("chartofaccount_subgroup", "rep_f_gl", $('#rep_f_subgroup').val());
+            }
+            else{
+                ajaxselect2("chartofaccount_posting", "rep_f_gl");
+            }
+        });
+
+        ajaxselect2("chartofaccount_posting", "rep_f_gl");
+
+        // assign values
+        $('#rep_f_report').val(getCookie('rep_f_report_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_transactiontype').val(getCookie('rep_f_transactiontype_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_datefrom').val(getCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_maingroup').val(getCookie('rep_f_maingroup_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_subgroup').val(getCookie('rep_f_subgroup_{{ request.resolver_match.app_name }}'));
+
+        $('#rep_f_transactiontype').select2({
+            templateSelection: function(item) {
+                return $(item.element).attr('label');
+            }
+        });
+	});
+    </script>
+{% endblock extra_js %}

@@ -95,6 +95,8 @@ class Companyparameter(models.Model):
                                                blank=True, null=True)
     coa_retainedearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_retainedearnings',
                                                blank=True, null=True)
+    coa_currentearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_currentearnings',
+                                             blank=True, null=True)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')

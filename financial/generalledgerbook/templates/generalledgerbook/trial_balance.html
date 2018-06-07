@@ -1,0 +1,163 @@
+{% load humanize %}
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <h3>Trial Balance</h3>
+
+        <table class="table table-striped table-bordered" style="font-size:10px">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th colspan="2" style="text-align:center">Trial Balance - Beginning</th>
+                    <th colspan="2" style="text-align:center">Transaction for the Month</th>
+                    <th colspan="2" style="text-align:center">Trial Balance - Ending</th>
+                    <th colspan="2" style="text-align:center">Income Statement</th>
+                    <th colspan="2" style="text-align:center">Balance Sheet</th>
+                </tr>
+                <tr>
+                    <th>Account Code</th>
+                    <th>Chart of Account</th>
+                    <th style="text-align:center">Debit</th>
+                    <th style="text-align:center">Credit</th>
+                    <th style="text-align:center">Debit</th>
+                    <th style="text-align:center">Credit</th>
+                    <th style="text-align:center">Debit</th>
+                    <th style="text-align:center">Credit</th>
+                    <th style="text-align:center">Debit</th>
+                    <th style="text-align:center">Credit</th>
+                    <th style="text-align:center">Debit</th>
+                    <th style="text-align:center">Credit</th>
+                </tr>
+            </thead>
+            <tbody>
+            <!--{{ result }}-->
+            {% for data in result %}
+                <tr class="detailed_results">
+                    <td>{{ data.accountcode }}</td>
+                    <td style="text-align:left">{{ data.description }}</td>
+
+                    <!--Trial Balance - Beginning-->
+                    {% if data.chartmain <= 3 %}
+                        {% if data.summary_end_code == 'D' %}
+                        <td style="text-align:right" class="tbb_debit" data-value="{{ data.summary_end_amount }}">{{ data.summary_end_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tbb_credit" data-value="0">0.00</td>
+                        {% else %}
+                        <td style="text-align:right" class="tbb_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbb_credit" data-value="{{ data.summary_end_amount }}">{{ data.summary_end_amount|floatformat:2|intcomma }}</td>
+                        {% endif %}
+                    {% else %}
+                        {% if data.summary_year_to_date_code == 'D' %}
+                        <td style="text-align:right" class="tbb_debit" data-value="{{ data.summary_year_to_date_amount }}">{{ data.summary_year_to_date_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tbb_credit" data-value="0">0.00</td>
+                        {% else %}
+                        <td style="text-align:right" class="tbb_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbb_credit" data-value="{{ data.summary_year_to_date_amount }}">{{ data.summary_year_to_date_amount|floatformat:2|intcomma }}</td>
+                        {% endif %}
+                    {% endif %}
+
+                    <!--Transaction for the Month-->
+                    {% if data.trans_mon_code == 'D' %}
+                        <td style="text-align:right" class="tm_debit" data-value="{{ data.trans_mon_amount }}">{{ data.trans_mon_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tm_credit" data-value="0">0.00</td>
+                    {% else %}
+                        <td style="text-align:right" class="tm_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tm_credit" data-value="{{ data.trans_mon_amount }}">{{ data.trans_mon_amount|floatformat:2|intcomma }}</td>
+                    {% endif %}
+
+                    <!--Trial Balance - Ending-->
+                    {% if data.chartmain <= 3 %}
+                        {% if data.end_code == 'D' %}
+                        <td style="text-align:right" class="teb_debit" data-value="{{ data.end_amount }}">{{ data.end_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="teb_credit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tis_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tis_credit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_debit" data-value="{{ data.end_amount }}">{{ data.end_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tbs_credit" data-value="0">0.00</td>
+                        {% else %}
+                        <td style="text-align:right" class="teb_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="teb_credit" data-value="{{ data.end_amount }}">{{ data.end_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tis_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tis_credit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_credit" data-value="{{ data.end_amount }}">{{ data.end_amount|floatformat:2|intcomma }}</td>
+                        {% endif %}
+                    {% else %}
+                        {% if data.year_to_date_code == 'D' %}
+                        <td style="text-align:right" class="teb_debit" data-value="{{ data.year_to_date_amount }}">{{ data.year_to_date_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="teb_credit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tis_debit" data-value="{{ data.year_to_date_amount }}">{{ data.year_to_date_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tis_credit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_credit" data-value="0">0.00</td>
+                        {% else %}
+                        <td style="text-align:right" class="teb_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="teb_credit" data-value="{{ data.year_to_date_amount }}">{{ data.year_to_date_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tis_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tis_credit" data-value="{{ data.year_to_date_amount }}">{{ data.year_to_date_amount|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right" class="tbs_debit" data-value="0">0.00</td>
+                        <td style="text-align:right" class="tbs_credit" data-value="0">0.00</td>
+                        {% endif %}
+                    {% endif %}
+
+                </tr>
+            {% endfor %}
+            <tr>
+                <th>Total</th>
+                <th></th>
+                <th style="text-align:right" id="tbb_debit_total">0.00</th>
+                <th style="text-align:right" id="tbb_credit_total">0.00</th>
+                <th style="text-align:right" id="tm_debit_total">0.00</th>
+                <th style="text-align:right" id="tm_credit_total">0.00</th>
+                <th style="text-align:right" id="teb_debit_total">0.00</th>
+                <th style="text-align:right" id="teb_credit_total">0.00</th>
+                <th style="text-align:right" id="tis_debit_total">0.00</th>
+                <th style="text-align:right" id="tis_credit_total">0.00</th>
+                <th style="text-align:right" id="tbs_debit_total">0.00</th>
+                <th style="text-align:right" id="tbs_credit_total">0.00</th>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        var total_tbb_debit = 0;
+        var total_tbb_credit = 0;
+        var total_tm_debit = 0;
+        var total_tm_credit = 0;
+        var total_teb_debit = 0;
+        var total_teb_credit = 0;
+        var total_tis_debit = 0;
+        var total_tis_credit = 0;
+        var total_tbs_debit = 0;
+        var total_tbs_credit = 0;
+
+        $('.detailed_results').each(function() {
+            total_tbb_debit += parseFloat($(this).find('.tbb_debit').data('value'));
+            total_tbb_credit += parseFloat($(this).find('.tbb_credit').data('value'));
+            total_tm_debit += parseFloat($(this).find('.tm_debit').data('value'));
+            total_tm_credit += parseFloat($(this).find('.tm_credit').data('value'));
+            total_teb_debit += parseFloat($(this).find('.teb_debit').data('value'));
+            total_teb_credit += parseFloat($(this).find('.teb_credit').data('value'));
+            total_tis_debit += parseFloat($(this).find('.tis_debit').data('value'));
+            total_tis_credit += parseFloat($(this).find('.tis_credit').data('value'));
+            total_tbs_debit += parseFloat($(this).find('.tbs_debit').data('value'));
+            total_tbs_credit += parseFloat($(this).find('.tbs_credit').data('value'));
+        });
+
+        $('#tbb_debit_total').text(parseFloat(total_tbb_debit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tbb_credit_total').text(parseFloat(total_tbb_credit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tm_debit_total').text(parseFloat(total_tm_debit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tm_credit_total').text(parseFloat(total_tm_credit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#teb_debit_total').text(parseFloat(total_teb_debit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#teb_credit_total').text(parseFloat(total_teb_credit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tis_debit_total').text(parseFloat(total_tis_debit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tis_credit_total').text(parseFloat(total_tis_credit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tbs_debit_total').text(parseFloat(total_tbs_debit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $('#tbs_credit_total').text(parseFloat(total_tbs_credit).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+
+</script>

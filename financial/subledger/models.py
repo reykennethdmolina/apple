@@ -119,10 +119,12 @@ class Subledger(models.Model):
         return reverse('subledger:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.chartofaccount
+        #return self.chartofaccount
+        return unicode(self.chartofaccount)
 
     def __unicode__(self):
-        return self.chartofaccount
+        #return self.chartofaccount
+        return unicode(self.chartofaccount)
 
     def status_verbose(self):
         return dict(Subledger.STATUS_CHOICES)[self.status]
