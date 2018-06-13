@@ -1,0 +1,46 @@
+{% load humanize %}
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <h3>PHILIPPINE DAILY INQUIRER, INC.</h3>
+        <h4>INCOME STATEMENT </h4>
+        <h4>AS OF FEBRUARY & JANUARY 2018</h4>
+
+        <table class="table table-striped table-bordered" style="font-size:10px">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th colspan="2" style="text-align:center">February</th>
+                    <th colspan="2" style="text-align:center">January</th>
+                    <th colspan="2" style="text-align:center">February %</th>
+                    <th colspan="2" style="text-align:center">January %</th>
+                    <th colspan="2" style="text-align:center">Variance</th>
+                    <th colspan="2" style="text-align:center">%</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% regroup result by maingroupcode as result_list %}
+
+            {% for maingroupcode in result_list %}
+
+            <tr>
+                <td style="text-align:left"><b>{{ maingroupcode.list.0.maingroup }}</b></td>
+                <td colspan="14"></td>
+            </tr>
+
+                {% regroup result_list by subgroupcode as row_list %}
+                {% for subgroupcode in result_list %}
+                <tr>
+                    <td style="text-align:left">&nbsp;&nbsp;{{ subgroupcode.list.0.subgroup }}</td>
+                </tr>
+                {% endfor %}
+
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div class="clearfix"></div>

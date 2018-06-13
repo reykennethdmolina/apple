@@ -1,0 +1,58 @@
+{% load humanize %}
+{% load custom %}
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <h3>PHILIPPINE DAILY INQUIRER, INC.</h3>
+        <h4>BALANCE SHEET </h4>
+        <h4>AS OF FEBRUARY & JANUARY 2018</h4>
+
+        <table class="table table-striped table-bordered" style="font-size:10px">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th style="text-align:center">{{ month }}</th>
+                    <th style="text-align:center">{{ prev_month }}</th>
+                    <th style="text-align:center">{{ month }} %</th>
+                    <th style="text-align:center">{{ prev_month }} %</th>
+                    <th style="text-align:center">Variance</th>
+                    <th style="text-align:center">%</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% regroup result by maingroup_code as result_list %}
+
+            {% for maingroup in result_list %}
+
+            <tr>
+                <td style="text-align:left" colspan="9"><b>{{ maingroup.list.0.maingroup_desc }}</b></td>
+            </tr>
+
+                {% for subgroup in maingroup.list %}
+
+                <tr>
+                    <td style="text-align:left">&nbsp;&nbsp;{{ subgroup.subgroup_code }}</td>
+                    <td style="text-align:left">{{ subgroup.subgroup_desc }}</td>
+                    <td>{{ subgroup.main_balancecode }}</td>
+                    <td style="text-align:right">{{ subgroup.current_amount|floatformat:2|intcomma }}</td>
+                    <td style="text-align:right">{{ subgroup.prev_amount|floatformat:2|intcomma }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td style="text-align:right;text-transform:uppercase">total {{ maingroup.list.0.maingroup_desc }}</td>
+                    <td></td>
+                    <td style="text-align:right">{{ maingroup.list|subtotal_current }}</td>
+                    <td style="text-align:right">{{ maingroup.list|subtotal_prev }}</td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div class="clearfix"></div>

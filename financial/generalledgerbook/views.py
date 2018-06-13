@@ -83,63 +83,24 @@ def generate(request):
     retained_earnings = Companyparameter.objects.first().coa_retainedearnings_id
     current_earnings = Companyparameter.objects.first().coa_currentearnings_id
 
-    ''' Create query '''
-    cursor = connection.cursor()
-
-    query = "SELECT  chart.id AS chartid, chart.main AS chartmain, " \
-            "chart.accountcode, chart.description, chart.balancecode, " \
-            "chart.beginning_amount, chart.beginning_code, IFNULL(chart.end_amount, 0) AS end_amount, " \
-            "chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
-            "IF (chart.id = "+str(retained_earnings)+" AND summary.month = "+str(prevmonth)+", IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
-            "IF (chart.id = "+str(retained_earnings)+" AND summary.month = "+str(prevmonth)+", chart.beginning_code , summary.end_code) AS summary_end_code, " \
-            "IF (chart.main >= 4 AND summary.month = "+str(prevmonth)+" , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
-            "AS summary_year_to_date_amount, " \
-            "IF (chart.main >= 4 AND summary.month = "+str(prevmonth)+", chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
-            "subled_d.balancecode AS debit_code, IFNULL(subled_d.amount, 0) AS debit_amount, " \
-            "subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
-            "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code, " \
-            "ABS(IFNULL(subled_d.amount, 0) - IFNULL(subled_c.amount, 0)) AS trans_mon_amount " \
-            "FROM chartofaccount AS chart " \
-            "LEFT OUTER JOIN (" \
-            "   SELECT summary.chartofaccount_id, " \
-            "   summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code,	" \
-            "   summary.end_amount, summary.end_code, " \
-            "   summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
-            "   FROM subledgersummary AS summary " \
-            "   WHERE summary.year = "+str(prevyear)+" AND summary.month = "+str(prevmonth)+"" \
-            ") AS summary ON summary.chartofaccount_id = chart.id " \
-            "LEFT OUTER JOIN ( " \
-                "SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
-                "FROM subledger AS subled " \
-                "WHERE YEAR(subled.document_date) = '"+str(year)+"' AND MONTH(subled.document_date) = '"+str(month)+"' " \
-                "AND subled.balancecode = 'D' " \
-                "GROUP BY subled.chartofaccount_id, subled.balancecode " \
-            ") AS subled_d ON subled_d.chartofaccount_id = chart.id " \
-            "LEFT OUTER JOIN ( " \
-                "SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
-                "FROM subledger AS subled " \
-                "WHERE YEAR(subled.document_date) = '"+str(year)+"' AND MONTH(subled.document_date) = '"+str(month)+"' " \
-                "AND subled.balancecode = 'C' " \
-                "GROUP BY subled.chartofaccount_id, subled.balancecode " \
-            ") AS subled_c ON subled_c.chartofaccount_id = chart.id " \
-            "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id != "+str(current_earnings)+" " \
-            "ORDER BY chart.accountcode ASC"
-
-    cursor.execute(query)
-    result = namedtuplefetchall(cursor)
-
     context = {}
-    context['result'] = result
 
     if report == 'TB':
         print "trial balance"
+        context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
+        context['year'] = year
+        context['result'] = query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
     elif report == 'BS':
         print "balance sheet"
-        viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
+        context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
+        context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+        context['result'] = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        viewhtml = render_to_string('generalledgerbook/balance_sheet.html', context)
     elif report == 'IS':
         print "income statement"
-        viewhtml = render_to_string('generalledgerbook/trial_balance.html', context)
+        context['result'] = query_income_statement(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        viewhtml = render_to_string('generalledgerbook/income_statement.html', context)
     else:
         print "no report"
 
@@ -150,218 +111,173 @@ def generate(request):
     return JsonResponse(data)
 
 
+def query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth):
+    print "trial balance query"
+    ''' Create query '''
+    cursor = connection.cursor()
+    query = "SELECT  chart.id AS chartid, chart.main AS chartmain, " \
+             "chart.accountcode, chart.description, chart.balancecode, " \
+             "chart.beginning_amount, chart.beginning_code, IFNULL(chart.end_amount, 0) AS end_amount, " \
+             "chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
+             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = " + str(prevmonth) + ", IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
+             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = " + str(prevmonth) + ", chart.beginning_code , summary.end_code) AS summary_end_code, " \
+             "IF (chart.main >= 4 AND summary.month = " + str(prevmonth) + " , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
+             "AS summary_year_to_date_amount, " \
+             "IF (chart.main >= 4 AND summary.month = " + str(prevmonth) + ", chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
+             "subled_d.balancecode AS debit_code, IFNULL(subled_d.amount, 0) AS debit_amount, " \
+             "subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
+             "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code, " \
+             "ABS(IFNULL(subled_d.amount, 0) - IFNULL(subled_c.amount, 0)) AS trans_mon_amount " \
+             "FROM chartofaccount AS chart " \
+             "LEFT OUTER JOIN (" \
+             "   SELECT summary.chartofaccount_id, " \
+             "   summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code,	" \
+             "   summary.end_amount, summary.end_code, " \
+             "   summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
+             "   FROM subledgersummary AS summary " \
+             "   WHERE summary.year = " + str(prevyear) + " AND summary.month = " + str(prevmonth) + "" \
+             ") AS summary ON summary.chartofaccount_id = chart.id " \
+             "LEFT OUTER JOIN ( " \
+             "  SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
+             "  FROM subledger AS subled " \
+             "  WHERE YEAR(subled.document_date) = '" + str(year) + "' AND MONTH(subled.document_date) = '" + str(month) + "' " \
+             "  AND subled.balancecode = 'D' " \
+             "  GROUP BY subled.chartofaccount_id, subled.balancecode " \
+             ") AS subled_d ON subled_d.chartofaccount_id = chart.id " \
+             "LEFT OUTER JOIN ( " \
+             "  SELECT subled.chartofaccount_id, subled.balancecode, SUM(amount) AS amount " \
+             "  FROM subledger AS subled " \
+             "  WHERE YEAR(subled.document_date) = '" + str(year) + "' AND MONTH(subled.document_date) = '" + str(month) + "' " \
+             "  AND subled.balancecode = 'C' " \
+             "  GROUP BY subled.chartofaccount_id, subled.balancecode " \
+             ") AS subled_c ON subled_c.chartofaccount_id = chart.id " \
+             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id != " + str(current_earnings) + " " \
+             "ORDER BY chart.accountcode ASC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth):
+    print "balance sheet query"
+    ''' Create query '''
+    cursor = connection.cursor()
+    query = "SELECT chartmain.accountcode AS main_accountcode, " \
+            "       chartmain.balancecode AS main_balancecode, " \
+            "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+            "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
+            "       (IFNULL(debit.debit_end_amount, 0) - IFNULL(credit.credit_end_amount, 0)) AS current_amount, " \
+            "       (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0)) AS prev_amount, " \
+            "       IFNULL(debit.debit_end_code, 'D') AS debit_end_code, IFNULL(debit.debit_end_amount, 0) AS debit_end_amount, " \
+            "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
+            "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 0) AS sd_end_amount, " \
+            "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 0) AS sc_end_amount " \
+            "FROM chartofaccount AS chart " \
+            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
+            "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT chart_d.id AS debit_id, SUM(chart_d.end_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
+            "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
+            "   FROM chartofaccount AS chart_d " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = chart_d.subgroup_id " \
+            "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main <= 3 " \
+            "   GROUP BY subgroup_d.id, chart_d.end_code " \
+            ") AS debit ON debit.debit_subgroup = subgroup.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT chart_c.id AS credit_id, SUM(chart_c.end_amount) AS credit_end_amount, chart_c.end_code AS credit_end_code, " \
+            "           subgroup_c.id AS credit_subgroup, subgroup_c.code AS credit_subgroupcode " \
+            "   FROM chartofaccount AS chart_c " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = chart_c.subgroup_id " \
+            "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main <= 3 " \
+            "   GROUP BY subgroup_c.id, chart_c.end_code " \
+            ") AS credit ON credit.credit_subgroup = subgroup.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
+            "           SUM(summary.end_amount) AS sd_end_amount, summary.end_code AS sd_end_code " \
+            "   FROM subledgersummary AS summary " \
+            "LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "WHERE summary.year = 2017 AND summary.month = 12 AND summary.end_code = 'D' " \
+            "AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
+            "GROUP BY subgroup.id, summary.end_code " \
+            ") AS summary_debit ON summary_debit.s_debit_id = subgroup.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT subgroup.id AS s_credit_id, subgroup.code AS s_credit_code, " \
+            "           SUM(summary.end_amount) AS sc_end_amount, summary.end_code AS sc_end_code " \
+            "   FROM subledgersummary AS summary " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "   WHERE summary.year = 2017 AND summary.month = 12 AND summary.end_code = 'C' " \
+            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
+            "   GROUP BY subgroup.id, summary.end_code " \
+            ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
+            "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main " \
+            "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000 AND chartmain.accounttype = 'T') " \
+            "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
+            "GROUP BY subgroup.id " \
+            "ORDER BY chart.main, maingroup.code, subgroup.code"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_income_statement(retained_earnings, current_earnings, year, month, prevyear, prevmonth):
+    print "income statement query"
+    ''' Create query '''
+    cursor = connection.cursor()
+    query = "SELECT  chart.id AS chartid, chart.main AS chartmain, chart.accountcode, chart.description, chart.balancecode, chart.beginning_amount, chart.beginning_code, " \
+            "IFNULL(chart.end_amount, 0) AS end_amount, chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
+            "IF (chart.id = 373 AND summary.month = 12, IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
+            "IF (chart.id = 373 AND summary.month = 12, chart.beginning_code , summary.end_code) AS summary_end_code, " \
+            "IF (chart.main >= 4 AND summary.month = 12 , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) AS summary_year_to_date_amount, " \
+            "IF (chart.main >= 4 AND summary.month = 12, chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
+            "subled_d.balancecode AS debit_code, " \
+            "IFNULL(subled_d.amount, 0) AS debit_amount, subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
+            "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code,  " \
+            "ABS(IFNULL(subled_d.amount, 0) - IFNULL(subled_c.amount, 0)) AS trans_mon_amount, " \
+            "chart.subgroup_id, subgroup.code AS subgroupcode, subgroup.description AS subgroup, " \
+            "maingroup.code AS maingroupcode, maingroup.description AS maingroup " \
+            "FROM chartofaccount AS chart " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT summary.chartofaccount_id, summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code, " \
+            "summary.end_amount, summary.end_code, " \
+            "summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
+            "FROM subledgersummary AS summary " \
+            "WHERE summary.year = 2017 AND summary.month = 12 " \
+            ") AS summary ON summary.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT subled.chartofaccount_id, subled.balancecode, " \
+            "SUM(amount) AS amount " \
+            "FROM subledger AS subled " \
+            "WHERE YEAR(subled.document_date) = '2018' AND MONTH(subled.document_date) = '1' " \
+            "AND subled.balancecode = 'D' " \
+            "GROUP BY subled.chartofaccount_id, subled.balancecode " \
+            ") AS subled_d ON subled_d.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT subled.chartofaccount_id, subled.balancecode, " \
+            "SUM(amount) AS amount " \
+            "FROM subledger AS subled WHERE YEAR(subled.document_date) = '2018' AND MONTH(subled.document_date) = '1' " \
+            "AND subled.balancecode = 'C' " \
+            "GROUP BY subled.chartofaccount_id, subled.balancecode ) " \
+            "AS subled_c ON subled_c.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
+            "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
+            "WHERE chart.accounttype = 'P' " \
+            "AND chart.isdeleted = 0 " \
+            "AND chart.main > 3 " \
+            "GROUP BY maingroup.code, subgroup.code " \
+            "ORDER BY maingroup.code ASC, subgroup.code ASC, chart.accountcode ASC"
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
 def namedtuplefetchall(cursor):
     "Return all rows from a cursor as a namedtuple"
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
-
-
-@method_decorator(login_required, name='dispatch')
-class ReportResultHtmlView(TemplateView):
-    template_name = 'generalledgerbook/reportresulthtml.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(TemplateView, self).get_context_data(**kwargs)
-        context['report_type'] = ''
-        context['report_total'] = 0
-
-        query, context['report_type'], context['report_total'], context['report_xls'] = reportresultquery(self.request)
-
-        context['report'] = self.request.COOKIES.get('rep_f_report_' + self.request.resolver_match.app_name)
-        context['data_list'] = query
-
-        # pdf config
-        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
-        context['rc_headtitle'] = "GENERAL LEDGER BOOK"
-        context['rc_title'] = "GENERAL LEDGER BOOK"
-
-        return context
-
-
-@csrf_exempt
-def reportresultquery(request):
-    report_type = ''
-    report_xls = ''
-    report_total = ''
-
-    query = Subledger.objects.all().filter(isdeleted=0)
-
-    # minor filters
-    if request.COOKIES.get('rep_f_transactiontype_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_transactiontype_' + request.resolver_match.app_name))
-        query = query.filter(document_type__in=key_data.split(","))
-    if request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_datefrom_' + request.resolver_match.app_name))
-        query = query.filter(document_date__gte=key_data)
-    if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
-        query = query.filter(document_date__lte=key_data)
-
-    if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) and request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
-        gl_request = request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name)
-
-        query = query.filter(chartofaccount=int(gl_request))
-
-        enable_check = Chartofaccount.objects.get(pk=gl_request)
-        if enable_check.bankaccount_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_bankaccount_' + request.resolver_match.app_name)
-            query = query.filter(bankaccount=get_object_or_None(Bankaccount, pk=int(gl_item)))
-        if enable_check.department_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_department_' + request.resolver_match.app_name)
-            query = query.filter(department=get_object_or_None(Department, pk=int(gl_item)))
-        if enable_check.unit_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_unit_' + request.resolver_match.app_name)
-            query = query.filter(unit=get_object_or_None(Unit, pk=int(gl_item)))
-        if enable_check.branch_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_branch_' + request.resolver_match.app_name)
-            query = query.filter(branch=get_object_or_None(Branch, pk=int(gl_item)))
-        if enable_check.product_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_product_' + request.resolver_match.app_name)
-            query = query.filter(product=get_object_or_None(Product, pk=int(gl_item)))
-        if enable_check.inputvat_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_inputvat_' + request.resolver_match.app_name)
-            query = query.filter(inputvat=get_object_or_None(Inputvat, pk=int(gl_item)))
-        if enable_check.outputvat_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_outputvat_' + request.resolver_match.app_name)
-            query = query.filter(outputvat=get_object_or_None(Outputvat, pk=int(gl_item)))
-        if enable_check.vat_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_vat_' + request.resolver_match.app_name)
-            query = query.filter(vat=get_object_or_None(Vat, pk=int(gl_item)))
-        if enable_check.wtax_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_wtax_' + request.resolver_match.app_name)
-            query = query.filter(wtax=get_object_or_None(Wtax, pk=int(gl_item)))
-        if enable_check.ataxcode_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_ataxcode_' + request.resolver_match.app_name)
-            query = query.filter(ataxcode=get_object_or_None(Ataxcode, pk=int(gl_item)))
-        if enable_check.employee_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_employee_' + request.resolver_match.app_name)
-            query = query.filter(employee=get_object_or_None(Employee, pk=int(gl_item)))
-        if enable_check.supplier_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_supplier_' + request.resolver_match.app_name)
-            query = query.filter(supplier=get_object_or_None(Supplier, pk=int(gl_item)))
-        if enable_check.customer_enable == 'Y' \
-                and request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name) \
-                and request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name) != 'null':
-            gl_item = request.COOKIES.get('rep_f_gl_customer_' + request.resolver_match.app_name)
-            query = query.filter(customer=get_object_or_None(Customer, pk=int(gl_item)))
-
-    elif request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name) and request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name) != 'null':
-        key_data = str(request.COOKIES.get('rep_f_subgroup_' + request.resolver_match.app_name))
-        query = query.filter(chartofaccount__subgroup__in=key_data.split(","))
-    elif request.COOKIES.get('rep_f_maingroup_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_maingroup_' + request.resolver_match.app_name))
-        key_data = MainGroupSubgroup.objects.filter(main=int(key_data), isdeleted=0, status='A').values_list('sub__pk', flat=True)
-        query = query.filter(chartofaccount__subgroup__in=key_data)
-
-    # report type filter
-    if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'bs':
-        report_type = "Balance Sheet"
-        report_xls = "Balance Sheet"
-
-        query = query.filter(Q(chartofaccount__subgroup__code__startswith='A') | Q(chartofaccount__subgroup__code__startswith='L'))\
-            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description', 'chartofaccount__subgroup__mapped_subgroup__main__description') \
-            .annotate(count=Count('pk')) \
-            .order_by('chartofaccount__subgroup__code')
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'sie':
-        report_type = "Statement of Income and Expenses"
-        report_xls = "Statement of Income and Expenses"
-
-        query = query.filter(Q(chartofaccount__subgroup__code__startswith='R') | Q(chartofaccount__subgroup__code__startswith='E')) \
-            .values('chartofaccount__subgroup__code', 'chartofaccount__subgroup__description', 'chartofaccount__subgroup__mapped_subgroup__main__description') \
-            .annotate(count=Count('pk')) \
-            .order_by('-chartofaccount__subgroup__code')
-    elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'tb':
-        report_type = "Trial Balance"
-        report_xls = "Trial Balance"
-
-        dt = datetime.datetime.strptime('2018-02-01', "%Y-%m-%d").date()
-        # prev = dt + relativedelta(months=-1)
-        # prev = dt + relativedelta(months=-1)
-        # prev = dt + relativedelta(months=-1)
-        prev = dt + relativedelta(months=0)
-
-        query = Subledgersummary.objects.filter(month=prev.month, year=prev.year, status='A', isdeleted=0).order_by('chartofaccount__accountcode')
-
-        tb_current_query = Subledger.objects.filter(document_date__month=dt.month, document_date__year=dt.year)
-
-        tb_balances = []
-
-        for data in query:
-            tb_result = tb_current_query.filter(chartofaccount=data.chartofaccount)
-            if tb_result.count() > 0:
-                tb_result_d = tb_result.filter(balancecode='D').aggregate(Sum('amount'))['amount__sum']
-                tb_result_c = tb_result.filter(balancecode='C').aggregate(Sum('amount'))['amount__sum']
-
-                tb_result_amt = abs(float(tb_result_d if tb_result_d is not None else 0) - float(tb_result_c if tb_result_c is not None else 0))
-
-                if tb_result_d > tb_result_c:
-                    tb_result_bal = 'D'
-                elif tb_result_d < tb_result_c:
-                    tb_result_bal = 'C'
-                else:
-                    if data.chartofaccount.main < 4:
-                        tb_result_bal = data.chartofaccount.end_code
-                    else:
-                        tb_result_bal = data.chartofaccount.year_to_date_code
-
-                if data.chartofaccount.main < 4:
-                    tb_chart_amt = data.end_amount
-                    tb_chart_bal = data.end_code
-                else:
-                    tb_chart_amt = data.year_to_date_amount
-                    tb_chart_bal = data.year_to_date_code
-
-                if tb_chart_bal != tb_result_bal:
-                    tb_next_amt = abs(tb_result_amt - float(tb_chart_amt))
-
-                    if tb_chart_amt > tb_result_amt:
-                        tb_next_bal = tb_chart_bal
-                    else:
-                        tb_next_bal = tb_result_bal
-                else:
-                    tb_next_amt = tb_result_amt + float(tb_chart_amt)
-                    tb_next_bal = tb_chart_bal
-
-                # tb_prev - tb_result - tb_next
-
-                tb_balances.append([
-                    tb_result_amt,
-                    tb_result_bal,
-                    tb_next_amt,
-                    tb_next_bal,
-                ])
-            else:
-                tb_balances.append([
-                    '',
-                    '',
-                    '',
-                    '',
-                ])
-        query = zip(query, tb_balances)
-
-    return query, report_type, report_total, report_xls

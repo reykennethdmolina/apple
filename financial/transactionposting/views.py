@@ -744,7 +744,7 @@ def logor(datefrom, dateto, batchkey, user):
 
 @csrf_exempt
 def posttransactions(request):
-    skipcount = 55
+    skipcount = 999999999
 
     if request.method == 'POST':
         # locking/posting of transactions goes here
@@ -753,6 +753,7 @@ def posttransactions(request):
         if items.count() > 0:
             # add subledger
             seq_item = items[:skipcount]
+            #seq_item = items[999999999
             for data in seq_item:
                 if data.document_type == 'AP':
                     trans_main = Apmain.objects.filter(apnum=data.document_num, apstatus='R')
