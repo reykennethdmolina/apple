@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/financial/generaljournalbook/views_old.py" />
-      <change beforePath="$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/index.html" afterPath="$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/generaljournalbook/views.py" afterPath="$PROJECT_DIR$/financial/generaljournalbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html" afterPath="$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionposting/views.py" afterPath="$PROJECT_DIR$/financial/transactionposting/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,11 +17,11 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="96" column="95" lean-forward="false" selection-start-line="96" selection-start-column="95" selection-end-line="96" selection-end-column="95" />
+            <state relative-caret-position="170">
+              <caret line="70" column="21" lean-forward="false" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="21" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
-                <element signature="e#17685#17883#0" expanded="false" />
+                <element signature="e#16815#17013#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -55,12 +49,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="trial_balance.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="trial_balance.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="71" column="147" lean-forward="false" selection-start-line="71" selection-start-column="124" selection-end-line="71" selection-end-column="147" />
-              <folding />
+            <state relative-caret-position="85">
+              <caret line="5" column="43" lean-forward="false" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
+              <folding>
+                <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -85,7 +81,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="644">
@@ -219,11 +215,11 @@
         <option value="$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/index.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
         <option value="$PROJECT_DIR$/financial/transactionposting/views.py" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templatetags/__init__.py" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
       </list>
     </option>
   </component>
@@ -330,6 +326,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14805058" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -338,7 +335,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12337662" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3474026" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -674,14 +671,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="71" column="147" lean-forward="false" selection-start-line="71" selection-start-column="124" selection-end-line="71" selection-end-column="147" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -711,17 +700,6 @@
         <state relative-caret-position="1082">
           <caret line="884" column="71" lean-forward="false" selection-start-line="884" selection-start-column="71" selection-end-line="884" selection-end-column="71" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="96" column="95" lean-forward="false" selection-start-line="96" selection-start-column="95" selection-end-line="96" selection-end-column="95" />
-          <folding>
-            <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#17685#17883#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -755,6 +733,27 @@
             <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="70" column="21" lean-forward="false" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+            <element signature="e#16815#17013#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="43" lean-forward="false" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
+          <folding>
+            <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>

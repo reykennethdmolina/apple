@@ -1,32 +1,12 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-# from chartofaccountmaingroup.models import ChartofAccountMainGroup
-# from chartofaccountsubgroup.models import ChartofAccountSubGroup
-# from chartofaccountmainsubgroup.models import MainGroupSubgroup
 from chartofaccount.models import Chartofaccount
 from subledger.models import Subledger
 from subledgersummary.models import Subledgersummary
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from companyparameter.models import Companyparameter
-# from django.db.models import Count
-# from branch.models import Branch
-# from vat.models import Vat
-# from department.models import Department
-# from unit.models import Unit
-# from bankaccount.models import Bankaccount
-# from inputvat.models import Inputvat
-# from outputvat.models import Outputvat
-# from ataxcode.models import Ataxcode
-# from product.models import Product
-# from wtax.models import Wtax
-# from employee.models import Employee
-# from supplier.models import Supplier
-# from customer.models import Customer
-# from annoying.functions import get_object_or_None
-# from django.db.models import Q, Sum
-# from dateutil.relativedelta import relativedelta
 from django.http import JsonResponse
 from django.db import connection
 from collections import namedtuple
@@ -70,9 +50,9 @@ class IndexView(TemplateView):
 @csrf_exempt
 def generate(request):
 
-    report =  request.GET["report"]
-    type =  request.GET["type"]
-    year =  request.GET["year"]
+    report = request.GET["report"]
+    type = request.GET["type"]
+    year = request.GET["year"]
     month = request.GET["month"]
 
     prevdate = datetime.date(int(year), int(month), 10) - timedelta(days=15)
