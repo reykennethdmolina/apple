@@ -1,4 +1,5 @@
 {% load humanize %}
+{% load mathfilters %}
 {% load custom %}
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="page-wrap">
@@ -32,20 +33,28 @@
 
                 {% for subgroup in maingroup.list %}
 
-                <tr>
+                <tr class="subgroup">
                     <td style="text-align:left">&nbsp;&nbsp;{{ subgroup.subgroup_code }}</td>
                     <td style="text-align:left">{{ subgroup.subgroup_desc }}</td>
-                    <td>{{ subgroup.main_balancecode }}</td>
-                    <td style="text-align:right">{{ subgroup.current_amount|floatformat:2|intcomma }}</td>
-                    <td style="text-align:right">{{ subgroup.prev_amount|floatformat:2|intcomma }}</td>
+                    <td></td>
+                    <td style="text-align:right">{{ subgroup.current_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="text-align:right">{{ subgroup.prev_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                    <td class="current_percentage" data-nom="{{ subgroup.current_amount_abs|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_current|floatformat:2 }}"></td>
+                    <td class="prev_percentage" data-nom="{{ subgroup.prev_amount_abs|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_prev|floatformat:2 }}"></td>
+                    <td style="text-align:right">{{ subgroup.current_amount_abs|sub:subgroup.prev_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                    <td></td>
                 </tr>
                 {% endfor %}
                 <tr>
                     <td></td>
                     <td style="text-align:right;text-transform:uppercase">total {{ maingroup.list.0.maingroup_desc }}</td>
                     <td></td>
-                    <td style="text-align:right">{{ maingroup.list|subtotal_current }}</td>
-                    <td style="text-align:right">{{ maingroup.list|subtotal_prev }}</td>
+                    <td style="text-align:right">{{ maingroup.list|subtotal_current|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="text-align:right">{{ maingroup.list|subtotal_prev|floatformat:2|intcomma|to_negative }}</td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align:right">{{ maingroup.list|subtotal_variance|floatformat:2|intcomma|to_negative }}</td>
+                    <td></td>
                 </tr>
 
             {% endfor %}
@@ -56,3 +65,18 @@
     </div>
 </div>
 <div class="clearfix"></div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var current_percentage = 0;
+        var prev_percentage = 0;
+
+        $('.subgroup').each(function() {
+            current_percentage = (parseFloat($(this).find('.current_percentage').data('nom')) / parseFloat($(this).find('.current_percentage').data('dom')) * 100).toFixed(2);
+            prev_percentage = (parseFloat($(this).find('.prev_percentage').data('nom')) / parseFloat($(this).find('.prev_percentage').data('dom')) * 100).toFixed(2);
+            console.log(current_percentage);
+            console.log(prev_percentage);
+            $(this).find('.current_percentage').text(current_percentage+' %');
+            $(this).find('.prev_percentage').text(prev_percentage+' %');
+        });
+    });
+</script>

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
+      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,11 +19,11 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="70" column="21" lean-forward="false" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="21" />
+            <state relative-caret-position="255">
+              <caret line="158" column="146" lean-forward="false" selection-start-line="158" selection-start-column="146" selection-end-line="158" selection-end-column="146" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
-                <element signature="e#16815#17013#0" expanded="false" />
+                <element signature="e#17239#17437#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -30,7 +32,7 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3638">
+            <state relative-caret-position="8891">
               <caret line="523" column="37" lean-forward="false" selection-start-line="523" selection-start-column="37" selection-end-line="523" selection-end-column="37" />
               <folding>
                 <element signature="n#style#0;n#select#0;n#div#0;n#div#1;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -42,18 +44,18 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
+            <state relative-caret-position="68">
               <caret line="4" column="88" lean-forward="false" selection-start-line="4" selection-start-column="88" selection-end-line="4" selection-end-column="88" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="trial_balance.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="trial_balance.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="43" lean-forward="false" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
+            <state relative-caret-position="323">
+              <caret line="179" column="11" lean-forward="true" selection-start-line="168" selection-start-column="8" selection-end-line="179" selection-end-column="11" />
               <folding>
                 <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -64,7 +66,7 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/transactionposting/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1082">
+            <state relative-caret-position="-442">
               <caret line="884" column="71" lean-forward="false" selection-start-line="884" selection-start-column="71" selection-end-line="884" selection-end-column="71" />
               <folding />
             </state>
@@ -74,18 +76,18 @@
       <file leaf-file-name="reportresult.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/reportresult.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
+            <state relative-caret-position="17">
               <caret line="52" column="70" lean-forward="false" selection-start-line="52" selection-start-column="70" selection-end-line="52" selection-end-column="70" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="47" column="80" lean-forward="false" selection-start-line="47" selection-start-column="80" selection-end-line="47" selection-end-column="80" />
+            <state relative-caret-position="471">
+              <caret line="78" column="42" lean-forward="false" selection-start-line="78" selection-start-column="42" selection-end-line="78" selection-end-column="42" />
               <folding>
                 <element signature="n#style#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -96,14 +98,16 @@
                 <element signature="n#style#0;n#th#8;n#tr#0;n#thead#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="e#1299#1305#0" expanded="true" />
-                <element signature="e#1305#1311#0" expanded="true" />
+                <element signature="e#1339#1345#0" expanded="true" />
+                <element signature="e#1345#1351#0" expanded="true" />
                 <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#7;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#7;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -112,8 +116,8 @@
       <file leaf-file-name="custom.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="17" />
+            <state relative-caret-position="323">
+              <caret line="19" column="16" lean-forward="false" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -122,7 +126,7 @@
       <file leaf-file-name="income_statement.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
+            <state relative-caret-position="238">
               <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
               <folding>
                 <element signature="n#style#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -192,6 +196,7 @@
       <find>parseFloatparseFloat</find>
       <find>test</find>
       <find>fine_list</find>
+      <find>subgroup.current_amount_abs|</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -216,10 +221,10 @@
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
         <option value="$PROJECT_DIR$/financial/transactionposting/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templatetags/__init__.py" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
       </list>
     </option>
   </component>
@@ -244,7 +249,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -282,6 +286,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -621,13 +626,63 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/templates/header-section.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="65" lean-forward="false" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="65" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="88" lean-forward="false" selection-start-line="4" selection-start-column="88" selection-end-line="4" selection-end-column="88" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8891">
+          <caret line="523" column="37" lean-forward="false" selection-start-line="523" selection-start-column="37" selection-end-line="523" selection-end-column="37" />
+          <folding>
+            <element signature="n#style#0;n#select#0;n#div#0;n#div#1;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="158" column="146" lean-forward="false" selection-start-line="158" selection-start-column="146" selection-end-line="158" selection-end-column="146" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+            <element signature="e#17239#17437#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
+        <state relative-caret-position="238">
           <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
           <folding>
             <element signature="n#style#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -645,51 +700,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/templates/header-section.html">
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="65" lean-forward="false" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="65" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="4" column="88" lean-forward="false" selection-start-line="4" selection-start-column="88" selection-end-line="4" selection-end-column="88" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3638">
-          <caret line="523" column="37" lean-forward="false" selection-start-line="523" selection-start-column="37" selection-end-line="523" selection-end-column="37" />
-          <folding>
-            <element signature="n#style#0;n#select#0;n#div#0;n#div#1;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="323">
+          <caret line="19" column="16" lean-forward="false" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/reportresult.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
+        <state relative-caret-position="17">
           <caret line="52" column="70" lean-forward="false" selection-start-line="52" selection-start-column="70" selection-end-line="52" selection-end-column="70" />
           <folding />
         </state>
@@ -697,24 +718,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/transactionposting/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1082">
+        <state relative-caret-position="-442">
           <caret line="884" column="71" lean-forward="false" selection-start-line="884" selection-start-column="71" selection-end-line="884" selection-end-column="71" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="17" />
-          <folding />
+        <state relative-caret-position="323">
+          <caret line="179" column="11" lean-forward="true" selection-start-line="168" selection-start-column="8" selection-end-line="179" selection-end-column="11" />
+          <folding>
+            <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="47" column="80" lean-forward="false" selection-start-line="47" selection-start-column="80" selection-end-line="47" selection-end-column="80" />
+        <state relative-caret-position="471">
+          <caret line="78" column="42" lean-forward="false" selection-start-line="78" selection-start-column="42" selection-end-line="78" selection-end-column="42" />
           <folding>
             <element signature="n#style#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -725,35 +748,16 @@
             <element signature="n#style#0;n#th#8;n#tr#0;n#thead#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="e#1299#1305#0" expanded="true" />
-            <element signature="e#1305#1311#0" expanded="true" />
+            <element signature="e#1339#1345#0" expanded="true" />
+            <element signature="e#1345#1351#0" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#7;n#tr#1;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="70" column="21" lean-forward="false" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#16815#17013#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="43" lean-forward="false" selection-start-line="5" selection-start-column="43" selection-end-line="5" selection-end-column="43" />
-          <folding>
-            <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#7;n#tr#2;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>

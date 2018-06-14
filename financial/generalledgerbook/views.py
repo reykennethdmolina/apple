@@ -143,7 +143,10 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
     print "balance sheet query"
     ''' Create query '''
     cursor = connection.cursor()
-    query = "SELECT chartmain.accountcode AS main_accountcode, " \
+    query = "SELECT z.*, " \
+            "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
+            "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(prev_amount)) AS prev_amount_abs " \
+            "FROM ( SELECT chartmain.accountcode AS main_accountcode, " \
             "       chartmain.balancecode AS main_balancecode, " \
             "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
             "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
@@ -152,7 +155,8 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "       IFNULL(debit.debit_end_code, 'D') AS debit_end_code, IFNULL(debit.debit_end_amount, 0) AS debit_end_amount, " \
             "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
             "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 0) AS sd_end_amount, " \
-            "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 0) AS sc_end_amount " \
+            "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 0) AS sc_end_amount," \
+            "       IF (IFNULL(debit.debit_end_amount, 0) >= IFNULL(credit.credit_end_amount, 0), debit_end_code, credit_end_code) AS current_code " \
             "FROM chartofaccount AS chart " \
             "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
@@ -197,7 +201,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000 AND chartmain.accounttype = 'T') " \
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "GROUP BY subgroup.id " \
-            "ORDER BY chart.main, maingroup.code, subgroup.code"
+            "ORDER BY chart.main, maingroup.code, subgroup.code) AS z"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
