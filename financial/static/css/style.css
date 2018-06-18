@@ -126,6 +126,10 @@ select.input-sm {
 }
 /*error list end*/
 
+.red-font {
+    color: red !important;
+}
+
 select2modal.error,
 select2.error {
     border-color: #b94a48;

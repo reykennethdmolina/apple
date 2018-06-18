@@ -15257,3 +15257,6 @@ table.floatThead-table
     font-family: inherit;
 }
 
+.redfont {
+    color: red !important;
+}

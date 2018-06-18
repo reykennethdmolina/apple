@@ -11,33 +11,18 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th colspan="2" style="text-align:center">February</th>
-                    <th colspan="2" style="text-align:center">January</th>
-                    <th colspan="2" style="text-align:center">February %</th>
-                    <th colspan="2" style="text-align:center">January %</th>
-                    <th colspan="2" style="text-align:center">Variance</th>
-                    <th colspan="2" style="text-align:center">%</th>
+                    <th style="text-align:center">February</th>
+                    <th style="text-align:center">January</th>
+                    <th style="text-align:center">To Date</th>
+                    <th style="text-align:center">Net February %</th>
+                    <th style="text-align:center">Net January %</th>
+                    <th style="text-align:center">Increase (Decrease)</th>
+                    <th style="text-align:center">%</th>
                 </tr>
             </thead>
             <tbody>
 
-            {% regroup result by maingroupcode as result_list %}
 
-            {% for maingroupcode in result_list %}
-
-            <tr>
-                <td style="text-align:left"><b>{{ maingroupcode.list.0.maingroup }}</b></td>
-                <td colspan="14"></td>
-            </tr>
-
-                {% regroup result_list by subgroupcode as row_list %}
-                {% for subgroupcode in result_list %}
-                <tr>
-                    <td style="text-align:left">&nbsp;&nbsp;{{ subgroupcode.list.0.subgroup }}</td>
-                </tr>
-                {% endfor %}
-
-            {% endfor %}
             </tbody>
         </table>
 
