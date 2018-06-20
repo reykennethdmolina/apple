@@ -68,188 +68,10 @@ def excel(request):
     retained_earnings = Companyparameter.objects.first().coa_retainedearnings_id
     current_earnings = Companyparameter.objects.first().coa_currentearnings_id
 
-    output = io.BytesIO()
-
-    workbook = Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet()
-
-    #variables
-    bold = workbook.add_format({'bold': 1})
-
-    # header
-    worksheet.write('A1', 'Account Code', bold)
-    worksheet.write('B1', 'Chart of Account', bold)
-    worksheet.write('C1', 'Beg Debit', bold)
-    worksheet.write('D1', 'Beg Credit', bold)
-    worksheet.write('E1', 'Mon Debit', bold)
-    worksheet.write('F1', 'Mon Credit', bold)
-    worksheet.write('G1', 'End Debit', bold)
-    worksheet.write('H1', 'End Credit', bold)
-    worksheet.write('I1', 'Inc Debit', bold)
-    worksheet.write('J1', 'Inc Credit', bold)
-    worksheet.write('K1', 'Bal Debit', bold)
-    worksheet.write('L1', 'Bal Credit', bold)
-    worksheet.write('M1', 'Main Group Code', bold)
-    worksheet.write('N1', 'Main Group Description', bold)
-    worksheet.write('O1', 'Sub Group Code', bold)
-    worksheet.write('P1', 'Sub Group Description', bold)
-
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 1
-    col = 0
-    total_beg_debit = 0
-    total_beg_credit = 0
-    total_mon_debit = 0
-    total_mon_credit = 0
-    total_end_debit = 0
-    total_end_credit = 0
-    subtotal_inc_debit = 0
-    subtotal_inc_credit = 0
-    subtotal_bal_debit = 0
-    subtotal_bal_credit = 0
-    current_inc_debit = 0
-    current_inc_credit = 0
-    current_bal_debit = 0
-    current_bal_credit = 0
-    total_inc_debit = 0
-    total_inc_credit = 0
-    total_bal_debit = 0
-    total_bal_credit = 0
-
     result = query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
-
-    # Iterate over the data and write it out row by row.
-    for data in result:
-        worksheet.write(row, col, data.accountcode)
-        worksheet.write(row, col+1, data.description)
-
-        if data.chartmain <= 3:
-            if data.summary_end_code == 'D':
-                worksheet.write(row, col+2, float(format(data.summary_end_amount, '.2f')))
-                worksheet.write(row, col+3, float(format(0.00, '.2f')))
-                total_beg_debit += float(format(data.summary_end_amount, '.2f'))
-            else:
-                worksheet.write(row, col+2, float(format(0.00, '.2f')))
-                worksheet.write(row, col+3, float(format(data.summary_end_amount, '.2f')))
-                total_beg_credit += float(format(data.summary_end_amount, '.2f'))
-        else:
-            if data.summary_end_code == 'D':
-                worksheet.write(row, col+2, float(format(data.summary_year_to_date_amount, '.2f')))
-                worksheet.write(row, col+3, float(format(0.00, '.2f')))
-                total_beg_debit += float(format(data.summary_year_to_date_amount, '.2f'))
-            else:
-                worksheet.write(row, col+2, float(format(0.00, '.2f')))
-                worksheet.write(row, col+3, float(format(data.summary_year_to_date_amount, '.2f')))
-                total_beg_credit += float(format(data.summary_year_to_date_amount, '.2f'))
-
-        if data.trans_mon_code == 'D':
-            worksheet.write(row, col+4, float(format(data.trans_mon_amount, '.2f')))
-            worksheet.write(row, col+5, float(format(0.00, '.2f')))
-            total_mon_debit += float(format(data.trans_mon_amount, '.2f'))
-        else:
-            worksheet.write(row, col+4, float(format(0.00, '.2f')))
-            worksheet.write(row, col+5, float(format(data.trans_mon_amount, '.2f')))
-            total_mon_credit += float(format(data.trans_mon_amount, '.2f'))
-
-        if data.chartmain <= 3:
-            if data.end_code == 'D':
-                worksheet.write(row, col+6, float(format(data.end_amount, '.2f')))
-                worksheet.write(row, col+7, float(format(0.00, '.2f')))
-                worksheet.write(row, col+8, float(format(0.00, '.2f')))
-                worksheet.write(row, col+9, float(format(0.00, '.2f')))
-                worksheet.write(row, col+10, float(format(data.end_amount, '.2f')))
-                worksheet.write(row, col+11, float(format(0.00, '.2f')))
-                total_end_debit += float(format(data.end_amount, '.2f'))
-                subtotal_bal_debit += float(format(data.end_amount, '.2f'))
-            else:
-                worksheet.write(row, col+6, float(format(0.00, '.2f')))
-                worksheet.write(row, col+7, float(format(data.end_amount, '.2f')))
-                worksheet.write(row, col+8, float(format(0.00, '.2f')))
-                worksheet.write(row, col+9, float(format(0.00, '.2f')))
-                worksheet.write(row, col+10, float(format(0.00, '.2f')))
-                worksheet.write(row, col+11, float(format(data.end_amount, '.2f')))
-                total_end_credit += float(format(data.end_amount, '.2f'))
-                subtotal_bal_credit += float(format(data.end_amount, '.2f'))
-        else:
-            if data.end_code == 'D':
-                worksheet.write(row, col+6, float(format(data.year_to_date_amount, '.2f')))
-                worksheet.write(row, col+7, float(format(0.00, '.2f')))
-                worksheet.write(row, col+8, float(format(data.year_to_date_amount, '.2f')))
-                worksheet.write(row, col+9, float(format(0.00, '.2f')))
-                worksheet.write(row, col+10, float(format(0.00, '.2f')))
-                worksheet.write(row, col+11, float(format(0.00, '.2f')))
-                total_end_debit += float(format(data.year_to_date_amount, '.2f'))
-                subtotal_inc_debit += float(format(data.year_to_date_amount, '.2f'))
-            else:
-                worksheet.write(row, col+6, float(format(0.00, '.2f')))
-                worksheet.write(row, col+7, float(format(data.year_to_date_amount, '.2f')))
-                worksheet.write(row, col+8, float(format(0.00, '.2f')))
-                worksheet.write(row, col+9, float(format(data.year_to_date_amount, '.2f')))
-                worksheet.write(row, col+10, float(format(0.00, '.2f')))
-                worksheet.write(row, col+11, float(format(0.00, '.2f')))
-                total_end_credit += float(format(data.year_to_date_amount, '.2f'))
-                subtotal_inc_credit += float(format(data.year_to_date_amount, '.2f'))
-
-        worksheet.write(row, col+12, data.maingroup_code)
-        worksheet.write(row, col+13, data.maingroup_desc)
-        worksheet.write(row, col+14, data.subgroup_code)
-        worksheet.write(row, col+15, data.subgroup_desc)
-        row += 1
+    return excel_trail_balance(result, report, type, year, month)
 
 
-    # Write a total using a formula. subtotal
-    worksheet.write(row, 0, 'Subtotal')
-    worksheet.write(row, col+8, float(format(subtotal_inc_debit, '.2f')))
-    worksheet.write(row, col+9, float(format(subtotal_inc_credit, '.2f')))
-    worksheet.write(row, col+10, float(format(subtotal_bal_debit, '.2f')))
-    worksheet.write(row, col+11, float(format(subtotal_bal_credit, '.2f')))
-
-    worksheet.write(row+1, 0, 'Current Earnings/(loss)')
-    if subtotal_inc_debit >= subtotal_inc_credit:
-        current_inc_credit = float(format(subtotal_inc_debit, '.2f')) - float(format(subtotal_inc_credit, '.2f'))
-        worksheet.write(row+1, col+8, float(format(0.00, '.2f')))
-        worksheet.write(row+1, col+9, float(format(current_inc_credit, '.2f')))
-    else:
-        current_inc_debit = float(format(subtotal_inc_credit, '.2f')) - float(format(subtotal_inc_debit, '.2f'))
-        worksheet.write(row+1, col+8, float(format(current_inc_debit, '.2f')))
-        worksheet.write(row+1, col+9, float(format(0.00, '.2f')))
-
-    if subtotal_bal_debit >= subtotal_bal_credit:
-        current_bal_credit = float(format(subtotal_bal_debit, '.2f')) - float(format(subtotal_bal_credit, '.2f'))
-        worksheet.write(row+1, col+10, float(format(0.00, '.2f')))
-        worksheet.write(row+1, col+11, float(format(current_bal_credit, '.2f')))
-    else:
-        current_bal_debit = float(format(subtotal_bal_credit, '.2f')) - float(format(subtotal_bal_debit, '.2f'))
-        worksheet.write(row+1, col+10, float(format(current_bal_debit, '.2f')))
-        worksheet.write(row+1, col+11, float(format(0.00, '.2f')))
-
-    total_inc_debit = float(format(subtotal_inc_debit, '.2f')) + float(format(current_inc_debit, '.2f'))
-    total_inc_credit = float(format(subtotal_inc_credit, '.2f')) + float(format(current_inc_credit, '.2f'))
-    total_bal_debit = float(format(subtotal_bal_debit, '.2f')) + float(format(current_bal_debit, '.2f'))
-    total_bal_credit = float(format(subtotal_bal_credit, '.2f')) + float(format(current_bal_credit, '.2f'))
-
-    worksheet.write(row+2, 0, 'Total')
-    worksheet.write(row+2, col+2, float(format(total_beg_debit, '.2f')))
-    worksheet.write(row+2, col+3, float(format(total_beg_credit, '.2f')))
-    worksheet.write(row+2, col+4, float(format(total_mon_debit, '.2f')))
-    worksheet.write(row+2, col+5, float(format(total_mon_credit, '.2f')))
-    worksheet.write(row+2, col+6, float(format(total_end_debit, '.2f')))
-    worksheet.write(row+2, col+7, float(format(total_end_credit, '.2f')))
-    worksheet.write(row+2, col+8, float(format(total_inc_debit, '.2f')))
-    worksheet.write(row+2, col+9, float(format(total_inc_credit, '.2f')))
-    worksheet.write(row+2, col+10, float(format(total_bal_debit, '.2f')))
-    worksheet.write(row+2, col+11, float(format(total_bal_credit, '.2f')))
-    #worksheet.write(row, 1, '=SUM(B1:B4)')
-    workbook.close()
-
-    output.seek(0)
-
-    response = HttpResponse(output.read(),content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename=test.xlsx"
-
-    output.close()
-
-    return response
 
 @csrf_exempt
 def generate(request):
@@ -294,7 +116,6 @@ def generate(request):
     }
     return JsonResponse(data)
 
-
 def query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth):
     print "trial balance query"
     ''' Create query '''
@@ -304,11 +125,11 @@ def query_trial_balance(retained_earnings, current_earnings, year, month, prevye
              "chart.accountcode, chart.description, chart.balancecode, " \
              "chart.beginning_amount, chart.beginning_code, IFNULL(chart.end_amount, 0) AS end_amount, " \
              "chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
-             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = " + str(prevmonth) + ", IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
-             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = " + str(prevmonth) + ", chart.beginning_code , summary.end_code) AS summary_end_code, " \
-             "IF (chart.main >= 4 AND summary.month = " + str(prevmonth) + " , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
+             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = 12, IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
+             "IF (chart.id = " + str(retained_earnings) + " AND summary.month = 12, chart.beginning_code , summary.end_code) AS summary_end_code, " \
+             "IF (chart.main >= 4 AND summary.month = 12, IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
              "AS summary_year_to_date_amount, " \
-             "IF (chart.main >= 4 AND summary.month = " + str(prevmonth) + ", chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
+             "IF (chart.main >= 4 AND summary.month = 12, chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
              "subled_d.balancecode AS debit_code, IFNULL(subled_d.amount, 0) AS debit_amount, " \
              "subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
              "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code, " \
@@ -362,9 +183,9 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "       IF (chartmain.balancecode = 'C', (IFNULL(summary_credit.sc_end_amount, 0) - IFNULL(summary_debit.sd_end_amount, 0)) , (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0))) AS prev_amount, " \
             "       IFNULL(debit.debit_end_code, 'D') AS debit_end_code, IFNULL(debit.debit_end_amount, 0) AS debit_end_amount, " \
             "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
-            "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 0) AS sd_end_amount, " \
-            "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 0) AS sc_end_amount," \
-            "       IF (IFNULL(debit.debit_end_amount, 0) >= IFNULL(credit.credit_end_amount, 0), debit_end_code, credit_end_code) AS current_code " \
+            "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 'D') AS sd_end_amount, " \
+            "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 'C') AS sc_end_amount," \
+            "       IF (IFNULL(debit.debit_end_amount, 0) >= IFNULL(credit.credit_end_amount, 0), IFNULL(debit.debit_end_code, 'D'), IFNULL(credit.credit_end_code, 'C')) AS current_code " \
             "FROM chartofaccount AS chart " \
             "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
@@ -405,11 +226,11 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
-            "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main " \
+            "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main AND chartmain.clas = 0 " \
             "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000 AND chartmain.accounttype = 'T') " \
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "GROUP BY subgroup.id " \
-            "ORDER BY chart.main, maingroup.code, subgroup.code) AS z"
+            "ORDER BY maingroup.code, subgroup.code) AS z"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -473,3 +294,193 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+def excel_trail_balance(result, report, type, year, month):
+    mon = datetime.date(int(year), int(month), 10).strftime("%B")
+    if type == 'P':
+        type = 'preliminary'
+    else:
+        type = 'final'
+
+    file_name = "trial_balance_"+type+"_"+year+"_"+mon+".xlsx"
+
+    output = io.BytesIO()
+
+    workbook = Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    # variables
+    bold = workbook.add_format({'bold': 1})
+
+    # header
+    worksheet.write('A1', 'Account Code', bold)
+    worksheet.write('B1', 'Chart of Account', bold)
+    worksheet.write('C1', 'Beg Debit', bold)
+    worksheet.write('D1', 'Beg Credit', bold)
+    worksheet.write('E1', 'Mon Debit', bold)
+    worksheet.write('F1', 'Mon Credit', bold)
+    worksheet.write('G1', 'End Debit', bold)
+    worksheet.write('H1', 'End Credit', bold)
+    worksheet.write('I1', 'Inc Debit', bold)
+    worksheet.write('J1', 'Inc Credit', bold)
+    worksheet.write('K1', 'Bal Debit', bold)
+    worksheet.write('L1', 'Bal Credit', bold)
+    worksheet.write('M1', 'Main Group Code', bold)
+    worksheet.write('N1', 'Main Group Description', bold)
+    worksheet.write('O1', 'Sub Group Code', bold)
+    worksheet.write('P1', 'Sub Group Description', bold)
+
+    # Start from the first cell. Rows and columns are zero indexed.
+    row = 1
+    col = 0
+    total_beg_debit = 0
+    total_beg_credit = 0
+    total_mon_debit = 0
+    total_mon_credit = 0
+    total_end_debit = 0
+    total_end_credit = 0
+    subtotal_inc_debit = 0
+    subtotal_inc_credit = 0
+    subtotal_bal_debit = 0
+    subtotal_bal_credit = 0
+    current_inc_debit = 0
+    current_inc_credit = 0
+    current_bal_debit = 0
+    current_bal_credit = 0
+    total_inc_debit = 0
+    total_inc_credit = 0
+    total_bal_debit = 0
+    total_bal_credit = 0
+
+    # Iterate over the data and write it out row by row.
+    for data in result:
+        worksheet.write(row, col, data.accountcode)
+        worksheet.write(row, col + 1, data.description)
+
+        if data.chartmain <= 3:
+            if data.summary_end_code == 'D':
+                worksheet.write(row, col + 2, float(format(data.summary_end_amount, '.2f')))
+                worksheet.write(row, col + 3, float(format(0.00, '.2f')))
+                total_beg_debit += float(format(data.summary_end_amount, '.2f'))
+            else:
+                worksheet.write(row, col + 2, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 3, float(format(data.summary_end_amount, '.2f')))
+                total_beg_credit += float(format(data.summary_end_amount, '.2f'))
+        else:
+            if data.summary_end_code == 'D':
+                worksheet.write(row, col + 2, float(format(data.summary_year_to_date_amount, '.2f')))
+                worksheet.write(row, col + 3, float(format(0.00, '.2f')))
+                total_beg_debit += float(format(data.summary_year_to_date_amount, '.2f'))
+            else:
+                worksheet.write(row, col + 2, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 3, float(format(data.summary_year_to_date_amount, '.2f')))
+                total_beg_credit += float(format(data.summary_year_to_date_amount, '.2f'))
+
+        if data.trans_mon_code == 'D':
+            worksheet.write(row, col + 4, float(format(data.trans_mon_amount, '.2f')))
+            worksheet.write(row, col + 5, float(format(0.00, '.2f')))
+            total_mon_debit += float(format(data.trans_mon_amount, '.2f'))
+        else:
+            worksheet.write(row, col + 4, float(format(0.00, '.2f')))
+            worksheet.write(row, col + 5, float(format(data.trans_mon_amount, '.2f')))
+            total_mon_credit += float(format(data.trans_mon_amount, '.2f'))
+
+        if data.chartmain <= 3:
+            if data.end_code == 'D':
+                worksheet.write(row, col + 6, float(format(data.end_amount, '.2f')))
+                worksheet.write(row, col + 7, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 8, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 9, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 10, float(format(data.end_amount, '.2f')))
+                worksheet.write(row, col + 11, float(format(0.00, '.2f')))
+                total_end_debit += float(format(data.end_amount, '.2f'))
+                subtotal_bal_debit += float(format(data.end_amount, '.2f'))
+            else:
+                worksheet.write(row, col + 6, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.end_amount, '.2f')))
+                worksheet.write(row, col + 8, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 9, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 10, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 11, float(format(data.end_amount, '.2f')))
+                total_end_credit += float(format(data.end_amount, '.2f'))
+                subtotal_bal_credit += float(format(data.end_amount, '.2f'))
+        else:
+            if data.end_code == 'D':
+                worksheet.write(row, col + 6, float(format(data.year_to_date_amount, '.2f')))
+                worksheet.write(row, col + 7, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 8, float(format(data.year_to_date_amount, '.2f')))
+                worksheet.write(row, col + 9, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 10, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 11, float(format(0.00, '.2f')))
+                total_end_debit += float(format(data.year_to_date_amount, '.2f'))
+                subtotal_inc_debit += float(format(data.year_to_date_amount, '.2f'))
+            else:
+                worksheet.write(row, col + 6, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.year_to_date_amount, '.2f')))
+                worksheet.write(row, col + 8, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 9, float(format(data.year_to_date_amount, '.2f')))
+                worksheet.write(row, col + 10, float(format(0.00, '.2f')))
+                worksheet.write(row, col + 11, float(format(0.00, '.2f')))
+                total_end_credit += float(format(data.year_to_date_amount, '.2f'))
+                subtotal_inc_credit += float(format(data.year_to_date_amount, '.2f'))
+
+        worksheet.write(row, col + 12, data.maingroup_code)
+        worksheet.write(row, col + 13, data.maingroup_desc)
+        worksheet.write(row, col + 14, data.subgroup_code)
+        worksheet.write(row, col + 15, data.subgroup_desc)
+        row += 1
+
+    # Write a total using a formula. subtotal
+    worksheet.write(row, 0, 'Subtotal')
+    worksheet.write(row, col + 8, float(format(subtotal_inc_debit, '.2f')))
+    worksheet.write(row, col + 9, float(format(subtotal_inc_credit, '.2f')))
+    worksheet.write(row, col + 10, float(format(subtotal_bal_debit, '.2f')))
+    worksheet.write(row, col + 11, float(format(subtotal_bal_credit, '.2f')))
+
+    worksheet.write(row + 1, 0, 'Current Earnings/(loss)')
+    if subtotal_inc_debit >= subtotal_inc_credit:
+        current_inc_credit = float(format(subtotal_inc_debit, '.2f')) - float(format(subtotal_inc_credit, '.2f'))
+        worksheet.write(row + 1, col + 8, float(format(0.00, '.2f')))
+        worksheet.write(row + 1, col + 9, float(format(current_inc_credit, '.2f')))
+    else:
+        current_inc_debit = float(format(subtotal_inc_credit, '.2f')) - float(format(subtotal_inc_debit, '.2f'))
+        worksheet.write(row + 1, col + 8, float(format(current_inc_debit, '.2f')))
+        worksheet.write(row + 1, col + 9, float(format(0.00, '.2f')))
+
+    if subtotal_bal_debit >= subtotal_bal_credit:
+        current_bal_credit = float(format(subtotal_bal_debit, '.2f')) - float(format(subtotal_bal_credit, '.2f'))
+        worksheet.write(row + 1, col + 10, float(format(0.00, '.2f')))
+        worksheet.write(row + 1, col + 11, float(format(current_bal_credit, '.2f')))
+    else:
+        current_bal_debit = float(format(subtotal_bal_credit, '.2f')) - float(format(subtotal_bal_debit, '.2f'))
+        worksheet.write(row + 1, col + 10, float(format(current_bal_debit, '.2f')))
+        worksheet.write(row + 1, col + 11, float(format(0.00, '.2f')))
+
+    total_inc_debit = float(format(subtotal_inc_debit, '.2f')) + float(format(current_inc_debit, '.2f'))
+    total_inc_credit = float(format(subtotal_inc_credit, '.2f')) + float(format(current_inc_credit, '.2f'))
+    total_bal_debit = float(format(subtotal_bal_debit, '.2f')) + float(format(current_bal_debit, '.2f'))
+    total_bal_credit = float(format(subtotal_bal_credit, '.2f')) + float(format(current_bal_credit, '.2f'))
+
+    worksheet.write(row + 2, 0, 'Total')
+    worksheet.write(row + 2, col + 2, float(format(total_beg_debit, '.2f')))
+    worksheet.write(row + 2, col + 3, float(format(total_beg_credit, '.2f')))
+    worksheet.write(row + 2, col + 4, float(format(total_mon_debit, '.2f')))
+    worksheet.write(row + 2, col + 5, float(format(total_mon_credit, '.2f')))
+    worksheet.write(row + 2, col + 6, float(format(total_end_debit, '.2f')))
+    worksheet.write(row + 2, col + 7, float(format(total_end_credit, '.2f')))
+    worksheet.write(row + 2, col + 8, float(format(total_inc_debit, '.2f')))
+    worksheet.write(row + 2, col + 9, float(format(total_inc_credit, '.2f')))
+    worksheet.write(row + 2, col + 10, float(format(total_bal_debit, '.2f')))
+    worksheet.write(row + 2, col + 11, float(format(total_bal_credit, '.2f')))
+    # worksheet.write(row, 1, '=SUM(B1:B4)')
+    workbook.close()
+
+    output.seek(0)
+
+    response = HttpResponse(output.read(),
+                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+file_name
+
+    output.close()
+
+    return response

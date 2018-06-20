@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load lookup %}
+
     {% load static %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
@@ -74,7 +74,7 @@
         {% for data in data_list %}
             <tr>
                 {% for header in list_header %}
-                    <td><div class="col">{% lookup data header %}</div></td>
+                    <td><div class="col"></div></td>
                 {% endfor %}
             </tr>
         {% endfor %}
