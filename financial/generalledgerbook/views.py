@@ -71,8 +71,6 @@ def excel(request):
     result = query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
     return excel_trail_balance(result, report, type, year, month)
 
-
-
 @csrf_exempt
 def generate(request):
 
@@ -105,6 +103,8 @@ def generate(request):
         viewhtml = render_to_string('generalledgerbook/balance_sheet.html', context)
     elif report == 'IS':
         print "income statement"
+        context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
+        context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
         context['result'] = query_income_statement(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         viewhtml = render_to_string('generalledgerbook/income_statement.html', context)
     else:
@@ -174,7 +174,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
     cursor = connection.cursor()
     query = "SELECT z.*, " \
             "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
-            "IF(z.current_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
+            "IF(z.prev_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
             "FROM ( SELECT chartmain.accountcode AS main_accountcode, " \
             "       chartmain.balancecode AS main_balancecode, " \
             "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
@@ -185,7 +185,8 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
             "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 'D') AS sd_end_amount, " \
             "       IFNULL(summary_credit.sc_end_code, 'C')AS sc_end_code, IFNULL(summary_credit.sc_end_amount, 'C') AS sc_end_amount," \
-            "       IF (IFNULL(debit.debit_end_amount, 0) >= IFNULL(credit.credit_end_amount, 0), IFNULL(debit.debit_end_code, 'D'), IFNULL(credit.credit_end_code, 'C')) AS current_code " \
+            "       IF (IFNULL(debit.debit_end_amount, 0) >= IFNULL(credit.credit_end_amount, 0), IFNULL(debit.debit_end_code, 'D'), IFNULL(credit.credit_end_code, 'C')) AS current_code, " \
+            "       IF (IFNULL(summary_debit.sd_end_amount, 0) >= IFNULL(summary_credit.sc_end_amount, 0), IFNULL(summary_debit.sd_end_code, 'D'), IFNULL(summary_credit.sc_end_code, 'C')) AS prev_code " \
             "FROM chartofaccount AS chart " \
             "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
@@ -227,7 +228,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main AND chartmain.clas = 0 " \
-            "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000 AND chartmain.accounttype = 'T') " \
+            "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000) " \
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "GROUP BY subgroup.id " \
             "ORDER BY maingroup.code, subgroup.code) AS z"
@@ -241,49 +242,73 @@ def query_income_statement(retained_earnings, current_earnings, year, month, pre
     print "income statement query"
     ''' Create query '''
     cursor = connection.cursor()
-    query = "SELECT  chart.id AS chartid, chart.main AS chartmain, chart.accountcode, chart.description, chart.balancecode, chart.beginning_amount, chart.beginning_code, " \
-            "IFNULL(chart.end_amount, 0) AS end_amount, chart.end_code, IFNULL(chart.year_to_date_amount, 0) AS year_to_date_amount, chart.year_to_date_code, " \
-            "IF (chart.id = 373 AND summary.month = 12, IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
-            "IF (chart.id = 373 AND summary.month = 12, chart.beginning_code , summary.end_code) AS summary_end_code, " \
-            "IF (chart.main >= 4 AND summary.month = 12 , IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) AS summary_year_to_date_amount, " \
-            "IF (chart.main >= 4 AND summary.month = 12, chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
-            "subled_d.balancecode AS debit_code, " \
-            "IFNULL(subled_d.amount, 0) AS debit_amount, subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
-            "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code,  " \
-            "ABS(IFNULL(subled_d.amount, 0) - IFNULL(subled_c.amount, 0)) AS trans_mon_amount, " \
-            "chart.subgroup_id, subgroup.code AS subgroupcode, subgroup.description AS subgroup, " \
-            "maingroup.code AS maingroupcode, maingroup.description AS maingroup " \
+    query = "SELECT maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+            "subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
+            "SUM(z.current_amount) AS current_amount, SUM(z.prev_amount) AS prev_amount, SUM(z.todate_amount) AS todate_amount " \
+            "FROM ( " \
+            "   SELECT chartmain.main, chartmain.balancecode, chart.id, chart.subgroup_id, chart.accountcode, chart.description, " \
+            "   IF (chartmain.balancecode = 'D', (IFNULL(current_debit.end_amount, 0) - IFNULL(current_credit.end_amount, 0)), (IFNULL(current_credit.end_amount, 0) - IFNULL(current_debit.end_amount, 0))) AS current_amount, " \
+            "   IF (chartmain.balancecode = 'D', (IFNULL(prev_debit.end_amount, 0) - IFNULL(prev_credit.end_amount, 0)), (IFNULL(prev_credit.end_amount, 0) - IFNULL(prev_debit.end_amount, 0))) AS prev_amount, " \
+            "   IF (chartmain.balancecode = 'D', (IFNULL(todate_debit.year_to_date_amount, 0) - IFNULL(todate_credit.year_to_date_amount, 0)), (IFNULL(todate_credit.year_to_date_amount, 0) - IFNULL(todate_debit.year_to_date_amount, 0))) AS todate_amount, " \
+            "   IFNULL(current_debit.end_amount, 0) AS current_debit_amount, " \
+            "   IFNULL(current_debit.end_code, 'D') AS current_debit_code, " \
+            "   IFNULL(current_credit.end_amount, 0) AS current_credit_amount, IFNULL(current_credit.end_code, 'C') AS current_credit_code, " \
+            "   IFNULL(prev_debit.end_amount, 0) AS prev_debit_amount, IFNULL(prev_debit.end_code, 'D') AS prev_debit_code, " \
+            "   IFNULL(prev_credit.end_amount, 0) AS prev_credit_amount, IFNULL(prev_credit.end_code, 'C') AS prev_credit_code, " \
+            "   IFNULL(todate_debit.year_to_date_amount, 0) AS todate_debit_amount, IFNULL(todate_debit.year_to_date_code, 'D') AS todate_debit_code, " \
+            "   IFNULL(todate_credit.year_to_date_amount, 0) AS todate_credit_amount, IFNULL(todate_credit.year_to_date_code, 'C') AS todate_credit_code " \
             "FROM chartofaccount AS chart " \
             "LEFT OUTER JOIN ( " \
-            "SELECT summary.chartofaccount_id, summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code, " \
-            "summary.end_amount, summary.end_code, " \
-            "summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
-            "FROM subledgersummary AS summary " \
-            "WHERE summary.year = 2017 AND summary.month = 12 " \
-            ") AS summary ON summary.chartofaccount_id = chart.id " \
+            "   SELECT chart.id, chart.accountcode, chart.description, chart.end_amount, chart.end_code " \
+            "   FROM chartofaccount AS chart " \
+            "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
+            "   AND chart.isdeleted = 0 AND chart.end_code = 'C' " \
+            ") AS current_credit ON current_credit.id = chart.id " \
             "LEFT OUTER JOIN ( " \
-            "SELECT subled.chartofaccount_id, subled.balancecode, " \
-            "SUM(amount) AS amount " \
-            "FROM subledger AS subled " \
-            "WHERE YEAR(subled.document_date) = '2018' AND MONTH(subled.document_date) = '1' " \
-            "AND subled.balancecode = 'D' " \
-            "GROUP BY subled.chartofaccount_id, subled.balancecode " \
-            ") AS subled_d ON subled_d.chartofaccount_id = chart.id " \
+            "   SELECT chart.id, chart.accountcode, chart.description, chart.end_amount, chart.end_code " \
+            "   FROM chartofaccount AS chart " \
+            "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
+            "   AND chart.isdeleted = 0 AND chart.end_code = 'D' " \
+            ") AS current_debit ON current_debit.id = chart.id " \
             "LEFT OUTER JOIN ( " \
-            "SELECT subled.chartofaccount_id, subled.balancecode, " \
-            "SUM(amount) AS amount " \
-            "FROM subledger AS subled WHERE YEAR(subled.document_date) = '2018' AND MONTH(subled.document_date) = '1' " \
-            "AND subled.balancecode = 'C' " \
-            "GROUP BY subled.chartofaccount_id, subled.balancecode ) " \
-            "AS subled_c ON subled_c.chartofaccount_id = chart.id " \
-            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "   SELECT chart.id, chart.accountcode, summary.end_amount, summary.end_code " \
+            "   FROM subledgersummary AS summary " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'C' " \
+            "   AND chart.accounttype = 'P' AND chart.main > 3 AND chart.isdeleted = 0 " \
+            ") AS prev_credit ON prev_credit.id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT chart.id, chart.accountcode, summary.end_amount, summary.end_code " \
+            "   FROM subledgersummary AS summary " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'D' " \
+            "   AND chart.accounttype = 'P' AND chart.main > 3 AND chart.isdeleted = 0 " \
+            ") AS prev_debit ON prev_debit.id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT chart.id, chart.accountcode, chart.description, chart.year_to_date_amount, chart.year_to_date_code " \
+            "   FROM chartofaccount AS chart " \
+            "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
+            "   AND chart.isdeleted = 0 AND chart.end_code = 'C' " \
+            ") AS todate_credit ON todate_credit.id = chart.id " \
+            "LEFT OUTER JOIN ( " \
+            "   SELECT chart.id, chart.accountcode, chart.description, chart.year_to_date_amount, chart.year_to_date_code " \
+            "   FROM chartofaccount AS chart " \
+            "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
+            "   AND chart.isdeleted = 0 AND chart.end_code = 'D' " \
+            ") AS todate_debit ON todate_debit.id = chart.id " \
+            "LEFT OUTER JOIN chartofaccount AS chartmain ON (IF(chartmain.main = 7,  " \
+            "(chartmain.main = chart.main AND chartmain.clas = chart.clas AND chartmain.sub = 0  " \
+            "AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000) ,  " \
+            "(chartmain.main = chart.main AND chartmain.clas = 0 AND chartmain.sub = 0  " \
+            "AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000))) " \
+            "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main > 3 " \
+            "ORDER BY chart.accountcode) AS z " \
+            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = z.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
-            "WHERE chart.accounttype = 'P' " \
-            "AND chart.isdeleted = 0 " \
-            "AND chart.main > 3 " \
             "GROUP BY maingroup.code, subgroup.code " \
-            "ORDER BY maingroup.code ASC, subgroup.code ASC, chart.accountcode ASC"
+            "ORDER BY maingroup.code, subgroup.code"
+
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
