@@ -1,5 +1,6 @@
 {% load endless %}
 {% paginate data_list %}
+
 <div class="table-responsive">
     <table class="table table-hover table-bordered">
         <thead>
@@ -8,6 +9,7 @@
                 <th><span>Account Code</span></th>
                 <th><span>Title</span></th>
                 <th><span>Description</span></th>
+                <th><span>Sub Group</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -18,6 +20,7 @@
                 <td>{{ data.accountcode }}</td>
                 <td>{{ data.title }}</td>
                 <td>{{ data.description }}</td>
+                <td>{{ data.subgroup.code }} - {{ data.subgroup.description }}</td>
                 <td class="text-center" id="commandList">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist">

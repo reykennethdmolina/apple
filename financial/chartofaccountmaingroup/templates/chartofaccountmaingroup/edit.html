@@ -17,6 +17,18 @@
                             <input type="text" class="form-control" id="id_code" maxlength="10" placeholder="Code" name="code" readonly="readonly" data-validation="required" value="{{ form.code.value|default:'' }}">
                             <span class="help-block form-error">{{ form.code.errors.as_text }}</span>
                         </div>
+                        <div class="form-group {{ form.bank.errors|yesno:'has-error,' }} form-material">
+                            <label class="control-label" for="id_group">Groupings</label>
+                            <div>
+                                <select id="id_group" class="form-control" name="group">
+                                    <option value="">-- Select --</option>
+                                    {% for group in group %}
+                                        <option value="{{ group.id }}" {% if form.group.value|add:0 == group.id %} selected="selected" {% endif %}>{{ group.code }} - {{ group.description }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="help-block form-error">{{ form.bank.errors.as_text }}</span>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="control-label" for="id_description">Description (<span id="max-len">250</span> characters left)</label>
                             <div>

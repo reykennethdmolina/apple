@@ -46,7 +46,7 @@ class CreateView(CreateView):
 class UpdateView(UpdateView):
     model = ChartofAccountMainGroup
     template_name = 'chartofaccountmaingroup/edit.html'
-    fields = ['code', 'description']
+    fields = ['code', 'description', 'group']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('chartofaccountmaingroup.change_chartofaccountmaingroup'):
@@ -59,8 +59,13 @@ class UpdateView(UpdateView):
         self.object.modifydate = datetime.datetime.now()
         # self.object.save(update_fields=self._meta.get_fields())
         # print Cvtype._meta.get_fields()
-        self.object.save(update_fields=['description', 'modifyby', 'modifydate'])
+        self.object.save(update_fields=['description', 'modifyby', 'modifydate', 'group'])
         return HttpResponseRedirect('/chartofaccountmaingroup')
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateView, self).get_context_data(**kwargs)
+        context['group'] = ChartofAccountMainGroup.objects.filter(isdeleted=0).order_by('code')
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
