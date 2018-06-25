@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.db import connection
 from collections import namedtuple
 import datetime
+import pandas as pd
 from datetime import timedelta
 import io
 from xlsxwriter.workbook import Workbook
@@ -68,8 +69,19 @@ def excel(request):
     retained_earnings = Companyparameter.objects.first().coa_retainedearnings_id
     current_earnings = Companyparameter.objects.first().coa_currentearnings_id
 
-    result = query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
-    return excel_trail_balance(result, report, type, year, month)
+    if report == 'TB':
+        result = query_trial_balance(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        return excel_trail_balance(result, report, type, year, month)
+    elif report == 'BS':
+        result = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        current_month = datetime.date(int(year), int(month), 10).strftime("%B")
+        prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+        return excel_balance_sheet(result, report, type, year, month, current_month, prev_month)
+    elif report == 'IS':
+        result = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        return excel_balance_sheet(result, report, type, year, month)
+    else:
+        print "no report"
 
 @csrf_exempt
 def generate(request):
@@ -196,26 +208,47 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
             "   FROM chartofaccount AS chart_d " \
             "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = chart_d.subgroup_id " \
-            "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main <= 3 " \
+            "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main <= 3 AND chart_d.id != '"+str(current_earnings)+"' " \
             "   GROUP BY subgroup_d.id, chart_d.end_code " \
+            "   UNION " \
+            "   SELECT chart_d.id AS debit_id, SUM(chart_d.year_to_date_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
+            "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
+            "   FROM chartofaccount AS chart_d " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = '164' " \
+            "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main > 3 " \
             ") AS debit ON debit.debit_subgroup = subgroup.id " \
             "LEFT OUTER JOIN ( " \
             "   SELECT chart_c.id AS credit_id, SUM(chart_c.end_amount) AS credit_end_amount, chart_c.end_code AS credit_end_code, " \
             "           subgroup_c.id AS credit_subgroup, subgroup_c.code AS credit_subgroupcode " \
             "   FROM chartofaccount AS chart_c " \
             "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = chart_c.subgroup_id " \
-            "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main <= 3 " \
+            "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main <= 3 AND chart_c.id != '"+str(current_earnings)+"' " \
             "   GROUP BY subgroup_c.id, chart_c.end_code " \
+            "   UNION " \
+            "   SELECT chart_c.id AS credit_id, SUM(chart_c.year_to_date_amount) AS credit_end_amount, chart_c.end_code AS credit_end_code, " \
+            "           subgroup_c.id AS credit_subgroup, subgroup_c.code AS credit_subgroupcode " \
+            "   FROM chartofaccount AS chart_c " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = '164' " \
+            "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main > 3 " \
             ") AS credit ON credit.credit_subgroup = subgroup.id " \
             "LEFT OUTER JOIN ( " \
             "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
             "           SUM(summary.end_amount) AS sd_end_amount, summary.end_code AS sd_end_code " \
             "   FROM subledgersummary AS summary " \
-            "LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
-            "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
-            "WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'D' " \
-            "AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
-            "GROUP BY subgroup.id, summary.end_code " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'D' " \
+            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 AND chart.id != '"+str(current_earnings)+"' " \
+            "   GROUP BY subgroup.id, summary.end_code " \
+            "   UNION " \
+            "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
+            "           SUM(summary.end_amount) AS sd_end_amount, summary.end_code AS sd_end_code " \
+            "   FROM subledgersummary AS summary " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'D' " \
+            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id = '" + str(current_earnings) + "' " \
+            "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_debit ON summary_debit.s_debit_id = subgroup.id " \
             "LEFT OUTER JOIN ( " \
             "   SELECT subgroup.id AS s_credit_id, subgroup.code AS s_credit_code, " \
@@ -224,7 +257,16 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
             "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
             "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'C' " \
-            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
+            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 AND chart.id != '"+str(current_earnings)+"' " \
+            "   GROUP BY subgroup.id, summary.end_code " \
+            "   UNION " \
+            "   SELECT subgroup.id AS s_credit_id, subgroup.code AS s_credit_code, " \
+            "           SUM(summary.end_amount) AS sc_end_amount, summary.end_code AS sc_end_code " \
+            "   FROM subledgersummary AS summary " \
+            "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
+            "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
+            "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' AND summary.end_code = 'C' " \
+            "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id = '" + str(current_earnings) + "' " \
             "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main AND chartmain.clas = 0 " \
@@ -509,3 +551,122 @@ def excel_trail_balance(result, report, type, year, month):
     output.close()
 
     return response
+
+def excel_balance_sheet(result, report, type, year, month, current_month, prev_month):
+
+    mon = datetime.date(int(year), int(month), 10).strftime("%B")
+    if type == 'P':
+        type = 'preliminary'
+    else:
+        type = 'final'
+
+    file_name = "balance_sheet_" + type + "_" + year + "_" + mon + ".xlsx"
+
+    output = io.BytesIO()
+
+    workbook = Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    # variables
+    bold = workbook.add_format({'bold': 1})
+    cell_format = workbook.add_format()
+    cell_format.set_align('right')
+    #right = workbook.add_format({'right': 1}).set_align('right')
+
+    # header
+    worksheet.merge_range('A1:C1', 'PHILIPPINE DAILY INQUIRER, INC.', bold)
+    worksheet.merge_range('A2:C2', 'BALANCE SHEET', bold)
+    worksheet.merge_range('A3:C3', 'AS OF '+str(current_month).upper()+' & '+str(prev_month).upper()+' '+str(year), bold)
+    worksheet.write('D4', current_month, bold)
+    worksheet.write('E4', prev_month, bold)
+    worksheet.write('F4', current_month +' %', bold)
+    worksheet.write('G4', prev_month +' %', bold)
+    worksheet.write('H4', 'Variance', bold)
+    worksheet.write('I4', '%', bold)
+
+    row = 4
+    col = 0
+    current_percentage = 0
+    prev_percentage = 0
+    variance_percentage = 0
+    variance = 0
+
+    dataset = pd.DataFrame(result)
+    total_current = dataset['current_amount_abs'].sum()
+    total_previous = dataset['prev_amount_abs'].sum()
+    for maingroup, subgroup in dataset.groupby(['maingroup_code', 'maingroup_desc']):
+        #print subgroup['current_amount_abs']
+        worksheet.write(row, col, str(maingroup[1]), bold)
+        row += 1
+        subtotal_current = 0
+        subtotal_previous = 0
+        subtotal_variance = 0
+        subtotal_cur = subgroup.groupby('maingroup_code')['current_amount_abs'].sum()
+        subtotal_prev = subgroup.groupby('maingroup_code')['prev_amount_abs'].sum()
+
+        for data, sub in subgroup.iterrows():
+            worksheet.write(row, col, str(sub['subgroup_code']))
+            worksheet.write(row, col+1, str(sub['subgroup_desc']))
+            worksheet.write(row, col+3, float(format(sub['current_amount_abs'], '.2f')))
+            worksheet.write(row, col+4, float(format(sub['prev_amount_abs'], '.2f')))
+
+            current_percentage = float(format(sub['current_amount_abs'], '.2f')) / float(subtotal_cur) * 100
+            previous_percentage = float(format(sub['prev_amount_abs'], '.2f')) / float(subtotal_prev) * 100
+            variance = float(format(sub['current_amount_abs'], '.2f')) - float(format(sub['prev_amount_abs'], '.2f'))
+
+            if float(variance) != 0:
+                variance_percentage = float(variance) / float(format(sub['prev_amount_abs'], '.2f')) * 100
+            else:
+                variance_percentage = 0
+
+            worksheet.write(row, col+5, float(format(current_percentage, '.2f')))
+            worksheet.write(row, col+6, float(format(previous_percentage, '.2f')))
+            worksheet.write(row, col+7, float(format(variance, '.2f')))
+            worksheet.write(row, col+8, float(format(variance_percentage, '.2f')))
+
+            subtotal_current += float(format(sub['current_amount_abs'], '.2f'))
+            subtotal_previous += float(format(sub['prev_amount_abs'], '.2f'))
+            subtotal_variance += float(format(variance, '.2f'))
+            row += 1
+
+        worksheet.write(row, col+1, 'TOTAL '+str(maingroup[1]), cell_format)
+        worksheet.write(row, col+3, float(format(subtotal_current, '.2f')))
+        worksheet.write(row, col+4, float(format(subtotal_previous, '.2f')))
+
+        subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(total_current) * 100
+        subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(total_previous) * 100
+        subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
+
+        worksheet.write(row, col+5, float(format(subtotal_current_percentage, '.2f')))
+        worksheet.write(row, col+6, float(format(subtotal_previous_percentage, '.2f')))
+        worksheet.write(row, col+7, float(format(subtotal_current, '.2f')) - float(format(subtotal_previous, '.2f')))
+        worksheet.write(row, col+8, float(format(subtotal_var, '.2f')))
+        row += 1
+        #worksheet.write(row_main, col, str(maingroup[1]))
+        #row_main += 1
+        #print subgroup
+        #for data, sub in subgroup.iterrows():
+        #    worksheet.write(row, col, str(sub['subgroup_code']))
+        #    worksheet.write(row, col+1, str(sub['subgroup_desc']))
+        #    row += 1
+    worksheet.write(row+1, col+1, 'TOTAL LIABILITIES & EQUITY', cell_format)
+    worksheet.write(row+1, col+3, float(format(total_current, '.2f')))
+    worksheet.write(row+1, col+4, float(format(total_previous, '.2f')))
+    worksheet.write(row+1, col+5, float(0.00))
+    worksheet.write(row+1, col+6, float(0.00))
+    worksheet.write(row+1, col+7, float(format(total_current, '.2f')) - float(format(total_previous, '.2f')))
+    total_var_percentage = (float(format(total_current, '.2f')) - float(format(total_previous, '.2f'))) / float(format(total_previous, '.2f')) * 100
+    worksheet.write(row+1, col+8, float(format(total_var_percentage, '.2f')))
+
+    workbook.close()
+
+    output.seek(0)
+
+    response = HttpResponse(output.read(),
+                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename=" + file_name
+
+    output.close()
+
+    return response
+
