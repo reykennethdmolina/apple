@@ -115,9 +115,17 @@ def generate(request):
         viewhtml = render_to_string('generalledgerbook/balance_sheet.html', context)
     elif report == 'IS':
         print "income statement"
+        result = query_income_statement(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        dataset = pd.DataFrame(result)
+        cur_netsales = dataset.groupby('group_code')['current_amount'].sum()
+        prev_netsales = dataset.groupby('group_code')['prev_amount'].sum()
+        context['cur_netsales'] = float(format(cur_netsales['GS'], '.2f'))
+        context['prev_netsales'] = float(format(prev_netsales['GS'], '.2f'))
         context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
         context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
-        context['result'] = query_income_statement(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        context['result'] = result
+        #test = dataset.groupby(['group_code']).sum().sum(level=['group_code']).unstack('Groups').fillna(0).reset_index()
+        #print test
         viewhtml = render_to_string('generalledgerbook/income_statement.html', context)
     else:
         print "no report"
@@ -187,12 +195,12 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
     query = "SELECT z.*, " \
             "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
             "IF(z.prev_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
-            "FROM ( SELECT chartmain.accountcode AS main_accountcode, " \
-            "       chartmain.balancecode AS main_balancecode, " \
+            "FROM ( SELECT " \
+            "       maingroup.balancecode AS main_balancecode, " \
             "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
             "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
-            "       IF (chartmain.balancecode = 'C', (IFNULL(credit.credit_end_amount, 0) - IFNULL(debit.debit_end_amount, 0)) , (IFNULL(debit.debit_end_amount, 0) - IFNULL(credit.credit_end_amount, 0))) AS current_amount, " \
-            "       IF (chartmain.balancecode = 'C', (IFNULL(summary_credit.sc_end_amount, 0) - IFNULL(summary_debit.sd_end_amount, 0)) , (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0))) AS prev_amount, " \
+            "       IF (maingroup.balancecode = 'C', (IFNULL(credit.credit_end_amount, 0) - IFNULL(debit.debit_end_amount, 0)) , (IFNULL(debit.debit_end_amount, 0) - IFNULL(credit.credit_end_amount, 0))) AS current_amount, " \
+            "       IF (maingroup.balancecode = 'C', (IFNULL(summary_credit.sc_end_amount, 0) - IFNULL(summary_debit.sd_end_amount, 0)) , (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0))) AS prev_amount, " \
             "       IFNULL(debit.debit_end_code, 'D') AS debit_end_code, IFNULL(debit.debit_end_amount, 0) AS debit_end_amount, " \
             "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
             "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 'D') AS sd_end_amount, " \
@@ -269,8 +277,6 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id = '" + str(current_earnings) + "' " \
             "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
-            "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main AND chartmain.clas = 0 " \
-            "AND chartmain.sub = 0 AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000) " \
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "GROUP BY subgroup.id " \
             "ORDER BY maingroup.code, subgroup.code) AS z"
@@ -284,7 +290,7 @@ def query_income_statement(retained_earnings, current_earnings, year, month, pre
     print "income statement query"
     ''' Create query '''
     cursor = connection.cursor()
-    query = "SELECT maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+    query = "SELECT grouping.code AS group_code, grouping.description AS group_desc, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
             "subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
             "SUM(z.current_amount) AS current_amount, SUM(z.prev_amount) AS prev_amount, SUM(z.todate_amount) AS todate_amount " \
             "FROM ( " \
@@ -348,6 +354,7 @@ def query_income_statement(retained_earnings, current_earnings, year, month, pre
             "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = z.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
+            "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
             "GROUP BY maingroup.code, subgroup.code " \
             "ORDER BY maingroup.code, subgroup.code"
 
@@ -612,6 +619,7 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
 
             current_percentage = float(format(sub['current_amount_abs'], '.2f')) / float(subtotal_cur) * 100
             previous_percentage = float(format(sub['prev_amount_abs'], '.2f')) / float(subtotal_prev) * 100
+
             variance = float(format(sub['current_amount_abs'], '.2f')) - float(format(sub['prev_amount_abs'], '.2f'))
 
             if float(variance) != 0:

@@ -20,8 +20,27 @@ def subtotal_current(list):
     return sum([d.current_amount_abs for d in list])
 
 @register.filter
+def subtotal_current_is(list):
+    return sum([d.current_amount for d in list])
+
+@register.filter
 def subtotal_prev(list):
     return sum([d.prev_amount_abs for d in list])
+
+@register.filter
+def subtotal_prev_is(list):
+    return sum([d.prev_amount for d in list])
+
+@register.filter
+def subtotal_todate_is(list):
+    return sum([d.todate_amount for d in list])
+
+@register.filter
+def subtotal_variance_is(list):
+    prev = sum([d.prev_amount for d in list])
+    current = sum([d.current_amount for d in list])
+    return float(current) - float(prev)
+
 
 @register.filter
 def subtotal_variance(list):

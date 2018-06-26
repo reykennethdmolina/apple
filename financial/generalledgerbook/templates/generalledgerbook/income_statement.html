@@ -1,4 +1,6 @@
 {% load humanize %}
+{% load mathfilters %}
+{% load custom %}
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="page-wrap">
         <h3>PHILIPPINE DAILY INQUIRER, INC.</h3>
@@ -21,6 +23,7 @@
                 </tr>
             </thead>
             <tbody>
+
             {% regroup result by maingroup_code as result_list %}
 
             {% for maingroup in result_list %}
@@ -30,15 +33,31 @@
             </tr>
 
                 {% for subgroup in maingroup.list %}
-                <tr>
+                <tr class="subgroup">
                     <td style="text-align:left">&nbsp;{{ subgroup.subgroup_code }}</td>
                     <td style="text-align:left">{{ subgroup.subgroup_desc }}</td>
                     <td></td>
                     <td style="text-align:right">{{ subgroup.current_amount|floatformat:2|intcomma }}</td>
                     <td style="text-align:right">{{ subgroup.prev_amount|floatformat:2|intcomma }}</td>
                     <td style="text-align:right">{{ subgroup.todate_amount|floatformat:2|intcomma }}</td>
+                    <td class="current_percentage" data-nom="{{ subgroup.current_amount|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                    <td class="prev_percentage" data-nom="{{ subgroup.prev_amount|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                    <td {% if subgroup.current_amount|sub:subgroup.prev_amount < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.current_amount|sub:subgroup.prev_amount|floatformat:2|intcomma|to_negative }}</td>
+                    <td class="variance_percentage" data-nom="{{ subgroup.current_amount|sub:subgroup.prev_amount|floatformat:2 }}" data-dom="{{ subgroup.prev_amount|floatformat:2 }}"></td>
                 </tr>
                 {% endfor %}
+
+                <tr class="subtotal_subgroup">
+                    <td></td>
+                    <td style="text-align:right;text-transform:uppercase">total {{ maingroup.list.0.maingroup_desc }}</td>
+                    <td></td>
+                    <td {% if maingroup.list|subtotal_current_is < 0 %} class="redfont" {% endif %} style="text-align:right" style="text-align:right">{{ maingroup.list|subtotal_current_is|floatformat:2|intcomma|to_negative }}</td>
+                    <td {% if maingroup.list|subtotal_prev_is < 0 %} class="redfont" {% endif %} style="text-align:right" style="text-align:right">{{ maingroup.list|subtotal_prev_is|floatformat:2|intcomma|to_negative }}</td>
+                    <td {% if maingroup.list|subtotal_todate_is < 0 %} class="redfont" {% endif %} style="text-align:right" style="text-align:right">{{ maingroup.list|subtotal_todate_is|floatformat:2|intcomma|to_negative }}</td>
+                    <td class="subtotal_current_percentage" data-nom="{{ maingroup.list|subtotal_current_is|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                    <td class="subtotal_prev_percentage" data-nom="{{ maingroup.list|subtotal_prev_is|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                    <td {% if maingroup.list|subtotal_variance_is < 0 %} class="redfont" {% endif %} style="text-align:right">{{ maingroup.list|subtotal_variance_is|floatformat:2|intcomma|to_negative }}</td>
+                </tr>
 
             {% endfor %}
 
@@ -48,3 +67,52 @@
     </div>
 </div>
 <div class="clearfix"></div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var current_percentage = 0;
+        var prev_percentage = 0;
+        var variance_percentage = 0;
+        var subtotal_current_percentage = 0;
+        var subtotal_prev_percentage = 0;
+        $('.subgroup').each(function() {
+            current_percentage = (parseFloat($(this).find('.current_percentage').data('nom')) / parseFloat($(this).find('.current_percentage').data('dom')) * 100).toFixed(2);
+            prev_percentage = (parseFloat($(this).find('.prev_percentage').data('nom')) / parseFloat($(this).find('.prev_percentage').data('dom')) * 100).toFixed(2);
+            variance_percentage = (parseFloat($(this).find('.variance_percentage').data('nom')) / parseFloat($(this).find('.variance_percentage').data('dom')) * 100).toFixed(2);
+
+            current_percentage = isNaN(current_percentage) ? 0.00:current_percentage;
+            prev_percentage = isNaN(prev_percentage) ? 0.00:prev_percentage;
+            variance_percentage = isNaN(variance_percentage) ? 0.00:variance_percentage;
+
+            if (current_percentage < 0) {
+                $(this).find('.current_percentage').addClass('redfont');
+            }
+            if (prev_percentage < 0) {
+                $(this).find('.prev_percentage').addClass('redfont');
+            }
+            if (variance_percentage < 0) {
+                $(this).find('.variance_percentage').addClass('redfont');
+            }
+
+            $(this).find('.current_percentage').text(current_percentage+' %');
+            $(this).find('.prev_percentage').text(prev_percentage+' %');
+            $(this).find('.variance_percentage').text(variance_percentage+' %');
+        });
+        $('.subtotal_subgroup').each(function() {
+            subtotal_current_percentage = (parseFloat($(this).find('.subtotal_current_percentage').data('nom')) / parseFloat($(this).find('.subtotal_current_percentage').data('dom')) * 100).toFixed(2);
+            subtotal_prev_percentage = (parseFloat($(this).find('.subtotal_prev_percentage').data('nom')) / parseFloat($(this).find('.subtotal_prev_percentage').data('dom')) * 100).toFixed(2);
+
+            subtotal_current_percentage = isNaN(subtotal_current_percentage) ? 0.00:subtotal_current_percentage;
+            subtotal_prev_percentage = isNaN(subtotal_prev_percentage) ? 0.00:subtotal_prev_percentage;
+
+            if (subtotal_current_percentage < 0) {
+                $(this).find('.subtotal_current_percentage').addClass('redfont');
+            }
+            if (subtotal_prev_percentage < 0) {
+                $(this).find('.subtotal_prev_percentage').addClass('redfont');
+            }
+
+            $(this).find('.subtotal_current_percentage').text(subtotal_current_percentage+' %');
+            $(this).find('.subtotal_prev_percentage').text(subtotal_prev_percentage+' %');
+        });
+    });
+</script>
