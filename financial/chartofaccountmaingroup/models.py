@@ -14,6 +14,11 @@ class ChartofAccountMainGroup(models.Model):
         ('O', 'Posted'),
         ('P', 'Printed'),
     )
+    DEBITCREDIT_CHOICES = (
+        ('D', 'Debit'),
+        ('C', 'Credit'),
+    )
+    balancecode = models.CharField(max_length=1, choices=DEBITCREDIT_CHOICES, default='D')
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='chartofaccountmaingroup_enter')
     enterdate = models.DateTimeField(auto_now_add=True)
