@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
+      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,32 +17,32 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4114">
-              <caret line="720" column="29" lean-forward="false" selection-start-line="720" selection-start-column="29" selection-end-line="720" selection-end-column="29" />
+            <state relative-caret-position="655">
+              <caret line="192" column="95" lean-forward="false" selection-start-line="192" selection-start-column="95" selection-end-line="192" selection-end-column="95" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
                 <element signature="e#1477#2078#0" expanded="false" />
-                <element signature="e#3666#6043#0" expanded="false" />
+                <element signature="e#2117#3623#0" expanded="false" />
                 <element signature="e#6145#10046#0" expanded="false" />
-                <element signature="e#10148#18751#0" expanded="false" />
-                <element signature="e#10246#13134#0" expanded="false" />
-                <element signature="e#18856#25101#0" expanded="false" />
-                <element signature="e#18957#22222#0" expanded="false" />
-                <element signature="e#25139#25337#0" expanded="false" />
-                <element signature="e#25403#35248#0" expanded="false" />
-                <element signature="e#27223#32001#0" expanded="false" />
-                <element signature="e#32515#32774#0" expanded="false" />
-                <element signature="e#32793#33050#0" expanded="false" />
+                <element signature="e#10148#19180#0" expanded="false" />
+                <element signature="e#25568#25766#0" expanded="false" />
+                <element signature="e#25832#35677#0" expanded="false" />
+                <element signature="e#27652#32430#0" expanded="false" />
+                <element signature="e#32944#33203#0" expanded="false" />
+                <element signature="e#33222#33479#0" expanded="false" />
+                <element signature="e#35771#40928#0" expanded="false" />
+                <element signature="e#37221#39993#0" expanded="false" />
+                <element signature="e#41024#47905#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="income_statement.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="income_statement.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="403">
-              <caret line="157" column="172" lean-forward="false" selection-start-line="157" selection-start-column="172" selection-end-line="157" selection-end-column="172" />
+            <state relative-caret-position="408">
+              <caret line="84" column="20" lean-forward="true" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -59,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2210">
-              <caret line="130" column="78" lean-forward="false" selection-start-line="130" selection-start-column="78" selection-end-line="130" selection-end-column="78" />
+            <state relative-caret-position="0">
+              <caret line="132" column="178" lean-forward="false" selection-start-line="132" selection-start-column="178" selection-end-line="132" selection-end-column="178" />
               <folding />
             </state>
           </provider>
@@ -81,8 +80,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>xhtml2pdf</find>
-      <find>pagesize</find>
       <find>card-header</find>
       <find>request</find>
       <find>PD</find>
@@ -111,6 +108,8 @@
       <find>subtotal_current</find>
       <find>defa</find>
       <find>infin</find>
+      <find>group_code</find>
+      <find>maingroup.balancecode</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -151,11 +150,11 @@
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/migrations/0004_auto_20180626_1749.py" />
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/models.py" />
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/templates/chartofaccountmaingroup/index.html" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement_old.html" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
       </list>
     </option>
   </component>
@@ -269,6 +268,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14857745" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -277,7 +277,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23701298" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23701298" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -294,14 +294,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/financial/generalledgerbook/views.py</url>
-          <line>38</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-      <option name="time" value="3" />
+      <option name="time" value="4" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -628,14 +621,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2210">
-          <caret line="130" column="78" lean-forward="false" selection-start-line="130" selection-start-column="78" selection-end-line="130" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
@@ -651,32 +636,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="84" column="20" lean-forward="true" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4114">
-          <caret line="720" column="29" lean-forward="false" selection-start-line="720" selection-start-column="29" selection-end-line="720" selection-end-column="29" />
+        <state relative-caret-position="655">
+          <caret line="192" column="95" lean-forward="false" selection-start-line="192" selection-start-column="95" selection-end-line="192" selection-end-column="95" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
             <element signature="e#1477#2078#0" expanded="false" />
-            <element signature="e#3666#6043#0" expanded="false" />
+            <element signature="e#2117#3623#0" expanded="false" />
             <element signature="e#6145#10046#0" expanded="false" />
-            <element signature="e#10148#18751#0" expanded="false" />
-            <element signature="e#10246#13134#0" expanded="false" />
-            <element signature="e#18856#25101#0" expanded="false" />
-            <element signature="e#18957#22222#0" expanded="false" />
-            <element signature="e#25139#25337#0" expanded="false" />
-            <element signature="e#25403#35248#0" expanded="false" />
-            <element signature="e#27223#32001#0" expanded="false" />
-            <element signature="e#32515#32774#0" expanded="false" />
-            <element signature="e#32793#33050#0" expanded="false" />
+            <element signature="e#10148#19180#0" expanded="false" />
+            <element signature="e#25568#25766#0" expanded="false" />
+            <element signature="e#25832#35677#0" expanded="false" />
+            <element signature="e#27652#32430#0" expanded="false" />
+            <element signature="e#32944#33203#0" expanded="false" />
+            <element signature="e#33222#33479#0" expanded="false" />
+            <element signature="e#35771#40928#0" expanded="false" />
+            <element signature="e#37221#39993#0" expanded="false" />
+            <element signature="e#41024#47905#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="157" column="172" lean-forward="false" selection-start-line="157" selection-start-column="172" selection-end-line="157" selection-end-column="172" />
+        <state relative-caret-position="0">
+          <caret line="132" column="178" lean-forward="false" selection-start-line="132" selection-start-column="178" selection-end-line="132" selection-end-column="178" />
           <folding />
         </state>
       </provider>

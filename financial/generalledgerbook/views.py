@@ -195,14 +195,14 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
     ''' Create query '''
     cursor = connection.cursor()
     query = "SELECT z.*, " \
-            "IF(z.current_code <>  z.main_balancecode, current_amount, ABS(current_amount)) AS current_amount_abs, " \
-            "IF(z.prev_code <>  z.main_balancecode, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
-            "FROM ( SELECT " \
+            "IF(z.current_code <>  z.group_code, current_amount, ABS(current_amount)) AS current_amount_abs, " \
+            "IF(z.prev_code <>  z.group_code, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
+            "FROM ( SELECT grouping.code AS group_code, grouping.description AS group_desc, " \
             "       maingroup.balancecode AS main_balancecode, " \
             "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
             "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
-            "       IF (maingroup.balancecode = 'C', (IFNULL(credit.credit_end_amount, 0) - IFNULL(debit.debit_end_amount, 0)) , (IFNULL(debit.debit_end_amount, 0) - IFNULL(credit.credit_end_amount, 0))) AS current_amount, " \
-            "       IF (maingroup.balancecode = 'C', (IFNULL(summary_credit.sc_end_amount, 0) - IFNULL(summary_debit.sd_end_amount, 0)) , (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0))) AS prev_amount, " \
+            "       IF (chartmain.balancecode = 'C', (IFNULL(credit.credit_end_amount, 0) - IFNULL(debit.debit_end_amount, 0)) , (IFNULL(debit.debit_end_amount, 0) - IFNULL(credit.credit_end_amount, 0))) AS current_amount, " \
+            "       IF (chartmain.balancecode = 'C', (IFNULL(summary_credit.sc_end_amount, 0) - IFNULL(summary_debit.sd_end_amount, 0)) , (IFNULL(summary_debit.sd_end_amount, 0) - IFNULL(summary_credit.sc_end_amount, 0))) AS prev_amount, " \
             "       IFNULL(debit.debit_end_code, 'D') AS debit_end_code, IFNULL(debit.debit_end_amount, 0) AS debit_end_amount, " \
             "       IFNULL(credit.credit_end_code, 'C') AS credit_end_code, IFNULL(credit.credit_end_amount, 0) AS credit_end_amount, " \
             "       IFNULL(summary_debit.sd_end_code, 'D') AS sd_end_code, IFNULL(summary_debit.sd_end_amount, 'D') AS sd_end_amount, " \
@@ -213,6 +213,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
+            "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
             "LEFT OUTER JOIN ( " \
             "   SELECT chart_d.id AS debit_id, SUM(chart_d.end_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
             "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
@@ -279,6 +280,10 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   AND chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.id = '" + str(current_earnings) + "' " \
             "   GROUP BY subgroup.id, summary.end_code " \
             ") AS summary_credit ON summary_credit.s_credit_id = subgroup.id " \
+            "LEFT OUTER JOIN chartofaccount AS chartmain ON (chartmain.main = chart.main " \
+            "AND chartmain.sub = 0 AND chartmain.item = 0 " \
+            "AND chartmain.cont = 0 AND chartmain.sub = 000000 " \
+            "AND chartmain.accounttype = 'T')" \
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 AND chart.main <= 3 " \
             "GROUP BY subgroup.id " \
             "ORDER BY maingroup.code, subgroup.code) AS z"
