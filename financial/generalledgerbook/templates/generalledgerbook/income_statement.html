@@ -42,9 +42,9 @@
                         <td style="text-align:left">&nbsp;{{ subgroup.subgroup_code }}</td>
                         <td style="text-align:left">{{ subgroup.subgroup_desc }}</td>
                         <td></td>
-                        <td style="text-align:right">{{ subgroup.current_amount|floatformat:2|intcomma }}</td>
-                        <td style="text-align:right">{{ subgroup.prev_amount|floatformat:2|intcomma }}</td>
-                        <td style="text-align:right">{{ subgroup.todate_amount|floatformat:2|intcomma }}</td>
+                        <td {% if subgroup.current_amount < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.current_amount|floatformat:2|intcomma|to_negative }}</td>
+                        <td {% if subgroup.current_amount < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.prev_amount|floatformat:2|intcomma|to_negative }}</td>
+                        <td {% if subgroup.current_amount < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.todate_amount|floatformat:2|intcomma|to_negative }}</td>
                         <td class="current_percentage" data-nom="{{ subgroup.current_amount|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
                         <td class="prev_percentage" data-nom="{{ subgroup.prev_amount|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
                         <td {% if subgroup.current_amount|sub:subgroup.prev_amount < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.current_amount|sub:subgroup.prev_amount|floatformat:2|intcomma|to_negative }}</td>
@@ -108,8 +108,10 @@
             prev_percentage = isNaN(prev_percentage) ? 0.00:prev_percentage;
             variance_percentage = isNaN(variance_percentage) ? 0.00:variance_percentage;
 
-            if (variance_percentage == '-Infinity' || variance_percentage == 'Infinity') {
-                variance_percentage = 0.00;
+            if (variance_percentage == '-Infinity') {
+                variance_percentage = -100.00;
+            } else if (variance_percentage == 'Infinity') {
+                variance_percentage = 100.00;
             }
 
             if (current_percentage < 0) {
@@ -129,7 +131,7 @@
         $('.subtotal_subgroup').each(function() {
             subtotal_current_percentage = (parseFloat($(this).find('.subtotal_current_percentage').data('nom')) / parseFloat($(this).find('.subtotal_current_percentage').data('dom')) * 100).toFixed(2);
             subtotal_prev_percentage = (parseFloat($(this).find('.subtotal_prev_percentage').data('nom')) / parseFloat($(this).find('.subtotal_prev_percentage').data('dom')) * 100).toFixed(2);
-            var sub_variance = parseFloat($(this).find('.subtotal_variance_percentage').data('nom-prev')) - parseFloat($(this).find('.subtotal_variance_percentage').data('nom-cur'));
+            var sub_variance = parseFloat($(this).find('.subtotal_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.subtotal_variance_percentage').data('nom-prev'));
             subtotal_variance_percentage = (sub_variance  / parseFloat($(this).find('.subtotal_variance_percentage').data('dom')) * 100).toFixed(2);
 
             subtotal_current_percentage = isNaN(subtotal_current_percentage) ? 0.00:subtotal_current_percentage;
@@ -153,7 +155,7 @@
         $('.total_group').each(function() {
             total_current_percentage = (parseFloat($(this).find('.total_current_percentage').data('nom')) / parseFloat($(this).find('.total_current_percentage').data('dom')) * 100).toFixed(2);
             total_prev_percentage = (parseFloat($(this).find('.total_prev_percentage').data('nom')) / parseFloat($(this).find('.total_prev_percentage').data('dom')) * 100).toFixed(2);
-            var tot_variance = parseFloat($(this).find('.total_variance_percentage').data('nom-prev')) - parseFloat($(this).find('.total_variance_percentage').data('nom-cur'));
+            var tot_variance = parseFloat($(this).find('.total_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.total_variance_percentage').data('nom-prev'));
             total_variance_percentage = (tot_variance  / parseFloat($(this).find('.total_variance_percentage').data('dom')) * 100).toFixed(2);
 
             $(this).find('.total_current_percentage').text(total_current_percentage+' %');
