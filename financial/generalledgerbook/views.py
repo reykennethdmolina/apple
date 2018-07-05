@@ -114,6 +114,7 @@ def generate(request):
         context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
         context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
         context['result'] = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        print context['result']
         viewhtml = render_to_string('generalledgerbook/balance_sheet.html', context)
     elif report == 'IS':
         print "income statement"
@@ -197,7 +198,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
     query = "SELECT z.*, " \
             "IF(z.current_code <>  z.group_code, current_amount, ABS(current_amount)) AS current_amount_abs, " \
             "IF(z.prev_code <>  z.group_code, prev_amount, ABS(prev_amount)) AS prev_amount_abs " \
-            "FROM ( SELECT grouping.code AS group_code, grouping.description AS group_desc, " \
+            "FROM ( SELECT thisgroup.code AS this_code, thisgroup.description AS this_desc, grouping.code AS group_code, grouping.description AS group_desc, " \
             "       maingroup.balancecode AS main_balancecode, " \
             "       maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
             "       subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
@@ -214,6 +215,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "LEFT OUTER JOIN chartofaccountmainsubgroup AS mainsubgroup ON mainsubgroup.sub_id = subgroup.id " \
             "LEFT OUTER JOIN chartofaccountmaingroup AS maingroup ON maingroup.id = mainsubgroup.main_id " \
             "LEFT OUTER JOIN chartofaccountmaingroup AS grouping ON grouping.id = maingroup.group_id " \
+            "LEFT OUTER JOIN chartofaccountmaingroup AS thisgroup ON thisgroup.id = grouping.group_id " \
             "LEFT OUTER JOIN ( " \
             "   SELECT chart_d.id AS debit_id, SUM(chart_d.end_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
             "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
@@ -798,7 +800,7 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
 
             total_current_percentage = float(format(total_current, '.2f')) / float(cur_netsales) * 100
             total_previous_percentage = float(format(total_previous, '.2f')) / float(prev_netsales) * 100
-            total_variance = float(format(total_previous, '.2f')) - float(format(total_current, '.2f'))
+            total_variance = float(format(total_current, '.2f')) - float(format(total_previous, '.2f'))
             total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
 
             worksheet.write(row, col+6, float(format(total_current_percentage, '.2f')))

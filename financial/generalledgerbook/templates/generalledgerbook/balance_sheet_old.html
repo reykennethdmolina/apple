@@ -1,0 +1,166 @@
+{% load humanize %}
+{% load mathfilters %}
+{% load custom %}
+<div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="page-wrap">
+        <h3>PHILIPPINE DAILY INQUIRER, INC.</h3>
+        <h4>BALANCE SHEET </h4>
+        <h4>AS OF FEBRUARY & JANUARY 2018</h4>
+
+        <table class="table table-striped table-bordered" style="font-size:10px">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th style="text-align:center">{{ month }}</th>
+                    <th style="text-align:center">{{ prev_month }}</th>
+                    <th style="text-align:center">{{ month }} %</th>
+                    <th style="text-align:center">{{ prev_month }} %</th>
+                    <th style="text-align:center">Variance</th>
+                    <th style="text-align:center">%</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% regroup result by group_code as result_group %}
+
+            {% for group in result_group %}
+
+                {% regroup group.list by maingroup_code as result_list %}
+
+                {% for maingroup in result_list %}
+
+                <tr>
+                    <td style="text-align:left" colspan="9"><b>{{ maingroup.list.0.maingroup_desc }}</b></td>
+                </tr>
+
+                    {% for subgroup in maingroup.list %}
+
+                    <tr class="subgroup">
+                        <td style="text-align:left">&nbsp;&nbsp;{{ subgroup.subgroup_code }}</td>
+                        <td style="text-align:left">{{ subgroup.subgroup_desc }}</td>
+                        <td></td>
+                        <td {% if subgroup.current_amount_abs < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.current_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                        <td {% if subgroup.prev_amount_abs < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.prev_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                        <td class="current_percentage" data-nom="{{ subgroup.current_amount_abs|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_current|floatformat:2 }}"></td>
+                        <td class="prev_percentage" data-nom="{{ subgroup.prev_amount_abs|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_prev|floatformat:2 }}"></td>
+                        <td {% if subgroup.current_amount_abs|sub:subgroup.prev_amount_abs < 0 %} class="redfont" {% endif %} style="text-align:right">{{ subgroup.current_amount_abs|sub:subgroup.prev_amount_abs|floatformat:2|intcomma|to_negative }}</td>
+                        <td class="variance_percentage" data-nom="{{ subgroup.current_amount_abs|sub:subgroup.prev_amount_abs|floatformat:2 }}" data-dom="{{ subgroup.prev_amount_abs|floatformat:2 }}"></td>
+                    </tr>
+
+                    {% endfor %}
+
+                    <tr class="subtotal_subgroup">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase">total {{ maingroup.list.0.maingroup_desc }}</td>
+                        <td></td>
+                        <td {% if maingroup.list|subtotal_current < 0 %} class="redfont" {% endif %} style="text-align:right" style="text-align:right">{{ maingroup.list|subtotal_current|floatformat:2|intcomma|to_negative }}</td>
+                        <td {% if maingroup.list|subtotal_prev < 0 %} class="redfont" {% endif %} style="text-align:right" style="text-align:right">{{ maingroup.list|subtotal_prev|floatformat:2|intcomma|to_negative }}</td>
+                        <td class="subtotal_current_percentage" data-nom="{{ maingroup.list|subtotal_current|floatformat:2 }}" data-dom="{{ group.list|total_current|floatformat:2 }}"></td>
+                        <td class="subtotal_prev_percentage" data-nom="{{ maingroup.list|subtotal_prev|floatformat:2 }}" data-dom="{{ group.list|total_prev|floatformat:2 }}"></td>
+                        <td {% if maingroup.list|subtotal_variance < 0 %} class="redfont" {% endif %} style="text-align:right">{{ maingroup.list|subtotal_variance|floatformat:2|intcomma|to_negative }}</td>
+                        <td  class="subtotal_variance_percentage" data-nom-cur="{{ maingroup.list|subtotal_current|floatformat:2 }}" data-nom-prev="{{ maingroup.list|subtotal_prev|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_prev|floatformat:2 }}"></td>
+                    </tr>
+
+                {% endfor %}
+                {% if group.list.0.group_desc|default:"" != "" %}
+                <tr class="total_group">
+                    <td></td>
+                    <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>total {{ group.list.0.group_desc|default:"" }}</b></td>
+                    <td></td>
+                    <td style="text-align:right">{{ group.list|total_current|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="text-align:right">{{ group.list|total_prev|floatformat:2|intcomma|to_negative }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            <tr>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>
+            </tr>
+            <tr class="total_subgroup">
+                <td colspan="2"><b>TOTAL LIABILITIES & EQUITY</b></td>
+                <td></td>
+                <td style="text-align:right">{{ result|total_current|floatformat:2|intcomma|to_negative }}</td>
+                <td style="text-align:right">{{ result|total_prev|floatformat:2|intcomma|to_negative }}</td>
+                <td>100.00%</td>
+                <td>100.00%</td>
+                <td {% if result|total_variance < 0 %} class="redfont" {% endif %} style="text-align:right">{{ result|total_variance|floatformat:2|intcomma|to_negative }}</td>
+                <td  class="total_variance_percentage" data-nom-cur="{{ result|total_current|floatformat:2 }}" data-nom-prev="{{ result|total_prev|floatformat:2 }}" data-dom="{{ result|total_prev|floatformat:2 }}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var current_percentage = 0;
+        var subtotal_current_percentage = 0;
+        var prev_percentage = 0;
+        var subtotal_prev_percentage = 0;
+        var variance_percentage = 0;
+        var subtotal_variance_percentage = 0;
+        var total_variance_percentage = 0;
+
+        $('.subgroup').each(function() {
+            current_percentage = (parseFloat($(this).find('.current_percentage').data('nom')) / parseFloat($(this).find('.current_percentage').data('dom')) * 100).toFixed(2);
+            prev_percentage = (parseFloat($(this).find('.prev_percentage').data('nom')) / parseFloat($(this).find('.prev_percentage').data('dom')) * 100).toFixed(2);
+            variance_percentage = (parseFloat($(this).find('.variance_percentage').data('nom')) / parseFloat($(this).find('.variance_percentage').data('dom')) * 100).toFixed(2);
+
+            current_percentage = isNaN(current_percentage) ? 0.00:current_percentage;
+            prev_percentage = isNaN(prev_percentage) ? 0.00:prev_percentage;
+            variance_percentage = isNaN(variance_percentage) ? 0.00:variance_percentage;
+
+            if (current_percentage < 0) {
+                $(this).find('.current_percentage').addClass('redfont');
+            }
+            if (prev_percentage < 0) {
+                $(this).find('.prev_percentage').addClass('redfont');
+            }
+            if (variance_percentage < 0) {
+                $(this).find('.variance_percentage').addClass('redfont');
+            }
+
+            $(this).find('.current_percentage').text(current_percentage+' %');
+            $(this).find('.prev_percentage').text(prev_percentage+' %');
+            $(this).find('.variance_percentage').text(variance_percentage+' %');
+        });
+
+        $('.subtotal_subgroup').each(function() {
+            subtotal_current_percentage = (parseFloat($(this).find('.subtotal_current_percentage').data('nom')) / parseFloat($(this).find('.subtotal_current_percentage').data('dom')) * 100).toFixed(2);
+            subtotal_prev_percentage = (parseFloat($(this).find('.subtotal_prev_percentage').data('nom')) / parseFloat($(this).find('.subtotal_prev_percentage').data('dom')) * 100).toFixed(2);
+            var sub_variance = parseFloat($(this).find('.subtotal_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.subtotal_variance_percentage').data('nom-prev'));
+            subtotal_variance_percentage = (sub_variance  / parseFloat($(this).find('.subtotal_variance_percentage').data('dom')) * 100).toFixed(2);
+
+            subtotal_current_percentage = isNaN(subtotal_current_percentage) ? 0.00:subtotal_current_percentage;
+            subtotal_prev_percentage = isNaN(subtotal_prev_percentage) ? 0.00:subtotal_prev_percentage;
+            subtotal_variance_percentage = isNaN(subtotal_variance_percentage) ? 0.00:subtotal_variance_percentage;
+
+            if (subtotal_current_percentage < 0) {
+                $(this).find('.subtotal_current_percentage').addClass('redfont');
+            }
+            if (subtotal_prev_percentage < 0) {
+                $(this).find('.subtotal_prev_percentage').addClass('redfont');
+            }
+            if (subtotal_variance_percentage < 0) {
+                $(this).find('.subtotal_variance_percentage').addClass('redfont');
+            }
+
+            $(this).find('.subtotal_current_percentage').text(subtotal_current_percentage+' %');
+            $(this).find('.subtotal_prev_percentage').text(subtotal_prev_percentage+' %');
+            $(this).find('.subtotal_variance_percentage').text(subtotal_variance_percentage+' %');
+        });
+
+        $('.total_subgroup').each(function() {
+            var total_variance = parseFloat($(this).find('.total_variance_percentage').data('nom-prev')) - parseFloat($(this).find('.total_variance_percentage').data('nom-cur'));
+            total_variance_percentage = (total_variance  / parseFloat($(this).find('.total_variance_percentage').data('dom')) * 100).toFixed(2);
+
+            if (total_variance_percentage < 0) {
+                $(this).find('.total_variance_percentage').addClass('redfont');
+            }
+
+            $(this).find('.total_variance_percentage').text(total_variance_percentage+' %');
+        });
+    });
+</script>

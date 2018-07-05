@@ -158,6 +158,16 @@
             var tot_variance = parseFloat($(this).find('.total_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.total_variance_percentage').data('nom-prev'));
             total_variance_percentage = (tot_variance  / parseFloat($(this).find('.total_variance_percentage').data('dom')) * 100).toFixed(2);
 
+            if (total_current_percentage < 0) {
+                $(this).find('.total_current_percentage').addClass('redfont');
+            }
+            if (total_prev_percentage < 0) {
+                $(this).find('.total_prev_percentage').addClass('redfont');
+            }
+            if (total_variance_percentage < 0) {
+                $(this).find('.total_variance_percentage').addClass('redfont');
+            }
+
             $(this).find('.total_current_percentage').text(total_current_percentage+' %');
             $(this).find('.total_prev_percentage').text(total_prev_percentage+' %');
             $(this).find('.total_variance_percentage').text(total_variance_percentage+' %');
