@@ -103,19 +103,15 @@
             {% endif %}
 
             {% endfor %}
-
-            <tr>
-                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>
-            </tr>
-            <tr class="total">
+            <tr class="total_liab_equity">
                 <td colspan="2" style="text-align:right;text-transform:uppercase;font-size:18px"><b>TOTAL LIABILITIES & EQUITY</b></td>
                 <td></td>
-                <td style="text-align:right">{{ result|total_current|floatformat:2|intcomma|to_negative }}</td>
-                <td style="text-align:right">{{ result|total_prev|floatformat:2|intcomma|to_negative }}</td>
+                <td style="text-align:right">{{ cur_liab_equity|floatformat:2|intcomma|to_negative }}</td>
+                <td style="text-align:right">{{ prev_liab_equity|floatformat:2|intcomma|to_negative }}</td>
                 <td>100.00%</td>
                 <td>100.00%</td>
-                <td {% if result|total_variance < 0 %} class="redfont" {% endif %} style="text-align:right">{{ result|total_variance|floatformat:2|intcomma|to_negative }}</td>
-                <td  class="total_variance_percentage" data-nom-cur="{{ result|total_current|floatformat:2 }}" data-nom-prev="{{ result|total_prev|floatformat:2 }}" data-dom="{{ result|total_prev|floatformat:2 }}"></td>
+                <td {% if cur_liab_equity|sub:prev_liab_equity < 0 %} class="redfont" {% endif %} style="text-align:right">{{ cur_liab_equity|sub:prev_liab_equity|floatformat:2|intcomma|to_negative }}</td>
+                <td  class="total_variance_percentage" data-nom-cur="{{ cur_liab_equity|floatformat:2 }}" data-nom-prev="{{ prev_liab_equity|floatformat:2 }}" data-dom="{{ prev_liab_equity|floatformat:2 }}"></td>
             </tr>
             </tbody>
         </table>
@@ -232,7 +228,7 @@
             $(this).find('.this_variance_percentage').text(this_variance_percentage+' %');
         });
 
-        $('.total').each(function() {
+        $('.total_liab_equity').each(function() {
             var total_variance = parseFloat($(this).find('.total_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.total_variance_percentage').data('nom-prev'));
             total_variance_percentage = (total_variance  / parseFloat($(this).find('.total_variance_percentage').data('dom')) * 100).toFixed(2);
 

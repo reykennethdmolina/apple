@@ -113,8 +113,13 @@ def generate(request):
         print "balance sheet"
         context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
         context['prev_month'] = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
-        context['result'] = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
-        print context['result']
+        result = query_balance_sheet(retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+        dataset = pd.DataFrame(result)
+        cur_liab_equity = dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
+        prev_liab_equity = dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
+        context['cur_liab_equity'] = float(format(cur_liab_equity, '.2f'))
+        context['prev_liab_equity'] = float(format(prev_liab_equity, '.2f'))
+        context['result'] = result
         viewhtml = render_to_string('generalledgerbook/balance_sheet.html', context)
     elif report == 'IS':
         print "income statement"
