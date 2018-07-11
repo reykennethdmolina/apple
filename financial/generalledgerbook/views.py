@@ -264,7 +264,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   GROUP BY subgroup.id, summary.end_code " \
             "   UNION " \
             "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
-            "           SUM(summary.end_amount) AS sd_end_amount, summary.end_code AS sd_end_code " \
+            "           SUM(summary.year_to_date_amount) AS sd_end_amount, summary.year_to_date_code AS sd_end_code " \
             "   FROM subledgersummary AS summary " \
             "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
             "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \
@@ -283,7 +283,7 @@ def query_balance_sheet(retained_earnings, current_earnings, year, month, prevye
             "   GROUP BY subgroup.id, summary.end_code " \
             "   UNION " \
             "   SELECT subgroup.id AS s_credit_id, subgroup.code AS s_credit_code, " \
-            "           SUM(summary.end_amount) AS sc_end_amount, summary.end_code AS sc_end_code " \
+            "           SUM(summary.year_to_date_amount) AS sc_end_amount, summary.year_to_date_code AS sc_end_code " \
             "   FROM subledgersummary AS summary " \
             "   LEFT OUTER JOIN chartofaccount AS chart ON chart.id = summary.chartofaccount_id " \
             "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup ON subgroup.id = chart.subgroup_id " \

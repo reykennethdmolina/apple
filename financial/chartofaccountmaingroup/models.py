@@ -26,8 +26,7 @@ class ChartofAccountMainGroup(models.Model):
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
 
-    group = models.ForeignKey('chartofaccountmaingroup.ChartofAccountmainGroup',
-                                 related_name='chartofaccountmaingroup_groupings')
+    group = models.ForeignKey('chartofaccountmaingroup.ChartofAccountmainGroup', related_name='chartofaccountmaingroup_groupings', null=True, blank=True)
 
     class Meta:
         db_table = 'chartofaccountmaingroup'
