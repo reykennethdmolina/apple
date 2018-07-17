@@ -363,7 +363,7 @@ def query_income_statement(retained_earnings, current_earnings, year, month, pre
             "   AND chart.isdeleted = 0 AND chart.end_code = 'D' " \
             ") AS todate_debit ON todate_debit.id = chart.id " \
             "LEFT OUTER JOIN chartofaccount AS chartmain ON (IF(chartmain.main = 7,  " \
-            "(chartmain.main = chart.main AND chartmain.clas = chart.clas AND chartmain.sub = 0  " \
+            "(chartmain.main = chart.main AND chartmain.clas = 1 AND chartmain.sub = 0  " \
             "AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000) ,  " \
             "(chartmain.main = chart.main AND chartmain.clas = 0 AND chartmain.sub = 0  " \
             "AND chartmain.item = 0 AND chartmain.cont = 0 AND chartmain.sub = 000000))) " \

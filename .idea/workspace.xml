@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/chartofaccountmaingroup/models.py" afterPath="$PROJECT_DIR$/financial/chartofaccountmaingroup/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,21 +17,20 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="124">
-              <caret line="118" column="38" lean-forward="false" selection-start-line="118" selection-start-column="38" selection-end-line="118" selection-end-column="38" />
+            <state relative-caret-position="207">
+              <caret line="365" column="64" lean-forward="false" selection-start-line="365" selection-start-column="64" selection-end-line="365" selection-end-column="64" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
                 <element signature="e#1477#2078#0" expanded="false" />
                 <element signature="e#2117#3655#0" expanded="false" />
                 <element signature="e#6732#10633#0" expanded="false" />
-                <element signature="e#20091#26336#0" expanded="false" />
-                <element signature="e#26374#26572#0" expanded="false" />
-                <element signature="e#26638#36483#0" expanded="false" />
-                <element signature="e#28458#33236#0" expanded="false" />
-                <element signature="e#33750#34009#0" expanded="false" />
-                <element signature="e#34028#34285#0" expanded="false" />
-                <element signature="e#36602#45646#0" expanded="false" />
-                <element signature="e#45767#52769#0" expanded="false" />
+                <element signature="e#26365#26563#0" expanded="false" />
+                <element signature="e#26629#36474#0" expanded="false" />
+                <element signature="e#28449#33227#0" expanded="false" />
+                <element signature="e#33741#34000#0" expanded="false" />
+                <element signature="e#34019#34276#0" expanded="false" />
+                <element signature="e#36593#45637#0" expanded="false" />
+                <element signature="e#45758#52760#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -52,7 +49,7 @@
       <file leaf-file-name="edit.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/chartofaccountmaingroup/templates/chartofaccountmaingroup/edit.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
+            <state relative-caret-position="323">
               <caret line="19" column="46" lean-forward="false" selection-start-line="19" selection-start-column="41" selection-end-line="19" selection-end-column="46" />
               <folding />
             </state>
@@ -85,12 +82,9 @@
       <file leaf-file-name="income_statement.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-567">
+            <state relative-caret-position="119">
               <caret line="7" column="78" lean-forward="false" selection-start-line="7" selection-start-column="78" selection-end-line="7" selection-end-column="78" />
-              <folding>
-                <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -108,8 +102,8 @@
       <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-765">
-              <caret line="12" column="29" lean-forward="true" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
+            <state relative-caret-position="204">
+              <caret line="12" column="29" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
               <folding>
                 <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -251,6 +245,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -328,8 +324,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -732,7 +726,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/chartofaccountmaingroup/templates/chartofaccountmaingroup/edit.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
+        <state relative-caret-position="323">
           <caret line="19" column="46" lean-forward="false" selection-start-line="19" selection-start-column="41" selection-end-line="19" selection-end-column="46" />
           <folding />
         </state>
@@ -742,7 +736,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="49" column="125" lean-forward="false" selection-start-line="49" selection-start-column="102" selection-end-line="49" selection-end-column="125" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -764,12 +757,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-567">
+        <state relative-caret-position="119">
           <caret line="7" column="78" lean-forward="false" selection-start-line="7" selection-start-column="78" selection-end-line="7" selection-end-column="78" />
-          <folding>
-            <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -777,14 +767,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
           <caret line="48" column="43" lean-forward="false" selection-start-line="48" selection-start-column="38" selection-end-line="48" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-765">
-          <caret line="12" column="29" lean-forward="true" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
+        <state relative-caret-position="204">
+          <caret line="12" column="29" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
           <folding>
             <element signature="n#style#0;n#h4#1;n#div#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
@@ -801,21 +790,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="118" column="38" lean-forward="false" selection-start-line="118" selection-start-column="38" selection-end-line="118" selection-end-column="38" />
+        <state relative-caret-position="207">
+          <caret line="365" column="64" lean-forward="false" selection-start-line="365" selection-start-column="64" selection-end-line="365" selection-end-column="64" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
             <element signature="e#1477#2078#0" expanded="false" />
             <element signature="e#2117#3655#0" expanded="false" />
             <element signature="e#6732#10633#0" expanded="false" />
-            <element signature="e#20091#26336#0" expanded="false" />
-            <element signature="e#26374#26572#0" expanded="false" />
-            <element signature="e#26638#36483#0" expanded="false" />
-            <element signature="e#28458#33236#0" expanded="false" />
-            <element signature="e#33750#34009#0" expanded="false" />
-            <element signature="e#34028#34285#0" expanded="false" />
-            <element signature="e#36602#45646#0" expanded="false" />
-            <element signature="e#45767#52769#0" expanded="false" />
+            <element signature="e#26365#26563#0" expanded="false" />
+            <element signature="e#26629#36474#0" expanded="false" />
+            <element signature="e#28449#33227#0" expanded="false" />
+            <element signature="e#33741#34000#0" expanded="false" />
+            <element signature="e#34019#34276#0" expanded="false" />
+            <element signature="e#36593#45637#0" expanded="false" />
+            <element signature="e#45758#52760#0" expanded="false" />
           </folding>
         </state>
       </provider>
