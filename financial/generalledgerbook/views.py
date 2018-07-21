@@ -308,11 +308,11 @@ def query_income_statement(retained_earnings, current_earnings, year, month, pre
     print "income statement query"
     ''' Create query '''
     cursor = connection.cursor()
-    query = "SELECT grouping.code AS group_code, grouping.description AS group_desc, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
-            "subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
+    query = "SELECT grouping.code AS group_code, grouping.description AS group_desc, grouping.title AS group_title, maingroup.code AS maingroup_code, maingroup.description AS maingroup_desc, " \
+            "maingroup.title AS maingroup_title, subgroup.code AS subgroup_code, subgroup.description AS subgroup_desc, " \
             "SUM(z.current_amount) AS current_amount, SUM(z.prev_amount) AS prev_amount, SUM(z.todate_amount) AS todate_amount " \
             "FROM ( " \
-            "   SELECT chartmain.main, chartmain.balancecode, chart.id, chart.subgroup_id, chart.accountcode, chart.description, " \
+            "   SELECT chartmain.main, chartmain.balancecode,chart.id, chart.subgroup_id, chart.accountcode, chart.description, " \
             "   IF (chartmain.balancecode = 'D', (IFNULL(current_debit.end_amount, 0) - IFNULL(current_credit.end_amount, 0)), (IFNULL(current_credit.end_amount, 0) - IFNULL(current_debit.end_amount, 0))) AS current_amount, " \
             "   IF (chartmain.balancecode = 'D', (IFNULL(prev_debit.end_amount, 0) - IFNULL(prev_credit.end_amount, 0)), (IFNULL(prev_credit.end_amount, 0) - IFNULL(prev_debit.end_amount, 0))) AS prev_amount, " \
             "   IF (chartmain.balancecode = 'D', (IFNULL(todate_debit.year_to_date_amount, 0) - IFNULL(todate_credit.year_to_date_amount, 0)), (IFNULL(todate_credit.year_to_date_amount, 0) - IFNULL(todate_debit.year_to_date_amount, 0))) AS todate_amount, " \
@@ -630,8 +630,9 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
         gtotal_current = thisgroup['current_amount_abs'].sum()
         gtotal_previous = thisgroup['prev_amount_abs'].sum()
         for group, maingroup in thisgroup.fillna('NaN').sort_values(by=['group_code'], ascending=True).groupby(['group_code', 'group_desc']):
-            worksheet.write(row, col, str(group[1]), bold15)
-            row += 1
+            if group[0] != 'NaN':
+                worksheet.write(row, col, str(group[1]), bold15)
+                row += 1
             total_current = 0
             total_previous = 0
             total_variance = 0
@@ -687,36 +688,38 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                 worksheet.write(row, col + 8, float(format(subtotal_var, '.2f')))
                 row += 1
 
-            worksheet.write(row, col + 1, 'TOTAL ' + str(group[1]).upper(), bold15)
-            worksheet.write(row, col + 3, float(format(total_current, '.2f')))
-            worksheet.write(row, col + 4, float(format(total_previous, '.2f')))
+            if group[0] != 'NaN':
+                worksheet.write(row, col + 1, 'TOTAL ' + str(group[1]).upper(), bold15)
+                worksheet.write(row, col + 3, float(format(total_current, '.2f')))
+                worksheet.write(row, col + 4, float(format(total_previous, '.2f')))
 
-            total_current_percentage = float(format(total_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
-            total_previous_percentage = float(format(total_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
-            total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
+                total_current_percentage = float(format(total_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
+                total_previous_percentage = float(format(total_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+                total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
 
-            worksheet.write(row, col + 5, float(format(total_current_percentage, '.2f')))
+                worksheet.write(row, col + 5, float(format(total_current_percentage, '.2f')))
+                worksheet.write(row, col + 6, float(format(total_previous_percentage, '.2f')))
+                worksheet.write(row, col + 7, float(format(total_current, '.2f')) - float(format(total_previous, '.2f')))
+                worksheet.write(row, col + 8, float(format(total_var, '.2f')))
+                row += 1
+
+        if this[0] != 'NaN':
+            worksheet.write(row, col + 1, 'TOTAL ' + str(this[1]).upper(), cell_format_size)
+            worksheet.write(row, col + 3, float(format(gtotal_current, '.2f')))
+            worksheet.write(row, col + 4, float(format(gtotal_previous, '.2f')))
+
+            gtotal_current_percentage = float(format(gtotal_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
+            gtotal_previous_percentage = float(format(gtotal_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+            gtotal_variance = float(format(gtotal_current, '.2f')) - float(format(gtotal_previous, '.2f'))
+            gtotal_var = float(format(gtotal_variance, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+
+            worksheet.write(row, col + 5, float(format(gtotal_current_percentage, '.2f')))
             worksheet.write(row, col + 6, float(format(total_previous_percentage, '.2f')))
-            worksheet.write(row, col + 7, float(format(total_current, '.2f')) - float(format(total_previous, '.2f')))
-            worksheet.write(row, col + 8, float(format(total_var, '.2f')))
+            worksheet.write(row, col + 7, float(format(gtotal_variance, '.2f')))
+            worksheet.write(row, col + 8, float(format(gtotal_var, '.2f')))
             row += 1
 
-        worksheet.write(row, col + 1, 'TOTAL ' + str(this[1]).upper(), cell_format_size)
-        worksheet.write(row, col + 3, float(format(gtotal_current, '.2f')))
-        worksheet.write(row, col + 4, float(format(gtotal_previous, '.2f')))
-
-        gtotal_current_percentage = float(format(gtotal_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
-        gtotal_previous_percentage = float(format(gtotal_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
-        gtotal_variance = float(format(gtotal_current, '.2f')) - float(format(gtotal_previous, '.2f'))
-        gtotal_var = float(format(gtotal_variance, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
-        print gtotal_var
-        worksheet.write(row, col + 5, float(format(gtotal_current_percentage, '.2f')))
-        worksheet.write(row, col + 6, float(format(total_previous_percentage, '.2f')))
-        worksheet.write(row, col + 7, float(format(gtotal_variance, '.2f')))
-        worksheet.write(row, col + 8, float(format(gtotal_var, '.2f')))
-        row += 1
-
-    worksheet.write(row, col + 1, 'TOTAL LIABILITIES & EQUITY', cell_format_size)
+    worksheet.write(row, col + 1, 'TOTAL LIABILITIES & CAPITAL', cell_format_size)
     worksheet.write(row, col + 3, float(format(cur_liab_equity, '.2f')))
     worksheet.write(row, col + 4, float(format(prev_liab_equity, '.2f')))
 
@@ -785,7 +788,8 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
     dataset = pd.DataFrame(result)
     cur_netsales = dataset['current_amount'][dataset['group_code'] == 'GS'].sum()
     prev_netsales = dataset['prev_amount'][dataset['group_code'] == 'GS'].sum()
-    for group, maingroup in dataset.fillna('NaN').sort_values(by=['group_code'], ascending=False, na_position='last').groupby(['group_code', 'group_desc']):
+    todate_netsales = dataset['todate_amount'][dataset['group_code'] == 'GS'].sum()
+    for group, maintitle in dataset.fillna('NaN').sort_values(by=['group_code'], ascending=False, na_position='last').groupby(['group_code', 'group_desc', 'group_title']):
         if group[0] != 'NaN':
             worksheet.write(row, col, str(group[1]), bold)
             row += 1
@@ -793,81 +797,131 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
         total_previous = 0
         total_todate = 0
         total_variance = 0
-        for main, subgroup in maingroup.sort_values(by=['subgroup_code'], ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
-           worksheet.write(row, col, str(main[1]), bold)
-           row += 1
-           subtotal_current = 0
-           subtotal_previous = 0
-           subtotal_todate = 0
-           subtotal_variance = 0
-           for data, sub in subgroup.iterrows():
-               worksheet.write(row, col, str(sub['subgroup_code']))
-               worksheet.write(row, col+1, str(sub['subgroup_desc']))
-               worksheet.write(row, col+3, float(format(sub['current_amount'], '.2f')))
-               worksheet.write(row, col+4, float(format(sub['prev_amount'], '.2f')))
-               worksheet.write(row, col+5, float(format(sub['todate_amount'], '.2f')))
+        for title, maingroup in maintitle.sort_values(by=['maingroup_code'], ascending=True).groupby(['group_code', 'group_desc', 'group_title', 'maingroup_title']):
+            net_total_current = 0
+            net_total_previous = 0
+            net_total_todate = 0
+            net_total_variance = 0
+            for main, subgroup in maingroup.sort_values(by=['subgroup_code'], ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
+                worksheet.write(row, col, str(main[1]), bold)
+                row += 1
+                subtotal_current = 0
+                subtotal_previous = 0
+                subtotal_todate = 0
+                subtotal_variance = 0
+                for data, sub in subgroup.iterrows():
+                    worksheet.write(row, col, str(sub['subgroup_code']))
+                    worksheet.write(row, col + 1, str(sub['subgroup_desc']))
+                    worksheet.write(row, col + 3, float(format(sub['current_amount'], '.2f')))
+                    worksheet.write(row, col + 4, float(format(sub['prev_amount'], '.2f')))
+                    worksheet.write(row, col + 5, float(format(sub['todate_amount'], '.2f')))
 
-               current_percentage = float(format(sub['current_amount'], '.2f')) / float(format(cur_netsales, '.2f')) * 100
-               previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    current_percentage = float(format(sub['current_amount'], '.2f')) / float(
+                        format(cur_netsales, '.2f')) * 100
+                    previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(
+                        format(prev_netsales, '.2f')) * 100
 
-               variance = float(format(sub['current_amount'], '.2f')) - float(format(sub['prev_amount'], '.2f'))
+                    variance = float(format(sub['current_amount'], '.2f')) - float(format(sub['prev_amount'], '.2f'))
 
-               if float(variance) != 0:
-                    if float(format(sub['prev_amount'], '.2f')) == 0:
-                        if float(variance) > 0:
-                            variance_percentage = 100
+                    if float(variance) != 0:
+                        if float(format(sub['prev_amount'], '.2f')) == 0:
+                            if float(variance) > 0:
+                                variance_percentage = 100
+                            else:
+                                variance_percentage = 100 * -1
                         else:
-                            variance_percentage = 100 * -1
+                            variance_percentage = float(variance) / float(format(sub['prev_amount'], '.2f')) * 100
                     else:
-                        variance_percentage = float(variance) / float(format(sub['prev_amount'], '.2f')) * 100
-               else:
-                   variance_percentage = 0
+                        variance_percentage = 0
 
-               worksheet.write(row, col+6, float(format(current_percentage, '.2f')))
-               worksheet.write(row, col+7, float(format(previous_percentage, '.2f')))
-               worksheet.write(row, col+8, float(format(variance, '.2f')))
-               worksheet.write(row, col+9, float(format(variance_percentage, '.2f')))
+                    worksheet.write(row, col + 6, float(format(current_percentage, '.2f')))
+                    worksheet.write(row, col + 7, float(format(previous_percentage, '.2f')))
+                    worksheet.write(row, col + 8, float(format(variance, '.2f')))
+                    worksheet.write(row, col + 9, float(format(variance_percentage, '.2f')))
 
-               subtotal_current += float(format(sub['current_amount'], '.2f'))
-               subtotal_previous += float(format(sub['prev_amount'], '.2f'))
-               subtotal_todate += float(format(sub['todate_amount'], '.2f'))
-               subtotal_variance += float(format(variance, '.2f'))
-               row += 1
+                    subtotal_current += float(format(sub['current_amount'], '.2f'))
+                    subtotal_previous += float(format(sub['prev_amount'], '.2f'))
+                    subtotal_todate += float(format(sub['todate_amount'], '.2f'))
+                    subtotal_variance += float(format(variance, '.2f'))
+                    row += 1
 
-           worksheet.write(row, col+1, 'TOTAL ' + str(main[1]), cell_format)
-           worksheet.write(row, col+3, float(format(subtotal_current, '.2f')))
-           worksheet.write(row, col+4, float(format(subtotal_previous, '.2f')))
-           worksheet.write(row, col+5, float(format(subtotal_todate, '.2f')))
+                worksheet.write(row, col + 1, 'TOTAL ' + str(main[1]), cell_format)
+                worksheet.write(row, col + 3, float(format(subtotal_current, '.2f')))
+                worksheet.write(row, col + 4, float(format(subtotal_previous, '.2f')))
+                worksheet.write(row, col + 5, float(format(subtotal_todate, '.2f')))
 
-           subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
-           subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
-           subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
+                subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(
+                    format(cur_netsales, '.2f')) * 100
+                subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(
+                    format(prev_netsales, '.2f')) * 100
+                subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
 
-           worksheet.write(row, col+6, float(format(subtotal_current_percentage, '.2f')))
-           worksheet.write(row, col+7, float(format(subtotal_previous_percentage, '.2f')))
-           worksheet.write(row, col+8, float(format(subtotal_current, '.2f')) - float(format(subtotal_previous, '.2f')))
-           worksheet.write(row, col+9, float(format(subtotal_var, '.2f')))
-           total_current += float(subtotal_current)
-           total_previous += float(subtotal_previous)
-           total_todate += float(subtotal_todate)
-           #total_variance += float(subtotal_variance)
-           row += 1
+                worksheet.write(row, col + 6, float(format(subtotal_current_percentage, '.2f')))
+                worksheet.write(row, col + 7, float(format(subtotal_previous_percentage, '.2f')))
+                worksheet.write(row, col + 8,
+                                float(format(subtotal_current, '.2f')) - float(format(subtotal_previous, '.2f')))
+                worksheet.write(row, col + 9, float(format(subtotal_var, '.2f')))
+                total_current += float(subtotal_current)
+                total_previous += float(subtotal_previous)
+                total_todate += float(subtotal_todate)
+                net_total_current += float(subtotal_current)
+                net_total_previous += float(subtotal_previous)
+                net_total_todate += float(subtotal_todate)
+                row += 1
+
+
+            if title[3] != 'NaN':
+                if title[3] == 'GROSS INCOME FROM SALES':
+                    worksheet.write(row, col + 1, str(title[3]), cell_format)
+
+                    gross_current = float(format(cur_netsales, '.2f')) - float(format(net_total_current, '.2f'))
+                    gross_previous = float(format(prev_netsales, '.2f')) - float(format(net_total_previous, '.2f'))
+                    gross_todate = float(format(todate_netsales, '.2f')) - float(format(net_total_todate, '.2f'))
+                    worksheet.write(row, col + 3, float(format(gross_current, '.2f')))
+                    worksheet.write(row, col + 4, float(format(gross_previous, '.2f')))
+                    worksheet.write(row, col + 5, float(format(gross_todate, '.2f')))
+
+                    gross_total_current_percentage = float(format(gross_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    gross_total_previous_percentage = float(format(gross_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    gross_total_variance = float(format(gross_current, '.2f')) - float(format(gross_previous, '.2f'))
+                    gross_total_var = float(format(gross_total_variance, '.2f')) / float(format(gross_previous, '.2f')) * 100
+
+                    worksheet.write(row, col + 6, float(format(gross_total_current_percentage, '.2f')))
+                    worksheet.write(row, col + 7, float(format(gross_total_previous_percentage, '.2f')))
+                    worksheet.write(row, col + 8,float(format(gross_current, '.2f')) - float(format(gross_previous, '.2f')))
+                    worksheet.write(row, col + 9, float(format(gross_total_var, '.2f')))
+                else:
+                    worksheet.write(row, col + 1, str(title[3]), cell_format)
+                    worksheet.write(row, col + 3, float(format(net_total_current, '.2f')))
+                    worksheet.write(row, col + 4, float(format(net_total_previous, '.2f')))
+                    worksheet.write(row, col + 5, float(format(net_total_todate, '.2f')))
+
+                    net_total_current_percentage = float(format(net_total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
+                    net_total_previous_percentage = float(format(net_total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
+                    net_total_variance = float(format(net_total_current, '.2f')) - float(format(net_total_previous, '.2f'))
+                    net_total_var = float(format(net_total_variance, '.2f')) / float(format(net_total_previous, '.2f')) * 100
+
+                    worksheet.write(row, col + 6, float(format(net_total_current_percentage, '.2f')))
+                    worksheet.write(row, col + 7, float(format(net_total_previous_percentage, '.2f')))
+                    worksheet.write(row, col + 8, float(format(net_total_current, '.2f')) - float(format(net_total_previous, '.2f')))
+                    worksheet.write(row, col + 9, float(format(net_total_var, '.2f')))
+                row += 1
 
         if group[0] != 'NaN':
-            worksheet.write(row, col+1, 'TOTAL ' + str(group[1]), cell_format)
-            worksheet.write(row, col+3, float(format(total_current, '.2f')))
-            worksheet.write(row, col+4, float(format(total_previous, '.2f')))
-            worksheet.write(row, col+5, float(format(total_todate, '.2f')))
+            worksheet.write(row, col + 1, 'TOTAL ' + str(group[2]), cell_format)
+            worksheet.write(row, col + 3, float(format(total_current, '.2f')))
+            worksheet.write(row, col + 4, float(format(total_previous, '.2f')))
+            worksheet.write(row, col + 5, float(format(total_todate, '.2f')))
 
             total_current_percentage = float(format(total_current, '.2f')) / float(format(cur_netsales, '.2f')) * 100
             total_previous_percentage = float(format(total_previous, '.2f')) / float(format(prev_netsales, '.2f')) * 100
             total_variance = float(format(total_current, '.2f')) - float(format(total_previous, '.2f'))
             total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
 
-            worksheet.write(row, col+6, float(format(total_current_percentage, '.2f')))
-            worksheet.write(row, col+7, float(format(total_previous_percentage, '.2f')))
-            worksheet.write(row, col+8, float(format(total_current, '.2f')) - float(format(total_previous, '.2f')))
-            worksheet.write(row, col+9, float(format(total_var, '.2f')))
+            worksheet.write(row, col + 6, float(format(total_current_percentage, '.2f')))
+            worksheet.write(row, col + 7, float(format(total_previous_percentage, '.2f')))
+            worksheet.write(row, col + 8, float(format(total_current, '.2f')) - float(format(total_previous, '.2f')))
+            worksheet.write(row, col + 9, float(format(total_var, '.2f')))
             row += 1
 
     workbook.close()
@@ -880,5 +934,3 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
     output.close()
 
     return response
-
-
