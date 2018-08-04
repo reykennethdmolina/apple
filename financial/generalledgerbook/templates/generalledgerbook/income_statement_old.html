@@ -31,9 +31,11 @@
                 <td style="text-align:left;font-size:18px" colspan="10"><b>{{ group.list.0.group_desc|default:"" }}</b></td>
             </tr>
 
-                {% regroup group.list by maingroup_code as result_list %}
+                {% regroup group.list by maingroup_title as result_title_list %}
+                {% for titlegroup in result_title_list %}
 
-                {% for maingroup in result_list %}
+                    {% regroup titlegroup.list by maingroup_code as result_list %}
+                    {% for maingroup in result_list %}
                     <tr>
                         <td style="text-align:left" colspan="10"><b>&nbsp;{{ maingroup.list.0.maingroup_desc }}</b></td>
                     </tr>
@@ -66,22 +68,61 @@
                         <td  class="subtotal_variance_percentage" data-nom-cur="{{ maingroup.list|subtotal_current_is|floatformat:2 }}" data-nom-prev="{{ maingroup.list|subtotal_prev_is|floatformat:2 }}" data-dom="{{ maingroup.list|subtotal_prev_is|floatformat:2 }}"></td>
                     </tr>
 
+                    {% endfor %}
+
+                    {% if titlegroup.list.0.maingroup_title|default:"" != "" %}
+                    {% if titlegroup.list.0.maingroup_title|default:"" == "GROSS INCOME FROM SALES"  %}
+                    <tr id="title_group_gross">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ titlegroup.list.0.maingroup_title|default:"" }}</b></td>
+                        <td></td>
+                        <td style="text-align:right" id="gross_cur" data-sub="{{ titlegroup.list|total_current_is|floatformat:2 }}"></td>
+                        <td style="text-align:right" id="gross_prev" data-sub="{{ titlegroup.list|total_prev_is|floatformat:2 }}">{{ titlegroup.list|total_prev_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right" id="gross_todate" data-sub="{{ titlegroup.list|total_todate_is|floatformat:2 }}">{{ titlegroup.list|total_todate_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td id="gross_current_percentage" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                        <td id="gross_prev_percentage" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                        <td id="gross_var" style="text-align:right"></td>
+                        <td id="gross_variance_percentage"></td>
+                    </tr>
+                    {% else %}
+                    <tr class="title_group">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:12px"><b>{{ titlegroup.list.0.maingroup_title|default:"" }}</b></td>
+                        <td></td>
+                        <td style="text-align:right">{{ titlegroup.list|total_current_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right">{{ titlegroup.list|total_prev_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right">{{ titlegroup.list|total_todate_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td class="title_current_percentage" data-nom="{{ titlegroup.list|total_current_is|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                        <td class="title_prev_percentage" data-nom="{{ titlegroup.list|total_prev_is|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                        <td {% if titlegroup.list|total_variance_is < 0 %} class="redfont" {% endif %} style="text-align:right">{{ titlegroup.list|total_variance_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td  class="title_variance_percentage" data-nom-cur="{{ titlegroup.list|total_current_is|floatformat:2 }}" data-nom-prev="{{ titlegroup.list|total_prev_is|floatformat:2 }}" data-dom="{{ titlegroup.list|total_prev_is|floatformat:2 }}"></td>
+                    </tr>
+                    {% endif %}
+                    {% endif %}
+
                 {% endfor %}
 
                 {% if group.list.0.group_title|default:"" != "" %}
-
-                <tr class="total_group">
-                    <td></td>
-                    <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ group.list.0.group_title|default:"" }}</b></td>
-                    <td></td>
-                    <td style="text-align:right">{{ group.list|total_current_is|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right">{{ group.list|total_prev_is|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right">{{ group.list|total_todate_is|floatformat:2|intcomma|to_negative }}</td>
-                    <td class="total_current_percentage" data-nom="{{ group.list|total_current_is|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
-                    <td class="total_prev_percentage" data-nom="{{ group.list|total_prev_is|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
-                    <td {% if group.list|total_variance_is < 0 %} class="redfont" {% endif %} style="text-align:right">{{ group.list|total_variance_is|floatformat:2|intcomma|to_negative }}</td>
-                    <td  class="total_variance_percentage" data-nom-cur="{{ group.list|total_current_is|floatformat:2 }}" data-nom-prev="{{ group.list|total_prev_is|floatformat:2 }}" data-dom="{{ group.list|total_prev_is|floatformat:2 }}"></td>
-                </tr>
+                    {% if group.list.0.group_title|default:"" == "NET OPERATING INCOME (LOSS)"  %}
+                    <tr id="title_group_noi">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ group.list.0.group_title|default:"" }}</b></td>
+                        <td></td>
+                    </tr>
+                    {% else %}
+                    <tr class="total_group">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ group.list.0.group_title|default:"" }}</b></td>
+                        <td></td>
+                        <td style="text-align:right" id='{{ group.list.0.group_title|cut:" " }}cur' data-net="{{ group.list|total_current_is|floatformat:2 }}">{{ group.list|total_current_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right" id='{{ group.list.0.group_title|cut:" " }}prev' data-net="{{ group.list|total_prev_is|floatformat:2 }}">{{ group.list|total_prev_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right" id='{{ group.list.0.group_title|cut:" " }}todate' data-net="{{ group.list|total_todate_is|floatformat:2 }}">{{ group.list|total_todate_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td class="total_current_percentage" data-nom="{{ group.list|total_current_is|floatformat:2 }}" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                        <td class="total_prev_percentage" data-nom="{{ group.list|total_prev_is|floatformat:2 }}" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                        <td {% if group.list|total_variance_is < 0 %} class="redfont" {% endif %} style="text-align:right">{{ group.list|total_variance_is|floatformat:2|intcomma|to_negative }}</td>
+                        <td  class="total_variance_percentage" data-nom-cur="{{ group.list|total_current_is|floatformat:2 }}" data-nom-prev="{{ group.list|total_prev_is|floatformat:2 }}" data-dom="{{ group.list|total_prev_is|floatformat:2 }}"></td>
+                    </tr>
+                    {% endif %}
                 {% endif %}
 
             {% endfor %}
@@ -156,6 +197,26 @@
             $(this).find('.subtotal_prev_percentage').text(subtotal_prev_percentage+' %');
             $(this).find('.subtotal_variance_percentage').text(subtotal_variance_percentage+' %');
         });
+        $('.title_group').each(function() {
+            title_current_percentage = (parseFloat($(this).find('.title_current_percentage').data('nom')) / parseFloat($(this).find('.title_current_percentage').data('dom')) * 100).toFixed(2);
+            title_prev_percentage = (parseFloat($(this).find('.title_prev_percentage').data('nom')) / parseFloat($(this).find('.title_prev_percentage').data('dom')) * 100).toFixed(2);
+            var title_variance = parseFloat($(this).find('.title_variance_percentage').data('nom-cur')) - parseFloat($(this).find('.title_variance_percentage').data('nom-prev'));
+            title_variance_percentage = (title_variance  / parseFloat($(this).find('.title_variance_percentage').data('dom')) * 100).toFixed(2);
+
+            if (title_current_percentage < 0) {
+                $(this).find('.title_current_percentage').addClass('redfont');
+            }
+            if (title_prev_percentage < 0) {
+                $(this).find('.title_prev_percentage').addClass('redfont');
+            }
+            if (title_variance_percentage < 0) {
+                $(this).find('.title_variance_percentage').addClass('redfont');
+            }
+
+            $(this).find('.title_current_percentage').text(title_current_percentage+' %');
+            $(this).find('.title_prev_percentage').text(title_prev_percentage+' %');
+            $(this).find('.title_variance_percentage').text(title_variance_percentage+' %');
+        });
         $('.total_group').each(function() {
             total_current_percentage = (parseFloat($(this).find('.total_current_percentage').data('nom')) / parseFloat($(this).find('.total_current_percentage').data('dom')) * 100).toFixed(2);
             total_prev_percentage = (parseFloat($(this).find('.total_prev_percentage').data('nom')) / parseFloat($(this).find('.total_prev_percentage').data('dom')) * 100).toFixed(2);
@@ -176,6 +237,63 @@
             $(this).find('.total_prev_percentage').text(total_prev_percentage+' %');
             $(this).find('.total_variance_percentage').text(total_variance_percentage+' %');
         });
+
+        <!--Computation of gross sales-->
+        var NETSALEScur = (parseFloat($('#NETSALEScur').data('net')));
+        var gross_cur = (parseFloat($('#gross_cur').data('sub')));
+        var total_gross_cur = parseFloat(NETSALEScur) - parseFloat(gross_cur).toFixed(2);
+
+        var NETSALESprev = (parseFloat($('#NETSALESprev').data('net')));
+        var gross_prev = (parseFloat($('#gross_prev').data('sub')));
+        var total_gross_prev = parseFloat(NETSALESprev) - parseFloat(gross_prev).toFixed(2);
+
+        var NETSALEStodate = (parseFloat($('#NETSALEStodate').data('net')));
+        var gross_todate = (parseFloat($('#gross_todate').data('sub')));
+        var total_gross_todate = parseFloat(NETSALEStodate) - parseFloat(gross_todate).toFixed(2);
+
+        if (total_gross_cur < 0) {
+            $('#gross_cur').addClass('redfont');
+        }
+        if (total_gross_prev < 0) {
+            $('#gross_prev').addClass('redfont');
+        }
+        if (total_gross_todate < 0) {
+            $('#gross_todate').addClass('redfont');
+        }
+
+        $('#gross_cur').text(total_gross_cur.toLocaleString());
+        $('#gross_prev').text(total_gross_prev.toLocaleString());
+        $('#gross_todate').text(total_gross_todate.toLocaleString());
+
+        var gross_current_percentage = (parseFloat(total_gross_cur) / parseFloat($('#gross_current_percentage').data('dom')) * 100).toFixed(2);
+        var gross_prev_percentage = (parseFloat(total_gross_prev) / parseFloat($('#gross_prev_percentage').data('dom')) * 100).toFixed(2);
+        var gross_var = parseFloat(total_gross_cur) - parseFloat(total_gross_prev).toFixed(2);
+
+        var gross_variance_percentage = (gross_var  / parseFloat(total_gross_prev) * 100).toFixed(2);
+
+        if (gross_current_percentage < 0) {
+            $('#gross_current_percentage').addClass('redfont');
+        }
+        if (gross_prev_percentage < 0) {
+            $('#gross_prev_percentage').addClass('redfont');
+        }
+        if (gross_var < 0) {
+            $('#gross_var').addClass('redfont');
+            gross_var = gross_var.toLocaleString()
+            var res = gross_var.replace("-", "(");
+            $('#gross_var').text(res+')');
+        } else {
+            $('#gross_var').text(gross_var.toLocaleString());
+        }
+        if (gross_variance_percentage < 0) {
+            $('#gross_variance_percentage').addClass('redfont');
+        }
+
+        $('#gross_current_percentage').text(gross_current_percentage+' %');
+        $('#gross_prev_percentage').text(gross_prev_percentage+' %');
+        $('#gross_variance_percentage').text(gross_variance_percentage+' %');
+
+
     });
 </script>
 

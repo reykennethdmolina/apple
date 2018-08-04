@@ -23,6 +23,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from acctentry.views import generatekey
 from processing_transaction.models import Poapvtransaction
+from dateutil.relativedelta import relativedelta
 import datetime
 
 # pagination and search
@@ -100,6 +101,11 @@ class CreateView(CreateView):
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['pagetype'] = "create"
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
+
         return context
 
     def form_valid(self, form):

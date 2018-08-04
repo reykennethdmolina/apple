@@ -32,6 +32,7 @@ from vat.models import Vat
 from wtax.models import Wtax
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
+from dateutil.relativedelta import relativedelta
 import datetime
 from pprint import pprint
 from django.utils.dateformat import DateFormat
@@ -150,6 +151,10 @@ class CreateView(CreateView):
         context['circulationproduct'] = Circulationproduct.objects.filter(isdeleted=0).order_by('code')
         context['pk'] = 0
         # data for lookup
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
 
         return context
 

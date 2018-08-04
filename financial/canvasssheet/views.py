@@ -20,6 +20,7 @@ from django.db.models import Q, Sum
 from acctentry.views import generatekey
 from purchaserequisitionform.views import updateTransaction
 from easy_pdf.views import PDFTemplateView
+from dateutil.relativedelta import relativedelta
 import datetime
 
 # pagination and search
@@ -82,6 +83,10 @@ class CreateView(CreateView):
         context['unitofmeasure'] = Unitofmeasure.objects.filter(isdeleted=0).order_by('description')
         context['vat'] = Vat.objects.filter(isdeleted=0).order_by('pk')
         context['industry'] = Industry.objects.filter(isdeleted=0).order_by('name')
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
 
         return context
 

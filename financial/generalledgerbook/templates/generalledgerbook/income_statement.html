@@ -27,9 +27,11 @@
             {% regroup result by group_code as result_group %}
 
             {% for group in result_group %}
+            {% if group.list.0.group_code|default:"" != "" and group.list.0.group_code|default:"" != "PFIT" and group.list.0.group_code|default:"" != "OTHER" %}
             <tr>
                 <td style="text-align:left;font-size:18px" colspan="10"><b>{{ group.list.0.group_desc|default:"" }}</b></td>
             </tr>
+            {% endif %}
 
                 {% regroup group.list by maingroup_title as result_title_list %}
                 {% for titlegroup in result_title_list %}
@@ -84,6 +86,32 @@
                         <td id="gross_var" style="text-align:right"></td>
                         <td id="gross_variance_percentage"></td>
                     </tr>
+                    {% elif titlegroup.list.0.maingroup_title|default:"" == "NET INCOME BEFORE TAX"  %}
+                    <tr id="title_group_netincome">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ titlegroup.list.0.maingroup_title|default:"" }}</b></td>
+                        <td></td>
+                        <td style="text-align:right" id="netincome_cur" data-sub="{{ titlegroup.list|total_current_is|floatformat:2 }}"></td>
+                        <td style="text-align:right" id="netincome_prev" data-sub="{{ titlegroup.list|total_prev_is|floatformat:2 }}"></td>
+                        <td style="text-align:right" id="netincome_todate" data-sub="{{ titlegroup.list|total_todate_is|floatformat:2 }}"></td>
+                        <td id="current_percentage_netincome" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                        <td id="prev_percentage_netincome" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                        <td id="var_netincome" style="text-align:right"></td>
+                        <td id="variance_percentage_netincome"></td>
+                    </tr>
+                    {% elif titlegroup.list.0.maingroup_title|default:"" == "NET INCOME (LOSS) AFTER TAX"  %}
+                    <tr id="title_group_netincomeaftertax">
+                        <td></td>
+                        <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ titlegroup.list.0.maingroup_title|default:"" }}</b></td>
+                        <td></td>
+                        <td style="text-align:right" id="netincomeaftertax_cur" data-sub="{{ titlegroup.list|total_current_is|floatformat:2 }}"></td>
+                        <td style="text-align:right" id="netincomeaftertax_prev" data-sub="{{ titlegroup.list|total_prev_is|floatformat:2 }}"></td>
+                        <td style="text-align:right" id="netincomeaftertax_todate" data-sub="{{ titlegroup.list|total_todate_is|floatformat:2 }}"></td>
+                        <td id="current_percentage_netincomeaftertax" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                        <td id="prev_percentage_netincomeaftertax" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                        <td id="var_netincomeaftertax" style="text-align:right"></td>
+                        <td id="variance_percentage_netincomeaftertax"></td>
+                    </tr>
                     {% else %}
                     <tr class="title_group">
                         <td></td>
@@ -103,6 +131,20 @@
                 {% endfor %}
 
                 {% if group.list.0.group_title|default:"" != "" %}
+                {% if group.list.0.group_title|default:"" == "NET OPERATING INCOME (LOSS)"  %}
+                <tr class="total_group_noi">
+                    <td></td>
+                    <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ group.list.0.group_title|default:"" }}</b></td>
+                    <td></td>
+                    <td style="text-align:right" id='group_cur_noi' data-sub="{{ group.list|total_current_is|floatformat:2 }}"></td>
+                    <td style="text-align:right" id='group_prev_noi' data-sub="{{ group.list|total_prev_is|floatformat:2 }}"></td>
+                    <td style="text-align:right" id='group_todate_noi' data-sub="{{ group.list|total_todate_is|floatformat:2 }}"></td>
+                    <td id="current_percentage_noi" data-dom="{{ cur_netsales|floatformat:2 }}"></td>
+                    <td id="prev_percentage_noi" data-dom="{{ prev_netsales|floatformat:2 }}"></td>
+                    <td id="var_noi" style="text-align:right"></td>
+                    <td id="variance_percentage_noi"></td>
+                </tr>
+                {% else %}
                 <tr class="total_group">
                     <td></td>
                     <td style="text-align:right;text-transform:uppercase;font-size:15px"><b>{{ group.list.0.group_title|default:"" }}</b></td>
@@ -115,6 +157,7 @@
                     <td {% if group.list|total_variance_is < 0 %} class="redfont" {% endif %} style="text-align:right">{{ group.list|total_variance_is|floatformat:2|intcomma|to_negative }}</td>
                     <td  class="total_variance_percentage" data-nom-cur="{{ group.list|total_current_is|floatformat:2 }}" data-nom-prev="{{ group.list|total_prev_is|floatformat:2 }}" data-dom="{{ group.list|total_prev_is|floatformat:2 }}"></td>
                 </tr>
+                {% endif %}
                 {% endif %}
 
             {% endfor %}
@@ -285,7 +328,198 @@
         $('#gross_prev_percentage').text(gross_prev_percentage+' %');
         $('#gross_variance_percentage').text(gross_variance_percentage+' %');
 
+        var group_cur_noi = $('#group_cur_noi').data('sub');
+        var noi_cur =  total_gross_cur - parseFloat(group_cur_noi);
+        var group_prev_noi = $('#group_prev_noi').data('sub');
+        var noi_prev =  total_gross_prev - parseFloat(group_prev_noi);
+        var group_todate_noi = $('#group_todate_noi').data('sub');
+        var noi_todate =  total_gross_todate - parseFloat(group_todate_noi);
+
+        var current_percentage_noi = (parseFloat(noi_cur) / parseFloat($('#current_percentage_noi').data('dom')) * 100).toFixed(2);
+        var prev_percentage_noi = (parseFloat(noi_prev) / parseFloat($('#prev_percentage_noi').data('dom')) * 100).toFixed(2);
+        var var_noi = parseFloat(noi_cur) - parseFloat(noi_prev).toFixed(2);
+
+        var variance_percentage_noi = (var_noi  / parseFloat(noi_prev) * 100).toFixed(2);
+
+        var netincome_cur = $('#netincome_cur').data('sub');
+        netincome_cur = parseFloat(netincome_cur) + parseFloat(noi_cur);
+        var netincome_prev = $('#netincome_prev').data('sub');
+        netincome_prev = parseFloat(netincome_prev) + parseFloat(noi_prev);
+        var netincome_todate = $('#netincome_todate').data('sub');
+        netincome_todate = parseFloat(netincome_todate) + parseFloat(noi_todate);
+
+        var current_percentage_netincome = (parseFloat(netincome_cur) / parseFloat($('#current_percentage_netincome').data('dom')) * 100).toFixed(2);
+        var prev_percentage_netincome = (parseFloat(netincome_prev) / parseFloat($('#prev_percentage_netincome').data('dom')) * 100).toFixed(2);
+        var var_netincome = parseFloat(netincome_cur) - parseFloat(netincome_prev).toFixed(2);
+
+        var variance_percentage_netincome = (var_netincome  / parseFloat(netincome_prev) * 100).toFixed(2);
+
+
+        var netincomeaftertax_cur = $('#netincomeaftertax_cur').data('sub');
+        netincomeaftertax_cur = parseFloat(netincome_cur) + parseFloat(netincomeaftertax_cur);
+        var netincomeaftertax_prev = $('#netincomeaftertax_prev').data('sub');
+        netincomeaftertax_prev = parseFloat(netincome_prev) + parseFloat(netincomeaftertax_prev);
+        var netincomeaftertax_todate = $('#netincomeaftertax_todate').data('sub');
+        netincomeaftertax_todate = parseFloat(netincome_todate) + parseFloat(netincomeaftertax_todate);
+
+        var current_percentage_netincomeaftertax = (parseFloat(netincomeaftertax_cur) / parseFloat($('#current_percentage_netincomeaftertax').data('dom')) * 100).toFixed(2);
+        var prev_percentage_netincomeaftertax = (parseFloat(netincomeaftertax_prev) / parseFloat($('#prev_percentage_netincomeaftertax').data('dom')) * 100).toFixed(2);
+        var var_netincomeaftertax = parseFloat(netincomeaftertax_cur) - parseFloat(netincomeaftertax_prev).toFixed(2);
+
+        var variance_percentage_netincomeaftertax = (var_netincomeaftertax  / parseFloat(netincomeaftertax_prev) * 100).toFixed(2);
+
+        if (current_percentage_netincome < 0) {
+            $('#current_percentage_netincome').addClass('redfont');
+        }
+        if (prev_percentage_netincome < 0) {
+            $('#prev_percentage_netincome').addClass('redfont');
+        }
+        if (var_netincome < 0) {
+            $('#var_netincome').addClass('redfont');
+            var_netincome = var_netincome.toLocaleString()
+            var res = var_netincome.replace("-", "(");
+            $('#var_netincome').text(res+')');
+        } else {
+            $('#var_netincome').text(var_netincome.toLocaleString());
+        }
+
+        if (variance_percentage_netincome < 0) {
+            $('#variance_percentage_netincome').addClass('redfont');
+        }
+
+        if (current_percentage_netincomeaftertax < 0) {
+            $('#current_percentage_netincomeaftertax').addClass('redfont');
+        }
+        if (prev_percentage_netincomeaftertax < 0) {
+            $('#prev_percentage_netincomeaftertax').addClass('redfont');
+        }
+        if (var_netincomeaftertax < 0) {
+            $('#var_netincomeaftertax').addClass('redfont');
+            var_netincomeaftertax = var_netincomeaftertax.toLocaleString()
+            var res = var_netincomeaftertax.replace("-", "(");
+            $('#var_netincomeaftertax').text(res+')');
+        } else {
+            $('#var_netincomeaftertax').text(var_netincomeaftertax.toLocaleString());
+        }
+
+        if (variance_percentage_netincomeaftertax < 0) {
+            $('#variance_percentage_netincomeaftertax').addClass('redfont');
+        }
+
+
+        if (current_percentage_noi < 0) {
+            $('#current_percentage_noi').addClass('redfont');
+        }
+        if (prev_percentage_noi < 0) {
+            $('#prev_percentage_noi').addClass('redfont');
+        }
+        if (var_noi < 0) {
+            $('#var_noi').addClass('redfont');
+            var_noi = var_noi.toLocaleString()
+            var res = var_noi.replace("-", "(");
+            $('#var_noi').text(res+')');
+        } else {
+            $('#var_noi').text(var_noi.toLocaleString());
+        }
+
+        if (variance_percentage_noi < 0) {
+            $('#variance_percentage_noi').addClass('redfont');
+        }
+
+
+
+        $('#current_percentage_noi').text(current_percentage_noi+' %');
+        $('#prev_percentage_noi').text(prev_percentage_noi+' %');
+        $('#variance_percentage_noi').text(variance_percentage_noi+' %');
+
+        $('#current_percentage_netincome').text(current_percentage_netincome+' %');
+        $('#prev_percentage_netincome').text(prev_percentage_netincome+' %');
+        $('#variance_percentage_netincome').text(variance_percentage_netincome+' %');
+
+        $('#current_percentage_netincomeaftertax').text(current_percentage_netincomeaftertax+' %');
+        $('#prev_percentage_netincomeaftertax').text(prev_percentage_netincomeaftertax+' %');
+        $('#variance_percentage_netincomeaftertax').text(variance_percentage_netincomeaftertax+' %');
+
+        if (noi_cur < 0) {
+            $('#group_cur_noi').addClass('redfont');
+            noi_cur = noi_cur.toLocaleString()
+            var res = noi_cur.replace("-", "(");
+            $('#group_cur_noi').text(res+')');
+        } else {
+            $('#group_cur_noi').text(noi_cur.toLocaleString());
+        }
+
+        if (noi_prev < 0) {
+            $('#group_prev_noi').addClass('redfont');
+            noi_prev = noi_prev.toLocaleString()
+            var res = noi_prev.replace("-", "(");
+            $('#group_prev_noi').text(res+')');
+        } else {
+            $('#group_prev_noi').text(noi_prev.toLocaleString());
+        }
+
+        if (noi_todate < 0) {
+            $('#group_todate_noi').addClass('redfont');
+            noi_todate = noi_todate.toLocaleString()
+            var res = noi_todate.replace("-", "(");
+            $('#group_todate_noi').text(res+')');
+        } else {
+            $('#group_todate_noi').text(noi_todate.toLocaleString());
+        }
+
+        if (netincome_cur < 0) {
+            $('#netincome_cur').addClass('redfont');
+            netincome_cur = netincome_cur.toLocaleString()
+            var res = netincome_cur.replace("-", "(");
+            $('#netincome_cur').text(res+')');
+        } else {
+            $('#netincome_cur').text(netincome_cur.toLocaleString());
+        }
+
+        if (netincome_prev < 0) {
+            $('#netincome_prev').addClass('redfont');
+            netincome_prev = netincome_prev.toLocaleString()
+            var res = netincome_prev.replace("-", "(");
+            $('#netincome_prev').text(res+')');
+        } else {
+            $('#netincome_prev').text(netincome_prev.toLocaleString());
+        }
+
+        if (netincome_todate < 0) {
+            $('#netincome_todate').addClass('redfont');
+            netincome_todate = netincome_todate.toLocaleString()
+            var res = netincome_todate.replace("-", "(");
+            $('#netincome_todate').text(res+')');
+        } else {
+            $('#netincome_todate').text(netincome_todate.toLocaleString());
+        }
+
+        if (netincomeaftertax_cur < 0) {
+            $('#netincomeaftertax_cur').addClass('redfont');
+            netincomeaftertax_cur = netincomeaftertax_cur.toLocaleString()
+            var res = netincome_cur.replace("-", "(");
+            $('#netincomeaftertax_cur').text(res+')');
+        } else {
+            $('#netincomeaftertax_cur').text(netincomeaftertax_cur.toLocaleString());
+        }
+
+        if (netincomeaftertax_prev < 0) {
+            $('#netincomeaftertax_prev').addClass('redfont');
+            netincomeaftertax_prev = netincomeaftertax_prev.toLocaleString()
+            var res = netincomeaftertax_prev.replace("-", "(");
+            $('#netincomeaftertax_prev').text(res+')');
+        } else {
+            $('#netincomeaftertax_prev').text(netincomeaftertax_prev.toLocaleString());
+        }
+
+        if (netincomeaftertax_todate < 0) {
+            $('#netincomeaftertax_todate').addClass('redfont');
+            netincomeaftertax_todate = netincomeaftertax_todate.toLocaleString()
+            var res = netincomeaftertax_todate.replace("-", "(");
+            $('#netincomeaftertax_todate').text(res+')');
+        } else {
+            $('#netincomeaftertax_todate').text(netincomeaftertax_todate.toLocaleString());
+        }
 
     });
 </script>
-

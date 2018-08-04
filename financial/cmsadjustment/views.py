@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
 from . models import Cmmain, Cmitem
 from easy_pdf.views import PDFTemplateView
+from dateutil.relativedelta import relativedelta
 import datetime
 from product.models import Product
 import decimal
@@ -51,6 +52,11 @@ class CreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['product'] = Product.objects.filter(isdeleted=0, status='A').order_by('code')
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
+
         return context
 
     def form_valid(self, form):

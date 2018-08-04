@@ -5,10 +5,10 @@ from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from companyparameter.models import Companyparameter
-from accountspayable.models import Apmain
-from checkvoucher.models import Cvmain
-from journalvoucher.models import Jvmain, Jvdetail
-from officialreceipt.models import Ormain
+from accountspayable.models import Apmain, Apdetail, Apdetailbreakdown
+from checkvoucher.models import Cvmain, Cvdetail, Cvdetailbreakdown
+from journalvoucher.models import Jvmain, Jvdetail, Jvdetailbreakdown
+from officialreceipt.models import Ormain, Ordetail, Ordetailbreakdown
 from subledger.models import Subledger
 from chartofaccount.models import Chartofaccount
 from branch.models import Branch
@@ -217,9 +217,8 @@ def proc_provision(request):
 
     return JsonResponse(data)
 
-
 @csrf_exempt
-def proc_retainedearnings(request):
+def proc_currentearnings(request):
 
     if request.method == 'POST':
         dt = Companyparameter.objects.all().first().last_closed_date
@@ -234,44 +233,50 @@ def proc_retainedearnings(request):
         # dont forget to bring this back
         # dont forget to bring this back
         # dont forget to bring this back
-        sub_credit = subledger.filter(balancecode='D').aggregate(amount=Sum('amount'))['amount']
-        sub_debit = subledger.filter(balancecode='C').aggregate(amount=Sum('amount'))['amount']
+        sub_credit = subledger.filter(balancecode='C').aggregate(amount=Sum('amount'))['amount']
+        sub_debit = subledger.filter(balancecode='D').aggregate(amount=Sum('amount'))['amount']
         # dont forget to bring this back
         # dont forget to bring this back
         # dont forget to bring this back
         # dont forget to bring this back
         # dont forget to bring this back
+
+        balcode = 'D'
+        income = float(sub_credit - sub_debit)
 
         if sub_credit > sub_debit:
-            retainedearnings = Companyparameter.objects.all().first().coa_retainedearnings
-            income = float(sub_credit - sub_debit)
+            balcode = 'C'
 
-            # ************************ set beg_code, end_code, year_to_date_code
-            chart_item = Chartofaccount.objects.filter(pk=retainedearnings.pk)
-            if retainedearnings.beginning_code is None or retainedearnings.beginning_code == '':
-                chart_item.update(beginning_code=retainedearnings.balancecode)
-            if retainedearnings.end_code is None or retainedearnings.end_code == '':
-                chart_item.update(end_code=retainedearnings.balancecode)
-            if retainedearnings.year_to_date_code is None or retainedearnings.year_to_date_code == '':
-                chart_item.update(year_to_date_code=retainedearnings.balancecode)
+        currentearnings = Companyparameter.objects.all().first().coa_currentearnings
 
-            # ************************ check if beg_code, end_amount, year_to_date_amount exists
-            if chart_item.first().end_amount is None or chart_item.first().end_amount == '':
-                end_amount = 0
-            else:
-                end_amount = chart_item.first().end_amount
-            if chart_item.first().year_to_date_amount is None or chart_item.first().year_to_date_amount == '':
-                year_to_date_amount = 0
-            else:
-                year_to_date_amount = chart_item.first().year_to_date_amount
+        # ************************ set beg_code, end_code, year_to_date_code
+        chart_item = Chartofaccount.objects.filter(pk=currentearnings.pk)
+        if currentearnings.beginning_code is None or currentearnings.beginning_code == '':
+            chart_item.update(beginning_code=currentearnings.balancecode)
+        if currentearnings.end_code is None or currentearnings.end_code == '':
+            chart_item.update(end_code=currentearnings.balancecode)
+        if currentearnings.year_to_date_code is None or currentearnings.year_to_date_code == '':
+            chart_item.update(year_to_date_code=currentearnings.balancecode)
 
-            # ************************ end code, year code
-            chart_item.update(end_amount=float(end_amount) + float(income),
-                              year_to_date_amount=float(year_to_date_amount) + float(income))
+        # ************************ check if beg_code, end_amount, year_to_date_amount exists
+        if chart_item.first().end_amount is None or chart_item.first().end_amount == '':
+            end_amount = 0
+        else:
+            end_amount = chart_item.first().end_amount
+        if chart_item.first().year_to_date_amount is None or chart_item.first().year_to_date_amount == '':
+            year_to_date_amount = 0
+        else:
+            year_to_date_amount = chart_item.first().year_to_date_amount
+
+        # ************************ end code, year code
+        chart_item.update(end_amount=abs(float(income)),
+                          end_code = balcode,
+                          year_to_date_code = balcode,
+                          year_to_date_amount=float(year_to_date_amount) + abs(float(income)))
 
         data = {
             'status': 'success',
-            'message': 'Done: Retained Earnings<br>',
+            'message': 'Done: Current Earnings<br>',
         }
     else:
         data = {
@@ -279,6 +284,68 @@ def proc_retainedearnings(request):
         }
 
     return JsonResponse(data)
+
+# @csrf_exempt
+# def proc_retainedearnings(request):
+#
+#     if request.method == 'POST':
+#         dt = Companyparameter.objects.all().first().last_closed_date
+#         dt = dt + relativedelta(months=1)
+#
+#         subledger = Subledger.objects.filter(chartofaccount__main__gte=Chartofaccount.objects.get(title='REVENUE').main,
+#                                              document_date__month=dt.month,
+#                                              document_date__year=dt.year)
+#
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         sub_credit = subledger.filter(balancecode='D').aggregate(amount=Sum('amount'))['amount']
+#         sub_debit = subledger.filter(balancecode='C').aggregate(amount=Sum('amount'))['amount']
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#         # dont forget to bring this back
+#
+#         if sub_credit > sub_debit:
+#             retainedearnings = Companyparameter.objects.all().first().coa_retainedearnings
+#             income = float(sub_credit - sub_debit)
+#
+#             # ************************ set beg_code, end_code, year_to_date_code
+#             chart_item = Chartofaccount.objects.filter(pk=retainedearnings.pk)
+#             if retainedearnings.beginning_code is None or retainedearnings.beginning_code == '':
+#                 chart_item.update(beginning_code=retainedearnings.balancecode)
+#             if retainedearnings.end_code is None or retainedearnings.end_code == '':
+#                 chart_item.update(end_code=retainedearnings.balancecode)
+#             if retainedearnings.year_to_date_code is None or retainedearnings.year_to_date_code == '':
+#                 chart_item.update(year_to_date_code=retainedearnings.balancecode)
+#
+#             # ************************ check if beg_code, end_amount, year_to_date_amount exists
+#             if chart_item.first().end_amount is None or chart_item.first().end_amount == '':
+#                 end_amount = 0
+#             else:
+#                 end_amount = chart_item.first().end_amount
+#             if chart_item.first().year_to_date_amount is None or chart_item.first().year_to_date_amount == '':
+#                 year_to_date_amount = 0
+#             else:
+#                 year_to_date_amount = chart_item.first().year_to_date_amount
+#
+#             # ************************ end code, year code
+#             chart_item.update(end_amount=float(end_amount) + float(income),
+#                               year_to_date_amount=float(year_to_date_amount) + float(income))
+#
+#         data = {
+#             'status': 'success',
+#             'message': 'Done: Retained Earnings<br>',
+#         }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#
+#     return JsonResponse(data)
 
 
 @csrf_exempt
@@ -347,8 +414,8 @@ def proc_generalledgersummary(request):
 def proc_zeroout(request):
 
     if request.method == 'POST':
-        Chartofaccount.objects.filter(main__gte=Chartofaccount.objects.get(title='REVENUE').main)\
-            .update(end_amount=0)
+        Chartofaccount.objects.filter(main__gte=Chartofaccount.objects.get(title='REVENUE').main).update(end_amount=0)
+        #Chartofaccount.objects.filter(main__lt=4).update(end_amount=0)
 
         data = {
             'status': 'success',
@@ -367,9 +434,58 @@ def proc_updateclosing(request):
 
     if request.method == 'POST':
         dt = Companyparameter.objects.all().first().last_closed_date
-        dt = dt + relativedelta(months=1)
+        newdt = dt + relativedelta(months=1)
 
-        Companyparameter.objects.all().update(last_closed_date=dt)
+        jvmain = Jvmain.objects.filter(jvstatus='R', status='O', jvdate__year=newdt.year, jvdate__month=newdt.month,
+                                       postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                       closedate__isnull=True).update(closeby=request.user, closedate=datetime.datetime.now())
+        jvdetail = Jvdetail.objects.filter(status='O', jv_date__year=newdt.year, jv_date__month=newdt.month,
+                                           postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                           closedate__isnull=True).update(closeby=request.user, closedate=datetime.datetime.now())
+        jvdetailbreakdown = Jvdetailbreakdown.objects.filter(status='O', jv_date__year=newdt.year, jv_date__month=newdt.month,
+                                                             postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                                             closedate__isnull=True).update(closeby=request.user, closedate=datetime.datetime.now())
+
+        apmain = Apmain.objects.filter(apstatus='R', status='O', apdate__year=newdt.year, apdate__month=newdt.month,
+                                       postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                       closedate__isnull=True).update(closeby=request.user, closedate=datetime.datetime.now())
+        apdetail = Apdetail.objects.filter(status='O', ap_date__year=newdt.year, ap_date__month=newdt.month,
+                                           postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                           closedate__isnull=True).update(closeby=request.user,closedate=datetime.datetime.now())
+        apdetailbreakdown = Apdetailbreakdown.objects.filter(status='O', ap_date__year=newdt.year,
+                                                             ap_date__month=newdt.month, postby__isnull=False,
+                                                             postdate__isnull=False, closeby__isnull=True,
+                                                             closedate__isnull=True).update(closeby=request.user,closedate=datetime.datetime.now())
+
+        ormain = Ormain.objects.filter(orstatus='R', status='O', ordate__year=newdt.year, ordate__month=newdt.month,
+                                       postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                       closedate__isnull=True).update(closeby=request.user,
+                                                                      closedate=datetime.datetime.now())
+        ordetail = Ordetail.objects.filter(status='O', or_date__year=newdt.year, or_date__month=newdt.month,
+                                           postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                           closedate__isnull=True).update(closeby=request.user,
+                                                                          closedate=datetime.datetime.now())
+        ordetailbreakdown = Ordetailbreakdown.objects.filter(status='O', or_date__year=newdt.year,
+                                                             or_date__month=newdt.month, postby__isnull=False,
+                                                             postdate__isnull=False, closeby__isnull=True,
+                                                             closedate__isnull=True).update(closeby=request.user,
+                                                                                            closedate=datetime.datetime.now())
+
+        cvmain = Cvmain.objects.filter(cvstatus='R', status='O', cvdate__year=newdt.year, cvdate__month=newdt.month,
+                                       postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                       closedate__isnull=True).update(closeby=request.user,
+                                                                      closedate=datetime.datetime.now())
+        cvdetail = Cvdetail.objects.filter(status='O', cv_date__year=newdt.year, cv_date__month=newdt.month,
+                                           postby__isnull=False, postdate__isnull=False, closeby__isnull=True,
+                                           closedate__isnull=True).update(closeby=request.user,
+                                                                          closedate=datetime.datetime.now())
+        cvdetailbreakdown = Cvdetailbreakdown.objects.filter(status='O', cv_date__year=newdt.year,
+                                                             cv_date__month=newdt.month, postby__isnull=False,
+                                                             postdate__isnull=False, closeby__isnull=True,
+                                                             closedate__isnull=True).update(closeby=request.user,
+                                                                                            closedate=datetime.datetime.now())
+
+        Companyparameter.objects.all().update(last_closed_date=newdt)
 
         data = {
             'status': 'success',

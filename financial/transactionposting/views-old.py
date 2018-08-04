@@ -15,9 +15,7 @@ from subledger.models import Subledger, logs_subledger
 from transactionposting.models import Logs_posted
 from bankaccount.models import Bankaccount
 from acctentry.views import generatekey
-from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
-import calendar
 from django.db.models import F, Sum
 from django.db.models.functions import Concat
 
@@ -37,295 +35,236 @@ def verifytransactions(request):
         if request.POST['id_datefrom'] and request.POST['id_dateto']:
             datefrom = datetime.strptime(request.POST['id_datefrom'], "%Y-%m-%d").date()
             dateto = datetime.strptime(request.POST['id_dateto'], "%Y-%m-%d").date()
+            newbatchkey = generatekey(1)
+            status_success = 0
+            status_skipped = 0
+            status_unbalanced = 0
+            status_invaliddate = 0
+            status_undept = 0
 
-            data = {
-                'status': 'success',
-                'response': 'failed',
-                'message': 'Posting month invalid',
-            }
+            validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom - timedelta(days=1))
 
-            closetransaction = Companyparameter.objects.all().first().last_closed_date
-            validtransaction = closetransaction + relativedelta(months=1)
+            if request.POST['type'] == 'ap':
+                batchkey = newbatchkey
+                if 'ap' in request.POST.getlist('id_transtype[]'):
+                    if datetime.today().date() > datefrom and validate_date.filter(doctype='AP').count() > 0:
+                        unbalanced = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
+                                                     .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto)\
+                                                     .values('apmain__apnum') \
+                                                     .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),creditsum=Sum('creditamount')) \
+                                                     .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum', 'apmain__pk').order_by('apmain__apnum')\
+                                                     .exclude(margin=0)
 
-            if dateto.year == validtransaction.year and dateto.month == validtransaction.month:
-                newbatchkey = generatekey(1)
-                status_success = 0
-                status_skipped = 0
-                status_unbalanced = 0
-                status_invaliddate = 0
-                status_undept = 0
+                        undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A', apmain__postby__isnull=True, apmain__postdate__isnull=True) \
+                                                 .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
-                validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom - timedelta(days=1))
+                        for data in undept:
+                            print str(data.department.expchartofaccount.accountcode) + '--' + str(data.chartofaccount.main) + str(data.chartofaccount.clas)
 
-                if request.POST['type'] == 'ap':
-                    batchkey = newbatchkey
-                    if 'ap' in request.POST.getlist('id_transtype[]'):
-                        if datetime.today().date() > datefrom and validate_date.filter(doctype='AP').count() > 0:
-                            unbalanced = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A',
-                                                                 apmain__postby__isnull=True,
-                                                                 apmain__postdate__isnull=True) \
-                                .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
-                                .values('apmain__apnum') \
-                                .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
-                                          creditsum=Sum('creditamount')) \
-                                .values('apmain__apnum', 'margin', 'apmain__apdate', 'debitsum', 'creditsum',
-                                        'apmain__pk').order_by('apmain__apnum') \
-                                .exclude(margin=0)
-
-                            undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A',
-                                                             apmain__postby__isnull=True, apmain__postdate__isnull=True) \
-                                .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
-
+                        if unbalanced.count() == 0 and undept.count() == 0:
+                            item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)
+                            status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'AP'
                             for data in undept:
-                                print str(data.department.expchartofaccount.accountcode) + '--' + str(
-                                    data.chartofaccount.main) + str(data.chartofaccount.clas)
-
-                            if unbalanced.count() == 0 and undept.count() == 0:
-                                item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)
-                                status_success = 1
-                            elif undept.count() != 0:
-                                ud_list = []
-                                ud_type = 'AP'
-                                for data in undept:
-                                    ud_list.append(['/accountspayable/' + str(data.apmain.pk) + '/update',
-                                                    data.apmain.apnum,
-                                                    data.apmain.apdate,
-                                                    ])
-                                status_undept = 1
-                            else:
-                                ub_list = []
-                                ub_type = 'AP'
-                                for data in unbalanced:
-                                    ub_list.append(['/accountspayable/' + str(data['apmain__pk']) + '/update',
-                                                    data['apmain__apnum'],
-                                                    data['apmain__apdate'],
-                                                    data['debitsum'],
-                                                    data['creditsum'],
-                                                    data['margin'],
-                                                    ])
-                                status_unbalanced = 1
+                                ud_list.append(['/accountspayable/' + str(data.apmain.pk) + '/update',
+                                                data.apmain.apnum,
+                                                data.apmain.apdate,
+                                                ])
+                            status_undept = 1
                         else:
-                            status_invaliddate = 1
+                            ub_list = []
+                            ub_type = 'AP'
+                            for data in unbalanced:
+                                ub_list.append(['/accountspayable/' + str(data['apmain__pk']) + '/update',
+                                                data['apmain__apnum'],
+                                                data['apmain__apdate'],
+                                                data['debitsum'],
+                                                data['creditsum'],
+                                                data['margin'],
+                                                ])
+                            status_unbalanced = 1
                     else:
-                        status_skipped = 1
+                        status_invaliddate = 1
+                else:
+                    status_skipped = 1
 
-                elif request.POST['type'] == 'cv':
-                    batchkey = request.POST['batchkey']
-                    if 'cv' in request.POST.getlist('id_transtype[]'):
-                        if datetime.today().date() > datefrom and validate_date.filter(doctype='CV').count() > 0:
-                            unbalanced = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A',
-                                                                 cvmain__postby__isnull=True,
-                                                                 cvmain__postdate__isnull=True) \
-                                .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
-                                .values('cvmain__cvnum') \
-                                .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
-                                          creditsum=Sum('creditamount')) \
-                                .values('cvmain__cvnum', 'margin', 'cvmain__cvdate', 'debitsum', 'creditsum',
-                                        'cvmain__pk').order_by('cvmain__cvnum') \
-                                .exclude(margin=0)
+            elif request.POST['type'] == 'cv':
+                batchkey = request.POST['batchkey']
+                if 'cv' in request.POST.getlist('id_transtype[]'):
+                    if datetime.today().date() > datefrom and validate_date.filter(doctype='CV').count() > 0:
+                        unbalanced = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A', cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
+                                                     .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto)\
+                                                     .values('cvmain__cvnum') \
+                                                     .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),creditsum=Sum('creditamount')) \
+                                                     .values('cvmain__cvnum', 'margin', 'cvmain__cvdate', 'debitsum', 'creditsum', 'cvmain__pk').order_by('cvmain__cvnum')\
+                                                     .exclude(margin=0)
 
-                            undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A',
-                                                             cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
-                                .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                        undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A', cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
+                                                 .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
-                                item_count, batchkey = logcv(datefrom, dateto, batchkey, request.user)
-                                status_success = 1
-                            elif undept.count() != 0:
-                                ud_list = []
-                                ud_type = 'CV'
-                                for data in undept:
-                                    ud_list.append(['/checkvoucher/' + str(data.cvmain.pk) + '/update',
-                                                    data.cvmain.cvnum,
-                                                    data.cvmain.cvdate,
-                                                    ])
-                                status_undept = 1
-                            else:
-                                ub_list = []
-                                ub_type = 'CV'
-                                for data in unbalanced:
-                                    ub_list.append(['/checkvoucher/' + str(data['cvmain__pk']) + '/update',
-                                                    data['cvmain__cvnum'],
-                                                    data['cvmain__cvdate'],
-                                                    data['debitsum'],
-                                                    data['creditsum'],
-                                                    data['margin'],
-                                                    ])
-                                status_unbalanced = 1
+                        if unbalanced.count() == 0 and undept.count() == 0:
+                            item_count, batchkey = logcv(datefrom, dateto, batchkey, request.user)
+                            status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'CV'
+                            for data in undept:
+                                ud_list.append(['/checkvoucher/' + str(data.cvmain.pk) + '/update',
+                                                data.cvmain.cvnum,
+                                                data.cvmain.cvdate,
+                                                ])
+                            status_undept = 1
                         else:
-                            status_invaliddate = 1
+                            ub_list = []
+                            ub_type = 'CV'
+                            for data in unbalanced:
+                                ub_list.append(['/checkvoucher/' + str(data['cvmain__pk']) + '/update',
+                                                data['cvmain__cvnum'],
+                                                data['cvmain__cvdate'],
+                                                data['debitsum'],
+                                                data['creditsum'],
+                                                data['margin'],
+                                                ])
+                            status_unbalanced = 1
                     else:
-                        status_skipped = 1
+                        status_invaliddate = 1
+                else:
+                    status_skipped = 1
 
-                elif request.POST['type'] == 'jv':
-                    batchkey = request.POST['batchkey']
-                    if 'jv' in request.POST.getlist('id_transtype[]'):
-                        if datetime.today().date() > datefrom and validate_date.filter(doctype='JV').count() > 0:
-                            unbalanced = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A',
-                                                                 jvmain__postby__isnull=True,
-                                                                 jvmain__postdate__isnull=True) \
-                                .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
-                                .values('jvmain__jvnum') \
-                                .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
-                                          creditsum=Sum('creditamount')) \
-                                .values('jvmain__jvnum', 'margin', 'jvmain__jvdate', 'debitsum', 'creditsum',
-                                        'jvmain__pk').order_by('jvmain__jvnum') \
-                                .exclude(margin=0)
+            elif request.POST['type'] == 'jv':
+                batchkey = request.POST['batchkey']
+                if 'jv' in request.POST.getlist('id_transtype[]'):
+                    if datetime.today().date() > datefrom and validate_date.filter(doctype='JV').count() > 0:
+                        unbalanced = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
+                                                     .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto)\
+                                                     .values('jvmain__jvnum') \
+                                                     .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),creditsum=Sum('creditamount')) \
+                                                     .values('jvmain__jvnum', 'margin', 'jvmain__jvdate', 'debitsum', 'creditsum', 'jvmain__pk').order_by('jvmain__jvnum')\
+                                                     .exclude(margin=0)
 
-                            undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A',
-                                                             jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
-                                .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                        undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
+                                                 .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
-                                item_count, batchkey = logjv(datefrom, dateto, batchkey, request.user)
-                                status_success = 1
-                            elif undept.count() != 0:
-                                ud_list = []
-                                ud_type = 'JV'
-                                for data in undept:
-                                    ud_list.append(['/journalvoucher/' + str(data.jvmain.pk) + '/update',
-                                                    data.jvmain.jvnum,
-                                                    data.jvmain.jvdate,
-                                                    ])
-                                status_undept = 1
-                            else:
-                                ub_list = []
-                                ub_type = 'JV'
-                                for data in unbalanced:
-                                    ub_list.append(['/journalvoucher/' + str(data['jvmain__pk']) + '/update',
-                                                    data['jvmain__jvnum'],
-                                                    data['jvmain__jvdate'],
-                                                    data['debitsum'],
-                                                    data['creditsum'],
-                                                    data['margin'],
-                                                    ])
-                                status_unbalanced = 1
+                        if unbalanced.count() == 0 and undept.count() == 0:
+                            item_count, batchkey = logjv(datefrom, dateto, batchkey, request.user)
+                            status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'JV'
+                            for data in undept:
+                                ud_list.append(['/journalvoucher/' + str(data.jvmain.pk) + '/update',
+                                                data.jvmain.jvnum,
+                                                data.jvmain.jvdate,
+                                                ])
+                            status_undept = 1
                         else:
-                            status_invaliddate = 1
+                            ub_list = []
+                            ub_type = 'JV'
+                            for data in unbalanced:
+                                ub_list.append(['/journalvoucher/' + str(data['jvmain__pk']) + '/update',
+                                                data['jvmain__jvnum'],
+                                                data['jvmain__jvdate'],
+                                                data['debitsum'],
+                                                data['creditsum'],
+                                                data['margin'],
+                                                ])
+                            status_unbalanced = 1
                     else:
-                        status_skipped = 1
+                        status_invaliddate = 1
+                else:
+                    status_skipped = 1
 
-                elif request.POST['type'] == 'or':
-                    batchkey = request.POST['batchkey']
-                    if 'or' in request.POST.getlist('id_transtype[]'):
-                        if datetime.today().date() > datefrom and validate_date.filter(doctype='OR').count() > 0:
-                            unbalanced = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A',
-                                                                 ormain__postby__isnull=True,
-                                                                 ormain__postdate__isnull=True) \
-                                .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
-                                .values('ormain__ornum') \
-                                .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),
-                                          creditsum=Sum('creditamount')) \
-                                .values('ormain__ornum', 'margin', 'ormain__ordate', 'debitsum', 'creditsum',
-                                        'ormain__pk').order_by('ormain__ornum') \
-                                .exclude(margin=0)
+            elif request.POST['type'] == 'or':
+                batchkey = request.POST['batchkey']
+                if 'or' in request.POST.getlist('id_transtype[]'):
+                    if datetime.today().date() > datefrom and validate_date.filter(doctype='OR').count() > 0:
+                        unbalanced = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A', ormain__postby__isnull=True, ormain__postdate__isnull=True) \
+                                                     .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto)\
+                                                     .values('ormain__ornum') \
+                                                     .annotate(margin=Sum('debitamount') - Sum('creditamount'), debitsum=Sum('debitamount'),creditsum=Sum('creditamount')) \
+                                                     .values('ormain__ornum', 'margin', 'ormain__ordate', 'debitsum', 'creditsum', 'ormain__pk').order_by('ormain__ornum')\
+                                                     .exclude(margin=0)
 
-                            undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A',
-                                                             ormain__postby__isnull=True, ormain__postdate__isnull=True) \
-                                .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                        undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A', ormain__postby__isnull=True, ormain__postdate__isnull=True) \
+                                                 .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
+                                                 .filter(department__isnull=False) \
+                                                 .exclude(department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'), F('chartofaccount__clas')))
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
-                                item_count, batchkey = logor(datefrom, dateto, batchkey, request.user)
-                                status_success = 1
-                            elif undept.count() != 0:
-                                ud_list = []
-                                ud_type = 'OR'
-                                for data in undept:
-                                    ud_list.append(['/officialreceipt/' + str(data.ormain.pk) + '/update',
-                                                    data.ormain.ornum,
-                                                    data.ormain.ordate,
-                                                    ])
-                                status_undept = 1
-                            elif unbalanced.count() != 0:
-                                ub_list = []
-                                ub_type = 'OR'
-                                for data in unbalanced:
-                                    ub_list.append(['/officialreceipt/' + str(data['ormain__pk']) + '/update',
-                                                    data['ormain__ornum'],
-                                                    data['ormain__ordate'],
-                                                    data['debitsum'],
-                                                    data['creditsum'],
-                                                    data['margin'],
-                                                    ])
-                                status_unbalanced = 1
-                        else:
-                            status_invaliddate = 1
+                        if unbalanced.count() == 0 and undept.count() == 0:
+                            item_count, batchkey = logor(datefrom, dateto, batchkey, request.user)
+                            status_success = 1
+                        elif undept.count() != 0:
+                            ud_list = []
+                            ud_type = 'OR'
+                            for data in undept:
+                                ud_list.append(['/officialreceipt/' + str(data.ormain.pk) + '/update',
+                                                data.ormain.ornum,
+                                                data.ormain.ordate,
+                                                ])
+                            status_undept = 1
+                        elif unbalanced.count() != 0:
+                            ub_list = []
+                            ub_type = 'OR'
+                            for data in unbalanced:
+                                ub_list.append(['/officialreceipt/' + str(data['ormain__pk']) + '/update',
+                                                data['ormain__ornum'],
+                                                data['ormain__ordate'],
+                                                data['debitsum'],
+                                                data['creditsum'],
+                                                data['margin'],
+                                                ])
+                            status_unbalanced = 1
                     else:
-                        status_skipped = 1
+                        status_invaliddate = 1
+                else:
+                    status_skipped = 1
 
-                if status_success == 1:
-                    data = {
-                        'status': 'success',
-                        'response': 'success',
-                        'item_count': item_count,
-                        'batchkey': batchkey,
-                        'message': 'Success!',
-                    }
-                elif status_skipped == 1:
-                    data = {
-                        'status': 'success',
-                        'response': 'success',
-                        'item_count': '0',
-                        'batchkey': batchkey,
-                        'message': 'Skipped',
-                    }
-                elif status_undept == 1:
-                    data = {
-                        'status': 'success',
-                        'response': 'failed',
-                        'message': 'Found ' + str(undept.count()) + ' error in department entry',
-                        'ud_list': ud_list,
-                        'ud_type': ud_type,
-                    }
-                elif status_unbalanced == 1:
-                    data = {
-                        'status': 'success',
-                        'response': 'failed',
-                        'message': 'Found ' + str(unbalanced.count()) + ' unbalanced entry',
-                        'ub_list': ub_list,
-                        'ub_type': ub_type,
-                    }
-                elif status_invaliddate == 1:
-                    data = {
-                        'status': 'success',
-                        'response': 'failed',
-                        'message': 'Date From should be a day after or within the previous POSTED DATES',
-                    }
-            elif dateto.year < closetransaction.year or dateto.year <= closetransaction.year and dateto.month <= closetransaction.month:
+            if status_success == 1:
+                data = {
+                    'status': 'success',
+                    'response': 'success',
+                    'item_count': item_count,
+                    'batchkey': batchkey,
+                    'message': 'Success!',
+                }
+            elif status_skipped == 1:
+                data = {
+                    'status': 'success',
+                    'response': 'success',
+                    'item_count': '0',
+                    'batchkey': batchkey,
+                    'message': 'Skipped',
+                }
+            elif status_undept == 1:
                 data = {
                     'status': 'success',
                     'response': 'failed',
-                    'message': 'The month of '+str(calendar.month_name[dateto.month])+' '+str(dateto.year)+' is already closed',
+                    'message': 'Found ' + str(undept.count()) + ' error in department entry',
+                    'ud_list': ud_list,
+                    'ud_type': ud_type,
                 }
-            else:
+            elif status_unbalanced == 1:
                 data = {
                     'status': 'success',
                     'response': 'failed',
-                    'message': 'Transaction month is invalid. Need to close the month of '+str(calendar.month_name[validtransaction
-                                                                                               .month])+' '+str(validtransaction.year),
+                    'message': 'Found ' + str(unbalanced.count()) + ' unbalanced entry',
+                    'ub_list': ub_list,
+                    'ub_type': ub_type,
                 }
-
-
+            elif status_invaliddate == 1:
+                data = {
+                    'status': 'success',
+                    'response': 'failed',
+                    'message': 'Date From should be a day after or within the previous POSTED DATES',
+                }
         else:
             data = {
                 'status': 'success',

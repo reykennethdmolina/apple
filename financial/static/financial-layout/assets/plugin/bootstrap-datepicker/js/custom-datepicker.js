@@ -4,7 +4,8 @@
     //datepicker
     $(".datepicker").datepicker({
         autoclose: true,
-        format: 'yyyy-mm-dd'
+        format: 'yyyy-mm-dd',
+        orientation: 'bottom'
     });
 
     // set 7 days before as minDate for class .datepicker.week

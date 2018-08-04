@@ -125,14 +125,14 @@
                                     </div>
                                     <div class="col-md-4 select_holder" id="datefrom_holder">
                                         <label class="control-label small" for="id_datefrom">Date FROM:</label>
-                                        <input type="text" class="form-control date-yyyymmdd dateinput datepickerfrom white" readonly="readonly"
+                                        <input type="text" class="form-control datepicker_esp white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_datefrom" name="datefrom" placeholder="YYYY-MM-DD"
                                                value="{{ datefrom }}">
                                         <br><br>
                                     </div>
                                     <div class="col-md-4 select_holder" id="dateto_holder">
                                         <label class="control-label small" for="id_dateto">Date TO:</label>
-                                        <input type="text" class="form-control date-yyyymmdd dateinput datepickerto white" readonly="readonly"
+                                        <input type="text" class="form-control datepicker_esp white" readonly="readonly"
                                                style="padding: 5px 10px" id="id_dateto" name="dateto" placeholder="YYYY-MM-DD"
                                                value="{{ dateto }}">
                                         <br><br>
@@ -367,13 +367,17 @@
 {% block extra_js %}
     {% load staticfiles %}
     <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
-    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
     <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
     <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script>
     $(function () {
+        $('.datepicker_esp').datepicker({
+            numberOfMonths: 1,
+            autoclose: true,
+            format: 'yyyy-mm-dd',
+        });
         $(document).on('click', '#trans_verify', function(){
             $('html, body').animate({scrollTop: $('#trans_step_post').offset().top -80 }, 'slow');
             $('#trans_verify').hide();

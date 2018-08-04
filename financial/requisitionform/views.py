@@ -16,6 +16,8 @@ from django.contrib.auth.models import User
 from acctentry.views import generatekey
 from easy_pdf.views import PDFTemplateView
 from . models import Rfmain, Rfdetail, Rfdetailtemp
+from dateutil.relativedelta import relativedelta
+import datetime
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -107,6 +109,11 @@ class CreateView(CreateView):
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
         context['totalremainingquantity'] = 0
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
+
         return context
 
     def form_valid(self, form):

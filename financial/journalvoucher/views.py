@@ -32,6 +32,7 @@ from bankaccount.models import Bankaccount
 from product.models import Product
 from customer.models import Customer
 from annoying.functions import get_object_or_None
+from dateutil.relativedelta import relativedelta
 import datetime
 from django.utils.dateformat import DateFormat
 
@@ -110,6 +111,10 @@ class CreateView(CreateView):
 
         #lookup
         context['pk'] = 0
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
 
         return context
 

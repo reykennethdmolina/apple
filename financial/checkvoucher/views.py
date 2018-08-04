@@ -18,6 +18,7 @@ from cvsubtype.models import Cvsubtype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from processing_transaction.models import Apvcvtransaction
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
+from companyparameter.models import Companyparameter
 from supplier.models import Supplier
 from vat.models import Vat
 from django.contrib.auth.models import User
@@ -28,6 +29,7 @@ from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetail
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
+from dateutil.relativedelta import relativedelta
 import datetime
 from department.models import Department
 from unit.models import Unit
@@ -144,6 +146,10 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         # data for lookup
+
+        closetransaction = Companyparameter.objects.all().first().last_closed_date
+        validtransaction = closetransaction + relativedelta(months=1)
+        context['validtransaction'] = validtransaction
 
         return context
 

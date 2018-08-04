@@ -224,7 +224,7 @@
                             $('.pie_progress__content').text('30%');
                             $('.ribbon-box p').append(response.message);
 
-                            proc_retainedearnings();
+                            proc_currentearnings();
                         }
                         else{
                             endload();
@@ -237,13 +237,13 @@
                 $('.pie_progress__content').text('30%');
                 $('.ribbon-box p').append("Skipped: Provision for income tax<br>");
 
-                proc_retainedearnings();
+                proc_currentearnings();
             }
         }
 
-        function proc_retainedearnings(){
+        function proc_currentearnings(){
             $.ajax({
-                    url: "{% url 'transactionclosing:proc_retainedearnings' %}",
+                    url: "{% url 'transactionclosing:proc_currentearnings' %}",
                     type: "post",
                     dataType: "json",
                     data: {
