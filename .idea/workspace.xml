@@ -3,44 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/accountspayable/models.py" afterPath="$PROJECT_DIR$/financial/accountspayable/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/create.html" afterPath="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/accountspayable/views.py" afterPath="$PROJECT_DIR$/financial/accountspayable/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/acknowledgementreceipt/templates/acknowledgementreceipt/create.html" afterPath="$PROJECT_DIR$/financial/acknowledgementreceipt/templates/acknowledgementreceipt/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/acknowledgementreceipt/views.py" afterPath="$PROJECT_DIR$/financial/acknowledgementreceipt/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/canvasssheet/templates/canvasssheet/create.html" afterPath="$PROJECT_DIR$/financial/canvasssheet/templates/canvasssheet/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/canvasssheet/views.py" afterPath="$PROJECT_DIR$/financial/canvasssheet/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/models.py" afterPath="$PROJECT_DIR$/financial/checkvoucher/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/create.html" afterPath="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/views.py" afterPath="$PROJECT_DIR$/financial/checkvoucher/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/cmsadjustment/templates/cmsadjustment/create.html" afterPath="$PROJECT_DIR$/financial/cmsadjustment/templates/cmsadjustment/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/cmsadjustment/views.py" afterPath="$PROJECT_DIR$/financial/cmsadjustment/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/debitcreditmemo/models.py" afterPath="$PROJECT_DIR$/financial/debitcreditmemo/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/debitcreditmemo/templates/debitcreditmemo/create.html" afterPath="$PROJECT_DIR$/financial/debitcreditmemo/templates/debitcreditmemo/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/debitcreditmemo/views.py" afterPath="$PROJECT_DIR$/financial/debitcreditmemo/views.py" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement_old.html" afterPath="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement_old.html" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/journalvoucher/models.py" afterPath="$PROJECT_DIR$/financial/journalvoucher/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/create.html" afterPath="$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/journalvoucher/views.py" afterPath="$PROJECT_DIR$/financial/journalvoucher/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/officialreceipt/models.py" afterPath="$PROJECT_DIR$/financial/officialreceipt/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/create.html" afterPath="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/officialreceipt/views.py" afterPath="$PROJECT_DIR$/financial/officialreceipt/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/models.py" afterPath="$PROJECT_DIR$/financial/operationalfund/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html" afterPath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/purchaseorder/views.py" afterPath="$PROJECT_DIR$/financial/purchaseorder/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/purchaserequisitionform/templates/purchaserequisitionform/create.html" afterPath="$PROJECT_DIR$/financial/purchaserequisitionform/templates/purchaserequisitionform/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/purchaserequisitionform/views.py" afterPath="$PROJECT_DIR$/financial/purchaserequisitionform/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/requisitionform/templates/requisitionform/create.html" afterPath="$PROJECT_DIR$/financial/requisitionform/templates/requisitionform/create.html" />
-      <change beforePath="$PROJECT_DIR$/financial/requisitionform/views.py" afterPath="$PROJECT_DIR$/financial/requisitionform/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/static/css/style.css" afterPath="$PROJECT_DIR$/financial/static/css/style.css" />
-      <change beforePath="$PROJECT_DIR$/financial/static/financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js" afterPath="$PROJECT_DIR$/financial/static/financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionclosing/templates/transactionclosing/index.html" afterPath="$PROJECT_DIR$/financial/transactionclosing/templates/transactionclosing/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionclosing/urls.py" afterPath="$PROJECT_DIR$/financial/transactionclosing/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionclosing/views.py" afterPath="$PROJECT_DIR$/financial/transactionclosing/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html" afterPath="$PROJECT_DIR$/financial/transactionposting/templates/transactionposting/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/transactionposting/views.py" afterPath="$PROJECT_DIR$/financial/transactionposting/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -54,25 +18,25 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="467">
-              <caret line="1173" column="21" lean-forward="true" selection-start-line="1173" selection-start-column="21" selection-end-line="1173" selection-end-column="21" />
+            <state relative-caret-position="544">
+              <caret line="447" column="53" lean-forward="false" selection-start-line="447" selection-start-column="53" selection-end-line="447" selection-end-column="53" />
               <folding>
-                <element signature="e#0#45#0" expanded="true" />
-                <element signature="e#1477#2078#0" expanded="false" />
-                <element signature="e#2117#3673#0" expanded="false" />
-                <element signature="e#3716#6666#0" expanded="false" />
-                <element signature="e#6889#10778#0" expanded="false" />
-                <element signature="e#10797#16842#0" expanded="false" />
-                <element signature="e#17150#26597#0" expanded="false" />
-                <element signature="e#26616#36838#0" expanded="false" />
-                <element signature="e#37035#50807#0" expanded="false" />
-                <element signature="e#50845#51043#0" expanded="false" />
-                <element signature="e#51109#60954#0" expanded="false" />
-                <element signature="e#52929#57707#0" expanded="false" />
-                <element signature="e#58221#58480#0" expanded="false" />
-                <element signature="e#58499#58756#0" expanded="false" />
-                <element signature="e#61073#70291#0" expanded="false" />
+                <element signature="e#6774#17581#0" expanded="false" />
+                <element signature="e#6897#7471#0" expanded="false" />
+                <element signature="e#17803#27286#0" expanded="false" />
+                <element signature="e#17811#21144#0" expanded="false" />
+                <element signature="e#37877#44282#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="balance_sheet.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="12" column="29" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -80,24 +44,19 @@
       <file leaf-file-name="income_statement.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="29" column="156" lean-forward="false" selection-start-line="29" selection-start-column="151" selection-end-line="29" selection-end-column="156" />
-              <folding>
-                <element signature="e#1927#1933#0" expanded="true" />
-                <element signature="e#2158#2164#0" expanded="true" />
-                <element signature="n#style#0;n#td#8;n#tr#4;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#4;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#5;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#8;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#4;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#5;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#8;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#8;n#tr#8;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-              </folding>
+            <state relative-caret-position="8330">
+              <caret line="490" column="64" lean-forward="false" selection-start-line="490" selection-start-column="64" selection-end-line="490" selection-end-column="64" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="trial_balance.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1462">
+              <caret line="86" column="52" lean-forward="false" selection-start-line="86" selection-start-column="35" selection-end-line="86" selection-end-column="52" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -114,13 +73,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>date-yyyymmdd</find>
-      <find>relativedelta</find>
-      <find>from dateutil.relativedelta import relativedeltaco</find>
-      <find>Companyparameter</find>
-      <find>elif</find>
-      <find>CVMain</find>
-      <find>date</find>
       <find>request.user</find>
       <find>Done: Re</find>
       <find>update</find>
@@ -134,9 +86,7 @@
       <find>coa_cu</find>
       <find>earnings</find>
       <find>trans_mon_amount</find>
-      <find>summary_end_amount</find>
       <find>abs</find>
-      <find>summary</find>
       <find>Subledgersummary</find>
       <find>debit</find>
       <find>group_cur_noi</find>
@@ -144,6 +94,15 @@
       <find>current_percentage_netincomeaftertax</find>
       <find>var_netincomeaftertax</find>
       <find>TOTAL</find>
+      <find>netincomeaftertax_prev</find>
+      <find>netincome_cur</find>
+      <find>chart</find>
+      <find>netincomeaftertax_cur</find>
+      <find>end_amount</find>
+      <find>summary</find>
+      <find>summary_end_amount</find>
+      <find>year_to_date_amount</find>
+      <find>end_code</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -152,7 +111,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/chartofaccount/templates/chartofaccount/index_list.html" />
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/migrations/0003_auto_20180622_1513.py" />
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/templates/chartofaccountmaingroup/edit.html" />
         <option value="$PROJECT_DIR$/financial/chartofaccountmaingroup/views.py" />
@@ -202,6 +160,7 @@
         <option value="$PROJECT_DIR$/financial/transactionclosing/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement_old.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html" />
+        <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
       </list>
     </option>
@@ -309,7 +268,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21601686" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -318,7 +276,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23701298" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14502165" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -338,7 +296,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/financial/generalledgerbook/views.py</url>
-          <line>468</line>
+          <line>476</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
@@ -379,13 +337,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="569">
           <caret line="154" column="46" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="165" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="12" column="29" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -666,15 +617,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
           <caret line="42" column="37" lean-forward="false" selection-start-line="42" selection-start-column="37" selection-end-line="42" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="731">
-          <caret line="43" column="109" lean-forward="false" selection-start-line="43" selection-start-column="91" selection-end-line="43" selection-end-column="109" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -682,12 +624,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1241">
           <caret line="271" column="37" lean-forward="false" selection-start-line="271" selection-start-column="37" selection-end-line="271" selection-end-column="37" />
-          <folding>
-            <element signature="e#1441#2894#0" expanded="false" />
-            <element signature="e#2944#11018#0" expanded="false" />
-            <element signature="e#13977#13991#0" expanded="false" />
-            <element signature="e#17067#21234#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -695,56 +631,43 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="n#style#0;n#td#8;n#tr#4;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="false" />
-            <element signature="n#style#0;n#td#3;n#tr#7;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="false" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/trial_balance.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1462">
+          <caret line="86" column="52" lean-forward="false" selection-start-line="86" selection-start-column="35" selection-end-line="86" selection-end-column="52" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/income_statement.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="29" column="156" lean-forward="false" selection-start-line="29" selection-start-column="151" selection-end-line="29" selection-end-column="156" />
-          <folding>
-            <element signature="e#1927#1933#0" expanded="true" />
-            <element signature="e#2158#2164#0" expanded="true" />
-            <element signature="n#style#0;n#td#8;n#tr#4;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#4;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#5;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#8;n#tr#5;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#4;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#5;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#8;n#tr#6;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#8;n#tr#8;n#tbody#0;n#table#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
+        <state relative-caret-position="8330">
+          <caret line="490" column="64" lean-forward="false" selection-start-line="490" selection-start-column="64" selection-end-line="490" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="29" lean-forward="false" selection-start-line="12" selection-start-column="29" selection-end-line="12" selection-end-column="29" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="467">
-          <caret line="1173" column="21" lean-forward="true" selection-start-line="1173" selection-start-column="21" selection-end-line="1173" selection-end-column="21" />
+        <state relative-caret-position="544">
+          <caret line="447" column="53" lean-forward="false" selection-start-line="447" selection-start-column="53" selection-end-line="447" selection-end-column="53" />
           <folding>
-            <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1477#2078#0" expanded="false" />
-            <element signature="e#2117#3673#0" expanded="false" />
-            <element signature="e#3716#6666#0" expanded="false" />
-            <element signature="e#6889#10778#0" expanded="false" />
-            <element signature="e#10797#16842#0" expanded="false" />
-            <element signature="e#17150#26597#0" expanded="false" />
-            <element signature="e#26616#36838#0" expanded="false" />
-            <element signature="e#37035#50807#0" expanded="false" />
-            <element signature="e#50845#51043#0" expanded="false" />
-            <element signature="e#51109#60954#0" expanded="false" />
-            <element signature="e#52929#57707#0" expanded="false" />
-            <element signature="e#58221#58480#0" expanded="false" />
-            <element signature="e#58499#58756#0" expanded="false" />
-            <element signature="e#61073#70291#0" expanded="false" />
+            <element signature="e#6774#17581#0" expanded="false" />
+            <element signature="e#6897#7471#0" expanded="false" />
+            <element signature="e#17803#27286#0" expanded="false" />
+            <element signature="e#17811#21144#0" expanded="false" />
+            <element signature="e#37877#44282#0" expanded="false" />
           </folding>
         </state>
       </provider>

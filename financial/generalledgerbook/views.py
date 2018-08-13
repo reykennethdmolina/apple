@@ -201,11 +201,11 @@ def query_trial_balance(type, retained_earnings, current_earnings, year, month, 
                 "chart.accountcode, chart.description, chart.balancecode, " \
                 "chart.beginning_amount, chart.beginning_code, IFNULL(summary.end_amount, 0) AS end_amount, " \
                 "summary.end_code, IFNULL(summary.year_to_date_amount, 0) AS year_to_date_amount, summary.year_to_date_code, " \
-                "IF (chart.id = " + str(retained_earnings) + " AND summary.month = 12, IFNULL(chart.beginning_amount, 0) , IFNULL(summary.end_amount, 0)) AS summary_end_amount, " \
-                "IF (chart.id = " + str(retained_earnings) + " AND summary.month = 12, chart.beginning_code , summary.end_code) AS summary_end_code, " \
-                "IF (chart.main >= 4 AND summary.month = 12, IFNULL(chart.beginning_amount, 0), IFNULL(summary.year_to_date_amount, 0)) " \
+                "IF (chart.id = " + str(retained_earnings) + " AND summaryprev.month = 12, IFNULL(chart.beginning_amount, 0) , IFNULL(summaryprev.end_amount, 0)) AS summary_end_amount, " \
+                "IF (chart.id = " + str(retained_earnings) + " AND summaryprev.month = 12, chart.beginning_code , summaryprev.end_code) AS summary_end_code, " \
+                "IF (chart.main >= 4 AND summaryprev.month = 12, IFNULL(chart.beginning_amount, 0), IFNULL(summaryprev.year_to_date_amount, 0)) " \
                 "AS summary_year_to_date_amount, " \
-                "IF (chart.main >= 4 AND summary.month = 12, chart.beginning_code, summary.year_to_date_code) AS summary_year_to_date_code, " \
+                "IF (chart.main >= 4 AND summaryprev.month = 12, chart.beginning_code, summaryprev.year_to_date_code) AS summary_year_to_date_code, " \
                 "subled_d.balancecode AS debit_code, IFNULL(subled_d.amount, 0) AS debit_amount, " \
                 "subled_c.balancecode AS credit_code, IFNULL(subled_c.amount, 0) AS credit_amount, " \
                 "IF (IFNULL(subled_d.amount, 0) >= IFNULL(subled_c.amount, 0), 'D', 'C') AS trans_mon_code, " \
@@ -219,6 +219,14 @@ def query_trial_balance(type, retained_earnings, current_earnings, year, month, 
                 "   FROM subledgersummary AS summary " \
                 "   WHERE summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' " \
                 ") AS summary ON summary.chartofaccount_id = chart.id " \
+                "LEFT OUTER JOIN (" \
+                "   SELECT summary.chartofaccount_id, " \
+                "   summary.beginning_amount AS summary_beg_amount, summary.beginning_code AS summary_beg_code,	" \
+                "   summary.end_amount, summary.end_code, " \
+                "   summary.year_to_date_amount, summary.year_to_date_code, summary.month " \
+                "   FROM subledgersummary AS summary " \
+                "   WHERE summary.year = '" + str(prevyear) + "' AND summary.month = '" + str(prevmonth) + "' " \
+                ") AS summaryprev ON summaryprev.chartofaccount_id = chart.id " \
                 "LEFT OUTER JOIN ( " \
                 "SELECT subled.chartofaccount_id, ABS((subled.journal_voucher_debit_total + subled.check_voucher_debit_total + " \
                 "   subled.accounts_payable_voucher_debit_total + subled.official_receipt_debit_total)" \
@@ -296,11 +304,11 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main <= 3 AND chart_d.id != '"+str(current_earnings)+"' " \
                 "   GROUP BY subgroup_d.id, chart_d.end_code " \
                 "   UNION " \
-                "   SELECT chart_d.id AS debit_id, SUM(chart_d.year_to_date_amount) AS debit_end_amount, chart_d.end_code AS debit_end_code, " \
+                "   SELECT chart_d.id AS debit_id, SUM(chart_d.year_to_date_amount) AS debit_end_amount, chart_d.year_to_date_code AS debit_end_code, " \
                 "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
                 "   FROM chartofaccount AS chart_d " \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = '164' " \
-                "   WHERE chart_d.end_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main > 3 " \
+                "   WHERE chart_d.year_to_date_code = 'D' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main > 3 " \
                 ") AS debit ON debit.debit_subgroup = subgroup.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart_c.id AS credit_id, SUM(chart_c.end_amount) AS credit_end_amount, chart_c.end_code AS credit_end_code, " \
@@ -310,11 +318,11 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main <= 3 AND chart_c.id != '"+str(current_earnings)+"' " \
                 "   GROUP BY subgroup_c.id, chart_c.end_code " \
                 "   UNION " \
-                "   SELECT chart_c.id AS credit_id, SUM(chart_c.year_to_date_amount) AS credit_end_amount, chart_c.end_code AS credit_end_code, " \
+                "   SELECT chart_c.id AS credit_id, SUM(chart_c.year_to_date_amount) AS credit_end_amount, chart_c.year_to_date_code AS credit_end_code, " \
                 "           subgroup_c.id AS credit_subgroup, subgroup_c.code AS credit_subgroupcode " \
                 "   FROM chartofaccount AS chart_c " \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = '164' " \
-                "   WHERE chart_c.end_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main > 3 " \
+                "   WHERE chart_c.year_to_date_code = 'C' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main > 3 " \
                 ") AS credit ON credit.credit_subgroup = subgroup.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
@@ -390,14 +398,14 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart_d.id " \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = chart_d.subgroup_id " \
                 "   WHERE summary.end_code = 'D' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main <= 3 AND chart_d.id != '" + str(current_earnings) + "' " \
-                "   GROUP BY subgroup_d.id, chart_d.end_code " \
+                "   GROUP BY subgroup_d.id, summary.end_code " \
                 "   UNION " \
-                "   SELECT chart_d.id AS debit_id, SUM(summary.year_to_date_amount) AS debit_end_amount, summary.end_code AS debit_end_code, " \
+                "   SELECT chart_d.id AS debit_id, SUM(summary.year_to_date_amount) AS debit_end_amount, summary.year_to_date_code AS debit_end_code, " \
                 "           subgroup_d.id AS debit_subgroup, subgroup_d.code AS debit_subgroupcode " \
                 "   FROM chartofaccount AS chart_d " \
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart_d.id" \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_d ON subgroup_d.id = '164' " \
-                "   WHERE summary.end_code = 'D' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main > 3 " \
+                "   WHERE summary.year_to_date_code = 'D' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_d.accounttype = 'P' AND chart_d.isdeleted = 0 AND chart_d.main > 3 " \
                 ") AS debit ON debit.debit_subgroup = subgroup.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart_c.id AS credit_id, SUM(summary.end_amount) AS credit_end_amount, summary.end_code AS credit_end_code, " \
@@ -406,14 +414,14 @@ def query_balance_sheet(type, retained_earnings, current_earnings, year, month, 
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart_c.id " \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = chart_c.subgroup_id " \
                 "   WHERE summary.end_code = 'C' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main <= 3 AND chart_c.id != '" + str(current_earnings) + "' " \
-                "   GROUP BY subgroup_c.id, chart_c.end_code " \
+                "   GROUP BY subgroup_c.id, summary.end_code " \
                 "   UNION " \
-                "   SELECT chart_c.id AS credit_id, SUM(summary.year_to_date_amount) AS credit_end_amount, summary.end_code AS credit_end_code, " \
+                "   SELECT chart_c.id AS credit_id, SUM(summary.year_to_date_amount) AS credit_end_amount, summary.year_to_date_code AS credit_end_code, " \
                 "           subgroup_c.id AS credit_subgroup, subgroup_c.code AS credit_subgroupcode " \
                 "   FROM chartofaccount AS chart_c " \
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart_c.id " \
                 "   LEFT OUTER JOIN chartofaccountsubgroup AS subgroup_c ON subgroup_c.id = '164' " \
-                "   WHERE summary.end_code = 'C' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main > 3 " \
+                "   WHERE summary.year_to_date_code = 'C' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' AND chart_c.accounttype = 'P' AND chart_c.isdeleted = 0 AND chart_c.main > 3 " \
                 ") AS credit ON credit.credit_subgroup = subgroup.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT subgroup.id AS s_debit_id, subgroup.code AS s_debit_code, " \
@@ -517,13 +525,13 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
                 "   SELECT chart.id, chart.accountcode, chart.description, chart.year_to_date_amount, chart.year_to_date_code " \
                 "   FROM chartofaccount AS chart " \
                 "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
-                "   AND chart.isdeleted = 0 AND chart.end_code = 'C' " \
+                "   AND chart.isdeleted = 0 AND chart.year_to_date_code = 'C' " \
                 ") AS todate_credit ON todate_credit.id = chart.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart.id, chart.accountcode, chart.description, chart.year_to_date_amount, chart.year_to_date_code " \
                 "   FROM chartofaccount AS chart " \
                 "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
-                "   AND chart.isdeleted = 0 AND chart.end_code = 'D' " \
+                "   AND chart.isdeleted = 0 AND chart.year_to_date_code = 'D' " \
                 ") AS todate_debit ON todate_debit.id = chart.id " \
                 "LEFT OUTER JOIN chartofaccount AS chartmain ON (IF(chartmain.main = 7,  " \
                 "(chartmain.main = chart.main AND chartmain.clas = 1 AND chartmain.sub = 0  " \
@@ -588,14 +596,14 @@ def query_income_statement(type, retained_earnings, current_earnings, year, mont
                 "   FROM chartofaccount AS chart " \
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart.id " \
                 "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
-                "   AND chart.isdeleted = 0 AND summary.end_code = 'C' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' " \
+                "   AND chart.isdeleted = 0 AND summary.year_to_date_code = 'C' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' " \
                 ") AS todate_credit ON todate_credit.id = chart.id " \
                 "LEFT OUTER JOIN ( " \
                 "   SELECT chart.id, chart.accountcode, chart.description, summary.year_to_date_amount, summary.year_to_date_code " \
                 "   FROM chartofaccount AS chart " \
                 "   LEFT OUTER JOIN subledgersummary AS summary ON summary.chartofaccount_id = chart.id " \
                 "   WHERE chart.accounttype = 'P' AND chart.main > 3 " \
-                "   AND chart.isdeleted = 0 AND summary.end_code = 'D' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' " \
+                "   AND chart.isdeleted = 0 AND summary.year_to_date_code = 'D' AND summary.year = '" + str(year) + "' AND summary.month = '" + str(month) + "' " \
                 ") AS todate_debit ON todate_debit.id = chart.id " \
                 "LEFT OUTER JOIN chartofaccount AS chartmain ON (IF(chartmain.main = 7,  " \
                 "(chartmain.main = chart.main AND chartmain.clas = 1 AND chartmain.sub = 0  " \
@@ -712,6 +720,11 @@ def excel_trail_balance(result, report, type, year, month):
             worksheet.write(row, col + 5, float(format(data.trans_mon_amount, '.2f')))
             total_mon_credit += float(format(data.trans_mon_amount, '.2f'))
 
+        if data.accountcode == '4311000000':
+            print data.chartmain
+            print data.description
+            print data.end_code
+
         if data.chartmain <= 3:
             if data.end_code == 'D':
                 worksheet.write(row, col + 6, float(format(data.end_amount, '.2f')))
@@ -732,7 +745,7 @@ def excel_trail_balance(result, report, type, year, month):
                 total_end_credit += float(format(data.end_amount, '.2f'))
                 subtotal_bal_credit += float(format(data.end_amount, '.2f'))
         else:
-            if data.end_code == 'D':
+            if data.year_to_date_code == 'D':
                 worksheet.write(row, col + 6, float(format(data.year_to_date_amount, '.2f')))
                 worksheet.write(row, col + 7, float(format(0.00, '.2f')))
                 worksheet.write(row, col + 8, float(format(data.year_to_date_amount, '.2f')))
