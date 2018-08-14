@@ -1,9 +1,14 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from bank.models import Bank
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 #import pprint
 
@@ -85,3 +90,17 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/bank')
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        companyName = Companyparameter.objects.all().first().description
+        list = Bank.objects.filter(isdeleted=0).order_by('code')
+        context = {
+            "title": "Bank Master List",
+            "today": timezone.now(),
+            "company": companyName,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('bank/list.html', context)

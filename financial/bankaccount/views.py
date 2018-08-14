@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -11,6 +11,11 @@ from bankaccounttype.models import Bankaccounttype
 from currency.models import Currency
 from chartofaccount.models import Chartofaccount
 from . models import Bankaccount
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 
 # Create your views here.
@@ -134,3 +139,17 @@ def get_branch(request):
             'status': 'error',
         }
     return JsonResponse(data)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        companyName = Companyparameter.objects.all().first().description
+        list = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        context = {
+            "title": "Bank Branch Master List",
+            "today": timezone.now(),
+            "company": companyName,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('bankaccount/list.html', context)

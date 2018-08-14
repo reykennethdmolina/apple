@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from chartofaccount.models import Chartofaccount
@@ -9,6 +9,11 @@ from kindofexpense.models import Kindofexpense
 from mainunit.models import Mainunit
 from chartofaccountsubgroup.models import ChartofAccountSubGroup
 from django.http import HttpResponseRedirect, Http404
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -193,3 +198,17 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/chartofaccount')
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        companyName = Companyparameter.objects.all().first().description
+        list = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
+        context = {
+            "title": "Chart of Account Master List",
+            "today": timezone.now(),
+            "company": companyName,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('chartofaccount/list.html', context)

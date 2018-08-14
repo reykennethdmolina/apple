@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^get_branch/$', views.get_branch, name='get_branch'),
+    url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
 ]
