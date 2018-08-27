@@ -9,4 +9,7 @@ urlpatterns = [
     url(r'^create/$', views.CreateView.as_view(), name='create'),
     url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
+    url(r'^pdf/user/$', views.GeneratePDFUser.as_view(), name='pdf_user'),
+    url(r'^pdf/useraccess/$', views.GeneratePDFUserAccess.as_view(), name='pdf_useraccess'),
+    url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
 ]

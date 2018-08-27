@@ -1,6 +1,6 @@
 import datetime
 from django.db.models import Sum
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
@@ -35,6 +35,10 @@ from annoying.functions import get_object_or_None
 from dateutil.relativedelta import relativedelta
 import datetime
 from django.utils.dateformat import DateFormat
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
 
 
 class IndexView(AjaxListView):
@@ -611,7 +615,7 @@ def release(request):
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Jvmain
-    template_name = 'journalvoucher/report.html'
+    template_name = 'journalvoucher/report/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -621,11 +625,11 @@ class ReportView(ListView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['user'] = User.objects.filter(is_active=1).order_by('first_name')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
-        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
-        context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        #context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        #context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        #context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
 
         return context
 
@@ -681,6 +685,7 @@ def reportresultquery(request):
     query = ''
     report_type = ''
     report_total = ''
+    report_xls = ''
 
     csv = 'hide'
 
@@ -1386,3 +1391,112 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        jvtype = request.GET['jvtype']
+        jvsubtype = request.GET['jvsubtype']
+        department = request.GET['department']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        jvstatus = request.GET['jvstatus']
+        status = request.GET['status']
+        title = "Journal Voucher List"
+        list = Jvmain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
+
+        if report == '1':
+            title = "Journal Voucher Transaction List - Summary"
+            q = Jvmain.objects.filter(isdeleted=0).order_by('jvnum', 'jvdate')
+            if dfrom != '':
+                q = q.filter(jvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(jvdate__lte=dto)
+        elif report == '2':
+            title = "Journal Voucher Transaction List"
+            q = Jvdetail.objects.select_related('jvmain').filter(isdeleted=0).order_by('jv_num', 'jv_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Journal Voucher Transaction List - Summary"
+            q = Jvmain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('jvnum', 'jvdate')
+            if dfrom != '':
+                q = q.filter(jvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(jvdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Journal Voucher Transaction List"
+            q = Jvdetail.objects.select_related('jvmain').filter(isdeleted=0,status__in=['A','C']).order_by('jv_num', 'jv_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+
+        if jvtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvtype__exact=jvtype)
+            else:
+                q = q.filter(jvtype=jvtype)
+        if jvsubtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvsubtype__exact=jvsubtype)
+            else:
+                q = q.filter(jvsubtype=jvsubtype)
+        if department != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__department__exact=department)
+            else:
+                q = q.filter(department=department)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__actualapprover__exact=approver)
+            else:
+                q = q.filter(actualapprover=approver)
+        if jvstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvstatus__exact=jvstatus)
+            else:
+                q = q.filter(jvstatus=jvstatus)
+        if status != '':
+            q = q.filter(status=status)
+
+        list = q[:65]
+        if list:
+            total = list.aggregate(total_amount=Sum('amount'))
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('journalvoucher/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('journalvoucher/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('journalvoucher/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('journalvoucher/report/report_4.html', context)
+        else:
+            return Render.render('journalvoucher/report/report_1.html', context)

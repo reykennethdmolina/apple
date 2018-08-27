@@ -1,0 +1,480 @@
+{% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
+{% load staticfiles %}
+{% block page-title %}<div style="line-height: 25px;">Journal Book<br><small><small>Report</small></small></div>{% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout//assets/css/global/panel-transition.min.css' %}" />
+    <style>
+        .panel-title{
+            padding: 12px;
+        }
+        .panel-actions{
+            margin-right: -29px;
+        }
+        .panel-actions a{
+            margin-right: -1px;
+        }
+        .btn-panel{
+            font-size: 15px;
+            padding: 15px;
+        }
+        #rep_f_keyword{
+            border: none;
+            font-size: 15px;
+            font-weight: normal;
+            color: #616161;
+            padding-left: 65px;
+            padding-right: 180px;
+            padding-top: 2px;
+            margin-left: 110px;
+            height: 21px;
+        }
+        #rep_b_print, #rep_b_xls{
+            position: absolute;
+            padding: 15px;
+            margin: -12px;
+            color: white;
+            font-size: 15px;
+            padding-left: 20px;
+            padding-right: 12px;
+        }
+        #rep_b_xls{
+            padding-left: 20px;
+            padding-right: 12px;
+            margin-left: 41px;
+        }
+        #iframe, #iframehtml{
+            width: 100%;
+            height: 900px;
+            position: relative;
+            z-index: 100;
+        }
+        #iframe{
+            display: none;
+        }
+        #iframe_preview{
+            padding: 10px;
+            margin: auto;
+        }
+        .shade{
+            margin-left: -40px;
+            margin-top: -40px;
+        }
+        #rep_f_uborder_holder, #rep_f_order_holder, #rep_f_asc_holder, .rep_f_ae_holder, #rep_f_amount_holder, .rep_f_gl_input, #fil_gl{
+            display: none;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .select2{
+            width: 100% !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel-body container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-bordered is-collapse">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="#}" target="_blank" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
+                            <i class="icon fa-print" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
+                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                        <div id="rep_f_keyword"></div>
+                    </h3>
+                    <div class="panel-actions">
+                        <a class="btn btn-panel btn-info waves-effect waves-dark" id="rep_b_search" style="padding-left: 23px;padding-right: 23px;margin-right: -3px;">
+                            <i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search
+                        </a>
+                        <a class="btn btn-panel btn-info icon_minus-06 waves-effect waves-dark" data-toggle="panel-collapse" aria-hidden="true" style="padding: 16.5px"></a>
+                    </div>
+                </div>
+                <div class="panel-body" style="padding: 20px;">
+                    <div class="row">
+                        <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Report Type</label>
+                                <select class="form-control input-sm" id="rep_f_report">
+                                    <option value="s">Summary</option>
+                                    <option value="d">Detailed</option>
+                                    <option value="a_s">Accounting Entry - Summary</option>
+                                    <option value="a_d">Accounting Entry - Detailed</option>
+                                    <option value="ae">All Entries</option>
+                                    <option value="ub">Unbalanced Entries</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Print Orientation</label>
+                                <select class="form-control input-sm" id="rep_f_orientation">
+                                    <option value="p">Portrait</option>
+                                    <option value="l">Landscape</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-6" id="rep_f_order_holder">
+                                <label class="control-label small">Order By</label>
+                                <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_order">
+                                    <option value="amount">Amount</option>
+                                    <option value="jvdate">Date</option>
+                                    <option value="jvnum">JV Number</option>
+                                    <option value="jvstatus">Status</option>
+                                    <option value="jvtype">Type</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-6" id="rep_f_uborder_holder">
+                                <label class="control-label small">Order By</label>
+                                <select class="form-control select2 input-sm" multiple="multiple" style="width: 100%" id="rep_f_uborder">
+                                    <option value="jvmain__jvnum">OF Number</option>
+                                    <option value="jvmain__jvdate">Date</option>
+                                    <option value="debitsum">Debit</option>
+                                    <option value="creditsum">Credit</option>
+                                    <option value="margin">Margin</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2" id="rep_f_asc_holder">
+                                <label class="control-label small">&nbsp;</label>
+                                <select class="form-control input-sm" id="rep_f_asc">
+                                    <option value=""> -- </option>
+                                    <option value="a">Ascending</option>
+                                    <option value="d">Descending</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2 rep_f_ae_holder" style="border-left: 1px solid #e0e0e0">
+                                <label class="control-label small">Balance Code</label><br>
+                                <select class="form-control input-sm" id="rep_f_balancecode">
+                                    <option value="a">All</option>
+                                    <option value="d">Debit</option>
+                                    <option value="c">Credit</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3 rep_f_ae_holder">
+                                <label class="control-label small">Debit Amount</label><br>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">min</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_debit_amountfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">max</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_debit_amountto">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3 rep_f_ae_holder">
+                                <label class="control-label small">Credit Amount</label><br>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">min</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_credit_amountfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">max</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_credit_amountto">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_summary">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">JV Num</label>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">from</span>
+                                        <input type="number" class="form-control input-sm" id="rep_f_numfrom" min="2017000000" max="2020000000">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="number" class="form-control input-sm" id="rep_f_numto" min="2017000000" max="2020000000">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Department</label>
+                                <select class="form-control input-sm" id="rep_f_department">
+                                    <option value="">-- Select --</option>
+                                    {% for data in department %}
+                                        <option value="{{ data.id }}">[{{ data.code }}] {{ data.departmentname }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Branch</label>
+                                <select class="form-control input-sm" id="rep_f_branch">
+                                    <option value="">-- Select --</option>
+                                    {% for data in branch %}
+                                        <option value="{{ data.id }}">{{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">JV Date</label><br>
+                                <div class="input-daterange datarange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control input-sm datepickerfrom" id="rep_f_datefrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="text" class="form-control input-sm datepickerto" id="rep_f_dateto">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-4" id="rep_f_amount_holder">
+                                <label class="control-label small">Amount</label><br>
+                                <div class="input-daterange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">min</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_amountfrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">max</span>
+                                        <input type="text" class="form-control input-sm amount text-right" id="rep_f_amountto">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">JV Type</label>
+                                <select class="form-control input-sm" id="rep_f_jvtype">
+                                    <option value="">-- Select --</option>
+                                    {% for data in jvtype %}
+                                        <option value="{{ data.id }}">{{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">JV Subtype</label>
+                                <select class="form-control input-sm" id="rep_f_jvsubtype">
+                                    <option value="">-- Select --</option>
+                                    {% for data in jvsubtype %}
+                                        <option value="{{ data.id }}">{{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">JV Status</label>
+                                <select class="form-control input-sm" id="rep_f_jvstatus">
+                                    <option value="">-- Select --</option>
+                                    <option value="F">For Approval</option>
+                                    <option value="A">Approved</option>
+                                    <option value="D">Disapproved</option>
+                                    <option value="I">In Process</option>
+                                    <option value="R">Released</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Posted?</label>
+                                <select class="form-control input-sm" id="rep_f_posted">
+                                    <option value="">-- Select --</option>
+                                    <option value="P">Posted</option>
+                                    <option value="U">Unposted</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Status</label>
+                                <select class="form-control input-sm" id="rep_f_status">
+                                    <option value="">-- Select --</option>
+                                    <option value="A">Active</option>
+                                    <option value="I">Inactive</option>
+                                    <option value="C">Cancelled</option>
+                                    <option value="O">Posted</option>
+                                    <option value="P">Printed</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Approver</label>
+                                <select class="form-control input-sm" id="rep_f_approver">
+                                    <option value="">-- Select --</option>
+                                    {% for data in user %}
+                                        <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row form-group col-sm-12" style="padding-top:10px; padding-left: 0px; padding-right: 0px; border-top: 1px solid #e0e0e0" id="fil_gl">
+                            <div class="col-md-12">
+                                <label class="col-sm-3 control-label small">Chart of Account</label>
+                                <div class="col-md-11">
+                                    <select class="form-control input-sm" required style="width: 100%" id="rep_f_gl"></select><br><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Bank Account</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_bankaccount">
+                                        <option value="">-- Select Bank Account --</option>
+                                        {% for data in bankaccount %}
+                                            <option value="{{ data.id }}">{{ data.accountnumber }} - {{ data.code }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Department</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_department">
+                                        <option value="">-- Select Department --</option>
+                                        {% for data in department %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Unit</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_unit">
+                                        <option value="">-- Select Unit --</option>
+                                        {% for data in unit %}
+                                            <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Branch</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_branch">
+                                        <option value="">-- Select Branch --</option>
+                                        {% for data in branch %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Product</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_product">
+                                        <option value="">-- Select Product --</option>
+                                        {% for data in product %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Input VAT</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_inputvat">
+                                    <option value="">-- Select Input VAT --</option>
+                                        {% for data in inputvat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Output VAT</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_outputvat">
+                                        <option value="">-- Select Output VAT --</option>
+                                        {% for data in outputvat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">VAT</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_vat">
+                                        <option value="">-- Select VAT --</option>
+                                        {% for data in vat %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">WTAX</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_wtax">
+                                        <option value="">-- Select WTAX --</option>
+                                        {% for data in wtax %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">ATAX Code</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control input-sm select2" id="rep_f_gl_ataxcode">
+                                        <option value="">-- Select ATAX Code --</option>
+                                        {% for data in ataxcode %}
+                                            <option value="{{ data.id }}">{{ data.description }}</option>
+                                        {% endfor %}
+                                    </select><br>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Employee</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_employee"></select><br><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Supplier</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_supplier"></select><br><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 rep_f_gl_input">
+                                <label class="col-sm-3 control-label small">Customer</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control input-sm" style="width: 100%" id="rep_f_gl_customer"></select><br><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <input type="hidden" value="{{ userrole }}" id="user_role">
+            </div>
+        </div>
+        <div class="col-md-12" style="text-align: center">
+            <div id="iframe_preview" class="panel">
+                <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
+                <!--<iframe id="iframehtml" src="#" frameborder="0" scrolling="yes"></iframe>-->
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<div id="report-search-error" class="custom-alert danger">Select Report Type first.</div>
+{% endblock page-content %}
+{% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function () {
+
+	});
+    </script>
+{% endblock extra_js %}

@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -8,6 +8,11 @@ from budgetapproverlevels.models import Budgetapproverlevels
 from django.views.decorators.csrf import csrf_exempt
 from . models import Employee
 from django.contrib.auth.models import User
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -193,3 +198,17 @@ def unassignUserEmployee(request):
             'status': 'error',
         }
     return JsonResponse(data)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Employee.objects.filter(isdeleted=0).order_by('firstname', 'middlename', 'lastname')
+        context = {
+            "title": "Employee Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('employee/list.html', context)

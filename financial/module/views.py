@@ -1,11 +1,18 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from module.models import Module
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission
 from mainmodule.models import Mainmodule
 from django.contrib.contenttypes.models import ContentType
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -95,3 +102,45 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/module')
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Module.objects.filter(isdeleted=0).order_by('code')
+        context = {
+            "title": "Program Information Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('module/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFUser(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = User.objects.all().order_by('username')
+        context = {
+            "title": "User Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('module/list_user.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFUserAccess(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Permission.objects.all()
+        context = {
+            "title": "User Access Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('module/list_access.html', context)

@@ -6,9 +6,12 @@
     <div class="panel-body container-fluid">
         <div class="row">
             <div class="col-md-12">
+                <div class="text-right">
                 {% if perms.serviceinformation.add_serviceinformation %}
-                <div class="text-right"><a href="{% url 'serviceinformation:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a></div>
+                <a href="{% url 'serviceinformation:create' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Data</button></a>
                 {% endif  %}
+                <a href="{% url 'serviceinformation:pdf' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Report</button></a>
+                </div>
             </div>
             <div class="col-md-12">
                 <div class="page-wrap">

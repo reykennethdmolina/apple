@@ -143,12 +143,12 @@ def get_branch(request):
 @method_decorator(login_required, name='dispatch')
 class GeneratePDF(View):
     def get(self, request):
-        companyName = Companyparameter.objects.all().first().description
+        company = Companyparameter.objects.all().first()
         list = Bankaccount.objects.filter(isdeleted=0).order_by('code')
         context = {
-            "title": "Bank Branch Master List",
+            "title": "Bank Account Master List",
             "today": timezone.now(),
-            "company": companyName,
+            "company": company,
             "list": list,
             "username": request.user,
         }

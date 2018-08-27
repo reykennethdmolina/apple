@@ -30,7 +30,7 @@ class IndexView(TemplateView):
 
         context['months'] = months
         today = datetime.datetime.now()
-        context['this_month'] = 1#today.month
+        context['this_month'] = today.month
         context['this_year'] = today.year
 
         return context

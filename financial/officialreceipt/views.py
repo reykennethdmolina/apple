@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
+from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -49,6 +49,11 @@ from employee.models import Employee
 from chartofaccount.models import Chartofaccount
 from annoying.functions import get_object_or_None
 import decimal
+from django.utils.dateformat import DateFormat
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -536,7 +541,7 @@ def addcashinbank(secretkey, totalsale, user):
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Ormain
-    template_name = 'officialreceipt/report.html'
+    template_name = 'officialreceipt/report/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -545,11 +550,9 @@ class ReportView(ListView):
         context['collector'] = Collector.objects.filter(isdeleted=0).order_by('code')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['agency'] = Customer.objects.filter(isdeleted=0).order_by('code')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
-        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        context['adtype'] = Adtype.objects.filter(isdeleted=0).order_by('code')
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
         context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['client'] = Customer.objects.filter(isdeleted=0).order_by('code')
         context['agent'] = Agent.objects.filter(isdeleted=0).order_by('code')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
@@ -557,7 +560,6 @@ class ReportView(ListView):
         context['wtax'] = Wtax.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['product'] = Product.objects.filter(isdeleted=0).order_by('code')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['approver'] = User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
 
         return context
 
@@ -1408,3 +1410,142 @@ class Pdf(PDFTemplateView):
         printedor.print_ctr += 1
         printedor.save()
         return context
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        ortype = request.GET['ortype']
+        artype = request.GET['artype']
+        payee = request.GET['payee']
+        collector = request.GET['collector']
+        branch = request.GET['branch']
+        product = request.GET['product']
+        adtype = request.GET['adtype']
+        wtax = request.GET['wtax']
+        vat = request.GET['vat']
+        outputvat = request.GET['outputvat']
+        bankaccount = request.GET['bankaccount']
+        status = request.GET['status']
+        title = "Official Receipt List"
+        list = Ormain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
+
+        if report == '1':
+            title = "Official Receipt Transaction List - Summary"
+            q = Ormain.objects.filter(isdeleted=0).order_by('ornum', 'ordate')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '2':
+            title = "Official Receipt Transaction List"
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0).order_by('or_num', 'or_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Official Receipt Transaction List - Summary"
+            q = Ormain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('ornum', 'ordate')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '4':
+            title = "Unposted Official Receipt Transaction List"
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0,status__in=['A','C']).order_by('or_num', 'or_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+                
+        if ortype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__ortype__exact=ortype)
+            else:
+                q = q.filter(ortype=ortype)
+        if artype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__artype__exact=artype)
+            else:
+                q = q.filter(artype=artype)
+        if payee != 'null':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__payee_code__exact=payee)
+            else:
+                q = q.filter(payee_code=payee)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if collector != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__collector__exact=collector)
+            else:
+                q = q.filter(collector=collector)
+        if product != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__product__exact=product)
+            else:
+                q = q.filter(product=product)
+        if adtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__adtype__exact=adtype)
+            else:
+                q = q.filter(adtype=adtype)
+        if wtax != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__wtax__exact=wtax)
+            else:
+                q = q.filter(wtax=wtax)
+        if vat != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if outputvat != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__outputvattype__exact=outputvat)
+            else:
+                q = q.filter(outputvattype=outputvat)
+        if bankaccount != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+        if status != '':
+            q = q.filter(status=status)
+
+        list = q[:65]
+        if list:
+            total = list.aggregate(total_amount=Sum('amount'))
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('officialreceipt/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('officialreceipt/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('officialreceipt/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('officialreceipt/report/report_4.html', context)
+        else:
+            return Render.render('officialreceipt/report/report_1.html', context)

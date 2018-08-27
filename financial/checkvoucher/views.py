@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
+from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -43,6 +43,12 @@ from annoying.functions import get_object_or_None
 from pprint import pprint
 from django.utils.dateformat import DateFormat
 from utils.mixins import ReportContentMixin
+import datetime
+from django.utils.dateformat import DateFormat
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -589,26 +595,26 @@ class PrePrintedVoucher(TemplateView):
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Cvmain
-    template_name = 'checkvoucher/report.html'
-
+    template_name = 'checkvoucher/report/index.html'
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
 
         context['cvtype'] = Cvtype.objects.filter(isdeleted=0).order_by('description')
         context['cvsubtype'] = Cvsubtype.objects.filter(isdeleted=0).order_by('description')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('pk')
-        context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
-        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
-        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
-        context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        # context['disbursingbranch'] = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('pk')
+        # context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+        # context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        # context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        #context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        #context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        context['user'] = User.objects.filter(is_active=1).order_by('first_name')
 
         return context
 
@@ -1764,3 +1770,136 @@ def reportresultxlsx(request):
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
     return response
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        cvtype = request.GET['cvtype']
+        cvsubtype = request.GET['cvsubtype']
+        payee = request.GET['payee']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        cvstatus = request.GET['cvstatus']
+        status = request.GET['status']
+        atc = request.GET['atc']
+        inputvattype = request.GET['inputvattype']
+        vat = request.GET['vat']
+        bankaccount = request.GET['bankaccount']
+        title = "Check Voucher List"
+        list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
+
+        if report == '1':
+            title = "Check Voucher Transaction List - Summary"
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+            if dfrom != '':
+                q = q.filter(cvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(cvdate__lte=dto)
+        elif report == '2':
+            title = "Check Voucher Transaction List"
+            q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0).order_by('cv_num', 'cv_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Check Voucher Transaction List - Summary"
+            q = Cvmain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('cvnum', 'cvdate')
+            if dfrom != '':
+                q = q.filter(cvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(cvdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Check Voucher Transaction List"
+            q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0,status__in=['A','C']).order_by('cv_num', 'cv_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+
+        if cvtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvtype__exact=cvtype)
+            else:
+                q = q.filter(cvtype=cvtype)
+        if cvsubtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvsubtype__exact=cvsubtype)
+            else:
+                q = q.filter(cvsubtype=cvsubtype)
+        if payee != 'null':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__payee_code__exact=payee)
+            else:
+                q = q.filter(payee_code=payee)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__actualapprover__exact=approver)
+            else:
+                q = q.filter(actualapprover=approver)
+        if cvstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvstatus__exact=cvstatus)
+            else:
+                q = q.filter(cvstatus=cvstatus)
+        if status != '':
+            q = q.filter(status=status)
+        if atc != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__atc__exact=atc)
+            else:
+                q = q.filter(atc=atc)
+        if inputvattype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__inputvattype__exact=inputvattype)
+            else:
+                q = q.filter(inputvattype=inputvattype)
+        if vat != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if bankaccount != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+
+        list = q[:35]
+        if list:
+            total = list.aggregate(total_amount=Sum('amount'))
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
+            "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('checkvoucher/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('checkvoucher/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('checkvoucher/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('checkvoucher/report/report_4.html', context)
+        else:
+            return Render.render('checkvoucher/report/report_1.html', context)

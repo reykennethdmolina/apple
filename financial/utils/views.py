@@ -532,3 +532,153 @@ def roundBytes(size, unit):
         return round(float(size)/1024, roundoff)
     else:
         return size
+
+
+@csrf_exempt
+def ajaxSelect2(request):
+    if request.method == 'GET':
+
+        # add model query here
+        if request.GET['table'] == "supplier" \
+                or request.GET['table'] == "supplier_payee" \
+                or request.GET['table'] == "supplier_notmultiple":
+            items = Supplier.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "employee" or request.GET['table'] == "employee_notmultiple":
+            items = Employee.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(firstname__icontains=request.GET['q']) |
+                                                  Q(middlename__icontains=request.GET['q']) |
+                                                  Q(lastname__icontains=request.GET['q'])).\
+                exclude(Q(firstname='') | Q(lastname='') | Q(firstname=None) | Q(lastname=None)).order_by('lastname')
+
+        elif request.GET['table'] == "customer" or request.GET['table'] == "customer_notmultiple":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "agency":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+        elif request.GET['table'] == "client":
+            items = Customer.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+        elif request.GET['table'] == "agent":
+            items = Agent.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                  Q(name__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "chartofaccount":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).order_by('accountcode')
+        elif request.GET['table'] == "chartofaccount_posting":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(accounttype='P').order_by('accountcode')
+        elif request.GET['table'] == "chartofaccount_arcode":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(main=1).order_by('accountcode')
+        elif request.GET['table'] == "chartofaccount_revcode":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(main__in=[2, 4]).order_by('accountcode')
+        elif request.GET['table'] == "chartofaccount_subgroup":
+            items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
+                                                        Q(description__startswith=request.GET['q'].upper())).filter(accounttype='P').order_by('accountcode')
+            items = items.filter(subgroup__in=request.GET.getlist('subgroup[]'))
+
+        elif request.GET['table'] == "department":
+            items = Department.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(departmentname__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "bankaccount":
+            items = Bankaccount.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(accountnumber__icontains=request.GET['q']))
+
+        elif request.GET['table'] == "inventoryitem_SV" \
+                or request.GET['table'] == "inventoryitem_SI" \
+                or request.GET['table'] == "inventoryitem_FA" \
+                or request.GET['table'] == "inventoryitem":
+            items = Inventoryitem.objects.all().filter(Q(code__icontains=request.GET['q']) |
+                                                    Q(description__icontains=request.GET['q']))
+            if request.GET['table'] == "inventoryitem_SV":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='SV')
+            elif request.GET['table'] == "inventoryitem_SI":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='SI')
+            elif request.GET['table'] == "inventoryitem_FA":
+                items = items.filter(inventoryitemclass__inventoryitemtype__code='FA')
+
+        if request.GET['table'] == "supplier_notmultiple" \
+                or request.GET['table'] == "employee_notmultiple" \
+                or request.GET['table'] == "customer_notmultiple":
+            items = items.filter(multiplestatus='N')
+
+        items = items.filter(isdeleted=0)
+
+        count = items.count()
+        limit = 10
+        offset = (int(request.GET['page']) - 1) * limit
+        items = items[offset:offset+limit]
+        endcount = offset + limit
+        morepages = endcount > count
+        listitems = []
+
+        for data in items:
+            q = "<b>" + request.GET['q'] + "</b>"
+
+            # add model text format here
+            if request.GET['table'] == "supplier" \
+                    or request.GET['table'] == "supplier_notmultiple":
+                text = data.code + " - " + data.name
+            elif request.GET['table'] == "supplier_payee":
+                text = data.name
+            elif request.GET['table'] == "employee" \
+                    or request.GET['table'] == "employee_notmultiple":
+                text = data.code + " - " + data.lastname + ", " + data.firstname
+            elif request.GET['table'] == "customer" \
+                    or request.GET['table'] == "customer_notmultiple":
+                text = data.name
+            elif request.GET['table'] == "agency" \
+                    or request.GET['table'] == "client" \
+                    or request.GET['table'] == "agent":
+                text = "[" + data.code + "] " + data.name
+            elif request.GET['table'] == "chartofaccount" \
+                    or request.GET['table'] == "chartofaccount_posting" \
+                    or request.GET['table'] == "chartofaccount_arcode" \
+                    or request.GET['table'] == "chartofaccount_revcode" \
+                    or request.GET['table'] == "chartofaccount_subgroup":
+                text = "[" + data.accountcode + "] - " + data.description
+            elif request.GET['table'] == "department":
+                text = data.departmentname
+            elif request.GET['table'] == "bankaccount":
+                text = data.code + " - " + data.accountnumber
+            elif request.GET['table'] == "inventoryitem" \
+                    or request.GET['table'] == "inventoryitem_SV" \
+                    or request.GET['table'] == "inventoryitem_SI" \
+                    or request.GET['table'] == "inventoryitem_FA":
+                text = data.code + " | " + data.description
+
+            newtext = re.compile(re.escape(request.GET['q']), re.IGNORECASE)
+            newtext = newtext.sub(q.upper(), text)
+            # listitems.append({'text': newtext, 'id': data.id}
+
+            if request.GET['table'] == "inventoryitem" \
+                    or request.GET['table'] == "inventoryitem_SV" \
+                    or request.GET['table'] == "inventoryitem_SI" \
+                    or request.GET['table'] == "inventoryitem_FA":
+                listitems.append({'text': newtext,
+                                  'id': data.id,
+                                  'um': data.unitofmeasure.id,
+                                  'code': data.code,
+                                  'type': data.inventoryitemclass.inventoryitemtype.code,
+                                  'itemtype': data.inventoryitemclass.inventoryitemtype.code})
+            else:
+                listitems.append({'text': newtext, 'id': data.code})
+
+        data = {
+            'status': 'success',
+            'items': listitems,
+            'more': morepages,
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)

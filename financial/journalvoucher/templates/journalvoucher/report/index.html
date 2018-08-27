@@ -1,0 +1,155 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Journal Voucher Report {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm" id="report_type">
+                                <option value="1">Journal Voucher Transaction List - Summary</option>
+                                <option value="2">Journal Voucher Transaction List</option>
+                                <option value="3">Unposted Journal Voucher Transaction List - Summary</option>
+                                <option value="4">Unposted Journal Voucher Transaction List</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">JV Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="dfrom" value="{% now 'Y-m-d' %}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="dto" value="{% now 'Y-m-d' %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">JV Type</label>
+                            <select class="form-control input-sm" id="jvtype">
+                                <option value="">-- Select --</option>
+                                {% for data in jvtype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">JV Subtype</label>
+                            <select class="form-control input-sm" id="jvsubtype">
+                                <option value="">-- Select --</option>
+                                {% for data in jvsubtype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                            <a class="btn btn-info waves-effect waves-dark" id="generatexls" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Department</label>
+                            <select class="form-control input-sm" id="department">
+                                <option value="">-- Select --</option>
+                                {% for data in department %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Branch</label>
+                            <select class="form-control input-sm" id="branch">
+                                <option value="">-- Select --</option>
+                                {% for data in branch %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Approver</label>
+                            <select class="form-control input-sm" id="approver">
+                                <option value="">-- Select --</option>
+                                {% for data in user %}
+                                    <option value="{{ data.id }}">{{ data.username }} - {{ data.first_name }} {{ data.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">JV Status</label>
+                            <select class="form-control input-sm" id="jvstatus">
+                                <option value="">-- Select --</option>
+                                <option value="F">For Approval</option>
+                                <option value="A">Approved</option>
+                                <option value="D">Disapproved</option>
+                                <option value="I">In Process</option>
+                                <option value="R">Released</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="status">
+                                <option value="">-- Select --</option>
+                                <option value="A">Active</option>
+                                <option value="C">Cancelled</option>
+                                <option value="O">Posted</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="min-height: 800px;">
+                <iframe src="{% url 'journalvoucher:pdf' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&jvtype=&jvsubtype=&department=&branch=&approver=&jvstatus=&status=" id="result" height="1200px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script type="text/javascript">
+$(function(){
+    $('#generate').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var jvtype = $('#jvtype').val();
+        var jvsubtype = $('#jvsubtype').val();
+        var department = $('#department').val();
+        var branch = $('#branch').val();
+        var approver = $('#approver').val();
+        var jvstatus = $('#jvstatus').val();
+        var status = $('#status').val();
+        url = "{% url 'journalvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&jvtype="+jvtype+"&jvsubtype="+jvsubtype+"&department="+department+"&branch="+branch+"&approver="+approver+"&jvstatus="+jvstatus+"&status="+status;
+        $('#result').prop('src', url);
+    });
+});
+</script>
+{% endblock extra_js %}

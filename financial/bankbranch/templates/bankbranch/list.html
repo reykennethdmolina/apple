@@ -21,7 +21,7 @@
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 3.5cm; left: 1cm; width: 19.5cm; height: 23cm;
+                top: 4.8cm; left: 1cm; width: 19.5cm; height: 23cm;
             }
         }
         body{
@@ -76,6 +76,9 @@
             list-style: none;
             font-size: 1.1em;
         }
+        .center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -84,15 +87,27 @@
     <div class="card">
         <table>
             <tr>
-                <td width="50%"><p class="title">{{ company|upper }}</p></td>
-                <td width="50%"><p class="right">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"></td>
             </tr>
             <tr>
                 <td width="75%"><p class="title">{{ title|upper }}</p></td>
-                <td width="25%"><p class="right">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
             </tr>
         </table>
-        <br>
+
         <table class="table">
             <thead>
                 <tr>
@@ -122,7 +137,7 @@
 </table>
 
 <div id="footer_content" style="text-align:right">
-    <p class="right">{{ username  }}</p>
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
 </div>
 
 </body>

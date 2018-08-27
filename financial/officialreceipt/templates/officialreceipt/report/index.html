@@ -1,0 +1,232 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Official Receipt Report {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm" id="report_type">
+                                <option value="1">Official Receipt Transaction List - Summary</option>
+                                <option value="2">Official Receipt Transaction List</option>
+                                <option value="3">Unposted Official Receipt Transaction List - Summary</option>
+                                <option value="4">Unposted Official Receipt Transaction List</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">OR Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="dfrom" value="{% now 'Y-m-d' %}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="dto" value="{% now 'Y-m-d' %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">OR Type</label>
+                            <select class="form-control input-sm" id="ortype">
+                                <option value="">-- Select --</option>
+                                {% for data in ortype %}
+                                    <option value="{{ data.id }}">{{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">AR Type</label>
+                            <select class="form-control input-sm" id="artype">
+                                <option value="">-- Select --</option>
+                                <option value="A">Advertising</option>
+                                <option value="C">Circulation</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                            <a class="btn btn-info waves-effect waves-dark" id="generatexls" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Payee Type</label>
+                            <select class="form-control input-sm" id="payeetype">
+                                <option value="AG">Agency</option>
+                                <option value="C" selected="selected">Client</option>
+                                <option value="A">Agent</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Payee [ <span id="clear_payee"><i class="icon fa-close" aria-hidden="true"> Clear</i></span> ]</label>
+                            <select class="form-control input-sm select2" style="height:30px" id="payee"></select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Branch</label>
+                            <select class="form-control input-sm" id="branch">
+                                <option value="">-- Select --</option>
+                                {% for data in branch %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Collector</label>
+                            <select class="form-control input-sm" id="collector">
+                                <option value="">-- Select --</option>
+                                {% for data in collector %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Product</label>
+                            <select class="form-control input-sm" id="product">
+                                <option value="">-- Select --</option>
+                                {% for data in product %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Adtype</label>
+                            <select class="form-control input-sm" id="adtype">
+                                <option value="">-- Select --</option>
+                                {% for data in adtype %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">WTAX</label>
+                            <select class="form-control input-sm" id="wtax">
+                                <option value="">-- Select --</option>
+                                {% for data in wtax %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">VAT</label>
+                            <select class="form-control input-sm" id="vat">
+                                <option value="">-- Select --</option>
+                                {% for data in vat %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Output VAT Type</label>
+                            <select class="form-control input-sm" id="outputvat">
+                                <option value="">-- Select --</option>
+                                {% for data in outputvattype %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Bank Acount</label>
+                            <select class="form-control input-sm" id="bankaccount">
+                                <option value="">-- Select --</option>
+                                {% for data in bankaccount %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.bankbranch.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Status</label>
+                            <select class="form-control input-sm" id="status">
+                                <option value="">-- Select --</option>
+                                <option value="A">Active</option>
+                                <option value="C">Cancelled</option>
+                                <option value="O">Posted</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="min-height: 800px;">
+                <iframe src="{% url 'officialreceipt:pdf' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&ortype=&artype=&payee=null&branch=&collector=&product=&adtype=&wtax=&vat=&outputvat=&bankaccount=&status=" id="result" height="1200px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+$(function(){
+    $('#generate').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var ortype = $('#ortype').val();
+        var artype = $('#artype').val();
+        var payee = $('#payee').val();
+        var branch = $('#branch').val();
+        var collector = $('#collector').val();
+        var product = $('#product').val();
+        var status = $('#status').val();
+        var adtype = $('#adtype').val();
+        var wtax = $('#wtax').val();
+        var vat = $('#vat').val();
+        var outputvat = $('#outputvat').val();
+        var bankaccount = $('#bankaccount').val();
+        url = "{% url 'officialreceipt:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
+        $('#result').prop('src', url);
+    });
+
+    $('#clear_payee').click(function() {
+        $('#payee').val(null).trigger('change');
+    });
+
+    $('.select2').select2({});
+
+    ajaxselect2v2("client", "payee");
+
+    $('#payeetype').change(function(){
+        var payeetype = $('#payeetype').val();
+        if (payeetype == 'A') {
+            ajaxselect2v2("agent", "payee");
+        } else if (payeetype == 'AG') {
+            ajaxselect2v2("agency", "payee");
+        } else {
+            ajaxselect2v2("client", "payee");
+        }
+    });
+
+});
+</script>
+{% endblock extra_js %}

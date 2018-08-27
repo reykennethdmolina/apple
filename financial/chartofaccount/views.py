@@ -202,12 +202,12 @@ class DeleteView(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class GeneratePDF(View):
     def get(self, request):
-        companyName = Companyparameter.objects.all().first().description
+        company = Companyparameter.objects.all().first()
         list = Chartofaccount.objects.filter(isdeleted=0).order_by('accountcode')
         context = {
             "title": "Chart of Account Master List",
             "today": timezone.now(),
-            "company": companyName,
+            "company": company,
             "list": list,
             "username": request.user,
         }

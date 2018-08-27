@@ -1,0 +1,303 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Report - Supplier {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <!-- Start Basic Table Section -->
+                    <h4><p>Report List</p></h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Basic</a></li>
+                                <li role="presentation"><a href="#layout" aria-controls="layout" role="tab" data-toggle="tab">Layout</a></li>
+                                <li role="presentation"><a href="#advanced" aria-controls="advanced" role="tab" data-toggle="tab">Advanced</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade in active" id="basic">
+                                    <div class="col-md-8">
+                                        <span>Report Title</span>
+                                        <input type="text" name="title_initial" class="form-control title_initial" value="{{ title_initial }}" form="report">
+                                        <br>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span>Date</span>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerfrom" name="date_from" placeholder="From" form="report">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <input type="text" class="form-control date-yyyymmdd datepickerto" name="date_to" placeholder="To" form="report">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <span>Table headers</span>
+                                        <select class="form-control input-sm select2 list_header" multiple="multiple" name="list_header" form="report">
+                                            {% for data in all_header %}
+                                                <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                            {% endfor %}
+                                        </select><br>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span>Order by</span>
+                                        <select class="form-control select2 orderby" multiple="multiple" name="orderby" form="report">
+                                            {% for data in all_header %}
+                                                <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <select name="orderasc" class="form-control orderasc" form="report">
+                                            <option value="a">Ascending</option>
+                                            <option value="d">Descending</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12"><br></div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="layout">
+                                    <div class="col-md-2">
+                                        <span>Font size</span>
+                                        <input type="number" name="fontsize" class="form-control fontsize" value="10" min="8" max="72" form="report">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <span>Orientation</span>
+                                        <select name="orientation" class="orientation" form="report">
+                                            <option value="portrait">Portrait</option>
+                                            <option value="landscape">Landscape</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <span>Size</span>
+                                        <select name="size" class="size" form="report">
+                                            <option value="a3">A3</option>
+                                            <option value="a4" selected>A4</option>
+                                            <option value="a5">A5</option>
+                                            <option value="legal">Legal</option>
+                                            <option value="letter">Letter</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12"><br></div>
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="advanced">
+                                    <div class="advanced_search row col-md-10">
+                                        <div class="col-md-3">
+                                            <span>Filter</span>
+                                            <select name="advanced_filter" class="form-control advanced_filter" form="report">
+                                                {% for data in all_header %}
+                                                    <option value="{{ data.0 }}">{{ data.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <span>Keyword</span>
+                                            <input type="text" name="advanced_keyword" class="form-control advanced_keyword" form="report">
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <br>
+                                        <button class="btn advanced_add"><i class="icon fa-plus" aria-hidden="true"></i></button>
+                                        <button class="btn advanced_remove"><i class="icon fa-minus" aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="generate" class="btn btn-info btn-sm">Preview</button>
+                            <form action="{% url 'rep_supplier:index' %}" method="get" id="report" target="_blank" style="display: inline-block">
+                                <button type="button" id="get_pdf" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp; PDF
+                                </button>
+                                <button type="button" id="get_xls" class="btn btn-info btn-sm waves-effect waves-light get_report">
+                                    <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp; XLS
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row"><br><br><br></div>
+                    <div class="row">
+                        <div class="table-responsive col-md-12" style="position: relative">
+                            <div id="shade"><div class="loader two-color"></div></div>
+                            <small>
+                                <table class="table table-hover table-bordered table-condensed">
+                                    <thead>
+                                        <tr>
+                                            {% for data in list_header %}
+                                                <th><input type="text" name="list_header_modified" class="list_header_modified" value="{{ data.1 }}" form="report"></th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script type="text/javascript">
+$(function(){
+    var from, to;
+    var tableList = $('table tbody');
+    var thead = $('table thead tr');
+    var reportUrl = $('#report').attr('action');
+
+    $(document).ready(function(){
+        $('.advanced_filter').select2('destroy');
+    })
+
+    $(document).on('click', '.advanced_add', function(){
+        $('.advanced_search').last().clone().appendTo('#advanced');
+        $('.advanced_search .advanced_keyword').last().val('')
+    });
+
+    $(document).on('click', '.advanced_remove', function(){
+        $('.advanced_search').not('.advanced_search:eq(0)').last().remove();
+    });
+
+    $('select').select2();
+
+    $('select').on('select2:select', function(event) {
+        var element = event.params.data.element;
+        var $element = $(element);
+
+        $element.detach();
+        $(this).append($element);
+        $(this).trigger('change');
+    });
+
+    $(document).on('click', '#generate', function() {
+        generateReport();
+    });
+
+    $('.get_report').on('click', function(){
+        var id = $(this).attr('id');
+        if(id == 'get_pdf'){
+            $('#report').attr('action', reportUrl + 'pdf').submit();
+        }
+        else{
+            $('#report').attr('action', reportUrl + 'xls').submit();
+        }
+    });
+
+    function generateReport(){
+        list_header = $('.list_header').val();
+        from = $('.datepickerfrom').val();
+        to = $('.datepickerto').val();
+        orderby = $('.orderby').val();
+        orderasc = $('.orderasc').val();
+        fontsize = $('.fontsize').val();
+        orientation = $('.orientation').val();
+        size = $('.size').val();
+
+        advanced_filter = [];
+        $('.advanced_filter').each(function(){
+            advanced_filter.push($(this).val());
+        });
+
+        advanced_keyword = [];
+        $('.advanced_keyword').each(function(){
+            advanced_keyword.push($(this).val());
+        });
+
+        tableList.html('');
+        $('#shade').fadeIn();
+        $.ajax({
+            url: "{% url 'rep_supplier:report' %}",
+            type: "get",
+            data: {
+                'list_header': list_header,
+                'from': from,
+                'to': to,
+                'orderby': orderby,
+                'orderasc': orderasc,
+                'fontsize': fontsize,
+                'orientation': orientation,
+                'size': size,
+                'advanced_filter': advanced_filter,
+                'advanced_keyword': advanced_keyword,
+                'csrfmiddlewaretoken': "{{csrf_token}}"
+            },
+            success: function(response) {
+                if(response.list_table != "[]"){
+                    var list_table = response.list_table;
+                    var list_header = response.list_header;
+                    var list_header_modified = response.list_header_modified;
+
+                    thead.html("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header_modified[0] + "' form='report'></th>");
+                    for (var i = 1; i < list_header.length; i++) {
+                        thead.last('th').append("<th><input type='text' name='list_header_modified' class='list_header_modified' value='" + list_header_modified[i] + "' form='report'></th>");
+                    }
+
+                    for (var i = 0; i < list_table.length; i++) {
+                        if (jQuery.type(list_table[i][list_header[0]]) === "object") {
+                            tableList.append("<tr><td>" + list_table[i][list_header[0]]['code'] + "</td></tr>");
+                        }
+                        else{
+                            if (list_table[i][list_header[0]] == null){
+                                tableList.append("<tr><td> - </td></tr>");
+                            }
+                            else{
+                                tableList.append("<tr><td>" + list_table[i][list_header[0]] + "</td></tr>");
+                            }
+                        }
+
+                        for (var j = 1; j < list_header.length; j++) {
+                            if (jQuery.type(list_table[i][list_header[j]]) === "object") {
+                                tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i][list_header[j]]['code'] + "</td>");
+                            }
+                            else{
+                                if (list_table[i][list_header[j]] == null){
+                                    tableList.find('tr').eq(i).last('td').append("<td> - </td>");
+                                }
+                                else{
+                                    tableList.find('tr').eq(i).last('td').append("<td>" + list_table[i][list_header[j]] + "</td>");
+                                }
+                            }
+                        }
+
+                        $('#shade').fadeOut();
+                    }
+                }
+                else{
+                    tableList.append("<tr><td colspan='100%'> No result found </td></tr>");
+                    $('#shade').fadeOut();
+                }
+            }
+            ,error: function(response) {
+                console.debug(response);
+                tableList.html('');
+                tableList.append("<tr><td colspan='100%'> No result found </td></tr>");
+                $('#shade').fadeOut();
+            }
+        });
+    }
+});
+</script>
+{% endblock extra_js %}
+
