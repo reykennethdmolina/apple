@@ -25,6 +25,8 @@
                                 <option value="2">Official Receipt Transaction List</option>
                                 <option value="3">Unposted Official Receipt Transaction List - Summary</option>
                                 <option value="4">Unposted Official Receipt Transaction List</option>
+                                <option value="5">Official Receipt List (Unbalanced Cash in Bank VS Amount)</option>
+                                <option value="6">Unbalanced Official Receipt Transaction List</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -174,7 +176,7 @@
                 </div>
             </div>
             <div class="col-md-12" style="min-height: 800px;">
-                <iframe src="{% url 'officialreceipt:pdf' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&ortype=&artype=&payee=null&branch=&collector=&product=&adtype=&wtax=&vat=&outputvat=&bankaccount=&status=" id="result" height="1200px" width="100%"></iframe>
+                <iframe src="{% url 'officialreceipt:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&ortype=&artype=&payee=null&branch=&collector=&product=&adtype=&wtax=&vat=&outputvat=&bankaccount=&status=" id="result" height="1200px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -204,7 +206,7 @@ $(function(){
         var vat = $('#vat').val();
         var outputvat = $('#outputvat').val();
         var bankaccount = $('#bankaccount').val();
-        url = "{% url 'officialreceipt:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
+        url = "{% url 'officialreceipt:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
         $('#result').prop('src', url);
     });
 

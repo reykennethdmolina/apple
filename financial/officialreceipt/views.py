@@ -1,5 +1,6 @@
 from django.views.generic import View, DetailView, CreateView, UpdateView, DeleteView, ListView, TemplateView
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
@@ -49,8 +50,10 @@ from employee.models import Employee
 from chartofaccount.models import Chartofaccount
 from annoying.functions import get_object_or_None
 import decimal
+import pandas as pd
 from django.utils.dateformat import DateFormat
 from financial.utils import Render
+from financial.context_processors import namedtuplefetchall
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
@@ -1434,37 +1437,51 @@ class GeneratePDF(View):
         bankaccount = request.GET['bankaccount']
         status = request.GET['status']
         title = "Official Receipt List"
-        list = Ormain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
+        list = Ormain.objects.filter(isdeleted=0).order_by('ornum')[:0]
 
         if report == '1':
             title = "Official Receipt Transaction List - Summary"
-            q = Ormain.objects.filter(isdeleted=0).order_by('ornum', 'ordate')
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
             if dfrom != '':
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
         elif report == '2':
             title = "Official Receipt Transaction List"
-            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0).order_by('or_num', 'or_date', 'item_counter')
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0).order_by('or_date', 'or_num', 'item_counter')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
                 q = q.filter(or_date__lte=dto)
         elif report == '3':
             title = "Unposted Official Receipt Transaction List - Summary"
-            q = Ormain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('ornum', 'ordate')
+            q = Ormain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('ordate', 'ornum')
             if dfrom != '':
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
         elif report == '4':
             title = "Unposted Official Receipt Transaction List"
-            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0,status__in=['A','C']).order_by('or_num', 'or_date', 'item_counter')
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0,status__in=['A','C']).order_by('or_date', 'or_num',  'item_counter')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
                 q = q.filter(or_date__lte=dto)
-                
+        elif report == '5':
+            title = "Official Receipt List (Unbalanced Cash in Bank VS Amount)"
+            q = Ormain.objects.select_related('ordetail').filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '6':
+            title = "Unbalanced Official Receipt Transaction List"
+            q = Ormain.objects.select_related('ordetail').filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+
         if ortype != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__ortype__exact=ortype)
@@ -1523,11 +1540,30 @@ class GeneratePDF(View):
         if status != '':
             q = q.filter(status=status)
 
-        list = q[:65]
-        if list:
-            total = list.aggregate(total_amount=Sum('amount'))
-            if report == '2' or report == '4':
-                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+        if report == '5':
+            list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
+            dataset = pd.DataFrame(list)
+            total = {}
+            total['amount'] = dataset['amount'].sum()
+            total['cashinbank'] = dataset['cashinbank'].sum()
+            total['diff'] = dataset['diff'].sum()
+            total['outputvat'] = dataset['outputvat'].sum()
+            total['amountdue'] = dataset['amountdue'].sum()
+        elif report == '6':
+            list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
+            dataset = pd.DataFrame(list)
+            total = {}
+            total['amount'] = dataset['amount'].sum()
+            total['debitamount'] = dataset['debitamount'].sum()
+            total['creditamount'] = dataset['creditamount'].sum()
+            total['diff'] = dataset['totaldiff'].sum()
+            print total
+        else:
+            list = q[:65]
+            if list:
+                total = list.aggregate(total_amount=Sum('amount'))
+                if report == '2' or report == '4':
+                    total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         context = {
             "title": title,
@@ -1547,5 +1583,97 @@ class GeneratePDF(View):
             return Render.render('officialreceipt/report/report_3.html', context)
         elif report == '4':
             return Render.render('officialreceipt/report/report_4.html', context)
+        elif report == '5':
+            return Render.render('officialreceipt/report/report_5.html', context)
+        elif report == '6':
+            return Render.render('officialreceipt/report/report_6.html', context)
         else:
             return Render.render('officialreceipt/report/report_1.html', context)
+        
+        
+def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status):
+    print "raw query"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    conortype = ""
+    conartype = ""
+    conpayee = ""
+    concollector = ""
+    conbranch = ""
+    conproduct = ""
+    conadtype = ""
+    conwtax = ""
+    convat = ""
+    conoutputvat = ""
+    conbankaccount = ""
+    constatus = ""
+
+    if ortype != '':
+        conortype = "AND m.ortype = '" +str(ortype)+ "'"
+    if artype != '':
+        conartype = "AND m.artype = '" + str(artype) + "'"
+    if payee != 'null':
+        conpayee = "AND m.payee_code = '" + str(payee) + "'"
+    if branch != '':
+        conbranch = "AND m.branch = '" + str(branch) + "'"
+    if collector != '':
+        concollector = "AND m.collector = '" + str(collector) + "'"
+    if product != '':
+        conproduct = "AND m.product = '" + str(product) + "'"
+    if adtype != '':
+        conadtype = "AND m.adtype = '" + str(adtype) + "'"
+    if wtax != '':
+        conwtax = "AND m.wtax = '" + str(wtax) + "'"
+    if vat != '':
+        convat = "AND m.vat = '" + str(vat) + "'"
+    if outputvat != '':
+        conoutputvat = "AND m.outputvattype = '" + str(outputvattype) + "'"
+    if bankaccount != '':
+        conbankaccount = "AND m.bankaccount = '" + str(bankaccount) + "'"
+    if status != '':
+        constatus = "AND m.status = '" + str(status) + "'"
+
+    if type == 1:
+        query = "SELECT m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, " \
+                "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
+                "FROM ormain AS m " \
+                "LEFT OUTER JOIN (" \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   FROM ordetail WHERE balancecode = 'D' AND chartofaccount_id = "+str(company.coa_cashinbank_id)+ " " \
+                "   GROUP BY or_num" \
+                ") AS cash ON cash.or_num = m.ornum " \
+                "LEFT OUTER JOIN (" \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   FROM ordetail WHERE balancecode = 'C' AND chartofaccount_id = "+str(company.coa_outputvat_id)+ " " \
+                "   GROUP BY or_num " \
+                ")AS ouput ON ouput.or_num = m.ornum " \
+                "WHERE m.ordate >= '"+str(dfrom)+"' AND m.ordate <= '"+str(dto)+"' " \
+                "AND (m.amount <> cash.total_amount OR cash.total_amount IS NULL) " \
+                + str(conortype) + " " + str(conartype) + " " + str(conpayee) + " " + str(conbranch) + " "+ str(concollector) + " " + str(conproduct) + " " \
+                + str(conadtype) + " " + str(conwtax) + " " + str(convat) + " " + str(conoutputvat) + " "+ str(conbankaccount) + " " + str(constatus) + " " \
+                "ORDER BY m.ordate,  m.ornum"
+    elif type == 2:
+        query = "SELECT z.*, ABS(z.detaildiff + z.diff) AS totaldiff FROM (" \
+                "SELECT m.ornum, m.ordate, m.payee_name, m.amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
+                "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
+                "FROM ormain AS m " \
+                "LEFT OUTER JOIN ( " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   FROM ordetail WHERE balancecode = 'D' " \
+                "   GROUP BY or_num " \
+                ") AS debit ON debit.or_num = m.ornum	 " \
+                "LEFT OUTER JOIN ( " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   FROM ordetail WHERE balancecode = 'C' " \
+                "   GROUP BY or_num " \
+                ") AS credit ON credit.or_num = m.ornum	" \
+                "WHERE m.ordate >= '"+str(dfrom)+"' AND m.ordate <= '"+str(dto)+"' " \
+                + str(conortype) + " " + str(conartype) + " " + str(conpayee) + " " + str(conbranch) + " " + str(concollector) + " " + str(conproduct) + " " \
+                + str(conadtype) + " " + str(conwtax) + " " + str(convat) + " " + str(conoutputvat) + " " + str(conbankaccount) + " " + str(constatus) + " " \
+                "AND m.status != 'C' ORDER BY m.ordate,  m.ornum) AS z WHERE z.detaildiff != 0 OR z.diff != 0;"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result

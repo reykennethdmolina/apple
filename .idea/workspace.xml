@@ -2,80 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/financial/journalvoucher/templatetags/__init__.py" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/financial/journalvoucher/templatetags/custom.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/accountspayable/urls.py" afterPath="$PROJECT_DIR$/financial/accountspayable/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/accountspayable/views.py" afterPath="$PROJECT_DIR$/financial/accountspayable/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/agent/templates/agent/index.html" afterPath="$PROJECT_DIR$/financial/agent/templates/agent/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/agent/urls.py" afterPath="$PROJECT_DIR$/financial/agent/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/agent/views.py" afterPath="$PROJECT_DIR$/financial/agent/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ataxcode/templates/ataxcode/index.html" afterPath="$PROJECT_DIR$/financial/ataxcode/templates/ataxcode/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/ataxcode/urls.py" afterPath="$PROJECT_DIR$/financial/ataxcode/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ataxcode/views.py" afterPath="$PROJECT_DIR$/financial/ataxcode/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/bank/templates/bank/list.html" afterPath="$PROJECT_DIR$/financial/bank/templates/bank/list.html" />
-      <change beforePath="$PROJECT_DIR$/financial/bank/views.py" afterPath="$PROJECT_DIR$/financial/bank/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/bankaccount/templates/bankaccount/list.html" afterPath="$PROJECT_DIR$/financial/bankaccount/templates/bankaccount/list.html" />
-      <change beforePath="$PROJECT_DIR$/financial/bankaccount/views.py" afterPath="$PROJECT_DIR$/financial/bankaccount/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/bankbranch/templates/bankbranch/list.html" afterPath="$PROJECT_DIR$/financial/bankbranch/templates/bankbranch/list.html" />
-      <change beforePath="$PROJECT_DIR$/financial/bankbranch/views.py" afterPath="$PROJECT_DIR$/financial/bankbranch/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/branch/templates/branch/index.html" afterPath="$PROJECT_DIR$/financial/branch/templates/branch/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/branch/urls.py" afterPath="$PROJECT_DIR$/financial/branch/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/branch/views.py" afterPath="$PROJECT_DIR$/financial/branch/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/chartofaccount/templates/chartofaccount/list.html" afterPath="$PROJECT_DIR$/financial/chartofaccount/templates/chartofaccount/list.html" />
-      <change beforePath="$PROJECT_DIR$/financial/chartofaccount/views.py" afterPath="$PROJECT_DIR$/financial/chartofaccount/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/urls.py" afterPath="$PROJECT_DIR$/financial/checkvoucher/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/views.py" afterPath="$PROJECT_DIR$/financial/checkvoucher/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/circulationproduct/templates/circulationproduct/index.html" afterPath="$PROJECT_DIR$/financial/circulationproduct/templates/circulationproduct/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/circulationproduct/urls.py" afterPath="$PROJECT_DIR$/financial/circulationproduct/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/circulationproduct/views.py" afterPath="$PROJECT_DIR$/financial/circulationproduct/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" afterPath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/collector/urls.py" afterPath="$PROJECT_DIR$/financial/collector/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/collector/views.py" afterPath="$PROJECT_DIR$/financial/collector/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/department/templates/department/index.html" afterPath="$PROJECT_DIR$/financial/department/templates/department/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/department/urls.py" afterPath="$PROJECT_DIR$/financial/department/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/department/views.py" afterPath="$PROJECT_DIR$/financial/department/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/employee/templates/employee/index.html" afterPath="$PROJECT_DIR$/financial/employee/templates/employee/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/employee/urls.py" afterPath="$PROJECT_DIR$/financial/employee/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/employee/views.py" afterPath="$PROJECT_DIR$/financial/employee/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvat/templates/inputvat/index.html" afterPath="$PROJECT_DIR$/financial/inputvat/templates/inputvat/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvat/urls.py" afterPath="$PROJECT_DIR$/financial/inputvat/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvat/views.py" afterPath="$PROJECT_DIR$/financial/inputvat/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/journalvoucher/urls.py" afterPath="$PROJECT_DIR$/financial/journalvoucher/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/journalvoucher/views.py" afterPath="$PROJECT_DIR$/financial/journalvoucher/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainproduct/templates/mainproduct/index.html" afterPath="$PROJECT_DIR$/financial/mainproduct/templates/mainproduct/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/mainproduct/urls.py" afterPath="$PROJECT_DIR$/financial/mainproduct/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainproduct/views.py" afterPath="$PROJECT_DIR$/financial/mainproduct/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/module/templates/module/index.html" afterPath="$PROJECT_DIR$/financial/module/templates/module/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/module/urls.py" afterPath="$PROJECT_DIR$/financial/module/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/module/views.py" afterPath="$PROJECT_DIR$/financial/module/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html" afterPath="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html" />
       <change beforePath="$PROJECT_DIR$/financial/officialreceipt/urls.py" afterPath="$PROJECT_DIR$/financial/officialreceipt/urls.py" />
       <change beforePath="$PROJECT_DIR$/financial/officialreceipt/views.py" afterPath="$PROJECT_DIR$/financial/officialreceipt/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/product/templates/product/index.html" afterPath="$PROJECT_DIR$/financial/product/templates/product/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/product/urls.py" afterPath="$PROJECT_DIR$/financial/product/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/product/views.py" afterPath="$PROJECT_DIR$/financial/product/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report.html" afterPath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_customer/templates/rep_customer/pdf.html" afterPath="$PROJECT_DIR$/financial/rep_customer/templates/rep_customer/pdf.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_supplier/templates/rep_supplier/index.html" afterPath="$PROJECT_DIR$/financial/rep_supplier/templates/rep_supplier/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_supplier/templates/rep_supplier/pdf.html" afterPath="$PROJECT_DIR$/financial/rep_supplier/templates/rep_supplier/pdf.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_supplier/urls.py" afterPath="$PROJECT_DIR$/financial/rep_supplier/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_supplier/views.py" afterPath="$PROJECT_DIR$/financial/rep_supplier/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceclassification/templates/serviceclassification/index.html" afterPath="$PROJECT_DIR$/financial/serviceclassification/templates/serviceclassification/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceclassification/urls.py" afterPath="$PROJECT_DIR$/financial/serviceclassification/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceclassification/views.py" afterPath="$PROJECT_DIR$/financial/serviceclassification/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceinformation/templates/serviceinformation/index.html" afterPath="$PROJECT_DIR$/financial/serviceinformation/templates/serviceinformation/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceinformation/urls.py" afterPath="$PROJECT_DIR$/financial/serviceinformation/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/serviceinformation/views.py" afterPath="$PROJECT_DIR$/financial/serviceinformation/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/static/js/ajaxselect2.js" afterPath="$PROJECT_DIR$/financial/static/js/ajaxselect2.js" />
-      <change beforePath="$PROJECT_DIR$/financial/supplier/models.py" afterPath="$PROJECT_DIR$/financial/supplier/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/supplier/urls.py" afterPath="$PROJECT_DIR$/financial/supplier/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/supplier/views.py" afterPath="$PROJECT_DIR$/financial/supplier/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/utils/urls.py" afterPath="$PROJECT_DIR$/financial/utils/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/utils/views.py" afterPath="$PROJECT_DIR$/financial/utils/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/vat/templates/vat/index.html" afterPath="$PROJECT_DIR$/financial/vat/templates/vat/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/vat/urls.py" afterPath="$PROJECT_DIR$/financial/vat/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/vat/views.py" afterPath="$PROJECT_DIR$/financial/vat/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -87,182 +17,144 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/index.html">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="263">
-              <caret line="98" column="78" lean-forward="false" selection-start-line="98" selection-start-column="78" selection-end-line="98" selection-end-column="78" />
+            <state relative-caret-position="459">
+              <caret line="27" column="66" lean-forward="false" selection-start-line="27" selection-start-column="66" selection-end-line="27" selection-end-column="66" />
+              <folding>
+                <element signature="e#4062#4068#0" expanded="true" />
+                <element signature="e#4068#4074#0" expanded="true" />
+                <element signature="e#4335#4341#0" expanded="true" />
+                <element signature="e#4341#4347#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="23" column="7" lean-forward="false" selection-start-line="23" selection-start-column="7" selection-end-line="23" selection-end-column="7" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="12" column="59" lean-forward="false" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="59" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="urls-old.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls-old.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="15" column="67" lean-forward="false" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="67" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/views.py">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="233">
-              <caret line="1978" column="34" lean-forward="false" selection-start-line="1978" selection-start-column="34" selection-end-line="1978" selection-end-column="34" />
+            <state relative-caret-position="25517">
+              <caret line="1559" column="23" lean-forward="false" selection-start-line="1559" selection-start-column="23" selection-end-line="1559" selection-end-column="23" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="report_5.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_5.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="24" column="22" lean-forward="false" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
               <folding>
-                <element signature="e#0#95#0" expanded="true" />
-                <element signature="e#31823#35376#0" expanded="false" />
-                <element signature="e#35418#37537#0" expanded="false" />
-                <element signature="e#45761#46605#0" expanded="false" />
-                <element signature="e#46724#47794#0" expanded="false" />
-                <element signature="e#47846#85995#0" expanded="false" />
-                <element signature="e#86046#100471#0" expanded="false" />
-                <element signature="e#100528#107728#0" expanded="false" />
+                <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="e#3377#3383#0" expanded="true" />
+                <element signature="e#3383#3389#0" expanded="true" />
+                <element signature="e#3389#3395#0" expanded="true" />
+                <element signature="e#3395#3401#0" expanded="true" />
+                <element signature="e#3401#3407#0" expanded="true" />
+                <element signature="e#3407#3413#0" expanded="true" />
+                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#6;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#7;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#5;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#6;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#7;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#5;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#5;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#6;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="report_6.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_6.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="569">
+              <caret line="136" column="90" lean-forward="false" selection-start-line="136" selection-start-column="90" selection-end-line="136" selection-end-column="90" />
+              <folding>
+                <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#th#6;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#5;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#6;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#td#5;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="report_1.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_1.html">
+        <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_1.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="128" column="47" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="141" selection-end-column="7" />
-              <folding>
-                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report_2.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_2.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="671">
-              <caret line="139" column="100" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
-              <folding>
-                <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="e#3455#3461#0" expanded="true" />
-                <element signature="e#3461#3467#0" expanded="true" />
-                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#5;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report_2.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/report_2.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="433">
-              <caret line="136" column="32" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
+            <state relative-caret-position="1921">
+              <caret line="113" column="20" lean-forward="false" selection-start-line="113" selection-start-column="20" selection-end-line="113" selection-end-column="20" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report_3.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_3.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="603">
-              <caret line="141" column="7" lean-forward="false" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
-              <folding>
-                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report_4.html" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_4.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="603">
-              <caret line="171" column="7" lean-forward="false" selection-start-line="171" selection-start-column="7" selection-end-line="171" selection-end-column="7" />
-              <folding>
-                <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="e#3455#3461#0" expanded="true" />
-                <element signature="e#3461#3467#0" expanded="true" />
-                <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#5;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="urls-old.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls-old.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="18" column="99" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="99" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="16" column="4" lean-forward="false" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/checkvoucher/views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="617" column="0" lean-forward="false" selection-start-line="617" selection-start-column="0" selection-end-line="617" selection-end-column="0" />
-              <folding>
-                <element signature="e#31381#32216#0" expanded="false" />
-                <element signature="e#32335#33174#0" expanded="false" />
-                <element signature="e#33216#35286#0" expanded="false" />
-                <element signature="e#35328#36057#0" expanded="false" />
-                <element signature="e#36104#41896#0" expanded="false" />
-                <element signature="e#41948#44365#0" expanded="false" />
-                <element signature="e#44417#84381#0" expanded="false" />
-                <element signature="e#84432#98574#0" expanded="false" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -279,20 +171,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Date</find>
-      <find>Date:</find>
-      <find>pdf.h</find>
-      <find>amount</find>
-      <find>total</find>
-      <find>from django.db.models import Sum</find>
-      <find>sum</find>
-      <find>from datetime import datetime</find>
-      <find>select_related</find>
-      <find>ReportView</find>
-      <find>id_payee</find>
-      <find>Payee</find>
-      <find>utils</find>
-      <find>ajaxselect2</find>
       <find>department</find>
       <find>formatSelection</find>
       <find>inputvat</find>
@@ -309,6 +187,20 @@
       <find>timezone</find>
       <find>collector</find>
       <find>GeneratePDF</find>
+      <find>report_xls</find>
+      <find>unb</find>
+      <find>paytype</find>
+      <find>company</find>
+      <find>from django.db.models import Q</find>
+      <find>ub</find>
+      <find>pd</find>
+      <find>query_income_statement</find>
+      <find>unba</find>
+      <find>3000</find>
+      <find>namedtuplefetchall</find>
+      <find>query_balance_sheet</find>
+      <find>sum</find>
+      <find>datas</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -317,8 +209,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/agent/templates/agent/index.html" />
-        <option value="$PROJECT_DIR$/financial/agent/templates/agent/list.html" />
         <option value="$PROJECT_DIR$/financial/agent/urls.py" />
         <option value="$PROJECT_DIR$/financial/agent/views.py" />
         <option value="$PROJECT_DIR$/financial/journalvoucher/views-old.py" />
@@ -347,16 +237,13 @@
         <option value="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/report_4.html" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/urls-old.py" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/views-old.py" />
-        <option value="$PROJECT_DIR$/financial/officialreceipt/urls.py" />
         <option value="$PROJECT_DIR$/financial/static/js/ajaxselect2.js" />
         <option value="$PROJECT_DIR$/financial/utils/urls.py" />
         <option value="$PROJECT_DIR$/financial/utils/views.py" />
         <option value="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/index.html" />
         <option value="$PROJECT_DIR$/financial/checkvoucher/views.py" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_1.html" />
-        <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_2.html" />
-        <option value="$PROJECT_DIR$/financial/officialreceipt/views.py" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_4.html" />
         <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_3.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/views-old.py" />
@@ -368,12 +255,17 @@
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_3.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_2.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_4.html" />
+        <option value="$PROJECT_DIR$/financial/officialreceipt/urls.py" />
+        <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html" />
+        <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_5.html" />
+        <option value="$PROJECT_DIR$/financial/officialreceipt/views.py" />
+        <option value="$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_6.html" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="306" />
-    <option name="y" value="78" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="725" />
+    <option name="y" value="12" />
     <option name="width" value="1599" />
     <option name="height" value="1029" />
   </component>
@@ -392,7 +284,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -409,67 +301,37 @@
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
-              <item name="report" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
+              <item name="officialreceipt" type="462c0819:PsiDirectoryNode" />
               <item name="report" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -516,19 +378,18 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="725" y="12" width="1599" height="1029" extended-state="0" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13540569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16463806" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18181819" sideWeight="0.36670178" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18729097" sideWeight="0.3805253" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18181819" sideWeight="0.6332982" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18729097" sideWeight="0.6194747" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -565,49 +426,11 @@
           <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="9" />
+      <option name="time" value="10" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/report.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1275">
-          <caret line="108" column="75" lean-forward="false" selection-start-line="108" selection-start-column="75" selection-end-line="108" selection-end-column="75" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="18" column="0" lean-forward="true" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/journalvoucher/templatetags/custom.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="12" lean-forward="false" selection-start-line="9" selection-start-column="12" selection-end-line="9" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/reportresult.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="16" column="64" lean-forward="false" selection-start-line="16" selection-start-column="59" selection-end-line="16" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="31" column="39" lean-forward="false" selection-start-line="31" selection-start-column="39" selection-end-line="31" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#45#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/journalvoucher/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -714,13 +537,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls-old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/officialreceipt/views-old.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="671">
@@ -739,13 +555,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="16" column="60" lean-forward="true" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="12" column="4" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="4" />
         </state>
       </provider>
     </entry>
@@ -777,45 +586,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_2.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="135" column="36" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_4.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2907">
-          <caret line="171" column="7" lean-forward="false" selection-start-line="171" selection-start-column="7" selection-end-line="171" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_1.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1768">
-          <caret line="104" column="37" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="152" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_3.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2584">
-          <caret line="152" column="7" lean-forward="false" selection-start-line="152" selection-start-column="7" selection-end-line="152" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="190" column="50" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="204" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="101" column="37" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -833,18 +607,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1139">
-          <caret line="1491" column="49" lean-forward="false" selection-start-line="1491" selection-start-column="49" selection-end-line="1491" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/create.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="368">
           <caret line="440" column="39" lean-forward="false" selection-start-line="440" selection-start-column="25" selection-end-line="440" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -852,57 +618,22 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="263">
           <caret line="84" column="6" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="152" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="617" column="0" lean-forward="false" selection-start-line="617" selection-start-column="0" selection-end-line="617" selection-end-column="0" />
-          <folding>
-            <element signature="e#31381#32216#0" expanded="false" />
-            <element signature="e#32335#33174#0" expanded="false" />
-            <element signature="e#33216#35286#0" expanded="false" />
-            <element signature="e#35328#36057#0" expanded="false" />
-            <element signature="e#36104#41896#0" expanded="false" />
-            <element signature="e#41948#44365#0" expanded="false" />
-            <element signature="e#44417#84381#0" expanded="false" />
-            <element signature="e#84432#98574#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls-old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="18" column="99" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="99" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="16" column="4" lean-forward="false" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
+        <state relative-caret-position="1666">
           <caret line="98" column="78" lean-forward="false" selection-start-line="98" selection-start-column="78" selection-end-line="98" selection-end-column="78" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/accountspayable/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
+        <state relative-caret-position="14773">
           <caret line="1978" column="34" lean-forward="false" selection-start-line="1978" selection-start-column="34" selection-end-line="1978" selection-end-column="34" />
           <folding>
-            <element signature="e#0#95#0" expanded="true" />
+            <element signature="e#0#95#0" expanded="false" />
             <element signature="e#31823#35376#0" expanded="false" />
             <element signature="e#35418#37537#0" expanded="false" />
             <element signature="e#45761#46605#0" expanded="false" />
@@ -918,36 +649,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="382">
           <caret line="128" column="47" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="141" selection-end-column="7" />
-          <folding>
-            <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_3.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="603">
-          <caret line="141" column="7" lean-forward="false" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
-          <folding>
-            <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/report_2.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="136" column="32" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -955,32 +656,20 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="671">
           <caret line="139" column="100" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
-          <folding>
-            <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="e#3455#3461#0" expanded="true" />
-            <element signature="e#3461#3467#0" expanded="true" />
-            <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#5;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/report/report_2.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="433">
+          <caret line="136" column="32" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_3.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="603">
+          <caret line="141" column="7" lean-forward="false" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -988,31 +677,201 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="603">
           <caret line="171" column="7" lean-forward="false" selection-start-line="171" selection-start-column="7" selection-end-line="171" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls-old.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="18" column="99" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="16" column="4" lean-forward="false" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="617" column="0" lean-forward="false" selection-start-line="617" selection-start-column="0" selection-end-line="617" selection-end-column="0" />
+          <folding>
+            <element signature="e#31381#32216#0" expanded="false" />
+            <element signature="e#32335#33174#0" expanded="false" />
+            <element signature="e#33216#35286#0" expanded="false" />
+            <element signature="e#35328#36057#0" expanded="false" />
+            <element signature="e#36104#41896#0" expanded="false" />
+            <element signature="e#41948#44365#0" expanded="false" />
+            <element signature="e#44417#84381#0" expanded="false" />
+            <element signature="e#84432#98574#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="23" column="7" lean-forward="false" selection-start-line="23" selection-start-column="7" selection-end-line="23" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls-old.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="15" column="67" lean-forward="false" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="67" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="12" column="59" lean-forward="false" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_2.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="140" column="13" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_3.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="507">
+          <caret line="141" column="96" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="152" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_4.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="422">
+          <caret line="155" column="68" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="171" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/financial/context_processors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="33">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="871" column="47" lean-forward="false" selection-start-line="871" selection-start-column="47" selection-end-line="871" selection-end-column="47" />
+          <folding>
+            <element signature="e#17687#37647#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="27" column="66" lean-forward="false" selection-start-line="27" selection-start-column="66" selection-end-line="27" selection-end-column="66" />
+          <folding>
+            <element signature="e#4062#4068#0" expanded="true" />
+            <element signature="e#4068#4074#0" expanded="true" />
+            <element signature="e#4335#4341#0" expanded="true" />
+            <element signature="e#4341#4347#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_1.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1921">
+          <caret line="113" column="20" lean-forward="false" selection-start-line="113" selection-start-column="20" selection-end-line="113" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_5.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="24" column="22" lean-forward="false" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
           <folding>
             <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="e#3455#3461#0" expanded="true" />
-            <element signature="e#3461#3467#0" expanded="true" />
             <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="e#3377#3383#0" expanded="true" />
+            <element signature="e#3383#3389#0" expanded="true" />
+            <element signature="e#3389#3395#0" expanded="true" />
+            <element signature="e#3395#3401#0" expanded="true" />
+            <element signature="e#3401#3407#0" expanded="true" />
+            <element signature="e#3407#3413#0" expanded="true" />
             <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#6;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#7;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#0;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#4;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#5;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#6;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#7;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#5;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#5;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#6;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25517">
+          <caret line="1559" column="23" lean-forward="false" selection-start-line="1559" selection-start-column="23" selection-end-line="1559" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/officialreceipt/templates/officialreceipt/report/report_6.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="569">
+          <caret line="136" column="90" lean-forward="false" selection-start-line="136" selection-start-column="90" selection-end-line="136" selection-end-column="90" />
+          <folding>
+            <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#2;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#3;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#4;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#5;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#th#6;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#0;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#1;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#2;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#3;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#4;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#5;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#6;n#tr#0;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#1;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#2;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#3;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#4;n#tr#1;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#4;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#td#5;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
