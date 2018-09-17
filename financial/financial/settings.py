@@ -167,6 +167,10 @@ INSTALLED_APPS = [
     'accountexpensebalance',
     'rep_budget',
     'rep_booksofaccounts',
+    'orinquiry',
+    'apinquiry',
+    'jvinquiry',
+    'cvinquiry',
 ]
 
 MIDDLEWARE_CLASSES = [

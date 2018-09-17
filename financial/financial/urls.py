@@ -153,6 +153,12 @@ urlpatterns = [
     url(r'^rep_master/', include('rep_master.urls', app_name='rep_master', namespace='rep_master')),
     url(r'^generalledgerbook/', include('generalledgerbook.urls', app_name='generalledgerbook', namespace='generalledgerbook')),
 
+    # New Module
+    url(r'^orinquiry/', include('orinquiry.urls', app_name='orinquiry', namespace='orinquiry')),
+    url(r'^cvinquiry/', include('cvinquiry.urls', app_name='cvinquiry', namespace='cvinquiry')),
+    url(r'^jvinquiry/', include('jvinquiry.urls', app_name='jvinquiry', namespace='jvinquiry')),
+    url(r'^apinquiry/', include('apinquiry.urls', app_name='apinquiry', namespace='apinquiry')),
+
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
     url(r'^logout/$', logout, {'next_page': '/login/'}),
