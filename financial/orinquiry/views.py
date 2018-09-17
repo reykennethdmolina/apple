@@ -17,20 +17,13 @@ from wtax.models import Wtax
 from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 import pandas as pd
 from datetime import timedelta
-from django.http import StreamingHttpResponse
 import io
 import xlsxwriter
 import datetime
-
-# from collections import namedtuple
-# import datetime
-# import pandas as pd
-# from datetime import timedelta
-# import io
-# from xlsxwriter.workbook import Workbook
+from django.template.loader import render_to_string
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -52,6 +45,94 @@ class IndexView(ListView):
         context['wtax'] = Wtax.objects.filter(isdeleted=0).order_by('code')
 
         return context
+
+@method_decorator(login_required, name='dispatch')
+class Generate(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        chartofaccount = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        chart = request.GET['chart']
+        supplier = request.GET['supplier']
+        customer = request.GET['payee']
+        employee = request.GET['employee']
+        department = request.GET['department']
+        product = request.GET['product']
+        branch = request.GET['branch']
+        bankaccount = request.GET['bankaccount']
+        vat = request.GET['vat']
+        atax = request.GET['atax']
+        wtax = request.GET['wtax']
+        inputvat = request.GET['inputvat']
+        outputvat = request.GET['outputvat']
+        chart = request.GET['chart']
+        title = "Official Receipt Inquiry List"
+
+        list = Ordetail.objects.filter(isdeleted=0).order_by('or_date', 'or_num','item_counter')[:0]
+
+        if report == '1':
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0,chartofaccount__exact=chart).filter(~Q(status = 'C')).order_by('or_date', 'or_num','item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+
+        if chart != '':
+            chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
+
+        if supplier != 'null':
+            q = q.filter(supplier__exact=supplier)
+        if customer != 'null':
+            q = q.filter(customer__exact=customer)
+        if employee != 'null':
+            q = q.filter(employee__exact=employee)
+        if product != '':
+            q = q.filter(product__exact=product)
+        if department != '':
+            q = q.filter(department__exact=department)
+        if branch != '':
+            q = q.filter(branch__exact=branch)
+        if bankaccount != '':
+            q = q.filter(bankaccount__exact=bankaccount)
+        if vat != '':
+            q = q.filter(vat__exact=vat)
+        if atax != '':
+            q = q.filter(ataxcode__exact=atax)
+        if wtax != '':
+            q = q.filter(wtax__exact=wtax)
+        if inputvat != '':
+            q = q.filter(inputvat__exact=inputvat)
+        if outputvat != '':
+            q = q.filter(outputvat__exact=outputvat)
+
+        list = q
+
+        print list
+
+        if report == '1':
+            total = {}
+            total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "chartofaccount": chartofaccount,
+            "username": request.user,
+        }
+
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('orinquiry/generate.html', context)
+        }
+
+        return JsonResponse(data)
 
 @method_decorator(login_required, name='dispatch')
 class GeneratePDF(View):

@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^generate/$', views.Generate.as_view(), name='generate'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     # url(r'^(?P<pk>[0-9]+)/$', views.DetailView.as_view(), name='detail'),
