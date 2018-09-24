@@ -113,6 +113,7 @@
                 <tr>
                     <th style="text-align:left;width:150px">Code</th>
                     <th style="text-align:left;">Name</th>
+                    <th style="text-align:left;width:300px">Other</th>
                     <th style="text-align:center;width:80px">Rate</th>
                 </tr>
             </thead>
@@ -124,9 +125,10 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:150px">{{ item.code|upper }}</td>
-            <td style="text-align:left;">{{ item.description|upper }}</td>
-            <td style="text-align:center;width:80px">{{ item.rate }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.code|upper }}</td>
+            <td style="text-align:left;vertical-align:top;">{{ item.description|upper }}</td>
+            <td style="text-align:left;width:300px;vertical-align:top;">{{ item.others|upper }}</td>
+            <td style="text-align:right;width:80px;vertical-align:top;">{{ item.rate }}</td>
         </tr>
     {% endfor %}
     </tbody>

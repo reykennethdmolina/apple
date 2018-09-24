@@ -1570,6 +1570,8 @@ class GeneratePDF(View):
             "company": company,
             "list": list,
             "total": total,
+            "dfrom": dfrom,
+            "dto": dto,
             "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
             "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
             "username": request.user,

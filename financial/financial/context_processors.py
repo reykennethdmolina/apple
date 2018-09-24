@@ -13,7 +13,7 @@ def usermodule(request):
     if request.user.is_superuser:
         #SELECT IF (dct.app_label = 'auth', CONCAT('admin/',dct.app_label, '/', dct.model), dct.app_label) AS app_label, m.code AS modulecode, m.name AS modulename, "
         cursor.execute("SELECT m.segment AS app_label, m.code AS modulecode, m.name AS modulename, "
-                       "m.description AS moduledescp, m.segment AS modulesegment,mm.code AS mainmodulecode, "
+                       "m.description AS moduledescp, m.segment AS modulesegment, mm.code AS mainmodulecode, "
                        "mm.description AS mainmoduledescp, mm.iconfile AS mainiconfile "
                        "FROM django_content_type AS dct "
                        "INNER JOIN module AS m ON (m.django_content_type_id = dct.id AND m.isdeleted=0)"

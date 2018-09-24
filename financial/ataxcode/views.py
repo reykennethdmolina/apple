@@ -89,7 +89,7 @@ class GeneratePDF(View):
         company = Companyparameter.objects.all().first()
         list = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context = {
-            "title": "ATAX Master List",
+            "title": "ATC Master List",
             "today": timezone.now(),
             "company": company,
             "list": list,

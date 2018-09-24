@@ -107,7 +107,7 @@
                         <div class="form-group col-sm-2 {{ form.prdate.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_prdate">PR Date</label>
                             <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_prdate" name="prdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.prdate.value %}{{ form.prdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
-                            <span class="help-block form-error">{{ form.ortype.errors.as_text }}</span>
+                            <span class="help-block form-error">{{ form.prdate.errors.as_text }}</span>
                         </div>
                         <div class="form-group col-sm-4 {{ form.adtype.errors|yesno:'has-error,' }}">
                             <label class="control-label" for="id_adtype">Ad Type</label>

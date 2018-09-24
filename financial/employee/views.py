@@ -203,7 +203,7 @@ def unassignUserEmployee(request):
 class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
-        list = Employee.objects.filter(isdeleted=0).order_by('firstname', 'middlename', 'lastname')
+        list = Employee.objects.filter(isdeleted=0).order_by('lastname', 'firstname', 'middlename')
         context = {
             "title": "Employee Master List",
             "today": timezone.now(),

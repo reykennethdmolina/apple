@@ -126,12 +126,12 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:120px">{{ item.accountcode|upper }}</td>
-            <td style="text-align:left;width:350px">{{ item.title|upper }}</td>
-            <td style="text-align:left;width:350px">{{ item.description|upper }}</td>
-            <td style="text-align:center;width:100px">{{ item.balancecode }}</td>
-            <td style="text-align:center;width:100px">{{ item.get_accounttype_display }}</td>
-            <td style="text-align:center;width:100px">{{ item.subgroup.code }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.accountcode|upper }}</td>
+            <td style="text-align:left;width:350px;vertical-align:top;">{{ item.title|upper }}</td>
+            <td style="text-align:left;width:350px;vertical-align:top;">{{ item.description|upper }}</td>
+            <td style="text-align:center;width:100px;vertical-align:top;">{% if item.balancecode = 'D' %} Debit {% else %} Credit {% endif %}</td>
+            <td style="text-align:center;width:100px;vertical-align:top;">{{ item.get_accounttype_display }}</td>
+            <td style="text-align:center;width:100px;vertical-align:top;">{{ item.subgroup.code }}</td>
         </tr>
     {% endfor %}
     </tbody>

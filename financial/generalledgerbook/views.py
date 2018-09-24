@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from chartofaccount.models import Chartofaccount
@@ -17,6 +17,10 @@ import pandas as pd
 from datetime import timedelta
 import io
 from xlsxwriter.workbook import Workbook
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -35,23 +39,63 @@ class IndexView(TemplateView):
 
         return context
 
-@csrf_exempt
-def pdf(request):
-    # Create the HttpResponse object with the appropriate PDF headers.
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        report = request.GET['report']
+        type = request.GET['type']
+        year = request.GET['year']
+        month = request.GET['month']
+        title = "Supplier Master List"
 
-    # Create the PDF object, using the response object as its "file."
-    p = canvas.Canvas(response)
+        prevdate = datetime.date(int(year), int(month), 10) - timedelta(days=15)
+        prevyear = prevdate.year
+        prevmonth = prevdate.month
 
-    # Draw things on the PDF. Here's where the PDF generation happens.
-    # See the ReportLab documentation for the full list of functionality.
-    p.drawString(100, 100, "Hello world.")
+        # RETAINED EARNINGS
+        retained_earnings = Companyparameter.objects.first().coa_retainedearnings_id
+        current_earnings = Companyparameter.objects.first().coa_currentearnings_id
 
-    # Close the PDF object cleanly, and we're done.
-    p.showPage()
-    p.save()
-    return response
+        if report == 'TB':
+            title = "Trial Balance"
+            result = query_trial_balance(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+            print "trial balance"
+        elif report == 'BS':
+            title = "Balance Sheet"
+            result = query_balance_sheet(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+            current_month = datetime.date(int(year), int(month), 10).strftime("%B")
+            prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+            print "balance sheet"
+        elif report == 'IS':
+            title = "Income Statement"
+            current_month = datetime.date(int(year), int(month), 10).strftime("%B")
+            prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+            result = query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
+            print "income statement"
+        else:
+            print "no pdf"
+
+        data = result[:50]
+        month_text = datetime.date(int(year), int(month), 10).strftime("%B")
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "month": month_text,
+            "year": year,
+            "result": data,
+            "username": request.user,
+        }
+        if report == 'TB':
+            return Render.render('generalledgerbook/report_1.html', context)
+        elif report == 'BS':
+            return Render.render('generalledgerbook/report_2.html', context)
+        elif report == 'IS':
+            return Render.render('generalledgerbook/report_3.html', context)
+        else:
+            return Render.render('generalledgerbook/report_1.html', context)
 
 @csrf_exempt
 def excel(request):

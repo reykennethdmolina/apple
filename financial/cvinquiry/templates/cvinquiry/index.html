@@ -173,7 +173,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12" id="viewhtml" style="min-height: 800px; border: 2px solid"></div>
+            <div class="col-md-12" id="viewhtml" style="min-height: 800px; max-height:1000px; border: 2px solid;overflow:auto">
+            </div>
             <div class="col-md-12" style="min-height: 800px;display:none">
                 <iframe src="{% url 'cvinquiry:pdf' %}?report=0&from=&to=&chart=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
             </div>

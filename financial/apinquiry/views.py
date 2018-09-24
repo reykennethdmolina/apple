@@ -112,8 +112,6 @@ class Generate(View):
 
         list = q
 
-        print list
-
         if report == '1':
             total = {}
             total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
@@ -199,8 +197,6 @@ class GeneratePDF(View):
             q = q.filter(outputvat__exact=outputvat)
 
         list = q
-
-        print list
 
         if report == '1':
             total = {}
@@ -297,6 +293,7 @@ class GenerateExcel(View):
         # variables
         bold = workbook.add_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 
         # title
         worksheet.write('A1', 'ACCOUNTS PAYABLE INQUIRY LIST', bold)
@@ -309,60 +306,100 @@ class GenerateExcel(View):
         worksheet.write('A4', 'AP Number', bold)
         worksheet.write('B4', 'AP Date', bold)
         worksheet.write('C4', 'Particulars', bold)
-        worksheet.write('D4', 'Supplier', bold)
-        worksheet.write('E4', 'Customer', bold)
-        worksheet.write('F4', 'Employee', bold)
-        worksheet.write('G4', 'Department', bold)
-        worksheet.write('H4', 'Product', bold)
-        worksheet.write('I4', 'Branch', bold)
-        worksheet.write('J4', 'Bank Account', bold)
-        worksheet.write('K4', 'VAT', bold)
-        worksheet.write('L4', 'WTAX', bold)
-        worksheet.write('M4', 'ATAX', bold)
-        worksheet.write('N4', 'Input VAT', bold)
-        worksheet.write('O4', 'Output VAT', bold)
-        worksheet.write('P4', 'Debit Amount', bold)
-        worksheet.write('Q4', 'Credit Amount', bold)
+        worksheet.write('D4', 'Debit Amount', bold)
+        worksheet.write('E4', 'Credit Amount', bold)
+        worksheet.write('F4', 'Payee', bold)
+        worksheet.write('G4', 'APV Type', bold)
+        worksheet.write('H4', 'APV Subtype', bold)
+        worksheet.write('I4', 'Reference', bold)
+        worksheet.write('J4', 'Branch', bold)
+        worksheet.write('K4', 'Bank Account', bold)
+        worksheet.write('L4', 'Credit Terms', bold)
+        worksheet.write('M4', 'Due Date', bold)
+        worksheet.write('N4', 'VAT', bold)
+        worksheet.write('O4', 'VAT Rate', bold)
+        worksheet.write('P4', 'Input VAT', bold)
+        worksheet.write('Q4', 'Deferred VAT', bold)
+        worksheet.write('R4', 'ATAX', bold)
+        worksheet.write('S4', 'ATAX Rate', bold)
+        worksheet.write('T4', 'Status', bold)
+        worksheet.write('U4', 'Remarks', bold)
+        worksheet.merge_range('V4:AG4', 'Subsidiary Ledger', centertext)
 
-        row = 4
+        worksheet.write('V5', 'Supplier', bold)
+        worksheet.write('W5', 'Customer', bold)
+        worksheet.write('X5', 'Employee', bold)
+        worksheet.write('Y5', 'Department', bold)
+        worksheet.write('Z5', 'Product', bold)
+        worksheet.write('AA5', 'Branch', bold)
+        worksheet.write('AB5', 'Bank Account', bold)
+        worksheet.write('AC5', 'VAT', bold)
+        worksheet.write('AD5', 'WTAX', bold)
+        worksheet.write('AE5', 'ATAX', bold)
+        worksheet.write('AF5', 'Input VAT', bold)
+        worksheet.write('AG5', 'Output VAT', bold)
+
+        row = 5
         col = 0
 
         for data in list:
             worksheet.write(row, col, data.ap_num)
             worksheet.write(row, col + 1, data.ap_date, formatdate)
             worksheet.write(row, col + 2, data.apmain.particulars)
+            worksheet.write(row, col + 3, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 4, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 5, data.apmain.payeename)
+            worksheet.write(row, col + 6, data.apmain.aptype.description)
+            worksheet.write(row, col + 7, data.apmain.apsubtype.description)
+            worksheet.write(row, col + 8, data.apmain.refno)
+            if data.apmain.branch:
+                worksheet.write(row, col + 9, data.apmain.branch.code)
+            if data.apmain.bankaccount:
+                worksheet.write(row, col + 10, data.apmain.bankaccount.code)
+            if data.apmain.creditterm:
+                worksheet.write(row, col + 11, data.apmain.creditterm.description)
+            worksheet.write(row, col + 12, data.apmain.duedate)
+            worksheet.write(row, col + 13, data.apmain.vatcode)
+            worksheet.write(row, col + 14, data.apmain.vatrate)
+            if data.apmain.inputvattype:
+                worksheet.write(row, col + 15, data.apmain.inputvattype.code)
+            worksheet.write(row, col + 16, data.apmain.deferred)
+            worksheet.write(row, col + 17, data.apmain.ataxcode)
+            worksheet.write(row, col + 18, data.apmain.ataxrate)
+            worksheet.write(row, col + 19, data.apmain.status)
+            worksheet.write(row, col + 20, data.apmain.remarks)
+
             if data.supplier:
-                worksheet.write(row, col + 3, data.supplier.name)
+                worksheet.write(row, col + 21, data.supplier.name)
             if data.customer:
-                worksheet.write(row, col + 4, data.customer.name)
+                worksheet.write(row, col + 22, data.customer.name)
             if data.employee:
-                worksheet.write(row, col + 5, data.employee.firstname+' '+data.employee.lastname)
+                worksheet.write(row, col + 23, data.employee.firstname+' '+data.employee.lastname)
             if data.department:
-                worksheet.write(row, col + 6, data.department.departmentname)
+                worksheet.write(row, col + 24, data.department.departmentname)
             if data.product:
-                worksheet.write(row, col + 7, data.product.description)
+                worksheet.write(row, col + 25, data.product.description)
             if data.branch:
-                worksheet.write(row, col + 8, data.branch.description)
+                worksheet.write(row, col + 26, data.branch.description)
             if data.bankaccount:
-                worksheet.write(row, col + 9, data.bankaccount.code)
+                worksheet.write(row, col + 27, data.bankaccount.code)
             if data.vat:
-                worksheet.write(row, col + 10, data.vat.description)
+                worksheet.write(row, col + 28, data.vat.description)
             if data.wtax:
-                worksheet.write(row, col + 11, data.wtax.description)
+                worksheet.write(row, col + 29, data.wtax.description)
             if data.ataxcode:
-                worksheet.write(row, col + 12, data.ataxcode.description)
+                worksheet.write(row, col + 30, data.ataxcode.description)
             if data.inputvat:
-                worksheet.write(row, col + 13, data.inputvat.description)
+                worksheet.write(row, col + 31, data.inputvat.description)
             if data.outputvat:
-                worksheet.write(row, col + 14, data.outputvat.description)
-            worksheet.write(row, col + 15, float(format(data.debitamount, '.2f')))
-            worksheet.write(row, col + 16, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 32, data.outputvat.description)
+
             row += 1
 
 
-        worksheet.write(row, col + 14, 'TOTAL', bold)
-        worksheet.write(row, col + 15, float(format(total['total_debit'], '.2f')), bold)
-        worksheet.write(row, col + 16, float(format(total['total_credit'], '.2f')), bold)
+        worksheet.write(row, col + 3, 'TOTAL', bold)
+        worksheet.write(row, col + 4, float(format(total['total_debit'], '.2f')), bold)
+        worksheet.write(row, col + 5, float(format(total['total_credit'], '.2f')), bold)
 
         workbook.close()
 

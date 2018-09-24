@@ -112,9 +112,9 @@
             <thead>
                 <tr>
                     <th style="text-align:left;width:200px">Code</th>
+                    <th style="text-align:left;">Last Name</th>
                     <th style="text-align:left;">First Name</th>
                     <th style="text-align:left;">Middle Name</th>
-                    <th style="text-align:left;">Last Name</th>
                 </tr>
             </thead>
         </table>
@@ -126,9 +126,9 @@
     {% for item in list %}
         <tr>
             <td style="text-align:left;width:200px">{{ item.code|upper }}</td>
+            <td style="text-align:left;">{{ item.lastname|default:''|upper }}</td>
             <td style="text-align:left;">{{ item.firstname|default:''|upper }}</td>
             <td style="text-align:left;">{{ item.middlename|default:''|upper }}</td>
-            <td style="text-align:left;">{{ item.lastname|default:''|upper }}</td>
         </tr>
     {% endfor %}
     </tbody>

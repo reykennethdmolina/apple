@@ -133,7 +133,7 @@
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.jv_num|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.jv_date|date:'Y-m-d' }}</td>
             <td style="text-align:left;width:450px;vertical-align:top;">{{ item.jvmain.particular }}</td>
-            <td style="text-align:right;width:150px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }} {{ item.employee.code|default:""|upper }} {{ item.supplier.code|default:""|upper }} {{ item.customer.code|default:""|upper }} {{ item.product.code|default:""|upper }} {{ item.vat.code|default:""|upper }} {{ item.wtax.code|default:""|upper }} {{ item.inputvat.code|default:""|upper }} {{ item.outputvat.code|default:""|upper }}</td>
             <td style="text-align:right;width:150px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:150px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
         </tr>

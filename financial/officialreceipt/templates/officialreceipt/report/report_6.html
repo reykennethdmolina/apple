@@ -22,7 +22,7 @@
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5cm; left: 1cm; width: 19.5cm; height: 21.5cm;
+                top: 5.5cm; left: 1cm; width: 19.5cm; height: 21.5cm;
             }
         }
         body{
@@ -89,7 +89,7 @@
        <table>
             <tr>
                 <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
-                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A' }}</p></td>
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address1 }}</p></td>
@@ -106,6 +106,9 @@
             </tr>
             <tr>
                 <td width="75%"><p class="title">{{ title|upper }}</p></td>
+            </tr>
+           <tr>
+                <td width="75%"><p class="title">FOR THE PEROID OF {{ dfrom }} TO {{ dto }}</p></td>
             </tr>
         </table>
 

@@ -1,0 +1,57 @@
+{% load static %}
+{% load humanize %}
+{% load pdf_filters %}
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="page-wrap" style="padding: 10px">
+            <table>
+               <tr>
+                   <td><h4>CHART OF ACCOUNT: {{ chartofaccount.accountcode|upper }} - {{ chartofaccount.description|upper }}</h4></td>
+                </tr>
+            </table>
+
+            <table class="table" style="overflow: scroll;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;width:150px">AP Number</th>
+                        <th style="text-align:left;width:150px">AP Date</th>
+                        <th style="text-align:left;width:450px">Particulars</th>
+                        <th style="text-align:left;width:150px">Subsidiary Legder</th>
+                        <th style="text-align:right;width:150px">Debit</th>
+                        <th style="text-align:right;width:150px">Credit</th>
+                        <th style="text-align:right;width:250px">Reference#</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                        <th style="text-align:right;width:250px">Credit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in list %}
+                    <tr>
+                        <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ap_num|upper }}</td>
+                        <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ap_date|date:'Y-m-d' }}</td>
+                        <td style="text-align:left;width:450px;vertical-align:top;">{{ item.apmain.particulars }}</td>
+                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }} {{ item.employee.code|default:""|upper }} {{ item.supplier.code|default:""|upper }} {{ item.customer.code|default:""|upper }}</td>
+                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="4"></td>
+                        <td style="border-top:2px solid #000;padding:5px;"></td>
+                        <td style="border-top:2px solid #000;padding:5px;"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
+                        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.total_debit|default:""|floatformat:2|intcomma }}</b></td>
+                        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.total_credit|default:""|floatformat:2|intcomma }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

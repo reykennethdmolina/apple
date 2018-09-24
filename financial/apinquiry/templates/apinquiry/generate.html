@@ -10,26 +10,52 @@
                 </tr>
             </table>
 
-            <table class="table">
+            <table class="table" style="overflow-x: auto;">
                 <thead>
                     <tr>
-                        <th style="text-align:left;width:150px">AP Number</th>
-                        <th style="text-align:left;width:150px">AP Date</th>
-                        <th style="text-align:left;width:450px">Particulars</th>
-                        <th style="text-align:left;width:150px"> </th>
-                        <th style="text-align:right;width:150px">Debit</th>
-                        <th style="text-align:right;width:150px">Credit</th>
+                        <th style="text-align:left;min-width:100px">AP Number</th>
+                        <th style="text-align:left;min-width:100px">AP Date</th>
+                        <th style="text-align:left;min-width:450px">Particulars</th>
+                        <th style="text-align:center;min-width:200px">Subsidiary Legder</th>
+                        <th style="text-align:right;min-width:150px">Debit</th>
+                        <th style="text-align:right;min-width:150px">Credit</th>
+                        <th style="text-align:center;min-width:250px">Reference</th>
+                        <th style="text-align:center;min-width:250px">Branch</th>
+                        <th style="text-align:center;min-width:250px">Bank Account</th>
+                        <th style="text-align:center;min-width:250px">Supplier</th>
+                        <th style="text-align:center;min-width:250px">Customer</th>
+                        <th style="text-align:center;min-width:250px">Employee</th>
+                        <th style="text-align:center;min-width:250px">Department</th>
+                        <th style="text-align:center;min-width:250px">Product</th>
+                        <th style="text-align:center;min-width:250px">VAT</th>
+                        <th style="text-align:center;min-width:250px">WTAX</th>
+                        <th style="text-align:center;min-width:250px">ATAX</th>
+                        <th style="text-align:center;min-width:250px">Input VAT</th>
+                        <th style="text-align:center;min-width:250px">Output VAT</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in list %}
                     <tr>
-                        <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ap_num|upper }}</td>
-                        <td style="text-align:left;width:150px;vertical-align:top;">{{ item.ap_date|date:'Y-m-d' }}</td>
-                        <td style="text-align:left;width:450px;vertical-align:top;">{{ item.apmain.particulars }}</td>
-                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }}</td>
-                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
-                        <td style="text-align:right;width:150px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
+                        <td style="text-align:left;min-width:100px;vertical-align:top;"><a href="{% url 'accountspayable:update' item.id %}" target="_blank">{{ item.ap_num|upper }}</a></td>
+                        <td style="text-align:left;min-width:100px;vertical-align:top;">{{ item.ap_date|date:'Y-m-d' }}</td>
+                        <td style="text-align:left;min-width:450px;vertical-align:top;">{{ item.apmain.particulars }}</td>
+                        <td style="text-align:left;min-width:200px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }} {{ item.employee.code|default:""|upper }} {{ item.supplier.code|default:""|upper }} {{ item.customer.code|default:""|upper }} {{ item.product.code|default:""|upper }} {{ item.vat.code|default:""|upper }} {{ item.wtax.code|default:""|upper }} {{ item.inputvat.code|default:""|upper }} {{ item.outputvat.code|default:""|upper }}</td>
+                        <td style="text-align:right;min-width:150px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
+                        <td style="text-align:right;min-width:150px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.apmain.refno|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.branch.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.bankaccount.code|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.supplier.name|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.customer.name|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.employee.firstname|default:"" }} {{ item.employee.lastname|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.department.departmentname|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.product.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.vat.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.wtax.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.ataxcode.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.inputvat.description|default:"" }}</td>
+                        <td style="text-align:left;min-width:250px;vertical-align:top;">{{ item.outputvat.description|default:"" }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -40,8 +66,8 @@
                     <tr>
                         <td colspan="3"></td>
                         <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
-                        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.total_debit|default:""|floatformat:2|intcomma }}</b></td>
-                        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.total_credit|default:""|floatformat:2|intcomma }}</b></td>
+                        <td style="text-align:right;min-width:120px;vertical-align:top;"><b>{{ total.total_debit|default:""|floatformat:2|intcomma }}</b></td>
+                        <td style="text-align:right;min-width:120px;vertical-align:top;"><b>{{ total.total_credit|default:""|floatformat:2|intcomma }}</b></td>
                     </tr>
                 </tbody>
             </table>

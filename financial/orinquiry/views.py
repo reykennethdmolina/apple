@@ -297,6 +297,7 @@ class GenerateExcel(View):
         # variables
         bold = workbook.add_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 
         # title
         worksheet.write('A1', 'OFFICIAL RECEIPT INQUIRY LIST', bold)
@@ -309,60 +310,115 @@ class GenerateExcel(View):
         worksheet.write('A4', 'OR Number', bold)
         worksheet.write('B4', 'OR Date', bold)
         worksheet.write('C4', 'Particulars', bold)
-        worksheet.write('D4', 'Supplier', bold)
-        worksheet.write('E4', 'Customer', bold)
-        worksheet.write('F4', 'Employee', bold)
-        worksheet.write('G4', 'Department', bold)
-        worksheet.write('H4', 'Product', bold)
-        worksheet.write('I4', 'Branch', bold)
-        worksheet.write('J4', 'Bank Account', bold)
-        worksheet.write('K4', 'VAT', bold)
-        worksheet.write('L4', 'WTAX', bold)
-        worksheet.write('M4', 'ATAX', bold)
-        worksheet.write('N4', 'Input VAT', bold)
-        worksheet.write('O4', 'Output VAT', bold)
-        worksheet.write('P4', 'Debit Amount', bold)
-        worksheet.write('Q4', 'Credit Amount', bold)
+        worksheet.write('D4', 'Debit Amount', bold)
+        worksheet.write('E4', 'Credit Amount', bold)
+        worksheet.write('F4', 'Transaction Type', bold)
+        worksheet.write('G4', 'OR Type', bold)
+        worksheet.write('H4', 'AR Type', bold)
+        worksheet.write('I4', 'PR Number', bold)
+        worksheet.write('J4', 'PR Date', bold)
+        worksheet.write('K4', 'Adtype', bold)
+        worksheet.write('L4', 'Collector', bold)
+        worksheet.write('M4', 'Branch', bold)
+        worksheet.write('N4', 'Payee Code', bold)
+        worksheet.write('O4', 'Payee Name', bold)
+        worksheet.write('P4', 'Amount', bold)
+        worksheet.write('Q4', 'VAT', bold)
+        worksheet.write('R4', 'VAT Rate', bold)
+        worksheet.write('S4', 'WTAX', bold)
+        worksheet.write('T4', 'WTAX Rate', bold)
+        worksheet.write('U4', 'Output VAT', bold)
+        worksheet.write('V4', 'Deferred VAT', bold)
+        worksheet.write('W4', 'Product', bold)
+        worksheet.write('X4', 'Bank Account', bold)
+        worksheet.write('Y4', 'Government', bold)
+        worksheet.write('Z4', 'Remarks', bold)
+        worksheet.merge_range('Z4:AL4', 'Subsidiary Ledger', centertext)
 
-        row = 4
+        worksheet.write('AA5', 'Supplier', bold)
+        worksheet.write('AB5', 'Customer', bold)
+        worksheet.write('AC5', 'Employee', bold)
+        worksheet.write('AD5', 'Department', bold)
+        worksheet.write('AE5', 'Product', bold)
+        worksheet.write('AF5', 'Branch', bold)
+        worksheet.write('AG5', 'Bank Account', bold)
+        worksheet.write('AH5', 'VAT', bold)
+        worksheet.write('AI5', 'WTAX', bold)
+        worksheet.write('AJ5', 'ATAX', bold)
+        worksheet.write('AK5', 'Input VAT', bold)
+        worksheet.write('AL5', 'Output VAT', bold)
+
+        row = 5
         col = 0
 
         for data in list:
             worksheet.write(row, col, data.or_num)
             worksheet.write(row, col + 1, data.or_date, formatdate)
             worksheet.write(row, col + 2, data.ormain.particulars)
+            worksheet.write(row, col + 3, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 5, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 6, data.ormain.transaction_type)
+            worksheet.write(row, col + 7, data.ormain.ortype.description)
+            worksheet.write(row, col + 8, data.ormain.orsource)
+            worksheet.write(row, col + 9, data.ormain.prnum)
+            worksheet.write(row, col + 10, str(data.ormain.prdate))
+            if data.ormain.adtype:
+                worksheet.write(row, col + 11, data.ormain.adtype.code)
+            if data.ormain.collector:
+                worksheet.write(row, col + 12, data.ormain.collector.code)
+            if data.ormain.branch:
+                worksheet.write(row, col + 13, data.ormain.branch.code)
+            worksheet.write(row, col + 14, data.ormain.payee_code)
+            worksheet.write(row, col + 15, data.ormain.payee_name)
+            worksheet.write(row, col + 16, data.ormain.amount)
+            if data.ormain.vat:
+                worksheet.write(row, col + 17, data.ormain.vat.code)
+            worksheet.write(row, col + 18, data.ormain.vatrate)
+            if data.ormain.wtax:
+                worksheet.write(row, col + 19, data.ormain.wtax.code)
+            worksheet.write(row, col + 20, data.ormain.wtaxrate)
+            if data.ormain.outputvattype:
+                worksheet.write(row, col + 21, data.ormain.outputvattype.code)
+            worksheet.write(row, col + 22, data.ormain.deferredvat)
+            if data.ormain.product:
+                worksheet.write(row, col + 23, data.ormain.product.code)
+            if data.ormain.bankaccount:
+                worksheet.write(row, col + 24, data.ormain.bankaccount.code)
+            worksheet.write(row, col + 25, data.ormain.government)
+            worksheet.write(row, col + 26, data.ormain.remarks)
+
+
             if data.supplier:
-                worksheet.write(row, col + 3, data.supplier.name)
+                worksheet.write(row, col + 27, data.supplier.name)
             if data.customer:
-                worksheet.write(row, col + 4, data.customer.name)
+                worksheet.write(row, col + 28, data.customer.name)
             if data.employee:
-                worksheet.write(row, col + 5, data.employee.firstname+' '+data.employee.lastname)
+                worksheet.write(row, col + 29, data.employee.firstname + ' ' + data.employee.lastname)
             if data.department:
-                worksheet.write(row, col + 6, data.department.departmentname)
+                worksheet.write(row, col + 30, data.department.departmentname)
             if data.product:
-                worksheet.write(row, col + 7, data.product.description)
+                worksheet.write(row, col + 31, data.product.description)
             if data.branch:
-                worksheet.write(row, col + 8, data.branch.description)
+                worksheet.write(row, col + 32, data.branch.description)
             if data.bankaccount:
-                worksheet.write(row, col + 9, data.bankaccount.code)
+                worksheet.write(row, col + 33, data.bankaccount.code)
             if data.vat:
-                worksheet.write(row, col + 10, data.vat.description)
+                worksheet.write(row, col + 34, data.vat.description)
             if data.wtax:
-                worksheet.write(row, col + 11, data.wtax.description)
+                worksheet.write(row, col + 35, data.wtax.description)
             if data.ataxcode:
-                worksheet.write(row, col + 12, data.ataxcode.description)
+                worksheet.write(row, col + 36, data.ataxcode.description)
             if data.inputvat:
-                worksheet.write(row, col + 13, data.inputvat.description)
+                worksheet.write(row, col + 37, data.inputvat.description)
             if data.outputvat:
-                worksheet.write(row, col + 14, data.outputvat.description)
-            worksheet.write(row, col + 15, float(format(data.debitamount, '.2f')))
-            worksheet.write(row, col + 16, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 38, data.outputvat.description)
+
             row += 1
 
 
-        worksheet.write(row, col + 14, 'TOTAL', bold)
-        worksheet.write(row, col + 15, float(format(total['total_debit'], '.2f')), bold)
-        worksheet.write(row, col + 16, float(format(total['total_credit'], '.2f')), bold)
+        worksheet.write(row, col + 2, 'TOTAL', bold)
+        worksheet.write(row, col + 3, float(format(total['total_debit'], '.2f')), bold)
+        worksheet.write(row, col + 4, float(format(total['total_credit'], '.2f')), bold)
 
         workbook.close()
 
