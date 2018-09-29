@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LEGAL LANDSCAPE;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 4.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5.5cm; left: 1cm; width: 33.5cm; height: 15cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align:center;width:160px">Check Voucher</th>
+                    <th colspan="4" style="text-align:center;width:400px"></th>
+                    <th colspan="6" style="text-align:center;width:400px">---------- Subsidiary Ledger ----------</th>
+                </tr>
+                <tr style="border-bottom: 2px solid #000;">
+                    <th style="text-align:left;width:90px;font-size:13px">Date</th>
+                    <th style="text-align:left;width:80px;font-size:13px">Number</th>
+                    <th style="text-align:left;width:200px;font-size:13px">Payee</th>
+                    <th style="text-align:left;width:280px;font-size:13px">Particulars</th>
+                    <th style="text-align:left;width:80px;font-size:13px">Bank</th>
+                    <th style="text-align:left;width:100px;font-size:13px">Check No.</th>
+                    <th style="text-align:center;width:150px;font-size:13px">Amount</th>
+                    <th style="text-align:center;width:180px;font-size:13px">Account Number</th>
+                    <th style="text-align:center;width:200px;font-size:13px">Account Title</th>
+                    <th style="text-align:center;width:150px;font-size:13px">Subs Ledger</th>
+                    <th style="text-align:right;width:150px;font-size:13px">Debit</th>
+                    <th style="text-align:right;width:150px;font-size:13px">Credit</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+{{ mainmodule.list.0.mainiconfile }}
+<table id="content-data">
+    <tbody>
+    {% regroup list by cv_num as cvlist %}
+    {% for item in cvlist %}
+        <tr>
+            <td style="text-align:left;width:90px;vertical-align:top;">{{ item.list.0.cv_date|date:'m/d/Y' }}</td>
+            <td style="text-align:left;width:80px;vertical-align:top;">{{ item.list.0.cv_num|upper }}</td>
+            {% if item.list.0.cvmain.status == 'C' %}
+            <td colspan="5" style="text-align:left;width:500px;vertical-align:top;">C  A  N  C  E  L  L  E  D</td>
+            <td colspan="5" style="text-align:left;width:500px;vertical-align:top;"></td>
+            {% else %}
+            <td colspan="5" style="text-align:left;width:500px;vertical-align:top;">{{ item.list.0.cvmain.payee_name|upper }} TIN:{{ item.list.0.cvmain.payee.tin }}<br>{{ item.list.0.cvmain.payee.address1 }} {{ item.list.0.cvmain.payee.address2 }}</td>
+            <td colspan="5" style="text-align:left;width:500px;vertical-align:top;">{{ item.list.0.cvmain.particulars|upper }}</td>
+            {% endif %}
+        </tr>
+        {% if item.list.0.cvmain.status != 'C' %}
+        <tr>
+            <td style="text-align:left;width:90px;vertical-align:top;"></td>
+            <td style="text-align:left;width:80px;vertical-align:top;"></td>
+            <td style="text-align:left;width:200px;vertical-align:top;"></td>
+            <td style="text-align:left;width:280px;vertical-align:top;"></td>
+            <td style="text-align:left;width:80px;vertical-align:top;">&nbsp;&nbsp;{{ item.list.0.cvmain.bankaccount.code }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.list.0.cvmain.checknum|default:'' }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ item.list.0.cvmain.amount|default:''|floatformat:2|intcomma }}</td>
+            <td colspan="5" style="text-align:left;width:180px;"></td>
+        </tr>
+        {% for data in item.list %}
+        <tr>
+            <td colspan="6" style="text-align:left;width:90px;vertical-align:top;"></td>
+            <td style="text-align:right;width:120px;vertical-align:top;"></td>
+            <td style="text-align:left;width:100px;">{{ data.chartofaccount.accountcode }}</td>
+            <td style="text-align:left;width:300px;">{{ data.chartofaccount.description|upper }}</td>
+            <td style="text-align:right;width:150px;">{% if data.bankaccount %}{{ data.bankaccount.code }} {{ data.bankaccount.bank.code }} {{ data.bankaccount.bankaccounttype.code }}A{% elif data.department %}{{ data.department.code }}{% else %}&nbsp;{% endif %}</td>
+            <td style="text-align:right;width:150px;">{{ data.debitamount|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;">{{ data.creditamount|default:''|floatformat:2|intcomma }}</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    <tr><td colspan="9"></td></tr>
+    {% endfor %}
+    <tr>
+        <td colspan="10"></td>
+        <td style="border-top:2px solid #000;padding:5px;"></td>
+        <td style="border-top:2px solid #000;padding:5px;"></td>
+    </tr>
+    <tr>
+        <td colspan="9"></td>
+        <td style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.debitamount__sum|default:""|floatformat:2|intcomma }}</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.creditamount__sum|default:""|floatformat:2|intcomma }}</b></td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>

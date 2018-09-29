@@ -15,7 +15,11 @@ from collections import namedtuple
 import datetime
 import pandas as pd
 from datetime import timedelta
+import reportlab
+from reportlab.lib.pagesizes import legal, landscape
+from reportlab.lib.units import inch
 import io
+from reportlab.pdfgen import canvas
 from xlsxwriter.workbook import Workbook
 from financial.utils import Render
 from django.utils import timezone
@@ -77,7 +81,6 @@ class GeneratePDF(View):
         else:
             print "no pdf"
 
-        data = result[:50]
         month_text = datetime.date(int(year), int(month), 10).strftime("%B")
         context = {
             "title": title,
@@ -85,17 +88,169 @@ class GeneratePDF(View):
             "company": company,
             "month": month_text,
             "year": year,
-            "result": data,
             "username": request.user,
         }
         if report == 'TB':
-            return Render.render('generalledgerbook/report_1.html', context)
+            datalist = {}
+            # Iterate over the data and write it out row by row.
+            counter = 0
+            total_beg_debit = 0
+            total_beg_credit = 0
+            total_mon_debit = 0
+            total_mon_credit = 0
+            total_end_debit = 0
+            total_end_credit = 0
+            subtotal_bal_debit = 0
+            subtotal_bal_credit = 0
+            subtotal_inc_debit = 0
+            subtotal_inc_credit = 0
+            total_inc_debit = 0
+            total_inc_credit = 0
+            total_bal_debit = 0
+            total_bal_credit = 0
+            current_inc_debit = 0
+            current_inc_credit = 0
+            current_bal_debit = 0
+            current_bal_credit = 0
+
+            for data in result:
+
+                if data.chartmain <= 3:
+                    if data.summary_end_code == 'D':
+                        tbb_debit = float(format(data.summary_end_amount, '.2f'))
+                        tbb_credit = float(format(0.00, '.2f'))
+                        total_beg_debit += float(format(data.summary_end_amount, '.2f'))
+                    else:
+                        tbb_debit = float(format(0.00, '.2f'))
+                        tbb_credit = float(format(data.summary_end_amount, '.2f'))
+                        total_beg_credit += float(format(data.summary_end_amount, '.2f'))
+                else:
+                    if data.summary_end_code == 'D':
+                        tbb_debit = float(format(data.summary_year_to_date_amount, '.2f'))
+                        tbb_credit = float(format(0.00, '.2f'))
+                        total_beg_debit += float(format(data.summary_year_to_date_amount, '.2f'))
+                    else:
+                        tbb_debit = float(format(0.00, '.2f'))
+                        tbb_credit = float(format(data.summary_year_to_date_amount, '.2f'))
+                        total_beg_credit += float(format(data.summary_year_to_date_amount, '.2f'))
+
+                if data.trans_mon_code == 'D':
+                    tm_debit = float(format(data.trans_mon_amount, '.2f'))
+                    tm_credit = float(format(0.00, '.2f'))
+                    total_mon_debit += float(format(data.trans_mon_amount, '.2f'))
+                else:
+                    tm_debit = float(format(0.00, '.2f'))
+                    tm_credit = float(format(data.trans_mon_amount, '.2f'))
+                    total_mon_credit += float(format(data.trans_mon_amount, '.2f'))
+
+                if data.chartmain <= 3:
+                    if data.end_code == 'D':
+                        tbe_debit = float(format(data.end_amount, '.2f'))
+                        tbe_credit = float(format(0.00, '.2f'))
+                        in_debit = float(format(0.00, '.2f'))
+                        in_credit = float(format(0.00, '.2f'))
+                        is_debit = float(format(data.end_amount, '.2f'))
+                        is_credit = float(format(0.00, '.2f'))
+                        total_end_debit += float(format(data.end_amount, '.2f'))
+                        subtotal_bal_debit += float(format(data.end_amount, '.2f'))
+                    else:
+                        tbe_debit = float(format(0.00, '.2f'))
+                        tbe_credit = float(format(data.end_amount, '.2f'))
+                        in_debit = float(format(0.00, '.2f'))
+                        in_credit = float(format(0.00, '.2f'))
+                        is_debit = float(format(0.00, '.2f'))
+                        is_credit = float(format(data.end_amount, '.2f'))
+                        total_end_credit += float(format(data.end_amount, '.2f'))
+                        subtotal_bal_credit += float(format(data.end_amount, '.2f'))
+                else:
+                    if data.year_to_date_code == 'D':
+                        tbe_debit = float(format(data.year_to_date_amount, '.2f'))
+                        tbe_credit = float(format(0.00, '.2f'))
+                        in_debit = float(format(data.year_to_date_amount, '.2f'))
+                        in_credit = float(format(0.00, '.2f'))
+                        is_debit = float(format(0.00, '.2f'))
+                        is_credit = float(format(0.00, '.2f'))
+                        total_end_debit += float(format(data.year_to_date_amount, '.2f'))
+                        subtotal_inc_debit += float(format(data.year_to_date_amount, '.2f'))
+                    else:
+                        tbe_debit = float(format(0.00, '.2f'))
+                        tbe_credit = float(format(data.year_to_date_amount, '.2f'))
+                        in_debit = float(format(0.00, '.2f'))
+                        in_credit = float(format(data.year_to_date_amount, '.2f'))
+                        is_debit = float(format(0.00, '.2f'))
+                        is_credit = float(format(0.00, '.2f'))
+                        total_end_credit += float(format(data.year_to_date_amount, '.2f'))
+                        subtotal_inc_credit += float(format(data.year_to_date_amount, '.2f'))
+
+                datalist[counter] = dict(accountcode=data.accountcode, description=data.description, tbb_debit=tbb_debit, tbb_credit=tbb_credit,
+                                         tm_debit=tm_debit, tm_credit=tm_credit, tbe_debit=tbe_debit, tbe_credit=tbe_credit,
+                                         in_debit=in_debit, in_credit=in_credit, is_debit=is_debit, is_credit=is_credit)
+                counter += 1
+
+            context["subtotal"] = dict(subtotal_inc_debit=subtotal_inc_debit, subtotal_inc_credit=subtotal_inc_credit,
+                                       subtotal_bal_debit=subtotal_bal_debit, subtotal_bal_credit=subtotal_bal_credit)
+
+
+            if subtotal_inc_debit >= subtotal_inc_credit:
+                current_inc_credit = float(format(subtotal_inc_debit, '.2f')) - float(format(subtotal_inc_credit, '.2f'))
+                current_is_debit = float(format(0.00, '.2f'))
+                current_is_credit = float(format(current_inc_credit, '.2f'))
+            else:
+                current_inc_debit = float(format(subtotal_inc_credit, '.2f')) - float(format(subtotal_inc_debit, '.2f'))
+                current_is_debit = float(format(current_inc_debit, '.2f'))
+                current_is_credit = float(format(0.00, '.2f'))
+
+            if subtotal_bal_debit >= subtotal_bal_credit:
+                current_bal_credit = float(format(subtotal_bal_debit, '.2f')) - float(format(subtotal_bal_credit, '.2f'))
+                current_bs_debit = float(format(0.00, '.2f'))
+                current_bs_credit = float(format(current_bal_credit, '.2f'))
+            else:
+                current_bal_debit = float(format(subtotal_bal_credit, '.2f')) - float(format(subtotal_bal_debit, '.2f'))
+                current_bs_debit = float(format(current_bal_debit, '.2f'))
+                current_bs_credit = float(format(0.00, '.2f'))
+
+            total_inc_debit = float(format(subtotal_inc_debit, '.2f')) + float(format(current_inc_debit, '.2f'))
+            total_inc_credit = float(format(subtotal_inc_credit, '.2f')) + float(format(current_inc_credit, '.2f'))
+            total_bal_debit = float(format(subtotal_bal_debit, '.2f')) + float(format(current_bal_debit, '.2f'))
+            total_bal_credit = float(format(subtotal_bal_credit, '.2f')) + float(format(current_bal_credit, '.2f'))
+
+            context["curear"] = dict(current_is_debit=current_is_debit, current_is_credit=current_is_credit,
+                                      current_bs_debit=current_bs_debit, current_bs_credit=current_bs_credit)
+
+            context["total"] = dict(total_beg_debit=total_beg_debit,total_beg_credit=total_beg_credit,
+                                    total_mon_debit=total_mon_debit, total_mon_credit=total_mon_credit,
+                                    total_end_debit=total_end_debit, total_end_credit=total_end_credit,
+                                    total_inc_debit=total_inc_debit, total_inc_credit=total_inc_credit,
+                                    total_bal_debit=total_bal_debit, total_bal_credit=total_bal_credit)
+
+            context["result"] = datalist
+            return Render.render('generalledgerbook/tb_pdf.html', context)
         elif report == 'BS':
             return Render.render('generalledgerbook/report_2.html', context)
         elif report == 'IS':
             return Render.render('generalledgerbook/report_3.html', context)
         else:
             return Render.render('generalledgerbook/report_1.html', context)
+
+def tbpdf(request):
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;filename = "somefilename.pdf"'
+
+    # Create the PDF object, using the response object as its "file."
+    p = canvas.Canvas(response)
+    p.setPageSize(landscape(legal))
+
+    p.line(10, 100, 1 * inch, 0)
+
+    # Draw things on the PDF. Here's where the PDF generation happens.
+    # See the ReportLab documentation for the full list of functionality.
+    p.drawString(1, 1, "Hello world.")
+
+    # Close the PDF object cleanly, and we're done.
+    p.showPage()
+    p.save()
+    return response
 
 @csrf_exempt
 def excel(request):

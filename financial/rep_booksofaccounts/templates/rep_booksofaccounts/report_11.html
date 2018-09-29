@@ -111,10 +111,10 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:150px">z</th>
-                    <th style="text-align:left;width:450px">Suppliers/Contributors</th>
-                    <th style="text-align:left;width:180px">Entered By</th>
-                    <th style="text-align:left;width:180px">Date Entered</th>
+                    <th style="text-align:left;width:180px">Account Number</th>
+                    <th style="text-align:left;width:450px">Account Title</th>
+                    <th style="text-align:center;width:180px">Debit</th>
+                    <th style="text-align:center;width:180px">Credit</th>
                 </tr>
             </thead>
         </table>
@@ -125,12 +125,18 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:150px">{{ item.code|upper }}</td>
-            <td style="text-align:left;width:450px">{{ item.name|upper }}</td>
-            <td style="text-align:center;width:180px">{{ item.enterby }}</td>
-            <td style="text-align:center;width:180px">{{ item.enterdate|date:'M d, Y h:i A' }}</td>
+            <td style="text-align:left;width:180px">{{ item.chartofaccount__accountcode|upper }}</td>
+            <td style="text-align:left;width:400px">{{ item.chartofaccount__description|upper }}</td>
+            <td style="text-align:right;width:180px">{{ item.debitdifference|default:''|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:180px">{{ item.creditdifference|default:''|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
+    <tr>
+        <td style="text-align:left;width:180px"></td>
+        <td style="text-align:right;width:400px"><b>TOTAL</b></td>
+        <td style="text-align:right;width:180px"><b><u>{{ total.debitdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
+        <td style="text-align:right;width:180px"><b><u>{{ total.creditdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
+    </tr>
     </tbody>
 </table>
 

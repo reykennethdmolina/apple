@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from companyparameter.models import Companyparameter
@@ -12,12 +12,21 @@ from easy_pdf.views import PDFTemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Case, Value, When, F, Q
 import datetime
-
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+import pandas as pd
+from datetime import timedelta
+import io
+import xlsxwriter
+import datetime
+from django.template.loader import render_to_string
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(TemplateView):
     model = Jvdetail
-    template_name = 'rep_booksofaccounts/report.html'
+    template_name = 'rep_booksofaccounts/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
@@ -26,312 +35,6 @@ class ReportView(TemplateView):
         context['default_dateto'] = last_day_of_month(datetime.date.today())
 
         return context
-
-
-@method_decorator(login_required, name='dispatch')
-class ReportResultPdfView(ReportContentMixin, PDFTemplateView):
-    model = Jvdetail
-    template_name = 'rep_booksofaccounts/reportresultpdf.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ReportResultPdfView, self).get_context_data(**kwargs)
-        context['report_type'] = ''
-        context['report_subtype'] = ''
-        context['report_total'] = 0
-
-        query, context['report_type'], context['report_subtype'], context['report_total'], context['report_xls'], \
-            context['orientation'], context['pagesize'], accounts_debits, departments_debits, accounts_credits, \
-            departments_credits = reportresultquery(self.request)
-
-        if self.request.COOKIES.get('date_from_' + self.request.resolver_match.app_name):
-            context['datefrom'] = datetime.datetime.strptime(self.request.COOKIES.get('date_from_' + self.request.
-                                                                                      resolver_match.app_name),
-                                                             "%Y-%m-%d")
-        else:
-            context['datefrom'] = first_day_of_month(datetime.date.today())
-        if self.request.COOKIES.get('date_to_' + self.request.resolver_match.app_name):
-            context['dateto'] = datetime.datetime.strptime(self.request.COOKIES.get('date_to_' + self.request.
-                                                                                    resolver_match.app_name),
-                                                           "%Y-%m-%d")
-        else:
-            context['dateto'] = last_day_of_month(datetime.date.today())
-
-        if context['report_subtype'] == '(Summary Entries)':
-            if context['report_type'] == 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE' or context['report_type'] == \
-                    'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE (WITH BRANCH)':
-                context['data_list1'] = accounts_debits
-                context['data_list2'] = departments_debits
-                context['data_list3'] = accounts_credits
-                context['data_list4'] = departments_credits
-            else:
-                context['data_list'] = query
-        else:
-            context['data_list'] = query
-
-        return context
-
-
-@csrf_exempt
-def reportresultquery(request):
-    query = ''
-    report_type = ''
-    report_subtype = ''
-    report_total = ''
-    report_xls = ''
-    orientation = ''
-    pagesize = ''
-    accounts_debits = ''
-    departments_debits = ''
-    accounts_credits = ''
-    departments_credits = ''
-
-    set_report_type = request.COOKIES.get('report_type_' + request.resolver_match.app_name) if request.COOKIES.get(
-        'report_type_' + request.resolver_match.app_name) else 'GJB_S'
-    date_from = str(request.COOKIES.get('date_from_' + request.resolver_match.app_name)) if request.COOKIES.get(
-        'date_from_' + request.resolver_match.app_name) else str(first_day_of_month(datetime.date.today()))
-    date_to = str(request.COOKIES.get('date_to_' + request.resolver_match.app_name)) if request.COOKIES.get(
-        'date_to_' + request.resolver_match.app_name) else str(last_day_of_month(datetime.date.today()))
-
-    # set common configurations for Summary and Detailed per Transaction Type
-    if set_report_type == 'GJB_S' or set_report_type == 'GJB_D':
-        report_type = 'GENERAL JOURNAL BOOK'
-        query = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
-        query = query.filter(jvmain__jvdate__gte=date_from)
-        query = query.filter(jvmain__jvdate__lte=date_to)
-        report_xls = 'GJB Summary' if set_report_type == 'GJB_S' else 'GJB Detailed' if set_report_type == 'GJB_D' \
-            else 'GJB Summary'
-        report_subtype = '(Summary Entries)' if set_report_type == 'GJB_S' else '(Detailed Entries)' if \
-            set_report_type == 'GJB_D' else 'GJB Summary'
-    elif set_report_type == 'CDB_S' or set_report_type == 'CDB_D':
-        report_type = 'CASH DISBURSEMENT BOOK'
-        query = Cvdetail.objects.all().filter(isdeleted=0).exclude(cvmain__status='C')
-        query = query.filter(cvmain__cvdate__gte=date_from)
-        query = query.filter(cvmain__cvdate__lte=date_to)
-        report_xls = 'CDB Summary' if set_report_type == 'CDB_S' else 'CDB Detailed' if set_report_type == 'CDB_D' \
-            else 'CDB Summary'
-        report_subtype = '(Summary Entries)' if set_report_type == 'CDB_S' else '(Detailed Entries)' if \
-            set_report_type == 'CDB_D' else 'CDB Summary'
-    elif set_report_type == 'CRB_S' or set_report_type == 'CRB_D':
-        report_type = 'CASH RECEIPTS BOOK'
-        query = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
-        query = query.filter(ormain__ordate__gte=date_from)
-        query = query.filter(ormain__ordate__lte=date_to)
-        report_xls = 'CRB Summary' if set_report_type == 'CRB_S' else 'CRB Detailed' if set_report_type == 'CRB_D' \
-            else 'CRB Summary'
-        report_subtype = '(Summary Entries)' if set_report_type == 'CRB_S' else '(Detailed Entries)' if \
-            set_report_type == 'CRB_D' else 'CRB Summary'
-    elif set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S' or set_report_type == 'SAP_D':
-        report_type = 'SCHEDULE OF ACCRUAL - ACCTS. PAYABLE-TRADE'
-        if set_report_type == 'SAP_WB_S':
-            report_type += ' (WITH BRANCH)'
-        query = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
-        query = query.filter(apmain__apdate__gte=date_from)
-        query = query.filter(apmain__apdate__lte=date_to)
-        report_xls = 'SAP Summary' if set_report_type == 'SAP_S' else 'SAP-WB Summary' \
-            if set_report_type == 'SAP_WB_S' else 'SAP Detailed' if set_report_type == 'SAP_D' else 'SAP Summary'
-        report_subtype = '(Summary Entries)' if set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S' \
-            else '(Detailed Entries)' if set_report_type == 'SAP_D' else '(Summary Entries)'
-    elif set_report_type == 'PURCHASE':
-        report_type = 'PURCHASE BOOK'
-        query = Pomain.objects.all().filter(isdeleted=0).exclude(status='C')
-        query = query.filter(podate__gte=date_from)
-        query = query.filter(podate__lte=date_to)
-        report_xls = 'Purchase Book'
-        report_subtype = ''
-
-    # set common configurations for all Transaction Types with SUMMARY ENTRIES subtype
-    if report_subtype == '(Summary Entries)':
-        orientation = 'portrait'
-        pagesize = 'letter'
-        if set_report_type == 'SAP_S' or set_report_type == 'SAP_WB_S':
-            # debit amounts for assets and liabilities excluding cash in bank and ap trade
-            accounts_debits = query
-            accounts_debits = Apdetail.objects.filter((Q(chartofaccount__accountcode__startswith='1') |
-                                                       Q(chartofaccount__accountcode__startswith='2'))). \
-                exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank). \
-                exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
-            accounts_debits = accounts_debits.values('chartofaccount__description').annotate(Sum('debitamount')). \
-                filter(debitamount__sum__gt=0). \
-                order_by('chartofaccount__accountcode')
-            accounts_debits_total = accounts_debits.aggregate(Sum('debitamount__sum'))
-
-            # debit amounts per department
-            departments_debits = query
-            departments_debits = Apdetail.objects.exclude(department=None)
-            if set_report_type == 'SAP_S':
-                departments_debits = departments_debits.values('department__code', 'department__departmentname')\
-                    .annotate(Sum('debitamount')).filter(debitamount__sum__gt=0).order_by('department__code')
-            else:
-                departments_debits = departments_debits.values('department__code', 'department__departmentname',
-                                                               'branch__code') \
-                    .annotate(Sum('debitamount')).filter(debitamount__sum__gt=0).order_by('department__code')
-            departments_debits_total = departments_debits.aggregate(Sum('debitamount__sum'))
-
-            # credit amounts for assets and liabilities excluding cash in bank and ap trade
-            accounts_credits = query
-            accounts_credits = Apdetail.objects.filter((Q(chartofaccount__accountcode__startswith='1') |
-                                                        Q(chartofaccount__accountcode__startswith='2'))). \
-                exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank). \
-                exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
-            accounts_credits = accounts_credits.values('chartofaccount__description').annotate(Sum('creditamount')). \
-                filter(creditamount__sum__gt=0). \
-                order_by('chartofaccount__accountcode')
-            accounts_credits_total = accounts_credits.aggregate(Sum('creditamount__sum'))
-
-            # credit amounts per department
-            departments_credits = query
-            departments_credits = Apdetail.objects.exclude(department=None)
-            if set_report_type == 'SAP_S':
-                departments_credits = departments_credits.values('department__code', 'department__departmentname')\
-                    .annotate(Sum('creditamount')).filter(creditamount__sum__gt=0).order_by('department__code')
-            else:
-                departments_credits = departments_credits.values('department__code', 'department__departmentname',
-                                                                 'branch__code') \
-                    .annotate(Sum('creditamount')).filter(creditamount__sum__gt=0).order_by('department__code')
-            departments_credits_total = departments_credits.aggregate(Sum('creditamount__sum'))
-
-            report_total = (accounts_debits_total['debitamount__sum__sum'] +
-                            departments_debits_total['debitamount__sum__sum']) - \
-                           (accounts_credits_total['creditamount__sum__sum'] +
-                            departments_credits_total['creditamount__sum__sum'])
-        else:
-            query = query.values('chartofaccount__accountcode',
-                                 'chartofaccount__description') \
-                .annotate(Sum('debitamount'), Sum('creditamount'),
-                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
-                                               default=Sum('debitamount') - Sum('creditamount')),
-                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
-                                                default=Sum('creditamount') - Sum('debitamount'))) \
-                .order_by('chartofaccount__accountcode')
-            report_total = query.aggregate(Sum('debitdifference'), Sum('creditdifference'))
-
-    # set common configurations for each Transaction Type with DETAILED ENTRIES subtype
-    elif report_subtype == '(Detailed Entries)':
-        orientation = 'landscape'
-        pagesize = 'legal'
-        sort_numbers = []
-
-        # General Journal Book (JOURNAL VOUCHER)
-        if set_report_type == 'GJB_D':
-            query = query.order_by('jv_num', 'item_counter')
-            sort_numbers = preserve_sort(query, 'jv_num')
-
-        # Cash Disbursement Book (CHECK VOUCHER)
-        elif set_report_type == 'CDB_D':
-            query = query.order_by('cv_num', '-balancecode', 'item_counter')
-            sort_numbers = preserve_sort(query, 'cv_num')
-
-        # Cash Receipts Book (OFFICIAL RECEIPT)
-        elif set_report_type == 'CRB_D':
-            query = query.order_by('or_num', '-balancecode', 'item_counter')
-            sort_numbers = preserve_sort(query, 'or_num')
-
-        # Schedule of Accruals - Accts. Payable-Trade (ACCOUNTS PAYABLE VOUCHER)
-        elif set_report_type == 'SAP_D':
-            query = query.order_by('ap_num', '-balancecode', 'item_counter')
-            sort_numbers = preserve_sort(query, 'ap_num')
-
-        report_total = query.aggregate(Sum('debitamount'), Sum('creditamount'))
-        query = zip(query[160:260], sort_numbers[160:260])
-
-    elif report_subtype == '' and set_report_type == 'PURCHASE':
-        orientation = 'landscape'
-        pagesize = 'legal'
-
-        query = query.order_by('ponum')
-
-    return query, report_type, report_subtype, report_total, report_xls, orientation, pagesize, accounts_debits, \
-        departments_debits, accounts_credits, departments_credits
-
-
-@method_decorator(login_required, name='dispatch')
-class CashInBankPdfView(ReportContentMixin, PDFTemplateView):
-    model = Jvdetail
-    template_name = 'rep_booksofaccounts/cashinbankpdf.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CashInBankPdfView, self).get_context_data(**kwargs)
-        context['report_type'] = ''
-        context['report_subtype'] = ''
-        context['report_total'] = 0
-
-        query, context['report_type'], context['report_subtype'], context['report_total'], context['report_xls'], \
-            context['orientation'], context['pagesize'] = cashinbankquery(self.request)
-
-        if self.request.COOKIES.get('date_from_' + self.request.resolver_match.app_name):
-            context['datefrom'] = datetime.datetime.strptime(self.request.COOKIES.get('date_from_' + self.request.
-                                                                                      resolver_match.app_name),
-                                                             "%Y-%m-%d")
-        else:
-            context['datefrom'] = first_day_of_month(datetime.date.today())
-        if self.request.COOKIES.get('date_to_' + self.request.resolver_match.app_name):
-            context['dateto'] = datetime.datetime.strptime(self.request.COOKIES.get('date_to_' + self.request.
-                                                                                    resolver_match.app_name),
-                                                           "%Y-%m-%d")
-        else:
-            context['dateto'] = last_day_of_month(datetime.date.today())
-        context['data_list'] = query
-
-        return context
-
-
-@csrf_exempt
-def cashinbankquery(request):
-    query = ''
-    report_type = ''
-    report_xls = ''
-
-    orientation = 'portrait'
-    pagesize = 'letter'
-    report_subtype = 'Summary of Cash in Bank'
-
-    set_report_type = request.COOKIES.get('report_type_' + request.resolver_match.app_name) if request.COOKIES.get(
-        'report_type_' + request.resolver_match.app_name) else 'GJB_S'
-    date_from = str(request.COOKIES.get('date_from_' + request.resolver_match.app_name)) if request.COOKIES.get(
-        'date_from_' + request.resolver_match.app_name) else str(first_day_of_month(datetime.date.today()))
-    date_to = str(request.COOKIES.get('date_to_' + request.resolver_match.app_name)) if request.COOKIES.get(
-        'date_to_' + request.resolver_match.app_name) else str(last_day_of_month(datetime.date.today()))
-
-    if set_report_type == 'GJB_S':
-        report_type = 'GENERAL JOURNAL BOOK'
-        report_xls = 'GJB Summary CB'
-
-        query = Jvdetail.objects.all().filter(isdeleted=0, chartofaccount=Companyparameter.objects.first().
-                                              coa_cashinbank_id).exclude(jvmain__status='C')
-        query = query.filter(jvmain__jvdate__gte=date_from)
-        query = query.filter(jvmain__jvdate__lte=date_to)
-
-    elif set_report_type == 'CDB_S':
-        report_type = 'CASH DISBURSEMENT BOOK'
-        report_xls = 'CDB Summary CB'
-
-        query = Cvdetail.objects.all().filter(isdeleted=0, chartofaccount=Companyparameter.objects.first().
-                                              coa_cashinbank_id).exclude(cvmain__status='C')
-        query = query.filter(cvmain__cvdate__gte=date_from)
-        query = query.filter(cvmain__cvdate__lte=date_to)
-
-    elif set_report_type == 'CRB_S':
-        report_type = 'CASH RECEIPTS BOOK'
-        report_xls = 'CRB Summary CB'
-
-        query = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
-        query = query.filter(ormain__ordate__gte=date_from)
-        query = query.filter(ormain__ordate__lte=date_to)
-
-    query = query.values('bankaccount__code',
-                         'bankaccount__bank__code',
-                         'bankaccount__bankaccounttype__code') \
-        .annotate(Sum('debitamount'), Sum('creditamount'),
-                  debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
-                                       default=Sum('debitamount') - Sum('creditamount')),
-                  creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
-                                        default=Sum('creditamount') - Sum('debitamount'))) \
-        .order_by('bankaccount__code')
-
-    report_total = query.aggregate(Sum('debitdifference'), Sum('creditdifference'))
-
-    return query, report_type, report_subtype, report_total, report_xls, orientation, pagesize
-
 
 def first_day_of_month(date):
     today_date = date
@@ -345,58 +48,509 @@ def last_day_of_month(date):
         return date.replace(day=31)
     return date.replace(month=date.month+1, day=1) - datetime.timedelta(days=1)
 
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
 
-def preserve_sort(query, field):
-    sort_numbers = []
-    last_item = None
-    sort_number = 0
-    for data in query:
-        if last_item is not None:
-            if field == 'jv_num':
-                if last_item.jv_num == data.jv_num:
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-                else:
-                    sort_number = 1
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-            elif field == 'cv_num':
-                if last_item.cv_num == data.cv_num:
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-                else:
-                    sort_number = 1
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-            elif field == 'or_num':
-                if last_item.or_num == data.or_num:
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-                else:
-                    sort_number = 1
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-            elif field == 'ap_num':
-                if last_item.ap_num == data.ap_num:
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-                else:
-                    sort_number = 1
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-            else:
-                if last_item[field] == data[field]:
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
-                else:
-                    sort_number = 1
-                    sort_numbers.append({'sort_number': sort_number})
-                    sort_number += 1
+        if report == '1':
+            title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
+            q = Jvdetail.objects.all().filter(isdeleted=0).order_by('jv_date', 'jv_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '2':
+            title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
+            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            q = q.values('chartofaccount__accountcode','chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '3':
+            title = "GENERAL JOURNAL BOOK - SUBSIDIARY ENTRIES"
+            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code', 'employee__firstname', 'employee__middlename', 'employee__lastname',
+                         'supplier__name', 'customer__name', 'department__departmentname') \
+                .annotate(Sum('debitamount'), Sum('creditamount')) \
+                .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname', 'employee__firstname', 'employee__middlename',
+                          'supplier__name', 'customer__name', 'department__departmentname')
+
+            total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
+        elif report == '4':
+            title = "CASH DISBURSEMENT BOOK - DETAILED ENTRIES"
+            q = Cvdetail.objects.all().filter(isdeleted=0).order_by('cv_date', 'cv_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '5':
+            title = "CASH DISBURSEMENT BOOK - SUMMARY ENTRIES"
+            q = Cvdetail.objects.all().filter(isdeleted=0).exclude(cvmain__status='C')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '6':
+            title = "CASH DISBURSEMENT BOOK - SUBSIDIARY ENTRIES"
+            q = Cvdetail.objects.all().filter(isdeleted=0).exclude(cvmain__status='C')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code',
+                         'employee__firstname', 'employee__middlename', 'employee__lastname',
+                         'supplier__name', 'customer__name', 'department__departmentname') \
+                .annotate(Sum('debitamount'), Sum('creditamount')) \
+                .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname',
+                          'employee__firstname', 'employee__middlename',
+                          'supplier__name', 'customer__name', 'department__departmentname')
+
+            total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
+        elif report == '7':
+            title = "CASH RECEIPTS BOOK - DETAILED ENTRIES"
+            q = Ordetail.objects.all().filter(isdeleted=0).order_by('or_date', 'or_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            total = q.exclude(ormain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '8':
+            title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
+            q = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '9':
+            title = "CASH RECEIPTS BOOK - SUBSIDIARY ENTRIES"
+            q = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code',
+                         'employee__firstname', 'employee__middlename', 'employee__lastname',
+                         'supplier__name', 'customer__name', 'department__departmentname') \
+                .annotate(Sum('debitamount'), Sum('creditamount')) \
+                .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname',
+                          'employee__firstname', 'employee__middlename',
+                          'supplier__name', 'customer__name', 'department__departmentname')
+
+            total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
+        elif report == '10':
+            title = "SCHEDULE OF ACCURAL - AP TRADE - DETAILED ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0).order_by('ap_date', 'ap_num', '-balancecode', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
+        elif report == '11':
+            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('chartofaccount__accountcode')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '12':
+            title = "SCHEDULE OF ACCURAL - AP TRADE - SUBSIDIARY ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code',
+                         'employee__firstname', 'employee__middlename', 'employee__lastname',
+                         'supplier__name', 'customer__name', 'department__departmentname') \
+                .annotate(Sum('debitamount'), Sum('creditamount')) \
+                .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname',
+                          'employee__firstname', 'employee__middlename',
+                          'supplier__name', 'customer__name', 'department__departmentname')
+
+            total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
+        # elif report == '13':
+        #     title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+        #     q = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+        #     if dfrom != '':
+        #         q = q.filter(ap_date__gte=dfrom)
+        #     if dto != '':
+        #         q = q.filter(ap_date__lte=dto)
+        #     q = q.values('department__code', 'department__departmentname') \
+        #         .annotate(Sum('debitamount'), Sum('creditamount'),
+        #                   debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+        #                                        default=Sum('debitamount') - Sum('creditamount')),
+        #                   creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+        #                                         default=Sum('creditamount') - Sum('debitamount'))) \
+        #         .order_by('chartofaccount__accountcode')
+        #     total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         else:
-            sort_number = 1
-            sort_numbers.append({'sort_number': sort_number})
-            sort_number += 1
-        last_item = data
+            q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
-    return sort_numbers
+        list = q[:50]
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('rep_booksofaccounts/report_1.html', context)
+        elif report == '2':
+            return Render.render('rep_booksofaccounts/report_2.html', context)
+        elif report == '3':
+            return Render.render('rep_booksofaccounts/report_3.html', context)
+        elif report == '4':
+            return Render.render('rep_booksofaccounts/report_4.html', context)
+        elif report == '5':
+            return Render.render('rep_booksofaccounts/report_5.html', context)
+        elif report == '6':
+            return Render.render('rep_booksofaccounts/report_6.html', context)
+        elif report == '7':
+            return Render.render('rep_booksofaccounts/report_7.html', context)
+        elif report == '8':
+            return Render.render('rep_booksofaccounts/report_8.html', context)
+        elif report == '9':
+            return Render.render('rep_booksofaccounts/report_9.html', context)
+        elif report == '10':
+            return Render.render('rep_booksofaccounts/report_10.html', context)
+        elif report == '11':
+            return Render.render('rep_booksofaccounts/report_11.html', context)
+        elif report == '12':
+            return Render.render('rep_booksofaccounts/report_12.html', context)
+        elif report == '13':
+            return Render.render('rep_booksofaccounts/report_13.html', context)
+        else:
+            return Render.render('rep_booksofaccounts/report_1.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFCashInBank(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
+        subtitle = ""
+
+        cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+        if report == '2':
+            title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Cash In Bank"
+            q = Jvdetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(jvmain__status='C')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            q = q.values('bankaccount__code',
+                         'bankaccount__bank__code',
+                         'bankaccount__bankaccounttype__code') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('bankaccount__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '5':
+            title = "CASH DISBURSEMENT BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Cash In Bank"
+            q = Cvdetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(cvmain__status='C')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            q = q.values('bankaccount__code',
+                         'bankaccount__bank__code',
+                         'bankaccount__bankaccounttype__code') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('bankaccount__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '8':
+            title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Cash In Bank"
+            q = Ordetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(ormain__status='C')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            q = q.values('bankaccount__code',
+                         'bankaccount__bank__code',
+                         'bankaccount__bankaccounttype__code') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('bankaccount__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '11':
+            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+            subtitle = "Summary of Cash In Bank"
+            q = Apdetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(apmain__status='C')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            q = q.values('bankaccount__code',
+                         'bankaccount__bank__code',
+                         'bankaccount__bankaccounttype__code') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('bankaccount__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        else:
+            q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
+
+        list = q
+        context = {
+            "title": title,
+            "subtitle": subtitle,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "username": request.user,
+        }
+        if report == '2':
+            return Render.render('rep_booksofaccounts/summary_cashinbank.html', context)
+        else:
+            return Render.render('rep_booksofaccounts/summary_cashinbank.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFDepartment(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
+        subtitle = ""
+
+        cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+        if report == '2':
+            title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Department"
+            q = Jvdetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(jvmain__status='C')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            q = q.values('department__code',
+                         'department__departmentname',
+                         'department__sectionname', 'department__branchstatus') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('department__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '5':
+            title = "CASH DISBURSEMENT BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Department"
+            q = Cvdetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(cvmain__status='C')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+            q = q.values('department__code',
+                         'department__departmentname',
+                         'department__sectionname', 'department__branchstatus') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('department__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '8':
+            title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
+            subtitle = "Summary of Department"
+            q = Ordetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(ormain__status='C')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+            q = q.values('department__code',
+                         'department__departmentname',
+                         'department__sectionname', 'department__branchstatus') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('department__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        elif report == '11':
+            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+            subtitle = "Summary of Department"
+            q = Apdetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(apmain__status='C')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
+            q = q.values('department__code',
+                         'department__departmentname',
+                         'department__sectionname', 'department__branchstatus') \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
+                .order_by('department__code')
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+        else:
+            q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
+
+        list = q
+        context = {
+            "title": title,
+            "subtitle": subtitle,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "username": request.user,
+        }
+        if report == '2':
+            return Render.render('rep_booksofaccounts/summary_department.html', context)
+        else:
+            return Render.render('rep_booksofaccounts/summary_department.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = ''
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
+
+        if report == '3':
+            title = "GENERAL JOURNAL BOOK - SUBSIDIARY ENTRIES"
+            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'bankaccount__code',
+                         'employee__firstname', 'employee__middlename', 'employee__lastname',
+                         'supplier__name', 'customer__name', 'department__departmentname') \
+                .annotate(Sum('debitamount'), Sum('creditamount'))
+                # .order_by('chartofaccount__accountcode', 'bankaccount__code', 'employee__lastname',
+                #           'employee__firstname', 'employee__middlename',
+                #           'supplier__name', 'customer__name', 'department__departmentname')
+            q = q.order_by('chartofaccount__accountcode', 'debitamount__sum', 'creditamount__sum')
+            total = q.aggregate(Sum('debitamount'), Sum('creditamount'))
+        else:
+            q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
+
+        list = q
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'JOURNAL VOUCHER INQUIRY LIST', bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+        worksheet.write('A3', 'Chart of Account', bold)
+
+        # header
+        worksheet.write('A4', 'JV Number', bold)
+        worksheet.write('B4', 'JV Date', bold)
+        worksheet.write('C4', 'Particulars', bold)
+        worksheet.write('D4', 'Debit Amount', bold)
+        worksheet.write('D4', 'Credit Amount', bold)
+
+        row = 5
+        col = 0
+        for data in list:
+            worksheet.write(row, col, data['chartofaccount__accountcode'])
+            worksheet.write(row, col + 1, data['chartofaccount__description'])
+            worksheet.write(row, col + 2, float(format(data['debitamount__sum'], '.2f')))
+            worksheet.write(row, col + 3, float(format(data['creditamount__sum'], '.2f')))
+            row += 1
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "jvinquiry.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
 

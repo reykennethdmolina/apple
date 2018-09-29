@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LETTER LANDSCAPE;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5.5cm; left: 1cm; width: 26cm; height: 15cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }} AS OF {{ month|upper }} {{ year }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align:center;width:100px"></th>
+                    <th style="text-align:center;width:200px"></th>
+                    <th colspan="2" style="text-align:center;width:300px;font-size:14px">Trial Balance - Beg</th>
+                    <th colspan="2" style="text-align:center;width:300px;font-size:14px">Trans for the Month</th>
+                    <th colspan="2" style="text-align:center;width:300px;font-size:14px">Trial Balance - End</th>
+                    <th colspan="2" style="text-align:center;width:300px;font-size:14px">Income Statement</th>
+                    <th colspan="2" style="text-align:center;width:300px;font-size:14px">Balance Sheet</th>
+                </tr>
+                <tr style="border-bottom: 2px solid #000;">
+                    <th style="text-align:center;width:100px">Account</th>
+                    <th style="text-align:center;width:200px">Chart</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Credit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Credit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Credit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Credit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:12px">Credit</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<table id="content-data">
+    <tbody>
+        {% for key, values in result.items %}
+        <tr class="detailed_results">
+            <td style="text-align:left;width:120px;vertical-align:top;">{{ values.accountcode }}</td>
+            <td style="text-align:left;width:180px;vertical-align:top;">{{ values.description }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tbb_debit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tbb_credit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tm_debit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tm_credit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tbe_debit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.tbe_credit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.in_debit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.in_credit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.is_debit|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;width:150px;vertical-align:top;">{{ values.is_credit|floatformat:2|intcomma }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="detailed_results">
+            <td style="text-align:left;width:120px;vertical-align:top;"><b>Subtotal</b></td>
+            <td style="text-align:left;width:180px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ subtotal.subtotal_inc_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ subtotal.subtotal_inc_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ subtotal.subtotal_bal_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ subtotal.subtotal_bal_credit|floatformat:2|intcomma }}</b></td>
+        </tr>
+        <tr class="detailed_results">
+            <td colspan="2" style="text-align:left;width:300px;vertical-align:top;"><b>Current Earnings/(loss)</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ curear.current_is_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ curear.current_is_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ curear.current_bs_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ curear.current_bs_credit|floatformat:2|intcomma }}</b></td>
+        </tr>
+        <tr class="detailed_results">
+            <td style="text-align:left;width:120px;vertical-align:top;"><b>Total</b></td>
+            <td style="text-align:left;width:180px;vertical-align:top;"></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_beg_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_beg_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_mon_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_mon_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_end_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_end_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_inc_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_inc_credit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_bal_debit|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:150px;vertical-align:top;"><b>{{ total.total_bal_credit|floatformat:2|intcomma }}</b></td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>
