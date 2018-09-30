@@ -15,14 +15,14 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.5cm;
+                height: 5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5cm; left: 1cm; width: 19.5cm; height: 21.5cm;
+                top: 6cm; left: 1cm; width: 19.5cm; height: 21.5cm;
             }
         }
         body{
@@ -107,6 +107,9 @@
             <tr>
                 <td width="80%"><p class="title">{{ title|upper }}</p></td>
             </tr>
+           <tr>
+                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
+            </tr>
         </table>
 
         <table class="table">
@@ -120,6 +123,7 @@
                     <th style="text-align:center;width:140px;">Difference</th>
                     <th style="text-align:center;width:140px;">Output VAT</th>
                     <th style="text-align:center;width:140px;">Amount Due</th>
+                    <th style="text-align:center;width:140px;">Status</th>
                 </tr>
             </thead>
         </table>
@@ -137,6 +141,7 @@
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.diff|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.outputvat|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:140px;">{{ item.amountdue|floatformat:2|intcomma }}</td>
+            <td style="text-align:center;vertical-align:top;width:140px;">{{ item.status }}</td>
         </tr>
     {% endfor %}
     <tr>
@@ -146,6 +151,7 @@
             <td style="border-top:2px solid #000;padding:5px;"></td>
             <td style="border-top:2px solid #000;padding:5px;"></td>
             <td style="border-top:2px solid #000;padding:5px;"></td>
+            <td></td>
         </tr>
         <tr>
             <td colspan="2"></td>
@@ -155,6 +161,7 @@
             <td style="text-align:right;width:140px;vertical-align:top;"><b>{{ total.diff|floatformat:2|intcomma }}</b></td>
             <td style="text-align:right;width:140px;vertical-align:top;"><b>{{ total.outputvat|floatformat:2|intcomma }}</b></td>
             <td style="text-align:right;width:140px;vertical-align:top;"><b>{{ total.amountdue|floatformat:2|intcomma }}</b></td>
+            <td style="text-align:right;width:140px;vertical-align:top;"></td>
         </tr>
     </tbody>
 </table>

@@ -124,7 +124,7 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvnum|upper }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvprefix|upper }}{{ item.jvnum|upper }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvdate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.particular }}</td>
         </tr>

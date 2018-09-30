@@ -115,7 +115,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:100px">CV Num</th>
+                    <th style="text-align:left;width:100px">AP Num</th>
                     <th style="text-align:left;width:350px">&nbsp;&nbsp;Particulars</th>
                     <th style="text-align:left;width:250px">Account Title</th>
                     <th style="text-align:left;width:180px">Subs Ledger</th>
@@ -135,14 +135,14 @@
         {% for item in group.list %}
         {% if forloop.counter == 1%}
         <tr style="padding:5px">
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.apmain.apnum|upper }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
             <td style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.payeename }}</td>
             <td colspan="3" style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.apmain.particulars }}</td>
         </tr>
         {% endif %}
         <tr>
             <td style="text-align:left;width:100px;vertical-align:top;"></td>
-            <td style="text-align:left;vertical-align:top;width:200px"></td>
+            <td style="text-align:center;vertical-align:top;width:200px">{{ item.chartofaccount.accountcode|upper }}</td>
             <td style="text-align:left;width:350px;vertical-align:top;">{{ item.chartofaccount.description|upper }}</td>
             <td style="text-align:left;width:180px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }}</td>
             <td style="text-align:right;width:100px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>

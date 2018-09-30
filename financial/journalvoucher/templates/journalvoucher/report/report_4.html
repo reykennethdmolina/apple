@@ -135,7 +135,7 @@
         {% for item in group.list %}
         {% if forloop.counter == 1%}
         <tr style="padding:5px">
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvmain.jvnum|upper }}</td>
+            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvmain.jvprefix|upper }}{{ item.jvmain.jvnum|upper }}</td>
             <td colspan="3" style="text-align:left;vertical-align:top;margin-right:10px;">{{ item.jvmain.particular }}</td>
         </tr>
         {% endif %}

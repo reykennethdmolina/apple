@@ -1948,14 +1948,14 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
         elif report == '3':
-            title = "Unposted Accounts Voucher Payable Transaction List - Summary"
+            title = "Unposted Accounts Payable Voucher Transaction List - Summary"
             q = Apmain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('apnum', 'apdate')
             if dfrom != '':
                 q = q.filter(apdate__gte=dfrom)
             if dto != '':
                 q = q.filter(apdate__lte=dto)
         elif report == '4':
-            title = "Unposted Accounts Voucher Payable Transaction List"
+            title = "Unposted Accounts Payable Voucher   Transaction List"
             q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,status__in=['A','C']).order_by('ap_num', 'ap_date', 'item_counter')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)

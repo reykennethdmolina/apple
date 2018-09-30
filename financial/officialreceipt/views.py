@@ -1636,7 +1636,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
         constatus = "AND m.status = '" + str(status) + "'"
 
     if type == 1:
-        query = "SELECT m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, " \
+        query = "SELECT m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN (" \
