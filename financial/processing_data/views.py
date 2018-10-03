@@ -300,7 +300,7 @@ def upload(request):
                                             atc=get_object_or_None(Ataxcode, code=new_atc),
                                             zipcode=data[15],
                                             inputvat=get_object_or_None(Inputvat, code=new_inputvat),
-                                            inputvattype=get_object_or_None(Inputvat, code=new_inputvat).inputvattype,
+                                            #inputvattype=get_object_or_None(Inputvat, code=new_inputvat).inputvattype,
                                             vatrate=new_vatrate,
                                             vat=get_object_or_None(Vat, code=new_vat),
                                             serv_code=data[19],
