@@ -42,3 +42,4 @@ xhtml2pdf==0.0.6
 xlwt==1.2.0
 yarg==0.1.9
 XlsxWriter==0.9.9
+pandas==0.23.1
