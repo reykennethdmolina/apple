@@ -28,8 +28,8 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="271">
-              <caret line="1079" column="26" lean-forward="false" selection-start-line="1079" selection-start-column="26" selection-end-line="1079" selection-end-column="26" />
+            <state relative-caret-position="278">
+              <caret line="1088" column="84" lean-forward="true" selection-start-line="1088" selection-start-column="84" selection-end-line="1088" selection-end-column="84" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
                 <element signature="e#1823#12302#0" expanded="false" />
@@ -40,7 +40,7 @@
                 <element signature="e#48900#62708#0" expanded="false" />
                 <element signature="e#62746#62944#0" expanded="false" />
                 <element signature="e#63010#73014#0" expanded="false" />
-                <element signature="e#82747#99431#0" expanded="false" />
+                <element signature="e#82975#99659#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -88,7 +88,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>total_mon_debit</find>
       <find>current_inc_debit</find>
       <find>reportresultquery</find>
       <find>ReportResultPdfView</find>
@@ -118,6 +117,7 @@
       <find>supplier</find>
       <find>inputvattype</find>
       <find>GS</find>
+      <find>gtotal_current</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -180,7 +180,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="335" />
     <option name="y" value="3" />
     <option name="width" value="1599" />
@@ -265,7 +265,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14541623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -696,8 +696,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="1079" column="26" lean-forward="false" selection-start-line="1079" selection-start-column="26" selection-end-line="1079" selection-end-column="26" />
+        <state relative-caret-position="278">
+          <caret line="1088" column="84" lean-forward="true" selection-start-line="1088" selection-start-column="84" selection-end-line="1088" selection-end-column="84" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
             <element signature="e#1823#12302#0" expanded="false" />
@@ -708,7 +708,7 @@
             <element signature="e#48900#62708#0" expanded="false" />
             <element signature="e#62746#62944#0" expanded="false" />
             <element signature="e#63010#73014#0" expanded="false" />
-            <element signature="e#82747#99431#0" expanded="false" />
+            <element signature="e#82975#99659#0" expanded="false" />
           </folding>
         </state>
       </provider>

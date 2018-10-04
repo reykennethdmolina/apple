@@ -1070,22 +1070,26 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     prev_percentage = 0
     variance_percentage = 0
     variance = 0
+    gtotal_current = 0
+    gtotal_previous = 0
 
     dataset = pd.DataFrame(result)
     curdata = dataset.groupby('this_code')['current_amount'].sum()
     prevdata = dataset.groupby('this_code')['prev_amount'].sum()
     cur_liab_equity = curdata['ASSETS']
     prev_liab_equity = prevdata['ASSETS']
-    print cur_liab_equity
-    print prev_liab_equity
     #cur_liab_equity = 0 #dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
     #prev_liab_equity = 0 #dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
     for this, thisgroup in dataset.fillna('NaN').sort_values(by=['this_code'], ascending=False, na_position='last').groupby(['this_code', 'this_desc']):
         if this[0] != 'NaN':
             worksheet.write(row, col, str(this[1]), cell_format_size)
             row += 1
-        gtotal_current = thisgroup['current_amount_abs'].sum()
-        gtotal_previous = thisgroup['prev_amount_abs'].sum()
+        gtotal_current = thisgroup.fillna('NaN')['current_amount_abs'].sum()
+        gtotal_previous = thisgroup.fillna('NaN')['prev_amount_abs'].sum()
+        #gtotal_current = thisgroup.groupby('this_code')['current_amount_abs'].sum()
+        #gtotal_previous = thisgroup['prev_amount_abs'].sum()
+        print gtotal_current
+        print gtotal_previous
         for group, maingroup in thisgroup.fillna('NaN').sort_values(by=['group_code'], ascending=True).groupby(['group_code', 'group_desc']):
             if group[0] != 'NaN':
                 worksheet.write(row, col, str(group[1]), bold15)
