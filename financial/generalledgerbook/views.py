@@ -316,9 +316,17 @@ def generate(request):
         context['prev_year'] = prevyear
         result = query_balance_sheet(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         dataset = pd.DataFrame(result)
-        cur_liab_equity = dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
-        prev_liab_equity = dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
-        print cur_liab_equity
+        curdata = dataset.groupby('this_code')['current_amount'].sum()
+        prevdata = dataset.groupby('this_code')['prev_amount'].sum()
+        #print test['ASSETS']
+        #print dataset
+        #cur_liab_equity = dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
+        #print dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
+        cur_liab_equity = curdata['ASSETS'] #dataset['current_amount'][dataset['this_code']].sum()
+        #prev_liab_equity = dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
+        prev_liab_equity = prevdata['ASSETS'] #dataset['prev_amount'][dataset['this_code']].sum()
+        #print cur_liab_equity
+        #print prev_liab_equity
         context['cur_liab_equity'] = float(format(cur_liab_equity, '.2f'))
         context['prev_liab_equity'] = float(format(prev_liab_equity, '.2f'))
         context['result'] = result
