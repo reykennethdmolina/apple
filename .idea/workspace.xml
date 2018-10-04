@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/financial/processing_data/views.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="187">
-              <caret line="312" column="69" lean-forward="true" selection-start-line="312" selection-start-column="69" selection-end-line="312" selection-end-column="69" />
+              <caret line="312" column="69" lean-forward="false" selection-start-line="312" selection-start-column="69" selection-end-line="312" selection-end-column="69" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
               </folding>
@@ -29,8 +28,8 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="97">
-              <caret line="1282" column="20" lean-forward="false" selection-start-line="1282" selection-start-column="20" selection-end-line="1282" selection-end-column="20" />
+            <state relative-caret-position="271">
+              <caret line="1079" column="26" lean-forward="false" selection-start-line="1079" selection-start-column="26" selection-end-line="1079" selection-end-column="26" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
                 <element signature="e#1823#12302#0" expanded="false" />
@@ -40,8 +39,8 @@
                 <element signature="e#28829#48789#0" expanded="false" />
                 <element signature="e#48900#62708#0" expanded="false" />
                 <element signature="e#62746#62944#0" expanded="false" />
-                <element signature="e#63010#73010#0" expanded="false" />
-                <element signature="e#73129#82569#0" expanded="false" />
+                <element signature="e#63010#73014#0" expanded="false" />
+                <element signature="e#82747#99431#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -181,7 +180,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="335" />
     <option name="y" value="3" />
     <option name="width" value="1599" />
@@ -266,7 +265,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14541623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -680,7 +679,7 @@
     <entry file="file://$PROJECT_DIR$/financial/processing_data/views.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
-          <caret line="312" column="69" lean-forward="true" selection-start-line="312" selection-start-column="69" selection-end-line="312" selection-end-column="69" />
+          <caret line="312" column="69" lean-forward="false" selection-start-line="312" selection-start-column="69" selection-end-line="312" selection-end-column="69" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
@@ -697,8 +696,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="97">
-          <caret line="1282" column="20" lean-forward="false" selection-start-line="1282" selection-start-column="20" selection-end-line="1282" selection-end-column="20" />
+        <state relative-caret-position="271">
+          <caret line="1079" column="26" lean-forward="false" selection-start-line="1079" selection-start-column="26" selection-end-line="1079" selection-end-column="26" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
             <element signature="e#1823#12302#0" expanded="false" />
@@ -708,8 +707,8 @@
             <element signature="e#28829#48789#0" expanded="false" />
             <element signature="e#48900#62708#0" expanded="false" />
             <element signature="e#62746#62944#0" expanded="false" />
-            <element signature="e#63010#73010#0" expanded="false" />
-            <element signature="e#73129#82569#0" expanded="false" />
+            <element signature="e#63010#73014#0" expanded="false" />
+            <element signature="e#82747#99431#0" expanded="false" />
           </folding>
         </state>
       </provider>

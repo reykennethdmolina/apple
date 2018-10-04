@@ -923,10 +923,10 @@ def excel_trail_balance(result, report, type, year, month):
             worksheet.write(row, col + 5, float(format(data.trans_mon_amount, '.2f')))
             total_mon_credit += float(format(data.trans_mon_amount, '.2f'))
 
-        if data.accountcode == '4311000000':
-            print data.chartmain
-            print data.description
-            print data.end_code
+        #if data.accountcode == '4311000000':
+        #    print data.chartmain
+        #    print data.description
+        #    print data.end_code
 
         if data.chartmain <= 3:
             if data.end_code == 'D':
@@ -1076,6 +1076,8 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     prevdata = dataset.groupby('this_code')['prev_amount'].sum()
     cur_liab_equity = curdata['ASSETS']
     prev_liab_equity = prevdata['ASSETS']
+    print cur_liab_equity
+    print prev_liab_equity
     #cur_liab_equity = 0 #dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
     #prev_liab_equity = 0 #dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
     for this, thisgroup in dataset.fillna('NaN').sort_values(by=['this_code'], ascending=False, na_position='last').groupby(['this_code', 'this_desc']):
@@ -1280,7 +1282,7 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 3, float(format(sub['current_amount'], '.2f')))
                     worksheet.write(row, col + 4, float(format(sub['prev_amount'], '.2f')))
                     worksheet.write(row, col + 5, float(format(sub['todate_amount'], '.2f')))
-                    
+
                     current_percentage = float(format(sub['current_amount'], '.2f')) / float(
                         format(cur_netsales, '.2f')) * 100
                     previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(
