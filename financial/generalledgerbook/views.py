@@ -318,15 +318,10 @@ def generate(request):
         dataset = pd.DataFrame(result)
         curdata = dataset.groupby('this_code')['current_amount'].sum()
         prevdata = dataset.groupby('this_code')['prev_amount'].sum()
-        #print test['ASSETS']
-        #print dataset
         #cur_liab_equity = dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
         #print dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
-        cur_liab_equity = curdata['ASSETS'] #dataset['current_amount'][dataset['this_code']].sum()
-        #prev_liab_equity = dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
-        prev_liab_equity = prevdata['ASSETS'] #dataset['prev_amount'][dataset['this_code']].sum()
-        #print cur_liab_equity
-        #print prev_liab_equity
+        cur_liab_equity = curdata['ASSETS']
+        prev_liab_equity = prevdata['ASSETS']
         context['cur_liab_equity'] = float(format(cur_liab_equity, '.2f'))
         context['prev_liab_equity'] = float(format(prev_liab_equity, '.2f'))
         context['result'] = result
@@ -335,8 +330,10 @@ def generate(request):
         print "income statement"
         result = query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         dataset = pd.DataFrame(result)
-        cur_netsales = 0 #dataset.groupby('group_code')['current_amount'].sum()
-        prev_netsales = 0 #dataset.groupby('group_code')['prev_amount'].sum()
+        cur_netsales = dataset.groupby('group_code')['current_amount'].sum()
+        prev_netsales = dataset.groupby('group_code')['prev_amount'].sum()
+        #print cur_netsales
+        #print prev_netsales
         context['cur_netsales'] = float(format(cur_netsales['GS'], '.2f'))
         context['prev_netsales'] = float(format(prev_netsales['GS'], '.2f'))
         context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
