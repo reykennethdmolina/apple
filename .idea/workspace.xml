@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/gunicorn.bash" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/financial/gunicorn.conf.py" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,18 +29,19 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="362">
-              <caret line="335" column="9" lean-forward="false" selection-start-line="335" selection-start-column="9" selection-end-line="335" selection-end-column="9" />
+            <state relative-caret-position="97">
+              <caret line="1282" column="20" lean-forward="false" selection-start-line="1282" selection-start-column="20" selection-end-line="1282" selection-end-column="20" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
                 <element signature="e#1823#12302#0" expanded="false" />
                 <element signature="e#12328#12996#0" expanded="false" />
                 <element signature="e#13035#14591#0" expanded="false" />
-                <element signature="e#17971#28778#0" expanded="false" />
-                <element signature="e#28886#48846#0" expanded="false" />
-                <element signature="e#48957#62765#0" expanded="false" />
-                <element signature="e#62803#63001#0" expanded="false" />
-                <element signature="e#63067#73067#0" expanded="false" />
+                <element signature="e#17914#28721#0" expanded="false" />
+                <element signature="e#28829#48789#0" expanded="false" />
+                <element signature="e#48900#62708#0" expanded="false" />
+                <element signature="e#62746#62944#0" expanded="false" />
+                <element signature="e#63010#73010#0" expanded="false" />
+                <element signature="e#73129#82569#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -296,7 +296,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/financial/generalledgerbook/views.py</url>
-          <line>681</line>
+          <line>679</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -321,12 +321,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/financial/generalledgerbook/views.py</url>
-          <line>477</line>
+          <line>475</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/financial/generalledgerbook/views.py</url>
-          <line>837</line>
+          <line>835</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
       </breakpoints>
@@ -697,18 +697,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="335" column="9" lean-forward="false" selection-start-line="335" selection-start-column="9" selection-end-line="335" selection-end-column="9" />
+        <state relative-caret-position="97">
+          <caret line="1282" column="20" lean-forward="false" selection-start-line="1282" selection-start-column="20" selection-end-line="1282" selection-end-column="20" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
             <element signature="e#1823#12302#0" expanded="false" />
             <element signature="e#12328#12996#0" expanded="false" />
             <element signature="e#13035#14591#0" expanded="false" />
-            <element signature="e#17971#28778#0" expanded="false" />
-            <element signature="e#28886#48846#0" expanded="false" />
-            <element signature="e#48957#62765#0" expanded="false" />
-            <element signature="e#62803#63001#0" expanded="false" />
-            <element signature="e#63067#73067#0" expanded="false" />
+            <element signature="e#17914#28721#0" expanded="false" />
+            <element signature="e#28829#48789#0" expanded="false" />
+            <element signature="e#48900#62708#0" expanded="false" />
+            <element signature="e#62746#62944#0" expanded="false" />
+            <element signature="e#63010#73010#0" expanded="false" />
+            <element signature="e#73129#82569#0" expanded="false" />
           </folding>
         </state>
       </provider>

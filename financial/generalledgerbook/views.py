@@ -332,8 +332,6 @@ def generate(request):
         dataset = pd.DataFrame(result)
         cur_netsales = dataset.groupby('group_code')['current_amount'].sum()
         prev_netsales = dataset.groupby('group_code')['prev_amount'].sum()
-        #print cur_netsales
-        #print prev_netsales
         context['cur_netsales'] = float(format(cur_netsales['GS'], '.2f'))
         context['prev_netsales'] = float(format(prev_netsales['GS'], '.2f'))
         context['month'] = datetime.date(int(year), int(month), 10).strftime("%B")
@@ -1074,8 +1072,12 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     variance = 0
 
     dataset = pd.DataFrame(result)
-    cur_liab_equity = 0 #dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
-    prev_liab_equity = 0 #dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
+    curdata = dataset.groupby('this_code')['current_amount'].sum()
+    prevdata = dataset.groupby('this_code')['prev_amount'].sum()
+    cur_liab_equity = curdata['ASSETS']
+    prev_liab_equity = prevdata['ASSETS']
+    #cur_liab_equity = 0 #dataset['current_amount'][dataset['this_code'] != 'ASSETS'].sum()
+    #prev_liab_equity = 0 #dataset['prev_amount'][dataset['this_code'] != 'ASSETS'].sum()
     for this, thisgroup in dataset.fillna('NaN').sort_values(by=['this_code'], ascending=False, na_position='last').groupby(['this_code', 'this_desc']):
         if this[0] != 'NaN':
             worksheet.write(row, col, str(this[1]), cell_format_size)
@@ -1245,9 +1247,12 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
     incometax_todate = 0
 
     dataset = pd.DataFrame(result)
-    cur_netsales = 0 #dataset['current_amount'][dataset['group_code'] == 'GS'].sum()
-    prev_netsales = 0 #dataset['prev_amount'][dataset['group_code'] == 'GS'].sum()
-    todate_netsales = 0 #dataset['todate_amount'][dataset['group_code'] == 'GS'].sum()
+    dcur_netsales = dataset.groupby('group_code')['current_amount'].sum()
+    dprev_netsales = dataset.groupby('group_code')['prev_amount'].sum()
+    dtodate_netsales = dataset.groupby('group_code')['todate_amount'].sum()
+    cur_netsales = dcur_netsales['GS'] #dataset['current_amount'][dataset['group_code'] == 'GS'].sum()
+    prev_netsales = dprev_netsales['GS'] #dataset['prev_amount'][dataset['group_code'] == 'GS'].sum()
+    todate_netsales = dtodate_netsales['GS'] #dataset['todate_amount'][dataset['group_code'] == 'GS'].sum()
     for group, maintitle in dataset.fillna('NaN').groupby(['group_code', 'group_desc', 'group_title']):
         if group[0] != 'NaN' and group[0] != 'PFIT' and group[0] != 'OTHER':
             worksheet.write(row, col, str(group[1]), bold)
@@ -1275,7 +1280,7 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
                     worksheet.write(row, col + 3, float(format(sub['current_amount'], '.2f')))
                     worksheet.write(row, col + 4, float(format(sub['prev_amount'], '.2f')))
                     worksheet.write(row, col + 5, float(format(sub['todate_amount'], '.2f')))
-
+                    
                     current_percentage = float(format(sub['current_amount'], '.2f')) / float(
                         format(cur_netsales, '.2f')) * 100
                     previous_percentage = float(format(sub['prev_amount'], '.2f')) / float(
