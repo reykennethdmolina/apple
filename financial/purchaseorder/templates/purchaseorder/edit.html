@@ -221,14 +221,17 @@
                                         <label class="control-label small" for="id_inputvattype">Input&nbsp;VAT&nbsp;Type</label>
                                         <select class="form-control input-sm" data-validation="required" id="id_inputvattype" name="inputvattype">
                                             <option value="">-- Select --</option>
-                                            {% for inputvattype in inputvattype %}
-                                                <option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>
+                                            {% for inputvat in inputvat %}
+                                                <option value="{{ inputvat.inputvattype_id }}" {% if form.inputvattype.value|add:0 == inputvat.inputvattype_id %} selected="selected" {% endif %}>{{ inputvat.description }} - {{ inputvat.inputvattype.description }}</option>
                                             {% endfor %}
+                                            <!--{% for inputvattype in inputvattype %}-->
+                                                <!--<option value="{{ inputvattype.id }}" {% if form.inputvattype.value|add:0 == inputvattype.id %} selected="selected" {% endif %}>{{ inputvattype.description }}</option>-->
+                                            <!--{% endfor %}-->
                                         </select>
                                         <span class="help-block form-error">{{ form.inputvattype.errors.as_text }}</span>
                                     </div>
                                     <div class="form-group col-sm-4 {{ form.deferredvat.errors|yesno:'has-error,' }}">
-                                        <label class="control-label small" for="id_deferredvat">Deferred?</label>
+                                        <label class="control-label small" for="id_deferredvat">Deferred</label>
                                         <select class="form-control input-sm" data-validation="required" id="id_deferredvat" name="deferredvat">
                                             {% for id,name in form.fields.deferredvat.choices %}
                                                 <option value="{{ id }}"{% if form.deferredvat.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>

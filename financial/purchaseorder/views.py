@@ -11,6 +11,7 @@ from employee.models import Employee
 from supplier.models import Supplier
 from ataxcode.models import Ataxcode
 from inputvattype.models import Inputvattype
+from inputvat.models import Inputvat
 from vat.models import Vat
 from creditterm.models import Creditterm
 from inventoryitem.models import Inventoryitem
@@ -92,6 +93,7 @@ class CreateView(CreateView):
             order_by('first_name')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         # context['prfmain'] = Prfmain.objects.filter(isdeleted=0, prfstatus='A', status='A',
         #                                             totalremainingquantity__gt=0)
@@ -355,6 +357,7 @@ class UpdateView(UpdateView):
             order_by('first_name')
         context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
         context['postatus'] = Pomain.objects.get(pk=self.object.pk).get_postatus_display()
         context['prfimported'] = Podata.objects.filter(pomain=self.object.pk, isdeleted=0).exclude(prfmain=None)

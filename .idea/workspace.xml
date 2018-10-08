@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/financial/financial/settings.py" afterPath="$PROJECT_DIR$/financial/financial/settings.py" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html" afterPath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html" />
+      <change beforePath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/edit.html" afterPath="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/edit.html" />
+      <change beforePath="$PROJECT_DIR$/financial/purchaseorder/views.py" afterPath="$PROJECT_DIR$/financial/purchaseorder/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -46,32 +49,56 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="report_10.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_10.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2754">
-              <caret line="162" column="8" lean-forward="false" selection-start-line="162" selection-start-column="8" selection-end-line="162" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report_11.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_11.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="25" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="147" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="settings.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="182">
               <caret line="219" column="29" lean-forward="false" selection-start-line="219" selection-start-column="29" selection-end-line="219" selection-end-column="29" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="create.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="162">
+              <caret line="191" column="250" lean-forward="false" selection-start-line="191" selection-start-column="239" selection-end-line="191" selection-end-column="250" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="edit.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/edit.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="220" column="121" lean-forward="false" selection-start-line="220" selection-start-column="121" selection-end-line="220" selection-end-column="121" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/purchaseorder/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="172">
+              <caret line="36" column="12" lean-forward="false" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/purchaseorder/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="359" column="81" lean-forward="false" selection-start-line="359" selection-start-column="81" selection-end-line="359" selection-end-column="81" />
+              <folding>
+                <element signature="e#0#89#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -108,26 +135,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="358">
-              <caret line="66" column="73" lean-forward="false" selection-start-line="66" selection-start-column="73" selection-end-line="66" selection-end-column="73" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="report.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="55" column="59" lean-forward="false" selection-start-line="55" selection-start-column="51" selection-end-line="55" selection-end-column="59" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="views-old.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/views-old.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -150,8 +157,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>CDB_D</find>
-      <find>sum</find>
       <find>Sum</find>
       <find>total</find>
       <find>summary_container</find>
@@ -180,6 +185,8 @@
       <find>ReportResultPdfView</find>
       <find>SAP_S</find>
       <find>SAP_WB_S</find>
+      <find>inputvat</find>
+      <find>defe</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -188,9 +195,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/chartofaccount/templates/chartofaccount/list.html" />
-        <option value="$PROJECT_DIR$/financial/generalledgerbook/urls.py" />
-        <option value="$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/index.html" />
         <option value="$PROJECT_DIR$/financial/generaljournalbook/views.py" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/index.html" />
         <option value="$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/report_1.html" />
@@ -239,6 +243,9 @@
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/views.py" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_13.html" />
         <option value="$PROJECT_DIR$/financial/financial/settings.py" />
+        <option value="$PROJECT_DIR$/financial/purchaseorder/views.py" />
+        <option value="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html" />
+        <option value="$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/edit.html" />
       </list>
     </option>
   </component>
@@ -281,6 +288,27 @@
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="purchaseorder" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="purchaseorder" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="purchaseorder" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="purchaseorder" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
@@ -423,34 +451,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/summary_cashinbank.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="603">
-          <caret line="150" column="7" lean-forward="false" selection-start-line="150" selection-start-column="7" selection-end-line="150" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/jvinquiry/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="542">
-          <caret line="382" column="20" lean-forward="false" selection-start-line="382" selection-start-column="12" selection-end-line="382" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/jvinquiry/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="9" column="66" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="66" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_5.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1062">
-          <caret line="147" column="7" lean-forward="false" selection-start-line="147" selection-start-column="7" selection-end-line="147" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_2.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="354">
@@ -762,7 +762,7 @@
     <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_11.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
-          <caret line="15" column="25" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="147" selection-end-column="7" />
+          <caret line="15" column="25" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="147" selection-end-column="7" />
           <folding />
         </state>
       </provider>
@@ -836,6 +836,42 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="182">
           <caret line="219" column="29" lean-forward="false" selection-start-line="219" selection-start-column="29" selection-end-line="219" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/purchaseorder/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="36" column="12" lean-forward="false" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/purchaseorder/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="359" column="81" lean-forward="false" selection-start-line="359" selection-start-column="81" selection-end-line="359" selection-end-column="81" />
+          <folding>
+            <element signature="e#0#89#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/create.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="191" column="250" lean-forward="false" selection-start-line="191" selection-start-column="239" selection-end-line="191" selection-end-column="250" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/purchaseorder/templates/purchaseorder/edit.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="220" column="121" lean-forward="false" selection-start-line="220" selection-start-column="121" selection-end-line="220" selection-end-column="121" />
           <folding />
         </state>
       </provider>
