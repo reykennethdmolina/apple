@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/financial/financial/settings.py" afterPath="$PROJECT_DIR$/financial/financial/settings.py" />
-      <change beforePath="$PROJECT_DIR$/financial/generalledgerbook/views.py" afterPath="$PROJECT_DIR$/financial/generalledgerbook/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/index.html" afterPath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/summary_department.html" afterPath="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/summary_department.html" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_booksofaccounts/urls.py" afterPath="$PROJECT_DIR$/financial/rep_booksofaccounts/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/rep_booksofaccounts/views.py" afterPath="$PROJECT_DIR$/financial/rep_booksofaccounts/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/requirements.txt" afterPath="$PROJECT_DIR$/financial/requirements.txt" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -73,21 +66,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="settings.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="386">
-              <caret line="219" column="42" lean-forward="false" selection-start-line="219" selection-start-column="42" selection-end-line="219" selection-end-column="42" />
+            <state relative-caret-position="182">
+              <caret line="219" column="29" lean-forward="false" selection-start-line="219" selection-start-column="29" selection-end-line="219" selection-end-column="29" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="report_13.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="report_13.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_13.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="505">
-              <caret line="158" column="118" lean-forward="false" selection-start-line="158" selection-start-column="118" selection-end-line="158" selection-end-column="118" />
+            <state relative-caret-position="454">
+              <caret line="155" column="31" lean-forward="false" selection-start-line="155" selection-start-column="31" selection-end-line="155" selection-end-column="31" />
               <folding>
                 <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -105,7 +98,6 @@
                 <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#td#0;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -241,12 +233,12 @@
         <option value="$PROJECT_DIR$/financial/requirements.txt" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/index.html" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/views-old.py" />
-        <option value="$PROJECT_DIR$/financial/financial/settings.py" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/views2.py" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/urls.py" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/summary_department.html" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/views.py" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_13.html" />
+        <option value="$PROJECT_DIR$/financial/financial/settings.py" />
       </list>
     </option>
   </component>
@@ -282,6 +274,12 @@
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -761,14 +759,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="219" column="42" lean-forward="false" selection-start-line="219" selection-start-column="42" selection-end-line="219" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_11.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -814,8 +804,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_13.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="505">
-          <caret line="158" column="118" lean-forward="false" selection-start-line="158" selection-start-column="118" selection-end-line="158" selection-end-column="118" />
+        <state relative-caret-position="454">
+          <caret line="155" column="31" lean-forward="false" selection-start-line="155" selection-start-column="31" selection-end-line="155" selection-end-column="31" />
           <folding>
             <element signature="n#style#0;n#th#0;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#th#1;n#tr#0;n#thead#0;n#table#1;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -833,13 +823,20 @@
             <element signature="n#style#0;n#td#1;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#2;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#td#0;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#3;n#tr#3;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#0;n#tr#4;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#1;n#tr#4;n#tbody#0;n#table#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="219" column="29" lean-forward="false" selection-start-line="219" selection-start-column="29" selection-end-line="219" selection-end-column="29" />
+          <folding />
         </state>
       </provider>
     </entry>
