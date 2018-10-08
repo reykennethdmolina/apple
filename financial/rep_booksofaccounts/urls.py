@@ -11,5 +11,5 @@ urlpatterns = [
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     #url(r'^reportresultpdf/$', views.ReportResultPdfView.as_view(), name='reportresultpdf'),
     #url(r'^cashinbankpdf/$', views.CashInBankPdfView.as_view(), name='cashinbankpdf'),
-    # url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
+    #url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
 ]

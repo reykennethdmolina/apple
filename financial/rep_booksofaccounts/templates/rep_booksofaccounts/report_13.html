@@ -21,7 +21,7 @@
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5.5cm; left: 1cm; width: 19.5cm; height: 21cm;
+                top: 5cm; left: 1cm; width: 19.5cm; height: 21cm;
             }
         }
         body{
@@ -96,62 +96,74 @@
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
-            </tr>
-            <tr>
-                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
-            </tr>
-            <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                <td width="50%"></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+                <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ subtitle|upper }}</p></td>
+                <td width="90%"><p class="title">{{ title|upper }}</p></td>
+                <td width="10%"></td>
             </tr>
         </table>
 
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:180px">Department Code</th>
-                    <th style="text-align:left;width:350px">Department Name</th>
-                    <th style="text-align:left;width:150px">Branch</th>
-                    <th style="text-align:center;width:180px">Debit</th>
-                    <th style="text-align:center;width:180px">Credit</th>
+                    <th style="text-align:left;width:100px">Dept. Code</th>
+                    <th style="text-align:left;width:150px"></th>
+                    <th style="text-align:left;width:450px">Department Name</th>
+                    <th style="text-align:center;width:180px">Amount</th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
-{{ report }}
+
 <table id="content-data">
     <tbody>
+    {% for chart in chart_debit %}
+        <tr>
+            <td style="text-align:left;width:100px"></td>
+            <td style="text-align:left;width:50px"></td>
+            <td style="text-align:left;width:450px">{{ chart.chartofaccount__description|upper }}</td>
+            <td style="text-align:right;width:180px">{{ chart.debitamount__sum|default:''|floatformat:2|intcomma }}</td>
+        </tr>
+    {% endfor %}
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:180px">{{ item.department__code|upper }}</td>
-            <td style="text-align:left;width:350px">{{ item.department__departmentname|upper }}</td>
-            <td style="text-align:left;width:150px">{{ item.department__branchstatus|upper }}</td>
-            {% if report == '11' %}
+            <td style="text-align:left;width:100px">{{ item.department__code|upper }}</td>
+            <td style="text-align:left;width:50px">{{ item.branch__code|upper }}</td>
+            <td style="text-align:left;width:450px">{{ item.department__departmentname|upper }}</td>
             <td style="text-align:right;width:180px">{{ item.debitamount__sum|default:''|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;width:180px">{{ item.creditamount__sum|default:''|floatformat:2|intcomma }}</td>
-            {% else %}
-            <td style="text-align:right;width:180px">{{ item.debitdifference|default:''|floatformat:2|intcomma }}</td>
-            <td style="text-align:right;width:180px">{{ item.creditdifference|default:''|floatformat:2|intcomma }}</td>
-            {% endif %}
+        </tr>
+    {% endfor %}
+    {% for chart in chart_credit %}
+        <tr>
+            <td style="text-align:left;width:100px"></td>
+            <td style="text-align:left;width:50px"></td>
+            <td style="text-align:left;width:450px">{{ chart.chartofaccount__description|upper }}</td>
+            <td style="text-align:right;width:180px">({{ chart.creditamount__sum|default:''|floatformat:2|intcomma }})</td>
+        </tr>
+    {% endfor %}
+    {% for item2 in list2 %}
+        <tr>
+            <td style="text-align:left;width:100px">{{ item2.department__code|upper }}</td>
+            <td style="text-align:left;width:50px">{{ item2.branch__code|upper }}</td>
+            <td style="text-align:left;width:450px">{{ item2.department__departmentname|upper }}</td>
+            <td style="text-align:right;width:180px">({{ item2.creditamount__sum|default:''|floatformat:2|intcomma }})</td>
         </tr>
     {% endfor %}
     <tr>
-        <td style="text-align:left;width:180px"></td>
-        <td style="text-align:left;width:350px"></td>
-        <td style="text-align:right;width:150px"><b>TOTAL</b></td>
-        {% if report == '11' %}
-        <td style="text-align:right;width:180px"><b><u>{{ total.debitamount__sum__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.creditamount__sum__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        {% else %}
-        <td style="text-align:right;width:180px"><b><u>{{ total.debitdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        <td style="text-align:right;width:180px"><b><u>{{ total.creditdifference__sum|default:''|floatformat:2|intcomma }}</u></b></td>
-        {% endif %}
+        <td style="text-align:left;width:100px"></td>
+        <td style="text-align:left;width:50px"></td>
+        <td style="text-align:right;width:400px"><b>TOTAL</b></td>
+        <td style="text-align:right;width:180px"><b><u>{{ totalamount|default:''|floatformat:2|intcomma }}</u></b></td>
     </tr>
     </tbody>
 </table>

@@ -26,7 +26,7 @@ from django.template.loader import render_to_string
 @method_decorator(login_required, name='dispatch')
 class ReportView(TemplateView):
     model = Jvdetail
-    template_name = 'rep_booksofaccounts/index.html'
+    template_name = 'rep_booksofaccounts/report.html'
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
@@ -223,53 +223,17 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
             q = q.values('department__code', 'department__departmentname', 'branch__code') \
-                .annotate(Sum('debitamount')) \
+                .annotate(Sum('debitamount'), Sum('creditamount'),
+                          debitdifference=Case(When(debitamount__sum__lt=F('creditamount__sum'), then=Value(0)),
+                                               default=Sum('debitamount') - Sum('creditamount')),
+                          creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
+                                                default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('department__code')
-            totald = q.aggregate(Sum('debitamount__sum'))
-
-            q2 = Apdetail.objects.all().filter(isdeleted=0, department__isnull=False).exclude(creditamount=0) \
-                .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
-            if dfrom != '':
-                q2 = q2.filter(ap_date__gte=dfrom)
-            if dto != '':
-                q2 = q2.filter(ap_date__lte=dto)
-            q2 = q2.values('department__code', 'department__departmentname', 'branch__code') \
-                .annotate(Sum('creditamount')) \
-                .order_by('department__code')
-            totalc = q2.aggregate(Sum('creditamount__sum'))
-
-            cdebit = Apdetail.objects.all().filter(isdeleted=0) \
-                .filter((Q(chartofaccount__accountcode__startswith='1') | Q(
-                chartofaccount__accountcode__startswith='2'))).exclude(apmain__status='C') \
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
-            if dfrom != '':
-                cdebit = cdebit.filter(ap_date__gte=dfrom)
-            if dto != '':
-                cdebit = cdebit.filter(ap_date__lte=dto)
-            cdebit = cdebit.values('chartofaccount__description').annotate(Sum('debitamount')). \
-                filter(debitamount__sum__gt=0). \
-                order_by('chartofaccount__accountcode')
-            total_debit = cdebit.aggregate(Sum('debitamount__sum'))
-
-            ccredit = Apdetail.objects.all().filter(isdeleted=0)\
-                .filter((Q(chartofaccount__accountcode__startswith='1')|Q(chartofaccount__accountcode__startswith='2'))).exclude(apmain__status='C')\
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
-            if dfrom != '':
-                ccredit = ccredit.filter(ap_date__gte=dfrom)
-            if dto != '':
-                ccredit = ccredit.filter(ap_date__lte=dto)
-            ccredit = ccredit.values('chartofaccount__description').annotate(Sum('creditamount')). \
-                filter(creditamount__sum__gt=0). \
-                order_by('chartofaccount__accountcode')
-            total_credit = ccredit.aggregate(Sum('creditamount__sum'))
-
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         else:
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
-        list = q
+        list = q[:50]
         context = {
             "title": title,
             "today": timezone.now(),
@@ -303,10 +267,6 @@ class GeneratePDF(View):
         elif report == '12':
             return Render.render('rep_booksofaccounts/report_12.html', context)
         elif report == '13':
-            context['list2'] = q2
-            context['chart_credit'] = ccredit
-            context['chart_debit'] = cdebit
-            context['totalamount'] = (totald['debitamount__sum__sum'] + total_debit['debitamount__sum__sum']) - (totalc['creditamount__sum__sum'] + total_credit['creditamount__sum__sum'])
             return Render.render('rep_booksofaccounts/report_13.html', context)
         else:
             return Render.render('rep_booksofaccounts/report_1.html', context)
@@ -484,9 +444,7 @@ class GeneratePDFDepartment(View):
         elif report == '11':
             title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
             subtitle = "Summary of Department"
-            q = Apdetail.objects.all().filter(isdeleted=0, department__isnull=False) \
-                .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
-                .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
+            q = Apdetail.objects.all().filter(isdeleted=0,department__isnull=False).exclude(apmain__status='C')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
             if dto != '':
@@ -500,8 +458,7 @@ class GeneratePDFDepartment(View):
                           creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('department__code')
-            total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
-            print total
+            total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         else:
             q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
 
@@ -513,7 +470,6 @@ class GeneratePDFDepartment(View):
             "company": company,
             "list": list,
             "total": total,
-            "report": report,
             "username": request.user,
         }
         if report == '2':
