@@ -18,7 +18,7 @@ def usermodule(request):
                        "FROM django_content_type AS dct "
                        "INNER JOIN module AS m ON (m.django_content_type_id = dct.id AND m.isdeleted=0)"
                        "LEFT OUTER JOIN mainmodule AS mm ON mm.id = m.mainmodule_id "
-                       "WHERE dct.id NOT IN(1,2,5,6) AND dct.app_label != '' "
+                       "WHERE dct.id NOT IN(1,2,5,6) AND mm.isdeleted = 0 AND dct.app_label != '' "
                        "GROUP BY mm.code, dct.model "
                        "ORDER BY mm.sortnumber, m.name")
     else:
