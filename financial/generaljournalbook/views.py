@@ -17,6 +17,16 @@ from ataxcode.models import Ataxcode
 from subledger.models import Subledger
 from vat.models import Vat
 from wtax.models import Wtax
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+import pandas as pd
+from datetime import timedelta
+import io
+import xlsxwriter
+import datetime
+from django.template.loader import render_to_string
 
 
 @method_decorator(login_required, name='dispatch')
@@ -39,13 +49,14 @@ class IndexView(TemplateView):
         return context
 
 @method_decorator(login_required, name='dispatch')
-class Generate(View):
+class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
         q = []
         total = []
         chartofaccount = []
         report = request.GET['report']
+        transtype = request.GET['transtype']
         dfrom = request.GET['from']
         dto = request.GET['to']
         chart = request.GET['chart']
@@ -62,50 +73,51 @@ class Generate(View):
         inputvat = request.GET['inputvat']
         outputvat = request.GET['outputvat']
         chart = request.GET['chart']
-        title = "Subsidiary Ledger Books"
+        title = "General Ledger"
 
-        list = Subledger.objects.filter(isdeleted=0).order_by('document_type', 'document_date', 'document_num', 'item_counter')[:0]
+        list = Subledger.objects.filter(isdeleted=0).order_by('document_date', 'document_num','item_counter')[:0]
 
         if report == '1':
-            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,chartofaccount__exact=chart).filter(~Q(status = 'C')).order_by('ap_date', 'ap_num','item_counter')
+            q = Subledger.objects.filter(isdeleted=0).order_by('document_date', 'document_num','item_counter')
             if dfrom != '':
-                q = q.filter(ap_date__gte=dfrom)
+                q = q.filter(document_date__gte=dfrom)
             if dto != '':
-                q = q.filter(ap_date__lte=dto)
+                q = q.filter(document_date__lte=dto)
 
-        if chart != '':
-            chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
+        #if chart != '':
+            #chartofaccount = Chartofaccount.objects.filter(pk=chart).first()
+            #q = q.filter(chartofaccount__exact=chart)
+        #
+        # if supplier != 'null':
+        #     q = q.filter(supplier__exact=supplier)
+        # if customer != 'null':
+        #     q = q.filter(customer__exact=customer)
+        # if employee != 'null':
+        #     q = q.filter(employee__exact=employee)
+        # if product != '':
+        #     q = q.filter(product__exact=product)
+        # if department != '':
+        #     q = q.filter(department__exact=department)
+        # if branch != '':
+        #     q = q.filter(branch__exact=branch)
+        # if bankaccount != '':
+        #     q = q.filter(bankaccount__exact=bankaccount)
+        # if vat != '':
+        #     q = q.filter(vat__exact=vat)
+        # if atax != '':
+        #     q = q.filter(ataxcode__exact=atax)
+        # if wtax != '':
+        #     q = q.filter(wtax__exact=wtax)
+        # if inputvat != '':
+        #     q = q.filter(inputvat__exact=inputvat)
+        # if outputvat != '':
+        #     q = q.filter(outputvat__exact=outputvat)
 
-        if supplier != 'null':
-            q = q.filter(supplier__exact=supplier)
-        if customer != 'null':
-            q = q.filter(customer__exact=customer)
-        if employee != 'null':
-            q = q.filter(employee__exact=employee)
-        if product != '':
-            q = q.filter(product__exact=product)
-        if department != '':
-            q = q.filter(department__exact=department)
-        if branch != '':
-            q = q.filter(branch__exact=branch)
-        if bankaccount != '':
-            q = q.filter(bankaccount__exact=bankaccount)
-        if vat != '':
-            q = q.filter(vat__exact=vat)
-        if atax != '':
-            q = q.filter(ataxcode__exact=atax)
-        if wtax != '':
-            q = q.filter(wtax__exact=wtax)
-        if inputvat != '':
-            q = q.filter(inputvat__exact=inputvat)
-        if outputvat != '':
-            q = q.filter(outputvat__exact=outputvat)
+        list = q[:50]
 
-        list = q
-
-        if report == '1':
-            total = {}
-            total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+        # if report == '1':
+        #     total = {}
+        #     total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         context = {
             "title": title,
@@ -117,9 +129,4 @@ class Generate(View):
             "username": request.user,
         }
 
-        data = {
-            'status': 'success',
-            'viewhtml': render_to_string('apinquiry/generate.html', context)
-        }
-
-        return JsonResponse(data)
+        return Render.render('generaljournalbook/report_1.html', context)

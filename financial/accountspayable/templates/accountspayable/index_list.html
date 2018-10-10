@@ -8,6 +8,7 @@
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
                 <th><span>Type</span></th>
+                <th><span>Payee</span></th>
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
                 <th><span>Status</span></th>
@@ -22,6 +23,7 @@
                 <td>{{ data.apnum }}</td>
                 <td>{{ data.apdate|date:'Y-m-d' }}</td>
                 <td>{{ data.aptype.description }}</td>
+                <td>{{ data.payeename }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- no approver assigned yet --{% endif %}</td>
                 <td>{{ data.enterby }}</td>
                 <td class="tdApStatus
