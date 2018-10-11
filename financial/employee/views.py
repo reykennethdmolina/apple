@@ -102,7 +102,6 @@ class UpdateView(UpdateView):
             context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
 
         context['managementlevel'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
-        context['user'] = User.objects.all().order_by('username')
         return context
 
 
