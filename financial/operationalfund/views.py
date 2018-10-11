@@ -63,7 +63,10 @@ class IndexView(AjaxListView):
             else:
                 query = Ofmain.objects.all().filter(isdeleted=0)
         else:
-            query = Ofmain.objects.all().filter(isdeleted=0)
+            if self.request.user.has_perm('operationalfund.approve_allof'):
+                query = Ofmain.objects.all().filter(isdeleted=0)
+            else:
+                query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(ofnum__icontains=keysearch) |
