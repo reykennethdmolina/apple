@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/employee/templates/employee/edit.html" afterPath="$PROJECT_DIR$/financial/employee/templates/employee/edit.html" />
-      <change beforePath="$PROJECT_DIR$/financial/employee/views.py" afterPath="$PROJECT_DIR$/financial/employee/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" afterPath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
+      <change beforePath="$PROJECT_DIR$/financial/accountspayable/views.py" afterPath="$PROJECT_DIR$/financial/accountspayable/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,7 +12,54 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="28" lean-forward="false" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="28" />
+              <folding>
+                <element signature="e#0#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/accountspayable/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="620" column="73" lean-forward="false" selection-start-line="620" selection-start-column="73" selection-end-line="620" selection-end-column="73" />
+              <folding>
+                <element signature="e#0#95#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/accountspayable/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="135" column="15" lean-forward="false" selection-start-line="135" selection-start-column="4" selection-end-line="135" selection-end-column="15" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pdf.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/pdf.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="274">
+              <caret line="280" column="27" lean-forward="false" selection-start-line="280" selection-start-column="21" selection-end-line="280" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -27,8 +71,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>GJB_D</find>
-      <find>Cash dis</find>
       <find>a</find>
       <find>PDF</find>
       <find>Generate</find>
@@ -57,6 +99,8 @@
       <find>user_employee</find>
       <find>Requestor</find>
       <find>entr</find>
+      <find>Pdf</find>
+      <find>detail</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -74,7 +118,6 @@
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_1.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_3.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/report/report_4.html" />
-        <option value="$PROJECT_DIR$/financial/accountspayable/views.py" />
         <option value="$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/report/report_1.html" />
         <option value="$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/report/report_2.html" />
         <option value="$PROJECT_DIR$/financial/journalvoucher/templates/journalvoucher/report/report_3.html" />
@@ -116,6 +159,7 @@
         <option value="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
         <option value="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/index_list.html" />
         <option value="$PROJECT_DIR$/financial/employee/views.py" />
+        <option value="$PROJECT_DIR$/financial/accountspayable/views.py" />
       </list>
     </option>
   </component>
@@ -173,33 +217,6 @@
               <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
               <item name="accountspayable" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="employee" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="employee" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="employee" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="employee" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
@@ -295,8 +312,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14541623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14541623" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32467532" sideWeight="0.28345627" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -362,34 +380,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/processing_data/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="312" column="69" lean-forward="false" selection-start-line="312" selection-start-column="69" selection-end-line="312" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/processing_data/templates/processing_data/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="97" column="75" lean-forward="false" selection-start-line="97" selection-start-column="67" selection-end-line="97" selection-end-column="75" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="66" column="73" lean-forward="false" selection-start-line="66" selection-start-column="73" selection-end-line="66" selection-end-column="73" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_10.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2754">
-          <caret line="162" column="8" lean-forward="false" selection-start-line="162" selection-start-column="8" selection-end-line="162" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/rep_booksofaccounts/views2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="318">
@@ -762,7 +752,7 @@
         <state relative-caret-position="357">
           <caret line="39" column="8" lean-forward="false" selection-start-line="39" selection-start-column="4" selection-end-line="39" selection-end-column="8" />
           <folding>
-            <element signature="e#0#39#0" expanded="true" />
+            <element signature="e#0#39#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -772,6 +762,44 @@
         <state relative-caret-position="-193">
           <caret line="35" column="48" lean-forward="false" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="28" lean-forward="false" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/pdf.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="280" column="27" lean-forward="false" selection-start-line="280" selection-start-column="21" selection-end-line="280" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="135" column="15" lean-forward="false" selection-start-line="135" selection-start-column="4" selection-end-line="135" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/accountspayable/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="620" column="73" lean-forward="false" selection-start-line="620" selection-start-column="73" selection-end-line="620" selection-end-column="73" />
+          <folding>
+            <element signature="e#0#95#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

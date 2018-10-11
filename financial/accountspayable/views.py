@@ -618,7 +618,7 @@ class Pdf(PDFTemplateView):
         context['apmain'] = Apmain.objects.get(pk=self.kwargs['pk'], isdeleted=0)
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
         context['detail'] = Apdetail.objects.filter(isdeleted=0). \
-            filter(apmain_id=self.kwargs['pk']).order_by('item_counter')
+            filter(apmain_id=self.kwargs['pk']).order_by('-balancecode', 'item_counter')
         context['totaldebitamount'] = Apdetail.objects.filter(isdeleted=0). \
             filter(apmain_id=self.kwargs['pk']).aggregate(Sum('debitamount'))
         context['totalcreditamount'] = Apdetail.objects.filter(isdeleted=0). \
