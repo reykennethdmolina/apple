@@ -223,14 +223,13 @@ class CreateViewUser(CreateView):
         context = super(CreateView, self).get_context_data(**kwargs)
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         user_employee = get_object_or_None(Employee, user=self.request.user)
-        # if self.request.user.has_perm('operationalfund.assign_requestor'):
-        #     context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
-        # else:
-        #     if user_employee is not None:
-        #         context['requestor'] = Employee.objects.filter(isdeleted=0, pk=user_employee)
-        #     else:
-        #         context['requestor'] = None
-        context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        if self.request.user.has_perm('operationalfund.assign_requestor'):
+            context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        else:
+            if user_employee is not None:
+                context['requestor'] = Employee.objects.filter(isdeleted=0, pk=user_employee)
+            else:
+                context['requestor'] = None
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['user_employee'] = user_employee
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
