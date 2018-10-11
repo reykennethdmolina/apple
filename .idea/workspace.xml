@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/views.py" afterPath="$PROJECT_DIR$/financial/operationalfund/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" afterPath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -87,11 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/operationalfund/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="249">
-              <caret line="232" column="111" lean-forward="false" selection-start-line="232" selection-start-column="111" selection-end-line="232" selection-end-column="111" />
+            <state relative-caret-position="215">
+              <caret line="230" column="19" lean-forward="false" selection-start-line="230" selection-start-column="19" selection-end-line="230" selection-end-column="19" />
               <folding>
                 <element signature="e#0#89#0" expanded="true" />
               </folding>
@@ -99,11 +99,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="usercreate.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="usercreate.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="334">
-              <caret line="85" column="71" lean-forward="false" selection-start-line="85" selection-start-column="58" selection-end-line="85" selection-end-column="71" />
+            <state relative-caret-position="198">
+              <caret line="62" column="110" lean-forward="false" selection-start-line="62" selection-start-column="110" selection-end-line="62" selection-end-column="110" />
               <folding />
             </state>
           </provider>
@@ -181,7 +181,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_6.html" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_8.html" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_9.html" />
         <option value="$PROJECT_DIR$/financial/rep_booksofaccounts/templates/rep_booksofaccounts/report_10.html" />
@@ -232,6 +231,7 @@
         <option value="$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/report_1.html" />
         <option value="$PROJECT_DIR$/financial/accountspayable/templates/accountspayable/edit.html" />
         <option value="$PROJECT_DIR$/financial/operationalfund/views.py" />
+        <option value="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
       </list>
     </option>
   </component>
@@ -870,21 +870,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="334">
-          <caret line="85" column="71" lean-forward="false" selection-start-line="85" selection-start-column="58" selection-end-line="85" selection-end-column="71" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/operationalfund/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="232" column="111" lean-forward="false" selection-start-line="232" selection-start-column="111" selection-end-line="232" selection-end-column="111" />
+        <state relative-caret-position="215">
+          <caret line="230" column="19" lean-forward="false" selection-start-line="230" selection-start-column="19" selection-end-line="230" selection-end-column="19" />
           <folding>
             <element signature="e#0#89#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="62" column="110" lean-forward="false" selection-start-line="62" selection-start-column="110" selection-end-line="62" selection-end-column="110" />
+          <folding />
         </state>
       </provider>
     </entry>
