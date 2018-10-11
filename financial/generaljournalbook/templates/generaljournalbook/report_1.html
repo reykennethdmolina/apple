@@ -117,7 +117,7 @@
                 </tr>
                 <tr style="border-bottom: 2px solid #000;">
                     <th style="text-align:left;width:90px;font-size:13px">Date</th>
-                    <th style="text-align:left;width:80px;font-size:13px">Type</th>
+                    <th style="text-align:left;width:50px;font-size:13px">Type</th>
                     <th style="text-align:left;width:100px;font-size:13px">Number</th>
                     <th style="text-align:center;width:300px;font-size:13px">P a r t i c u l a r s</th>
                     <th style="text-align:center
@@ -130,23 +130,22 @@
         </table>
     </div>
 </div>
-{{ mainmodule.list.0.mainiconfile }}
 <table id="content-data">
     <tbody>
+    <tr></tr>
     <tr>
         <td style="text-align:left;width:90px;vertical-align:top;"></td>
-        <td colspan = 2" style="text-align:left;width:180px;vertical-align:top;">{{ chartofaccount.accountcode }}</td>
-        <td style="text-align:left;width:300px;vertical-align:top;">{{ chartofaccount.accountcode }}</td>
+        <td colspan="2" style="text-align:left;width:150px;vertical-align:top;font-size:13px"><b>{{ chartofaccount.accountcode }}<b></td>
+        <td colspan="2" style="text-align:left;width:450px;vertical-align:top;font-size:13px"><b>{{ chartofaccount.description }}<b></td>
         <td style="text-align:right;width:150px;vertical-align:top;"></td>
         <td style="text-align:right;width:150px;vertical-align:top;"></td>
         <td style="text-align:right;width:150px;vertical-align:top;"></td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
-
     </tr>
+    <tr></tr>
     {% for item in list %}
     <tr>
         <td style="text-align:left;width:90px;vertical-align:top;">{{ item.document_date|date:'m/d/Y' }}</td>
-        <td style="text-align:left;width:80px;vertical-align:top;">{{ item.document_type|upper }}</td>
+        <td style="text-align:left;width:50px;vertical-align:top;">{{ item.document_type|upper }}</td>
         <td style="text-align:left;width:100px;vertical-align:top;">{{ item.document_num }}</td>
         <td style="text-align:left;width:300px;vertical-align:top;">{{ item.particulars }}</td>
         <td style="text-align:right;width:150px;vertical-align:top;">{% if item.balancecode = 'D' %} {{ item.amount|default:""|floatformat:2|intcomma }} {% endif %}</td>

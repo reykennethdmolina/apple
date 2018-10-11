@@ -352,12 +352,14 @@
                             <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
                                 <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
-                            {% if selectedapsubtype != 'IPO' %}
+
                                 <div class="col-sm-6 padding-top-15 padding-bottom-15">
                                     <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
+                                    {% if selectedapsubtype != 'IPO' %}
                                     <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>
+                                    {% endif %}
                                 </div>
-                            {% endif %}
+
                         </div>
                     </form>
 

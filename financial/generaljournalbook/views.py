@@ -75,49 +75,44 @@ class GeneratePDF(View):
         chart = request.GET['chart']
         title = "General Ledger"
 
-        list = Subledger.objects.filter(isdeleted=0).order_by('document_date', 'document_num','item_counter')[:0]
+        #list = Subledger.objects.filter(isdeleted=0).order_by('document_date', 'document_num','item_counter')[:0]
 
         if report == '1':
-            q = Subledger.objects.filter(isdeleted=0).order_by('document_date', 'document_num','item_counter')
+            q = Subledger.objects.filter(isdeleted=0,chartofaccount__exact=chart).order_by('document_date', 'document_num','item_counter')
             if dfrom != '':
                 q = q.filter(document_date__gte=dfrom)
             if dto != '':
                 q = q.filter(document_date__lte=dto)
 
-        #if chart != '':
-            #chartofaccount = Chartofaccount.objects.filter(pk=chart).first()
-            #q = q.filter(chartofaccount__exact=chart)
-        #
-        # if supplier != 'null':
-        #     q = q.filter(supplier__exact=supplier)
-        # if customer != 'null':
-        #     q = q.filter(customer__exact=customer)
-        # if employee != 'null':
-        #     q = q.filter(employee__exact=employee)
-        # if product != '':
-        #     q = q.filter(product__exact=product)
-        # if department != '':
-        #     q = q.filter(department__exact=department)
-        # if branch != '':
-        #     q = q.filter(branch__exact=branch)
-        # if bankaccount != '':
-        #     q = q.filter(bankaccount__exact=bankaccount)
-        # if vat != '':
-        #     q = q.filter(vat__exact=vat)
-        # if atax != '':
-        #     q = q.filter(ataxcode__exact=atax)
-        # if wtax != '':
-        #     q = q.filter(wtax__exact=wtax)
-        # if inputvat != '':
-        #     q = q.filter(inputvat__exact=inputvat)
-        # if outputvat != '':
-        #     q = q.filter(outputvat__exact=outputvat)
+        if chart != '':
+            chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
+
+        if supplier != 'null':
+            q = q.filter(supplier__exact=supplier)
+        if customer != 'null':
+            q = q.filter(customer__exact=customer)
+        if employee != 'null':
+            q = q.filter(employee__exact=employee)
+        if product != '':
+            q = q.filter(product__exact=product)
+        if department != '':
+            q = q.filter(department__exact=department)
+        if branch != '':
+            q = q.filter(branch__exact=branch)
+        if bankaccount != '':
+            q = q.filter(bankaccount__exact=bankaccount)
+        if vat != '':
+            q = q.filter(vat__exact=vat)
+        if atax != '':
+            q = q.filter(ataxcode__exact=atax)
+        if wtax != '':
+            q = q.filter(wtax__exact=wtax)
+        if inputvat != '':
+            q = q.filter(inputvat__exact=inputvat)
+        if outputvat != '':
+            q = q.filter(outputvat__exact=outputvat)
 
         list = q[:50]
-
-        # if report == '1':
-        #     total = {}
-        #     total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         context = {
             "title": title,
@@ -130,3 +125,4 @@ class GeneratePDF(View):
         }
 
         return Render.render('generaljournalbook/report_1.html', context)
+
