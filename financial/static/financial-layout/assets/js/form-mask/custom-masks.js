@@ -66,7 +66,7 @@
         'persistent': true
     });
     $('.tinNumber').formatter({
-        'pattern': '{{999}}-{{999}}-{{999}}-{{999999}}',
+        'pattern': '{{999}}-{{999}}-{{999}}',
         'persistent': true
     });
     $('.zipCode').formatter({
