@@ -22,7 +22,9 @@
                             <label class="control-label small">Report</label>
                             <select class="form-control input-sm" id="report">
                                 <option value="">-- Select --</option>
-                                <option value=1"">Detailed Entries</option>
+                                <option value="1">Detailed Entries</option>
+                                <option value="2">Summary Entries (Month-End)</option>
+                                <option value="3">Summary Entries (Year-End)</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -62,21 +64,30 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                        <div class="form-group col-sm-4">
-                            <label class="control-label small">Chart of Account</label>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Chart of Account From</label>
                             <select class="form-control input-sm select2" id="chart">
                                 <option value="">-- Select --</option>
                                 {% for data in chart %}
-                                    <option value="{{ data.id }}">{{ data.accountcode }} - {{ data.description }}</option>
+                                    <option value="{{ data.accountcode }}">{{ data.accountcode }} - {{ data.description }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group col-sm-4">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Chart of Account To</label>
+                            <select class="form-control input-sm select2" id="chart2">
+                                <option value="">-- Select --</option>
+                                {% for data in chart %}
+                                    <option value="{{ data.accountcode }}">{{ data.accountcode }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
                             <label class="control-label small">Supplier [ <span id="clear_supplier"><i class="icon fa-close" aria-hidden="true"> Clear</i></span> ]</label>
                             <select class="form-control input-sm select2" id="supplier">
                             </select>
                         </div>
-                        <div class="form-group col-sm-4">
+                        <div class="form-group col-sm-3">
                             <label class="control-label small">Client [ <span id="clear_client"><i class="icon fa-close" aria-hidden="true"> Clear</i></span> ]</label>
                             <select class="form-control input-sm select2" id="client">
                             </select>
@@ -196,7 +207,7 @@
             <div class="col-md-12" id="viewhtml" style="min-height: 800px; max-height:1000px; border: 2px solid;overflow:auto">
             </div>
             <div class="col-md-12" style="min-height: 800px;display:none">
-                <iframe src="{% url 'generaljournalbook:pdf' %}?report=0&transtype=null&from=&to=&chart=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
+                <iframe src="{% url 'generaljournalbook:pdf' %}?report=0&transtype=null&from=&to=&chart=&chart2=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -215,6 +226,7 @@ $(function(){
         var date_from = $('#dfrom').val();
         var date_to = $('#dto').val();
         var chart = $('#chart').val();
+        var chart2 = $('#chart2').val();
         var report = $('#report').val();
         var transtype = $('#transtype').val();
         var supplier = $('#supplier').val();
@@ -230,12 +242,12 @@ $(function(){
         var inputvat = $('#inputvat').val();
         var outputvat = $('#outputvat').val();
 
-        if (date_from == '' || date_to == '' || chart == '' || report == '' ) {
-            alert('Report Type, Transaction Date and Chart of Account must not be empty');
+        if (date_from == '' || date_to == '' || report == '' ) {
+            alert('Report Type and Transaction Date must not be empty');
             return false;
         }
 
-        url = "{% url 'generaljournalbook:pdf' %}"+"?report="+report+"&transtype="+transtype+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'generaljournalbook:pdf' %}"+"?report="+report+"&transtype="+transtype+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
         window.open(url , "_blank");
     });
 
@@ -244,6 +256,7 @@ $(function(){
         var date_from = $('#dfrom').val();
         var date_to = $('#dto').val();
         var chart = $('#chart').val();
+        var chart2 = $('#chart2').val();
         var report = 1;
         var supplier = $('#supplier').val();
         var payee = $('#payee').val();
@@ -263,7 +276,7 @@ $(function(){
             return false;
         }
 
-        url = "{% url 'apinquiry:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'apinquiry:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
         $('#result').prop('src', url);
     });
 

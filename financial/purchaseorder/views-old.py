@@ -492,6 +492,7 @@ class UpdateView(UpdateView):
                     deleteprfpotransactionitem(data)
             i = 1
             pomain_totalamount = 0
+            discounttype = 0
             for atd in alltempdetail:
                 # START: transfer po detail temp data to po detail, reflecting changes made in the screen
                 alldetail = Podetail()
@@ -531,45 +532,84 @@ class UpdateView(UpdateView):
                 alldetail.unitofmeasure = Unitofmeasure.objects.get(pk=self.request.POST.getlist('temp_item_um')[i - 1],
                                                                     isdeleted=0, status='A')
 
-                grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
-                alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
-                alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
-                    self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
-                    self.request.POST.getlist('temp_discountamount')[i - 1])
-                discountedAmount = alldetail.grossamount - alldetail.discountamount
-                atcrate = 0
+                # replaced the computed values with values provided by user on screens
+                temp_grossUnitCost = 0
+                temp_grossAmount = 0
+                temp_discountAmt = 0
+                temp_discountedAmount = 0
+                temp_vatable = 0
+                temp_vatExempt = 0
+                temp_vatZeroRated = 0
+                temp_totalPurchase = 0
+                temp_addedVat = 0
+                temp_totalAmount = 0
+                temp_withholdingTaxAmount = 0
+
+                # print alldetail.quantity
+                # print alldetail.unitcost
+                # print alldetail.discountrate
+                # print alldetail.vat.rate
+                if self.request.POST.getlist('temp_discounttype')[i - 1] == "rate":
+                    discounttype = self.request.POST.getlist('temp_discountrate')[i - 1]
+                else:
+                    discounttype = 0
+
+
+                # grossUnitCost = float(alldetail.unitcost) / (1 + (float(alldetail.vatrate) / 100))
+                # alldetail.grossamount = grossUnitCost * float(alldetail.quantity)
+                # alldetail.discountamount = alldetail.grossamount * float(alldetail.discountrate) / 100 if \
+                #      self.request.POST.getlist('temp_discounttype')[i - 1] == "rate" else float(
+                #      self.request.POST.getlist('temp_discountamount')[i - 1])
+                # discountedAmount = alldetail.grossamount - alldetail.discountamount
+
+                #temp_grossUnitCost = alldetail.unitcost / (1 + alldetail.vat.rate)
+                #temp_grossAmount = temp_grossUnitCost * alldetail.quantity
+                #temp_discountAmt = temp_discountType == "rate" ? temp_grossAmount * temp_discountRate / 100: temp_discountAmount
+                # temp_discountedAmount = temp_grossAmount - temp_discountAmt(vat > 0) ? temp_vatable = temp_discountedAmount: (vatCode == 'VE') ? temp_vatExempt = temp_discountedAmount:(vatCode == 'ZE') ? temp_vatZeroRated = temp_discountedAmount: temp_discountedAmount
+                # temp_totalPurchase = temp_discountedAmount
+                # temp_addedVat = temp_totalPurchase * vat
+                # temp_totalAmount = temp_totalPurchase + temp_addedVat
+                # temp_withholdingTaxAmount = temp_vatable * atc
+
+                alldetail.vatable = 0
+                alldetail.vatexempt = 0
+                alldetail.vatzerorated = 0
+                alldetail.vatamount = 0
+                alldetail.netamount = 0
+
+
+                #alldetail.vatable = self.request.POST.getlist('hdn_tblVatable')[i - 1]
+                #alldetail.vatexempt = self.request.POST.getlist('hdn_tblVatExempt')[i - 1]
+                #alldetail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
+                #alldetail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
+                #alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + \
+                                      #float(alldetail.vatzerorated) + float(alldetail.vatamount)
+
                 if self.request.POST['atc']:
                     alldetail.atc = Ataxcode.objects.get(pk=self.request.POST['atc'], isdeleted=0, status='A')
                     alldetail.atcrate = alldetail.atc.rate
                     alldetail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
-                    atcrate = (float(alldetail.atcrate) / 100)
 
-                vatable = 0
-                vatexempt = 0
-                vatzerorated = 0
-                totalPurchase = 0
-                addedVat = 0
-                totalAmount = 0
-                withholdingTaxAmount = 0
-
-                totalPurchase = discountedAmount
-                addedVat = totalPurchase * (float(alldetail.vatrate) / 100)
-                totalAmount = totalPurchase + addedVat
-                withholdingTaxAmount = vatable * atcrate
-
-                if alldetail.vat.code == 'ZE':
-                    vatzerorated = totalPurchase
-                elif alldetail.vat.code == 'VE':
-                    vatexempt = totalPurchase
-                else:
-                    vatable = totalPurchase
-
-                alldetail.vatable = vatable
-                alldetail.vatexempt = vatexempt
-                alldetail.vatzerorated = vatzerorated
-                alldetail.vatamount = addedVat
-                alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
-
+                # alldetail.vatamount = discountedAmount * (float(alldetail.vatrate) / 100)
+                # alldetail.netamount = discountedAmount + alldetail.vatamount
+                #
+                # if alldetail.vatrate > 0:
+                #     alldetail.vatable = discountedAmount
+                #     alldetail.vatexempt = 0
+                #     alldetail.vatzerorated = 0
+                # elif alldetail.vat.code == "VE":
+                #     alldetail.vatable = 0
+                #     alldetail.vatexempt = discountedAmount
+                #     alldetail.vatzerorated = 0
+                # elif alldetail.vat.code == "ZE":
+                #     alldetail.vatable = 0
+                #     alldetail.vatexempt = 0
+                #     alldetail.vatzerorated = discountedAmount
+                #
+                # if self.request.POST['atc']:
+                #     alldetail.atc = Ataxcode.objects.get(pk=self.request.POST['atc'], isdeleted=0, status='A')
+                #     alldetail.atcrate = alldetail.atc.rate
+                #     alldetail.atcamount = alldetail.vatable * (float(alldetail.atcrate) / 100)
 
                 # replaced the computed values with values provided by user on screens
 

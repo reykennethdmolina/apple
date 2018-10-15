@@ -4,6 +4,8 @@
     {% load static %}
     {% load humanize %}
     {% load pdf_filters %}
+    {% load custom %}
+    {% load mathfilters %}
     <meta charset="UTF-8">
     <title>{{ report_type }} {{ report_subtype }}</title>
     <style>
@@ -103,10 +105,9 @@
                 <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+                <td width="75%"><p class="title">{{ title|upper }} {{ subtitle|upper }}</p></td>
             </tr>
         </table>
-
         <table class="table">
             <thead>
                 <tr>
@@ -130,32 +131,42 @@
         </table>
     </div>
 </div>
+{{ listing }}
 <table id="content-data">
     <tbody>
     <tr></tr>
     <tr>
-        <td style="text-align:left;width:90px;vertical-align:top;"></td>
-        <td colspan="2" style="text-align:left;width:150px;vertical-align:top;font-size:13px"><b>{{ chartofaccount.accountcode }}<b></td>
-        <td colspan="2" style="text-align:left;width:450px;vertical-align:top;font-size:13px"><b>{{ chartofaccount.description }}<b></td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
+        <td colspan="2" style="text-align:left;width:140px;vertical-align:top;font-size:13px">{{ chartofaccount.accountcode }}</td>
+        <td colspan="3" style="text-align:left;width:550px;vertical-align:top;font-size:13px">{{ chartofaccount.description }}</td>
+        <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">beginning balance</td>
+        <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if begbal.end_code = 'D' %} {{ begbal.end_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
+        <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if begbal.end_code = 'C' %} {{ begbal.end_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
     </tr>
-    <tr></tr>
+    {% regroup accountcode by listing as list %}
+
     {% for item in list %}
-    <tr>
-        <td style="text-align:left;width:90px;vertical-align:top;">{{ item.document_date|date:'m/d/Y' }}</td>
-        <td style="text-align:left;width:50px;vertical-align:top;">{{ item.document_type|upper }}</td>
-        <td style="text-align:left;width:100px;vertical-align:top;">{{ item.document_num }}</td>
-        <td style="text-align:left;width:300px;vertical-align:top;">{{ item.particulars }}</td>
-        <td style="text-align:right;width:150px;vertical-align:top;">{% if item.balancecode = 'D' %} {{ item.amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-        <td style="text-align:right;width:150px;vertical-align:top;">{% if item.balancecode = 'C' %} {{ item.amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
-        <td style="text-align:right;width:150px;vertical-align:top;"></td>
-
-    </tr>
+    <tr><td>{{ item }}</td></tr>
+        <!--{%if item.type == 'ending' %}-->
+         <!--<tr>-->
+            <!--<td colspan="2" style="text-align:left;width:140px;vertical-align:top;font-size:13px"></td>-->
+            <!--<td colspan="3" style="text-align:left;width:550px;vertical-align:top;font-size:13px"></td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;font-size:13px">ending balance</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if begbal.end_code = 'D' %} {{ item.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if begbal.end_code = 'C' %} {{ item.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+        <!--</tr>-->
+        <!--{% else %}-->
+        <!--<tr>-->
+            <!--<td style="text-align:left;width:90px;vertical-align:top;">{{ item.date|date:'m/d/Y' }}</td>-->
+            <!--<td style="text-align:left;width:50px;vertical-align:top;">{{ item.type|upper }}</td>-->
+            <!--<td style="text-align:left;width:100px;vertical-align:top;">{{ item.number }}</td>-->
+            <!--<td style="text-align:left;width:300px;vertical-align:top;">{{ item.particulars }}</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;">{% if item.trans_code = 'D' %} {{ item.trans_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;">{% if item.trans_code = 'C' %} {{ item.trans_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;">{% if item.beg_code = 'D' %} {{ item.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+            <!--<td style="text-align:right;width:150px;vertical-align:top;">{% if item.beg_code = 'C' %} {{ item.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</td>-->
+        <!--</tr>-->
+        <!--{% endif %}-->
     {% endfor %}
-
     </tbody>
 </table>
 

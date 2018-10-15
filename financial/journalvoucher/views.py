@@ -1474,7 +1474,7 @@ class GeneratePDF(View):
         if status != '':
             q = q.filter(status=status)
 
-        list = q[:65]
+        list = q
         if list:
             total = list.aggregate(total_amount=Sum('amount'))
             if report == '2' or report == '4':

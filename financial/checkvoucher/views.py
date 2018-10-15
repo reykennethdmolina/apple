@@ -1877,7 +1877,7 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
 
-        list = q[:35]
+        list = q
         if list:
             total = list.aggregate(total_amount=Sum('amount'))
             if report == '2' or report == '4':

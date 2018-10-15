@@ -111,8 +111,6 @@ class Generate(View):
 
         list = q
 
-        print list
-
         if report == '1':
             total = {}
             total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
@@ -198,8 +196,6 @@ class GeneratePDF(View):
             q = q.filter(outputvat__exact=outputvat)
 
         list = q
-
-        print list
 
         if report == '1':
             total = {}

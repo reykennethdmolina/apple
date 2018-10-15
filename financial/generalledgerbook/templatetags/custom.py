@@ -77,3 +77,9 @@ def to_negative(value):
     else:
         return value
 
+
+@register.filter
+def add_beg(value, arg):
+    new_val = float(value) + float(arg)
+    return new_val
+
