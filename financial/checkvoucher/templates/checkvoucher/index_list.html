@@ -9,6 +9,7 @@
                 <th><span>Number</span></th>
                 <th><span>Date</span></th>
                 <th><span>Payee</span></th>
+                <th><span>Bank</span></th>
                 <th><span>Amount</span></th>
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
@@ -23,6 +24,7 @@
                 <td>{{ data.cvnum }}</td>
                 <td>{{ data.cvdate|date:"Y-m-d" }}</td>
                 <td>{{ data.payee_name }}</td>
+                <td>{{ data.bankaccount.code }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- no approver assigned yet --{% endif %}</td>
                 <td>{{ data.enterby }}</td>
