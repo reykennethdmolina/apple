@@ -79,7 +79,7 @@
                                 <select class="form-control input-sm select2" data-validation="required" id="id_requestor" name="requestor">
                                     <option value="">-- Select --</option>
                                     {% for data in requestor %}
-                                        <option value="{{ data.id }}" data-amount={{ data.cellphone_subsidize_amount }}
+                                        <option value="{{ data.id }}" data-amount={{ data.cellphone_subsidize_amount }} data-user={{ data.user_id }}
                                                 {% if form.requestor.value != None %}
                                                     {% if form.requestor.value|add:0 == data.id %}selected="selected"{% endif %}
                                                 {% else %}
@@ -329,6 +329,18 @@
                     $("#id_requestor").val('').trigger('change');
                     if($("#id_oftype option:selected").text().indexOf("Cellphone Subsidy") >= 0){
                         $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
+                        var user_id = {{ user_employee.id }}
+                        <!--$("#id_requestor").find('option').prop( "disabled", true );-->
+                        <!--$("#id_requestor").attr("disabled","disabled");-->
+                        <!--$("#id_requestor").find('option').removeAttr('disabled');-->
+                        <!--$('#id_requestor').val(user_id).trigger("change");-->
+                        <!--$('#id_requestor option[value="+user_id+"]'').removeAttr('disabled');-->
+
+                        $("#id_requestor option:selected").siblings().attr('disabled','disabled');
+                        $('#id_requestor').val(user_id).trigger("change");
+                        $("#id_requestor option[value='" + user_id + "']").attr("disabled", false);
+
+                        <!--$("#id_requestor option:selected").attr('disabled','disabled');-->
                     }
                     else {
                         $("#id_requestor option[data-amount='0.00']").removeAttr('disabled');
@@ -341,6 +353,7 @@
                     customAlert($('#oftype-change-error'));
                     $('#id_oftype').val(lastof).trigger('change.select2');
                 }
+
             });
             $(document).on('change', '.item_input_ofsubtype', function () {
                 if($(this).val() == {{ mealexpense }}){

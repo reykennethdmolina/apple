@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %}Subsidiary Ledger Books{% endblock page-title %}
+{% block page-title %}General Ledger Books{% endblock page-title %}
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
@@ -23,8 +23,8 @@
                             <select class="form-control input-sm" id="report">
                                 <option value="">-- Select --</option>
                                 <option value="1">Detailed Entries</option>
-                                <option value="2">Summary Entries (Month-End)</option>
-                                <option value="3">Summary Entries (Year-End)</option>
+                                <!--<option value="2">Summary Entries (Month-End)</option>-->
+                                <option value="2">Summary Entries (Year-End)</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -169,7 +169,7 @@
                             <select class="form-control input-sm" id="atax">
                                 <option value="">-- Select --</option>
                                 {% for data in atax %}
-                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                    <option value="{{ data.code }}">{{ data.code }} - {{ data.description }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -204,10 +204,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12" id="viewhtml" style="min-height: 800px; max-height:1000px; border: 2px solid;overflow:auto">
-            </div>
-            <div class="col-md-12" style="min-height: 800px;display:none">
-                <iframe src="{% url 'generaljournalbook:pdf' %}?report=0&transtype=null&from=&to=&chart=&chart2=&supplier=null&payee=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
+            <div class="col-md-12" style="min-height: 800px;">
+                <iframe src="{% url 'generaljournalbook:pdf' %}?report=0&transtype=null&from=&to=&chart=&chart2=&supplier=null&client=null&agency=null&agent=null&employee=null&department=&product=&branch=&bankaccount=&vat=&atax=&wtax=&inputvat=&outputvat=" id="result" height="800px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -230,7 +228,9 @@ $(function(){
         var report = $('#report').val();
         var transtype = $('#transtype').val();
         var supplier = $('#supplier').val();
-        var payee = $('#payee').val();
+        var client = $('#client').val();
+        var agency = $('#agency').val();
+        var agent = $('#agent').val();
         var employee = $('#employee').val();
         var department = $('#department').val();
         var product = $('#product').val();
@@ -247,8 +247,9 @@ $(function(){
             return false;
         }
 
-        url = "{% url 'generaljournalbook:pdf' %}"+"?report="+report+"&transtype="+transtype+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
-        window.open(url , "_blank");
+        url = "{% url 'generaljournalbook:pdf' %}"+"?report="+report+"&transtype="+transtype+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&client="+client+"&agency="+agency+"&agent="+agent+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        <!--window.open(url , "_blank");-->
+        $('#result').prop('src', url);
     });
 
     $('#generatexls').click(function(){
@@ -257,9 +258,12 @@ $(function(){
         var date_to = $('#dto').val();
         var chart = $('#chart').val();
         var chart2 = $('#chart2').val();
-        var report = 1;
+        var report = $('#report').val();
+        var transtype = $('#transtype').val();
         var supplier = $('#supplier').val();
-        var payee = $('#payee').val();
+        var client = $('#client').val();
+        var agency = $('#agency').val();
+        var agent = $('#agent').val();
         var employee = $('#employee').val();
         var department = $('#department').val();
         var product = $('#product').val();
@@ -271,12 +275,12 @@ $(function(){
         var inputvat = $('#inputvat').val();
         var outputvat = $('#outputvat').val();
 
-        if (date_from == '' || date_to == '' || chart == '') {
-            alert('Transaction Date and Chart of Account must not be empty');
+        if (date_from == '' || date_to == '' || report == '' ) {
+            alert('Report Type and Transaction Date must not be empty');
             return false;
         }
 
-        url = "{% url 'apinquiry:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&payee="+payee+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
+        url = "{% url 'generaljournalbook:excel' %}"+"?report="+report+"&transtype="+transtype+"&from="+date_from+"&to="+date_to+"&chart="+chart+"&chart2="+chart2+"&supplier="+supplier+"&client="+client+"&agency="+agency+"&agent="+agent+"&employee="+employee+"&department="+department+"&product="+product+"&branch="+branch+"&bankaccount="+bankaccount+"&vat="+vat+"&atax="+atax+"&wtax="+wtax+"&inputvat="+inputvat+"&outputvat="+outputvat;
         $('#result').prop('src', url);
     });
 

@@ -232,10 +232,11 @@ class CreateViewUser(CreateView):
         else:
             if user_employee is not None:
                 context['requestor'] = Employee.objects.filter(isdeleted=0, pk=user_employee)
+                context['user_employee'] = user_employee
             else:
                 context['requestor'] = None
+                context['user_employee'] = None
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
-        context['user_employee'] = user_employee
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['secretkey'] = self.mysecretkey

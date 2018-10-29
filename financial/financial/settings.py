@@ -220,7 +220,7 @@ DATABASES = {
         'NAME': 'db_financial',
         # 'NAME': 'db_financial_migrate',
         ####'HOST': 'localhost',
-        'HOST': '128.1.44.22',
+        'HOST': '128.1.44.222',
         'PORT': '3306',
         'USER': 'root',
         'PASSWORD': 'RootToor1!@#',

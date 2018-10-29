@@ -114,18 +114,17 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th colspan="2" style="text-align:center;width:160px">Account Code</th>
-                    <th colspan="2" style="text-align:center;width:400px">Account Title</th>
-                    <th colspan="2" style="text-align:right;width:300px">---------- T r a n s a c t i o n s ----------</th>
-                    <th colspan="2" style="text-align:right;width:300px">---------- B a l a n c e ----------</th>
+                    <th colspan="2" style="text-align:center;width:350px">Chart of Account</th>
+                    <th colspan="5" style="text-align:center;width:400px">------------------------------ T r a n s a c t i o n s ------------------------------</th>
+                    <th colspan="2" style="text-align:right;width:250px">---------- B a l a n c e ----------</th>
                 </tr>
                 <tr style="border-bottom: 2px solid #000;">
+                    <th style="text-align:left;width:80px;font-size:13px">Code</th>
+                    <th style="text-align:center;width:270px;font-size:13px">Title</th>
                     <th style="text-align:left;width:90px;font-size:13px">Date</th>
                     <th style="text-align:left;width:50px;font-size:13px">Type</th>
                     <th style="text-align:left;width:100px;font-size:13px">Number</th>
-                    <th style="text-align:center;width:300px;font-size:13px">P a r t i c u l a r s</th>
-                    <th style="text-align:center
-                    ;width:150px;font-size:13px">Debit</th>
+                    <th style="text-align:center;width:150px;font-size:13px">Debit</th>
                     <th style="text-align:center;width:150px;font-size:13px">Credit</th>
                     <th style="text-align:center;width:150px;font-size:13px">Debit</th>
                     <th style="text-align:center;width:150px;font-size:13px">Credit</th>
@@ -140,36 +139,50 @@
     {% regroup listing by accountcode as accountcode_list %}
 
     {% for accountcode in accountcode_list %}
-        <tr>
-            <td colspan="2" style="text-align:left;width:140px;vertical-align:top;font-size:13px">{{ accountcode.list.0.accountcode  }}</td>
-            <td colspan="3" style="text-align:left;width:550px;vertical-align:top;font-size:13px">{{ accountcode.list.0.description }}</td>
-            <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">beginning balance</td>
-            <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if accountcode.list.0.begcode = 'D' %} {{ accountcode.list.0.begamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-            <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if accountcode.list.0.begcode = 'C' %} {{ accountcode.list.0.begamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-        </tr>
+
+    <tr>
+        <td style="text-align:left;width:80px;vertical-align:top;font-size:13px">{{ accountcode.list.0.accountcode  }}</td>
+        <td colspan="3" style="text-align:left;width:410px;vertical-align:top;font-size:13px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ accountcode.list.0.description }}</td>
+        <td colspan="3" style="text-align:left;width:400px;vertical-align:top;font-size:13px"><b>beginning balance</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;font-size:13px"><b>{% if accountcode.list.0.beg_code = 'D' %} {{ accountcode.list.0.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</b></td>
+        <td style="text-align:right;width:150px;vertical-align:top;font-size:13px"><b>{% if accountcode.list.0.beg_code = 'C' %} {{ accountcode.list.0.beg_amount|default:""|floatformat:2|intcomma }} {% endif %}</b></td>
+    </tr>
+
         {% for item in accountcode.list %}
+
             {%if item.type == 'ending' %}
-            <tr>
-                <td colspan="2" style="text-align:left;width:140px;vertical-align:top;font-size:13px"></td>
-                <td colspan="3" style="text-align:left;width:550px;vertical-align:top;font-size:13px"></td>
-                <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">ending balance</td>
-                <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if item.dbegcode = 'D' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-                <td style="text-align:right;width:150px;vertical-align:top;font-size:13px">{% if item.dbegcode = 'C' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-            </tr>
+
+                <tr>
+                    <td style="text-align:left;width:80px;vertical-align:top;font-size:13px"></td>
+                    <td colspan="3" style="text-align:left;width:410px;vertical-align:top;font-size:13px"></td>
+                    <td colspan="3" style="text-align:left;width:400px;vertical-align:top;font-size:13px"><b>ending balance</b></td>
+                    <td style="text-align:right;width:150px;vertical-align:top;font-size:13px"><b>{% if item.begcode = 'D' %} {{ item.begamount|abs|default:""|floatformat:2|intcomma }} {% endif %}</b></td>
+                    <td style="text-align:right;width:150px;vertical-align:top;font-size:13px"><b>{% if item.begcode = 'C' %} {{ item.begamount|abs|default:""|floatformat:2|intcomma }} {% endif %}</b></td>
+                </tr>
+                <tr>
+                    <td colspan="9"></td>
+                </tr>
+
             {% else %}
-            <tr>
-                <td style="text-align:left;width:90px;vertical-align:top;">{{ item.ddate|date:'m/d/Y' }}</td>
-                <td style="text-align:left;width:50px;vertical-align:top;">{{ item.type|upper }}</td>
-                <td style="text-align:left;width:100px;vertical-align:top;">{{ item.dnum }}</td>
-                <td style="text-align:left;width:300px;vertical-align:top;">{{ item.particulars }}</td>
-                <td style="text-align:right;width:150px;vertical-align:top;">{% if item.balancecode = 'D' %} {{ item.amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-                <td style="text-align:right;width:150px;vertical-align:top;">{% if item.balancecode = 'C' %} {{ item.amount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-                <td style="text-align:right;width:150px;vertical-align:top;">{% if item.dbegcode = 'D' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-                <td style="text-align:right;width:150px;vertical-align:top;">{% if item.dbegcode = 'C' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
-            </tr>
+
+                <tr>
+                    <td style="text-align:left;width:80px;vertical-align:top;"></td>
+                    <td style="text-align:left;width:270px;vertical-align:top;"></td>
+                    <td style="text-align:left;width:90px;vertical-align:top;">{{ item.month|date:'M' }} {{ item.year }}</td>
+                    <td style="text-align:left;width:140px;vertical-align:top;">{{ item.type }} </td>
+                    <td style="text-align:left;width:10px;vertical-align:top;"></td>
+                    <td style="text-align:right;width:150px;vertical-align:top;">{% if item.dbegcode = 'D' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
+                    <td style="text-align:right;width:150px;vertical-align:top;">{% if item.dbegcode = 'C' %} {{ item.dbegamount|default:""|floatformat:2|intcomma }} {% endif %}</td>
+                    <td style="text-align:right;width:150px;vertical-align:top;">{% if item.begcode = 'D' %} {{ item.begamount|abs|default:""|floatformat:2|intcomma }} {% endif %}</td>
+                    <td style="text-align:right;width:150px;vertical-align:top;">{% if item.begcode = 'C' %} {{ item.begamount|abs|default:""|floatformat:2|intcomma }} {% endif %}</td>
+                </tr>
+
             {% endif %}
+
         {% endfor %}
+
     {% endfor %}
+
     </tbody>
 </table>
 
