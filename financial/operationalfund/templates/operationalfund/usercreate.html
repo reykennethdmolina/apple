@@ -330,11 +330,7 @@
                     if($("#id_oftype option:selected").text().indexOf("Cellphone Subsidy") >= 0){
                         $("#id_requestor option[data-amount='0.00']").attr('disabled','disabled');
                         var user_id = {{ user_employee.id }}
-                        <!--$("#id_requestor").find('option').prop( "disabled", true );-->
-                        <!--$("#id_requestor").attr("disabled","disabled");-->
-                        <!--$("#id_requestor").find('option').removeAttr('disabled');-->
-                        <!--$('#id_requestor').val(user_id).trigger("change");-->
-                        <!--$('#id_requestor option[value="+user_id+"]'').removeAttr('disabled');-->
+                        console.log(user_id);
 
                         $("#id_requestor option:selected").siblings().attr('disabled','disabled');
                         $('#id_requestor').val(user_id).trigger("change");
@@ -354,6 +350,7 @@
                     $('#id_oftype').val(lastof).trigger('change.select2');
                 }
 
+            var test = $("#id_requestor option:selected").val();
             });
             $(document).on('change', '.item_input_ofsubtype', function () {
                 if($(this).val() == {{ mealexpense }}){
