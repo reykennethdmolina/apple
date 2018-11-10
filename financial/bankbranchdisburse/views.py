@@ -1,10 +1,16 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from bankbranchdisburse.models import Bankbranchdisburse
 from bank.models import Bank
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
+
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -98,3 +104,17 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/bankbranchdisburse')
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Bankbranchdisburse.objects.filter(isdeleted=0).order_by('id')
+        context = {
+            "title": "Bank Branch Disburse Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('bankbranchdisburse/list.html', context)

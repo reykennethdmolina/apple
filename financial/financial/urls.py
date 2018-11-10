@@ -158,6 +158,7 @@ urlpatterns = [
     url(r'^cvinquiry/', include('cvinquiry.urls', app_name='cvinquiry', namespace='cvinquiry')),
     url(r'^jvinquiry/', include('jvinquiry.urls', app_name='jvinquiry', namespace='jvinquiry')),
     url(r'^apinquiry/', include('apinquiry.urls', app_name='apinquiry', namespace='apinquiry')),
+    url(r'^budgetreport/', include('budgetreport.urls', app_name='budgetreport', namespace='budgetreport')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),

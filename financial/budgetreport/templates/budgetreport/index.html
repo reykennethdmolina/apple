@@ -1,0 +1,144 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Budget Monitoring Report {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm" id="report_type">
+                                <option value="1">Budget Performance On Fixed Operating Expenses</option>
+                                <option value="2">Budget Status by Department/Section</option>
+                                <option value="3">Budget Status by Group</option>
+                                <option value="4">Budget Status by Product</option>
+                                <option value="5">Budget Status Summary by Group</option>
+                                <option value="6">Scheduled of Budget</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Pick Filter</label>
+                            <select class="form-control input-sm" id="filter">
+                                <option value="">-- Select --</option>
+                                <option value="1">Cost of Sales</option>
+                                <option value="2">General & Administrative</option>
+                                <option value="2">Selling</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Pick Filter</label>
+                            <div class="input-group">
+                                <div class="radio-custom radio-default radio-inline padding-top-0">
+                                    <input type="radio" id="type" name="type" checked="checked" value="1">
+                                    <label for="type">Summary</label>
+                                </div>
+                                <div class="radio-custom radio-default radio-inline padding-top-10">
+                                    <input type="radio" id="type" name="type" value="2">
+                                    <label for="type">Detailed</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                            <a class="btn btn-info waves-effect waves-dark" id="generatexls" style="margin-top: 22px; width: 48%;">
+                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Date</label><br>
+                            <div class="input-daterange datarange">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control input-sm datepickerfrom" id="dfrom" value="{% now 'Y-m-d' %}">
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-addon input-sm">to</span>
+                                    <input type="text" class="form-control input-sm datepickerto" id="dto" value="{% now 'Y-m-d' %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Department</label>
+                            <select class="form-control input-sm" id="branch">
+                                <option value="">-- Select --</option>
+                                {% for data in department %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Product</label>
+                            <select class="form-control input-sm" id="approver">
+                                <option value="">-- Select --</option>
+                                {% for data in product %}
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="min-height: 800px;">
+                <iframe src="{% url 'budgetreport:pdf' %}?report=1&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&filter=1&type=1&department=&product=" id="result" height="1200px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+$(function(){
+    $('#generate').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var cvtype = $('#cvtype').val();
+        var cvsubtype = $('#cvsubtype').val();
+        var payee = $('#payee').val();
+        var branch = $('#branch').val();
+        var approver = $('#approver').val();
+        var cvstatus = $('#cvstatus').val();
+        var status = $('#status').val();
+        var atc = $('#atc').val();
+        var inputvattype = $('#inputvattype').val();
+        var vat = $('#vat').val();
+        var bankaccount = $('#bankaccount').val();
+        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
+        $('#result').prop('src', url);
+    });
+
+    $('#clear_payee').click(function() {
+        $('#payee').val(null).trigger('change');
+    });
+
+    $('.select2').select2({});
+            ajaxselect2v2("supplier_payee", "payee");
+    });
+</script>
+{% endblock extra_js %}

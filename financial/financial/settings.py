@@ -171,6 +171,7 @@ INSTALLED_APPS = [
     'apinquiry',
     'jvinquiry',
     'cvinquiry',
+    'budgetreport',
 ]
 
 MIDDLEWARE_CLASSES = [
