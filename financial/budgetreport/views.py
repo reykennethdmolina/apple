@@ -52,6 +52,27 @@ class GeneratePDF(View):
         typetext = "Summary"
         filtertext = "Cost of Sales"
 
+        ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+        todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        toyear = todate.year
+        tomonth = todate.month
+        nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+        fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+        fromyear = fromdate.year
+        frommonth = fromdate.month
+
+        curmon_var = 0
+        curmon_var_per = 0
+        yearcur_var = 0
+        yearcur_var_per = 0
+        yearprev_var = 0
+        yearprev_var_per = 0
+
+        subtotal_curmon_bud = 0
+        subtotal_curmon_act = 0
+        subtotal_curmon_var = 0
+        subtotam_curmon_var_per = 0
+
         list = Accountexpensebalance.objects.filter(isdeleted=0)[:0]
 
         if filter == '1':
@@ -74,23 +95,49 @@ class GeneratePDF(View):
             subtitle = "Budget Status By Department/Section ( " + filtertext + " - " + typetext + " )"
             data = query_bugdet_status_by_department(filter, type)
 
-            list = []
             df = pd.DataFrame(data)
-            #print df
-            for id, expenses in df.fillna('NaN').groupby(['expenses', 'charttitle']):
-                #print expenses
-                for exp, titledata in expenses.fillna('NaN').sort_values(by=['accountcode'], ascending=True).groupby(['charttitle']):
-                    print exp
-                    #print titledata
 
-                #for main, subgroup in maingroup.fillna('NaN').sort_values(by=['subgroup_code'], ascending=True).groupby(['maingroup_code', 'maingroup_desc']):
+            new_list = []
+            if type == '2':
+                for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup']).groupby(['deptcode']):
+                    for group, chartgroup in department.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup']).groupby(['chartgroup']):
+                        for subgroup, chartsubgroup in chartgroup.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup'], ascending=True).groupby(['chartsubgroup']):
+                            for data, item in chartsubgroup.iterrows():
+                                budget = getBudget(tomonth, item)
+                                curmon_var = float(item.actualcurmonamount) - float(budget[0])
+                                if float(budget[0]):
+                                    curmon_var_per = (float(curmon_var) / float(budget[0])) * 100
+                                else:
+                                    curmon_var_per = 0
 
+                                yearcur_var = float(item.actualcuryearamount) - float(budget[1])
+                                if float(budget[1]):
+                                    yearcur_var_per = (float(yearcur_var) / float(budget[1]))* 100
+                                else:
+                                    yearcur_var_per = 0
+
+                                yearprev_var = float(item.actualcuryearamount) - float(item.actualprevyearamount)
+                                if float(item.actualcuryearamount):
+                                    yearprev_var_per = (float(yearprev_var) / float(item.actualcuryearamount)) * 100
+                                else:
+                                    yearprev_var_per = 0
+
+                                new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': item.accountcode,
+                                                 'chartofaccount': item.description, 'deptcode': item.deptcode, 'department': item.departmentname,
+                                                 'curmon_bud': budget[0], 'curmon_act': item.actualcurmonamount, 'curmon_var': curmon_var, 'curmon_var_per': curmon_var_per,
+                                                 'yearcur_bud': budget[1], 'yearcur_act': item.actualcuryearamount, 'yearcur_var': yearcur_var, 'yearcur_var_per': yearcur_var_per,
+                                                 'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per})
+
+                        # new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': '999999999',
+                        #                  'chartofaccount': 'subtotal', 'deptcode': item.deptcode, 'department': item.departmentname,})
+            #print new_list
+            #new_list.sort(reverse=True)
         context = {
             "title": title,
             "subtitle": subtitle,
             "today": timezone.now(),
             "company": company,
-            "list": list,
+            "list": new_list,
             "total": total,
             "username": request.user,
         }
@@ -98,54 +145,116 @@ class GeneratePDF(View):
         if report == '1':
             return Render.render('budgetreport/report_1.html', context)
         elif report == '2':
-            return Render.render('budgetreport/report_2.html', context)
+            if type == '2':
+                return Render.render('budgetreport/report_2_d.html', context)
+            else:
+                return Render.render('budgetreport/report_2.html', context)
         else:
             return Render.render('budgetreport/report_1.html', context)
+
+def getBudget(tomonth, item):
+    #print frommonth
+    #print item
+    monbudget = 0
+    yearbudget = 0
+    if tomonth == 1:
+        monbudget = float(item.mjan)
+        yearbudget = float(item.mjan)
+    elif tomonth == 2:
+        monbudget = float(item.mfeb)
+        yearbudget = float(item.mjan) + float(item.mfeb)
+    elif tomonth == 3:
+        monbudget = float(item.mmar)
+        yearbudget = float(item.mjan) + float(item.mfeb) + float(item.mmar)
+    else:
+        monbudget = float(item.mjan)
+        yearbudget = float(item.mjan)
+
+    return [monbudget, yearbudget]
 
 def query_bugdet_status_by_department(filter, type):
     print "raw query"
     ''' Create query '''
     cursor = connection.cursor()
 
-    query = "SELECT chart.id , chart.main, chart.clas, chart.item, title.title AS charttitle, chart.description, chart.accountcode, " \
-            "CASE " \
-            "WHEN chart.clas =  1 THEN 'cost of sales' " \
-            "WHEN chart.clas =  2 THEN 'general & administrative' " \
-            "WHEN chart.clas =  3 THEN 'selling' " \
-            "END AS expenses, " \
+    query = "SELECT z.chartgroup, z.chartgroupaccountcode, z.chartsubgroup, z.chartsubgroupaccountcode, " \
+            "z.main, z.clas, z.item, z.cont, z.sub, z.accountcode, z.description, " \
+            "z.deptcode, z.departmentname, z.year, " \
+            "z.mjan, z.mfeb, z.mmar, z.mapr,  z.mmay,  z.mjun, " \
+            "z.mjul, z.maug, z.msep, z.moct, z.mnov, z.mdec, " \
+            "SUM(IFNULL(z.actualcurmonamount, 0)) AS actualcurmonamount, SUM(IFNULL(z.actualcuryearamount, 0)) AS actualcuryearamount, SUM(IFNULL(z.actualprevyearamount, 0)) AS actualprevyearamount " \
+            "FROM ( " \
+            "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
+            "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
             "dept.code AS deptcode, dept.departmentname, deptbud.year, " \
             "deptbud.mjan, deptbud.mfeb, deptbud.mmar, deptbud.mapr,  deptbud.mmay,  deptbud.mjun, " \
             "deptbud.mjul, deptbud.maug, deptbud.msep, deptbud.moct, deptbud.mnov, deptbud.mdec, " \
-            "curmon.year AS curmonyear, curmon.amount AS curmonamount, curmon.code AS curmoncode, " \
-            "curyear.year AS curyear, curyear.amount AS curyearamount, curyear.code AS curyearcode, " \
-            "prevyear.year AS prevyear, prevyear.amount AS prevyearmonthamount, prevyear.code AS prevyearmonthcode " \
+            "actualcurmon.year AS actualcurmonyear, actualcurmon.month AS actualcurmonmonth, actualcurmon.amount AS actualcurmonamount, " \
+            "'' AS actualcuryear, 0 AS actualcuryearamount, " \
+            "'' AS actualprevyear, 0 AS actualprevyearamount " \
             "FROM chartofaccount AS chart " \
-            "LEFT OUTER JOIN chartofaccount AS title ON (title.main = chart.main AND title.clas = chart.clas AND title.item = chart.item AND title.cont = 0 AND title.sub = 000000 AND title.accounttype = 'T') " \
             "LEFT OUTER JOIN departmentbudget AS deptbud ON deptbud.chartofaccount_id = chart.id " \
             "LEFT OUTER JOIN department AS dept ON dept.id = deptbud.department_id " \
-            "LEFT OUTER JOIN ( " \
-            "SELECT a.year, a.month, a.amount, a.code, a.chartofaccount_id, a.department_id " \
-            "FROM accountexpensebalance AS a " \
-            "WHERE a.year = 2018 AND a.month = 3" \
-            ") AS curmon ON (curmon.chartofaccount_id = deptbud.chartofaccount_id AND curmon.department_id = deptbud.department_id) " \
-            "LEFT OUTER JOIN (" \
-            "SELECT a.year, a.month, SUM(IF (a.code = 'C', (a.amount * -1), a.amount)) AS amount, a.code, a.chartofaccount_id, a.department_id " \
-            "FROM accountexpensebalance AS a " \
-            "WHERE a.year >= 2018 AND a.year <= 2018 " \
-            "AND a.month >= 1 AND a.month <= 3 " \
-            "GROUP BY a.chartofaccount_id, a.department_id" \
-            ") AS curyear ON (curyear.chartofaccount_id = deptbud.chartofaccount_id AND curyear.department_id = deptbud.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS chartgroup ON (chartgroup.main = chart.main AND chartgroup.clas = chart.clas " \
+            "AND chartgroup.item = chart.item AND chartgroup.cont = 0 " \
+            "AND chartgroup.sub = 000000 AND chartgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS chartsubgroup ON (chartsubgroup.main = chart.main AND chartsubgroup.clas = chart.clas " \
+            "AND chartsubgroup.item = chart.item AND chartsubgroup.cont = chart.cont " \
+            "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
             "LEFT OUTER JOIN ( " \
             "SELECT a.year, a.month, SUM(IF (a.code = 'C', (a.amount * -1), a.amount)) AS amount, a.code, a.chartofaccount_id, a.department_id " \
             "FROM accountexpensebalance AS a " \
-            "WHERE a.year >= 2017 AND a.year <= 2017 " \
-            "AND a.month >= 1 AND a.month <= 3 " \
-            "GROUP BY a.chartofaccount_id, a.department_id" \
-            ") AS prevyear ON (prevyear.chartofaccount_id = deptbud.chartofaccount_id AND prevyear.department_id = deptbud.department_id) " \
-            "WHERE chart.main = 5 AND chart.accounttype = 'P' " \
-            "AND dept.code IS NOT NULL " \
-            "AND dept.id IN (22, 47) " \
-            "ORDER BY chart.accountcode"
+            "WHERE a.year = 2018 AND a.month = 3 " \
+            "GROUP BY a.chartofaccount_id, a.department_id " \
+            ") AS actualcurmon ON (actualcurmon.chartofaccount_id = deptbud.chartofaccount_id AND actualcurmon.department_id = deptbud.department_id) " \
+            "WHERE deptbud.department_id IN (48,22) " \
+            "UNION " \
+            "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
+            "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
+            "dept.code AS deptcode, dept.departmentname, acctbal.year, " \
+            "0 AS mjan, 0 AS mfeb, 0 AS mmar, 0 AS mapr, 0 AS mmay,  0 AS mjun, " \
+            "0 AS mjul, 0 AS maug, 0 AS msep, 0 AS moct, 0 AS mnov, 0 AS mdec, " \
+            "'' AS actualcurmonyear, acctbal.month AS actualcurmonmonth, 0 AS actualcurmonamount, " \
+            "acctbal.year AS actualcuryear, SUM(IF (acctbal.code = 'C', (acctbal.amount * -1), acctbal.amount)) AS actualcuryearamount, " \
+            "'' AS actualprevyear, 0 AS actualprevyearamount " \
+            "FROM chartofaccount AS chart " \
+            "LEFT OUTER JOIN accountexpensebalance AS acctbal ON acctbal.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = acctbal.department_id " \
+            "LEFT OUTER JOIN chartofaccount AS chartgroup ON (chartgroup.main = chart.main AND chartgroup.clas = chart.clas " \
+            "AND chartgroup.item = chart.item AND chartgroup.cont = 0 " \
+            "AND chartgroup.sub = 000000 AND chartgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS chartsubgroup ON (chartsubgroup.main = chart.main AND chartsubgroup.clas = chart.clas " \
+            "AND chartsubgroup.item = chart.item AND chartsubgroup.cont = chart.cont " \
+            "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
+            "WHERE acctbal.year >= 2018 AND acctbal.year <= 2018 " \
+            "AND acctbal.month >= 1 AND acctbal.month <= 3 " \
+            "AND acctbal.department_id IN (48,22) " \
+            "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code " \
+            "UNION " \
+            "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
+            "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
+            "dept.code AS deptcode, dept.departmentname, acctbal.year, " \
+            "0 AS mjan, 0 AS mfeb, 0 AS mmar, 0 AS mapr, 0 AS mmay,  0 AS mjun, " \
+            "0 AS mjul, 0 AS maug, 0 AS msep, 0 AS moct, 0 AS mnov, 0 AS mdec, " \
+            "'' AS actualcurmonyear, acctbal.month AS actualcurmonmonth, 0 AS actualcurmonamount, " \
+            "'', 0 AS actualcuryearamount, " \
+            "acctbal.year AS actualprevyear, SUM(IF (acctbal.code = 'C', (acctbal.amount * -1), acctbal.amount)) AS actualprevyearamount " \
+            "FROM chartofaccount AS chart " \
+            "LEFT OUTER JOIN accountexpensebalance AS acctbal ON acctbal.chartofaccount_id = chart.id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = acctbal.department_id " \
+            "LEFT OUTER JOIN chartofaccount AS chartgroup ON (chartgroup.main = chart.main AND chartgroup.clas = chart.clas " \
+            "AND chartgroup.item = chart.item AND chartgroup.cont = 0 " \
+            "AND chartgroup.sub = 000000 AND chartgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS chartsubgroup ON (chartsubgroup.main = chart.main AND chartsubgroup.clas = chart.clas " \
+            "AND chartsubgroup.item = chart.item AND chartsubgroup.cont = chart.cont " \
+            "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
+            "WHERE acctbal.year >= 2017 AND acctbal.year <= 2017 " \
+            "AND acctbal.month >= 1 AND acctbal.month <= 3 " \
+            "AND acctbal.department_id IN (48,22) " \
+            "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code) AS z " \
+            "WHERE z.chartgroup IS NOT NULL " \
+            "GROUP BY z.chartgroup, z.chartsubgroup, z.accountcode, z.deptcode " \
+            "ORDER BY z.deptcode, z.accountcode , z.chartgroup, z.chartsubgroup;"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)

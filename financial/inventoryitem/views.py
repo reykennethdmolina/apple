@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
@@ -14,6 +14,11 @@ from json_views.views import JSONDataView
 
 from endless_pagination.views import AjaxListView
 from django.db.models import Q
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+from companyparameter.models import Companyparameter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -162,3 +167,17 @@ class Getclasstypecode(JSONDataView):
 #             'status': 'error',
 #         }
 #     return JsonResponse(data)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Inventoryitem.objects.filter(isdeleted=0).order_by('code')
+        context = {
+            "title": "Inventory Masterfile List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('inventoryitem/list.html', context)
