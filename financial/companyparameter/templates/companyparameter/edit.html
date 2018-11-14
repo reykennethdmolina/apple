@@ -246,7 +246,7 @@
                             <div class="form-group form-group-0 col-md-6 {{ form.wtaxsign_position.errors|yesno:'has-error,' }}">
                                 <label for="id_wtaxsign_position" class="col-sm-3 control-label">Position</label>
                                 <div class="col-sm-7">
-                                    <input type="text" class="form-control" id="id_wtaxsign_position" maxlength="20" name="wtaxsign_position"
+                                    <input type="text" class="form-control" id="id_wtaxsign_position" maxlength="50" name="wtaxsign_position"
                                            value="{{ form.wtaxsign_position.value|default:'' }}">
                                     <span class="help-block form-error">{{ form.wtaxsign_position.errors.as_text }}</span>
                                 </div>
