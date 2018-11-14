@@ -61,6 +61,7 @@ class GeneratePDF(View):
         fromyear = fromdate.year
         frommonth = fromdate.month
 
+        accountcode = 0
         curmon_var = 0
         curmon_var_per = 0
         yearcur_var = 0
@@ -72,6 +73,8 @@ class GeneratePDF(View):
         subtotal_curmon_act = 0
         subtotal_curmon_var = 0
         subtotam_curmon_var_per = 0
+
+        counter = 0
 
         list = Accountexpensebalance.objects.filter(isdeleted=0)[:0]
 
@@ -89,6 +92,8 @@ class GeneratePDF(View):
         else:
             typetext = "Detailed"
 
+        new_list = []
+
         if report == '1':
             subtitle = "Budget Performance On Fixed Operating Expenses ( "+filtertext+" - "+typetext+" )"
         elif report == '2':
@@ -97,10 +102,10 @@ class GeneratePDF(View):
 
             df = pd.DataFrame(data)
 
-            new_list = []
             if type == '2':
-                for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup']).groupby(['deptcode']):
-                    for group, chartgroup in department.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup']).groupby(['chartgroup']):
+                for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup'], ascending=True).groupby(['deptcode', 'departmentname']):
+                    for group, chartgroup in department.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup'], ascending=True).groupby(['chartgroup']):
+                        counter += 1
                         for subgroup, chartsubgroup in chartgroup.fillna('NaN').sort_values(by=['deptcode', 'accountcode', 'chartgroup', 'chartsubgroup'], ascending=True).groupby(['chartsubgroup']):
                             for data, item in chartsubgroup.iterrows():
                                 budget = getBudget(tomonth, item)
@@ -126,11 +131,16 @@ class GeneratePDF(View):
                                                  'chartofaccount': item.description, 'deptcode': item.deptcode, 'department': item.departmentname,
                                                  'curmon_bud': budget[0], 'curmon_act': item.actualcurmonamount, 'curmon_var': curmon_var, 'curmon_var_per': curmon_var_per,
                                                  'yearcur_bud': budget[1], 'yearcur_act': item.actualcuryearamount, 'yearcur_var': yearcur_var, 'yearcur_var_per': yearcur_var_per,
-                                                 'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per})
-
-                        # new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': '999999999',
-                        #                  'chartofaccount': 'subtotal', 'deptcode': item.deptcode, 'department': item.departmentname,})
-            #print new_list
+                                                 'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per, 'counter': counter})
+                                #accountcode = item.accountcode
+                        #print group
+                        #print subgroup
+                        #print 'subtotal'
+                        #accountcode = int(accountcode) + 90
+                        #new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': 9999999999,
+                        #                 'chartofaccount': 'subtotal', 'deptcode': dept[0], 'department': dept[1], 'counter': counter + 1})
+            #print 'hoy'
+            print new_list
             #new_list.sort(reverse=True)
         context = {
             "title": title,
@@ -207,7 +217,7 @@ def query_bugdet_status_by_department(filter, type):
             "WHERE a.year = 2018 AND a.month = 3 " \
             "GROUP BY a.chartofaccount_id, a.department_id " \
             ") AS actualcurmon ON (actualcurmon.chartofaccount_id = deptbud.chartofaccount_id AND actualcurmon.department_id = deptbud.department_id) " \
-            "WHERE deptbud.department_id IN (48,22) " \
+            "WHERE deptbud.department_id IN (48, 22) " \
             "UNION " \
             "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
             "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
@@ -228,7 +238,7 @@ def query_bugdet_status_by_department(filter, type):
             "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
             "WHERE acctbal.year >= 2018 AND acctbal.year <= 2018 " \
             "AND acctbal.month >= 1 AND acctbal.month <= 3 " \
-            "AND acctbal.department_id IN (48,22) " \
+            "AND acctbal.department_id IN (48, 22) " \
             "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code " \
             "UNION " \
             "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
@@ -250,7 +260,7 @@ def query_bugdet_status_by_department(filter, type):
             "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
             "WHERE acctbal.year >= 2017 AND acctbal.year <= 2017 " \
             "AND acctbal.month >= 1 AND acctbal.month <= 3 " \
-            "AND acctbal.department_id IN (48,22) " \
+            "AND acctbal.department_id IN (48, 22) " \
             "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code) AS z " \
             "WHERE z.chartgroup IS NOT NULL " \
             "GROUP BY z.chartgroup, z.chartsubgroup, z.accountcode, z.deptcode " \

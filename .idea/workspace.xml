@@ -3,82 +3,20 @@
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html" afterPath="$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html" />
+      <change beforePath="$PROJECT_DIR$/financial/apsubtype/views.py" afterPath="$PROJECT_DIR$/financial/apsubtype/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/aptype/templates/aptype/index.html" afterPath="$PROJECT_DIR$/financial/aptype/templates/aptype/index.html" />
+      <change beforePath="$PROJECT_DIR$/financial/aptype/views.py" afterPath="$PROJECT_DIR$/financial/aptype/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" afterPath="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" />
       <change beforePath="$PROJECT_DIR$/financial/budgetreport/views.py" afterPath="$PROJECT_DIR$/financial/budgetreport/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/fxtype/templates/fxtype/index.html" afterPath="$PROJECT_DIR$/financial/fxtype/templates/fxtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/fxtype/urls.py" afterPath="$PROJECT_DIR$/financial/fxtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/fxtype/views.py" afterPath="$PROJECT_DIR$/financial/fxtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/industry/templates/industry/index.html" afterPath="$PROJECT_DIR$/financial/industry/templates/industry/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/industry/urls.py" afterPath="$PROJECT_DIR$/financial/industry/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/industry/views.py" afterPath="$PROJECT_DIR$/financial/industry/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvattype/templates/inputvattype/index.html" afterPath="$PROJECT_DIR$/financial/inputvattype/templates/inputvattype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvattype/urls.py" afterPath="$PROJECT_DIR$/financial/inputvattype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inputvattype/views.py" afterPath="$PROJECT_DIR$/financial/inputvattype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitem/templates/inventoryitem/index.html" afterPath="$PROJECT_DIR$/financial/inventoryitem/templates/inventoryitem/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitem/urls.py" afterPath="$PROJECT_DIR$/financial/inventoryitem/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitem/views.py" afterPath="$PROJECT_DIR$/financial/inventoryitem/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemclass/templates/inventoryitemclass/index.html" afterPath="$PROJECT_DIR$/financial/inventoryitemclass/templates/inventoryitemclass/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemclass/urls.py" afterPath="$PROJECT_DIR$/financial/inventoryitemclass/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemclass/views.py" afterPath="$PROJECT_DIR$/financial/inventoryitemclass/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemtype/templates/inventoryitemtype/index.html" afterPath="$PROJECT_DIR$/financial/inventoryitemtype/templates/inventoryitemtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemtype/urls.py" afterPath="$PROJECT_DIR$/financial/inventoryitemtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/inventoryitemtype/views.py" afterPath="$PROJECT_DIR$/financial/inventoryitemtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/index.html" afterPath="$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/jvsubtype/urls.py" afterPath="$PROJECT_DIR$/financial/jvsubtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/jvsubtype/views.py" afterPath="$PROJECT_DIR$/financial/jvsubtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/jvtype/templates/jvtype/index.html" afterPath="$PROJECT_DIR$/financial/jvtype/templates/jvtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/jvtype/urls.py" afterPath="$PROJECT_DIR$/financial/jvtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/jvtype/views.py" afterPath="$PROJECT_DIR$/financial/jvtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/kindofexpense/templates/kindofexpense/index.html" afterPath="$PROJECT_DIR$/financial/kindofexpense/templates/kindofexpense/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/kindofexpense/urls.py" afterPath="$PROJECT_DIR$/financial/kindofexpense/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/kindofexpense/views.py" afterPath="$PROJECT_DIR$/financial/kindofexpense/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/locationcategory/templates/locationcategory/index.html" afterPath="$PROJECT_DIR$/financial/locationcategory/templates/locationcategory/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/locationcategory/urls.py" afterPath="$PROJECT_DIR$/financial/locationcategory/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/locationcategory/views.py" afterPath="$PROJECT_DIR$/financial/locationcategory/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/maingroupproduct/templates/maingroupproduct/index.html" afterPath="$PROJECT_DIR$/financial/maingroupproduct/templates/maingroupproduct/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/maingroupproduct/urls.py" afterPath="$PROJECT_DIR$/financial/maingroupproduct/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/maingroupproduct/views.py" afterPath="$PROJECT_DIR$/financial/maingroupproduct/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/maininventory/templates/maininventory/index.html" afterPath="$PROJECT_DIR$/financial/maininventory/templates/maininventory/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/maininventory/urls.py" afterPath="$PROJECT_DIR$/financial/maininventory/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/maininventory/views.py" afterPath="$PROJECT_DIR$/financial/maininventory/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainsupplier/templates/mainsupplier/index.html" afterPath="$PROJECT_DIR$/financial/mainsupplier/templates/mainsupplier/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/mainsupplier/urls.py" afterPath="$PROJECT_DIR$/financial/mainsupplier/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainsupplier/views.py" afterPath="$PROJECT_DIR$/financial/mainsupplier/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainunit/templates/mainunit/index.html" afterPath="$PROJECT_DIR$/financial/mainunit/templates/mainunit/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/mainunit/urls.py" afterPath="$PROJECT_DIR$/financial/mainunit/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mainunit/views.py" afterPath="$PROJECT_DIR$/financial/mainunit/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mistype/templates/mistype/index.html" afterPath="$PROJECT_DIR$/financial/mistype/templates/mistype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/mistype/urls.py" afterPath="$PROJECT_DIR$/financial/mistype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mistype/views.py" afterPath="$PROJECT_DIR$/financial/mistype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mrstype/templates/mrstype/index.html" afterPath="$PROJECT_DIR$/financial/mrstype/templates/mrstype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/mrstype/urls.py" afterPath="$PROJECT_DIR$/financial/mrstype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/mrstype/views.py" afterPath="$PROJECT_DIR$/financial/mrstype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ofsubtype/templates/ofsubtype/index.html" afterPath="$PROJECT_DIR$/financial/ofsubtype/templates/ofsubtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/ofsubtype/urls.py" afterPath="$PROJECT_DIR$/financial/ofsubtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ofsubtype/views.py" afterPath="$PROJECT_DIR$/financial/ofsubtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/oftype/templates/oftype/index.html" afterPath="$PROJECT_DIR$/financial/oftype/templates/oftype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/oftype/urls.py" afterPath="$PROJECT_DIR$/financial/oftype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/oftype/views.py" afterPath="$PROJECT_DIR$/financial/oftype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/orsubtype/templates/orsubtype/index.html" afterPath="$PROJECT_DIR$/financial/orsubtype/templates/orsubtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/orsubtype/urls.py" afterPath="$PROJECT_DIR$/financial/orsubtype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/orsubtype/views.py" afterPath="$PROJECT_DIR$/financial/orsubtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ortype/templates/ortype/index.html" afterPath="$PROJECT_DIR$/financial/ortype/templates/ortype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/ortype/urls.py" afterPath="$PROJECT_DIR$/financial/ortype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/ortype/views.py" afterPath="$PROJECT_DIR$/financial/ortype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvat/templates/outputvat/index.html" afterPath="$PROJECT_DIR$/financial/outputvat/templates/outputvat/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvat/urls.py" afterPath="$PROJECT_DIR$/financial/outputvat/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvat/views.py" afterPath="$PROJECT_DIR$/financial/outputvat/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvattype/templates/outputvattype/index.html" afterPath="$PROJECT_DIR$/financial/outputvattype/templates/outputvattype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvattype/urls.py" afterPath="$PROJECT_DIR$/financial/outputvattype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/outputvattype/views.py" afterPath="$PROJECT_DIR$/financial/outputvattype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/paytype/templates/paytype/index.html" afterPath="$PROJECT_DIR$/financial/paytype/templates/paytype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/paytype/urls.py" afterPath="$PROJECT_DIR$/financial/paytype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/paytype/views.py" afterPath="$PROJECT_DIR$/financial/paytype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/potype/templates/potype/index.html" afterPath="$PROJECT_DIR$/financial/potype/templates/potype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/potype/urls.py" afterPath="$PROJECT_DIR$/financial/potype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/potype/views.py" afterPath="$PROJECT_DIR$/financial/potype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html" afterPath="$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroup/urls.py" afterPath="$PROJECT_DIR$/financial/productgroup/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroup/views.py" afterPath="$PROJECT_DIR$/financial/productgroup/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" afterPath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" />
+      <change beforePath="$PROJECT_DIR$/financial/companyparameter/models.py" afterPath="$PROJECT_DIR$/financial/companyparameter/models.py" />
+      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html" afterPath="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html" />
+      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/urls.py" afterPath="$PROJECT_DIR$/financial/productgroupcategory/urls.py" />
+      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/views.py" afterPath="$PROJECT_DIR$/financial/productgroupcategory/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" afterPath="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" />
+      <change beforePath="$PROJECT_DIR$/financial/suppliertype/urls.py" afterPath="$PROJECT_DIR$/financial/suppliertype/urls.py" />
+      <change beforePath="$PROJECT_DIR$/financial/suppliertype/views.py" afterPath="$PROJECT_DIR$/financial/suppliertype/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -90,9 +28,9 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/jvsubtype/urls.py">
+        <entry file="file://$PROJECT_DIR$/financial/cvtype/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
+            <state relative-caret-position="0">
               <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="60" />
               <folding />
             </state>
@@ -100,7 +38,7 @@
         </entry>
       </file>
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/jvsubtype/views.py">
+        <entry file="file://$PROJECT_DIR$/financial/cvtype/views.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="102">
               <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="52" />
@@ -110,10 +48,10 @@
         </entry>
       </file>
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/jvtype/views.py">
+        <entry file="file://$PROJECT_DIR$/financial/cvsubtype/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1615">
-              <caret line="107" column="0" lean-forward="false" selection-start-line="107" selection-start-column="0" selection-end-line="119" selection-end-column="57" />
+            <state relative-caret-position="1343">
+              <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="101" selection-end-column="60" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -122,50 +60,21 @@
         </entry>
       </file>
       <file leaf-file-name="list.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/list.html">
+        <entry file="file://$PROJECT_DIR$/financial/cvtype/templates/cvtype/list.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="9" column="15" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="137" selection-end-column="7" />
+            <state relative-caret-position="204">
+              <caret line="12" column="51" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="137" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/index.html">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/cvtype/templates/cvtype/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" column="222" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="222" />
+            <state relative-caret-position="17">
+              <caret line="11" column="219" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="219" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/financial/productgroup/views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
-              <caret line="89" column="27" lean-forward="false" selection-start-line="89" selection-start-column="27" selection-end-line="89" selection-end-column="27" />
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" column="49" lean-forward="false" selection-start-line="11" selection-start-column="49" selection-end-line="11" selection-end-column="49" />
-              <folding>
-                <element signature="e#2392#2398#0" expanded="true" />
-                <element signature="e#2398#2404#0" expanded="true" />
-                <element signature="e#2880#2886#0" expanded="true" />
-                <element signature="e#2886#2892#0" expanded="true" />
-                <element signature="e#3428#3434#0" expanded="true" />
-                <element signature="e#3434#3440#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -182,8 +91,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>excel_balance_sheet</find>
-      <find>newdto</find>
       <find>begamount</find>
       <find>print</find>
       <find>Excel</find>
@@ -212,6 +119,8 @@
       <find>actualcurmonmonth</find>
       <find>to_</find>
       <find>sort</find>
+      <find>meal</find>
+      <find>list</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -223,29 +132,12 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/mainunit/urls.py" />
-        <option value="$PROJECT_DIR$/financial/mainunit/views.py" />
-        <option value="$PROJECT_DIR$/financial/mainunit/templates/mainunit/index.html" />
-        <option value="$PROJECT_DIR$/financial/mainunit/templates/mainunit/list.html" />
-        <option value="$PROJECT_DIR$/financial/mistype/urls.py" />
-        <option value="$PROJECT_DIR$/financial/mistype/views.py" />
-        <option value="$PROJECT_DIR$/financial/mistype/templates/mistype/index.html" />
-        <option value="$PROJECT_DIR$/financial/mistype/templates/mistype/list.html" />
-        <option value="$PROJECT_DIR$/financial/mrstype/urls.py" />
-        <option value="$PROJECT_DIR$/financial/mrstype/views.py" />
-        <option value="$PROJECT_DIR$/financial/mrstype/templates/mrstype/list.html" />
-        <option value="$PROJECT_DIR$/financial/mrstype/templates/mrstype/index.html" />
-        <option value="$PROJECT_DIR$/financial/ofsubtype/urls.py" />
-        <option value="$PROJECT_DIR$/financial/ofsubtype/views.py" />
-        <option value="$PROJECT_DIR$/financial/ofsubtype/templates/ofsubtype/index.html" />
         <option value="$PROJECT_DIR$/financial/ofsubtype/templates/ofsubtype/list.html" />
         <option value="$PROJECT_DIR$/financial/oftype/urls.py" />
         <option value="$PROJECT_DIR$/financial/oftype/views.py" />
         <option value="$PROJECT_DIR$/financial/oftype/templates/oftype/list.html" />
         <option value="$PROJECT_DIR$/financial/oftype/templates/oftype/index.html" />
         <option value="$PROJECT_DIR$/financial/generaljournalbook/views.py" />
-        <option value="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" />
-        <option value="$PROJECT_DIR$/financial/budgetreport/views.py" />
         <option value="$PROJECT_DIR$/financial/orsubtype/urls.py" />
         <option value="$PROJECT_DIR$/financial/orsubtype/views.py" />
         <option value="$PROJECT_DIR$/financial/orsubtype/templates/orsubtype/list.html" />
@@ -274,10 +166,27 @@
         <option value="$PROJECT_DIR$/financial/productgroup/templates/productgroup/list.html" />
         <option value="$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html" />
         <option value="$PROJECT_DIR$/financial/productgroup/views.py" />
+        <option value="$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html" />
+        <option value="$PROJECT_DIR$/financial/apsubtype/views.py" />
+        <option value="$PROJECT_DIR$/financial/aptype/views.py" />
+        <option value="$PROJECT_DIR$/financial/aptype/templates/aptype/index.html" />
+        <option value="$PROJECT_DIR$/financial/collector/templates/collector/index.html" />
+        <option value="$PROJECT_DIR$/financial/budgetreport/views.py" />
+        <option value="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" />
+        <option value="$PROJECT_DIR$/financial/productgroupcategory/urls.py" />
+        <option value="$PROJECT_DIR$/financial/cvtype/views.py" />
+        <option value="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html" />
+        <option value="$PROJECT_DIR$/financial/productgroupcategory/views.py" />
+        <option value="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/list.html" />
+        <option value="$PROJECT_DIR$/financial/suppliertype/urls.py" />
+        <option value="$PROJECT_DIR$/financial/suppliertype/views.py" />
+        <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/list.html" />
+        <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" />
+        <option value="$PROJECT_DIR$/financial/companyparameter/models.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="335" />
     <option name="y" value="3" />
     <option name="width" value="1599" />
@@ -299,7 +208,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -316,180 +224,55 @@
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="jvsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="companyparameter" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="jvsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="productgroupcategory" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="productgroupcategory" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="jvsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="productgroupcategory" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="jvsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="productgroupcategory" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="jvtype" type="462c0819:PsiDirectoryNode" />
+              <item name="suppliertype" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="orsubtype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="orsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="suppliertype" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="orsubtype" type="462c0819:PsiDirectoryNode" />
+              <item name="suppliertype" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="orsubtype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="ortype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="ortype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="ortype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="ortype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvat" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvat" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvat" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvat" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvattype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvattype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvattype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="outputvattype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="paytype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="paytype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="paytype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="paytype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="potype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="potype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="potype" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="potype" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="productgroup" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="productgroup" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
-              <item name="apple" type="462c0819:PsiDirectoryNode" />
-              <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="productgroup" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="productgroup" type="462c0819:PsiDirectoryNode" />
+              <item name="suppliertype" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -536,18 +319,19 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17017913" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16774891" sideWeight="0.31559536" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26406926" sideWeight="0.32349843" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16774891" sideWeight="0.6844046" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26406926" sideWeight="0.6765016" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -604,198 +388,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/mainunit/templates/mainunit/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="221" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="221" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/mainunit/templates/mainunit/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="124" column="12" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="137" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/oftype/templates/oftype/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="137" column="7" lean-forward="false" selection-start-line="137" selection-start-column="7" selection-end-line="137" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/oftype/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="109" column="36" lean-forward="false" selection-start-line="109" selection-start-column="36" selection-end-line="109" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/oftype/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/mainsupplier/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="11" column="60" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/fxtype/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/cvtype/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="101" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templates/generalledgerbook/balance_sheet.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1362">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/budgetreport/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="115" column="37" lean-forward="true" selection-start-line="115" selection-start-column="37" selection-end-line="115" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="128" column="103" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="145" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="497">
-          <caret line="165" column="134" lean-forward="false" selection-start-line="165" selection-start-column="134" selection-end-line="165" selection-end-column="134" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generaljournalbook/templates/generaljournalbook/report_1.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="150" column="41" lean-forward="true" selection-start-line="150" selection-start-column="12" selection-end-line="150" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/templatetags/custom.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="73" column="7" lean-forward="false" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/financial/context_processors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-816">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-816">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generaljournalbook/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4300">
-          <caret line="754" column="97" lean-forward="false" selection-start-line="754" selection-start-column="56" selection-end-line="754" selection-end-column="97" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="20210">
-          <caret line="1268" column="108" lean-forward="false" selection-start-line="1268" selection-start-column="57" selection-end-line="1268" selection-end-column="108" />
-          <folding>
-            <element signature="e#0#51#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/orsubtype/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/orsubtype/templates/orsubtype/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="137" column="7" lean-forward="false" selection-start-line="137" selection-start-column="7" selection-end-line="137" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/orsubtype/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="548">
-          <caret line="89" column="24" lean-forward="false" selection-start-line="89" selection-start-column="24" selection-end-line="89" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/orsubtype/templates/orsubtype/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="46" lean-forward="false" selection-start-line="11" selection-start-column="46" selection-end-line="11" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/ortype/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/ortype/templates/ortype/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="43" lean-forward="false" selection-start-line="11" selection-start-column="43" selection-end-line="11" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/ortype/templates/ortype/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="137" column="7" lean-forward="false" selection-start-line="137" selection-start-column="7" selection-end-line="137" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/ortype/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="548">
-          <caret line="89" column="21" lean-forward="false" selection-start-line="89" selection-start-column="21" selection-end-line="89" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/outputvat/templates/outputvat/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="137" column="7" lean-forward="false" selection-start-line="137" selection-start-column="7" selection-end-line="137" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/outputvat/templates/outputvat/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -905,7 +497,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="60" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -920,7 +511,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
           <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -928,9 +518,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1615">
           <caret line="107" column="0" lean-forward="false" selection-start-line="107" selection-start-column="0" selection-end-line="119" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -938,7 +525,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="15" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="137" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -951,24 +537,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
+        <state relative-caret-position="17">
           <caret line="11" column="222" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="222" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="49" lean-forward="false" selection-start-line="11" selection-start-column="49" selection-end-line="11" selection-end-column="49" />
-          <folding>
-            <element signature="e#2392#2398#0" expanded="true" />
-            <element signature="e#2398#2404#0" expanded="true" />
-            <element signature="e#2880#2886#0" expanded="true" />
-            <element signature="e#2886#2892#0" expanded="true" />
-            <element signature="e#3428#3434#0" expanded="true" />
-            <element signature="e#3434#3440#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -976,9 +546,228 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="463">
           <caret line="89" column="27" lean-forward="false" selection-start-line="89" selection-start-column="27" selection-end-line="89" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/productgroup/templates/productgroup/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="11" column="49" lean-forward="false" selection-start-line="11" selection-start-column="49" selection-end-line="11" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/apsubtype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="75" column="25" lean-forward="false" selection-start-line="75" selection-start-column="25" selection-end-line="75" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/aptype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="446">
+          <caret line="89" column="56" lean-forward="false" selection-start-line="89" selection-start-column="56" selection-end-line="89" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/aptype/templates/aptype/list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/collector/templates/collector/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-537">
+          <caret line="1" column="42" lean-forward="false" selection-start-line="1" selection-start-column="42" selection-end-line="1" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1173">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="36" lean-forward="false" selection-start-line="22" selection-start-column="36" selection-end-line="22" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/aptype/templates/aptype/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="26" lean-forward="false" selection-start-line="1" selection-start-column="26" selection-end-line="1" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/collector/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1050">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generaljournalbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="168" column="32" lean-forward="false" selection-start-line="168" selection-start-column="28" selection-end-line="168" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/generalledgerbook/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2483">
+          <caret line="54" column="37" lean-forward="false" selection-start-line="54" selection-start-column="33" selection-end-line="54" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="180" column="16" lean-forward="false" selection-start-line="180" selection-start-column="16" selection-end-line="180" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/budgetreport/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="561">
+          <caret line="140" column="25" lean-forward="false" selection-start-line="140" selection-start-column="25" selection-end-line="140" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/productgroupcategory/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="12" column="4" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="34" column="75" lean-forward="false" selection-start-line="34" selection-start-column="40" selection-end-line="34" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="128" column="47" lean-forward="false" selection-start-line="128" selection-start-column="47" selection-end-line="128" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/productgroupcategory/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="113" column="76" lean-forward="false" selection-start-line="113" selection-start-column="76" selection-end-line="113" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/suppliertype/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/cvtype/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="11" column="4" lean-forward="false" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="60" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/cvtype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="10" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/cvsubtype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1343">
+          <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="101" selection-end-column="60" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/cvtype/templates/cvtype/list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="51" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="137" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="11" column="49" lean-forward="false" selection-start-line="11" selection-start-column="49" selection-end-line="11" selection-end-column="49" />
+          <folding>
+            <element signature="e#2392#2398#0" expanded="false" />
+            <element signature="e#2398#2404#0" expanded="false" />
+            <element signature="e#2880#2886#0" expanded="false" />
+            <element signature="e#2886#2892#0" expanded="false" />
+            <element signature="e#3428#3434#0" expanded="false" />
+            <element signature="e#3434#3440#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="137" column="7" lean-forward="false" selection-start-line="137" selection-start-column="7" selection-end-line="137" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/suppliertype/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="89" column="27" lean-forward="false" selection-start-line="89" selection-start-column="27" selection-end-line="89" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#15#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/companyparameter/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="35" column="54" lean-forward="false" selection-start-line="35" selection-start-column="54" selection-end-line="35" selection-end-column="54" />
+          <folding>
+            <element signature="e#0#39#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/companyparameter/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1224">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/cvtype/templates/cvtype/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="11" column="219" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="219" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -91,7 +91,7 @@ class GeneratePDF(View):
         company = Companyparameter.objects.all().first()
         list = Apsubtype.objects.filter(isdeleted=0).order_by('code')
         context = {
-            "title": "AP Subtype Master List",
+            "title": "APV Subtype Master List",
             "today": timezone.now(),
             "company": company,
             "list": list,

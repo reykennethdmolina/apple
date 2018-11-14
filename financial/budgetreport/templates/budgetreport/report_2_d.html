@@ -144,7 +144,7 @@
             <td colspan="12" style="text-align:left;width:350px;font-size:20px"><b>{{ deptcode.list.0.deptcode }} - {{ deptcode.list.0.department }}</b></td>
         </tr>
 
-        {% regroup deptcode.list|dictsort:"accountcode" by chartgroup as chartgroup_list %}
+        {% regroup deptcode.list|dictsortreversed:"counter" by chartgroup as chartgroup_list %}
 
         {% for chartgroup in chartgroup_list %}
         <tr>
@@ -160,24 +160,7 @@
 
                 {% for chart in chartsubgroup.list %}
 
-                {% if chart.chartofaccount == 'subtotal' %}
-
-                <tr>
-                    <td style="text-align:left;width:350px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subotal - {{ chartsubgroup.grouper }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.curmon_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.yearcur_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearprev_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearprev_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.yearprev_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                </tr>
-
-                {% else %}
+                {% if chart.chartofaccount != 'subtotal' %}
 
                 <tr>
                     <td style="text-align:left;width:350px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ chart.chartofaccount }}</td>

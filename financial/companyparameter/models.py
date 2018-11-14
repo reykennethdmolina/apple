@@ -31,9 +31,9 @@ class Companyparameter(models.Model):
     rescertnum = models.CharField(max_length=20, blank=True, null=True)
     issued_at = models.CharField(max_length=20, blank=True, null=True)
     issued_date = models.DateField(blank=True, null=True)
-    wtaxsign_name = models.CharField(max_length=50, blank=True, null=True)
+    wtaxsign_name = models.CharField(max_length=70, blank=True, null=True)
     wtaxsign_tin = models.CharField(max_length=20, blank=True, null=True)
-    wtaxsign_position = models.CharField(max_length=20, blank=True, null=True)
+    wtaxsign_position = models.CharField(max_length=70, blank=True, null=True)
 
     # defaults for accounting entries
     coa_cashinbank = models.ForeignKey('chartofaccount.Chartofaccount', related_name='parameter_coa_cashinbank',
