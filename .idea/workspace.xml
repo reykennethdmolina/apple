@@ -2,21 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html" afterPath="$PROJECT_DIR$/financial/apsubtype/templates/apsubtype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/apsubtype/views.py" afterPath="$PROJECT_DIR$/financial/apsubtype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/aptype/templates/aptype/index.html" afterPath="$PROJECT_DIR$/financial/aptype/templates/aptype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/aptype/views.py" afterPath="$PROJECT_DIR$/financial/aptype/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" afterPath="$PROJECT_DIR$/financial/budgetreport/templates/budgetreport/report_2_d.html" />
-      <change beforePath="$PROJECT_DIR$/financial/budgetreport/views.py" afterPath="$PROJECT_DIR$/financial/budgetreport/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" afterPath="$PROJECT_DIR$/financial/collector/templates/collector/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/companyparameter/models.py" afterPath="$PROJECT_DIR$/financial/companyparameter/models.py" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html" afterPath="$PROJECT_DIR$/financial/productgroupcategory/templates/productgroupcategory/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/urls.py" afterPath="$PROJECT_DIR$/financial/productgroupcategory/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/productgroupcategory/views.py" afterPath="$PROJECT_DIR$/financial/productgroupcategory/views.py" />
-      <change beforePath="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" afterPath="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" />
-      <change beforePath="$PROJECT_DIR$/financial/suppliertype/urls.py" afterPath="$PROJECT_DIR$/financial/suppliertype/urls.py" />
-      <change beforePath="$PROJECT_DIR$/financial/suppliertype/views.py" afterPath="$PROJECT_DIR$/financial/suppliertype/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/edit.html" afterPath="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/edit.html" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -69,12 +55,34 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/financial/cvtype/templates/cvtype/index.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
               <caret line="11" column="219" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="219" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="edit.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/edit.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="476">
+              <caret line="130" column="115" lean-forward="false" selection-start-line="130" selection-start-column="115" selection-end-line="130" selection-end-column="115" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/checkvoucher/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="131">
+              <caret line="244" column="42" lean-forward="false" selection-start-line="244" selection-start-column="42" selection-end-line="244" selection-end-column="42" />
+              <folding>
+                <element signature="e#0#109#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -91,7 +99,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>begamount</find>
       <find>print</find>
       <find>Excel</find>
       <find>date</find>
@@ -121,6 +128,7 @@
       <find>sort</find>
       <find>meal</find>
       <find>list</find>
+      <find>cv_date</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -132,8 +140,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/ofsubtype/templates/ofsubtype/list.html" />
-        <option value="$PROJECT_DIR$/financial/oftype/urls.py" />
         <option value="$PROJECT_DIR$/financial/oftype/views.py" />
         <option value="$PROJECT_DIR$/financial/oftype/templates/oftype/list.html" />
         <option value="$PROJECT_DIR$/financial/oftype/templates/oftype/index.html" />
@@ -183,6 +189,8 @@
         <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/list.html" />
         <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" />
         <option value="$PROJECT_DIR$/financial/companyparameter/models.py" />
+        <option value="$PROJECT_DIR$/financial/checkvoucher/views.py" />
+        <option value="$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/edit.html" />
       </list>
     </option>
   </component>
@@ -224,7 +232,22 @@
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="companyparameter" type="462c0819:PsiDirectoryNode" />
+              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="apple" type="b2602c69:ProjectViewProjectNode" />
+              <item name="apple" type="462c0819:PsiDirectoryNode" />
+              <item name="financial" type="462c0819:PsiDirectoryNode" />
+              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="checkvoucher" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
@@ -388,20 +411,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/outputvat/templates/outputvat/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="46" lean-forward="false" selection-start-line="11" selection-start-column="46" selection-end-line="11" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/outputvat/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="521">
-          <caret line="108" column="24" lean-forward="false" selection-start-line="108" selection-start-column="24" selection-end-line="108" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/outputvat/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -758,7 +767,7 @@
         <state relative-caret-position="-1224">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#15#0" expanded="true" />
+            <element signature="e#0#15#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -767,6 +776,24 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="11" column="219" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="219" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="244" column="42" lean-forward="false" selection-start-line="244" selection-start-column="42" selection-end-line="244" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#109#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/checkvoucher/templates/checkvoucher/edit.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="130" column="115" lean-forward="false" selection-start-line="130" selection-start-column="115" selection-end-line="130" selection-end-column="115" />
           <folding />
         </state>
       </provider>
