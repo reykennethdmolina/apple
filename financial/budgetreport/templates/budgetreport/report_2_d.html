@@ -22,7 +22,7 @@
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5.8cm; left: 1cm; width: 33.5cm; height: 15cm;
+                top: 5.8cm; left: 1cm; width: 33.5cm; height: 14.5cm;
             }
         }
         body{
@@ -144,38 +144,109 @@
             <td colspan="12" style="text-align:left;width:350px;font-size:20px"><b>{{ deptcode.list.0.deptcode }} - {{ deptcode.list.0.department }}</b></td>
         </tr>
 
-        {% regroup deptcode.list|dictsortreversed:"counter" by chartgroup as chartgroup_list %}
+        {% regroup deptcode.list by chartgroup as chartgroup_list %}
 
         {% for chartgroup in chartgroup_list %}
+        {% if chartgroup.grouper != 'total' %}
         <tr>
             <td colspan="12" style="text-align:left;width:350px;font-size:15px"><b>&nbsp;&nbsp;{{ chartgroup.grouper }}</b></td>
         </tr>
+        {% endif %}
 
-            {% regroup chartgroup.list by chartsubgroup as chartsubgroup_list %}
+        {% regroup chartgroup.list by chartsubgroup as chartsubgroup_list %}
 
             {% for chartsubgroup in chartsubgroup_list %}
-            <tr>
-                <td colspan="12" style="text-align:left;width:250px;font-size:12px"><b>&nbsp;&nbsp;&nbsp;&nbsp;{{ chartsubgroup.grouper }}</b></td>
-            </tr>
+            {% if chartsubgroup.list.0.chartofaccount != 'subtotal' and chartsubgroup.list.0.chartofaccount != 'total'  %}
+                <tr>
+                    <td colspan="12" style="text-align:left;width:250px;font-size:12px"><b>&nbsp;&nbsp;&nbsp;&nbsp;{{ chartsubgroup.grouper }}</b></td>
+                </tr>
+            {% endif %}
 
                 {% for chart in chartsubgroup.list %}
 
-                {% if chart.chartofaccount != 'subtotal' %}
+                {% if chartgroup.grouper != 'total' %}
 
-                <tr>
-                    <td style="text-align:left;width:350px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ chart.chartofaccount }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.curmon_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.curmon_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearcur_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.yearcur_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearprev_act|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:120px;">{{ chart.yearprev_var|default:''|floatformat:2|intcomma|to_negative }}</td>
-                    <td style="text-align:right;width:100px;">{{ chart.yearprev_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
-                </tr>
+                    {% if chart.chartofaccount != 'subtotal' %}
+
+                    <tr>
+                        <td style="text-align:left;width:350px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ chart.chartofaccount }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.curmon_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.yearcur_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearprev_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearprev_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.yearprev_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td style="text-align:left;width:350px;"></td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000;">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:100px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:1px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:100px;border-top:1px solid #000">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:left;width:350px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ chart.chartofaccount }} - {{ chartgroup.grouper }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.curmon_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.curmon_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearcur_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.yearcur_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearprev_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;">{{ chart.yearprev_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;">{{ chart.yearprev_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                    </tr>
+
+                    {% endif %}
+                {% else %}
+
+                    <tr>
+                        <td style="text-align:left;width:350px;"></td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000;">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:100px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:120px;border-top:3px solid #000">&nbsp;</td>
+                        <td style="text-align:right;width:100px;border-top:3px solid #000">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td style="text-align:left;width:350px;font-size:13px;">&nbsp;&nbsp;TOTAL {{ filtertext|upper  }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.curmon_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.curmon_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.curmon_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;font-size:13px;">{{ chart.curmon_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.yearcur_bud|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.yearcur_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.yearcur_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;font-size:13px;">{{ chart.yearcur_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.yearprev_act|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:120px;font-size:13px;">{{ chart.yearprev_var|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="text-align:right;width:100px;font-size:13px;">{{ chart.yearprev_var_per|default:''|floatformat:2|intcomma|to_negative }}</td>
+                    </tr>
 
                 {% endif %}
 
@@ -184,6 +255,7 @@
             {% endfor %}
 
         {% endfor %}
+
         <tr>
             <td colspan="12" style="text-align:left;width:350px;font-size:20px">&nbsp;</td>
         </tr>
