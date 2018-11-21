@@ -33,7 +33,7 @@
                                 <select id="id_chartofaccount_arcode" class="form-control ajaxselect2" name="chartofaccount_arcode"
                                         data-validation="required">
                                     {% if chartofaccount_arcode.id != None %}
-                                        <option value="{{ chartofaccount_arcode.id }}">[{{ chartofaccount_arcode.accountcode }}] - {{ chartofaccount_arcode.title }}</option>
+                                        <option value="{{ chartofaccount_arcode.id }}">[{{ chartofaccount_arcode.accountcode }}] - {{ chartofaccount_arcode.description }}</option>
                                     {% endif %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartofaccount_arcode.errors.as_text }}</span>

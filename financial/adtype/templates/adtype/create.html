@@ -45,7 +45,7 @@
                                 <select id="id_chartofaccount_revcode" class="form-control ajaxselect2" name="chartofaccount_revcode"
                                         data-validation="required">
                                     {% if chartofaccount_revcode.id != None %}
-                                        <option value="{{ chartofaccount_revcode.id }}">[{{ chartofaccount_revcode.accountcode }}] - {{ chartofaccount_revcode.title }}</option>
+                                        <option value="{{ chartofaccount_revcode.id }}">[{{ chartofaccount_revcode.accountcode }}] - {{ chartofaccount_revcode.description }}</option>
                                     {% endif %}
                                 </select>
                                 <span class="help-block form-error">{{ form.chartofaccount_revcode.errors.as_text }}</span>

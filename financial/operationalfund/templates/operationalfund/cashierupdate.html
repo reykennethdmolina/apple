@@ -1,6 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
-{% block page-title %} Operational Fund {% endblock page-title %}
+{% block page-title %} Operational Fundx {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
@@ -235,7 +235,7 @@
                         </div>
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
-                                {% if pcv_requested == 'False' and rfv_requested == 'False' %}
+                                {% if pcv_requested == 'False' and rfv_requested == 'False' and form.ofstatus.value != 'R' %}
                                     <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                                 {% endif %}
                             </div>
@@ -827,6 +827,7 @@
                                 $("#releaseModal .close").click();
                                 released = 1;
                                 $('#id_originalofstatus').data('actualstatus', 'R');
+                                location.reload();
                             },
                             error: function(response) {
                                 console.debug(response);
