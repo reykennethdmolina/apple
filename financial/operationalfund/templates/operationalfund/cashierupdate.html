@@ -1,6 +1,6 @@
 {% extends 'base-form.html' %}
 {% load staticfiles %}
-{% block page-title %} Operational Fundx {% endblock page-title %}
+{% block page-title %} Operational Fund {% endblock page-title %}
 {% block page-content %}
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/css/dashboard/dashboard.css' %}" />
@@ -177,7 +177,7 @@
                                 </div>
                                 <div class="form-group col-sm-2 {{ form.creditterm.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_creditterm">Credit Term</label>
-                                    <select class="form-control input-sm" id="id_creditterm" name="creditterm">
+                                    <select class="form-control input-sm" id="id_creditterm" name="creditterm" data-validation="required">
                                         <option value="">-- Select --</option>
                                         {% for creditterm in creditterm %}
                                             <option value="{{ creditterm.id }}" {% if form.creditterm.value|add:0 == creditterm.id %} selected="selected" {% endif %}>{{ creditterm.description }}</option>
