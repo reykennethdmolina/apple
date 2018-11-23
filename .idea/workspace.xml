@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8cf84924-1fec-4bef-b147-64f0fb99684d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" afterPath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html" afterPath="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html" />
-      <change beforePath="$PROJECT_DIR$/financial/operationalfund/views.py" afterPath="$PROJECT_DIR$/financial/operationalfund/views.py" />
+      <change beforePath="$PROJECT_DIR$/financial/processing_jv/views.py" afterPath="$PROJECT_DIR$/financial/processing_jv/views.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,53 +13,45 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="usercreate.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="527">
-              <caret line="112" column="34" lean-forward="false" selection-start-line="103" selection-start-column="28" selection-end-line="112" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="userupdate.html" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="173" column="91" lean-forward="false" selection-start-line="173" selection-start-column="91" selection-end-line="173" selection-end-column="91" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/operationalfund/views.py">
+        <entry file="file://$PROJECT_DIR$/financial/processing_jv/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="448" column="80" lean-forward="false" selection-start-line="448" selection-start-column="80" selection-end-line="448" selection-end-column="80" />
+            <state relative-caret-position="258">
+              <caret line="699" column="49" lean-forward="false" selection-start-line="699" selection-start-column="49" selection-end-line="699" selection-end-column="49" />
               <folding>
-                <element signature="e#23543#25068#0" expanded="false" />
+                <element signature="e#0#45#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/operationalfund/urls.py">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/processing_jv/templates/processing_jv/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="8" column="46" lean-forward="false" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="46" />
+            <state relative-caret-position="374">
+              <caret line="106" column="75" lean-forward="false" selection-start-line="106" selection-start-column="67" selection-end-line="106" selection-end-column="75" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cashiercreate.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/cashiercreate.html">
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/financial/processing_jv/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="267">
-              <caret line="106" column="74" lean-forward="false" selection-start-line="106" selection-start-column="74" selection-end-line="106" selection-end-column="74" />
+            <state relative-caret-position="102">
+              <caret line="6" column="42" lean-forward="false" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="42" />
+              <folding>
+                <element signature="e#0#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="settings.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="220" column="29" lean-forward="false" selection-start-line="220" selection-start-column="29" selection-end-line="220" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -80,8 +69,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>sort</find>
-      <find>meal</find>
       <find>list</find>
       <find>cv_date</find>
       <find>tin</find>
@@ -110,6 +97,8 @@
       <find>credit</find>
       <find>CreateViewUser</find>
       <find>department</find>
+      <find>Jvsubtype</find>
+      <find>CIR-REIM</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -121,8 +110,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/financial/suppliertype/views.py" />
-        <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/list.html" />
         <option value="$PROJECT_DIR$/financial/suppliertype/templates/suppliertype/index.html" />
         <option value="$PROJECT_DIR$/financial/companyparameter/models.py" />
         <option value="$PROJECT_DIR$/financial/checkvoucher/views.py" />
@@ -172,10 +159,12 @@
         <option value="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html" />
         <option value="$PROJECT_DIR$/financial/operationalfund/views.py" />
         <option value="$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html" />
+        <option value="$PROJECT_DIR$/financial/processing_jv/views.py" />
+        <option value="$PROJECT_DIR$/financial/financial/settings.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="335" />
     <option name="y" value="3" />
     <option name="width" value="1599" />
@@ -213,22 +202,22 @@
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="operationalfund" type="462c0819:PsiDirectoryNode" />
+              <item name="processing_jv" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="operationalfund" type="462c0819:PsiDirectoryNode" />
+              <item name="processing_jv" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="apple" type="b2602c69:ProjectViewProjectNode" />
               <item name="apple" type="462c0819:PsiDirectoryNode" />
               <item name="financial" type="462c0819:PsiDirectoryNode" />
-              <item name="operationalfund" type="462c0819:PsiDirectoryNode" />
+              <item name="processing_jv" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="operationalfund" type="462c0819:PsiDirectoryNode" />
+              <item name="processing_jv" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -281,7 +270,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17017913" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -355,27 +344,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/financial/collector/templates/collector/list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/departmentbudget/templates/departmentbudget/detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="45" column="89" lean-forward="false" selection-start-line="45" selection-start-column="89" selection-end-line="45" selection-end-column="89" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/jvtype/templates/jvtype/detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="80" column="51" lean-forward="false" selection-start-line="80" selection-start-column="51" selection-end-line="80" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/financial/jvsubtype/templates/jvsubtype/detail.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
@@ -499,13 +467,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="11" column="225" lean-forward="false" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="225" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="57" lean-forward="false" selection-start-line="13" selection-start-column="57" selection-end-line="13" selection-end-column="57" />
         </state>
       </provider>
     </entry>
@@ -704,18 +665,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
+    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="112" column="34" lean-forward="false" selection-start-line="103" selection-start-column="28" selection-end-line="112" selection-end-column="34" />
+        <state relative-caret-position="255">
+          <caret line="161" column="34" lean-forward="true" selection-start-line="161" selection-start-column="34" selection-end-line="161" selection-end-column="34" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/operationalfund/urls.py">
+    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/usercreate.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="8" column="46" lean-forward="false" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="46" />
+        <state relative-caret-position="527">
+          <caret line="112" column="34" lean-forward="false" selection-start-line="103" selection-start-column="28" selection-end-line="112" selection-end-column="34" />
           <folding />
         </state>
       </provider>
@@ -730,6 +691,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/financial/operationalfund/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="8" column="46" lean-forward="false" selection-start-line="8" selection-start-column="32" selection-end-line="8" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/cashiercreate.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="267">
@@ -738,10 +707,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/financial/operationalfund/templates/operationalfund/userupdate.html">
+    <entry file="file://$PROJECT_DIR$/financial/processing_jv/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="173" column="91" lean-forward="false" selection-start-line="173" selection-start-column="91" selection-end-line="173" selection-end-column="91" />
+        <state relative-caret-position="102">
+          <caret line="6" column="42" lean-forward="false" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/processing_jv/templates/processing_jv/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="106" column="75" lean-forward="false" selection-start-line="106" selection-start-column="67" selection-end-line="106" selection-end-column="75" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/processing_jv/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="699" column="49" lean-forward="false" selection-start-line="699" selection-start-column="49" selection-end-line="699" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/financial/financial/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="220" column="29" lean-forward="false" selection-start-line="220" selection-start-column="29" selection-end-line="220" selection-end-column="29" />
           <folding />
         </state>
       </provider>

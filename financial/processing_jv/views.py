@@ -521,6 +521,7 @@ def exportsave(request):
         # data-result definition:
         #   1: success
         #   2: failed - upload_type error
+        print request.POST['upload_type']
         if request.POST['upload_type'] == 'SUB-REG' or request.POST['upload_type'] == 'SUB-COM' or \
                         request.POST['upload_type'] == 'ADV-ADJ' or request.POST['upload_type'] == 'ADV-EXD' or \
                         request.POST['upload_type'] == 'ADV-CAI' or request.POST['upload_type'] == 'ADV-PPD' or \
@@ -588,7 +589,6 @@ def exportsave(request):
                     num = Jvmain.objects.all().filter(jvdate__year=jvyear).count() + 1
                     padnum = '{:06d}'.format(num)
                     actualjvnum = str(jvyear) + str(padnum)
-
                     # temp jvmain to jvmain
                     finaljvmain = Jvmain.objects.create(
                         jvnum=actualjvnum,
