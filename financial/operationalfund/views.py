@@ -236,6 +236,7 @@ class CreateViewUser(CreateView):
                 context['requestor'] = None
         context['user_employee'] = user_employee
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0)
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['secretkey'] = self.mysecretkey
@@ -282,14 +283,19 @@ class CreateViewUser(CreateView):
                     self.object.modifyby = self.request.user
                     self.object.requestor_code = self.object.requestor.code
                     self.object.requestor_name = self.object.requestor.firstname + ' ' + self.object.requestor.lastname
-                    if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
-                        self.object.department = Department.objects.get(code=self.object.requestor.department.code)
-                        self.object.department_code = self.object.department.code
-                        self.object.department_name = self.object.department.departmentname
-                    else:
-                        self.object.department = Department.objects.get(code='IT')
-                        self.object.department_code = self.object.department.code
-                        self.object.department_name = self.object.department.departmentname
+                    department = Department.objects.get(pk=int(self.request.POST['department']))
+                    self.object.department = department
+                    self.object.department_code = department.code
+                    self.object.department_name = department.departmentname
+                    #print self.request.POST['department']
+                    # if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
+                    #     self.object.department = Department.objects.get(code=self.object.requestor.department.code)
+                    #     self.object.department_code = self.object.department.code
+                    #     self.object.department_name = self.object.department.departmentname
+                    # else:
+                    #     self.object.department = Department.objects.get(code='IT')
+                    #     self.object.department_code = self.object.department.code
+                    #     self.object.department_name = self.object.department.departmentname
                     self.object.save()
 
                     # ----------------- START save ofitemtemp to ofitem START ---------------------
@@ -440,7 +446,7 @@ class CreateViewCashier(CreateView):
 class UpdateViewUser(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/userupdate.html'
-    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover']
+    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover', 'department']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -509,6 +515,7 @@ class UpdateViewUser(UpdateView):
         context['secretkey'] = self.mysecretkey
 
         context['requestor'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
         context['user_employee'] = get_object_or_None(Employee, user=self.request.user)
 
@@ -556,10 +563,14 @@ class UpdateViewUser(UpdateView):
                     self.object.modifydate = datetime.datetime.now()
                     self.object.requestor_code = self.object.requestor.code
                     self.object.requestor_name = self.object.requestor.firstname + ' ' + self.object.requestor.lastname
-                    if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
-                        self.object.department = Department.objects.get(code=self.object.requestor.department.code)
-                        self.object.department_code = self.object.department.code
-                        self.object.department_name = self.object.department.departmentname
+                    # if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
+                    #     self.object.department = Department.objects.get(code=self.object.requestor.department.code)
+                    #     self.object.department_code = self.object.department.code
+                    #     self.object.department_name = self.object.department.departmentname
+                    department = Department.objects.get(pk=int(self.request.POST['department']))
+                    self.object.department = department
+                    self.object.department_code = department.code
+                    self.object.department_name = department.departmentname
 
                     # ----------------- START save ofitemtemp to ofitem START ---------------------
                     Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
