@@ -71,7 +71,7 @@ class IndexView(AjaxListView):
             if self.request.user.has_perm('operationalfund.approve_allof'):
                 query = Ofmain.objects.all().filter(isdeleted=0)
             else:
-                query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id).order_by('~id')
+                query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
