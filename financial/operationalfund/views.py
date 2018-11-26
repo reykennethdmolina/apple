@@ -21,6 +21,7 @@ from inputvat.models import Inputvat
 from . models import Ofmain, Ofdetail, Ofdetailtemp, Ofdetailbreakdown, Ofdetailbreakdowntemp, Ofitem, Ofitemtemp
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
@@ -59,14 +60,18 @@ class IndexView(AjaxListView):
         if self.request.user.has_perm('operationalfund.approve_assignedof') and not self.request.user.has_perm('operationalfund.approve_allof'):
             user_employee = get_object_or_None(Employee, user=self.request.user)
             if user_employee is not None:
-                query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
+                query = Ofmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                query = query.filter(isdeleted=0)
+                #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
+                #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+                #query = query.union(query2).order_by('~id')
             else:
-                query = Ofmain.objects.all().filter(isdeleted=0)
+                query = Ofmain.objects.all().filter(isdeleted=0).order_by('~id')
         else:
             if self.request.user.has_perm('operationalfund.approve_allof'):
-                query = Ofmain.objects.all().filter(isdeleted=0)
+                query = Ofmain.objects.all().filter(isdeleted=0).order_by('~id')
             else:
-                query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+                query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id).order_by('~id')
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))

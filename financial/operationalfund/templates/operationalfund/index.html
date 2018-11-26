@@ -47,17 +47,6 @@
                             <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
                         </button>
                     </a>
-
-{#                    {% if perms.checkvoucher.add_cvmain %}#}
-{#                        <a href="{% url 'operationalfund:exportcv' %}">#}
-{#                            <button class="btn btn-info btn-sm">#}
-{#                                <i class="icon fa-share-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Export to CV#}
-{#                            </button>#}
-{#                        </a>#}
-{#                    {% endif %}#}
-
-{#                    {% if perms.operationalfund.add_ofmain and perms.operationalfund.is_cashier %}#}
-{#                        <a href="{% url 'operationalfund:cashiercreate' %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Operational Fund Transaction</button></a>#}
                     {% if perms.operationalfund.add_ofmain %}
                         <a href="{% url 'operationalfund:usercreate' %}">
                             <button type="button" class="btn btn-success btn-sm waves-effect waves-light">
