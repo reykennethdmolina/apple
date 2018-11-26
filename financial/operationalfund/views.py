@@ -66,10 +66,10 @@ class IndexView(AjaxListView):
                 #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
                 #query = query.union(query2).order_by('~id')
             else:
-                query = Ofmain.objects.all().filter(isdeleted=0).order_by('~id')
+                query = Ofmain.objects.all().filter(isdeleted=0)
         else:
             if self.request.user.has_perm('operationalfund.approve_allof'):
-                query = Ofmain.objects.all().filter(isdeleted=0).order_by('~id')
+                query = Ofmain.objects.all().filter(isdeleted=0)
             else:
                 query = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id).order_by('~id')
 
