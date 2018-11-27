@@ -1593,6 +1593,7 @@ class GeneratePDF(View):
         
         
 def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status):
+    #print type
     print "raw query"
     ''' Create query '''
     cursor = connection.cursor()
@@ -1640,12 +1641,12 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN (" \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(debitamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'D' AND chartofaccount_id = "+str(company.coa_cashinbank_id)+ " " \
                 "   GROUP BY or_num" \
                 ") AS cash ON cash.or_num = m.ornum " \
                 "LEFT OUTER JOIN (" \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(creditamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'C' AND chartofaccount_id = "+str(company.coa_outputvat_id)+ " " \
                 "   GROUP BY or_num " \
                 ")AS ouput ON ouput.or_num = m.ornum " \
@@ -1660,12 +1661,12 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN ( " \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(debitamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'D' " \
                 "   GROUP BY or_num " \
                 ") AS debit ON debit.or_num = m.ornum	 " \
                 "LEFT OUTER JOIN ( " \
-                "   SELECT or_num, balancecode, chartofaccount_id, SUM(amount) AS total_amount " \
+                "   SELECT or_num, balancecode, chartofaccount_id, SUM(creditamount) AS total_amount " \
                 "   FROM ordetail WHERE balancecode = 'C' " \
                 "   GROUP BY or_num " \
                 ") AS credit ON credit.or_num = m.ornum	" \
@@ -1673,7 +1674,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 + str(conortype) + " " + str(conartype) + " " + str(conpayee) + " " + str(conbranch) + " " + str(concollector) + " " + str(conproduct) + " " \
                 + str(conadtype) + " " + str(conwtax) + " " + str(convat) + " " + str(conoutputvat) + " " + str(conbankaccount) + " " + str(constatus) + " " \
                 "AND m.status != 'C' ORDER BY m.ordate,  m.ornum) AS z WHERE z.detaildiff != 0 OR z.diff != 0;"
-
+        print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
