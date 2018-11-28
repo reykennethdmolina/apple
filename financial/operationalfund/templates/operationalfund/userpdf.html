@@ -60,6 +60,17 @@
             padding-bottom: -5px;
             margin-bottom: -5px;
         }
+        #watermark
+        {
+            width:400px;
+            height:180px;
+            margin:50px 50px;
+            font-size: 25px;
+            background-color:#ffffff;
+            border:1px solid;
+            border-color:#CD853F;
+            opacity:0.6;
+        }
     </style>
 </head>
 <body>
@@ -89,10 +100,11 @@
             <td align="center" style="margin-right: 20px;">
                 {% if ofmain.actualapprover and ofmain.approverresponse == 'A' %}
                     <div class="sign_here">SGD {{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
+                    <div class="watermark"><i>Electoric Approved</i></div>
                 {% else %}
                     <div class="sign_here">{{ ofmain.designatedapprover.firstname }}&nbsp;{{ ofmain.designatedapprover.lastname }}</div>
+                    <i>Signature over printed name</i>
                 {% endif %}
-                <i>Signature over printed name</i>
             </td>
             <td width="20%"><b>Received by</b></td>
             <td width="5%"><b>:</b></td>

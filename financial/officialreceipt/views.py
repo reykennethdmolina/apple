@@ -1637,7 +1637,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
         constatus = "AND m.status = '" + str(status) + "'"
 
     if type == 1:
-        query = "SELECT m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
+        query = "SELECT m.id, m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN (" \
@@ -1657,7 +1657,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "ORDER BY m.ordate,  m.ornum"
     elif type == 2:
         query = "SELECT z.*, ABS(z.detaildiff + z.diff) AS totaldiff FROM (" \
-                "SELECT m.ornum, m.ordate, m.payee_name, m.amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
+                "SELECT m.id, m.ornum, m.ordate, m.payee_name, m.amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN ( " \
@@ -1674,7 +1674,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 + str(conortype) + " " + str(conartype) + " " + str(conpayee) + " " + str(conbranch) + " " + str(concollector) + " " + str(conproduct) + " " \
                 + str(conadtype) + " " + str(conwtax) + " " + str(convat) + " " + str(conoutputvat) + " " + str(conbankaccount) + " " + str(constatus) + " " \
                 "AND m.status != 'C' ORDER BY m.ordate,  m.ornum) AS z WHERE z.detaildiff != 0 OR z.diff != 0;"
-        print query
+        #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
