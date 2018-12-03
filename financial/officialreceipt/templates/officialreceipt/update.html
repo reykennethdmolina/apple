@@ -669,6 +669,9 @@
             var total_creditamount = $("#total_creditamount").text().replace(/,/g, '');
             var total_debitamount = $("#total_debitamount").text().replace(/,/g, '');
             var total_itemamount = $("#id_amount").val().replace(/,/g, '');
+            console.log(total_debitamount);
+            console.log(total_creditamount);
+            console.log(total_itemamount);
             if (parseFloat(total_creditamount) != '0.00' || parseFloat(total_debitamount) != '0.00') {
                 if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
                     customAlert($('#not-equal-debit-credit-error'));
