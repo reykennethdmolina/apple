@@ -679,9 +679,10 @@
                     return false;
                 }
                 if (parseFloat(total_creditamount) != parseFloat(total_itemamount)) {
-                    customAlert($('#not-equal-accounting-entries-total-amount-error'));
+                    <!--customAlert($('#not-equal-accounting-entries-total-amount-error'));
                     event.preventDefault();
-                    return false;
+                    return false;-->
+                    alert('Note! Total OR Amount is not equal to your accounting entry!');
                 }
             }
             var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
