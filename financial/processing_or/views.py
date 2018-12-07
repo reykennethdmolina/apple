@@ -949,6 +949,7 @@ def exportsave(request):
                         amount=data.amount,
                         amountinwords=data.amountinwords,
                         bankaccountcode=data.bankaccount,
+                        particulars=data.particulars,
                         accounttype=data.accounttype,
                         vatrate=data.vatrate,
                         vatcode=data.vatcode,
