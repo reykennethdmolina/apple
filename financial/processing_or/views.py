@@ -394,6 +394,7 @@ def fileupload(request):
                                         amount=data[11],
                                         amountinwords=data[12],
                                         bankaccount=data[13],
+                                        particulars=unicode_escape(data[14]),
                                         accounttype=data[3].lower(),
                                         vatcode='VE',
                                         vatrate=0,
