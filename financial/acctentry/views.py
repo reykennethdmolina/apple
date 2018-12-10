@@ -1281,7 +1281,7 @@ def savebreakdownentry(user, num, mainid, detailid, tempdetailid, dtype, data_ta
     return True
 
 
-def updatedetail(source, mainid, num, secretkey, by_user):
+def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
 
     data_table = validatetable(source)
 
@@ -1298,6 +1298,7 @@ def updatedetail(source, mainid, num, secretkey, by_user):
                 exec("detail = " + data_table['str_detail'].title() + ".objects.get(pk=row." + data_table['str_detail'] + ")")
 
                 detail.item_counter = counter
+                detail.or_date = ormaindate
                 detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
                 # Return None if object is empty
                 detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
@@ -1483,6 +1484,7 @@ def updatedetail(source, mainid, num, secretkey, by_user):
                 detail.ofitem = get_object_or_None(Ofitem, pk=row.ofitem)
 
             detail.item_counter = counter
+            detail.or_date = ormaindate
             detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
             # Return None if object is empty
             detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)

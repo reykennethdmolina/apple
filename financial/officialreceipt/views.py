@@ -520,7 +520,10 @@ class UpdateView(UpdateView):
         mainid = self.object.id
         num = self.object.ornum
         secretkey = self.request.POST['secretkey']
-        updatedetail(source, mainid, num, secretkey, self.request.user)
+
+        ormaindate = self.object.ordate
+
+        updatedetail(source, mainid, num, secretkey, self.request.user, ormaindate)
 
         # return HttpResponseRedirect('/officialreceipt/')
         return HttpResponseRedirect('/officialreceipt/' + str(self.object.id) + '/update')
@@ -1489,9 +1492,9 @@ class GeneratePDF(View):
                 q = q.filter(ortype=ortype)
         if artype != '':
             if report == '2' or report == '4':
-                q = q.filter(ormain__artype__exact=artype)
+                q = q.filter(ormain__orsource__exact=artype)
             else:
-                q = q.filter(artype=artype)
+                q = q.filter(orsource=artype)
         if payee != 'null':
             if report == '2' or report == '4':
                 q = q.filter(ormain__payee_code__exact=payee)
@@ -1558,7 +1561,7 @@ class GeneratePDF(View):
             total['creditamount'] = dataset['creditamount'].sum()
             total['diff'] = dataset['totaldiff'].sum()
         else:
-            list = q[:65]
+            list = q
             if list:
                 total = list.aggregate(total_amount=Sum('amount'))
                 if report == '2' or report == '4':
