@@ -957,7 +957,8 @@ class UpdateViewCashier(UpdateView):
             mainid = self.object.id
             num = self.object.ofnum
             secretkey = self.request.POST['secretkey']
-            updatedetail(source, mainid, num, secretkey, self.request.user)
+            maindate = self.object.ofdate
+            updatedetail(source, mainid, num, secretkey, self.request.user, maindate)
 
             # saved_ofdetail = Ofdetail.objects.filter(ofmain=self.object.pk)
 
