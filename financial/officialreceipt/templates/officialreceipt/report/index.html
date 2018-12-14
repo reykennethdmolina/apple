@@ -27,6 +27,7 @@
                                 <option value="4">Unposted Official Receipt Transaction List</option>
                                 <option value="5">Official Receipt List (Unbalanced Cash in Bank VS Amount)</option>
                                 <option value="6">Unbalanced Official Receipt Transaction List</option>
+                                <option value="7">Official Receipt Register</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -207,6 +208,27 @@ $(function(){
         var outputvat = $('#outputvat').val();
         var bankaccount = $('#bankaccount').val();
         url = "{% url 'officialreceipt:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
+        $('#result').prop('src', url);
+    });
+
+    $('#generatexls').click(function(){
+
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var ortype = $('#ortype').val();
+        var artype = $('#artype').val();
+        var payee = $('#payee').val();
+        var branch = $('#branch').val();
+        var collector = $('#collector').val();
+        var product = $('#product').val();
+        var status = $('#status').val();
+        var adtype = $('#adtype').val();
+        var wtax = $('#wtax').val();
+        var vat = $('#vat').val();
+        var outputvat = $('#outputvat').val();
+        var bankaccount = $('#bankaccount').val();
+        url = "{% url 'officialreceipt:excel2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
         $('#result').prop('src', url);
     });
 

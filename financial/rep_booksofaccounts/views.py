@@ -521,6 +521,8 @@ class GeneratePDFDepartment(View):
         else:
             return Render.render('rep_booksofaccounts/summary_department.html', context)
 
+
+
 @method_decorator(login_required, name='dispatch')
 class GenerateExcel(View):
     def get(self, request):
@@ -599,4 +601,3 @@ class GenerateExcel(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return response
-

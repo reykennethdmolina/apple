@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf2/$', views.GeneratePDF.as_view(), name='pdf2'),
+    url(r'^excel/$', views.GenerateExcel.as_view(), name='excel2'),
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
 ]

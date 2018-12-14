@@ -57,6 +57,11 @@ from financial.context_processors import namedtuplefetchall
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
+from datetime import timedelta
+import io
+import xlsxwriter
+import datetime
+from django.template.loader import render_to_string
 
 
 @method_decorator(login_required, name='dispatch')
@@ -1484,6 +1489,13 @@ class GeneratePDF(View):
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
+        elif report == '7':
+            title = "Official Receipt Register"
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
 
         if ortype != '':
             if report == '2' or report == '4':
@@ -1541,7 +1553,10 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
         if status != '':
-            q = q.filter(status=status)
+            if report == '2' or report == '4':
+                q = q.filter(ormain__status__exact=status)
+            else:
+                q = q.filter(status=status)
 
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
@@ -1563,7 +1578,8 @@ class GeneratePDF(View):
         else:
             list = q
             if list:
-                total = list.aggregate(total_amount=Sum('amount'))
+                #total = list.aggregate(total_amount=Sum('amount'))
+                total = list.filter(~Q(status = 'C')).aggregate(total_amount=Sum('amount'))
                 if report == '2' or report == '4':
                     total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
@@ -1591,10 +1607,217 @@ class GeneratePDF(View):
             return Render.render('officialreceipt/report/report_5.html', context)
         elif report == '6':
             return Render.render('officialreceipt/report/report_6.html', context)
+        elif report == '7':
+            return Render.render('officialreceipt/report/report_7.html', context)
         else:
             return Render.render('officialreceipt/report/report_1.html', context)
         
-        
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        ortype = request.GET['ortype']
+        artype = request.GET['artype']
+        payee = request.GET['payee']
+        collector = request.GET['collector']
+        branch = request.GET['branch']
+        product = request.GET['product']
+        adtype = request.GET['adtype']
+        wtax = request.GET['wtax']
+        vat = request.GET['vat']
+        outputvat = request.GET['outputvat']
+        bankaccount = request.GET['bankaccount']
+        status = request.GET['status']
+        title = "Official Receipt List"
+        list = Ormain.objects.filter(isdeleted=0).order_by('ornum')[:0]
+
+        if report == '1':
+            title = "Official Receipt Transaction List - Summary"
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '2':
+            title = "Official Receipt Transaction List"
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0).order_by('or_date', 'or_num', 'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Official Receipt Transaction List - Summary"
+            q = Ormain.objects.filter(isdeleted=0,status__in=['A','C']).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '4':
+            title = "Unposted Official Receipt Transaction List"
+            q = Ordetail.objects.select_related('ormain').filter(isdeleted=0,status__in=['A','C']).order_by('or_date', 'or_num',  'item_counter')
+            if dfrom != '':
+                q = q.filter(or_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(or_date__lte=dto)
+        elif report == '5':
+            title = "Official Receipt List (Unbalanced Cash in Bank VS Amount)"
+            q = Ormain.objects.select_related('ordetail').filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+        elif report == '6':
+            title = "Unbalanced Official Receipt Transaction List"
+            q = Ormain.objects.select_related('ordetail').filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+
+        if ortype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__ortype__exact=ortype)
+            else:
+                q = q.filter(ortype=ortype)
+        if artype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__orsource__exact=artype)
+            else:
+                q = q.filter(orsource=artype)
+        if payee != 'null':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__payee_code__exact=payee)
+            else:
+                q = q.filter(payee_code=payee)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if collector != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__collector__exact=collector)
+            else:
+                q = q.filter(collector=collector)
+        if product != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__product__exact=product)
+            else:
+                q = q.filter(product=product)
+        if adtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__adtype__exact=adtype)
+            else:
+                q = q.filter(adtype=adtype)
+        if wtax != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__wtax__exact=wtax)
+            else:
+                q = q.filter(wtax=wtax)
+        if vat != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if outputvat != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__outputvattype__exact=outputvat)
+            else:
+                q = q.filter(outputvattype=outputvat)
+        if bankaccount != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+        if status != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__status__exact=status)
+            else:
+                q = q.filter(status=status)
+
+        if report == '5':
+            list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
+            dataset = pd.DataFrame(list)
+            total = {}
+            total['amount'] = dataset['amount'].sum()
+            total['cashinbank'] = dataset['cashinbank'].sum()
+            total['diff'] = dataset['diff'].sum()
+            total['outputvat'] = dataset['outputvat'].sum()
+            total['amountdue'] = dataset['amountdue'].sum()
+        elif report == '6':
+            list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
+            dataset = pd.DataFrame(list)
+            total = {}
+            total['amount'] = dataset['amount'].sum()
+            total['debitamount'] = dataset['debitamount'].sum()
+            total['creditamount'] = dataset['creditamount'].sum()
+            total['diff'] = dataset['totaldiff'].sum()
+        else:
+            list = q
+            if list:
+                total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
+                if report == '2' or report == '4':
+                    total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        if report == '1':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                worksheet.write(row, col + 2, data.payee_name)
+                worksheet.write(row, col + 3, data.particulars)
+                worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                row += 1
+
+            print total
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(total['total_amount'], '.2f')))
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "orreport.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+
 def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status):
     #print type
     print "raw query"
@@ -1640,7 +1863,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
         constatus = "AND m.status = '" + str(status) + "'"
 
     if type == 1:
-        query = "SELECT m.id, m.ornum, m.ordate, m.amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
+        query = "SELECT m.id, m.ornum, m.ordate, IF(m.status = 'C', 0, m.amount) AS amount, m.payee_name, IFNULL(cash.total_amount, 0) AS cashinbank, IFNULL(ouput.total_amount, 0) AS outputvat, m.status, " \
                 "(m.amount - IFNULL(cash.total_amount, 0)) AS diff, (m.amount - IFNULL(ouput.total_amount,0)) AS amountdue " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN (" \
@@ -1660,7 +1883,7 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
                 "ORDER BY m.ordate,  m.ornum"
     elif type == 2:
         query = "SELECT z.*, ABS(z.detaildiff + z.diff) AS totaldiff FROM (" \
-                "SELECT m.id, m.ornum, m.ordate, m.payee_name, m.amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
+                "SELECT m.id, m.ornum, m.ordate, m.payee_name, IF(m.status = 'C', 0, m.amount) AS amount, m.status, IFNULL(debit.total_amount, 0) AS debitamount, IFNULL(credit.total_amount, 0) AS creditamount, " \
                 "(IFNULL(debit.total_amount, 0) - IFNULL(credit.total_amount, 0)) AS detaildiff, (m.amount - IFNULL(debit.total_amount, 0)) AS diff " \
                 "FROM ormain AS m " \
                 "LEFT OUTER JOIN ( " \
