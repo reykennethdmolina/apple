@@ -1449,7 +1449,7 @@ class GeneratePDF(View):
 
         if report == '1':
             title = "Official Receipt Transaction List - Summary"
-            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+            q = Ormain.objects.all().filter(isdeleted=0).order_by('ordate', 'ornum')
             if dfrom != '':
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
@@ -1502,61 +1502,73 @@ class GeneratePDF(View):
                 q = q.filter(ormain__ortype__exact=ortype)
             else:
                 q = q.filter(ortype=ortype)
+            print 'ortype'
         if artype != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__orsource__exact=artype)
             else:
                 q = q.filter(orsource=artype)
+            print 'artype'
         if payee != 'null':
             if report == '2' or report == '4':
                 q = q.filter(ormain__payee_code__exact=payee)
             else:
                 q = q.filter(payee_code=payee)
+            print 'payee'
         if branch != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__branch__exact=branch)
             else:
                 q = q.filter(branch=branch)
+            print branch
         if collector != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__collector__exact=collector)
             else:
                 q = q.filter(collector=collector)
+            print 'collector'
         if product != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__product__exact=product)
             else:
                 q = q.filter(product=product)
+            print 'product'
         if adtype != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__adtype__exact=adtype)
             else:
                 q = q.filter(adtype=adtype)
+            print 'adtype'
         if wtax != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__wtax__exact=wtax)
             else:
                 q = q.filter(wtax=wtax)
+            print 'wtax'
         if vat != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__vat__exact=vat)
             else:
                 q = q.filter(vat=vat)
+            print 'vat'
         if outputvat != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__outputvattype__exact=outputvat)
             else:
                 q = q.filter(outputvattype=outputvat)
+            print 'outputvat'
         if bankaccount != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__bankaccount__exact=bankaccount)
             else:
                 q = q.filter(bankaccount=bankaccount)
+            print 'bankaccount'
         if status != '':
             if report == '2' or report == '4':
                 q = q.filter(ormain__status__exact=status)
             else:
                 q = q.filter(status=status)
+            print 'status'
 
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
@@ -1744,26 +1756,26 @@ class GenerateExcel(View):
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
-            total = {}
-            total['amount'] = dataset['amount'].sum()
-            total['cashinbank'] = dataset['cashinbank'].sum()
-            total['diff'] = dataset['diff'].sum()
-            total['outputvat'] = dataset['outputvat'].sum()
-            total['amountdue'] = dataset['amountdue'].sum()
+            # total = {}
+            # total['amount'] = dataset['amount'].sum()
+            # total['cashinbank'] = dataset['cashinbank'].sum()
+            # total['diff'] = dataset['diff'].sum()
+            # total['outputvat'] = dataset['outputvat'].sum()
+            # total['amountdue'] = dataset['amountdue'].sum()
         elif report == '6':
             list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
-            total = {}
-            total['amount'] = dataset['amount'].sum()
-            total['debitamount'] = dataset['debitamount'].sum()
-            total['creditamount'] = dataset['creditamount'].sum()
-            total['diff'] = dataset['totaldiff'].sum()
+            # total = {}
+            # total['amount'] = dataset['amount'].sum()
+            # total['debitamount'] = dataset['debitamount'].sum()
+            # total['creditamount'] = dataset['creditamount'].sum()
+            # total['diff'] = dataset['totaldiff'].sum()
         else:
             list = q
-            if list:
-                total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
-                if report == '2' or report == '4':
-                    total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            # if list:
+            #     total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
+            #     if report == '2' or report == '4':
+            #         total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         output = io.BytesIO()
 
@@ -1789,18 +1801,30 @@ class GenerateExcel(View):
 
             row = 5
             col = 0
+            totalamount = 0
+            amount = 0
             for data in list:
                 worksheet.write(row, col, data.ornum)
                 worksheet.write(row, col + 1, data.ordate, formatdate)
-                worksheet.write(row, col + 2, data.payee_name)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
                 worksheet.write(row, col + 3, data.particulars)
-                worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
                 row += 1
+                totalamount += amount
 
-            print total
-
+            #print float(format(totalamount, '.2f'))
+            #print total['total_amount']
             worksheet.write(row, col + 3, 'Total')
-            worksheet.write(row, col + 4, float(format(total['total_amount'], '.2f')))
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
 
         workbook.close()
 
