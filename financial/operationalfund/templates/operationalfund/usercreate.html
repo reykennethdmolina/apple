@@ -67,7 +67,13 @@
                                 <label class="control-label" for="id_oftype">OF Type</label>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_oftype" name="oftype">
                                     {% for data in oftype %}
+                                        {% if data.id == 2 %}
+                                            {% if user_employee.revolving == 1 %}
+                                            <option value="{{ data.id }}" {% if form.oftype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} - {{ data.description }}</option>
+                                            {% endif %}
+                                        {% else %}
                                         <option value="{{ data.id }}" {% if form.oftype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} - {{ data.description }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 </select>

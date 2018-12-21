@@ -342,7 +342,9 @@ class UpdateView(UpdateView):
             mainid = self.object.id
             num = self.object.jvnum
             secretkey = self.request.POST['secretkey']
-            updatedetail(source, mainid, num, secretkey, self.request.user)
+            jvmaindate = self.object.jvdate
+
+            updatedetail(source, mainid, num, secretkey, self.request.user, jvmaindate)
 
             totaldebitamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
                 Sum('debitamount'))

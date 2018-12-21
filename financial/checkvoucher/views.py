@@ -452,7 +452,9 @@ class UpdateView(UpdateView):
             mainid = self.object.id
             num = self.object.cvnum
             secretkey = self.request.POST['secretkey']
-            updatedetail(source, mainid, num, secretkey, self.request.user)
+            cvmaindate = self.object.cvdate
+
+            updatedetail(source, mainid, num, secretkey, self.request.user, cvmaindate)
         else:
             self.object.modifyby = self.request.user
             self.object.modifydate = datetime.datetime.now()

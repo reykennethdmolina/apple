@@ -8,6 +8,7 @@
             <th><span>ID</span></th>
             <th><span>Number</span></th>
             <th><span>Date</span></th>
+            <th><span>OF Type</span></th>
             <th class="text-right"><span>Amount</span></th>
             <th><span>Approver</span></th>
             <th><span>Created by</span></th>
@@ -30,6 +31,7 @@
             <td>{{ data.id }}</td>
             <td>OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
             <td>{{ data.ofdate|date:"Y-m-d" }}</td>
+            <td>{{ data.oftype.description }}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
             <td>{% if data.actualapprover %}{{ data.actualapprover.firstname }}&nbsp;{{ data.actualapprover.lastname }}{% else %}{{ data.designatedapprover.firstname }}&nbsp;{{ data.designatedapprover.lastname }}{% endif %}</td>
             <td>{{ data.enterby }}</td>

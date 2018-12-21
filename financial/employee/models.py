@@ -38,6 +38,9 @@ class Employee(models.Model):
     cellphone_subsidize_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,
                                                      max_digits=18)
     user = models.OneToOneField(User, null=True, blank=True)
+    revolving = models.IntegerField(default=0)
+    revolving_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,
+                                                     max_digits=18)
 
     class Meta:
         db_table = 'employee'

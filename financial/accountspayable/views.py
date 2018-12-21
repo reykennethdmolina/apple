@@ -530,7 +530,9 @@ class UpdateView(UpdateView):
             mainid = self.object.id
             num = self.object.apnum
             secretkey = self.request.POST['secretkey']
-            updatedetail(source, mainid, num, secretkey, self.request.user)
+            apmaindate = self.object.apdate
+
+            updatedetail(source, mainid, num, secretkey, self.request.user, apmaindate)
 
             totaldebitamount = Apdetail.objects.filter(isdeleted=0).filter(apmain_id=self.object.id).aggregate(
                 Sum('debitamount'))

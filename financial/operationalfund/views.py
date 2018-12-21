@@ -278,7 +278,7 @@ class CreateViewUser(CreateView):
 
             total_amount = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).\
                 aggregate(Sum('amount'))
-            print total_amount['amount__sum']
+            #print total_amount['amount__sum']
             if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'PCV' or \
                     total_amount['amount__sum'] <= 1000.00:
                 if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'CSV' or \
