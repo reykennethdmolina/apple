@@ -4,10 +4,11 @@
     <table class="table table-hover table-bordered">
         <thead>
             <tr>
-                <th><span>ID</span></th>
+                <th><span>IDx</span></th>
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
                 <th><span>JV Subtype</span></th>
+                <th><span>Particulars</span></th>
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
                 <th><span>Status</span></th>
@@ -22,6 +23,7 @@
                 <td>{{ data.jvnum }}</td>
                 <td>{{ data.jvdate|date:'Y-m-d' }}</td>
                 <td>{{ data.jvsubtype.description }}</td>
+                <td>{{ data.particular|slice:":80" }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- Not assigned yet --{% endif %}</td>
                 <td>{{ data.enterby }}</td>
                 <td class="tdJvStatus
@@ -38,15 +40,19 @@
                             <a href="{% url 'journalvoucher:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                                 <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
                             </a>
-                            {% if perms.journalvoucher.change_jvmain and data.isdeleted == 0 %}
-                            <a href="{% url 'journalvoucher:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
-                                <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
-                            </a>
-                            {% endif %}
-                            {% if perms.journalvoucher.delete_jvmain and data.isdeleted == 0 and data.status == 'A' and data.jvstatus != 'A' and data.jvstatus != 'I' and data.jvstatus != 'R' %}
-                            <a href="{% url 'journalvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
-                                <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
-                            </a>
+                            {% if data.enterby_id == user.id or data.designatedapprover.id == user.id or user.is_superuser %}
+
+                                {% if perms.journalvoucher.change_jvmain and data.isdeleted == 0 %}
+                                <a href="{% url 'journalvoucher:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                                    <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                                </a>
+                                {% endif %}
+                                {% if perms.journalvoucher.delete_jvmain and data.isdeleted == 0 and data.status == 'A' and data.jvstatus != 'A' and data.jvstatus != 'I' and data.jvstatus != 'R' %}
+                                <a href="{% url 'journalvoucher:delete' data.pk %}" class="btnDelete" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Cancel" title="" aria-describedby="tooltip850155">
+                                    <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                                </a>
+                                {% endif %}
+
                             {% endif %}
                         </div>
                     </div>
