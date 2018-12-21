@@ -291,7 +291,11 @@
                 $(this).datepicker('setStartDate', d);
             });
 
-            $("#id_jvsubtype option:contains('Manual Journal Voucher')").attr('selected', 'selected');
+            var enable = "{{parameter.1}}".replace(/&quot;/g,"\"");
+
+            if (enable == 1) {
+                $("#id_jvsubtype option:contains('Manual Journal Voucher')").attr('selected', 'selected');
+            }
             $("#id_jvsubtype option:selected").siblings().attr('disabled', 'disabled');
 
             $("#id_branch option:contains('HEAD OFFICE')").attr('selected', 'selected');

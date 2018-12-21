@@ -153,34 +153,15 @@
                             </div>
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_jvstatus">JV Status</label>
-                                <select class="form-control input-sm" data-validation="required" id="id_jvstatus" name="jvstatus">
-                                    {% if originaljvstatus == 'F' %}
-                                        <option value="F" {% if form.jvstatus.value == "F" %} selected{% endif %}>For Approval</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.journalvoucher.approve_assignedjv %}
-                                            <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            <option value="D" {% if form.jvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% elif perms.journalvoucher.approve_alljv %}
-                                            <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            <option value="D" {% if form.jvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% endif %}
-                                    {% elif originaljvstatus == 'A' %}
-                                        <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.journalvoucher.approve_assignedjv %}
-                                            <option value="D" {% if form.jvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% elif perms.journalvoucher.approve_alljv %}
-                                            <option value="D" {% if form.jvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% endif %}
-                                        <option value="R" {% if form.jvstatus.value == "R" %} selected{% endif %}>Released</option>
-                                    {% elif originaljvstatus == 'D' %}
-                                        <option value="D" {% if form.jvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.journalvoucher.approve_assignedjv %}
-                                            <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% elif perms.journalvoucher.approve_alljv %}
-                                            <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% endif %}
-                                    {% elif originaljvstatus == 'R' %}
-                                        <option value="R" {% if form.jvstatus.value == "R" %} selected{% endif %}>Released</option>
-                                        <option value="A" {% if form.jvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
+                                <select class="form-control input-sm" data-validation="required">
+                                    {% if form.jvstatus.value == "F" %}
+                                    <option value="F">For Approval</option>
+                                    {% endif %}
+                                    {% if form.jvstatus.value == "A" %}
+                                    <option value="A">Approved</option>
+                                    {% endif %}
+                                    {% if form.jvstatus.value == "D" %}
+                                    <option value="D">Disapproved</option>
                                     {% endif %}
                                 </select>
                             </div>
@@ -209,11 +190,16 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
-                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                {% if object.status == 'A' %}
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit JV</button>
+                                {% elif object.status == 'C' %}
+                                <button type="button" class="btn btn-round btn-danger">Cancelled JV</button>
+                                {% elif object.status == 'O' %}
+                                <button type="button" class="btn btn-round btn-info">Posted JV</button>
+                                {% endif %}
                             </div>
                             <div class="col-sm-6 padding-top-15 padding-bottom-15">
                                 <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>
-{#                                <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="autobutton"><i class="icon fa-refresh" aria-hidden="true"></i> Auto Entry</button>#}
                             </div>
                         </div>
                     </form>
@@ -325,67 +311,6 @@
             <div class="modal-footer">
 {#                <button type="button" class="btn btn-info" id="importrepcsvconfirm" disabled="disabled">Import</button>#}
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="approvalModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"><span id="approvedisapprove"></span></h4>
-            </div>
-            <div class="modal-body">
-                <p>
-                    <input type="hidden" id="id_main">
-                    <input type="hidden" id="id_type">
-                    <input type="hidden" id="id_responseselect">
-                    <label class="control-label" for="id_approverremarks">Remarks:</label>
-                    <textarea name="approverremarks" id="id_approverremarks" class="form-control input-sm" rows="3">{{ form.approverremarks.value.strip }}</textarea>
-                    <br>
-                    <label class="control-label" for="id_responsedate"></label>
-                    <input type="text" class="form-control input-sm date-yyyymmdd datepicker week"
-                           readonly="readonly" style="padding: 5px 10px; background: white" id="id_responsedate" name="responsedate"
-                           value="{% if form.responsedate.value %}{{ form.responsedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-info" disabled="disabled" id="approveconfirm">Confirm</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="approveclose">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="releaseModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">JV Release Details</h4>
-            </div>
-            <div class="modal-body" style="overflow:hidden;">
-                <div class="row">
-                    <div class="form-group col-md-12">
-                        <label class="control-label" for="id_employeelookup">Released By:</label>
-                        <select class="form-control input-sm select2 col-sm-12" id="id_releaseby"
-                                name="releaseby" style="width: 565px; margin-bottom: 20px;">
-                            <option value="">-- Select --</option>
-                                {% for designatedapprover in designatedapprover %}
-                                    <option value="{{ designatedapprover.id }}" {% if request.user.id == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
-                                {% endfor %}
-                        </select>
-                        <br><br><br>
-                        <label class="control-label" for="id_releasedate">Released On:</label>
-                        <input type="text" class="form-control input-sm date-yyyymmdd datepicker week" readonly="readonly"
-                               style="padding: 5px 10px; background: white" id="id_releasedate" name="releasedate"
-                               value="{% if form.releasedate.value %}{{ form.releasedate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-info" id="releaseconfirm">Confirm</button>
-                <button type="button" class="btn btn-default" id="releaseclose" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -558,67 +483,6 @@
                 }
             }
 
-            $("#id_jvstatus").change(function(){
-                if($(this).val() == 'A' || $(this).val() == 'D' || $(this).val() == 'R'){
-                    var valid = true;
-                    var blankRequiredFields = "";
-                    $("[data-validation='required']").each(function(){
-                        if($(this).val() == ''){
-                            valid = false;
-                            blankRequiredFields += "\n*" + $('label[for="' + this.id + '"]').html();
-                        }
-                    });
-                    if(!valid){
-                        alert("Please fill-up the following required fields to proceed: " +
-                            blankRequiredFields);
-                        revertJVStatus();
-                    }
-                    else {
-                        var valid2 = true;
-                        if (($(this).val() == 'A') || $(this).val() == 'R'){
-                            var total_creditamount = $("#total_creditamount").text().replace(',', '');
-                            var total_debitamount = $("#total_debitamount").text().replace(',', '');
-
-                            if (parseFloat(total_creditamount) == '0.00' && parseFloat(total_debitamount) == '0.00') {
-                                customAlert($('#zero-debit-credit-error'));
-                                valid2 = false;
-                                revertJVStatus();
-                            }
-                            if (parseFloat(total_creditamount) != parseFloat(total_debitamount)) {
-                                customAlert($('#not-equal-debit-credit-error'));
-                                valid2 = false;
-                                revertJVStatus();
-                            }
-                            var checkbreakdownstatus = $('#breaktabledata').find('td').hasClass('unbalancebreakdown');
-                            if (checkbreakdownstatus) {
-                                customAlert($('#unbalanced-entries-error'));
-                                valid2 = false;
-                                revertJVStatus();
-                            }
-                        }
-                        if(valid2){
-                            if (($(this).val() == 'A') || $(this).val() == 'D') {
-                                if ($(this).val() == 'A') {
-                                    $("#approvedisapprove").text("Approve Journal Voucher");
-                                    $("label[for='id_responsedate']").text("Approved On:");
-                                    approverResponse = "APPROVED";
-                                }
-                                else if ($(this).val() == 'D') {
-                                    $("#approvedisapprove").text("Disapprove Journal Voucher");
-                                    $("label[for='id_responsedate']").text("Disapproved On:");
-                                    approverResponse = "DISAPPROVED";
-                                }
-                                $("#approvalModal").modal('show');
-                            }
-                            else if ($(this).val() == 'R') {
-                                $("#releaseModal").modal('show');
-                                $("#id_releaseby option:selected").siblings().attr('disabled', 'disabled');
-                            }
-                        }
-                    }
-                }
-
-            });
 
             $("#approvalModal").on("hidden.bs.modal", function (){revertJVStatus();});
 
