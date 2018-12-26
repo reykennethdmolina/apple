@@ -42,12 +42,12 @@
                         <i class="icon fa-lock" aria-hidden="true"></i>
                         </button>
                     {% else %}
-                        {% if data.jvstatus != 'A' %}
+                        {% if data.jvstatus != 'A' and data.status != 'C' %}
                         <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" data-id={{ data.id }}>
                         <i class="icon fa-check" aria-hidden="true"></i>
                         </button>
                         {% endif %}
-                        {% if data.jvstatus != 'D' %}
+                        {% if data.jvstatus != 'D' and data.status != 'C' %}
                         <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
                         <i class="icon fa-remove" aria-hidden="true"></i>
                         </button>
@@ -55,7 +55,7 @@
                     {% endif %}
                     </div>
                 </td>
-                <td style="width: 150px; padding-left: 30px">
+                <td style="width: 150px; padding-left: 30px;{% if data.status == 'C' %} background-color:red {% endif %}">
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist" style="text-align: left">
                             <a href="{% url 'journalvoucher:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
