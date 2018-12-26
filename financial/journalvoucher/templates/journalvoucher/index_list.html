@@ -4,7 +4,7 @@
     <table class="table table-hover table-bordered">
         <thead>
             <tr>
-                <th><span>IDx</span></th>
+                <th><span>ID</span></th>
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
                 <th><span>JV Subtype</span></th>
@@ -12,6 +12,7 @@
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
                 <th><span>Status</span></th>
+                <th class="text-center"><span>Approval</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
         </thead>
@@ -22,7 +23,7 @@
                 <td>{{ data.id }}</td>
                 <td>{{ data.jvnum }}</td>
                 <td>{{ data.jvdate|date:'Y-m-d' }}</td>
-                <td>{{ data.jvsubtype.description }}</td>
+                <td>{{ data.jvsubtype.code }}</td>
                 <td>{{ data.particular|slice:":80" }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- Not assigned yet --{% endif %}</td>
                 <td>{{ data.enterby }}</td>
@@ -33,6 +34,26 @@
                         {% elif data.jvstatus == 'R' %} text-success
                         {% endif %}">
                     <b>{{ data.get_jvstatus_display }}</b>
+                </td>
+                <td>
+                    <div class="text-center">
+                    {% if data.status == 'O' %}
+                        <button class="btn btns-icon btn-info btn-round waves-effect waves-light">
+                        <i class="icon fa-lock" aria-hidden="true"></i>
+                        </button>
+                    {% else %}
+                        {% if data.jvstatus != 'A' %}
+                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" data-id={{ data.id }}>
+                        <i class="icon fa-check" aria-hidden="true"></i>
+                        </button>
+                        {% endif %}
+                        {% if data.jvstatus != 'D' %}
+                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
+                        <i class="icon fa-remove" aria-hidden="true"></i>
+                        </button>
+                        {% endif %}
+                    {% endif %}
+                    </div>
                 </td>
                 <td style="width: 150px; padding-left: 30px">
                     <div class="iconlist-wrap auto-0">
@@ -62,9 +83,38 @@
         </tbody>
     </table>
     <div class="pagination pull-right">{% show_pages %}</div>
+    <div id="disapprovedModal" class="modal fade" role="dialog">
+        <form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Disapproved Journal Voucher</h4>
+                </div>
+                <div class="modal-body" style="overflow:hidden;">
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label class="control-label">Remarks: JV# <span id="jvnumbertext"></span></label>
+                            <input type="hidden" id="jvid" name="jvid" required>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <textarea class="form-control" rows="3" name="reason" id="reason" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="disapprovedSubmit">Submit</button>
+                    <button type="button" class="btn btn-default" id="disapprovedclose" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
 </div>
+
 <!-- required -->
 <a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+
 <script>
     $(function () {
         $('.shade').remove();
@@ -72,6 +122,54 @@
         $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
         $('.endless_page_link').on('click', function () {
             $('.shade').fadeIn();
+        });
+
+        $('.btn-approve').on('click', function(){
+            if (confirm('Are you sure you want to approved this JV?')) {
+                 $.ajax({
+                    url: "{% url 'journalvoucher:approve' %}",
+                    type: "post",
+                    data: {'id': $(this).data('id')},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $('.btn-disapprove').on('click', function(){
+            $('#reason').val('');
+            $('#jvid').val('');
+            $('#jvid').val($(this).data('id'));
+            $('#jvnumbertext').text($(this).data('num'));
+            $('#disapprovedModal').show();
+        });
+
+        $('#disapprovedSubmit').on('click', function(){
+            var id =  $('#jvid').val();
+            var reason =  $('#reason').val();
+
+            if (reason.trim() == '') {
+                alert('Fill in remarks textbox');
+            } else if (id == '') {
+                alert('Ops! Something is wrong');
+             } else {
+                $.ajax({
+                url: "{% url 'journalvoucher:disapprove' %}",
+                type: "post",
+                data: {'id': id, 'reason': reason},
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(response) {
+                    console.debug(response);
+                }
+            });
+            }
+
         });
     });
 </script>

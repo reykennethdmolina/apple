@@ -109,8 +109,8 @@ class CreateView(CreateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
         context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.all().filter(is_active=1).order_by('first_name')
+        #Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None, ofstatus='O')\
             .order_by('id')   # on-hand CSVs that do not have JVs yet
 
@@ -265,8 +265,7 @@ class UpdateView(UpdateView):
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['jvtype'] = Jvtype.objects.filter(isdeleted=0).order_by('pk')
         context['jvsubtype'] = Jvsubtype.objects.filter(isdeleted=0).order_by('pk')
-        context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
-            order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname')
         context['jvnum'] = self.object.jvnum
         context['originaljvstatus'] = Jvmain.objects.get(pk=self.object.id).jvstatus
         context['savedjvsubtype'] = Jvmain.objects.get(pk=self.object.id).jvsubtype.code
@@ -543,54 +542,90 @@ def importrepcsv(request):
     return JsonResponse(data)
 
 
+# @csrf_exempt
+# def approve(request):
+#     if request.method == 'POST':
+#         jv_for_approval = Jvmain.objects.get(jvnum=request.POST['jvnum'])
+#         if request.user.has_perm('journalvoucher.approve_alljv') or \
+#                 request.user.has_perm('journalvoucher.approve_assignedjv'):
+#             if request.user.has_perm('journalvoucher.approve_alljv') or \
+#                     (request.user.has_perm('journalvoucher.approve_assignedjv') and
+#                              jv_for_approval.designatedapprover == request.user):
+#                 print "back to in-process = " + str(request.POST['backtoinprocess'])
+#                 if request.POST['originaljvstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+#                     jv_for_approval.jvstatus = request.POST['approverresponse']
+#                     jv_for_approval.isdeleted = 0
+#                     if request.POST['approverresponse'] == 'D':
+#                         jv_for_approval.status = 'C'
+#                     else:
+#                         jv_for_approval.status = 'A'
+#                     jv_for_approval.approverresponse = request.POST['approverresponse']
+#                     jv_for_approval.responsedate = request.POST['responsedate']
+#                     jv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+#                     jv_for_approval.approverremarks = request.POST['approverremarks']
+#                     jv_for_approval.releaseby = None
+#                     jv_for_approval.releasedate = None
+#                     jv_for_approval.save()
+#                     data = {
+#                         'status': 'success',
+#                         'jvnum': jv_for_approval.jvnum,
+#                         'newjvstatus': jv_for_approval.jvstatus,
+#                     }
+#                 else:
+#                     data = {
+#                         'status': 'error',
+#                     }
+#             else:
+#                 data = {
+#                     'status': 'error',
+#                 }
+#         else:
+#             data = {
+#                 'status': 'error',
+#             }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#
+#     return JsonResponse(data)
+
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
-        jv_for_approval = Jvmain.objects.get(jvnum=request.POST['jvnum'])
-        if request.user.has_perm('journalvoucher.approve_alljv') or \
-                request.user.has_perm('journalvoucher.approve_assignedjv'):
-            if request.user.has_perm('journalvoucher.approve_alljv') or \
-                    (request.user.has_perm('journalvoucher.approve_assignedjv') and
-                             jv_for_approval.designatedapprover == request.user):
-                print "back to in-process = " + str(request.POST['backtoinprocess'])
-                if request.POST['originaljvstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
-                    jv_for_approval.jvstatus = request.POST['approverresponse']
-                    jv_for_approval.isdeleted = 0
-                    if request.POST['approverresponse'] == 'D':
-                        jv_for_approval.status = 'C'
-                    else:
-                        jv_for_approval.status = 'A'
-                    jv_for_approval.approverresponse = request.POST['approverresponse']
-                    jv_for_approval.responsedate = request.POST['responsedate']
-                    jv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
-                    jv_for_approval.approverremarks = request.POST['approverremarks']
-                    jv_for_approval.releaseby = None
-                    jv_for_approval.releasedate = None
-                    jv_for_approval.save()
-                    data = {
-                        'status': 'success',
-                        'jvnum': jv_for_approval.jvnum,
-                        'newjvstatus': jv_for_approval.jvstatus,
-                    }
-                else:
-                    data = {
-                        'status': 'error',
-                    }
-            else:
-                data = {
-                    'status': 'error',
-                }
+        approval = Jvmain.objects.get(pk=request.POST['id'])
+
+        if (approval.jvstatus != 'R' and approval.status != 'O'):
+            approval.jvstatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = approval.approverremarks +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
         else:
-            data = {
-                'status': 'error',
-            }
+            data = {'status': 'error'}
     else:
-        data = {
-            'status': 'error',
-        }
+        data = { 'status': 'error' }
 
     return JsonResponse(data)
 
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Jvmain.objects.get(pk=request.POST['id'])
+        if (approval.jvstatus != 'R' and approval.status != 'O'):
+            approval.jvstatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = approval.approverremarks +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def release(request):

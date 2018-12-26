@@ -142,12 +142,21 @@
                                 </select>
                                 <span class="help-block form-error">{{ form.department.errors.as_text }}</span>
                             </div>
+                            <!--<div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">-->
+                                <!--<label class="control-label" for="id_designatedapprover">Approver</label>-->
+                                <!--<select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">-->
+                                    <!--<option value="">&#45;&#45; Select &#45;&#45;</option>-->
+                                    <!--{% for designatedapprover in designatedapprover %}-->
+                                        <!--<option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>-->
+                                    <!--{% endfor %}-->
+                                <!--</select>-->
+                            <!--</div>-->
                             <div class="form-group col-sm-3 {{ form.designatedapprover.errors|yesno:'has-error,' }}">
                                 <label class="control-label" for="id_designatedapprover">Approver</label>
                                 <select class="form-control input-sm select2" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>
                                     {% for designatedapprover in designatedapprover %}
-                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        <option value="{{ designatedapprover.user_id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.user_id %} selected="selected" {% endif %}>{{ designatedapprover.firstname }} {{ designatedapprover.lastname }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -191,7 +200,11 @@
                         <div class="row">
                             <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
                                 {% if object.status == 'A' %}
-                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit JV</button>
+                                    {% if object.jvstatus = 'A' %}
+                                    <button type="button" class="btn btn-round btn-success">Approved</button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                    {% endif %}
                                 {% elif object.status == 'C' %}
                                 <button type="button" class="btn btn-round btn-danger">Cancelled JV</button>
                                 {% elif object.status == 'O' %}

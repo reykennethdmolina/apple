@@ -80,7 +80,7 @@
                         </div>
                         <div class="form-group col-sm-4">
                             <label class="control-label small">Department</label>
-                            <select class="form-control input-sm" id="branch">
+                            <select class="form-control input-sm" id="department">
                                 <option value="">-- Select --</option>
                                 {% for data in department %}
                                     <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
@@ -89,7 +89,7 @@
                         </div>
                         <div class="form-group col-sm-4">
                             <label class="control-label small">Product</label>
-                            <select class="form-control input-sm" id="approver">
+                            <select class="form-control input-sm" id="product">
                                 <option value="">-- Select --</option>
                                 {% for data in product %}
                                     <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
@@ -118,18 +118,12 @@ $(function(){
         var report = $('#report_type').val();
         var date_from = $('#dfrom').val();
         var date_to = $('#dto').val();
-        var cvtype = $('#cvtype').val();
-        var cvsubtype = $('#cvsubtype').val();
-        var payee = $('#payee').val();
-        var branch = $('#branch').val();
-        var approver = $('#approver').val();
-        var cvstatus = $('#cvstatus').val();
-        var status = $('#status').val();
-        var atc = $('#atc').val();
-        var inputvattype = $('#inputvattype').val();
-        var vat = $('#vat').val();
-        var bankaccount = $('#bankaccount').val();
-        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
+        var filter = $('#filter').val();
+        var type = $("#type[type='radio']:checked").val();
+        var department = $('#department').val();
+        var product = $('#product').val();
+
+        url = "{% url 'budgetreport:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&filter="+filter+"&type="+type+"&department="+department+"&product="+product;
         $('#result').prop('src', url);
     });
 

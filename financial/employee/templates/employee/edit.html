@@ -99,6 +99,96 @@
                                         <span class="help-block form-error help-block-sm">{{ form.cellphone_subsidize_amount.errors.as_text }}</span>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable Revolving Fund</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_revolving" name="revolving" value="1" {% if form.revolving.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_revolving">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_revolving" name="revolving" value="0" {% if form.revolving.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_revolving">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable AP Approver</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_ap_approver" name="ap_approver" value="1" {% if form.ap_approver.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_ap_approver">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_ap_approver" name="ap_approver" value="0" {% if form.ap_approver.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_ap_approver">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable CV Approver</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_cv_approver" name="cv_approver" value="1" {% if form.cv_approver.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_cv_approver">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_cv_approver" name="cv_approver" value="0" {% if form.cv_approver.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_cv_approver">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable JV Approver</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_jv_approver" name="jv_approver" value="1" {% if form.jv_approver.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_jv_approver">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_jv_approver" name="jv_approver" value="0" {% if form.jv_approver.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_jv_approver">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable OR Approver</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_or_approver" name="or_approver" value="1" {% if form.or_approver.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_revolving">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_or_approver" name="or_approver" value="0" {% if form.or_approver.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_revolving">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 form-group-0 form-group-sm">
+                                    <div class="form-group form-group-5 form-group-sm form-material">
+                                        <label for="id_ctax" class="col-sm-4 col-shrink control-label">Enable CS Approver</label>
+                                        <div class="col-sm-5">
+                                            <div class="radio-custom radio-default radio-inline padding-top-0">
+                                                <input type="radio" id="id_cs_approver" name="cs_approver" value="1" {% if form.cs_approver.value == 1 %} checked="checked" {% endif %}>
+                                                <label for="id_cs_approver">Yes</label>
+                                            </div>
+                                            <div class="radio-custom radio-default radio-inline padding-top-10">
+                                                <input type="radio" id="id_cs_approver" name="cs_approver" value="0" {% if form.cs_approver.value == 0 %} checked="checked" {% endif %}>
+                                                <label for="id_cs_approver">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 {#                                <div class="form-group col-md-12 form-group-0 form-group-sm form-material {{ form.multiplestatus.errors|yesno:'has-error,' }}">#}
 {#                                    <label for="id_multiplestatus" class="col-sm-4 control-label">Multiple Status</label>#}
 {#                                    <div class="col-sm-7">#}

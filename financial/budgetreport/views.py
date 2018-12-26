@@ -122,33 +122,131 @@ class GeneratePDF(View):
             df = pd.DataFrame(data)
 
             if type == '2':
-                for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['deptcode', 'departmentname']):
-                    total_curmon_bud = 0
-                    total_curmon_act = 0
-                    total_curmon_var = 0
-                    total_curyear_bud = 0
-                    total_curyear_act = 0
-                    total_curyear_var = 0
-                    total_prevyear_act = 0
-                    total_prevyear_var = 0
-                    total_prevyear_var_per = 0
-                    for group, chartgroup in department.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['chartgroup']):
-                        counter += 1
-                        accountcode = 0
-                        subtotal_curmon_bud = 0
-                        subtotal_curmon_act = 0
-                        subtotal_curmon_var = 0
-                        subtotal_curyear_bud = 0
-                        subtotal_curyear_act = 0
-                        subtotal_curyear_var = 0
-                        subtotal_prevyear_act = 0
-                        subtotal_prevyear_var = 0
-                        subtotal_prevyear_var_per = 0
-                        for subgroup, chartsubgroup in chartgroup.sort_values(by=['accountcode'], ascending=True).groupby(['chartsubgroup']):
+                if data:
+                    for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['deptcode', 'departmentname']):
+                        total_curmon_bud = 0
+                        total_curmon_act = 0
+                        total_curmon_var = 0
+                        total_curyear_bud = 0
+                        total_curyear_act = 0
+                        total_curyear_var = 0
+                        total_prevyear_act = 0
+                        total_prevyear_var = 0
+                        total_prevyear_var_per = 0
+                        for group, chartgroup in department.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['chartgroup']):
+                            counter += 1
+                            accountcode = 0
+                            subtotal_curmon_bud = 0
+                            subtotal_curmon_act = 0
+                            subtotal_curmon_var = 0
+                            subtotal_curyear_bud = 0
+                            subtotal_curyear_act = 0
+                            subtotal_curyear_var = 0
+                            subtotal_prevyear_act = 0
+                            subtotal_prevyear_var = 0
+                            subtotal_prevyear_var_per = 0
+                            for subgroup, chartsubgroup in chartgroup.sort_values(by=['accountcode'], ascending=True).groupby(['chartsubgroup']):
 
-                            for data, item in chartsubgroup.iterrows():
+                                for data, item in chartsubgroup.iterrows():
 
+                                    budget = getBudget(tomonth, item)
+                                    curmon_var = float(item.actualcurmonamount) - float(budget[0])
+                                    if float(budget[0]):
+                                        curmon_var_per = (float(curmon_var) / float(budget[0])) * 100
+                                    else:
+                                        curmon_var_per = 0
+
+                                    yearcur_var = float(item.actualcuryearamount) - float(budget[1])
+                                    if float(budget[1]):
+                                        yearcur_var_per = (float(yearcur_var) / float(budget[1]))* 100
+                                    else:
+                                        yearcur_var_per = 0
+
+                                    yearprev_var = float(item.actualcuryearamount) - float(item.actualprevyearamount)
+                                    if float(item.actualprevyearamount):
+                                        yearprev_var_per = (float(yearprev_var) / float(item.actualprevyearamount)) * 100
+                                    else:
+                                        yearprev_var_per = 0
+
+                                    new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': item.accountcode,
+                                                     'chartofaccount': item.description, 'deptcode': item.deptcode, 'department': item.departmentname,
+                                                     'curmon_bud': budget[0], 'curmon_act': item.actualcurmonamount, 'curmon_var': curmon_var, 'curmon_var_per': curmon_var_per,
+                                                     'yearcur_bud': budget[1], 'yearcur_act': item.actualcuryearamount, 'yearcur_var': yearcur_var, 'yearcur_var_per': yearcur_var_per,
+                                                     'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per, 'counter': counter})
+
+                                    subtotal_curmon_bud += budget[0]
+                                    subtotal_curmon_act += item.actualcurmonamount
+                                    subtotal_curmon_var += curmon_var
+                                    subtotal_curyear_bud +=  budget[1]
+                                    subtotal_curyear_act += item.actualcuryearamount
+                                    subtotal_curyear_var += yearcur_var
+                                    subtotal_prevyear_act += item.actualprevyearamount
+                                    subtotal_prevyear_var += yearprev_var
+
+                                    total_curmon_bud += budget[0]
+                                    total_curmon_act += item.actualcurmonamount
+                                    total_curmon_var += curmon_var
+                                    total_curyear_bud += budget[1]
+                                    total_curyear_act += item.actualcuryearamount
+                                    total_curyear_var += yearcur_var
+                                    total_prevyear_act += item.actualprevyearamount
+                                    total_prevyear_var += yearprev_var
+
+                            if float(subtotal_curmon_bud):
+                                subtotal_curmon_var_per = (float(subtotal_curmon_var) / float(subtotal_curmon_bud)) * 100
+                            if float(subtotal_curyear_bud):
+                                subtotal_curyear_var_per = (float(subtotal_curyear_var) / float(subtotal_curyear_bud))* 100
+                            if float(subtotal_prevyear_act):
+                                subtotal_prevyear_var_per = (float(subtotal_prevyear_var) / float(subtotal_prevyear_act)) * 100
+
+                            new_list.append({'chartgroup': group, 'chartsubgroup': 'subtotal', 'accountcode': accountcode,
+                                             'chartofaccount': 'subtotal', 'deptcode': dept[0], 'department': dept[1],
+                                             'curmon_bud': subtotal_curmon_bud, 'curmon_act': subtotal_curmon_act, 'curmon_var': subtotal_curmon_var, 'curmon_var_per': subtotal_curmon_var_per,
+                                             'yearcur_bud': subtotal_curyear_bud, 'yearcur_act': subtotal_curyear_act, 'yearcur_var': subtotal_curyear_var, 'yearcur_var_per': subtotal_curyear_var_per,
+                                             'yearprev_act': subtotal_prevyear_act, 'yearprev_var': subtotal_prevyear_var, 'yearprev_var_per': subtotal_prevyear_var_per,
+                                             'counter': counter + 1})
+
+                        if float(total_curmon_bud):
+                            total_curmon_var_per = (float(total_curmon_var) / float(total_curmon_bud)) * 100
+                        if float(total_curyear_bud):
+                            total_curyear_var_per = (float(total_curyear_var) / float(total_curyear_bud)) * 100
+                        if float(total_prevyear_act):
+                            total_prevyear_var_per = (float(total_prevyear_var) / float(total_prevyear_act)) * 100
+
+                        new_list.append({'chartgroup': 'total', 'chartsubgroup': 'total', 'accountcode': accountcode,
+                                         'chartofaccount': 'total', 'deptcode': dept[0], 'department': dept[1],
+                                         'curmon_bud': total_curmon_bud, 'curmon_act': total_curmon_act, 'curmon_var': total_curmon_var, 'curmon_var_per': total_curmon_var_per,
+                                         'yearcur_bud': total_curyear_bud, 'yearcur_act': total_curyear_act, 'yearcur_var': total_curyear_var, 'yearcur_var_per': total_curyear_var_per,
+                                         'yearprev_act': total_prevyear_act, 'yearprev_var': total_prevyear_var, 'yearprev_var_per': total_prevyear_var_per,
+                                         'counter': counter + 1})
+            else:
+                if data:
+                    for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['deptcode', 'departmentname']):
+                        total_curmon_bud = 0
+                        total_curmon_act = 0
+                        total_curmon_var = 0
+                        total_curyear_bud = 0
+                        total_curyear_act = 0
+                        total_curyear_var = 0
+                        total_prevyear_act = 0
+                        total_prevyear_var = 0
+                        total_prevyear_var_per = 0
+                        for group, chartgroup in department.fillna('NaN').sort_values(by=['accountcode'],ascending=True).groupby(['chartgroup']):
+                            counter += 1
+                            accountcode = 0
+                            subtotal_curmon_bud = 0
+                            subtotal_curmon_act = 0
+                            subtotal_curmon_var = 0
+                            subtotal_curyear_bud = 0
+                            subtotal_curyear_act = 0
+                            subtotal_curyear_var = 0
+                            subtotal_prevyear_act = 0
+                            subtotal_prevyear_var = 0
+                            subtotal_prevyear_var_per = 0
+                            for data, item in chartgroup.iterrows():
+                                counter += 1
                                 budget = getBudget(tomonth, item)
+
                                 curmon_var = float(item.actualcurmonamount) - float(budget[0])
                                 if float(budget[0]):
                                     curmon_var_per = (float(curmon_var) / float(budget[0])) * 100
@@ -157,7 +255,7 @@ class GeneratePDF(View):
 
                                 yearcur_var = float(item.actualcuryearamount) - float(budget[1])
                                 if float(budget[1]):
-                                    yearcur_var_per = (float(yearcur_var) / float(budget[1]))* 100
+                                    yearcur_var_per = (float(yearcur_var) / float(budget[1])) * 100
                                 else:
                                     yearcur_var_per = 0
 
@@ -167,8 +265,8 @@ class GeneratePDF(View):
                                 else:
                                     yearprev_var_per = 0
 
-                                new_list.append({'chartgroup': group, 'chartsubgroup': subgroup, 'accountcode': item.accountcode,
-                                                 'chartofaccount': item.description, 'deptcode': item.deptcode, 'department': item.departmentname,
+                                new_list.append({'chartgroup': group, 'chartsubgroup': item.chartsubgroup, 'accountcode': item.accountcode,'chartofaccount': item.description,
+                                                 'deptcode': item.deptcode, 'department': item.departmentname,
                                                  'curmon_bud': budget[0], 'curmon_act': item.actualcurmonamount, 'curmon_var': curmon_var, 'curmon_var_per': curmon_var_per,
                                                  'yearcur_bud': budget[1], 'yearcur_act': item.actualcuryearamount, 'yearcur_var': yearcur_var, 'yearcur_var_per': yearcur_var_per,
                                                  'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per, 'counter': counter})
@@ -176,7 +274,7 @@ class GeneratePDF(View):
                                 subtotal_curmon_bud += budget[0]
                                 subtotal_curmon_act += item.actualcurmonamount
                                 subtotal_curmon_var += curmon_var
-                                subtotal_curyear_bud +=  budget[1]
+                                subtotal_curyear_bud += budget[1]
                                 subtotal_curyear_act += item.actualcuryearamount
                                 subtotal_curyear_var += yearcur_var
                                 subtotal_prevyear_act += item.actualprevyearamount
@@ -191,135 +289,39 @@ class GeneratePDF(View):
                                 total_prevyear_act += item.actualprevyearamount
                                 total_prevyear_var += yearprev_var
 
-                        if float(subtotal_curmon_bud):
-                            subtotal_curmon_var_per = (float(subtotal_curmon_var) / float(subtotal_curmon_bud)) * 100
-                        if float(subtotal_curyear_bud):
-                            subtotal_curyear_var_per = (float(subtotal_curyear_var) / float(subtotal_curyear_bud))* 100
-                        if float(subtotal_prevyear_act):
-                            subtotal_prevyear_var_per = (float(subtotal_prevyear_var) / float(subtotal_prevyear_act)) * 100
+                            if float(subtotal_curmon_bud):
+                                subtotal_curmon_var_per = (float(subtotal_curmon_var) / float(
+                                    subtotal_curmon_bud)) * 100
+                            if float(subtotal_curyear_bud):
+                                subtotal_curyear_var_per = (float(subtotal_curyear_var) / float(
+                                    subtotal_curyear_bud)) * 100
+                            if float(subtotal_prevyear_act):
+                                subtotal_prevyear_var_per = (float(subtotal_prevyear_var) / float(
+                                    subtotal_prevyear_act)) * 100
 
-                        new_list.append({'chartgroup': group, 'chartsubgroup': 'subtotal', 'accountcode': accountcode,
-                                         'chartofaccount': 'subtotal', 'deptcode': dept[0], 'department': dept[1],
-                                         'curmon_bud': subtotal_curmon_bud, 'curmon_act': subtotal_curmon_act, 'curmon_var': subtotal_curmon_var, 'curmon_var_per': subtotal_curmon_var_per,
-                                         'yearcur_bud': subtotal_curyear_bud, 'yearcur_act': subtotal_curyear_act, 'yearcur_var': subtotal_curyear_var, 'yearcur_var_per': subtotal_curyear_var_per,
-                                         'yearprev_act': subtotal_prevyear_act, 'yearprev_var': subtotal_prevyear_var, 'yearprev_var_per': subtotal_prevyear_var_per,
+                            new_list.append({'chartgroup': group, 'chartsubgroup': 'subtotal', 'accountcode': accountcode,
+                                             'chartofaccount': 'subtotal', 'deptcode': dept[0], 'department': dept[1],
+                                             'curmon_bud': subtotal_curmon_bud, 'curmon_act': subtotal_curmon_act,
+                                             'curmon_var': subtotal_curmon_var, 'curmon_var_per': subtotal_curmon_var_per,
+                                             'yearcur_bud': subtotal_curyear_bud, 'yearcur_act': subtotal_curyear_act,
+                                             'yearcur_var': subtotal_curyear_var, 'yearcur_var_per': subtotal_curyear_var_per,
+                                             'yearprev_act': subtotal_prevyear_act, 'yearprev_var': subtotal_prevyear_var,
+                                             'yearprev_var_per': subtotal_prevyear_var_per,
+                                             'counter': counter + 1})
+
+                        if float(total_curmon_bud):
+                            total_curmon_var_per = (float(total_curmon_var) / float(total_curmon_bud)) * 100
+                        if float(total_curyear_bud):
+                            total_curyear_var_per = (float(total_curyear_var) / float(total_curyear_bud)) * 100
+                        if float(total_prevyear_act):
+                            total_prevyear_var_per = (float(total_prevyear_var) / float(total_prevyear_act)) * 100
+
+                        new_list.append({'chartgroup': 'total', 'chartsubgroup': 'total', 'accountcode': accountcode,
+                                         'chartofaccount': 'total', 'deptcode': dept[0], 'department': dept[1],
+                                         'curmon_bud': total_curmon_bud, 'curmon_act': total_curmon_act, 'curmon_var': total_curmon_var, 'curmon_var_per': total_curmon_var_per,
+                                         'yearcur_bud': total_curyear_bud, 'yearcur_act': total_curyear_act, 'yearcur_var': total_curyear_var, 'yearcur_var_per': total_curyear_var_per,
+                                         'yearprev_act': total_prevyear_act, 'yearprev_var': total_prevyear_var, 'yearprev_var_per': total_prevyear_var_per,
                                          'counter': counter + 1})
-
-                    if float(total_curmon_bud):
-                        total_curmon_var_per = (float(total_curmon_var) / float(total_curmon_bud)) * 100
-                    if float(total_curyear_bud):
-                        total_curyear_var_per = (float(total_curyear_var) / float(total_curyear_bud)) * 100
-                    if float(total_prevyear_act):
-                        total_prevyear_var_per = (float(total_prevyear_var) / float(total_prevyear_act)) * 100
-
-                    new_list.append({'chartgroup': 'total', 'chartsubgroup': 'total', 'accountcode': accountcode,
-                                     'chartofaccount': 'total', 'deptcode': dept[0], 'department': dept[1],
-                                     'curmon_bud': total_curmon_bud, 'curmon_act': total_curmon_act, 'curmon_var': total_curmon_var, 'curmon_var_per': total_curmon_var_per,
-                                     'yearcur_bud': total_curyear_bud, 'yearcur_act': total_curyear_act, 'yearcur_var': total_curyear_var, 'yearcur_var_per': total_curyear_var_per,
-                                     'yearprev_act': total_prevyear_act, 'yearprev_var': total_prevyear_var, 'yearprev_var_per': total_prevyear_var_per,
-                                     'counter': counter + 1})
-            else:
-                for dept, department in df.fillna('NaN').sort_values(by=['deptcode', 'chartgroupaccountcode', 'chartsubgroupaccountcode', 'accountcode'], ascending=True).groupby(['deptcode', 'departmentname']):
-                    total_curmon_bud = 0
-                    total_curmon_act = 0
-                    total_curmon_var = 0
-                    total_curyear_bud = 0
-                    total_curyear_act = 0
-                    total_curyear_var = 0
-                    total_prevyear_act = 0
-                    total_prevyear_var = 0
-                    total_prevyear_var_per = 0
-                    for group, chartgroup in department.fillna('NaN').sort_values(by=['accountcode'],ascending=True).groupby(['chartgroup']):
-                        counter += 1
-                        accountcode = 0
-                        subtotal_curmon_bud = 0
-                        subtotal_curmon_act = 0
-                        subtotal_curmon_var = 0
-                        subtotal_curyear_bud = 0
-                        subtotal_curyear_act = 0
-                        subtotal_curyear_var = 0
-                        subtotal_prevyear_act = 0
-                        subtotal_prevyear_var = 0
-                        subtotal_prevyear_var_per = 0
-                        for data, item in chartgroup.iterrows():
-                            counter += 1
-                            budget = getBudget(tomonth, item)
-
-                            curmon_var = float(item.actualcurmonamount) - float(budget[0])
-                            if float(budget[0]):
-                                curmon_var_per = (float(curmon_var) / float(budget[0])) * 100
-                            else:
-                                curmon_var_per = 0
-
-                            yearcur_var = float(item.actualcuryearamount) - float(budget[1])
-                            if float(budget[1]):
-                                yearcur_var_per = (float(yearcur_var) / float(budget[1])) * 100
-                            else:
-                                yearcur_var_per = 0
-
-                            yearprev_var = float(item.actualcuryearamount) - float(item.actualprevyearamount)
-                            if float(item.actualprevyearamount):
-                                yearprev_var_per = (float(yearprev_var) / float(item.actualprevyearamount)) * 100
-                            else:
-                                yearprev_var_per = 0
-
-                            new_list.append({'chartgroup': group, 'chartsubgroup': item.chartsubgroup, 'accountcode': item.accountcode,'chartofaccount': item.description,
-                                             'deptcode': item.deptcode, 'department': item.departmentname,
-                                             'curmon_bud': budget[0], 'curmon_act': item.actualcurmonamount, 'curmon_var': curmon_var, 'curmon_var_per': curmon_var_per,
-                                             'yearcur_bud': budget[1], 'yearcur_act': item.actualcuryearamount, 'yearcur_var': yearcur_var, 'yearcur_var_per': yearcur_var_per,
-                                             'yearprev_act': item.actualprevyearamount, 'yearprev_var': yearprev_var, 'yearprev_var_per': yearprev_var_per, 'counter': counter})
-
-                            subtotal_curmon_bud += budget[0]
-                            subtotal_curmon_act += item.actualcurmonamount
-                            subtotal_curmon_var += curmon_var
-                            subtotal_curyear_bud += budget[1]
-                            subtotal_curyear_act += item.actualcuryearamount
-                            subtotal_curyear_var += yearcur_var
-                            subtotal_prevyear_act += item.actualprevyearamount
-                            subtotal_prevyear_var += yearprev_var
-
-                            total_curmon_bud += budget[0]
-                            total_curmon_act += item.actualcurmonamount
-                            total_curmon_var += curmon_var
-                            total_curyear_bud += budget[1]
-                            total_curyear_act += item.actualcuryearamount
-                            total_curyear_var += yearcur_var
-                            total_prevyear_act += item.actualprevyearamount
-                            total_prevyear_var += yearprev_var
-
-                        if float(subtotal_curmon_bud):
-                            subtotal_curmon_var_per = (float(subtotal_curmon_var) / float(
-                                subtotal_curmon_bud)) * 100
-                        if float(subtotal_curyear_bud):
-                            subtotal_curyear_var_per = (float(subtotal_curyear_var) / float(
-                                subtotal_curyear_bud)) * 100
-                        if float(subtotal_prevyear_act):
-                            subtotal_prevyear_var_per = (float(subtotal_prevyear_var) / float(
-                                subtotal_prevyear_act)) * 100
-
-                        new_list.append({'chartgroup': group, 'chartsubgroup': 'subtotal', 'accountcode': accountcode,
-                                         'chartofaccount': 'subtotal', 'deptcode': dept[0], 'department': dept[1],
-                                         'curmon_bud': subtotal_curmon_bud, 'curmon_act': subtotal_curmon_act,
-                                         'curmon_var': subtotal_curmon_var, 'curmon_var_per': subtotal_curmon_var_per,
-                                         'yearcur_bud': subtotal_curyear_bud, 'yearcur_act': subtotal_curyear_act,
-                                         'yearcur_var': subtotal_curyear_var, 'yearcur_var_per': subtotal_curyear_var_per,
-                                         'yearprev_act': subtotal_prevyear_act, 'yearprev_var': subtotal_prevyear_var,
-                                         'yearprev_var_per': subtotal_prevyear_var_per,
-                                         'counter': counter + 1})
-
-                    if float(total_curmon_bud):
-                        total_curmon_var_per = (float(total_curmon_var) / float(total_curmon_bud)) * 100
-                    if float(total_curyear_bud):
-                        total_curyear_var_per = (float(total_curyear_var) / float(total_curyear_bud)) * 100
-                    if float(total_prevyear_act):
-                        total_prevyear_var_per = (float(total_prevyear_var) / float(total_prevyear_act)) * 100
-
-                    new_list.append({'chartgroup': 'total', 'chartsubgroup': 'total', 'accountcode': accountcode,
-                                     'chartofaccount': 'total', 'deptcode': dept[0], 'department': dept[1],
-                                     'curmon_bud': total_curmon_bud, 'curmon_act': total_curmon_act, 'curmon_var': total_curmon_var, 'curmon_var_per': total_curmon_var_per,
-                                     'yearcur_bud': total_curyear_bud, 'yearcur_act': total_curyear_act, 'yearcur_var': total_curyear_var, 'yearcur_var_per': total_curyear_var_per,
-                                     'yearprev_act': total_prevyear_act, 'yearprev_var': total_prevyear_var, 'yearprev_var_per': total_prevyear_var_per,
-                                     'counter': counter + 1})
 
         context = {
             "title": title,
@@ -394,23 +396,34 @@ def getBudget(tomonth, item):
     return [monbudget, yearbudget]
 
 def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear, tomonth, department, product):
-
     prevyear = int(toyear) - 1
     condepartment = ""
     condepartment2 = ""
+    conbudgroup = ""
     conproduc = ""
     contype = ""
+    confilter = ""
+
+    if filter == '1':
+        confilter = "AND chart.main = 5 AND chart.clas = 1"
+    elif filter == '2':
+        confilter = "AND chart.main = 5 AND chart.clas = 2"
+    else:
+        confilter = "AND chart.main = 5 AND chart.clas = 3"
+
     if department:
-        condepartment = "AND deptbud.department_id IN (48,22)"
-        condepartment2 = "AND acctbal.department_id IN (48,22)"
-        #condepartment = "AND deptbud.department_id = "+str(department)+" "
-        #condepartment2 = "AND acctbal.department_id = "+str(department)+" "
+        #condepartment = "AND deptbud.department_id IN (48,22)"
+        #condepartment2 = "AND acctbal.department_id IN (48,22)"
+        condepartment = "AND deptbud.department_id = "+str(department)+" "
+        condepartment2 = "AND acctbal.department_id = "+str(department)+" "
     if type == '2':
         print 'detailed'
         contype = "GROUP BY z.chartgroup, z.chartsubgroup, z.accountcode, z.deptcode"
+        conbudgroup = "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code"
     elif type == '1':
         print 'summary'
         contype = "GROUP BY z.chartgroup, z.chartsubgroup, z.deptcode"
+        conbudgroup = "GROUP BY chartgroup.title, chartsubgroup.title, dept.code"
 
     print "raw query"
     ''' Create query '''
@@ -426,8 +439,8 @@ def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear,
             "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
             "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
             "dept.code AS deptcode, dept.departmentname, deptbud.year, " \
-            "deptbud.mjan, deptbud.mfeb, deptbud.mmar, deptbud.mapr,  deptbud.mmay,  deptbud.mjun, " \
-            "deptbud.mjul, deptbud.maug, deptbud.msep, deptbud.moct, deptbud.mnov, deptbud.mdec, " \
+            "SUM(deptbud.mjan) AS mjan, SUM(deptbud.mfeb) AS mfeb, SUM(deptbud.mmar) AS mmar, SUM(deptbud.mapr) AS mapr,  SUM(deptbud.mmay) AS mmay,  SUM(deptbud.mjun) AS mjun, " \
+            "SUM(deptbud.mjul) AS mjul, SUM(deptbud.maug) AS maug, SUM(deptbud.msep) AS msep, SUM(deptbud.moct) AS moct, SUM(deptbud.mnov) AS mnov, SUM(deptbud.mdec) AS mdec, " \
             "actualcurmon.year AS actualcurmonyear, actualcurmon.month AS actualcurmonmonth, actualcurmon.amount AS actualcurmonamount, " \
             "'' AS actualcuryear, 0 AS actualcuryearamount, " \
             "'' AS actualprevyear, 0 AS actualprevyearamount " \
@@ -447,6 +460,8 @@ def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear,
             "GROUP BY a.chartofaccount_id, a.department_id " \
             ") AS actualcurmon ON (actualcurmon.chartofaccount_id = deptbud.chartofaccount_id AND actualcurmon.department_id = deptbud.department_id) " \
             "WHERE deptbud.isdeleted = 0 "+str(condepartment)+" " \
+            " "+str(confilter)+" " \
+            " "+str(conbudgroup)+" " \
             "UNION " \
             "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
             "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
@@ -466,16 +481,16 @@ def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear,
             "AND chartsubgroup.item = chart.item AND chartsubgroup.cont = chart.cont " \
             "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
             "LEFT OUTER JOIN (" \
-            "SELECT a.id, a.year, a.month, (IF (a.code = 'C', (a.amount * -1), a.amount)) AS amount, a.code, a.chartofaccount_id, a.department_id " \
-            "FROM accountexpensebalance AS a " \
-            "WHERE a.year = 2018 AND a.month = 3 AND a.department_id = 48 " \
-            "AND a.chartofaccount_id NOT IN(SELECT DISTINCT(chart.id) FROM chartofaccount AS chart " \
-            "INNER JOIN departmentbudget AS deptbud ON deptbud.chartofaccount_id = chart.id WHERE a.isdeleted = 0 "+str(condepartment)+") " \
-            "GROUP BY a.chartofaccount_id, a.department_id) AS actualcurmon ON (actualcurmon.chartofaccount_id = acctbal.chartofaccount_id AND actualcurmon.department_id = acctbal.department_id)	 " \
+            "SELECT acctbal.id, acctbal.year, acctbal.month, (IF (acctbal.code = 'C', (acctbal.amount * -1), acctbal.amount)) AS amount, acctbal.code, acctbal.chartofaccount_id, acctbal.department_id " \
+            "FROM accountexpensebalance AS acctbal " \
+            "WHERE acctbal.year = "+str(fromyear)+" AND acctbal.month = "+str(frommonth)+" "+str(condepartment2)+" " \
+            "AND acctbal.chartofaccount_id NOT IN(SELECT DISTINCT(chart.id) FROM chartofaccount AS chart " \
+            "INNER JOIN departmentbudget AS deptbud ON deptbud.chartofaccount_id = chart.id WHERE acctbal.isdeleted = 0 "+str(condepartment)+") " \
+            "GROUP BY acctbal.chartofaccount_id, acctbal.department_id) AS actualcurmon ON (actualcurmon.chartofaccount_id = acctbal.chartofaccount_id AND actualcurmon.department_id = acctbal.department_id)	 " \
             "WHERE acctbal.year >= "+str(fromyear)+" AND acctbal.year <= "+str(toyear)+" " \
             "AND acctbal.month >= "+str(frommonth)+" AND acctbal.month <= "+str(tomonth)+" " \
+            " "+str(confilter)+" " \
             " "+str(condepartment2)+" " \
-            "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code " \
             "UNION " \
             "SELECT chartgroup.title AS chartgroup, chartgroup.accountcode AS chartgroupaccountcode, chartsubgroup.title AS chartsubgroup, chartsubgroup.accountcode AS chartsubgroupaccountcode, " \
             "chart.main, chart.clas, chart.item, chart.cont, chart.sub, chart.accountcode, chart.description, " \
@@ -496,11 +511,14 @@ def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear,
             "AND chartsubgroup.sub = RPAD(SUBSTR(chart.sub, 1, 1), 6, 0)) " \
             "WHERE acctbal.year >= "+str(prevyear)+" AND acctbal.year <= "+str(prevyear)+" " \
             "AND acctbal.month >= "+str(frommonth)+" AND acctbal.month <= "+str(tomonth)+" " \
+            " "+str(confilter)+" " \
             " "+str(condepartment2)+" " \
             "GROUP BY chartgroup.title, chartsubgroup.title, chart.accountcode, dept.code) AS z " \
             "WHERE z.chartgroup IS NOT NULL " \
             " "+str(contype)+" " \
             "ORDER BY z.deptcode, z.accountcode , z.chartgroup, z.chartsubgroup"
+
+    print query
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)

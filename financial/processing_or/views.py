@@ -992,7 +992,7 @@ def exportsave(request):
                                 ordate=temp_ordate,
                                 creditamount=data.amount,
                                 balancecode='C',
-                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_subsrev.pk,
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_unsubscribe.pk,
                                 batchkey=data.batchkey,
                                 postingremarks='Processing...',
                             ).save()
