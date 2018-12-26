@@ -33,7 +33,12 @@
                         {% elif data.jvstatus == 'F' %} text-info
                         {% elif data.jvstatus == 'R' %} text-success
                         {% endif %}">
-                    <b>{{ data.get_jvstatus_display }}</b>
+                    <b> {% if data.status != 'C' %}
+                        {{ data.get_jvstatus_display }}
+                        {% else %}
+                        <span class="text-danger">CANCELLED</span>
+                        {% endif %}
+                    </b>
                 </td>
                 <td>
                     <div class="text-center">
