@@ -525,7 +525,6 @@ class UpdateView(UpdateView):
         mainid = self.object.id
         num = self.object.ornum
         secretkey = self.request.POST['secretkey']
-
         ormaindate = self.object.ordate
 
         updatedetail(source, mainid, num, secretkey, self.request.user, ormaindate)

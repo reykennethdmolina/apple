@@ -178,7 +178,7 @@ class CreateView(CreateView):
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
-        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
 
         #lookup
@@ -393,7 +393,7 @@ class UpdateView(UpdateView):
         context['aptype'] = Aptype.objects.filter(isdeleted=0).order_by('code')
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = self.object.pk
-        context['designatedapprover'] = User.objects.filter(is_active=1).order_by('first_name')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['originalapstatus'] = Apmain.objects.get(pk=self.object.id).apstatus
         context['actualapprover'] = None if Apmain.objects.get(
             pk=self.object.id).actualapprover is None else Apmain.objects.get(pk=self.object.id).actualapprover.id

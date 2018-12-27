@@ -142,7 +142,7 @@
                                 <select class="form-control input-sm" data-validation="required" id="id_designatedapprover" name="designatedapprover">
                                     <option value="">-- Select --</option>
                                     {% for designatedapprover in designatedapprover %}
-                                        <option value="{{ designatedapprover.id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.id %} selected="selected" {% endif %}>{{ designatedapprover.first_name }} {{ designatedapprover.last_name }}</option>
+                                        <option value="{{ designatedapprover.user_id }}" {% if form.designatedapprover.value|add:0 == designatedapprover.user_id %} selected="selected" {% endif %}>{{ designatedapprover.firstname }} {{ designatedapprover.lastname }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
