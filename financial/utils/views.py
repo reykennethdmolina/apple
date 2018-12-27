@@ -255,6 +255,9 @@ def ajaxSearch(request):
                 items = items.filter(currency=int(request.POST['cache_currency']))
             if request.POST['cache_particulars']:
                 items = items.filter(particular__icontains=str(request.POST['cache_particulars']))
+            if request.POST['cache_approver']:
+                #print request.POST['cache_approver']
+                items = items.filter(designatedapprover_id=int(request.POST['cache_approver']))
 
         elif request.POST['table'] == "ofmain":
             items = Ofmain.objects.all().filter(isdeleted=0).order_by('pk')

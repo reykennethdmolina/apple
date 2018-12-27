@@ -32,7 +32,9 @@
                         {% elif data.jvstatus == 'D' %} text-danger
                         {% elif data.jvstatus == 'F' %} text-info
                         {% elif data.jvstatus == 'R' %} text-success
-                        {% endif %}">
+                        {% endif %}"
+                    id="status{{ data.id }}"
+                >
                     <b> {% if data.status != 'C' %}
                         {{ data.get_jvstatus_display }}
                         {% else %}
@@ -50,19 +52,21 @@
                         {% else %}
                             {% if data.jvstatus != 'R' %}
                                 {% if data.jvstatus != 'A' and data.status != 'C' %}
-                                <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" data-id={{ data.id }}>
+                                <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" id="btnA{{ data.id }}" data-id={{ data.id }}>
                                 <i class="icon fa-check" aria-hidden="true"></i>
                                 </button>
                                 {% endif %}
                                 {% if data.jvstatus != 'D' and data.status != 'C' %}
-                                <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
+                                <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" id="btnD{{ data.id }}" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
                                 <i class="icon fa-remove" aria-hidden="true"></i>
                                 </button>
                                 {% endif %}
                             {% else %}
-                            <button class="btn btns-icon btn-warning btn-round waves-effect waves-light btn-removereadytopost" data-num={{ data.jvnum }} data-id={{ data.id }}>
-                            <i class="icon fa-unlock-alt" aria-hidden="true"></i>
-                            </button>
+                                {% if perms.journalvoucher.can_postjv %}
+                                <button class="btn btns-icon btn-warning btn-round waves-effect waves-light btn-removereadytopost" id="btnRP{{ data.id }}" data-num={{ data.jvnum }} data-id={{ data.id }}>
+                                <i class="icon fa-unlock-alt" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     {% endif %}
@@ -101,7 +105,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <button type="button" class="close" id="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Disapproved Journal Voucher</h4>
                 </div>
                 <div class="modal-body" style="overflow:hidden;">
@@ -139,12 +143,15 @@
 
         $('.btn-approve').on('click', function(){
             if (confirm('Are you sure you want to approved this JV?')) {
+                var id = $(this).data('id');
                  $.ajax({
                     url: "{% url 'journalvoucher:approve' %}",
                     type: "post",
                     data: {'id': $(this).data('id')},
                     success: function(response) {
-                        location.reload();
+                        $('#btnA'+id).hide();
+                        $('#btnD'+id).hide();
+                        $('#status'+id).text('Approved').addClass('success');
                     },
                     error: function(response) {
                         console.debug(response);
@@ -193,7 +200,10 @@
                 type: "post",
                 data: {'id': id, 'reason': reason},
                 success: function(response) {
-                    location.reload();
+                    $('#btnA'+id).hide();
+                        $('#btnD'+id).hide();
+                        $('#status'+id).text('Disapproved').addClass('success');
+                        $('#close').trigger('click');
                 },
                 error: function(response) {
                     console.debug(response);

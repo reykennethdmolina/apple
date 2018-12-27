@@ -68,6 +68,7 @@ class IndexView(AjaxListView):
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('description')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname')
         context['pk'] = 0
 
         return context
