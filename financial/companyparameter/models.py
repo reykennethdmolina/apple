@@ -99,6 +99,7 @@ class Companyparameter(models.Model):
                                              blank=True, null=True)
 
     enable_manual_jv = models.IntegerField(null=True)
+    enable_manual_cv = models.IntegerField(null=True)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')

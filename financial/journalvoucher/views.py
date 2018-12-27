@@ -598,7 +598,7 @@ def approve(request):
         if (approval.jvstatus != 'R' and approval.status != 'O'):
             approval.jvstatus = 'A'
             approval.responsedate = str(datetime.datetime.now())
-            approval.approverremarks = approval.approverremarks +';'+ 'Approved'
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
             approval.actualapprover = User.objects.get(pk=request.user.id)
             approval.save()
             data = {'status': 'success'}
@@ -616,8 +616,36 @@ def disapprove(request):
         if (approval.jvstatus != 'R' and approval.status != 'O'):
             approval.jvstatus = 'D'
             approval.responsedate = str(datetime.datetime.now())
-            approval.approverremarks = approval.approverremarks +';'+ request.POST['reason']
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
             approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Jvmain.objects.filter(pk__in=ids).update(jvstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gounpost(request):
+    if request.method == 'POST':
+        approval = Jvmain.objects.get(pk=request.POST['id'])
+        if (approval.jvstatus == 'R' and approval.status != 'O'):
+            approval.jvstatus = 'A'
             approval.save()
             data = {'status': 'success'}
         else:
@@ -1538,3 +1566,31 @@ class GeneratePDF(View):
             return Render.render('journalvoucher/report/report_4.html', context)
         else:
             return Render.render('journalvoucher/report/report_1.html', context)
+
+@csrf_exempt
+def searchforposting(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Jvmain.objects.filter(isdeleted=0,status='A',jvstatus='A').order_by('jvnum', 'jvdate')
+        if dfrom != '':
+            q = q.filter(jvdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(jvdate__lte=dto)
+
+        print q
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('journalvoucher/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)

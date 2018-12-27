@@ -16,4 +16,7 @@ urlpatterns = [
     url(r'^release/$', views.release, name='release'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
+    url(r'^gopost/$', views.gopost, name='gopost'),
+    url(r'^gounpost/$', views.gounpost, name='gounpost'),
 ]

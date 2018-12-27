@@ -40,7 +40,7 @@ class Jvmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('R', 'Released'),
+        ('R', 'Ready for Posting'),
     )
 
     jvstatus = models.CharField(max_length=1, choices=JV_STATUS_CHOICES, default='F')

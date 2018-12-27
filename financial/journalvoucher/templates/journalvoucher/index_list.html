@@ -42,20 +42,28 @@
                 </td>
                 <td>
                     <div class="text-center">
-                    {% if data.status == 'O' %}
-                        <button class="btn btns-icon btn-info btn-round waves-effect waves-light">
-                        <i class="icon fa-lock" aria-hidden="true"></i>
-                        </button>
-                    {% else %}
-                        {% if data.jvstatus != 'A' and data.status != 'C' %}
-                        <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" data-id={{ data.id }}>
-                        <i class="icon fa-check" aria-hidden="true"></i>
-                        </button>
-                        {% endif %}
-                        {% if data.jvstatus != 'D' and data.status != 'C' %}
-                        <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
-                        <i class="icon fa-remove" aria-hidden="true"></i>
-                        </button>
+                    {% if data.actualapprover_id == user.id or data.designatedapprover.id == user.id or user.is_superuser %}
+                        {% if data.status == 'O' %}
+                            <button class="btn btns-icon btn-info btn-round waves-effect waves-light">
+                            <i class="icon fa-lock" aria-hidden="true"></i>
+                            </button>
+                        {% else %}
+                            {% if data.jvstatus != 'R' %}
+                                {% if data.jvstatus != 'A' and data.status != 'C' %}
+                                <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve" data-id={{ data.id }}>
+                                <i class="icon fa-check" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
+                                {% if data.jvstatus != 'D' and data.status != 'C' %}
+                                <button class="btn btns-icon btn-danger btn-round waves-effect waves-light btn-disapprove" data-num={{ data.jvnum }} data-id={{ data.id }} data-toggle='modal' data-target='#disapprovedModal'>
+                                <i class="icon fa-remove" aria-hidden="true"></i>
+                                </button>
+                                {% endif %}
+                            {% else %}
+                            <button class="btn btns-icon btn-warning btn-round waves-effect waves-light btn-removereadytopost" data-num={{ data.jvnum }} data-id={{ data.id }}>
+                            <i class="icon fa-unlock-alt" aria-hidden="true"></i>
+                            </button>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                     </div>
@@ -133,6 +141,24 @@
             if (confirm('Are you sure you want to approved this JV?')) {
                  $.ajax({
                     url: "{% url 'journalvoucher:approve' %}",
+                    type: "post",
+                    data: {'id': $(this).data('id')},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $('.btn-removereadytopost').on('click', function(){
+            if (confirm('Are you sure you want to reopen this transaction?')) {
+                var id = $(this).data('id');
+                console.log(id);
+                 $.ajax({
+                    url: "{% url 'journalvoucher:gounpost' %}",
                     type: "post",
                     data: {'id': $(this).data('id')},
                     success: function(response) {

@@ -1,0 +1,111 @@
+<style>
+    .select2-container{
+        width: 100% !important;
+    }
+</style>
+<div id="postingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="shade"><div class="loader two-color"></div></div>
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="row">
+                    <div class="form-group col-sm-7 margin-bottom-0">
+                        <label class="control-label small">Journal Voucher Date</label><br>
+                        <div class="input-daterange datarange">
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                <input type="text" class="form-control input-sm datepickerfrom" id="posting_jvdate_from">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon input-sm">to</span>
+                                <input type="text" class="form-control input-sm datepickerto" id="posting_jvdate_to">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 margin-bottom-0">
+                        <label class="control-label small"></label><br>
+                        <button type="button" class="btn btn-info btn-sm" id="jvposting_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
+                    </div>
+                </div>
+                <br><strong>Journal Voucher Ready for Posting</strong>
+                <button type="button" class="btn btn-round btn-success btn-sm" id="gopost">Ready for Posting</button>
+                <br><br>
+                <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th scope="row"><input type="checkbox" id="checkAll"></th>
+                          <td scope="row">JV Num</td>
+                          <td scope="row">JV Date</td>
+                          <td scope="row">Creator</td>
+                          <td scope="row">Approver</td>
+                        </tr>
+                      </thead>
+                        <tbody id="postingresult">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="payee-danger" class="custom-alert danger">No results found.</div>
+{% load staticfiles %}
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script>
+    $(function() {
+        $('#jvposting_search').on('click', function() {
+            loadData();
+        });
+
+        function loadData()
+        {
+            $.ajax({
+                url: "{% url 'journalvoucher:searchforposting' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'dfrom': $('#posting_jvdate_from').val(),
+                       'dto': $('#posting_jvdate_to').val(),
+                       },
+                success: function(response){
+                    $("#postingresult").html(response['viewhtml']);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
+        $("#checkAll").click(function () {
+            $(".check").prop('checked', $(this).prop('checked'));
+        });
+
+        $('#gopost').on('click', function() {
+            var selected_value = [];
+            $(".check:checked").each(function(){
+                selected_value.push($(this).val());
+            });
+
+            if (!Array.isArray(selected_value) || !selected_value.length) {
+                alert('No selected item!');
+            } else {
+                $.ajax({
+                    url: "{% url 'journalvoucher:gopost' %}",
+                    type: "post",
+                    data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                           'ids': selected_value,
+                           },
+                    success: function(response){
+                        loadData();
+                        alert('Data set for posting is success. This window will reload!');
+                        location.reload();
+                    }, error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+    });
+</script>
