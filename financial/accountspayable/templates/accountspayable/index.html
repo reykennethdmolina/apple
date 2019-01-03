@@ -22,7 +22,11 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
-
+                    {% if perms.accountspayable.can_postcv %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Ready For Posting
+                        </button>
+                    {% endif %}
                     {% if perms.accountspayable.change_apmain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
                             <i class="icon fa-search" aria-hidden="true"></i> Lookup
@@ -49,6 +53,7 @@
     </div>
 </div>
 {% include "accountspayable/search.html" %}
+{% include "accountspayable/posting.html" %}
 {% endblock page-content %}
 {% load staticfiles %}
 {% block extra_js %}
@@ -58,6 +63,11 @@
 <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
 <script>
 $(function () {
+    $('#posting').on('click', function() {
+        $('#postingresult').html('');
+        $('#checkAll').prop("checked", false);
+        $('#postdate').val('');
+    });
     // ajax search and pagination
     $('#searchBtn').on('click', function(){
         $('.shade').fadeIn();

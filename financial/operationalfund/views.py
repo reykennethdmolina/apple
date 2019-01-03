@@ -2169,7 +2169,9 @@ def gopost(request):
 
                 detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
                 counter = 1
+                amount = 0
                 for item  in detail:
+                    amount += item.debitamount
                     Apdetail.objects.create(
                         apmain_id = main.id,
                         ap_num = main.apnum,
@@ -2201,6 +2203,9 @@ def gopost(request):
                         modifydate = datetime.datetime.now()
                     )
                     counter += 1
+
+                main.amount = amount
+                main.save()
 
                 ofmain = Ofmain.objects.filter(id=of.pk).update(
                     apmain_id = main.id,

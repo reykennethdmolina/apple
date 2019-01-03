@@ -1,0 +1,9 @@
+{% for item in data %}
+<tr>
+  <th><input type="checkbox" class="check" value={{ item.id }}></th>
+  <td>{{ item.ornum }}</td>
+  <td>{{ item.ordate|date:'Y-m-d' }}</td>
+  <td>{{ item.enterby }}</td>
+  <td>{{ item.designatedapprover.first_name }}&nbsp;{{ item.designatedapprover.last_name }}</td>
+</tr>
+{% endfor %}

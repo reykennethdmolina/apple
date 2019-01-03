@@ -200,8 +200,10 @@
                         <div class="row">
                             <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
                                 {% if object.status == 'A' %}
-                                    {% if object.jvstatus = 'A' %}
-                                    <button type="button" class="btn btn-round btn-success">Approved</button>
+                                    {% if object.jvstatus == 'A' %}
+                                    <button type="button" class="btn btn-round btn-info">Approved</button>
+                                    {% elif object.jvstatus == 'R' %}
+                                    <button type="button" class="btn btn-round btn-info">Ready for Posting</button>
                                     {% else %}
                                     <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                                     {% endif %}

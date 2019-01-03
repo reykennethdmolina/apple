@@ -388,7 +388,19 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
-                            <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                            {% if object.status == 'A' %}
+                                {% if object.orstatus == 'A' %}
+                                <button type="button" class="btn btn-round btn-info">Approved</button>
+                                {% elif object.orstatus == 'R' %}
+                                <button type="button" class="btn btn-round btn-info">Ready for Posting</button>
+                                {% else %}
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                {% endif %}
+                            {% elif object.status == 'C' %}
+                            <button type="button" class="btn btn-round btn-danger">Cancelled JV</button>
+                            {% elif object.status == 'O' %}
+                            <button type="button" class="btn btn-round btn-info">Posted JV</button>
+                            {% endif %}
                         </div>
                         <div class="col-sm-6 padding-top-15 padding-bottom-15">
                             <button type="button" class="btn btn-round btn-info btn-sm waves-effect waves-light floatright" id="manualbutton"><i class="icon fa-plus-square" aria-hidden="true"></i> Manual Entry</button>

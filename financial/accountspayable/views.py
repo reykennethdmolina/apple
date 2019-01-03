@@ -84,6 +84,7 @@ class IndexView(AjaxListView):
         context['atax'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname')
         context['pk'] = 0
 
         return context
@@ -283,7 +284,7 @@ class UpdateView(UpdateView):
               'bankaccount', 'vat', 'atax',
               'inputvattype', 'creditterm', 'duedate',
               'refno', 'deferred', 'particulars', 'remarks',
-              'currency', 'fxrate', 'designatedapprover']
+              'currency', 'fxrate', 'designatedapprover', 'apstatus']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('accountspayable.change_apmain'):
@@ -672,54 +673,103 @@ class Pdf(PDFTemplateView):
         return context
 
 
+# @csrf_exempt
+# def approve(request):
+#     if request.method == 'POST':
+#         ap_for_approval = Apmain.objects.get(apnum=request.POST['apnum'])
+#         if request.user.has_perm('accountspayable.approve_allap') or \
+#                 request.user.has_perm('accountspayable.approve_assignedap'):
+#             if request.user.has_perm('accountspayable.approve_allap') or \
+#                     (request.user.has_perm('accountspayable.approve_assignedap') and
+#                              ap_for_approval.designatedapprover == request.user):
+#                 print "back to in-process = " + str(request.POST['backtoinprocess'])
+#                 if request.POST['originalapstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+#                     ap_for_approval.apstatus = request.POST['approverresponse']
+#                     ap_for_approval.isdeleted = 0
+#                     if request.POST['approverresponse'] == 'D':
+#                         ap_for_approval.status = 'C'
+#                     else:
+#                         ap_for_approval.status = 'A'
+#                     ap_for_approval.approverresponse = request.POST['approverresponse']
+#                     ap_for_approval.responsedate = request.POST['responsedate']
+#                     ap_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+#                     ap_for_approval.approverremarks = request.POST['approverremarks']
+#                     ap_for_approval.releaseby = None
+#                     ap_for_approval.releasedate = None
+#                     ap_for_approval.save()
+#                     data = {
+#                         'status': 'success',
+#                         'apnum': ap_for_approval.apnum,
+#                         'newapstatus': ap_for_approval.apstatus,
+#                     }
+#                 else:
+#                     data = {
+#                         'status': 'error',
+#                     }
+#             else:
+#                 data = {
+#                     'status': 'error',
+#                 }
+#         else:
+#             data = {
+#                 'status': 'error',
+#             }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#
+#     return JsonResponse(data)
+
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
-        ap_for_approval = Apmain.objects.get(apnum=request.POST['apnum'])
-        if request.user.has_perm('accountspayable.approve_allap') or \
-                request.user.has_perm('accountspayable.approve_assignedap'):
-            if request.user.has_perm('accountspayable.approve_allap') or \
-                    (request.user.has_perm('accountspayable.approve_assignedap') and
-                             ap_for_approval.designatedapprover == request.user):
-                print "back to in-process = " + str(request.POST['backtoinprocess'])
-                if request.POST['originalapstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
-                    ap_for_approval.apstatus = request.POST['approverresponse']
-                    ap_for_approval.isdeleted = 0
-                    if request.POST['approverresponse'] == 'D':
-                        ap_for_approval.status = 'C'
-                    else:
-                        ap_for_approval.status = 'A'
-                    ap_for_approval.approverresponse = request.POST['approverresponse']
-                    ap_for_approval.responsedate = request.POST['responsedate']
-                    ap_for_approval.actualapprover = User.objects.get(pk=request.user.id)
-                    ap_for_approval.approverremarks = request.POST['approverremarks']
-                    ap_for_approval.releaseby = None
-                    ap_for_approval.releasedate = None
-                    ap_for_approval.save()
-                    data = {
-                        'status': 'success',
-                        'apnum': ap_for_approval.apnum,
-                        'newapstatus': ap_for_approval.apstatus,
-                    }
-                else:
-                    data = {
-                        'status': 'error',
-                    }
-            else:
-                data = {
-                    'status': 'error',
-                }
+        approval = Apmain.objects.get(pk=request.POST['id'])
+
+        if (approval.apstatus != 'R' and approval.status != 'O'):
+            approval.apstatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
         else:
-            data = {
-                'status': 'error',
-            }
+            data = {'status': 'error'}
     else:
-        data = {
-            'status': 'error',
-        }
+        data = { 'status': 'error' }
 
     return JsonResponse(data)
 
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Apmain.objects.get(pk=request.POST['id'])
+        if (approval.apstatus != 'R' and approval.status != 'O'):
+            approval.apstatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Apmain.objects.filter(pk__in=ids).update(apstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def release(request):
@@ -743,6 +793,20 @@ def release(request):
         }
     return JsonResponse(data)
 
+@csrf_exempt
+def gounpost(request):
+    if request.method == 'POST':
+        approval = Apmain.objects.get(pk=request.POST['id'])
+        if (approval.apstatus == 'R' and approval.status != 'O'):
+            approval.apstatus = 'A'
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def importreprfv(request):
@@ -2043,4 +2107,31 @@ class GeneratePDF(View):
             return Render.render('accountspayable/report/report_4.html', context)
         else:
             return Render.render('accountspayable/report/report_1.html', context)
+
+@csrf_exempt
+def searchforposting(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Apmain.objects.filter(isdeleted=0,status='A',apstatus='A').order_by('apnum', 'apdate')
+        if dfrom != '':
+            q = q.filter(apdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(apdate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('accountspayable/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
 

@@ -1041,6 +1041,7 @@ def exportsave(request):
                         collector=Collector.objects.get(code=temp_ormain.collectorcode),
                         collector_code=temp_ormain.collectorcode,
                         collector_name=temp_ormain.collectordesc,
+                        designatedapprover_id= 7, # default sir jhun
                         enterby=request.user,
                         modifyby=request.user,
                         ortype=Ortype.objects.get(code=ortype_accounttype.upper()),

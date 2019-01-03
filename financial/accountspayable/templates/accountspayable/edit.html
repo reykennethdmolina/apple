@@ -274,33 +274,14 @@
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_apstatus">APV Status</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_apstatus" name="apstatus">
-                                    {% if originalapstatus == 'F' %}
-                                        <option value="F" {% if form.apstatus.value == "F" %} selected{% endif %}>For Approval</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.accountspayable.approve_assignedap %}
-                                            <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            <option value="D" {% if form.apstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% elif perms.accountspayable.approve_allap %}
-                                            <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            <option value="D" {% if form.apstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% endif %}
-                                    {% elif originalapstatus == 'A' %}
-                                        <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.accountspayable.approve_assignedap %}
-                                            <option value="D" {% if form.apstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% elif perms.accountspayable.approve_allap %}
-                                            <option value="D" {% if form.apstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% endif %}
-                                        <option value="R" {% if form.apstatus.value == "R" %} selected{% endif %}>Released</option>
-                                    {% elif originalapstatus == 'D' %}
-                                        <option value="D" {% if form.apstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                        {% if form.designatedapprover.value == request.user.id and perms.accountspayable.approve_assignedap %}
-                                            <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% elif perms.accountspayable.approve_allap %}
-                                            <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                        {% endif %}
-                                    {% elif originalapstatus == 'R' %}
-                                        <option value="R" {% if form.apstatus.value == "R" %} selected{% endif %}>Released</option>
-                                        <option value="A" {% if form.apstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
+                                    {% if form.apstatus.value == "F" %}
+                                    <option value="F">For Approval</option>
+                                    {% endif %}
+                                    {% if form.apstatus.value == "A" %}
+                                    <option value="A">Approved</option>
+                                    {% endif %}
+                                    {% if form.apstatus.value == "D" %}
+                                    <option value="D">Disapproved</option>
                                     {% endif %}
                                 </select>
                             </div>
@@ -350,7 +331,19 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6 padding-top-15 padding-bottom-15">
-                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                {% if object.status == 'A' %}
+                                    {% if object.apstatus == 'A' %}
+                                    <button type="button" class="btn btn-round btn-info">Approved</button>
+                                    {% elif object.apstatus == 'R' %}
+                                    <button type="button" class="btn btn-round btn-info">Ready for Posting</button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                    {% endif %}
+                                {% elif object.status == 'C' %}
+                                <button type="button" class="btn btn-round btn-danger">Cancelled JV</button>
+                                {% elif object.status == 'O' %}
+                                <button type="button" class="btn btn-round btn-info">Posted JV</button>
+                                {% endif %}
                             </div>
 
                                 <div class="col-sm-6 padding-top-15 padding-bottom-15">

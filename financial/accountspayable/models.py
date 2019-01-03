@@ -13,7 +13,7 @@ class Apmain(models.Model):
         ('A', 'Approved'),
         ('D', 'Disapproved'),
         ('I', 'In Process'),
-        ('R', 'Released'),
+        ('R', 'Ready for Posting'),
     )
     YESNO_CHOICES = (
         ('Y', 'Yes'),

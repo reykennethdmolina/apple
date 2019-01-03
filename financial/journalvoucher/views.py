@@ -1581,7 +1581,6 @@ def searchforposting(request):
         if dto != '':
             q = q.filter(jvdate__lte=dto)
 
-        print q
         context = {
             'data': q
         }

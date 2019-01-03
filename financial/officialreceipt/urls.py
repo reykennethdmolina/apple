@@ -13,4 +13,9 @@ urlpatterns = [
     url(r'^pdf2/$', views.GeneratePDF.as_view(), name='pdf2'),
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel2'),
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
+    url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
+    url(r'^gopost/$', views.gopost, name='gopost'),
+    url(r'^gounpost/$', views.gounpost, name='gounpost'),
+    url(r'^approve/$', views.approve, name='approve'),
+    url(r'^disapprove/$', views.disapprove, name='disapprove'),
 ]

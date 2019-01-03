@@ -35,6 +35,11 @@
                         </div>
                     </div>
                     <!-- pagination and search end -->
+                    {% if perms.checkvoucher.can_postcv %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Ready For Posting
+                        </button>
+                    {% endif %}
 
                     {% if perms.checkvoucher.change_cvmain %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
@@ -69,6 +74,7 @@
     </div>
 </div>
 {% include "checkvoucher/search.html" %}
+{% include "checkvoucher/posting.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}

@@ -356,6 +356,8 @@ def ajaxSearch(request):
                 items = items.filter(refnum__icontains=str(request.POST['cache_refnum']))
             if request.POST['cache_particulars']:
                 items = items.filter(particulars__icontains=str(request.POST['cache_particulars']))
+            if request.POST['cache_approver']:
+                items = items.filter(designatedapprover_id=int(request.POST['cache_approver']))
 
         elif request.POST['table'] == "dcmain":
             items = Dcmain.objects.all().filter(isdeleted=0).order_by('pk')

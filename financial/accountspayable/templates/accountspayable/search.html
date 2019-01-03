@@ -73,7 +73,7 @@
                                         <option value="A">Approved</option>
                                         <option value="D">Disapproved</option>
                                         <option value="I">In Process</option>
-                                        <option value="R">Released</option>
+                                        <option value="R">Ready for Posting</option>
                                     </select>
                                 </div>
                             </div>
@@ -99,6 +99,19 @@
                                     <option value="{{ data.id }}">{{ data.code }}</option>
                                 {% endfor %}
                             </select>
+                        </div>
+                        <div class="form-group col-sm-12 margin-bottom-10">
+                            <div class="row">
+                                <div class="form-group col-sm-12 margin-bottom-0">
+                                    <label class="control-label small">Approver</label>
+                                    <select class="form-control input-sm" id="cache_approver">
+                                        <option value="">-- Select --</option>
+                                        {% for data in designatedapprover %}
+                                            <option value="{{ data.user_id }}">{{ data.firstname }} {{ data.lastname }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -227,7 +240,8 @@
                         JSON.parse(retrieveFilters)[0]['fil_particulars'],
                         JSON.parse(retrieveFilters)[0]['fil_duedate_from'],
                         JSON.parse(retrieveFilters)[0]['fil_duedate_to'],
-                        JSON.parse(retrieveFilters)[0]['fil_refno']
+                        JSON.parse(retrieveFilters)[0]['fil_refno'],
+                        JSON.parse(retrieveFilters)[0]['fil_approver']
                 );
                 cachednavlink();
             }
@@ -260,6 +274,7 @@
                     'cache_duedate_from': $("#cache_duedate_from").val(),
                     'cache_duedate_to': $("#cache_duedate_to").val(),
                     'cache_refno': $("#cache_refno").val(),
+                    'cache_approver': $("#cache_approver").val(),
                     'table': main_table
                 },
                 success: function (response) {
@@ -292,6 +307,7 @@
                                 fil_particulars: $('#cache_particulars').val(),
                                 fil_duedate_from: $('#cache_duedate_from').val(),
                                 fil_duedate_to: $('#cache_duedate_to').val(),
+                                fil_approver: $('#cache_approver').val(),
                                 fil_refno: $('#cache_refno').val()
                             });
                         localStorage.setItem('ap_cachedItems', JSON.stringify(ap_cachedItems));
@@ -315,7 +331,7 @@
         // fill form from cache function
         function cachedfillform(fil_apnum_from, fil_apnum_to, fil_apdate_from, fil_apdate_to, fil_payee, fil_aptype, fil_apsubtype,
                                 fil_apstatus, fil_branch, fil_disbursingbranch, fil_vat, fil_atc, fil_inputvattype,
-                                fil_terms, fil_deferred, fil_particulars, fil_duedate_from, fil_duedate_to, fil_refno){
+                                fil_terms, fil_deferred, fil_particulars, fil_duedate_from, fil_duedate_to, fil_refno, fil_approver){
             $('#cache_apnum_from').val(fil_apnum_from);
             $('#cache_apnum_to').val(fil_apnum_to);
             $('#cache_apdate_from').val(fil_apdate_from);
@@ -335,6 +351,7 @@
             $('#cache_duedate_from').val(fil_duedate_from);
             $('#cache_duedate_to').val(fil_duedate_to);
             $('#cache_refno').val(fil_refno);
+            $('#cache_approver').val(fil_approver);
         }
 
         /** find all "_cachedItems" and replace with "<your_app>_cachedItems" **/

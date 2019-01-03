@@ -159,37 +159,14 @@
                                 <div class="form-group col-sm-3 {{ form.cvstatus.errors|yesno:'has-error,' }}">
                                     <label class="control-label" for="id_cvstatus">CV Status</label>
                                     <select class="form-control input-sm" data-validation="required" id="id_cvstatus" name="cvstatus">
-                                        {% if originalcvstatus == 'F' %}
-                                            <option value="F" {% if form.cvstatus.value == "F" %} selected{% endif %}>For Approval</option>
-                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
-                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                            {% elif perms.checkvoucher.approve_allcv %}
-                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                            {% endif %}
-                                        {% elif originalcvstatus == 'A' %}
-                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
-                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                            {% elif perms.checkvoucher.approve_allcv %}
-                                                <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                            {% endif %}
-                                            <option value="FR" {% if form.cvstatus.value == "FR" %} selected{% endif %}>For Release</option>
-                                        {% elif originalcvstatus == 'D' %}
-                                            <option value="D" {% if form.cvstatus.value == "D" %} selected{% endif %}>Disapproved</option>
-                                            {% if form.designatedapprover.value == request.user.id and perms.checkvoucher.approve_assignedcv %}
-                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            {% elif perms.checkvoucher.approve_allcv %}
-                                                <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved</option>
-                                            {% endif %}
-                                        {% elif originalcvstatus == 'FR' %}
-                                            <option value="FR" {% if form.cvstatus.value == "FR" %} selected{% endif %}>For Release</option>
-                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
-                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
-                                        {% elif originalcvstatus == 'R' %}
-                                            <option value="R" {% if form.cvstatus.value == "R" %} selected{% endif %}>Released</option>
-                                            <option value="A" {% if form.cvstatus.value == "A" %} selected{% endif %}>Approved - In Process</option>
+                                        {% if form.cvstatus.value == "F" %}
+                                        <option value="F">For Approval</option>
+                                        {% endif %}
+                                        {% if form.cvstatus.value == "A" %}
+                                        <option value="A">Approved</option>
+                                        {% endif %}
+                                        {% if form.cvstatus.value == "D" %}
+                                        <option value="D">Disapproved</option>
                                         {% endif %}
                                     </select>
                                     <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
@@ -340,7 +317,19 @@
                         </div>
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
-                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                {% if object.status == 'A' %}
+                                    {% if object.cvstatus == 'A' %}
+                                    <button type="button" class="btn btn-round btn-info">Approved</button>
+                                    {% elif object.cvstatus == 'R' %}
+                                    <button type="button" class="btn btn-round btn-info">Ready for Posting</button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
+                                    {% endif %}
+                                {% elif object.status == 'C' %}
+                                <button type="button" class="btn btn-round btn-danger">Cancelled JV</button>
+                                {% elif object.status == 'O' %}
+                                <button type="button" class="btn btn-round btn-info">Posted JV</button>
+                                {% endif %}
                             </div>
                             {% if selectedcvsubtype != 'IAP' %}
                                 <div class="col-sm-6">

@@ -82,6 +82,7 @@ class IndexView(AjaxListView):
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['designatedapprover'] = Employee.objects.filter(isdeleted=0, cv_approver=1).order_by('firstname')
         context['pk'] = 0
         # data for lookup
 
@@ -225,7 +226,7 @@ class UpdateView(UpdateView):
     template_name = 'checkvoucher/edit.html'
     fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
               'bankaccount', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
-              'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover']
+              'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover', 'status']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -668,54 +669,118 @@ class ReportResultView(ReportContentMixin, PDFTemplateView):
         return context
 
 
+# @csrf_exempt
+# def approve(request):
+#     if request.method == 'POST':
+#         cv_for_approval = Cvmain.objects.get(cvnum=request.POST['cvnum'])
+#         if request.user.has_perm('checkvoucher.approve_allcv') or \
+#                 request.user.has_perm('checkvoucher.approve_assignedcv'):
+#             if request.user.has_perm('checkvoucher.approve_allcv') or \
+#                     (request.user.has_perm('checkvoucher.approve_assignedcv') and
+#                         cv_for_approval.designatedapprover == request.user):
+#                 if request.POST['originalcvstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
+#                     cv_for_approval.cvstatus = request.POST['approverresponse']
+#                     cv_for_approval.isdeleted = 0
+#                     if request.POST['approverresponse'] == 'D':
+#                         cv_for_approval.status = 'C'
+#                     else:
+#                         cv_for_approval.status = 'A'
+#                     cv_for_approval.approverresponse = request.POST['approverresponse']
+#                     cv_for_approval.responsedate = request.POST['responsedate']
+#                     cv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
+#                     cv_for_approval.approverremarks = request.POST['approverremarks']
+#                     cv_for_approval.releaseby = None
+#                     cv_for_approval.releaseto = None
+#                     cv_for_approval.releasedate = None
+#                     cv_for_approval.save()
+#                     data = {
+#                         'status': 'success',
+#                         'cvnum': cv_for_approval.cvnum,
+#                         'newcvstatus': cv_for_approval.cvstatus,
+#                     }
+#                 else:
+#                     data = {
+#                         'status': 'error',
+#                     }
+#             else:
+#                 data = {
+#                     'status': 'error',
+#                 }
+#         else:
+#             data = {
+#                 'status': 'error',
+#             }
+#     else:
+#         data = {
+#             'status': 'error',
+#         }
+#
+#     return JsonResponse(data)
+
 @csrf_exempt
 def approve(request):
     if request.method == 'POST':
-        cv_for_approval = Cvmain.objects.get(cvnum=request.POST['cvnum'])
-        if request.user.has_perm('checkvoucher.approve_allcv') or \
-                request.user.has_perm('checkvoucher.approve_assignedcv'):
-            if request.user.has_perm('checkvoucher.approve_allcv') or \
-                    (request.user.has_perm('checkvoucher.approve_assignedcv') and
-                        cv_for_approval.designatedapprover == request.user):
-                if request.POST['originalcvstatus'] != 'R' or int(request.POST['backtoinprocess']) == 1:
-                    cv_for_approval.cvstatus = request.POST['approverresponse']
-                    cv_for_approval.isdeleted = 0
-                    if request.POST['approverresponse'] == 'D':
-                        cv_for_approval.status = 'C'
-                    else:
-                        cv_for_approval.status = 'A'
-                    cv_for_approval.approverresponse = request.POST['approverresponse']
-                    cv_for_approval.responsedate = request.POST['responsedate']
-                    cv_for_approval.actualapprover = User.objects.get(pk=request.user.id)
-                    cv_for_approval.approverremarks = request.POST['approverremarks']
-                    cv_for_approval.releaseby = None
-                    cv_for_approval.releaseto = None
-                    cv_for_approval.releasedate = None
-                    cv_for_approval.save()
-                    data = {
-                        'status': 'success',
-                        'cvnum': cv_for_approval.cvnum,
-                        'newcvstatus': cv_for_approval.cvstatus,
-                    }
-                else:
-                    data = {
-                        'status': 'error',
-                    }
-            else:
-                data = {
-                    'status': 'error',
-                }
+        approval = Cvmain.objects.get(pk=request.POST['id'])
+
+        if (approval.cvstatus != 'R' and approval.status != 'O'):
+            approval.cvstatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
         else:
-            data = {
-                'status': 'error',
-            }
+            data = {'status': 'error'}
     else:
-        data = {
-            'status': 'error',
-        }
+        data = { 'status': 'error' }
 
     return JsonResponse(data)
 
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Cvmain.objects.get(pk=request.POST['id'])
+        if (approval.cvstatus != 'R' and approval.status != 'O'):
+            approval.cvstatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Cvmain.objects.filter(pk__in=ids).update(cvstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gounpost(request):
+    if request.method == 'POST':
+        approval = Cvmain.objects.get(pk=request.POST['id'])
+        if (approval.cvstatus == 'R' and approval.status != 'O'):
+            approval.cvstatus = 'A'
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 def release(request):
@@ -1906,3 +1971,30 @@ class GeneratePDF(View):
             return Render.render('checkvoucher/report/report_4.html', context)
         else:
             return Render.render('checkvoucher/report/report_1.html', context)
+
+@csrf_exempt
+def searchforposting(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Cvmain.objects.filter(isdeleted=0,status='A',cvstatus='A').order_by('cvnum', 'cvdate')
+        if dfrom != '':
+            q = q.filter(cvdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(cvdate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('checkvoucher/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)

@@ -122,8 +122,21 @@
                                         <option value="F">For Approval</option>
                                         <option value="A">Approved</option>
                                         <option value="D">Disapproved</option>
-                                        <option value="R">Released</option>
+                                        <option value="R">Ready for Posting</option>
                                     </select>
+                                </div>
+                                <div class="form-group col-sm-12 margin-bottom-10">
+                                    <div class="row">
+                                        <div class="form-group col-sm-12 margin-bottom-0">
+                                            <label class="control-label small">Approver</label>
+                                            <select class="form-control input-sm" id="cache_approver">
+                                                <option value="">-- Select --</option>
+                                                {% for data in designatedapprover %}
+                                                    <option value="{{ data.user_id }}">{{ data.firstname }} {{ data.lastname }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -276,7 +289,8 @@
                         JSON.parse(retrieveFilters)[0]['fil_deferredvat'],
                         JSON.parse(retrieveFilters)[0]['fil_bankaccount'],
                         JSON.parse(retrieveFilters)[0]['fil_disbursingbranch'],
-                        JSON.parse(retrieveFilters)[0]['fil_particulars']
+                        JSON.parse(retrieveFilters)[0]['fil_particulars'],
+                        JSON.parse(retrieveFilters)[0]['fil_approver']
                 );
                 cachednavlink();
             }
@@ -311,6 +325,7 @@
                     'cache_bankaccount': $("#cache_bankaccount").val(),
                     'cache_disbursingbranch': $("#cache_disbursingbranch").val(),
                     'cache_particulars': $("#cache_particulars").val(),
+                    'cache_approver': $("#cache_approver").val(),
                     'table': main_table
                 },
                 success: function (response) {
@@ -345,7 +360,8 @@
                                 fil_deferredvat: $("#cache_deferredvat").val(),
                                 fil_bankaccount: $("#cache_bankaccount").val(),
                                 fil_disbursingbranch: $("#cache_disbursingbranch").val(),
-                                fil_particulars: $("#cache_particulars").val()
+                                fil_particulars: $("#cache_particulars").val(),
+                                fil_approver: $('#cache_approver').val()
                             });
                         localStorage.setItem('cv_cachedItems', JSON.stringify(cv_cachedItems));
                         localStorage.setItem('cv_cachedFilters', JSON.stringify(cv_cachedFilters));
@@ -369,7 +385,7 @@
         function cachedfillform(fil_cvnum_from, fil_cvnum_to, fil_cvtype, fil_cvsubtype, fil_cvdate_from, fil_cvdate_to,
                                 fil_branch, fil_payee_name, fil_checknum, fil_amount_from, fil_amount_to, fil_cvstatus,
                                 fil_refnum, fil_currency, fil_vat, fil_atc, fil_inputvattype, fil_deferredvat,
-                                fil_bankaccount, fil_disbursingbranch, fil_particulars){
+                                fil_bankaccount, fil_disbursingbranch, fil_particulars, fil_approver){
             $("#cache_cvnum_from").val(fil_cvnum_from);
             $("#cache_cvnum_to").val(fil_cvnum_to);
             $("#cache_cvtype").val(fil_cvtype);
@@ -391,6 +407,7 @@
             $("#cache_bankaccount").val(fil_bankaccount);
             $("#cache_disbursingbranch").val(fil_disbursingbranch);
             $("#cache_particulars").val(fil_particulars);
+            $('#cache_approver').val(fil_approver);
         }
 
         /** find allcv_cachedItems" and replace with "<your_apcv_cachedItems" **/
@@ -399,12 +416,6 @@
         /** end of Modification **/
         /** end of Modification **/
         /** end of Modification **/
-
-
-
-
-
-
 
         // tabs
         $('#tabContent2').hide();

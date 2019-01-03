@@ -1928,3 +1928,102 @@ def raw_query(type, company, dfrom, dto, ortype, artype, payee, collector, branc
     result = namedtuplefetchall(cursor)
 
     return result
+
+@csrf_exempt
+def gopost(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Ormain.objects.filter(pk__in=ids).update(orstatus='R',
+                                                           releaseby=User.objects.get(pk=request.user.id),
+                                                           releasedate= str(datetime.datetime.now()),
+                                                        responsedate = str(datetime.datetime.now()),
+                                                        approverremarks = 'Auto Approved',
+                                                        actualapprover = User.objects.get(pk=request.user.id)
+        )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def gounpost(request):
+    if request.method == 'POST':
+        approval = Ormain.objects.get(pk=request.POST['id'])
+        if (approval.orstatus == 'R' and approval.status != 'O'):
+            approval.orstatus = 'A'
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def searchforposting(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Ormain.objects.filter(isdeleted=0,status='A',orstatus='F').order_by('ornum', 'ordate')
+        if dfrom != '':
+            q = q.filter(ordate__gte=dfrom)
+        if dto != '':
+            q = q.filter(ordate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('officialreceipt/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def approve(request):
+    if request.method == 'POST':
+        approval = Ormain.objects.get(pk=request.POST['id'])
+
+        if (approval.orstatus != 'R' and approval.status != 'O'):
+            approval.orstatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Ormain.objects.get(pk=request.POST['id'])
+        if (approval.orstatus != 'R' and approval.status != 'O'):
+            approval.orstatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+

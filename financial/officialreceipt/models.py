@@ -57,7 +57,7 @@ class Ormain(models.Model):
         ('F', 'For Approval'),
         ('A', 'Approved'),
         ('D', 'Disapproved'),
-        ('R', 'Released'),
+        ('R', 'Ready for Posting'),
     )
     orstatus = models.CharField(max_length=1, choices=OR_STATUS_CHOICES, default='F')
     bankaccount = models.ForeignKey('bankaccount.Bankaccount', related_name='ormain_bankaccount_id', null=True,
