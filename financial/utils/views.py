@@ -223,6 +223,9 @@ def ajaxSearch(request):
             if request.POST['cache_duedate_from'] and request.POST['cache_duedate_to']:
                 items = items.filter(duedate__range=[request.POST['cache_duedate_from'],
                                                      request.POST['cache_duedate_to']])
+            if request.POST['cache_approver']:
+                items = items.filter(designatedapprover_id=int(request.POST['cache_approver']))
+
             elif request.POST['cache_duedate_from']:
                 items = items.filter(duedate__gte=request.POST['cache_duedate_from'])
             elif request.POST['cache_duedate_from']:
@@ -256,7 +259,6 @@ def ajaxSearch(request):
             if request.POST['cache_particulars']:
                 items = items.filter(particular__icontains=str(request.POST['cache_particulars']))
             if request.POST['cache_approver']:
-                #print request.POST['cache_approver']
                 items = items.filter(designatedapprover_id=int(request.POST['cache_approver']))
 
         elif request.POST['table'] == "ofmain":
