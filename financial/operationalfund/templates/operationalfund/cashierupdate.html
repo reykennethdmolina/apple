@@ -200,7 +200,7 @@
                                     <select class="form-control input-sm" data-validation="required" id="id_ofstatus" name="ofstatus">
                                         {% if savedoftype != 'CSV' %}
                                             <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>
-                                            <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>Released</option>
+                                            <option value="R" {% if form.ofstatus.value == 'R' %} selected="selected" {% endif %}>For Posting</option>
                                         {% else %}
                                             {% if originalofstatus == 'A' or originalofstatus == 'I' or originalofstatus == 'R' %}
                                                 <option value="I" {% if form.ofstatus.value == 'I' %} selected="selected" {% endif %}>In Process</option>

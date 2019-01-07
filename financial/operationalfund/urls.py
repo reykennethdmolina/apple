@@ -24,5 +24,7 @@ urlpatterns = [
     url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
     url(r'^reportresulthtml/$', views.ReportResultHtmlView.as_view(), name='reportresulthtml'),
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
+    url(r'^searchforpostingReim/$', views.searchforpostingReim, name='searchforpostingReim'),
     url(r'^gopost/$', views.gopost, name='gopost'),
+    url(r'^gopostreim/$', views.gopostreim, name='gopostreim'),
 ]

@@ -40,6 +40,11 @@
                             <i class="icon fa-lock" aria-hidden="true"></i> Post CS to AP
                         </button>
                     {% endif %}
+                    {% if perms.operationalfund.can_postreimtoap %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="postingReim" data-target='#postingReimModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Post REIM to AP
+                        </button>
+                    {% endif %}
 
                     {% if perms.operationalfund.change_ofmain and perms.operationalfund.is_cashier %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' data-target='#searchModal'>
@@ -79,6 +84,7 @@
 </div>
 {% include "operationalfund/search.html" %}
 {% include "operationalfund/posting.html" %}
+{% include "operationalfund/postingReim.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -105,7 +111,12 @@
         });
 
         $('#posting').on('click', function() {
-            $('#postingresult').html('');
+            $('.postingresult').html('');
+            $('#checkAll').prop("checked", false);
+        });
+
+        $('#postingReim').on('click', function() {
+            $('.postingresult').html('');
             $('#checkAll').prop("checked", false);
         });
 	});
