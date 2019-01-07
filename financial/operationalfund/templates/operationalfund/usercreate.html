@@ -684,7 +684,10 @@
                 }
                 else if($('#id_oftype option:selected').text().indexOf('Cellphone Subsidy') > 0){
                     $('#id_requestor').val() == '' ? $('#amountlimit').text("N/A") : $('#amountlimit').text(parseFloat($('#id_requestor option:selected').data('amount')).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","))
+                } else {
+                    $('#amountlimit').text("N/A");
                 }
+
             }
         });
     </script>
