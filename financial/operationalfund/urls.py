@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^reportresulthtml/$', views.ReportResultHtmlView.as_view(), name='reportresulthtml'),
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^searchforpostingReim/$', views.searchforpostingReim, name='searchforpostingReim'),
+    url(r'^searchforpostingLiq/$', views.searchforpostingLiq, name='searchforpostingLiq'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gopostreim/$', views.gopostreim, name='gopostreim'),
+    url(r'^gopostliq/$', views.gopostliq, name='gopostliq'),
 ]
