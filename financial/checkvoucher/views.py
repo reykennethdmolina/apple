@@ -226,7 +226,7 @@ class UpdateView(UpdateView):
     template_name = 'checkvoucher/edit.html'
     fields = ['cvnum', 'cvdate', 'cvtype', 'cvsubtype', 'amount', 'amountinwords', 'refnum', 'particulars', 'vat', 'atc',
               'bankaccount', 'inputvattype', 'deferredvat', 'currency', 'fxrate', 'cvstatus', 'remarks',
-              'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover', 'status']
+              'branch', 'checknum', 'checkdate', 'vatrate', 'atcrate', 'designatedapprover']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
