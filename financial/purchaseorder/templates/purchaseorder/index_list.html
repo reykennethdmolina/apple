@@ -7,6 +7,7 @@
                 <th><span>ID</span></th>
                 <th><span>No.</span></th>
                 <th><span>Date</span></th>
+                <th><span>Supplier</span></th>
                 <th><span>Particulars</span></th>
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
@@ -20,6 +21,7 @@
                 <td>{{ data.id }}</td>
                 <td>{{ data.ponum }}</td>
                 <td>{{ data.podate }}</td>
+                <td>{{ data.supplier_code }} - {{ data.supplier_name }}</td>
                 <td>{{ data.particulars|slice:":75" }}<i class="icon fa-ellipsis-h pull-right" style="font-size: 15px; padding-top: 3px;" data-toggle="tooltip" data-placement="top" data-trigger="hover" data-original-title="{{ data.particulars }}" title="" aria-describedby="tooltip850155" aria-hidden="true">&nbsp;&nbsp;</i></td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% else %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% endif %}</td>
                 <td>{{ data.enterby }}</td>

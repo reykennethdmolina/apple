@@ -84,7 +84,13 @@
         <td width="20%" style="border-left: 2px solid black;"><b>Approved by</b></td>
         <td width="5%"><b>:</b></td>
         <td align="center" style="margin-right: 20px;">
-            <div class="sign_here">{{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
+            {% if ofmain.actualapprover and ofmain.approverresponse == 'A' %}
+                <div class="sign_here">SGD {{ ofmain.actualapprover.firstname }}&nbsp;{{ ofmain.actualapprover.lastname }}</div>
+                <div class="watermark"><i>Electronic Approved</i></div>
+            {% else %}
+                <div class="sign_here">{{ ofmain.designatedapprover.firstname }}&nbsp;{{ ofmain.designatedapprover.lastname }}</div>
+                <i>Signature over printed name</i>
+            {% endif %}
         </td>
         <td width="20%"><b>Released to</b></td>
         <td width="5%"><b>:</b></td>

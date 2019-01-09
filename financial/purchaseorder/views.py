@@ -52,6 +52,7 @@ class IndexView(AjaxListView):
             query = query.filter(Q(ponum__icontains=keysearch) |
                                  Q(podate__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch) |
+                                 Q(supplier_name__icontains=keysearch) |
                                  Q(postatus__icontains=keysearch))
         return query
 
