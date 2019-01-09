@@ -263,7 +263,7 @@ def ajaxSearch(request):
 
         elif request.POST['table'] == "ofmain":
             items = Ofmain.objects.all().filter(isdeleted=0).order_by('pk')
-            items = items.filter(Q(ofstatus='A') | Q(ofstatus='I') | Q(ofstatus='R') | Q(ofstatus='O') | Q(ofstatus='P'))
+            items = items.filter(Q(ofstatus='F') | Q(ofstatus='A') | Q(ofstatus='I') | Q(ofstatus='R') | Q(ofstatus='O') | Q(ofstatus='P'))
 
             if request.POST['cache_ofnum_from'] and request.POST['cache_ofnum_to']:
                 items = items.filter(ofnum__range=[int(request.POST['cache_ofnum_from']),
@@ -293,7 +293,8 @@ def ajaxSearch(request):
             if request.POST['cache_ofstatus']:
                 items = items.filter(ofstatus=str(request.POST['cache_ofstatus']))
             if request.POST['cache_employee']:
-                items = items.filter(employee=int(request.POST['cache_employee']))
+                print request.POST['cache_employee']
+                items = items.filter(requestor_id=int(request.POST['cache_employee']))
             if request.POST['cache_department']:
                 items = items.filter(department=int(request.POST['cache_department']))
             if request.POST['cache_creditterm']:

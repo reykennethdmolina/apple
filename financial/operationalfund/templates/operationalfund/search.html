@@ -118,7 +118,7 @@
                                     <select class="form-control input-sm select2 cache_select1" id="cache_employee">
                                         <option value="">-- Select --</option>
                                         {% for data in employee %}
-                                            <option value="{{ data.id }}">{{ data.lastname }}, {{ data.firstname }}</option>
+                                            <option value="{{ data.id }}">{{ data.lastname }}, {{ data.firstname }} {{ data.id }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
