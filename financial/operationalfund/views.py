@@ -77,7 +77,6 @@ class IndexView(AjaxListView):
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            print keysearch
             query = query.filter(Q(ofnum__icontains=keysearch) |
                                  Q(ofdate__icontains=keysearch) |
                                  Q(amount__icontains=keysearch) |
@@ -220,7 +219,7 @@ class DetailView(DetailView):
 class CreateViewUser(CreateView):
     model = Ofmain
     template_name = 'operationalfund/usercreate.html'
-    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover']
+    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover', 'refnum', 'cashadv_amount']
 
     def dispatch(self, request, *args, **kwargs):
         # if not request.user.has_perm('operationalfund.add_ofmain') or \
@@ -295,6 +294,9 @@ class CreateViewUser(CreateView):
                     self.object.department = department
                     self.object.department_code = department.code
                     self.object.department_name = department.departmentname
+                    if self.request.POST['oftype'] == '6':
+                        self.object.refnum = self.request.POST['refnum']
+                        self.object.cashadv_amount = self.request.POST['cashadv_amount']
                     #print self.request.POST['department']
                     # if self.object.requestor.department_id > 0 and self.object.requestor.department_id is not None:
                     #     self.object.department = Department.objects.get(code=self.object.requestor.department.code)
@@ -454,7 +456,7 @@ class CreateViewCashier(CreateView):
 class UpdateViewUser(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/userupdate.html'
-    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover', 'department']
+    fields = ['ofdate', 'oftype', 'requestor', 'designatedapprover', 'department', 'refnum', 'cashadv_amount']
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -562,6 +564,7 @@ class UpdateViewUser(UpdateView):
         total_amount = Ofitemtemp.objects.filter(isdeleted=0, secretkey=self.request.POST['secretkey']).aggregate(
             Sum('amount'))
         print total_amount['amount__sum']
+
         if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'PCV' or \
                 total_amount['amount__sum'] < 1000.00:
             if Oftype.objects.get(pk=int(self.request.POST['oftype'])).code != 'CSV' or total_amount['amount__sum'] <= \
@@ -579,6 +582,8 @@ class UpdateViewUser(UpdateView):
                     self.object.department = department
                     self.object.department_code = department.code
                     self.object.department_name = department.departmentname
+                    self.object.refnum = self.request.POST['refnum']
+                    self.object.cashadv_amount = self.request.POST['cashadv_amount']
 
                     # ----------------- START save ofitemtemp to ofitem START ---------------------
                     Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
@@ -620,7 +625,7 @@ class UpdateViewUser(UpdateView):
                     self.object.amount = totalamount
                     self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover',
                                                     'modifyby', 'modifydate', 'requestor', 'requestor_code',
-                                                    'requestor_name', 'department', 'department_code',
+                                                    'requestor_name', 'department', 'department_code', 'refnum', 'cashadv_amount',
                                                     'department_name'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
@@ -630,7 +635,7 @@ class UpdateViewUser(UpdateView):
 class UpdateViewCashier(UpdateView):
     model = Ofmain
     template_name = 'operationalfund/cashierupdate.html'
-    fields = ['ofdate', 'oftype', 'amount', 'refnum', 'particulars', 'creditterm', 'ofstatus', 'department',
+    fields = ['ofdate', 'oftype', 'amount', 'refnum', 'cashadv_amount', 'particulars', 'creditterm', 'ofstatus', 'department',
               'remarks', 'paymentreceivedby', 'paymentreceiveddate', 'branch', 'requestor']
 
     def dispatch(self, request, *args, **kwargs):
@@ -880,7 +885,7 @@ class UpdateViewCashier(UpdateView):
             # self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             # self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
-            self.object.save(update_fields=['refnum', 'particulars', 'creditterm', 'branch', 'ofstatus',
+            self.object.save(update_fields=['refnum', 'cashadv_amount', 'particulars', 'creditterm', 'branch', 'ofstatus',
                                             'remarks', 'modifyby', 'modifydate', 'department'])
 
             # revert status from RELEASED to In Process if no release date is saved
