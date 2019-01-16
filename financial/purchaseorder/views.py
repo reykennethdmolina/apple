@@ -1431,3 +1431,40 @@ class Pdf(PDFTemplateView):
         printedpo.save()
 
         return context
+
+@csrf_exempt
+def approve(request):
+    if request.method == 'POST':
+        approval = Pomain.objects.get(pk=request.POST['id'])
+
+        if (approval.postatus != 'R' and approval.status != 'O'):
+            approval.postatus = 'A'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ 'Approved'
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def disapprove(request):
+    if request.method == 'POST':
+        approval = Pomain.objects.get(pk=request.POST['id'])
+        if (approval.postatus != 'R' and approval.status != 'O'):
+            approval.postatus = 'D'
+            approval.responsedate = str(datetime.datetime.now())
+            approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
+            approval.actualapprover = User.objects.get(pk=request.user.id)
+            approval.save()
+            data = {'status': 'success'}
+        else:
+            data = {'status': 'error'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)

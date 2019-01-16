@@ -144,9 +144,18 @@
                                     <div class="form-group col-sm-4 {{ form.postatus.errors|yesno:'has-error,' }}">
                                         <label class="control-label" for="id_postatus">PO Status</label>
                                         <select class="form-control input-sm" data-validation="required" id="id_postatus" name="postatus">
-                                            {% for id,name in form.fields.postatus.choices %}
-                                                <option value="{{ id }}"{% if form.postatus.value == id %} selected{% endif %}>{% ifequal id ""%}-- Select --{% else %}{{ name }}{% endifequal %}</option>
-                                            {% endfor %}
+                                            <!--{% for id,name in form.fields.postatus.choices %}-->
+                                                <!--<option value="{{ id }}"{% if form.postatus.value == id %} selected{% endif %}>{% ifequal id ""%}&#45;&#45; Select &#45;&#45;{% else %}{{ name }}{% endifequal %}</option>-->
+                                            <!--{% endfor %}-->
+                                            {% if form.postatus.value == "F" %}
+                                            <option value="F">For Approval</option>
+                                            {% endif %}
+                                            {% if form.postatus.value == "A" %}
+                                            <option value="A">Approved</option>
+                                            {% endif %}
+                                            {% if form.postatus.value == "D" %}
+                                            <option value="D">Disapproved</option>
+                                            {% endif %}
                                         </select>
                                         <span class="help-block form-error">{{ form.postatus.errors.as_text }}</span>
                                     </div>
