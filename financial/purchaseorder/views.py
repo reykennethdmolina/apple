@@ -444,6 +444,15 @@ class UpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
+
+        print 'update'
+
+        if self.object.status == 'D' or self.object.status == 'F':
+            self.object = form.save(commit=False)
+            self.object.supplier_code = Supplier.objects.get(pk=self.request.POST['supplier']).code
+            self.object.supplier_name = Supplier.objects.get(pk=self.request.POST['supplier']).name
+            self.object.save(update_fields=['supplier_code', 'supplier_name'])
+
         if Podetailtemp.objects.filter(  # this will not include APPROVED purchase orders
                 Q(isdeleted=0), Q(pomain=self.object.pk) | Q(secretkey=self.request.POST['secretkey'])):
             self.object = form.save(commit=False)

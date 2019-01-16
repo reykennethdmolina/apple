@@ -640,6 +640,8 @@
             showRate("#id_currency", "fxrate", "FX RATE");
             showRate("#id_wtax", "wtaxrate", "RATE");
 
+            console.log(postatus);
+
             if(postatus == "Approved"){
                 $("#id_podate").prop("readonly", true);
                 $("#id_podate").datepicker("destroy");
@@ -682,9 +684,9 @@
                 {% endif %}
             }
             else{
-{#                $('#id_supplier option:selected').siblings().prop("disabled", true);#}
-{#                $('#id_supplier').select2("destroy");#}
-{#                $('#id_supplier').select2();#}
+                <!--$('#id_supplier option:selected').siblings().prop("disabled", true);-->
+                <!--$('#id_supplier').select2("destroy");-->
+                <!--$('#id_supplier').select2();-->
 
                 enableDisableButtons();
 
@@ -889,6 +891,6 @@
     <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
         $('.select2').select2({});
-{#        ajaxselect2("supplier", "id_supplier");#}
+        ajaxselect2("supplier", "id_supplier");
     </script>
 {% endblock extra_js %}
