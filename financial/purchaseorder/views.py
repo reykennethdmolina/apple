@@ -447,7 +447,7 @@ class UpdateView(UpdateView):
 
         print 'update'
 
-        if self.object.status == 'D' or self.object.status == 'F':
+        if self.object.status != 'A':
             self.object = form.save(commit=False)
             self.object.supplier_code = Supplier.objects.get(pk=self.request.POST['supplier']).code
             self.object.supplier_name = Supplier.objects.get(pk=self.request.POST['supplier']).name
