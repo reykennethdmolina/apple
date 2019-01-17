@@ -57,6 +57,7 @@
             $('#searchBtn').on('click', function(){
                 $('.shade').fadeIn();
                 setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+{#                alert($('#searchFilter').val());#}
                 $('#dummy').trigger('click');
             });
             $('body').on('keyup', function(e){

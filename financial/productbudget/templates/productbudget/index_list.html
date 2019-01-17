@@ -1,0 +1,57 @@
+{% load endless %}
+{% paginate data_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><span>Id</span></th>
+                <th><span>Year</span></th>
+                <th><span>Product</span></th>
+                <th><span>Account</span></th>
+                <th class="text-center"><span>Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.year }}</td>
+                <td>[{{ data.product.code }}] {{ data.product.description }}</td>
+                <td>[{{ data.chartofaccount.accountcode }}] {{ data.chartofaccount.description }}</td>
+                <td class="text-center">
+                    <div class="iconlist-wrap auto-0">
+                        <div class="iconlist">
+                        <a href="{% url 'productbudget:detail' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-view-list" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% if perms.productbudget.change_productbudget %}
+                        <a href="{% url 'productbudget:update' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-edit" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+                        {% if perms.productbudget.delete_productbudget %}
+                        <a href="{% url 'productbudget:delete' data.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">
+                            <i class="icon md-delete" aria-hidden="true">&nbsp;&nbsp;</i>
+                        </a>
+                        {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination pull-right">{% show_pages %}</div>
+</div>
+<!-- required -->
+<a href="/{{ request.resolver_match.app_name }}/?page=1" rel="page" class="endless_page_link" id="dummy" style="display: none;">1</a>
+<script>
+    $(function () {
+        $('.shade').remove();
+        $('.panel').prepend('<div class="shade"><div class="loader two-color"></div></div>');
+        $('#searchFilter').val(getCookie('keysearch_{{ request.resolver_match.app_name }}'));
+        $('.endless_page_link').on('click', function () {
+            $('.shade').fadeIn();
+        });
+    });
+</script>

@@ -109,28 +109,36 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:150px;">Username</th>
-                    <th style="text-align:left;">Access Rights</th>
+                    <th style="text-align:left;width:300px;">Module Name</th>
+                    <th style="text-align:left;width:300px">Access Rights</th>
                 </tr>
             </thead>
         </table>
     </div>
 </div>
 
-<table id="content-data">
 
+<table id="content-data">
     <tbody>
-    {% for item in list %}
+    {% regroup list by username as user_list %}
+    {% for user in user_list %}
         <tr>
-            <td>{{ item.user_permission }}</td>
+{#            <td style="font-size:18px;" colspan="3"><b>{{ user.grouper }}</b></td>#}
+            <td style="font-size:20px;" colspan="2">User: {{ user.list.0.first_name  }} {{ user.list.0.last_name  }}</td>
         </tr>
+        {% for module in user.list %}
+            <tr>
+                <td style="text-align:left;width:300px;">{{ module.module_name }}</td>
+                <td style="text-align:left;width:300px;">{{ module.permission_name }}</td>
+            </tr>
+        {% endfor %}
         <tr>
-            <td style="text-align:left;width:150px;">{{ item.content_type.app_label }}</td>
-            <td style="text-align:left;">{{ item.first_name|upper }}</td>
+            <td colspan="3"></td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
+
 
 <div id="footer_content" style="text-align:right">
     <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>

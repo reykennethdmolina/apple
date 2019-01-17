@@ -1,11 +1,16 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from mainsupplier.models import Mainsupplier
 from supplier.models import Supplier
 from . models import Mainsupplier_supplier
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
+from django.db import connection
+from collections import namedtuple
 
 # Create your views here.
 @method_decorator(login_required, name='dispatch')
@@ -100,3 +105,42 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/mainsupplier_supplier')
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = query_mainsupplier_supplier(request)
+        context = {
+            "title": "Main Supplier-Supplier Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('mainsupplier_supplier/list.html', context)
+
+
+def query_mainsupplier_supplier(request):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    query = "SELECT mss.supplier_id, ms.description AS mainsupplier_name, s.name AS supplier_name, mss.mainsupplier_id, s.code " \
+            "FROM mainsupplier_supplier AS mss " \
+            "LEFT OUTER JOIN mainsupplier AS ms ON ms.id = mss.mainsupplier_id " \
+            "LEFT OUTER JOIN supplier AS s ON s.id = mss.supplier_id " \
+            "GROUP BY ms.description, s.name"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]

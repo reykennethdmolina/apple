@@ -32,7 +32,7 @@
                                     <select id="id_product" name="product" class="form-control">
                                         <option value="">-- Select --</option>
                                         {% for product in product %}
-                                            <option value="{{ product.id }}" data-description="{{ product.description }}" {% if form.product.value|add:0 == product.id %} selected="selected" {% endif %}>{{ product.code }}</option>
+                                            <option value="{{ product.id }}" data-description="{{ product.description }}" {% if form.product.value|add:0 == product.id %} selected="selected" {% endif %}>{{ product.code }} |  {{ product.description }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="help-block form-error">{{ form.product.errors.as_text }}</span>

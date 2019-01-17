@@ -1791,7 +1791,7 @@ class GenerateExcel(View):
         worksheet = workbook.add_worksheet()
 
         # variables
-        bold = workbook.jadd_format({'bold': 1})
+        bold = workbook.add_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
         centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 

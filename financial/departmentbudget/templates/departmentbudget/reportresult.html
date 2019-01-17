@@ -14,7 +14,7 @@
         <table>
             {% for data in data_list %}
                 <tr>
-                    <td class="border left" style="width: 4%">{{ data.department__code }}</td>
+                    <td class="border left" style="width: 28%">{{ data.department__code }} - {{ data.department__departmentname }}</td>
                     <td class="border right" style="width: 8%">{{ data.mjan__sum|floatformat:2|intcomma }}</td>
                     <td class="border right" style="width: 8%">{{ data.mfeb__sum|floatformat:2|intcomma }}</td>
                     <td class="border right" style="width: 8%">{{ data.mmar__sum|floatformat:2|intcomma }}</td>
@@ -27,7 +27,7 @@
                     <td class="border right" style="width: 8%">{{ data.moct__sum|floatformat:2|intcomma }}</td>
                     <td class="border right" style="width: 8%">{{ data.mnov__sum|floatformat:2|intcomma }}</td>
                     <td class="border right" style="width: 8%">{{ data.mdec__sum|floatformat:2|intcomma }}</td>
-                    <td class="border right" style="width: 8%">{{ data.total|floatformat:2|intcomma }}</td>
+                    <td class="border right" style="width: 9%">{{ data.total|floatformat:2|intcomma }}</td>
                 </tr>
             {% endfor %}
             <tr><td colspan="14"></td></tr>

@@ -1,10 +1,13 @@
-from django.views.generic import ListView
+from django.views.generic import View, ListView
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from . models import Arsubtype
 from chartofaccount.models import Chartofaccount
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -67,3 +70,18 @@ def savearsubtype(request):
         }
 
     return JsonResponse(data)
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Arsubtype.objects.filter(isdeleted=0).order_by('arsubtypechartofaccount')
+        context = {
+            "title": "AR - NonTrade Masterfile List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('arsubtype/list.html', context)

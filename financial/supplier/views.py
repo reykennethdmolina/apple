@@ -230,6 +230,9 @@ class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
         list = Supplier.objects.filter(isdeleted=0).order_by('code')
+        # list = Supplier.objects.filter(isdeleted=0, code='AA').order_by('code')
+        # list = Supplier.objects.filter(isdeleted=0, code__contains='AA').order_by('code')
+        # list = Supplier.objects.filter(isdeleted=0, code__lte='B').order_by('code')
         context = {
             "title": "Supplier Master List",
             "today": timezone.now(),

@@ -113,9 +113,6 @@
                 <tr>
                     <th style="text-align:left;width:150px">Code</th>
                     <th style="text-align:left;width:400px">Name</th>
-                    <th style="text-align:left;width:150px">Type</th>
-                    <th style="text-align:left;width:250px">Telephone No.</th>
-                    <th style="text-align:left;width:250px">Contact Person</th>
                 </tr>
             </thead>
         </table>
@@ -128,7 +125,6 @@
         <tr>
             <td style="text-align:left;width:150px">{{ item.code|upper }}</td>
             <td style="text-align:left;width:400px">{{ item.name|upper }}</td>
-            <td style="text-align:left;width:15px">{{ item.agenttype.code|upper }}</td>
         </tr>
     {% endfor %}
     </tbody>

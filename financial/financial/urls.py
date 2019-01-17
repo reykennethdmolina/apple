@@ -160,6 +160,15 @@ urlpatterns = [
     url(r'^apinquiry/', include('apinquiry.urls', app_name='apinquiry', namespace='apinquiry')),
     url(r'^budgetreport/', include('budgetreport.urls', app_name='budgetreport', namespace='budgetreport')),
 
+    # Aileen
+    url(r'^rftype/', include('rftype.urls', app_name='rftype', namespace='rftype')),
+    url(r'^prftype/', include('prftype.urls', app_name='prftype', namespace='prftype')),
+    url(r'^cstype/', include('cstype.urls', app_name='cstype', namespace='cstype')),
+    url(r'^supplieraccount/', include('supplieraccount.urls', app_name='supplieraccount', namespace='supplieraccount')),
+    url(r'^categorymaingroup/', include('categorymaingroup.urls', app_name='categorymaingroup', namespace='categorymaingroup')),
+    url(r'^categorymainsubgroup/', include('categorymainsubgroup.urls', app_name='categorymainsubgroup', namespace='categorymainsubgroup')),
+    url(r'^fxrate/', include('fxrate.urls', app_name='fxrate', namespace='fxrate')),
+
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
     url(r'^logout/$', logout, {'next_page': '/login/'}),

@@ -1,9 +1,12 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
 from . models import ChartofAccountSubGroup
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
 
 
 # Create your views here.
@@ -81,3 +84,18 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/chartofaccountsubgroup')
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = ChartofAccountSubGroup.objects.filter(isdeleted=0).order_by('code')
+        context = {
+            "title": "Chart of Account Sub Group Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('chartofaccountsubgroup/list.html', context)

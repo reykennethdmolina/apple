@@ -69,6 +69,12 @@
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'contactpersons')">Contact Persons</a></li>
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'refnumbers')">Reference Numbers</a></li>
                             <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'wtaxsign')">Withholding Tax Signatory</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'bir')">BIR</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'accounts')">Accounts</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'proformaentries')">Pro-forma Entries</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'defaults')">Defaults</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'lastnumbersused')">Last Numbers Used</a></li>
+                            <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'approvers')">Approvers</a></li>
                         </ul>
                         <div id="maindetails" class="tabcontent">
                             <div class="form-group form-group-0 col-md-6 form-material {{ form.company.errors|yesno:'has-error,' }}">
@@ -253,6 +259,369 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="bir" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer1.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer1" class="col-sm-3 control-label">Notes 1</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer1" maxlength="250" name="report_footer1"
+                                           value="{{ form.report_footer1.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer1.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer2.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer2" class="col-sm-3 control-label">Notes 2</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer2" maxlength="250" name="report_footer2"
+                                           value="{{ form.report_footer2.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer2.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer3.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer3" class="col-sm-3 control-label">Notes 3</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer3" maxlength="250" name="report_footer3"
+                                           value="{{ form.report_footer3.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer3.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer4.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer4" class="col-sm-3 control-label">Notes 4</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer4" maxlength="250" name="report_footer4"
+                                           value="{{ form.report_footer4.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer4.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer5.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer5" class="col-sm-3 control-label">Notes 5</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer5" maxlength="250" name="report_footer5"
+                                           value="{{ form.report_footer5.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer5.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer6.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer6" class="col-sm-3 control-label">Notes 6</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer6" maxlength="250" name="report_footer6"
+                                           value="{{ form.report_footer6.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer6.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer7.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer7" class="col-sm-3 control-label">Notes 7</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer7" maxlength="250" name="report_footer7"
+                                           value="{{ form.report_footer7.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer7.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer8.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer8" class="col-sm-3 control-label">Notes 8</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer8" maxlength="250" name="report_footer8"
+                                           value="{{ form.report_footer8.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer8.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer9.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer9" class="col-sm-3 control-label">Notes 9</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer9" maxlength="250" name="report_footer9"
+                                           value="{{ form.report_footer9.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer9.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer10.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer10" class="col-sm-3 control-label">Notes 10</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer10" maxlength="250" name="report_footer10"
+                                           value="{{ form.report_footer10.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer10.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer11.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer11" class="col-sm-3 control-label">Notes 11</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer11" maxlength="250" name="report_footer11"
+                                           value="{{ form.report_footer11.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer11.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer12.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer12" class="col-sm-3 control-label">Notes 12</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer12" maxlength="250" name="report_footer12"
+                                           value="{{ form.report_footer12.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer12.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer13.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer13" class="col-sm-3 control-label">Notes 13</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer13" maxlength="250" name="report_footer13"
+                                           value="{{ form.report_footer13.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer13.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.report_footer14.errors|yesno:'has-error,' }}">
+                                <label for="id_report_footer14" class="col-sm-3 control-label">Notes 14</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="id_report_footer14" maxlength="250" name="report_footer14"
+                                           value="{{ form.report_footer14.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.report_footer14.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="defaults" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.pcv_meal_budget_limit.errors|yesno:'has-error,' }}">
+                                <label for="id_pcv_meal_budget_limit" class="col-sm-3 control-label">PCV Meal Expense Budget Limit</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control amount text-right" id="id_pcv_meal_budget_limit" maxlength="19" placeholder="0.00" name="pcv_meal_budget_limit"
+                                           value="{{ form.pcv_meal_budget_limit.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.pcv_meal_budget_limit.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="accounts" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_retainedearnings.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_retainedearnings" class="col-sm-3 control-label">Retained Earnings</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_retainedearnings" class="form-control select2" id="id_coa_retainedearnings">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_retainedearnings %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_retainedearnings.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_currentearnings.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_currentearnings" class="col-sm-3 control-label">Current Earnings</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_currentearnings" class="form-control select2" id="id_coa_currentearnings">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_currentearnings %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_currentearnings.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_incometaxespayable.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_incometaxespayable" class="col-sm-3 control-label">Income Taxes Payable</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_incometaxespayable" class="form-control select2" id="id_coa_incometaxespayable">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_incometaxespayable %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_incometaxespayable.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_provisionincometax.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_provisionincometax" class="col-sm-3 control-label">Provision for Income Tax</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_provisionincometax" class="form-control select2" id="id_coa_provisionincometax">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_provisionincometax %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_provisionincometax.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="proformaentries" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_cashinbank.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_cashinbank" class="col-sm-3 control-label">Cash in Bank</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_cashinbank" class="form-control select2" id="id_coa_cashinbank">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_cashinbank %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_cashinbank.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_aptrade.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_aptrade" class="col-sm-3 control-label">Accounts Payable</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_aptrade" class="form-control select2" id="id_coa_aptrade">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_aptrade %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_aptrade.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-5 col-md-6 {{ form.coa_inputvat.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_inputvat" class="col-sm-3 control-label">Input VAT</label>
+                                <div class="col-sm-9">
+                                    <select name="coa_inputvat" class="form-control select2" id="id_coa_inputvat">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_inputvat %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_inputvat.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_deferredinputvat.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_deferredinputvat" class="col-sm-3 control-label">Deferred Input VAT</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_deferredinputvat" class="form-control select2" id="id_coa_deferredinputvat">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_deferredinputvat %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_deferredinputvat.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_outputvat.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_outputvat" class="col-sm-3 control-label">Output VAT</label>
+                                <div class="col-sm-9">
+                                    <select name="coa_outputvat" class="form-control select2" id="id_coa_outputvat">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_outputvat %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_outputvat.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_ewtax.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_ewtax" class="col-sm-3 control-label">Expanded WTax</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_ewtax" class="form-control select2" id="id_coa_ewtax">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_ewtax %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_ewtax.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_unsubscribe.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_unsubscribe" class="col-sm-3 control-label">Unearned Subscription</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_unsubscribe" class="form-control select2" id="id_coa_unsubscribe">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_unsubscribe %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_unsubscribe.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.coa_subsrev.errors|yesno:'has-error,' }}">
+                                <label for="id_coa_subsrev" class="col-sm-3 control-label">Subsription Revenue</label>
+                                <div class="col-sm-9">
+                                     <select name="coa_subsrev" class="form-control select2" id="id_coa_subsrev">
+                                        <option value="">-- Select --</option>
+                                        {% for data in coa_subsrev %}
+                                            <option value="{{ data.id }}">[{{ data.accountcode }}] {{ data.description }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.coa_subsrev.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.def_bankaccount.errors|yesno:'has-error,' }}">
+                                <label for="id_def_bankaccount" class="col-sm-3 control-label">Bank Account</label>
+                                <div class="col-sm-9">
+                                    <select name="def_bankaccount" class="form-control select2" id="id_def_bankaccount">
+                                        <option value="">-- Select --</option>
+                                        {% for data in def_bankaccount %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.code }} [{{ data.bank.description }} - {{ data.bankaccounttype.description }}, {{ data.bankbranch.description }}]</option>
+                                        {% endfor %}
+                                     </select>
+                                    <span class="help-block form-error">{{ form.def_bankaccount.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="lastnumbersused" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.last_closed_date.errors|yesno:'has-error,' }}">
+                                <label for="id_last_closed_date" class="col-sm-3 control-label">Last Monthly Closing</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control datepicker" id="id_last_closed_date" name="last_closed_date" value="{{ form.last_closed_date.value|default:'' }}">
+                                    <span class="help-block form-error">{{ form.last_closed_date.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.income_tax_rate.errors|yesno:'has-error,' }}">
+                                <label for="id_income_tax_rate" class="col-sm-3 control-label">Provision for Income Tax Rate</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" id="id_income_tax_rate" name="income_tax_rate"
+                                           value="{{ form.income_tax_rate.value|default:0 }}">
+                                    <span class="help-block form-error">{{ form.income_tax_rate.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="approvers" class="tabcontent">
+                            <div class="form-group form-group-0 col-md-6 {{ form.budgetapprover.errors|yesno:'has-error,' }}">
+                                <label for="id_budgetapprover" class="col-sm-3 control-label">Budget</label>
+                                <div class="col-sm-9">
+                                     <select name="budgetapprover" class="form-control select2" id="id_budgetapprover">
+                                        <option value="">-- Select --</option>
+                                        {% for data in budgetapprover %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.budgetapprover.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.pcv_initial_approver.errors|yesno:'has-error,' }}">
+                                <label for="id_pcv_initial_approver" class="col-sm-3 control-label">Petty Cash Voucher (Initial)</label>
+                                <div class="col-sm-9">
+                                     <select name="pcv_initial_approver" class="form-control select2" id="id_pcv_initial_approver">
+                                        <option value="">-- Select --</option>
+                                        {% for data in pcv_initial_approver %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.pcv_initial_approver.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.pcv_final_approver.errors|yesno:'has-error,' }}">
+                                <label for="id_pcv_final_approver" class="col-sm-3 control-label">Petty Cash (Final)</label>
+                                <div class="col-sm-9">
+                                     <select name="pcv_final_approver" class="form-control select2" id="pcv_final_approver">
+                                        <option value="">-- Select --</option>
+                                        {% for data in pcv_final_approver %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.pcv_final_approver.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.rfv_initial_approver.errors|yesno:'has-error,' }}">
+                                <label for="id_rfv_initial_approver" class="col-sm-3 control-label">Revolving Fund (Initial)</label>
+                                <div class="col-sm-9">
+                                     <select name="rfv_initial_approver" class="form-control select2" id="rfv_initial_approver">
+                                        <option value="">-- Select --</option>
+                                        {% for data in rfv_initial_approver %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.rfv_initial_approver.errors.as_text }}</span>
+                                </div>
+                            </div>
+                            <div class="form-group form-group-0 col-md-6 {{ form.rfv_final_approver.errors|yesno:'has-error,' }}">
+                                <label for="id_rfv_final_approver" class="col-sm-3 control-label">Revolving Fund (Final)</label>
+                                <div class="col-sm-9">
+                                     <select name="rfv_final_approver" class="form-control select2" id="rfv_final_approver">
+                                        <option value="">-- Select --</option>
+                                        {% for data in rfv_final_approver %}
+                                            <option value="{{ data.id }}" {% if form.data.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.first_name }} {{ data.last_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block form-error">{{ form.rfv_final_approver.errors.as_text }}</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group margin-bottom-0">
                             <ul id="errorList"></ul>
                             <br><button type="submit" class="btn btn-info" id="validateButton">Submit</button>
@@ -315,4 +684,17 @@ $(document).ready(function() {
 });
 
 </script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function(){
+        $('.select2').select2({});
+    });
+</script>
+{% load static %}
+<script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
 {% endblock extra_js %}
+
+
+

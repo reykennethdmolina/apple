@@ -1,10 +1,13 @@
-from django.views.generic import TemplateView
+from django.views.generic import View, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from module.models import Module
 from .models import Reportmaintenance, Reportmaintenancemodule
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -73,3 +76,17 @@ class MaintenanceView(TemplateView):
 
         return context
 
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Reportmaintenancemodule.objects.filter(isdeleted=0).order_by('reportmaintenance_id', 'reportmodule_id')
+        context = {
+            "title": "Report Grouping Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('reportdashboard/list.html', context)

@@ -102,7 +102,7 @@ class DeleteView(DeleteView):
 class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
-        list = Serviceclassification.objects.filter(isdeleted=0).order_by('code')
+        list = Wtax.objects.filter(isdeleted=0).order_by('code')
         context = {
             "title": "WTAX Master List",
             "today": timezone.now(),

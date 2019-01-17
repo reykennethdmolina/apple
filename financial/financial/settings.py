@@ -172,6 +172,15 @@ INSTALLED_APPS = [
     'jvinquiry',
     'cvinquiry',
     'budgetreport',
+
+    # Aileen
+    'rftype',
+    'prftype',
+    'cstype',
+    'supplieraccount',
+    'categorymaingroup',
+    'categorymainsubgroup',
+    'fxrate',
 ]
 
 MIDDLEWARE_CLASSES = [

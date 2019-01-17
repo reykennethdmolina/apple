@@ -61,6 +61,7 @@ class Companyparameter(models.Model):
     pcv_final_approver = models.ForeignKey(User, default=1, related_name='companyparameter_pcv_final_approver')
     rfv_initial_approver = models.ForeignKey(User, default=1, related_name='companyparameter_rfv_initial_approver')
     rfv_final_approver = models.ForeignKey(User, default=1, related_name='companyparameter_rfv_final_approver')
+
     # default approvers
 
     # petty cash meal expenses defaults
@@ -97,9 +98,6 @@ class Companyparameter(models.Model):
                                                blank=True, null=True)
     coa_currentearnings = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_coa_currentearnings',
                                              blank=True, null=True)
-
-    enable_manual_jv = models.IntegerField(null=True)
-    enable_manual_cv = models.IntegerField(null=True)
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
     enterby = models.ForeignKey(User, default=1, related_name='companyparameter_enter')

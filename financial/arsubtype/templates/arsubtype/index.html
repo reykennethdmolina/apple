@@ -34,6 +34,8 @@
                         <div align="right">
                             <button class="btn w-icon btn-info btn-round waves-effect waves-light" id="buttonSave" type="button"><i class="icon fa-save" aria-hidden="true"></i>&nbsp;&nbsp;SAVE</button>&nbsp;&nbsp;
                             <button class="btn w-icon btn-danger btn-round waves-effect waves-light" id="buttonReset" type="button"><i class="icon fa-refresh" aria-hidden="true"></i>&nbsp;&nbsp;RESET</button>
+{#                            <button class="btn btn-info btn-sm waves-effect waves-light" id="buttonPrint" type="button"><i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;PRINT</button>#}
+                            <a href="{% url 'arsubtype:pdf' %}" target="_blank"><button type="button" class="btn btn-danger btn-sm waves-effect waves-light"><i class="icon fa-file-pdf-o" aria-hidden="true"></i> Report</button></a>
                         </div>
                     </div>
                     <!-- End Basic Table Section -->

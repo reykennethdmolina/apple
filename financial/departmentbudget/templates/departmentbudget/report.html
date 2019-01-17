@@ -104,7 +104,7 @@
                             </div>
                             <div class="form-group col-sm-2">
                                 <label class="control-label small">Year</label>
-                                <input type="text" id="rep_f_month" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
+                                <input type="text" id="rep_f_year" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
                             </div>
                             <div class="form-group col-sm-8">
                                 <label class="control-label small">Department</label>
@@ -143,9 +143,9 @@
             </div>
         </div>
         <div class="col-md-12" style="text-align: center">
-            <div id="iframe_preview" class="panel">
+            <div id="iframe_preview" class="panel" style="overflow: auto;">
                 <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
-                <iframe id="iframehtml" src="{% url 'departmentbudget:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
+                <iframe id="iframehtml" src="{% url 'departmentbudget:reportresulthtml' %}" frameborder="0"></iframe>
             </div>
         </div>
         <div class="clearfix"></div>
@@ -182,9 +182,15 @@
             if($('#rep_f_group').val() != ''){
                 setCookie('rep_f_group_{{ request.resolver_match.app_name }}', $('#rep_f_group').val());
                 setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
-                setCookie('rep_f_month_{{ request.resolver_match.app_name }}', $('#rep_f_month').val());
+                setCookie('rep_f_year_{{ request.resolver_match.app_name }}', $('#rep_f_year').val());
                 setCookie('rep_f_department_{{ request.resolver_match.app_name }}', $('#rep_f_department').val());
                 setCookie('rep_f_gl_{{ request.resolver_match.app_name }}', $('#rep_f_gl').val());
+
+{#                alert($('#rep_f_group').val());#}
+{#                alert($('#rep_f_orientation').val());#}
+{#                alert($('#rep_f_year').val());#}
+{#                alert($('#rep_f_department').val());#}
+{#                alert($('#rep_f_gl').val());#}
 
                 $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'departmentbudget:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
             }
@@ -201,14 +207,14 @@
             $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
         }
         if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
-            $('#rep_f_month').val(getCookie('rep_f_month_{{ request.resolver_match.app_name }}'));
+            $('#rep_f_year').val(getCookie('rep_f_year_{{ request.resolver_match.app_name }}'));
         }
         if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
             $('#rep_f_department').val(getCookie('rep_f_department_{{ request.resolver_match.app_name }}'));
         }
-{#        $('#rep_f_gl').val(getCookie('rep_f_gl_{{ request.resolver_match.app_name }}'));#}
+        $('#rep_f_gl').val(getCookie('rep_f_gl_{{ request.resolver_match.app_name }}'));
 
-        $('#rep_f_month').datepicker( {
+        $('#rep_f_year').datepicker( {
             format: "yyyy",
             weekStart: 1,
             orientation: "bottom",

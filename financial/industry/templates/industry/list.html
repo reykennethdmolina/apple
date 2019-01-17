@@ -110,6 +110,7 @@
             <thead>
                 <tr>
                     <th style="text-align:left;width:200px;vertical-align:top;">Code</th>
+                    <th style="text-align:left;width:300px;vertical-align:top;">Name</th>
                     <th style="text-align:left;vertical-align:top;">Description</th>
                 </tr>
             </thead>
@@ -123,6 +124,7 @@
     {% for item in list %}
         <tr>
             <td style="text-align:left;width:200px;">{{ item.code|upper }}</td>
+            <td style="text-align:left;width:300px;">{{ item.name|upper }}</td>
             <td style="text-align:left">{{ item.description|upper }}</td>
         </tr>
     {% endfor %}

@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import View, ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +7,9 @@ from chartofaccountmaingroup.models import ChartofAccountMainGroup
 from chartofaccountsubgroup.models import ChartofAccountSubGroup
 from . models import MainGroupSubgroup
 from django.core import serializers
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -80,3 +83,18 @@ def getsubgroups(request):
             'status': 'error',
         }
     return JsonResponse(data)
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = MainGroupSubgroup.objects.filter(isdeleted=0).order_by('main_id', 'sub_id')
+        context = {
+            "title": "Chart of Account Grouping Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('chartofaccountmainsubgroup/list.html', context)

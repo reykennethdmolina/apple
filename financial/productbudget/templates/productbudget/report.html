@@ -1,0 +1,232 @@
+{% extends 'base-form.html' %}
+{% load endless %}
+{% load humanize %}
+{% load staticfiles %}
+{% block page-title %}<div style="line-height: 25px;">Product Budget<br><small><small>Report</small></small></div>{% endblock page-title %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout//assets/css/global/panel-transition.min.css' %}" />
+    <style>
+        .panel-title{
+            padding: 12px;
+        }
+        .panel-actions{
+            margin-right: -29px;
+        }
+        .panel-actions a{
+            margin-right: -1px;
+        }
+        .btn-panel{
+            font-size: 15px;
+            padding: 15px;
+        }
+        #rep_f_keyword{
+            border: none;
+            font-size: 15px;
+            font-weight: normal;
+            color: #616161;
+            padding-left: 65px;
+            padding-right: 180px;
+            padding-top: 2px;
+            margin-left: 110px;
+            height: 21px;
+        }
+        #rep_b_print, #rep_b_xls{
+            position: absolute;
+            padding: 15px;
+            margin: -12px;
+            color: white;
+            font-size: 15px;
+            padding-left: 20px;
+            padding-right: 12px;
+        }
+        #rep_b_xls{
+            padding-left: 20px;
+            padding-right: 12px;
+            margin-left: 41px;
+        }
+        #iframe, #iframehtml{
+            width: 100%;
+            height: 900px;
+            position: relative;
+            z-index: 100;
+        }
+        #iframe{
+            display: none;
+        }
+        #iframe_preview{
+            padding: 10px;
+            margin: auto;
+        }
+        .shade{
+            margin-left: -40px;
+            margin-top: -40px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .select2{
+            width: 100% !important;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel-body container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-bordered is-collapse">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a href="{% url 'productbudget:reportresult' %}" target="_blank" class="btn btn-panel btn-danger waves-effect waves-dark" id="rep_b_print">
+                            <i class="icon fa-print" aria-hidden="true"></i>
+                        </a>
+                        <a href="{% url 'productbudget:reportresultxlsx' %}" target="_blank" class="btn btn-panel btn-success waves-effect waves-dark" id="rep_b_xls">
+                            <i class="icon fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                        <div id="rep_f_keyword"></div>
+                    </h3>
+                    <div class="panel-actions">
+                        <a class="btn btn-panel btn-info waves-effect waves-dark" id="rep_b_search" style="padding-left: 23px;padding-right: 23px;margin-right: -3px;">
+                            <i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search
+                        </a>
+                        <a class="btn btn-panel btn-info icon_minus-06 waves-effect waves-dark" data-toggle="panel-collapse" aria-hidden="true" style="padding: 16.5px"></a>
+                    </div>
+                </div>
+                <div class="panel-body" style="padding: 20px;">
+                    <div class="row">
+                        <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Print Orientation</label>
+                                <select class="form-control input-sm select2" id="rep_f_orientation">
+                                    <option value="l">Landscape</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Year</label>
+                                <input type="text" id="rep_f_year" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
+                            </div>
+                            <div class="form-group col-sm-8">
+                                <label class="control-label small">Product</label>
+                                <select class="form-control input-sm select2" id="rep_f_product">
+                                    <option value="">-- Select --</option>
+                                    {% for data in product %}
+                                        <option value="{{ data.pk }}">[{{ data.code }}] {{ data.description }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-12"></div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Group by</label>
+                                <select class="form-control input-sm select2" id="rep_f_group">
+                                    <option value="ps">Product - Summary</option>
+                                    <option value="pd">Product - Detailed</option>
+                                    <option value="as">Account - Summary</option>
+                                    <option value="ad">Account - Detailed</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <label class="row col-md-12 control-label small">Chart of Account</label>
+                                <div class="row col-md-11">
+                                    <select class="form-control input-sm" required style="width: 100%" id="rep_f_gl"></select><br><br>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="#_" class="clear_gl"><i class="icon fa-remove" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <input type="hidden" value="{{ userrole }}" id="user_role">
+            </div>
+        </div>
+        <div class="col-md-12" style="text-align: center">
+            <div id="iframe_preview" class="panel" style="">
+                <div class="shade" style="display: block; z-index: 99; background-color: transparent"><div class="loader two-color" style="margin-top: 200px;"></div></div>
+                <iframe id="iframehtml" src="{% url 'productbudget:reportresulthtml' %}" frameborder="0" scrolling="yes"></iframe>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+<div id="report-search-error" class="custom-alert danger">Select Report Type first.</div>
+{% endblock page-content %}
+{% block extra_js %}
+    {% load staticfiles %}
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+    <script src="{% static 'js/jquery.maskMoney.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/custom-maskMoney.js' %}" type="text/javascript"></script>
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
+    <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+    <script>
+    $(function () {
+        $('.select2').select2({});
+
+        ajaxselect2("chartofaccount_posting", "rep_f_gl");
+
+        $('.clear_gl').on('click', function(){
+            var target = $(this).parent().prev().find('select');
+            if(target.attr('id') == 'rep_f_gl'){
+                target.html("").select2({});
+                ajaxselect2("chartofaccount_posting", "rep_f_gl");
+                $('#rep_f_gl').trigger('change');
+            }
+        });
+
+	    $('#rep_b_search').on('click', function(){
+
+{#            alert($('#rep_f_year').val());#}
+{#            alert($('#rep_f_group').val());#}
+
+            if($('#rep_f_group').val() != ''){
+                setCookie('rep_f_group_{{ request.resolver_match.app_name }}', $('#rep_f_group').val());
+                setCookie('rep_f_orientation_{{ request.resolver_match.app_name }}', $('#rep_f_orientation').val());
+                setCookie('rep_f_year_{{ request.resolver_match.app_name }}', $('#rep_f_year').val());
+                setCookie('rep_f_product_{{ request.resolver_match.app_name }}', $('#rep_f_product').val());
+                setCookie('rep_f_gl_{{ request.resolver_match.app_name }}', $('#rep_f_gl').val());
+
+{#                alert($('#rep_f_group').val());#}
+{#                alert($('#rep_f_orientation').val());#}
+{#                alert($('#rep_f_year').val());#}
+{#                alert($('#rep_f_product').val());#}
+{#                alert($('#rep_f_gl').val());#}
+
+                $('#iframehtml').replaceWith("<iframe id='iframehtml' src='{% url 'productbudget:reportresulthtml' %}' frameborder='0' scrolling='yes'></iframe>");
+            }
+            else{
+                customAlert($('#report-search-error'));
+            }
+	    });
+
+        // assign values
+        if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
+            $('#rep_f_group').val(getCookie('rep_f_group_{{ request.resolver_match.app_name }}'));
+        }
+        if(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}') != 'null'){
+            $('#rep_f_orientation').val(getCookie('rep_f_orientation_{{ request.resolver_match.app_name }}'));
+        }
+        if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
+            $('#rep_f_year').val(getCookie('rep_f_year_{{ request.resolver_match.app_name }}'));
+        }
+        if(getCookie('rep_f_group_{{ request.resolver_match.app_name }}') != 'null'){
+            $('#rep_f_product').val(getCookie('rep_f_product_{{ request.resolver_match.app_name }}'));
+        }
+{#        $('#rep_f_gl').val(getCookie('rep_f_gl_{{ request.resolver_match.app_name }}'));#}
+
+        $('#rep_f_year').datepicker( {
+            format: "yyyy",
+            weekStart: 1,
+            orientation: "bottom",
+            language: "{{ app.request.locale }}",
+            keyboardNavigation: false,
+            viewMode: "years",
+            minViewMode: "years"
+        });
+        $('#iframehtml').contents().find('body').css('overflow', 'auto');
+	});
+    </script>
+{% endblock extra_js %}

@@ -62,10 +62,10 @@ class Productbudget(models.Model):
         return reverse('productbudget:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.code
+        return self.pk
 
     def __unicode__(self):
-        return self.code
+        return unicode(self.pk) or u''
 
     def status_verbose(self):
         return dict(Productbudget.STATUS_CHOICES)[self.status]

@@ -1,0 +1,101 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Report - Product Budget {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.min.css' %}" />
+    <style>
+        .list_header_modified{
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel">
+    <div class="panel-body container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-4">
+                            <label class="control-label small">Report Type</label>
+                            <select class="form-control input-sm" id="report_type">
+                                <option value="1">Product - Summary</option>
+                                <option value="2">Product - Detailed</option>
+                                <option value="3">Account - Summary</option>
+                                <option value="4">Account - Detailed</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <label class="control-label small">Year</label>
+                            <input type="text" id="year" class="form-control input-sm disabled-white" value="{% now 'Y' %}" readonly>
+                        </div>
+                        <div class="form-group col-sm-2">
+                            <a class="btn btn-info waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 100%;">
+                                <i class="icon fa-file-pdf-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                            </a>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="form-group col-sm-6">
+                            <label class="control-label small">Product</label>
+                            <select class="form-control input-sm" style="height: 36px;" id="product">
+                                <option value="">-- Select --</option>
+                                {% for data in product %}
+                                    <option value="{{ data.pk }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label small">Chart of Account [ <span id="clear_chart"><i class="icon fa-close" aria-hidden="true"> Clear</i></span> ]</label>
+                            <select class="form-control input-sm" required style="width: 100%;" id="chartofaccount"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12" style="min-height: 800px">
+                <iframe src="{% url 'productbudget:pdf' %}?report=0&year=&product=&chartofaccount=null" id="result" height="800px" width="100%"></iframe>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/bootstrap-datepicker/js/custom-datepicker.js' %}"></script>
+<script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+$(function(){
+    $('.select2').select2({});
+
+    ajaxselect2("chartofaccount_posting", "chartofaccount");
+
+    $('#year').datepicker( {
+        format: "yyyy",
+        weekStart: 1,
+        orientation: "bottom",
+        language: "{{ app.request.locale }}",
+        keyboardNavigation: false,
+        viewMode: "years",
+        minViewMode: "years"
+    });
+
+    $('#generate').click(function() {
+{#        alert('yes');#}
+        var report = $('#report_type').val();
+        var year = $('#year').val();
+        var product = $('#product').val();
+        var chartofaccount = $('#chartofaccount').val();
+        url = "{% url 'productbudget:pdf' %}"+"?report="+report+"&year="+year+"&product="+product+"&chartofaccount="+chartofaccount;
+        $('#result').prop('src', url);
+    });
+
+    $('#clear_chart').click(function() {
+        $('#chartofaccount').val(null).trigger('change');
+    });
+});
+</script>
+{% endblock extra_js %}

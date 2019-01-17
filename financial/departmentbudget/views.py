@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -7,6 +7,7 @@ from departmentbudget.models import Departmentbudget
 from department.models import Department
 from unit.models import Unit
 from chartofaccount.models import Chartofaccount
+from companyparameter.models import Companyparameter
 # pagination and search
 from endless_pagination.views import AjaxListView
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +15,11 @@ from django.db.models import Q, Sum
 from annoying.functions import get_object_or_None
 from utils.mixins import ReportContentMixin
 from easy_pdf.views import PDFTemplateView
+from financial.utils import Render
+from django.utils import timezone
+from django.template.loader import get_template
+from django.http import HttpResponse
+import pandas as pd
 
 
 @method_decorator(login_required, name='dispatch')
@@ -29,7 +35,8 @@ class IndexView(AjaxListView):
         query = Departmentbudget.objects.all().filter(isdeleted=0)
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(department__code__icontains=keysearch) |
+            query = query.filter(Q(year__icontains=keysearch) |
+                                 Q(department__code__icontains=keysearch) |
                                  Q(department__departmentname__icontains=keysearch) |
                                  Q(chartofaccount__accountcode__icontains=keysearch) |
                                  Q(chartofaccount__description__icontains=keysearch))
@@ -131,7 +138,8 @@ class DeleteView(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Departmentbudget
-    template_name = 'departmentbudget/report.html'
+    template_name = 'departmentbudget/report/index.html'
+    # template_name = 'departmentbudget/report.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
@@ -142,430 +150,314 @@ class ReportView(ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ReportResultHtmlView(ListView):
-    model = Departmentbudget
-    template_name = 'departmentbudget/reportresulthtml.html'
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        new_list = []
+        mtotal = 0
+        list_total = []
+        report = request.GET['report']
+        dyear = request.GET['year']
+        department = request.GET['department']
+        chartofaccount = request.GET['chartofaccount']
+        title = "Department Budget Report"
+        list = Departmentbudget.objects.filter(isdeleted=0).order_by('year')[:0]
 
-    def get_context_data(self, **kwargs):
-        context = super(ListView, self).get_context_data(**kwargs)
-        context['report_type'] = ''
-        context['report_total'] = 0
+        if report == '1':
+            title = "Department - Summary"
+            q = Departmentbudget.objects.filter(isdeleted=0).order_by('year')
+        elif report == '2':
+            title = "Department - Detailed"
+            q = Departmentbudget.objects.filter(isdeleted=0).order_by('year', 'department__code', 'chartofaccount__accountcode')
+        elif report == '3':
+            title = "Account - Summary"
+            q = Departmentbudget.objects.filter(isdeleted=0).order_by('year')
+        elif report == '4':
+            title = "Account - Detailed"
+            q = Departmentbudget.objects.filter(isdeleted=0).order_by('year', 'chartofaccount__accountcode', 'department__code')
 
-        query, context['report_type'], context['report_total'], context['report_xls'], context['year'] = reportresultquery(self.request)
+        # Condition and Statement
+        if dyear != '':
+            q = q.filter(year=dyear)
+        if department != '':
+            q = q.filter(department=department)
 
-        context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
-        context['data_list'] = query
+        if chartofaccount != 'null':
+            q = q.filter(chartofaccount=chartofaccount)
 
-        # pdf config
-        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
-        context['rc_headtitle'] = "DEPARTMENT BUDGET"
-        context['rc_title'] = "DEPARTMENT BUDGET"
+        if report == '1':
+            q = q.values('department__departmentname', 'department__code')\
+                .annotate(
+                   Sum('mjan'),
+                   Sum('mfeb'),
+                   Sum('mmar'),
+                   Sum('mapr'),
+                   Sum('mmay'),
+                   Sum('mjun'),
+                   Sum('mjul'),
+                   Sum('maug'),
+                   Sum('msep'),
+                   Sum('moct'),
+                   Sum('mnov'),
+                   Sum('mdec'),
+                   total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                   )\
+                .order_by('department__code')
+            list_total = q.aggregate(
+                Sum('mjan__sum'),
+                Sum('mfeb__sum'),
+                Sum('mmar__sum'),
+                Sum('mapr__sum'),
+                Sum('mmay__sum'),
+                Sum('mjun__sum'),
+                Sum('mjul__sum'),
+                Sum('maug__sum'),
+                Sum('msep__sum'),
+                Sum('moct__sum'),
+                Sum('mnov__sum'),
+                Sum('mdec__sum'),
+                Sum('total'),
+              )
 
-        return context
+            list = q
+
+        elif report == '2':
+
+            q = q.values('department__code', 'department__departmentname', 'chartofaccount__accountcode', 'chartofaccount__description',
+                         'mjan', 'mfeb', 'mmar', 'mapr', 'mmay', 'mjun', 'mjul', 'maug', 'msep', 'moct', 'mnov', 'mdec')\
+                .order_by('department__code', 'chartofaccount__accountcode')
+            #print q
+            df = pd.DataFrame.from_records(q)
+
+            grandmjan = 0
+            grandmfeb = 0
+            grandmmar = 0
+            grandmapr = 0
+            grandmmay = 0
+            grandmjun = 0
+            grandmjul = 0
+            grandmaug = 0
+            grandmsep = 0
+            grandmoct = 0
+            grandmnov = 0
+            grandmdec = 0
+            grandmtotal = 0
+
+            for code, department in df.fillna('NaN').groupby(['department__code', 'department__departmentname']):
+                submjan = 0
+                submfeb = 0
+                submmar = 0
+                submapr = 0
+                submmay = 0
+                submjun = 0
+                submjul = 0
+                submaug = 0
+                submsep = 0
+                submoct = 0
+                submnov = 0
+                submdec = 0
+                submtotal = 0
+                for item, data in department.iterrows():
+                    mtotal = float(data.mjan)+float(data.mfeb)+float(data.mmar)+float(data.mapr)+float(data.mmay)+float(data.mjun)\
+                             +float(data.mjul)+float(data.maug)+float(data.msep)+float(data.moct)+float(data.mnov)+float(data.mdec)
+                    new_list.append({'dcode': data.department__code, 'department': data.department__departmentname,
+                                     'ccode': data.chartofaccount__accountcode, 'chartofaccount': data.chartofaccount__description,
+                                     'mjan': data.mjan, 'mfeb': data.mfeb, 'mmar': data.mmar, 'mapr': data.mapr,
+                                     'mmay': data.mmay, 'mjun': data.mjun, 'mjul': data.mjul, 'maug': data.maug,
+                                     'msep': data.msep, 'moct': data.moct, 'mnov': data.mnov, 'mdec': data.mdec,
+                                     'mtotal': mtotal })
+
+                    submjan += data.mjan
+                    submfeb += data.mfeb
+                    submmar += data.mmar
+                    submapr += data.mapr
+                    submmay += data.mmay
+                    submjun += data.mjun
+                    submjul += data.mjul
+                    submaug += data.maug
+                    submsep += data.msep
+                    submoct += data.moct
+                    submnov += data.mnov
+                    submdec += data.mdec
+                    submtotal += mtotal
+
+                    grandmjan += data.mjan
+                    grandmfeb += data.mfeb
+                    grandmmar += data.mmar
+                    grandmapr += data.mapr
+                    grandmmay += data.mmay
+                    grandmjun += data.mjun
+                    grandmjul += data.mjul
+                    grandmaug += data.maug
+                    grandmsep += data.msep
+                    grandmoct += data.moct
+                    grandmnov += data.mnov
+                    grandmdec += data.mdec
+                    grandmtotal += mtotal
+
+                new_list.append({'dcode': data.department__code, 'department': data.department__departmentname,
+                                 'ccode': 'subtotal', 'chartofaccount': '',
+                                 'mjan': submjan, 'mfeb': submfeb, 'mmar': submmar, 'mapr': submapr,
+                                 'mmay': submmay, 'mjun': submjun, 'mjul': submjul, 'maug': submaug,
+                                 'msep': submsep, 'moct': submoct, 'mnov': submnov, 'mdec': submdec,
+                                 'mtotal': submtotal })
+
+            list_total.append({'dcode': '', 'department': '',
+                             'ccode': 'grandtotal', 'chartofaccount': '',
+                             'mjan': grandmjan, 'mfeb': grandmfeb, 'mmar': grandmmar, 'mapr': grandmapr,
+                             'mmay': grandmmay, 'mjun': grandmjun, 'mjul': grandmjul, 'maug': grandmaug,
+                             'msep': grandmsep, 'moct': grandmoct, 'mnov': grandmnov, 'mdec': grandmdec,
+                             'mtotal': grandmtotal })
+            #for id, accountcode in df.fillna('NaN').groupby(['chartofaccount_id', 'chartofaccount__accountcode']):
+            #print df
+            list = new_list
+
+        elif report == '3':
+            q = q.values('chartofaccount__description', 'chartofaccount__accountcode')\
+                .annotate(
+                   Sum('mjan'),
+                   Sum('mfeb'),
+                   Sum('mmar'),
+                   Sum('mapr'),
+                   Sum('mmay'),
+                   Sum('mjun'),
+                   Sum('mjul'),
+                   Sum('maug'),
+                   Sum('msep'),
+                   Sum('moct'),
+                   Sum('mnov'),
+                   Sum('mdec'),
+                   total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
+                   )\
+                .order_by('chartofaccount__accountcode')
+            list_total = q.aggregate(
+                Sum('mjan__sum'),
+                Sum('mfeb__sum'),
+                Sum('mmar__sum'),
+                Sum('mapr__sum'),
+                Sum('mmay__sum'),
+                Sum('mjun__sum'),
+                Sum('mjul__sum'),
+                Sum('maug__sum'),
+                Sum('msep__sum'),
+                Sum('moct__sum'),
+                Sum('mnov__sum'),
+                Sum('mdec__sum'),
+                Sum('total'),
+              )
+
+            list = q
+
+        elif report == '4':
+
+            q = q.values('chartofaccount__accountcode', 'chartofaccount__description', 'department__code', 'department__departmentname',
+                         'mjan', 'mfeb', 'mmar', 'mapr', 'mmay', 'mjun', 'mjul', 'maug', 'msep', 'moct', 'mnov', 'mdec')\
+                .order_by('chartofaccount__accountcode', 'department__code')
+            #print q
+            df = pd.DataFrame.from_records(q)
+
+            grandmjan = 0
+            grandmfeb = 0
+            grandmmar = 0
+            grandmapr = 0
+            grandmmay = 0
+            grandmjun = 0
+            grandmjul = 0
+            grandmaug = 0
+            grandmsep = 0
+            grandmoct = 0
+            grandmnov = 0
+            grandmdec = 0
+            grandmtotal = 0
+
+            for code, chartofaccount in df.fillna('NaN').groupby(['chartofaccount__accountcode', 'chartofaccount__description']):
+                submjan = 0
+                submfeb = 0
+                submmar = 0
+                submapr = 0
+                submmay = 0
+                submjun = 0
+                submjul = 0
+                submaug = 0
+                submsep = 0
+                submoct = 0
+                submnov = 0
+                submdec = 0
+                submtotal = 0
+                for item, data in chartofaccount.iterrows():
+                    mtotal = float(data.mjan)+float(data.mfeb)+float(data.mmar)+float(data.mapr)+float(data.mmay)+float(data.mjun)\
+                             +float(data.mjul)+float(data.maug)+float(data.msep)+float(data.moct)+float(data.mnov)+float(data.mdec)
+                    new_list.append({'ccode': data.chartofaccount__accountcode, 'chartofaccount': data.chartofaccount__description,
+                                     'dcode': data.department__code, 'department': data.department__departmentname,
+                                     'mjan': data.mjan, 'mfeb': data.mfeb, 'mmar': data.mmar, 'mapr': data.mapr,
+                                     'mmay': data.mmay, 'mjun': data.mjun, 'mjul': data.mjul, 'maug': data.maug,
+                                     'msep': data.msep, 'moct': data.moct, 'mnov': data.mnov, 'mdec': data.mdec,
+                                     'mtotal': mtotal })
+
+                    submjan += data.mjan
+                    submfeb += data.mfeb
+                    submmar += data.mmar
+                    submapr += data.mapr
+                    submmay += data.mmay
+                    submjun += data.mjun
+                    submjul += data.mjul
+                    submaug += data.maug
+                    submsep += data.msep
+                    submoct += data.moct
+                    submnov += data.mnov
+                    submdec += data.mdec
+                    submtotal += mtotal
+
+                    grandmjan += data.mjan
+                    grandmfeb += data.mfeb
+                    grandmmar += data.mmar
+                    grandmapr += data.mapr
+                    grandmmay += data.mmay
+                    grandmjun += data.mjun
+                    grandmjul += data.mjul
+                    grandmaug += data.maug
+                    grandmsep += data.msep
+                    grandmoct += data.moct
+                    grandmnov += data.mnov
+                    grandmdec += data.mdec
+                    grandmtotal += mtotal
+
+                new_list.append({'ccode': data.chartofaccount__accountcode, 'chartofaccount': data.chartofaccount__description,
+                                 'dcode': 'subtotal', 'department': '',
+                                 'mjan': submjan, 'mfeb': submfeb, 'mmar': submmar, 'mapr': submapr,
+                                 'mmay': submmay, 'mjun': submjun, 'mjul': submjul, 'maug': submaug,
+                                 'msep': submsep, 'moct': submoct, 'mnov': submnov, 'mdec': submdec,
+                                 'mtotal': submtotal })
+
+            list_total.append({'ccode': '', 'chartofaccount': '',
+                             'dcode': 'grandtotal', 'department': '',
+                             'mjan': grandmjan, 'mfeb': grandmfeb, 'mmar': grandmmar, 'mapr': grandmapr,
+                             'mmay': grandmmay, 'mjun': grandmjun, 'mjul': grandmjul, 'maug': grandmaug,
+                             'msep': grandmsep, 'moct': grandmoct, 'mnov': grandmnov, 'mdec': grandmdec,
+                             'mtotal': grandmtotal })
+            #for id, accountcode in df.fillna('NaN').groupby(['chartofaccount_id', 'chartofaccount__accountcode']):
+            #print df
+            list = new_list
 
 
-@method_decorator(login_required, name='dispatch')
-class ReportResultView(ReportContentMixin, PDFTemplateView):
-    model = Departmentbudget
-    template_name = 'departmentbudget/reportresult.html'
+        #print q
 
-    def get_context_data(self, **kwargs):
-        context = super(ReportResultView, self).get_context_data(**kwargs)
-        context['report_type'] = ''
-        context['report_total'] = 0
-
-        query, context['report_type'], context['report_total'], context['report_xls'], context['year'] = reportresultquery(self.request)
-
-        context['report'] = self.request.COOKIES.get('rep_f_group_' + self.request.resolver_match.app_name)
-        context['data_list'] = query
-
-        # pdf config
-        context['rc_orientation'] = ('portrait', 'landscape')[self.request.COOKIES.get('rep_f_orientation_' + self.request.resolver_match.app_name) == 'l']
-        context['rc_headtitle'] = "DEPARTMENT BUDGET"
-        context['rc_title'] = "DEPARTMENT BUDGET"
-
-        return context
-
-
-@csrf_exempt
-def reportresultquery(request):
-    query = ''
-    report_type = ''
-    report_xls = ''
-    report_total = ''
-    report_year = ''
-
-    query = Departmentbudget.objects.all().filter(isdeleted=0)
-
-    if request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_year_' + request.resolver_match.app_name))
-        report_year = key_data
-        query = query.filter(year=key_data)
-    if request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name):
-        key_data = str(request.COOKIES.get('rep_f_department_' + request.resolver_match.app_name))
-        query = query.filter(department=int(key_data))
-    if request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) is not None \
-            and request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name) != 'null':
-        key_data = str(request.COOKIES.get('rep_f_gl_' + request.resolver_match.app_name))
-        query = query.filter(chartofaccount=get_object_or_None(Chartofaccount, pk=int(key_data)))
-
-    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
-
-        report_type = "Department Budget " + str(report_year) + " (Department Summary)"
-        report_xls = "Dept. Budget " + str(report_year) + " (Dept. SM)"
-
-        query = query.values('department', 'department__departmentname', 'department__code')\
-                     .annotate(
-                               Sum('mjan'),
-                               Sum('mfeb'),
-                               Sum('mmar'),
-                               Sum('mapr'),
-                               Sum('mmay'),
-                               Sum('mjun'),
-                               Sum('mjul'),
-                               Sum('maug'),
-                               Sum('msep'),
-                               Sum('moct'),
-                               Sum('mnov'),
-                               Sum('mdec'),
-                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
-                               )\
-                     .order_by('department__code')\
-
-        report_total = query.aggregate(
-                                        Sum('mjan__sum'),
-                                        Sum('mfeb__sum'),
-                                        Sum('mmar__sum'),
-                                        Sum('mapr__sum'),
-                                        Sum('mmay__sum'),
-                                        Sum('mjun__sum'),
-                                        Sum('mjul__sum'),
-                                        Sum('maug__sum'),
-                                        Sum('msep__sum'),
-                                        Sum('moct__sum'),
-                                        Sum('mnov__sum'),
-                                        Sum('mdec__sum'),
-                                        Sum('total'),
-                                      )
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-
-        report_type = "Department Budget " + str(report_year) + " (Account Summary)"
-        report_xls = "Dept. Budget " + str(report_year) + " (Acct. SM)"
-
-        query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
-                     .annotate(
-                               Sum('mjan'),
-                               Sum('mfeb'),
-                               Sum('mmar'),
-                               Sum('mapr'),
-                               Sum('mmay'),
-                               Sum('mjun'),
-                               Sum('mjul'),
-                               Sum('maug'),
-                               Sum('msep'),
-                               Sum('moct'),
-                               Sum('mnov'),
-                               Sum('mdec'),
-                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
-                               )\
-                     .order_by('chartofaccount__accountcode')\
-
-        report_total = query.aggregate(
-                                        Sum('mjan__sum'),
-                                        Sum('mfeb__sum'),
-                                        Sum('mmar__sum'),
-                                        Sum('mapr__sum'),
-                                        Sum('mmay__sum'),
-                                        Sum('mjun__sum'),
-                                        Sum('mjul__sum'),
-                                        Sum('maug__sum'),
-                                        Sum('msep__sum'),
-                                        Sum('moct__sum'),
-                                        Sum('mnov__sum'),
-                                        Sum('mdec__sum'),
-                                        Sum('total'),
-                                      )
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
-
-        report_type = "Department Budget " + str(report_year) + " (Department Detailed)"
-        report_xls = "Dept. Budget " + str(report_year) + " (Dept. DT)"
-
-        query = query.values('department', 'department__departmentname', 'department__code', 'chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description')\
-                     .annotate(
-                               Sum('mjan'),
-                               Sum('mfeb'),
-                               Sum('mmar'),
-                               Sum('mapr'),
-                               Sum('mmay'),
-                               Sum('mjun'),
-                               Sum('mjul'),
-                               Sum('maug'),
-                               Sum('msep'),
-                               Sum('moct'),
-                               Sum('mnov'),
-                               Sum('mdec'),
-                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
-                               )\
-                     .order_by('department__code', 'chartofaccount__accountcode')\
-
-        report_total = query.aggregate(
-                                        Sum('mjan__sum'),
-                                        Sum('mfeb__sum'),
-                                        Sum('mmar__sum'),
-                                        Sum('mapr__sum'),
-                                        Sum('mmay__sum'),
-                                        Sum('mjun__sum'),
-                                        Sum('mjul__sum'),
-                                        Sum('maug__sum'),
-                                        Sum('msep__sum'),
-                                        Sum('moct__sum'),
-                                        Sum('mnov__sum'),
-                                        Sum('mdec__sum'),
-                                        Sum('total'),
-                                      )
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-
-        report_type = "Department Budget " + str(report_year) + " (Account Detailed)"
-        report_xls = "Dept. Budget " + str(report_year) + " (Acct. DT)"
-
-        query = query.values('chartofaccount', 'chartofaccount__accountcode', 'chartofaccount__description', 'department', 'department__departmentname', 'department__code')\
-                     .annotate(
-                               Sum('mjan'),
-                               Sum('mfeb'),
-                               Sum('mmar'),
-                               Sum('mapr'),
-                               Sum('mmay'),
-                               Sum('mjun'),
-                               Sum('mjul'),
-                               Sum('maug'),
-                               Sum('msep'),
-                               Sum('moct'),
-                               Sum('mnov'),
-                               Sum('mdec'),
-                               total=Sum('mjan')+Sum('mfeb')+Sum('mmar')+Sum('mapr')+Sum('mmay')+Sum('mjun')+Sum('mjul')+Sum('maug')+Sum('msep')+Sum('moct')+Sum('mnov')+Sum('mdec'),
-                               )\
-                     .order_by('chartofaccount__accountcode', 'department__code')\
-
-        report_total = query.aggregate(
-                                        Sum('mjan__sum'),
-                                        Sum('mfeb__sum'),
-                                        Sum('mmar__sum'),
-                                        Sum('mapr__sum'),
-                                        Sum('mmay__sum'),
-                                        Sum('mjun__sum'),
-                                        Sum('mjul__sum'),
-                                        Sum('maug__sum'),
-                                        Sum('msep__sum'),
-                                        Sum('moct__sum'),
-                                        Sum('mnov__sum'),
-                                        Sum('mdec__sum'),
-                                        Sum('total'),
-                                      )
-
-    return query, report_type, report_total, report_xls, report_year
-
-
-@csrf_exempt
-def reportresultxlsx(request):
-    # imports and workbook config
-    import xlsxwriter
-    try:
-        import cStringIO as StringIO
-    except ImportError:
-        import StringIO
-    output = StringIO.StringIO()
-    workbook = xlsxwriter.Workbook(output)
-
-    # query and default variables
-    queryset, report_type, report_total, report_xls, report_year = reportresultquery(request)
-    worksheet = workbook.add_worksheet(report_xls)
-    bold = workbook.add_format({'bold': 1})
-    bold_right = workbook.add_format({'bold': 1, 'align': 'right'})
-    bold_center = workbook.add_format({'bold': 1, 'align': 'center'})
-    money_format = workbook.add_format({'num_format': '#,##0.00'})
-    bold_money_format = workbook.add_format({'num_format': '#,##0.00', 'bold': 1})
-    worksheet.set_column(1, 1, 15)
-    row = 0
-    data = []
-
-    # config: placement
-    amount_placement = 0
-    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
-        amount_placement = 1
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-        amount_placement = 1
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
-        amount_placement = 2
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-        amount_placement = 2
-
-    # config: header
-    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
-        worksheet.write('A1', 'Departmet', bold)
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-        worksheet.write('A1', 'Account', bold)
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
-        worksheet.write('A1', 'Department', bold)
-        worksheet.write('B1', 'Account', bold)
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-        worksheet.write('A1', 'Account', bold)
-        worksheet.write('B1', 'Department', bold)
-
-    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-        worksheet.write('B1', 'Jan', bold_right)
-        worksheet.write('C1', 'Feb', bold_right)
-        worksheet.write('D1', 'Mar', bold_right)
-        worksheet.write('E1', 'Apr', bold_right)
-        worksheet.write('F1', 'May', bold_right)
-        worksheet.write('G1', 'Jun', bold_right)
-        worksheet.write('H1', 'Jul', bold_right)
-        worksheet.write('I1', 'Aug', bold_right)
-        worksheet.write('J1', 'Sep', bold_right)
-        worksheet.write('K1', 'Oct', bold_right)
-        worksheet.write('L1', 'Nov', bold_right)
-        worksheet.write('M1', 'Dec', bold_right)
-        worksheet.write('N1', 'Total', bold_right)
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-        worksheet.write('C1', 'Jan', bold_right)
-        worksheet.write('D1', 'Feb', bold_right)
-        worksheet.write('E1', 'Mar', bold_right)
-        worksheet.write('F1', 'Apr', bold_right)
-        worksheet.write('G1', 'May', bold_right)
-        worksheet.write('H1', 'Jun', bold_right)
-        worksheet.write('I1', 'Jul', bold_right)
-        worksheet.write('J1', 'Aug', bold_right)
-        worksheet.write('K1', 'Sep', bold_right)
-        worksheet.write('L1', 'Oct', bold_right)
-        worksheet.write('M1', 'Nov', bold_right)
-        worksheet.write('N1', 'Dec', bold_right)
-        worksheet.write('O1', 'Total', bold_right)
-
-    for obj in queryset:
-        row += 1
-
-        # config: content
-        if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds':
-            data = [
-                obj['department__code'] + ' - ' + obj['department__departmentname'],
-                obj['mjan__sum'],
-                obj['mfeb__sum'],
-                obj['mmar__sum'],
-                obj['mapr__sum'],
-                obj['mmay__sum'],
-                obj['mjun__sum'],
-                obj['mjul__sum'],
-                obj['maug__sum'],
-                obj['msep__sum'],
-                obj['moct__sum'],
-                obj['mnov__sum'],
-                obj['mdec__sum'],
-                obj['total'],
-            ]
-        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-            data = [
-                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
-                obj['mjan__sum'],
-                obj['mfeb__sum'],
-                obj['mmar__sum'],
-                obj['mapr__sum'],
-                obj['mmay__sum'],
-                obj['mjun__sum'],
-                obj['mjul__sum'],
-                obj['maug__sum'],
-                obj['msep__sum'],
-                obj['moct__sum'],
-                obj['mnov__sum'],
-                obj['mdec__sum'],
-                obj['total'],
-            ]
-        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd':
-            data = [
-                obj['department__code'] + ' - ' + obj['department__departmentname'],
-                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
-                obj['mjan__sum'],
-                obj['mfeb__sum'],
-                obj['mmar__sum'],
-                obj['mapr__sum'],
-                obj['mmay__sum'],
-                obj['mjun__sum'],
-                obj['mjul__sum'],
-                obj['maug__sum'],
-                obj['msep__sum'],
-                obj['moct__sum'],
-                obj['mnov__sum'],
-                obj['mdec__sum'],
-                obj['total'],
-            ]
-        elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-            data = [
-                obj['chartofaccount__accountcode'] + ' - ' + obj['chartofaccount__description'],
-                obj['department__code'] + ' - ' + obj['department__departmentname'],
-                obj['mjan__sum'],
-                obj['mfeb__sum'],
-                obj['mmar__sum'],
-                obj['mapr__sum'],
-                obj['mmay__sum'],
-                obj['mjun__sum'],
-                obj['mjul__sum'],
-                obj['maug__sum'],
-                obj['msep__sum'],
-                obj['moct__sum'],
-                obj['mnov__sum'],
-                obj['mdec__sum'],
-                obj['total'],
-            ]
-
-        temp_amount_placement = amount_placement
-        for col_num in xrange(len(data)):
-            if col_num == temp_amount_placement:
-                temp_amount_placement += 1
-                worksheet.write_number(row, col_num, data[col_num], money_format)
-            else:
-                worksheet.write(row, col_num, data[col_num])
-
-    # config: totals
-    if request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ds' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'as':
-        data = [
-            "Total",
-            report_total['mjan__sum__sum'],
-            report_total['mfeb__sum__sum'],
-            report_total['mmar__sum__sum'],
-            report_total['mapr__sum__sum'],
-            report_total['mmay__sum__sum'],
-            report_total['mjun__sum__sum'],
-            report_total['mjul__sum__sum'],
-            report_total['maug__sum__sum'],
-            report_total['msep__sum__sum'],
-            report_total['moct__sum__sum'],
-            report_total['mnov__sum__sum'],
-            report_total['mdec__sum__sum'],
-            report_total['total__sum'],
-        ]
-    elif request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'dd' or request.COOKIES.get('rep_f_group_' + request.resolver_match.app_name) == 'ad':
-        data = [
-            "",
-            "Total",
-            report_total['mjan__sum__sum'],
-            report_total['mfeb__sum__sum'],
-            report_total['mmar__sum__sum'],
-            report_total['mapr__sum__sum'],
-            report_total['mmay__sum__sum'],
-            report_total['mjun__sum__sum'],
-            report_total['mjul__sum__sum'],
-            report_total['maug__sum__sum'],
-            report_total['msep__sum__sum'],
-            report_total['moct__sum__sum'],
-            report_total['mnov__sum__sum'],
-            report_total['mdec__sum__sum'],
-            report_total['total__sum'],
-        ]
-
-    row += 1
-    for col_num in xrange(len(data)):
-        worksheet.write(row, col_num, data[col_num], bold_money_format)
-
-    workbook.close()
-    output.seek(0)
-    response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response['Content-Disposition'] = "attachment; filename="+report_xls+".xlsx"
-    return response
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "list_total": list_total,
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('departmentbudget/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('departmentbudget/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('departmentbudget/report/report_3.html', context)
+        elif report == '4':
+            return Render.render('departmentbudget/report/report_4.html', context)
+        else:
+            return Render.render('departmentbudget/report/report_1.html', context)

@@ -1,0 +1,137 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Category Main Group - Subgroup {% endblock page-title %}
+{% block extra_css %}
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
+    <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/multi-select/css/multi-select.min.css' %}" />
+    <style>
+        .ms-container {
+            width: 100%;
+            color: white;
+        }
+        .ms-container .ms-list {
+            height: 402px;
+        }
+        .ms-elem-selectable, .ms-elem-selection{
+            font-size: 13px;
+            line-height: 2;
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div class="panel-body container-fluid padding-bottom-30">
+        <div class="col-md-4 padding-right-50">
+            <div class="price-list">
+                <ul class="price-features" style="height: 400px; overflow-y: scroll; text-align: left;" id="id_main_groups">
+                    {% for main_group in main_groups %}
+                        <li id="rep_{{ main_group.id }}" class="small" {% if request.GET.selected_main_group|add:0 == main_group.id|add:0 %}style="background-color: #e1e1e1;"{% endif %}>
+{#                            <a href="{% url 'categorymainsubgroup:index' %}?selected_main_group={{ main_group.id }}" data-id="{{ main_group.id }}" {% if request.GET.selected_main_group|add:0 == main_group.id|add:0 %}style="font-weight: bolder;" class="selected_main" {% endif %}>[{{ main_group.code }}]&nbsp;&nbsp;{{ main_group.description }}</a>#}
+                            <a href="{% url 'categorymainsubgroup:index' %}?selected_main_group={{ main_group.id }}" data-id="{{ main_group.id }}" {% if request.GET.selected_main_group|add:0 == main_group.id|add:0 %}style="font-weight: bolder;" class="selected_main" {% endif %}>[{{ main_group.code }}]&nbsp;&nbsp;{{ main_group.description }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-7 padding-left-30">
+            <div class="table-responsive">
+                <select class="multi-select-methods form-control" id="id_subgroups" name="subgroups" multiple="multiple">
+                    {% for subgroup in all_subgroups %}
+                        <option value="{{ subgroup.id }}">
+                            [{{ subgroup.accountcode }}]&nbsp;&nbsp;{{ subgroup.description }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <button type="button" id="select_all" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Select All" title="" aria-describedby="tooltip850155">
+                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+            </button>
+            <br><br>
+            <button type="button" id="deselect_all" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Deselect All" title="" aria-describedby="tooltip850155">
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+            </button>
+            <br><br>
+            <button type="button" id="reset" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Reset" title="" aria-describedby="tooltip850155">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
+            <br><br>
+            <button type="button" id="save" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Save" title="" aria-describedby="tooltip850155">
+                <i class="fa fa-save" aria-hidden="true"></i>
+            </button>
+            <br><br><br><br>
+            <button type="button" id="main_groups_link" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Main Groups" title="" aria-describedby="tooltip850155">
+                <a href="{% url 'categorymaingroup:index' %}" target="_blank"><i class="fa fa-reorder" aria-hidden="true"></i></a>
+            </button>
+            <br><br>
+            <button type="button" id="subgroups_link" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Subgroups" title="" aria-describedby="tooltip850155">
+                <a href="{% url 'chartofaccount:index' %}" target="_blank"><i class="fa fa-server" aria-hidden="true"></i></a>
+            </button>
+            <br><br><br><br>
+            <a href="{% url 'categorymainsubgroup:pdf' %}" >
+                <button type="button" id="print" class="btn btn-floating btn-sm waves-effect waves-float waves-light" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Print" title="" aria-describedby="tooltip850155">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                </button>
+            </a>
+        </div>
+        <div class="clearfix"></div>
+</div>
+{% endblock page-content %}
+{% block extra_js %}
+    <script src="{% static 'financial-layout/assets/plugin/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/multi-select/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'financial-layout/assets/plugin/quicksearch/jquery.quicksearch.js' %}"></script>
+    <script>
+    $(function(){
+        $('#id_subgroups').multiSelect({
+            selectableHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Available Sub-Groups</b></h5>",
+          selectionHeader: "<h5 style='margin-bottom: 0px; padding-bottom: 10px; background-color: #f3f4f5;'><b>Selected Sub-Groups</b></h5>"
+        });
+
+        {% for subgroup in selected_subgroups %}
+            $('#id_subgroups').multiSelect('select', '{{ subgroup.sub.pk }}');
+        {% endfor %}
+
+        $('#save').on('click', function(){
+            if(!$('.selected_main').length){
+                alert("Please select a main group.");
+            }
+            else {
+                if (confirm('Are you sure you want to save the subgroups?')) {
+                    var data = {'selected_subgroups[]': [],
+                                'selected_main_group': $('#id_main_groups').find('.selected_main').data('id')};
+                    $('#id_subgroups > :selected').each(function() {
+                        data['selected_subgroups[]'].push($(this).val());
+                    });
+
+                    $.ajax({
+                        url: "{% url 'categorymainsubgroup:savesubgroups' %}",
+                        type: "post",
+                        data: data,
+                        success: function(){
+                            alert("Subgroups successfully saved!");
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+        });
+        $('#select_all').on('click', function(){
+            $('#id_subgroups').multiSelect('select_all');
+        });
+        $('#deselect_all').on('click', function(){
+            $('#id_subgroups').multiSelect('deselect_all');
+        });
+        $('#reset').on('click', function(){
+            location.reload();
+        });
+
+        if('{{ request.GET.selected_main_group }}' != ''){
+            $('.price-features').scrollTop($('.price-features').scrollTop() + $('li#rep_{{ request.GET.selected_main_group }}').position().top
+                - $('.price-features').height()/2 + $('li#rep_{{ request.GET.selected_main_group }}').height()/2);
+        }
+
+    });
+    </script>
+{% endblock extra_js %}
+

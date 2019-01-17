@@ -101,6 +101,7 @@ class GeneratePDF(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
         list = Agent.objects.filter(isdeleted=0).order_by('code')
+        # list = Agent.objects.filter(isdeleted=0, code__lte='B').order_by('code')
         context = {
             "title": "Agent Master List",
             "today": timezone.now(),

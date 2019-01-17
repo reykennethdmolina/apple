@@ -1,5 +1,5 @@
 import datetime
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404
@@ -10,6 +10,9 @@ from bankaccount.models import Bankaccount
 from industry.models import Industry
 from vat.models import Vat
 from . models import Customer
+from financial.utils import Render
+from django.utils import timezone
+from companyparameter.models import Companyparameter
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -149,3 +152,20 @@ class DeleteView(DeleteView):
         self.object.status = 'I'
         self.object.save()
         return HttpResponseRedirect('/customer')
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Customer.objects.filter(isdeleted=0).order_by('code')
+        # list = Customer.objects.filter(isdeleted=0, code__lte='B').order_by('code')
+
+        context = {
+            "title": "Customer Master List",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('customer/list.html', context)
