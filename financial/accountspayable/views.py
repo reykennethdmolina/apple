@@ -2135,3 +2135,21 @@ def searchforposting(request):
 
     return JsonResponse(data)
 
+@csrf_exempt
+def digibanker(request):
+    print 'digibanker'
+    #MC 01 1218181 PHP 0111007943003 20181218 0000100361172 00193
+
+    text_file = open("accountspayable/txtfile/digibanker.txt", "w")
+
+    batchnum = '170120191'
+    currency = 'PHP'
+    fundacct = '0111007943003'
+    postingdate = '20181218'
+    totalamount = '0000100361172'
+    totalno = '00193'
+
+    header = "MC01"+str(batchnum)+str(currency)+str(fundacct)+str(postingdate)+str(totalamount)+str(totalno)
+
+    text_file.writelines(header)
+    text_file.close()
