@@ -1690,6 +1690,15 @@ class GenerateExcel(View):
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
+        elif report == '7':
+            title = "Official Receipt Register"
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+            if dfrom != '':
+                q = q.filter(ordate__gte=dfrom)
+            if dto != '':
+                q = q.filter(ordate__lte=dto)
+
+
 
         if ortype != '':
             if report == '2' or report == '4':
@@ -1782,13 +1791,15 @@ class GenerateExcel(View):
         worksheet = workbook.add_worksheet()
 
         # variables
-        bold = workbook.add_format({'bold': 1})
+        bold = workbook.jadd_format({'bold': 1})
         formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
         centertext = workbook.add_format({'bold': 1, 'align': 'center'})
 
         # title
         worksheet.write('A1', str(title), bold)
         worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        filename = "orreport.xlsx"
 
         if report == '1':
             # header
@@ -1825,13 +1836,278 @@ class GenerateExcel(View):
             worksheet.write(row, col + 3, 'Total')
             worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
 
+            filename = "ortransactionlistsummary.xlsx"
+
+        elif report == '2':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+
+            totaldebit = 0
+            totalcredit = 0
+
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                worksheet.write(row, col + 2, data.particular)
+                worksheet.write(row, col + 3, data.accounttitle)
+                worksheet.write(row, col + 4, float(format(data.subsledger, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.debit, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.credit, '.2f')))
+
+
+                row += 1
+                totaldebit += data.debit
+                totalcredit += data.credit
+
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+
+            filename = "ortransactionlist.xlsx"
+
+        elif report == '3':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+                worksheet.write(row, col + 3, data.particulars)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+            filename = "unpostedortransactionlistsummary.xlsx"
+
+        elif report == '4':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+
+            totaldebit = 0
+            totalcredit = 0
+
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                worksheet.write(row, col + 2, data.particular)
+                worksheet.write(row, col + 3, data.accounttitle)
+                worksheet.write(row, col + 4, float(format(data.subsledger, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.debit, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.credit, '.2f')))
+
+
+                row += 1
+                totaldebit += data.debit
+                totalcredit += data.credit
+
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+
+            filename = "unpostedortransactionlist.xlsx"
+
+        elif report == '5':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Amount', bold)
+            worksheet.write('E4', 'Cash in Bank', bold)
+            worksheet.write('F4', 'Difference', bold)
+            worksheet.write('G4', 'Output VAT', bold)
+            worksheet.write('H4', 'Amount Due', bold)
+            worksheet.write('I4', 'Status', bold)
+
+            row = 4
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            totalcashinbank = 0
+            totaldiff = 0
+            totaloutputvat = 0
+            totalamountdue = 0
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 3, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 3, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                worksheet.write(row, col + 4, float(format(data.cashinbank, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.diff, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.outputvat, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.amountdue, '.2f')))
+                worksheet.write(row, col + 8, data.status)
+
+                row += 1
+                totalamount += amount
+                totalcashinbank += data.cashinbank
+                totaldiff += data.diff
+                totaloutputvat += data.outputvat
+                totalamountdue += data.amountdue
+
+
+            worksheet.write(row, col + 2, 'Total')
+            worksheet.write(row, col + 3, float(format(totalamount, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalcashinbank, '.2f')))
+            worksheet.write(row, col + 5, float(format(totaldiff, '.2f')))
+            worksheet.write(row, col + 6, float(format(totaloutputvat, '.2f')))
+            worksheet.write(row, col + 7, float(format(totalamountdue, '.2f')))
+
+            filename = "OfficialReceiptList.xlsx"
+        elif report == '6':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Total Amount', bold)
+            worksheet.write('E4', 'Debit Amount', bold)
+            worksheet.write('F4', 'Credit Amount', bold)
+            worksheet.write('G4', 'Variance', bold)
+            worksheet.write('H4', 'Status', bold)
+
+            row = 4
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            totaldebit = 0
+            totalcredit = 0
+            totalvariance = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 3, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 3, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                worksheet.write(row, col + 4, float(format(data.debitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.creditamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.totaldiff, '.2f')))
+                worksheet.write(row, col + 7, data.status)
+
+                row += 1
+                totalamount += amount
+                totaldebit += data.debitamount
+                totalcredit += data.creditamount
+                totalvariance += data.totaldiff
+
+
+            worksheet.write(row, col + 2, 'Total')
+            worksheet.write(row, col + 3, float(format(totalamount, '.2f')))
+            worksheet.write(row, col + 4, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalcredit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalvariance, '.2f')))
+
+            filename = "UnbalancedOfficialReceiptTransanctionList.xlsx"
+
+        elif report == '7':
+            # header
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+            filename = "officialreceiptregister.xlsx"
+
+
         workbook.close()
 
         # Rewind the buffer.
         output.seek(0)
 
         # Set up the Http response.
-        filename = "orreport.xlsx"
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
