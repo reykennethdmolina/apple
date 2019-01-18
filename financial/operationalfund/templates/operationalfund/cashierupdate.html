@@ -372,7 +372,7 @@
                                                         </div>
                                                         <div class="form-group col-sm-2" {% if itemtemp.ofsubtype.id != mealexpense %} hidden="hidden" {% endif %}>
                                                             <label class="control-label"><small>No. of Pax</small></label>
-                                                            <input type="number" class="form-control input-sm no_of_pax" name="item_noofpax" form="form-b" value="{{ itemtemp.noofpax|default:'' }}">
+                                                            <input type="number" class="form-control input-sm no_of_pax" name="item_noofpax" form="form-b" value="{{ itemtemp.noofpax|default:'0' }}">
                                                         </div>
                                                         <div class="form-group col-sm-4" {% if itemtemp.ofsubtype.id != mealexpense %} hidden="hidden" {% endif %}>
                                                             <code class="budget_warning" style="display: none">*The amount exceeds the {{ mealbudget }}-peso limit per pax. This shall be subject for review.</code>
@@ -669,7 +669,7 @@
             //disabling of some elements from usercreate screen 08172017
             $("#id_payee").prop("readonly", true);
             $(".input-search-button").hide();
-            $("#id_requestor option:selected").siblings().attr('disabled','disabled');
+            <!--$("#id_requestor option:selected").siblings().attr('disabled','disabled');-->
 {#            $("#id_department option:selected").siblings().attr('disabled','disabled');#}
             $("#id_employee option:selected").siblings().attr('disabled','disabled');
             $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');

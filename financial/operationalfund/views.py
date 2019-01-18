@@ -48,7 +48,7 @@ from bankaccount.models import Bankaccount
 from product.models import Product
 from customer.models import Customer
 from annoying.functions import get_object_or_None
-import decimal
+from decimal import Decimal
 
 
 @method_decorator(login_required, name='dispatch')
@@ -582,8 +582,9 @@ class UpdateViewUser(UpdateView):
                     self.object.department = department
                     self.object.department_code = department.code
                     self.object.department_name = department.departmentname
-                    self.object.refnum = self.request.POST['refnum']
-                    self.object.cashadv_amount = self.request.POST['cashadv_amount']
+                    if self.request.POST['oftype'] == '6':
+                        self.object.refnum = self.request.POST['refnum']
+                        self.object.cashadv_amount = self.request.POST['cashadv_amount']
 
                     # ----------------- START save ofitemtemp to ofitem START ---------------------
                     Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=0).update(isdeleted=2)
@@ -621,12 +622,11 @@ class UpdateViewUser(UpdateView):
 
                     Ofitem.objects.filter(ofmain=self.object.pk, isdeleted=2).delete()
                     # ----------------- END save ofitemtemp to ofitem END ---------------------
-
-                    self.object.amount = totalamount
-                    self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover',
-                                                    'modifyby', 'modifydate', 'requestor', 'requestor_code',
-                                                    'requestor_name', 'department', 'department_code', 'refnum', 'cashadv_amount',
-                                                    'department_name'])
+                    self.object.amount = Decimal(totalamount)
+                    if self.request.POST['oftype'] == '6':
+                        self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name', 'refnum', 'cashadv_amount'])
+                    else:
+                        self.object.save(update_fields=['ofdate', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
