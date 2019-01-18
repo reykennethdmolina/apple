@@ -18,6 +18,8 @@ from easy_pdf.views import PDFTemplateView
 from . models import Rfmain, Rfdetail, Rfdetailtemp
 from dateutil.relativedelta import relativedelta
 import datetime
+from annoying.functions import get_object_or_None
+from employee.models import Employee
 
 # pagination and search
 from endless_pagination.views import AjaxListView
@@ -38,16 +40,18 @@ class IndexView(AjaxListView):
     # pagination and search
     page_template = 'requisitionform/index_list.html'
     def get_queryset(self):
+        print self.request.user.has_perm('requisitionform.view_assignrf')
+        print 'test'
         if self.request.user.has_perm('requisitionform.view_assignrf') and not self.request.user.has_perm('requisitionform.view_allassignrf'):
-            user_employee = get_object_or_None(Employee, user=self.request.user)
+            #print self.request.user.id
+            user_employee = get_object_or_None(Employee, user_id=self.request.user.id)
+            #print 'hey'
             if user_employee is not None:
-                query = Rfmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                query = Rfmain.objects.filter(designatedapprover_id=self.request.user.id) | Rfmain.objects.filter(enterby=self.request.user.id)
                 query = query.filter(isdeleted=0)
-                #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
-                #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
-                #query = query.union(query2).order_by('~id')
+
             else:
-                query = Ofmain.objects.all().filter(isdeleted=0)
+                query = Rfmain.objects.all().filter(isdeleted=0)
         else:
             if self.request.user.has_perm('requisitionform.view_assignrf'):
                 query = Rfmain.objects.all().filter(isdeleted=0)
