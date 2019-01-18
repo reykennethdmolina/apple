@@ -38,7 +38,22 @@ class IndexView(AjaxListView):
     # pagination and search
     page_template = 'requisitionform/index_list.html'
     def get_queryset(self):
-        query = Rfmain.objects.all().filter(isdeleted=0)
+        if self.request.user.has_perm('requisitionform.view_assignrf') and not self.request.user.has_perm('requisitionform.view_allassignrf'):
+            user_employee = get_object_or_None(Employee, user=self.request.user)
+            if user_employee is not None:
+                query = Rfmain.objects.filter(designatedapprover=user_employee) | Ofmain.objects.filter(enterby=self.request.user.id)
+                query = query.filter(isdeleted=0)
+                #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
+                #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+                #query = query.union(query2).order_by('~id')
+            else:
+                query = Ofmain.objects.all().filter(isdeleted=0)
+        else:
+            if self.request.user.has_perm('requisitionform.view_assignrf'):
+                query = Rfmain.objects.all().filter(isdeleted=0)
+            else:
+                query = Rfmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(rfnum__icontains=keysearch) |
