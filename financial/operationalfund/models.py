@@ -29,6 +29,7 @@ class Ofmain(models.Model):
         ('F', 'For Approval'),
         ('A', 'Approved'),
         ('D', 'Disapproved'),
+        ('C', 'Cancelled'),
         ('I', 'In Process'),
         ('O', 'For JV'),
         ('P', 'JV in Process'),

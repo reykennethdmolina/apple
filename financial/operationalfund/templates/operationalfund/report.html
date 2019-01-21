@@ -297,7 +297,21 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col-sm-4" id="rep_f_amount_holder">
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Released Date</label><br>
+                                <div class="input-daterange datarange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control input-sm datepickerfrom" id="rep_f_rdatefrom">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="text" class="form-control input-sm datepickerto" id="rep_f_rdateto">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-4" id="rep_f_amount_holder" style="display: none;">
                                 <label class="control-label small">Amount</label><br>
                                 <div class="input-daterange">
                                     <div class="input-group">
@@ -617,6 +631,8 @@
                 setCookie('rep_f_numto_{{ request.resolver_match.app_name }}', $('#rep_f_numto').val());
                 setCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}', $('#rep_f_datefrom').val());
                 setCookie('rep_f_dateto_{{ request.resolver_match.app_name }}', $('#rep_f_dateto').val());
+                setCookie('rep_f_rdatefrom_{{ request.resolver_match.app_name }}', $('#rep_f_rdatefrom').val());
+                setCookie('rep_f_rdateto_{{ request.resolver_match.app_name }}', $('#rep_f_rdateto').val());
                 setCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}', $('#rep_f_amountfrom').val());
                 setCookie('rep_f_amountto_{{ request.resolver_match.app_name }}', $('#rep_f_amountto').val());
                 setCookie('rep_f_oftype_{{ request.resolver_match.app_name }}', $('#rep_f_oftype').val());
@@ -690,6 +706,8 @@
         $('#rep_f_numto').val(getCookie('rep_f_numto_{{ request.resolver_match.app_name }}'));
         $('#rep_f_datefrom').val(getCookie('rep_f_datefrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_dateto').val(getCookie('rep_f_dateto_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_rdatefrom').val(getCookie('rep_f_rdatefrom_{{ request.resolver_match.app_name }}'));
+        $('#rep_f_rdateto').val(getCookie('rep_f_rdateto_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountfrom').val(getCookie('rep_f_amountfrom_{{ request.resolver_match.app_name }}'));
         $('#rep_f_amountto').val(getCookie('rep_f_amountto_{{ request.resolver_match.app_name }}'));
         $('#rep_f_oftype').val(getCookie('rep_f_oftype_{{ request.resolver_match.app_name }}'));
@@ -749,7 +767,7 @@
                 $('#rep_f_order_holder').hide();
                 $('#rep_f_uborder_holder').hide();
 
-                $('#rep_f_amount_holder').show();
+                $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').show();
 
                 $('#rep_f_orientation').val('l');
@@ -763,7 +781,7 @@
                 $('#rep_f_order_holder').hide();
                 $('#rep_f_uborder_holder').show();
 
-                $('#rep_f_amount_holder').show();
+                $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').show();
 
                 $('#rep_f_orientation').val('p');
@@ -778,7 +796,7 @@
                 $('#rep_f_order_holder').show();
                 $('#rep_f_uborder_holder').hide();
 
-                $('#rep_f_amount_holder').show();
+                $('#rep_f_amount_holder').hide();
                 $('#rep_f_asc_holder').show();
 
                 $('#rep_f_orientation').val('p');

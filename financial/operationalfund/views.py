@@ -1438,6 +1438,13 @@ def reportresultquery(request):
             key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
             query = query.filter(ofdate__lte=key_data)
 
+        if request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__gte=key_data)
+        if request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__lte=key_data)
+
         if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
             query = query.filter(oftype=int(key_data))
@@ -1481,6 +1488,13 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
             query = query.filter(ofmain__ofdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__gte=key_data)
+        if request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__lte=key_data)
 
         if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
@@ -1554,6 +1568,13 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
             query = query.filter(ofmain__ofdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__gte=key_data)
+        if request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__lte=key_data)
 
         if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
@@ -1700,6 +1721,13 @@ def reportresultquery(request):
         if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name))
             query = query.filter(ofmain__ofdate__lte=key_data)
+
+        if request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__gte=key_data)
+        if request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name):
+            key_data = str(request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name))
+            query = query.filter(releasedate__lte=key_data)
 
         if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
