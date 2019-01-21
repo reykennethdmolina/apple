@@ -168,7 +168,7 @@ urlpatterns = [
     url(r'^categorymaingroup/', include('categorymaingroup.urls', app_name='categorymaingroup', namespace='categorymaingroup')),
     url(r'^categorymainsubgroup/', include('categorymainsubgroup.urls', app_name='categorymainsubgroup', namespace='categorymainsubgroup')),
     url(r'^fxrate/', include('fxrate.urls', app_name='fxrate', namespace='fxrate')),
-    url(r'^rep_contributionmargin/', include('rep_contributionmargin.urls', app_name='rep_contributionmargin', namespace='rep_contributionmargin')),
+    #url(r'^rep_contributionmargin/', include('rep_contributionmargin.urls', app_name='rep_contributionmargin', namespace='rep_contributionmargin')),
 
     # Login/Logout URLs
     url(r'^login/$', login, {'template_name': 'login.html'}),
