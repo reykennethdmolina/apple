@@ -181,6 +181,7 @@ INSTALLED_APPS = [
     'categorymaingroup',
     'categorymainsubgroup',
     'fxrate',
+    'rep_contributionmargin',
 ]
 
 MIDDLEWARE_CLASSES = [

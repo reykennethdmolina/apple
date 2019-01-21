@@ -83,3 +83,65 @@ def add_beg(value, arg):
     new_val = float(value) + float(arg)
     return new_val
 
+@register.filter
+def subtotal_jan(list):
+    return sum([d.mjan for d in list])
+
+@register.filter
+def subtotal_feb(list):
+    return sum([d.mfeb for d in list])
+
+@register.filter
+def subtotal_mar(list):
+    return sum([d.mmar for d in list])
+
+@register.filter
+def subtotal_apr(list):
+    return sum([d.mapr for d in list])
+
+@register.filter
+def subtotal_may(list):
+    return sum([d.mmay for d in list])
+
+@register.filter
+def subtotal_jun(list):
+    return sum([d.mjun for d in list])
+
+@register.filter
+def subtotal_jul(list):
+    return sum([d.mjul for d in list])
+
+@register.filter
+def subtotal_aug(list):
+    return sum([d.maug for d in list])
+
+@register.filter
+def subtotal_sep(list):
+    return sum([d.msep for d in list])
+
+@register.filter
+def subtotal_oct(list):
+    return sum([d.moct for d in list])
+
+@register.filter
+def subtotal_nov(list):
+    return sum([d.mnov for d in list])
+
+@register.filter
+def subtotal_dec(list):
+    return sum([d.mdec for d in list])
+
+@register.filter
+def subtotal_total(list):
+    return sum([d.mtotal for d in list])
+
+@register.filter
+def subtotal_amount(list):
+    return sum([d.amount_subtotal for d in list])
+
+@register.filter
+def sum_amount(list):
+    print "hello"
+    return sum([d.amount for d in list])
+
+
