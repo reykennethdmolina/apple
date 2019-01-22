@@ -1,4 +1,4 @@
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import DetailView, View, CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -29,6 +29,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import datetime
+from django.utils import timezone
 from endless_pagination.views import AjaxListView
 from annoying.functions import get_object_or_None
 from easy_pdf.views import PDFTemplateView
@@ -49,6 +50,7 @@ from product.models import Product
 from customer.models import Customer
 from annoying.functions import get_object_or_None
 from decimal import Decimal
+from financial.utils import Render
 
 
 @method_decorator(login_required, name='dispatch')
@@ -116,24 +118,24 @@ class IndexView(AjaxListView):
 @method_decorator(login_required, name='dispatch')
 class ReportView(ListView):
     model = Ofmain
-    template_name = 'operationalfund/report.html'
+    template_name = 'operationalfund/report/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListView, self).get_context_data(**kwargs)
 
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('description')
-        context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('description')
-        context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
+        #context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('description')
+        #context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
         context['user'] = Employee.objects.filter(isdeleted=0).exclude(firstname='').order_by('firstname')
-        context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
-        context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
-        context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
+        #context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
+        #context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        #context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
-        context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
-        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
-        context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
-        context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
-        context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        #context['unit'] = Unit.objects.filter(isdeleted=0).order_by('code')
+        #context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+        #context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
+        #context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
 
         return context
 
@@ -1724,10 +1726,10 @@ def reportresultquery(request):
 
         if request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_rdatefrom_' + request.resolver_match.app_name))
-            query = query.filter(releasedate__gte=key_data)
-        if request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name):
+            query = query.filter(ofmain__releasedate__gte=key_data)
+        if request.COOKIES.get('rep_f_dateto_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_rdateto_' + request.resolver_match.app_name))
-            query = query.filter(releasedate__lte=key_data)
+            query = query.filter(ofmain__releasedate__lte=key_data)
 
         if request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name):
             key_data = str(request.COOKIES.get('rep_f_oftype_' + request.resolver_match.app_name))
@@ -1904,7 +1906,7 @@ def reportresultxlsx(request):
     # config: placement
     amount_placement = 0
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
-        amount_placement = 4
+        amount_placement = 5
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         amount_placement = 9
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ub' or request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'ae':
@@ -1918,9 +1920,10 @@ def reportresultxlsx(request):
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
         worksheet.write('A1', 'OF Number', bold)
         worksheet.write('B1', 'Date', bold)
-        worksheet.write('C1', 'Requestor', bold)
-        worksheet.write('D1', 'Status', bold)
-        worksheet.write('E1', 'Amount', bold_right)
+        worksheet.write('C1', 'Released Date', bold)
+        worksheet.write('D1', 'Requestor', bold)
+        worksheet.write('E1', 'Status', bold)
+        worksheet.write('F1', 'Amount', bold_right)
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
         worksheet.write('A1', 'OF Number', bold)
         worksheet.write('B1', 'Date', bold)
@@ -1978,6 +1981,7 @@ def reportresultxlsx(request):
             data = [
                 "OF-" + obj.oftype.code + "-" + obj.ofnum,
                 DateFormat(obj.ofdate).format('Y-m-d'),
+                DateFormat(obj.releasedate).format('Y-m-d'),
                 obj.requestor.firstname + " " + obj.requestor.lastname,
                 obj.get_ofstatus_display(),
                 obj.amount,
@@ -2069,7 +2073,7 @@ def reportresultxlsx(request):
     # config: totals
     if request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 's':
         data = [
-            "", "", "",
+            "", "", "", "",
             "Total", report_total['amount__sum'],
         ]
     elif request.COOKIES.get('rep_f_report_' + request.resolver_match.app_name) == 'd':
@@ -2539,3 +2543,112 @@ def gopostliq(request):
         data = { 'status': 'error' }
 
     return JsonResponse(data)
+
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        drfrom = request.GET['rfrom']
+        drto = request.GET['rto']
+        oftype = request.GET['oftype']
+        requestor = request.GET['requestor']
+        approver = request.GET['approver']
+        department = request.GET['department']
+        status = request.GET['status']
+        title = "Operation Fund - Summary"
+        list = Ofmain.objects.filter(isdeleted=0).order_by('ofnum')[:0]
+        datefrom = ''
+        dateto = ''
+
+        if report == '1':
+            title = "Operation Fund - Summary"
+            q = Ofmain.objects.filter(isdeleted=0).order_by('ofnum', 'ofdate')
+        elif report == '2':
+            title = "Operation Fund - Detailed"
+            q = Ofitem.objects.select_related('ofmain').filter(isdeleted=0).order_by('ofnum', 'ofdate', 'item_counter')
+
+        if dfrom != '':
+            if report == '2':
+                q = q.filter(ofmain__ofdate__gte=dfrom)
+            else:
+                q = q.filter(ofdate__gte=dfrom)
+                datefrom = datetime.datetime.strptime(dfrom, '%Y-%m-%d')
+        if dto != '':
+            if report == '2':
+                q = q.filter(ofmain__ofdate__gte=dto)
+            else:
+                q = q.filter(ofdate__lte=dto)
+            dateto = datetime.datetime.strptime(dto, '%Y-%m-%d')
+
+        if oftype != '':
+            if report == '2':
+                q = q.filter(ofmain__oftype=oftype)
+            else:
+                q = q.filter(oftype=oftype)
+
+        if drfrom != '':
+            if report == '2':
+                q = q.filter(ofmain__releasedate__gte=datetime.datetime.strptime(drfrom, '%Y-%m-%d'))
+            else:
+                q = q.filter(releasedate__gte=datetime.datetime.strptime(drfrom, '%Y-%m-%d'))
+        if drto != '':
+            if report == '2':
+                q = q.filter(ofmain__releasedate__lte=drto + ' 23:59:59')
+            else:
+                q = q.filter(releasedate__lte=drto+' 23:59:59')
+
+        if status != '':
+            if report == '2':
+                q = q.filter(ofmain__ofstatus=status)
+            else:
+                q = q.filter(ofstatus=status)
+
+        if requestor != '':
+            if report == '2':
+                q = q.filter(ofmain__requestor=requestor)
+            else:
+                q = q.filter(requestor=requestor)
+
+        if approver != '':
+            if report == '2':
+                q = q.filter(ofmain__actualapprover=approver)
+            else:
+                q = q.filter(actualapprover=approver)
+
+        if department != '':
+            if report == '2':
+                q = q.filter(ofmain__department=department)
+            else:
+                q = q.filter(department=department)
+
+        list = q
+        if list:
+            total = list.aggregate(total_amount=Sum('amount'))
+        #     if report == '2' or report == '4':
+        #         total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "datefrom": datefrom,
+            "dateto": dateto,
+            "username": request.user,
+        }
+        if report == '1':
+            return Render.render('operationalfund/report/report_1.html', context)
+        elif report == '2':
+            return Render.render('operationalfund/report/report_2.html', context)
+        else:
+            return Render.render('operationalfund/report/report_1.html', context)
+
+

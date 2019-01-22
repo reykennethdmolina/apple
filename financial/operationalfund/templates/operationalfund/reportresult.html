@@ -15,6 +15,7 @@
                 <tr>
                     <td style="width: 20%;">OF-{{ data.oftype.code }}-{{ data.ofnum }}</td>
                     <td style="width: 20%;">{{ data.ofdate|date:'Y-m-d' }}</td>
+                    <td style="width: 20%;">{{ data.releasedate|date:'Y-m-d' }}</td>
                     <td style="width: 30%;">{{ data.requestor.firstname }}&nbsp;{{ data.requestor.lastname }}</td>
                     <td style="width: 10%;">{{ data.get_ofstatus_display }}</td>
                     <td style="width: 20%;" class="right">{{ data.amount|floatformat:2|intcomma }}</td>
@@ -22,7 +23,7 @@
             {% endfor %}
             <tr><td colspan="5"></td></tr>
             <tr style="border-top: 1px solid grey; padding-top: 5px;">
-                <td colspan="4"><b>Total</b></td>
+                <td colspan="5"><b>Total</b></td>
                 <td class="right"><b>{{ report_total.amount__sum|floatformat:2|intcomma }}</b></td>
             </tr>
         </table>

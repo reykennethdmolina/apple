@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    {% load custom %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LETTER LANDSCAPE;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 4.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5.4cm; left: 1cm; width: 26cm; height: 15cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+            </tr>
+           <tr>
+                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align:left;width:300px">OF Type</th>
+                    <th style="text-align:left;width:300px">&nbsp;&nbsp;Payee</th>
+                    <th style="text-align:left;">&nbsp;&nbsp;Particulars</th>
+                    <th style="text-align:left;width:120px">Amount</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<table id="content-data">
+    <tbody>
+    {% regroup list by ofmain.ofnum as result_list %}
+
+    {% for group in result_list %}
+        <tr style="margin-bottom:15px">
+            <td style="text-align:left;width:300px"><b>OF{{ group.list.0.ofmain.oftype }}{{ group.list.0.ofmain.ofnum }}&nbsp;&nbsp;&nbsp;{{ group.list.0.ofmain.ofdate|date:'Y-m-d' }}</b></td>
+            <td style="text-align:left;width:300px"><b>{{ group.list.0.ofmain.oftype.description }}</b></td>
+            <td style="text-align:left;"><b>{{ group.list.0.ofmain.requestor_name }}</b></td>
+            <td style="text-align:right;width:120px"><b>{{ group.list.0.ofmain.amount|floatformat:2|intcomma }}</b></td>
+        </tr>
+        {% for item in group.list %}
+        <tr>
+            <td style="text-align:left;vertical-align:top;width:300px">{{ item.ofsubtype.description }}</td>
+            <td style="text-align:left;width:300px;vertical-align:top;">{{ item.payee_name }}</td>
+            <td style="text-align:left;vertical-align:top;">{{ item.particulars }} {{ item.periodfrom|default:'' }} {{ item.periodto|default:'' }} {{ item.refnum|default:'' }} {{ item.remarks|default:'' }}</td>
+            <td style="text-align:right;width:120px;vertical-align:top;">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+    {% endfor %}
+
+    <tr>
+        <td colspan="3"></td>
+        <td style="border-top:2px solid #000;padding:5px;"></td>
+    </tr>
+    <tr>
+        <td colspan="3" style="text-align:right;vertical-align:top;margin-right:20px;"><b>Total</b></td>
+        <td style="text-align:right;width:120px;vertical-align:top;"><b>{{ total.total_amount|floatformat:2|intcomma }}</b></td>
+    </tr>
+    </tbody>
+
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>

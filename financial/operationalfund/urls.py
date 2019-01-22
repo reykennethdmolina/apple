@@ -19,10 +19,15 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^(?P<pk>[0-9]+)/userpdf/$', views.UserPdf.as_view(), name='userpdf'),
     url(r'^(?P<pk>[0-9]+)/cashierpdf/$', views.CashierPdf.as_view(), name='cashierpdf'),
+
     url(r'^report/$', views.ReportView.as_view(), name='report'),
-    url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
-    url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
-    url(r'^reportresulthtml/$', views.ReportResultHtmlView.as_view(), name='reportresulthtml'),
+    url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+
+    # url(r'^report/$', views.ReportView.as_view(), name='report'),
+    # url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),
+    # url(r'^reportresultxlsx/$', views.reportresultxlsx, name='reportresultxlsx'),
+    # url(r'^reportresulthtml/$', views.ReportResultHtmlView.as_view(), name='reportresulthtml'),
+
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^searchforpostingReim/$', views.searchforpostingReim, name='searchforpostingReim'),
     url(r'^searchforpostingLiq/$', views.searchforpostingLiq, name='searchforpostingLiq'),
