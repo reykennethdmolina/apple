@@ -349,7 +349,7 @@
                     var info = $.parseJSON(response.info);
 
                     $("#detail_chartofaccount").html("<option value='"+info[0].chartofaccount+"'>["+info[0].chartofaccount_accountcode+"] - "+info[0].chartofaccount_title+"</option>");
-                    $("#detail_chartofaccount").attr('getunit', 2).trigger('change').attr('disabled','disabled');
+                    <!--$("#detail_chartofaccount").attr('getunit', 2).trigger('change').attr('disabled','disabled');-->
 
                     $("#detail_department").html("<option value='"+info[0].department+"'>"+info[0].department_departmentname+"</option>").trigger('change');
                     if (info[0].employeebreakstatus == 1 || info[0].employeebreakstatus == 2) {
