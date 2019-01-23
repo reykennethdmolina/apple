@@ -581,11 +581,12 @@ class UpdateView(UpdateView):
                 # alldetail.vatamount = addedVat
                 # alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
 
-                alldetail.vatable = atd.vatable
-                alldetail.vatexempt = atd.vatexempt
-                alldetail.vatzerorated = atd.vatzerorated
-                alldetail.vatamount = atd.vatamount
-                alldetail.netamount = float(atd.vatable) + float(atd.vatexempt) + float(atd.vatzerorated) + float(atd.vatamount)
+                alldetail.vatable = self.request.POST.getlist('hdn_tblVatable')[i - 1]
+                alldetail.vatexempt = self.request.POST.getlist('hdn_tblVatExempt')[i - 1]
+                alldetail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
+                alldetail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
+                alldetail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
+                alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail   .vatamount)
 
 
                 # replaced the computed values with values provided by user on screens
