@@ -503,6 +503,7 @@ class UpdateView(UpdateView):
             i = 1
             pomain_totalamount = 0
             for atd in alltempdetail:
+
                 # START: transfer po detail temp data to po detail, reflecting changes made in the screen
                 alldetail = Podetail()
                 alldetail.item_counter = i
@@ -574,10 +575,16 @@ class UpdateView(UpdateView):
                 else:
                     vatable = totalPurchase
 
-                alldetail.vatable = vatable
-                alldetail.vatexempt = vatexempt
-                alldetail.vatzerorated = vatzerorated
-                alldetail.vatamount = addedVat
+                # alldetail.vatable = vatable
+                # alldetail.vatexempt = vatexempt
+                # alldetail.vatzerorated = vatzerorated
+                # alldetail.vatamount = addedVat
+                # alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
+
+                alldetail.vatable = 10
+                alldetail.vatexempt = 10
+                alldetail.vatzerorated = 10
+                alldetail.vatamount = 10
                 alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
 
 

@@ -56,7 +56,7 @@
                             <ul class="dropdown-menu dropdown-menu-info" style="font-size: 12px;" aria-labelledby="ColorDropdown3" role="menu">
                                 <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=potocv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Purchase Order</a></li>
                                 <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=apvtocv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Accounts Payable Voucher</a></li>
-                                {% if perms.checkvoucher.add_cvmain %}<li><a data-toggle='modal' data-target='#repPCVModal' class="waves-effect waves-light padding-bottom-5 padding-top-5">Petty Cash Replenishment</a></li>{% endif %}
+                                <!--{% if perms.checkvoucher.add_cvmain %}<li><a data-toggle='modal' data-target='#repPCVModal' class="waves-effect waves-light padding-bottom-5 padding-top-5">Petty Cash Replenishment</a></li>{% endif %}-->
                             </ul>
                         </div>
                     </h3>

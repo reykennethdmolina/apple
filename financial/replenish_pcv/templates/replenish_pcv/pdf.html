@@ -20,7 +20,7 @@
                 left: 0.25cm;
                 width: 21cm;
                 top: 2.5cm;
-                height: 21.5cm;
+                height: 19.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
@@ -198,17 +198,17 @@
                     <td width="10%"><b>Date</b></td>
                     <td width="10%"><b>:</b></td>
                     <td>{{ reppcvmain.reppcvdate|date:'Y-m-d' }}</td>
-                    <td width="15%"><b>CV Number</b></td>
+                    <td width="15%"><b>AP Number</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ reppcvmain.cvmain.cvnum|default:'N/A' }}</td>
+                    <td>{{ reppcvmain.apmain.apnum|default:'N/A' }}</td>
                 </tr>
                 <tr>
                     <td width="10%"><b>&nbsp;</b></td>
                     <td width="10%"><b>&nbsp;</b></td>
                     <td>&nbsp;</td>
-                    <td width="15%"><b>CV Date</b></td>
+                    <td width="15%"><b>AP Date</b></td>
                     <td width="10%"><b>:</b></td>
-                    <td>{{ reppcvmain.cvmain.cvdate|date:'Y-m-d'|default:'N/A' }}</td>
+                    <td>{{ reppcvmain.apmain.apdate|date:'Y-m-d'|default:'N/A' }}</td>
                 </tr>
             </table>
         </td>
