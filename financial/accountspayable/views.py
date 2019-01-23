@@ -18,6 +18,7 @@ from operationalfund.models import Ofmain, Ofitem, Ofdetail
 from processing_transaction.models import Poapvtransaction
 from purchaseorder.models import Pomain, Podetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
+from replenish_pcv.models import Reppcvmain, Reppcvdetail
 from department.models import Department
 from unit.models import Unit
 from inputvat.models import Inputvat
@@ -181,6 +182,7 @@ class CreateView(CreateView):
         context['pk'] = 0
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
         context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=None).order_by('enterdate')
 
         #lookup
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
@@ -258,6 +260,20 @@ class CreateView(CreateView):
                 data.apmain = self.object
                 data.save()
                 ofmain = Ofmain.objects.get(reprfvdetail=data)
+                ofmain.apmain = self.object
+                ofmain.save()
+        # save apmain in reprfvmain, reprfvdetail, ofmain
+
+        # save apmain in reppcvmain, reppcvdetail, ofmain
+        for i in range(len(self.request.POST.getlist('pcv_checkbox'))):
+            reppcvmain = Reppcvmain.objects.get(pk=int(self.request.POST.getlist('pcv_checkbox')[i]))
+            reppcvmain.apmain = self.object
+            reppcvmain.save()
+            reppcvdetail = Reppcvdetail.objects.filter(reppcvmain=reppcvmain)
+            for data in reppcvdetail:
+                data.apmain = self.object
+                data.save()
+                ofmain = Ofmain.objects.get(reppcvdetail=data)
                 ofmain.apmain = self.object
                 ofmain.save()
         # save apmain in reprfvmain, reprfvdetail, ofmain
@@ -816,6 +832,121 @@ def importreprfv(request):
         first_ofitem = Ofitem.objects.filter(ofmain=first_ofmain.id, isdeleted=0, status='A').first()
 
         ofdetail = Ofdetail.objects.filter(ofmain__reprfvmain__in=set(request.POST.getlist('checked_reprfvmain[]'))).\
+            order_by('ofmain', 'item_counter')
+        # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
+        ofdetail = ofdetail.values('chartofaccount__accountcode',
+                                   'chartofaccount__id',
+                                   'chartofaccount__title',
+                                   'chartofaccount__description',
+                                   'bankaccount__id',
+                                   'bankaccount__accountnumber',
+                                   'department__id',
+                                   'department__departmentname',
+                                   'employee__id',
+                                   'employee__firstname',
+                                   'supplier__id',
+                                   'supplier__name',
+                                   'customer__id',
+                                   'customer__name',
+                                   'branch__id',
+                                   'branch__description',
+                                   'product__id',
+                                   'product__description',
+                                   'unit__id',
+                                   'unit__description',
+                                   'inputvat__id',
+                                   'inputvat__description',
+                                   'outputvat__id',
+                                   'outputvat__description',
+                                   'vat__id',
+                                   'vat__description',
+                                   'wtax__id',
+                                   'wtax__description',
+                                   'ataxcode__id',
+                                   'ataxcode__code',
+                                   'balancecode') \
+                           .annotate(Sum('debitamount'), Sum('creditamount')) \
+                           .order_by('-chartofaccount__accountcode',
+                                     'bankaccount__accountnumber',
+                                     'department__departmentname',
+                                     'employee__firstname',
+                                     'supplier__name',
+                                     'customer__name',
+                                     'branch__description',
+                                     'product__description',
+                                     'inputvat__description',
+                                     'outputvat__description',
+                                     '-vat__description',
+                                     'wtax__description',
+                                     'ataxcode__code')
+
+        # set isdeleted=2 for existing detailtemp data
+        data_table = validatetable(request.POST['table'])
+        deleteallquery(request.POST['table'], request.POST['secretkey'])
+
+        if 'apnum' in request.POST:
+            if request.POST['apnum']:
+                updateallquery(request.POST['table'], request.POST['apnum'])
+        # set isdeleted=2 for existing detailtemp data
+
+        i = 1
+        for detail in ofdetail:
+            apdetailtemp = Apdetailtemp()
+            apdetailtemp.item_counter = i
+            apdetailtemp.secretkey = request.POST['secretkey']
+            apdetailtemp.ap_date = datetime.datetime.now()
+            apdetailtemp.chartofaccount = detail['chartofaccount__id']
+            apdetailtemp.bankaccount = detail['bankaccount__id']
+            apdetailtemp.department = detail['department__id']
+            apdetailtemp.employee = detail['employee__id']
+            apdetailtemp.supplier = detail['supplier__id']
+            apdetailtemp.customer = detail['customer__id']
+            apdetailtemp.unit = detail['unit__id']
+            apdetailtemp.branch = detail['branch__id']
+            apdetailtemp.product = detail['product__id']
+            apdetailtemp.inputvat = detail['inputvat__id']
+            apdetailtemp.outputvat = detail['outputvat__id']
+            apdetailtemp.vat = detail['vat__id']
+            apdetailtemp.wtax = detail['wtax__id']
+            apdetailtemp.ataxcode = detail['ataxcode__id']
+            apdetailtemp.debitamount = detail['debitamount__sum']
+            apdetailtemp.creditamount = detail['creditamount__sum']
+            apdetailtemp.balancecode = detail['balancecode']
+            apdetailtemp.enterby = request.user
+            apdetailtemp.modifyby = request.user
+            apdetailtemp.save()
+            i += 1
+
+        context = {
+            'tabledetailtemp': data_table['str_detailtemp'],
+            'tablebreakdowntemp': data_table['str_detailbreakdowntemp'],
+            'datatemp': querystmtdetail(data_table['str_detailtemp'], request.POST['secretkey']),
+            'datatemptotal': querytotaldetail(data_table['str_detailtemp'], request.POST['secretkey']),
+        }
+
+        data = {
+            'datatable': render_to_string('acctentry/datatable.html', context),
+            'status': 'success',
+            'branch': first_ofmain.branch_id,
+            'vat': first_ofitem.vat_id,
+            'atc': first_ofitem.atc_id,
+            'inputvattype': first_ofitem.inputvattype_id,
+            'deferredvat': first_ofitem.deferredvat
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+    return JsonResponse(data)
+
+@csrf_exempt
+def importreppcv(request):
+    if request.method == 'POST':
+        first_ofmain = Ofmain.objects.filter(reppcvmain=request.POST.getlist('checked_reppcvmain[]')[0], isdeleted=0,
+                                             status='A').first()
+        first_ofitem = Ofitem.objects.filter(ofmain=first_ofmain.id, isdeleted=0, status='A').first()
+
+        ofdetail = Ofdetail.objects.filter(ofmain__reppcvmain__in=set(request.POST.getlist('checked_reppcvmain[]'))).\
             order_by('ofmain', 'item_counter')
         # amount_totals = ofdetail.aggregate(Sum('debitamount'), Sum('creditamount'))
         ofdetail = ofdetail.values('chartofaccount__accountcode',

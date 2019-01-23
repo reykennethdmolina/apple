@@ -69,6 +69,7 @@
                                             </div>
                                         </th>
                                         <th><span>Date</span></th>
+                                        <th><span>Release Date</span></th>
                                         <th class="text-right"><span>Amount</span></th>
                                     </tr>
                                 </thead>
@@ -83,6 +84,7 @@
                                             </div>
                                         </td>
                                         <td>{{ data.ofdate|date:"Y-m-d" }}</td>
+                                        <td>{{ data.releasedate|date:"Y-m-d" }}</td>
                                         <td style="text-align: right;" class="item-amount">{{ data.approvedamount|floatformat:2|intcomma }}</td>
                                     </tr>
                                     {% endfor %}

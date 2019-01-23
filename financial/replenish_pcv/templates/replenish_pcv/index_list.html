@@ -9,9 +9,9 @@
             <th><span>Number</span></th>
             <th><span>Date</span></th>
             <th colspan="2" style="text-align: center"><span>Approval</span></th>
-            <th><span>CV Number</span></th>
-            <th><span>CV Date</span></th>
-            <th><span>CV Status</span></th>
+            <th><span>AP Number</span></th>
+            <th><span>AP Date</span></th>
+            <th><span>AP Status</span></th>
             <th><span>Turn-Around Time</span></th>
             <th class="text-right"><span>Amount</span></th>
             <th class="text-center"><span>Action</span></th>
@@ -43,9 +43,9 @@
                     <i class="icon fa-refresh fa-spin" aria-hidden="true" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="For approval"></i>
                 {% endif %}
             </td>
-            <td>{{ data.cvmain.cvnum|default:'N/A' }}</td>
-            <td>{{ data.cvmain.cvdate|date:'Y-m-d'|default:'N/A' }}</td>
-            <td>{{ data.cvmain.get_cvstatus_display|default:'N/A' }}</td>
+            <td>{{ data.apmain.apnum|default:'N/A' }}</td>
+            <td>{{ data.apmain.apdate|date:'Y-m-d'|default:'N/A' }}</td>
+            <td>{{ data.apmain.get_apstatus_display|default:'N/A' }}</td>
             <td>{% if data.enterdate <= data.cvmain.enterdate  %}{{ data.enterdate|timesince:data.cvmain.enterdate }}{% else %}{{ data.enterdate|timesince }}{% endif %}</td>
             <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
             <td style="width: 115px; text-align: center;">

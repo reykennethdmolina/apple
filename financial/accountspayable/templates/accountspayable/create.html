@@ -56,6 +56,7 @@
                             <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=potoapv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Purchase Order</a></li>
                             <li><a target="_blank" href="{% url 'processing_transaction:index' %}?selectprocess=apvtoapv&datefrom={% now "Y-m" %}-01&dateto={% now "Y-m-d" %}" class="waves-effect waves-light padding-bottom-5 padding-top-5">Accounts Payable Voucher</a></li>
                             {% if perms.accountspayable.add_apmain %}<li><a data-toggle='modal' data-target='#repRFVModal' class="waves-effect waves-light padding-bottom-5 padding-top-5">Revolving Fund Replenishment</a></li>{% endif %}
+                            {% if perms.accountspayable.add_apmain %}<li><a data-toggle='modal' data-target='#repPCRModal' class="waves-effect waves-light padding-bottom-5 padding-top-5">Petty Cash Replenishment</a></li>{% endif %}
                         </ul>
                     </div>
                 </h3>
@@ -389,6 +390,68 @@
                     </div>
                 </div>
             </div>
+            <div id="repPCRModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Requests for Petty Cash Replenishment</h4>
+                        </div>
+                        <div class="modal-body" style="overflow:hidden;">
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    {% if reppcvmain %}
+                                    <table class="table table-hover small">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                                        <input type="checkbox" id="checkbox0" class="item-check-all"
+                                                               name="pcv_checkbox_all">
+                                                        <label style="margin-left: 10px;" for="checkbox0"><b>Number</b></label>
+                                                    </div>
+                                                </th>
+                                                <th><span>Date</span></th>
+                                                <th><span>Requestor</span></th>
+                                                <th class="text-right"><span>Amount</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for data in reppcvmain %}
+                                            <tr>
+                                                <td>
+                                                    <div class="checkbox checkbox-primary" style="margin-bottom: 0px; margin-top: 0px;">
+                                                        <input type="checkbox" id="checkbox{{ data.id }}" class="item-check"
+                                                               name="pcv_checkbox" value="{{ data.id }}" form="form-b">
+                                                        <label style="margin-left: 10px;" for="checkbox{{ data.id }}"><a href="{% url 'replenish_pcv:index' %}?id={{ data.id }}&number={{ data.reppcvnum }}&date={{ data.reppcvdate|date:"Y-m-d" }}" target="_blank">{{ data.reppcvnum }}</a></label>
+                                                    </div>
+                                                </td>
+                                                <td>{{ data.reppcvdate|date:"Y-m-d" }}</td>
+                                                <td>{{ data.enterby.first_name }}&nbsp;{{ data.enterby.last_name }}</td>
+                                                <td style="text-align: right;" class="item-amount">{{ data.amount|floatformat:2|intcomma }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <thead>
+                                            <tr>
+                                                <th class="text-right" colspan="3" style="border-bottom: none"><b>TOTAL AMOUNT</b></th>
+                                                <th class="text-right" id="totalamount" style="border-bottom: none"><b>0.00</b></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    {% else %}
+                                        There are no pending requests for Petty Cash replenishment.
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-info" id="importreppcvconfirm" disabled="disabled">Import</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -617,6 +680,13 @@
                 }
             });
 
+            $("#importreppcvconfirm").click(function(){
+                if(confirm("Are you sure you want to import the selected PCV replenishment requests? You cannot undo " +
+                                "this action once the Check Voucher is submitted.")){
+                    autoEntry('pcv_import');
+                }
+            });
+
             function showRate(field, rateSpan, defaultText){
                 var rateValue = rateSpan == "fxrate" ? parseFloat($(field + " option:selected").data('rate')).toFixed(2) :
                         parseFloat($(field + " option:selected").data('rate')).toFixed(2) + '%';
@@ -635,10 +705,12 @@
 
                 if(sum > 0.00){
                     $('#importreprfvconfirm').prop('disabled', false);
+                    $('#importreppcvconfirm').prop('disabled', false);
                 }
                 else
                 {
                     $('#importreprfvconfirm').prop('disabled', true);
+                    $('#importreppcvconfirm').prop('disabled', true);
                 }
             }
 
@@ -668,6 +740,51 @@
                     $('.shade').fadeIn();
                     $.ajax({
                         url: "{% url 'accountspayable:importreprfv' %}",
+                        type: "post",
+                        data: data,
+                        success: function(response){
+                            $('#id_branch').val(response.branch);
+                            $('#id_vat').val(response.vat);
+                            $('#id_atax').val(response.atc);
+                            $('#id_inputvattype').val(response.inputvattype);
+                            $('#id_deferred').val(response.deferredvat);
+                            showRate("#id_vat", "vatrate", "RATE");
+                            showRate("#id_atax", "atcrate", "RATE");
+                            $("#datatable").html(response['datatable']);
+                            customAlert($('#autoentry-success'));
+                            $("#autobutton").hide();
+                            $('.shade').fadeOut();
+                        }, error: function(response) {
+                            console.debug(response);
+                            $('.shade').fadeOut();
+                        }
+                    });
+                }
+                else if(create_method == 'pcv_import'){
+                    var refnos = "";
+                    var data = {'checked_reppcvmain[]': [],
+                                'secretkey': $("#secretkey").val(),
+                                'table': "apdetailtemp",
+                                'csrfmiddlewaretoken': "{{csrf_token}}"};
+                    $('.item-check:checked').each(function(){
+                        refnos += $("label[for='"+this.id+"']").text() + ", ";
+                        data['checked_reppcvmain[]'].push($(this).val());
+                    });
+
+                    $("#id_aptype option").filter(function(){
+                        return $(this).text() == 'NON PO';
+                    }).attr('selected', 'selected');
+                    $("#id_apsubtype option:contains('Petty Cash Replenishment')").removeAttr('disabled');
+                    $("#id_apsubtype option:contains('Petty Cash Replenishment')").attr('selected', 'selected');
+                    $("#id_apsubtype option:selected").siblings().attr('disabled', 'disabled');
+                    $("#id_refno").val(refnos.substring(0, refnos.length-2));
+                    $("#id_particulars").text("Petty Cash Voucher Replenishment No.(s) " + refnos.substring(0,
+                                    refnos.length-2));
+                    $("#repPCRModal .close").click();
+
+                    $('.shade').fadeIn();
+                    $.ajax({
+                        url: "{% url 'accountspayable:importreppcv' %}",
                         type: "post",
                         data: data,
                         success: function(response){

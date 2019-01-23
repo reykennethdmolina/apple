@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^disapprove/$', views.disapprove, name='disapprove'),
     url(r'^release/$', views.release, name='release'),
     url(r'^importreprfv/$', views.importreprfv, name='importreprfv'),
+    url(r'^importreppcv/$', views.importreppcv, name='importreppcv'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf2/$', views.GeneratePDF.as_view(), name='pdf2'),
     url(r'^generatedefaultentries/$', views.generatedefaultentries, name='generatedefaultentries'),

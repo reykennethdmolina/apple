@@ -22,6 +22,7 @@ urlpatterns = [
 
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
 
     # url(r'^report/$', views.ReportView.as_view(), name='report'),
     # url(r'^reportresult/$', views.ReportResultView.as_view(), name='reportresult'),

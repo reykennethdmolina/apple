@@ -10,6 +10,7 @@ class Reppcvmain(models.Model):
     reppcvdate = models.DateField()
     amount = models.DecimalField(decimal_places=2, max_digits=18, default=0.00, null=True, blank=True)
     cvmain = models.ForeignKey('checkvoucher.Cvmain', related_name='reppcvmain_cvmain_id', null=True, blank=True)
+    apmain = models.ForeignKey('accountspayable.Apmain', related_name='reppcvmain_apmain_id', null=True, blank=True)
     RESPONSE_CHOICES = (
         ('A', 'Approved'),
         ('D', 'Disapproved'),
