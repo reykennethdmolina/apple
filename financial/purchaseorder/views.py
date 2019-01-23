@@ -581,11 +581,11 @@ class UpdateView(UpdateView):
                 # alldetail.vatamount = addedVat
                 # alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
 
-                alldetail.vatable = 10
-                alldetail.vatexempt = 10
-                alldetail.vatzerorated = 10
-                alldetail.vatamount = 10
-                alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail.vatamount)
+                alldetail.vatable = atd.vatable
+                alldetail.vatexempt = atd.vatexempt
+                alldetail.vatzerorated = atd.vatzerorated
+                alldetail.vatamount = atd.vatamount
+                alldetail.netamount = float(atd.vatable) + float(atd.vatexempt) + float(atd.vatzerorated) + float(atd.vatamount)
 
 
                 # replaced the computed values with values provided by user on screens
