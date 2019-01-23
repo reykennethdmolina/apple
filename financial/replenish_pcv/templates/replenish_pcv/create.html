@@ -30,7 +30,7 @@
                         {% if data_list %}
                         <div class="col-md-10 col-md-offset-1">
                             <form method="get" id="filter" class="row">
-                                <div class="col-md-5">
+                                <div class="col-md-2">
                                     <label class="control-label" for="id_selecttype">Select OF Type:</label>
                                     <select class="form-control form-material" id="id_selectoftype" name="selectoftype">
                                         {% for data in oftype %}
@@ -38,18 +38,28 @@
                                         {% endfor %}
                                     </select><br><br>
                                 </div>
-                                <div class="col-md-3 select_holder" id="selectrfapprover_holder">
+                                <div class="col-md-2 select_holder" id="selectrfapprover_holder">
                                     <label class="control-label" for="id_selectrfapprover">OF Date FROM:</label>
                                     <input type="text" class="form-control date-yyyymmdd datepickerfrom" readonly="readonly"
-                                           style="padding: 5px 10px" id="id_ofdatefrom" name="ofdatefrom" placeholder="YYYY-MM-DD"
-                                           value="{{ ofdatefrom }}">
+                                           style="padding: 5px 10px" id="id_ofdatefrom" name="ofdatefrom" placeholder="YYYY-MM-DD">
                                     <br><br>
                                 </div>
-                                <div class="col-md-3 select_holder" id="selectprfapprover_holder">
+                                <div class="col-md-2 select_holder" id="selectprfapprover_holder">
                                     <label class="control-label" for="id_selectprfapprover">OF Date TO:</label>
                                     <input type="text" class="form-control date-yyyymmdd datepickerto" readonly="readonly"
-                                           style="padding: 5px 10px" id="id_ofdateto" name="ofdateto" placeholder="YYYY-MM-DD"
-                                           value="{{ ofdateto }}">
+                                           style="padding: 5px 10px" id="id_ofdateto" name="ofdateto" placeholder="YYYY-MM-DD">
+                                    <br><br>
+                                </div>
+                                <div class="col-md-2 select_holder" id="selectrfapprover_rholder">
+                                    <label class="control-label" for="id_selectrfapprover">Released Date FROM:</label>
+                                    <input type="text" class="form-control date-yyyymmdd datepickerfrom" readonly="readonly"
+                                           style="padding: 5px 10px" id="id_rofdatefrom" name="rofdatefrom" placeholder="YYYY-MM-DD">
+                                    <br><br>
+                                </div>
+                                <div class="col-md-2 select_holder" id="selectprfapprover_rholder">
+                                    <label class="control-label" for="id_selectprfapprover">Released Date TO:</label>
+                                    <input type="text" class="form-control date-yyyymmdd datepickerto" readonly="readonly"
+                                           style="padding: 5px 10px" id="id_rofdateto" name="rofdateto" placeholder="YYYY-MM-DD">
                                     <br><br>
                                 </div>
                                 <div style="margin-top: 25px" class="col-md-1">

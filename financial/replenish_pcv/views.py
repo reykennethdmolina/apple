@@ -32,7 +32,6 @@ class IndexView(AjaxListView):
                                  Q(reppcvdate__icontains=keysearch) |
                                  Q(cvmain__cvnum__icontains=keysearch) |
                                  Q(amount__icontains=keysearch))
-
         return query
 
     def get_context_data(self, **kwargs):
@@ -128,6 +127,10 @@ class CreateView(ListView):
                 query = query.filter(ofdate__gte=self.request.GET['ofdatefrom'])
             if self.request.GET['ofdateto']:
                 query = query.filter(ofdate__lte=self.request.GET['ofdateto'])
+            if self.request.GET['rofdatefrom']:
+                query = query.filter(releasedate__gte=self.request.GET['rofdatefrom'])
+            if self.request.GET['rofdateto']:
+                query = query.filter(releasedate__lte=self.request.GET['rofdateto'])
 
         return query
 
@@ -138,6 +141,8 @@ class CreateView(ListView):
         if self.request.GET:
             context['ofdatefrom'] = self.request.GET['ofdatefrom']
             context['ofdateto'] = self.request.GET['ofdateto']
+            context['rofdatefrom'] = self.request.GET['rofdatefrom']
+            context['rofdateto'] = self.request.GET['rofdateto']
 
         return context
 
