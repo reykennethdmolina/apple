@@ -154,7 +154,7 @@ class Pdf(PDFTemplateView):
         context['reppcvdetail'] = Reppcvdetail.objects.filter(reppcvmain=self.kwargs['pk'], isdeleted=0).\
             order_by('ofmain_id')
         context['ofitem'] = Ofitem.objects.filter(isdeleted=0, status='A', ofmain__reppcvmain=self.kwargs['pk'],
-                                                  ofitemstatus='A')
+                                                  ofitemstatus='A').order_by('ofnum')
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
         context['pagesize'] = 'Letter'
