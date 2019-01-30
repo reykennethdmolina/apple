@@ -147,6 +147,9 @@
                 {% if detail.department %}
                     {{ detail.department.code }}&nbsp;&nbsp;
                 {% endif %}
+                {% if detail.employee %}
+                    {{ detail.employee.code }}
+                {% endif %}
                 {% if detail.branch %}
                     {{ detail.branch.code }}&nbsp;&nbsp;
                 {% endif %}
@@ -157,6 +160,9 @@
                 {% endif %}
                 {% if detail.department %}
                     {{ detail.department.departmentname }}
+                {% endif %}
+                {% if detail.employee %}
+                    - {{ detail.employee.firstname }} {{ detail.employee.lastname }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 {% endif %}
             </td>
             <td style="width: 11%" align="right">{% if detail.balancecode == 'D' %}{{ detail.debitamount|floatformat:2|intcomma }}{% endif %}
