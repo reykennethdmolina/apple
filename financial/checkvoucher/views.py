@@ -59,7 +59,13 @@ class IndexView(AjaxListView):
     context_object_name = 'data_list'
 
     def get_queryset(self):
-        query = Cvmain.objects.all().filter(isdeleted=0)
+
+        if self.request.user.is_superuser:
+            query = Cvmain.objects.all().filter(isdeleted=0)
+        else:
+            #user_employee = get_object_or_None(Employee, user=self.request.user)
+            query = Cvmain.objects.filter(designatedapprover=self.request.user.id) | Cvmain.objects.filter(enterby=self.request.user.id)
+            query = query.filter(isdeleted=0)
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))

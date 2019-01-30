@@ -59,7 +59,15 @@ class IndexView(AjaxListView):
     page_template = 'accountspayable/index_list.html'
 
     def get_queryset(self):
-        query = Apmain.objects.all().filter(isdeleted=0)
+
+        if self.request.user.is_superuser:
+            query = Apmain.objects.all().filter(isdeleted=0)
+        else:
+            # user_employee = get_object_or_None(Employee, user=self.request.user)
+            query = Apmain.objects.filter(designatedapprover=self.request.user.id) | Apmain.objects.filter(
+                enterby=self.request.user.id)
+            query = query.filter(isdeleted=0)
+
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(apnum__icontains=keysearch) |
