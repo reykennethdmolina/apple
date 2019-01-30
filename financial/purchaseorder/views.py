@@ -586,7 +586,7 @@ class UpdateView(UpdateView):
                 alldetail.vatzerorated = self.request.POST.getlist('hdn_tblZeroRated')[i - 1]
                 alldetail.vatamount = self.request.POST.getlist('hdn_tblAddedVat')[i - 1]
                 alldetail.atcamount = self.request.POST.getlist('hdn_tblWTax')[i - 1]
-                alldetail.netamount = float(alldetail.vatable) + float(alldetail.vatexempt) + float(alldetail.vatzerorated) + float(alldetail   .vatamount)
+                alldetail.netamount = self.request.POST.getlist('hdn_tblNetAmount')[i - 1]
 
 
                 # replaced the computed values with values provided by user on screens

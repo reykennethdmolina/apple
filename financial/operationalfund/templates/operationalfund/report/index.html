@@ -157,7 +157,7 @@ $(function(){
         var department = $('#department').val();
         var status = $('#status').val();
         console.log('retrieve xls');
-        url = "{% url 'operationalfund:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status;
+        url = "{% url 'operationalfund:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&oftype="+oftype+"&rfrom="+date_rfrom+"&rto="+date_rto+"&oftype="+oftype+"&requestor="+requestor+"&approver="+approver+"&department="+department+"&status="+status;
         $('#result').prop('src', url);
     });
 });
