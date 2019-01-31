@@ -49,6 +49,9 @@
                     {% if forapproval > 0 or perms.operationalfund.approve_allof %}
     {#                    {% if canbeapproved > 0 %}#}
                             <td style="width: 100px;">
+                                {% if data.status  == 'C' %}
+                                <b class="text-danger">{{ data.get_status_display }}</b>
+                                {% else %}
                                 <div class="text-center">
                                     {% if perms.operationalfund.approve_allof or data.designatedapprover == user_employee %}
                                         <button class="btn btns-icon btn-success btn-round waves-effect waves-light btn-approve"
@@ -61,6 +64,7 @@
                                             <i class="icon fa-remove" aria-hidden="true"></i></button>
                                     {% endif %}
                                 </div>
+                                {% endif %}
                             </td>
     {#                    {% endif %}#}
                     {% endif %}
@@ -81,6 +85,7 @@
 {#              </td>#}
             {% endif %}
                 <td style="width: 115px; padding-left: 13px" class="action-btns-container">
+
                     <div class="iconlist-wrap auto-0">
                         <div class="iconlist" style="text-align: left">
                         <a href="{% url 'operationalfund:detail' data.pk %}" class="btnDetail" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">

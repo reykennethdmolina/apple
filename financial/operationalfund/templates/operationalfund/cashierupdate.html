@@ -117,6 +117,12 @@
                                 <i class="icon fa-info-circle" aria-hidden="true"></i>&nbsp; View
                             </button>
                         </a>
+                        {% if object.status == 'C' %}
+                        <button type="button"class="btn btn-round btn-danger btn-sm waves-effect
+                        waves-light get_report">
+                            <i class="icon fa-close" aria-hidden="true"></i>&nbsp; Cancelled
+                        </button>
+                        {% endif %}
                     </div>
                     <div>&nbsp;</div>
                     <form method="post" id="form-b">
