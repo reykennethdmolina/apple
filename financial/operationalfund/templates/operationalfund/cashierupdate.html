@@ -244,9 +244,10 @@
                         </div>
                         <div class="col-sm-12 margin-bottom-10 row">
                             <div class="col-sm-6">
-                                {% if pcv_requested == 'False' and rfv_requested == 'False' and form.ofstatus.value != 'R' %}
+                                <!--{% if pcv_requested == 'False' and rfv_requested == 'False' and form.ofstatus.value != 'R' %}-->
                                     <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
-                                {% endif %}
+                                <!--{% endif %}-->
+                                <button type="submit" class="btn btn-round btn-success" id="validateButton">Submit</button>
                             </div>
                         </div>
                     </form>
@@ -688,7 +689,7 @@
                 $("#id_refnum").prop("readonly", true);
                 $("#id_employee option:selected").siblings().attr('disabled','disabled');
                 $("#id_branch option:selected").siblings().attr('disabled','disabled');
-                $("#id_department option:selected").siblings().attr('disabled','disabled');
+                //$("#id_department option:selected").siblings().attr('disabled','disabled');
                 $("#id_creditterm option:selected").siblings().attr('disabled','disabled');
                 $("#id_designatedapprover option:selected").siblings().attr('disabled','disabled');
                 $("#id_particulars").prop("readonly", true);
@@ -711,9 +712,9 @@
                 $(".input-tin").prop("readonly", true);
 
                 $("#autobutton").hide();
-                $("#manualbutton").hide();
-                $(".actionrowhead").hide();
-                $(".actionrow").hide();
+                //$("#manualbutton").hide();
+                //$(".actionrowhead").hide();
+                //$(".actionrow").hide();
 
                 {% if savedoftype == 'PCV' and pcv_requested == 'True' %}
                     $("#id_remarks").prop("readonly", true);

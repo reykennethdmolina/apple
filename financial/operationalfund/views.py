@@ -889,7 +889,16 @@ class UpdateViewCashier(UpdateView):
             # self.object.vatrate = Vat.objects.get(pk=self.request.POST['vat']).rate
             # self.object.atcrate = Ataxcode.objects.get(pk=self.request.POST['atc']).rate
             # removed payee, payee_code, payee_name, department, employee, designatedapprover, amount
-            self.object.save(update_fields=['refnum', 'cashadv_amount', 'particulars', 'creditterm', 'branch', 'ofstatus',
+
+            department = Department.objects.get(pk=int(self.request.POST['department']))
+            self.object.department = department
+            self.object.department_code = department.code
+            self.object.department_name = department.departmentname
+            if self.request.POST['oftype'] == '6':
+                self.object.refnum = self.request.POST['refnum']
+                self.object.cashadv_amount = self.request.POST['cashadv_amount']
+
+            self.object.save(update_fields=['refnum', 'cashadv_amount', 'department', 'department_code', 'department_name', 'particulars', 'creditterm', 'branch', 'ofstatus',
                                             'remarks', 'modifyby', 'modifydate', 'department'])
 
             # revert status from RELEASED to In Process if no release date is saved
@@ -981,30 +990,48 @@ class UpdateViewCashier(UpdateView):
             self.object.save(update_fields=['approvedamount'])
 
         elif self.request.POST['originalofstatus'] == 'R':
-            if self.object.reppcvmain is None:
-                if self.request.POST['ofstatus'] == 'I':
-                    self.object.ofstatus = 'I'
-                    self.object.releasedate = None
-                    self.object.releaseby = None
-                    self.object.paymentreceivedby = None
-                    self.object.paymentreceiveddate = None
-                    self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
-                                                    'paymentreceiveddate'])
-                self.object.modifyby = self.request.user
-                self.object.modifydate = datetime.datetime.now()
-                self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+            #if self.object.reppcvmain is None:
+            if self.request.POST['ofstatus'] == 'I':
+                self.object.ofstatus = 'I'
+                self.object.releasedate = None
+                self.object.releaseby = None
+                self.object.paymentreceivedby = None
+                self.object.paymentreceiveddate = None
+                self.object.save(update_fields=['ofstatus', 'releasedate', 'releaseby', 'paymentreceivedby',
+                                                'paymentreceiveddate'])
 
-                # items remarks save
-                of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
-                                                               ofmain=self.object.pk).order_by('item_counter')
-                i = 0
-                for of_item in of_items_to_update:
-                    update_item = Ofitem.objects.get(pk=of_item.ofitem)
-                    update_item.remarks = self.request.POST.getlist('item_remarks')[i]
-                    update_item.modifyby = self.request.user
-                    update_item.modifydate = datetime.datetime.now()
-                    update_item.save()
-                    i += 1
+            department = Department.objects.get(pk=int(self.request.POST['department']))
+            self.object.department = department
+            self.object.department_code = department.code
+            self.object.department_name = department.departmentname
+            if self.request.POST['oftype'] == '6':
+                self.object.refnum = self.request.POST['refnum']
+                self.object.cashadv_amount = self.request.POST['cashadv_amount']
+
+            self.object.modifyby = self.request.user
+            self.object.modifydate = datetime.datetime.now()
+            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks', 'refnum', 'cashadv_amount', 'department', 'department_code', 'department_name'])
+
+            # items remarks save
+            of_items_to_update = Ofitemtemp.objects.filter(secretkey=self.request.POST['secretkey'], isdeleted=0,
+                                                           ofmain=self.object.pk).order_by('item_counter')
+            i = 0
+            for of_item in of_items_to_update:
+                update_item = Ofitem.objects.get(pk=of_item.ofitem)
+                update_item.remarks = self.request.POST.getlist('item_remarks')[i]
+                update_item.modifyby = self.request.user
+                update_item.modifydate = datetime.datetime.now()
+                update_item.save()
+                i += 1
+
+                # accounting entry starts here..
+                source = 'ofdetailtemp'
+                mainid = self.object.id
+                num = self.object.ofnum
+                secretkey = self.request.POST['secretkey']
+                maindate = self.object.ofdate
+                updatedetail(source, mainid, num, secretkey, self.request.user, maindate)
+
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/cashierupdate')
 
