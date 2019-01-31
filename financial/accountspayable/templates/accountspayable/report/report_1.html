@@ -112,7 +112,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:100px">AP Num</th>
+                    <th style="text-align:left;width:150px">AP Num</th>
                     <th style="text-align:left;width:110px">AP Date</th>
                     <th style="text-align:left;width:300px;">Payee</th>
                     <th style="text-align:left;">Particulars</th>
@@ -125,7 +125,7 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.apprefix|upper }}{{ item.apnum|upper }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.apprefix|upper }}{{ item.apnum|upper }}</td>
             <td style="text-align:left;width:110px;vertical-align:top;">{{ item.apdate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;width:300px;">{{ item.payeename }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.particulars }}</td>

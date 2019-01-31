@@ -2291,4 +2291,11 @@ def digibanker(request):
     header = "MC01"+str(batchnum)+str(currency)+str(fundacct)+str(postingdate)+str(totalamount)+str(totalno)
 
     text_file.writelines(header)
-    text_file.close()
+
+    detail = Apmain.objects.filter(isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+
+    print detail
+
+    #text_file.close()
+
+    return Render.render('accountspayable/report/report_1.html', context)

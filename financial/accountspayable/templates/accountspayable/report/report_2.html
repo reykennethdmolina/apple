@@ -129,7 +129,7 @@
 {{ item }}
 <table id="content-data">
     <tbody>
-    {% regroup list by jvmain.jvnum as result_list %}
+    {% regroup list by apmain.apnum as result_list %}
 
     {% for group in result_list %}
         {% for item in group.list %}
