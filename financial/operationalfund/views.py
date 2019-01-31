@@ -85,6 +85,12 @@ class IndexView(AjaxListView):
                                  Q(ofdate__icontains=keysearch) |
                                  Q(amount__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
+
+        if self.request.COOKIES.get('keysearchtype_' + self.request.resolver_match.app_name):
+            oftype = str(self.request.COOKIES.get('keysearchtype_' + self.request.resolver_match.app_name))
+            print oftype
+            query = query.filter(oftype_id = oftype)
+
         return query
 
     def get_context_data(self, **kwargs):

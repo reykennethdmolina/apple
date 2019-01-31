@@ -34,6 +34,15 @@
                             </span>
                         </div>
                     </div>
+                    <div id="search2-container" class="row col-md-1 col-sm-1 col-xs-1">OF Type:</div>
+                    <div id="search3-container" class="row col-md-2 col-sm-2 col-xs-3">
+                    <select class="form-control input-sm" id="oftype" name="oftype">
+                        <option value="">--- Select ---</option>
+                        {% for data in oftype %}
+                            <option value="{{ data.id }}" >{{ data.code }} - {{ data.description }}</option>
+                        {% endfor %}
+                    </select>
+                    </div>
                     <!-- pagination and search end -->
                     {% if perms.operationalfund.can_postliqtojv %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="postingLiq" data-target='#postingLiqModal'>
@@ -73,6 +82,7 @@
                 </div>
             </div>
 
+
             <div class="col-md-12">
                 <div class="page-wrap">
                     <br>
@@ -107,6 +117,7 @@
 	    $('#searchBtn').on('click', function(){
 	        $('.shade').fadeIn();
 	        setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
+	        setCookie('keysearchtype_{{ request.resolver_match.app_name }}', $('#oftype').val());
 	        $('#dummy').trigger('click');
 	    });
         $('body').on('keyup', function(e){
