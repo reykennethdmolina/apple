@@ -2285,17 +2285,28 @@ def digibanker(request):
     currency = 'PHP'
     fundacct = '0111007943003'
     postingdate = '20181218'
-    totalamount = '0000100361172'
-    totalno = '00193'
+    totalamount = 0
+    totalno = 0
 
-    header = "MC01"+str(batchnum)+str(currency)+str(fundacct)+str(postingdate)+str(totalamount)+str(totalno)
+    aptype = 13 # SB
+    disburbank = 0601 # DELA ROSA
 
-    text_file.writelines(header)
-
-    detail = Apmain.objects.filter(isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
-
+    detail = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
     print detail
+    detaildata = ""
+    for item in detail:
+        transamount = str(item.amount).replace('.', '').rjust(13, '0')[:13]
+        payeename = item.payeename.ljust(40, ' ')[:40]
+        particulars = 'AP'+str(item.apnum)+'::'+str(item.payeecode)+'::'+str(item.payeename)+'::'+str(item.refno)+'::'+str(item.particulars)
+        particulars = particulars.ljust(2400, ' ')[:2400]
+        totalamount += item.amount
+        totalno += 1
+        detaildata += "MC01"+str(currency)+str(transamount)+str(payeename)+str(particulars)+"\n"
 
-    #text_file.close()
+    header = "MC01" + str(batchnum) + str(currency) + str(fundacct) + str(postingdate) + str(totalamount).replace('.', '').rjust(13, '0')[:13] + str(totalno).rjust(5, '0')[:5] + "\n"
+    text_file.writelines(header)
+    text_file.writelines(detaildata)
 
-    return Render.render('accountspayable/report/report_1.html', context)
+    text_file.close()
+
+    #return Render.render('accountspayable/report/report_1.html')
