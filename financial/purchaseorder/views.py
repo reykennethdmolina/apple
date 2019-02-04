@@ -356,7 +356,7 @@ class UpdateView(UpdateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin').\
             order_by('first_name')
-        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').exclude(firstname='').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')
@@ -502,7 +502,12 @@ class UpdateView(UpdateView):
                     deleteprfpotransactionitem(data)
             i = 1
             pomain_totalamount = 0
+            #print alltempdetail
             for atd in alltempdetail:
+                #print self.request.POST.getlist('temp_quantity')[0]
+                print self.request.POST.getlist('temp_quantity')[i - 1]
+                print self.request.POST.getlist('hdn_tblNetAmount')[i - 1]
+                print 'hoy'
 
                 # START: transfer po detail temp data to po detail, reflecting changes made in the screen
                 alldetail = Podetail()
