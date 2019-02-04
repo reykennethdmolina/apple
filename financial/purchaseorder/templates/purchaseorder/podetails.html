@@ -983,14 +983,16 @@
 
         $('#modal_vatable, #modal_vatexempt, #modal_vatzerorated, #modal_vatamount').on('keyup', function () {
             getModalTotal();
-            if($('#modal_totalamount').text() != $('#original_total').text()){
-                $('#total_warning').show();
-                $('#amountsconfirm').prop('disabled', true);
-            }
-            else {
-                $('#total_warning').hide();
-                $('#amountsconfirm').prop('disabled', false);
-            }
+            $('#total_warning').hide();
+            $('#amountsconfirm').prop('disabled', false);
+            <!--if($('#modal_totalamount').text() != $('#original_total').text()){-->
+                <!--$('#total_warning').show();-->
+                <!--$('#amountsconfirm').prop('disabled', true);-->
+            <!--}-->
+            <!--else {-->
+                <!--$('#total_warning').hide();-->
+                <!--$('#amountsconfirm').prop('disabled', false);-->
+            <!--}-->
         });
 
         $('#amountsconfirm').on('click', function () {
