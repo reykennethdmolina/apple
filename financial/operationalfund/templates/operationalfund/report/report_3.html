@@ -129,7 +129,7 @@
         <tr>
             <td style="text-align:left;width:200px;vertical-align:top;">{{ item.chartofaccount__accountcode }}</td>
             <td style="text-align:left;width:400px;vertical-align:top;">{{ item.chartofaccount__description }}</td>
-            <td style="text-align:left;width:350px;vertical-align:top;">{{ item.bankaccount__accountnumber|default:'' }} {{ item.branch__description|default:'' }} {{ item.department__departmentname|default:'' }} {{ item.employee__firstname|default:'' }} {{ item.employee__lastname|default:'' }} {{ item.supplier__name|default:'' }} {{ item.customer__name|default:'' }}</td>
+            <td style="text-align:left;width:350px;vertical-align:top;">{{ item.bankaccount__accountnumber|default:'' }} {{ item.branch__code|default:'' }} {{ item.department__departmentname|default:'' }} {{ item.employee__firstname|default:'' }} {{ item.employee__lastname|default:'' }} {{ item.supplier__name|default:'' }} {{ item.customer__name|default:'' }}</td>
             <td style="text-align:right;vertical-align:top;width:180px;">{{ item.debitamount__sum|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:180px;">{{ item.creditamount__sum|floatformat:2|intcomma }}</td>
         </tr>
