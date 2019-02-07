@@ -66,11 +66,11 @@
                         </button>
                     {% endif %}
 
-                    <a href="{% url 'operationalfund:report' %}">
-                        <button class="btn btn-info btn-sm">
-                            <i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report
-                        </button>
-                    </a>
+                    <!--<a href="{% url 'operationalfund:report' %}">-->
+                        <!--<button class="btn btn-info btn-sm">-->
+                            <!--<i class="icon fa-file-o" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Report-->
+                        <!--</button>-->
+                    <!--</a>-->
                     {% if perms.operationalfund.add_ofmain %}
                         <a href="{% url 'operationalfund:usercreate' %}">
                             <button type="button" class="btn btn-success btn-sm waves-effect waves-light">
