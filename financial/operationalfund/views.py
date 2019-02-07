@@ -53,6 +53,7 @@ from decimal import Decimal
 from financial.utils import Render
 import io
 import xlsxwriter
+import pandas as pd
 
 
 @method_decorator(login_required, name='dispatch')
@@ -2608,66 +2609,91 @@ class GeneratePDF(View):
         elif report == '2':
             title = "Operation Fund - Detailed"
             q = Ofitem.objects.select_related('ofmain').filter(isdeleted=0).order_by('ofnum', 'ofdate', 'item_counter')
+        elif report == '3':
+            title = "Operation Fund - Accounting Entry Summary"
+            q = Ofdetail.objects.filter(isdeleted=0).order_by('of_num', 'of_date')
 
         if dfrom != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__ofdate__gte=dfrom)
             else:
                 q = q.filter(ofdate__gte=dfrom)
                 datefrom = datetime.datetime.strptime(dfrom, '%Y-%m-%d')
         if dto != '':
-            if report == '2':
-                q = q.filter(ofmain__ofdate__gte=dto)
+            if report == '2' or report == '3':
+                q = q.filter(ofmain__ofdate__lte=dto)
             else:
                 q = q.filter(ofdate__lte=dto)
-            dateto = datetime.datetime.strptime(dto, '%Y-%m-%d')
+                dateto = datetime.datetime.strptime(dto, '%Y-%m-%d')
 
         if oftype != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__oftype=oftype)
             else:
                 q = q.filter(oftype=oftype)
 
         if drfrom != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__releasedate__gte=datetime.datetime.strptime(drfrom, '%Y-%m-%d'))
             else:
                 q = q.filter(releasedate__gte=datetime.datetime.strptime(drfrom, '%Y-%m-%d'))
         if drto != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__releasedate__lte=drto + ' 23:59:59')
             else:
                 q = q.filter(releasedate__lte=drto+' 23:59:59')
 
         if status != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__ofstatus=status)
             else:
                 q = q.filter(ofstatus=status)
 
         if requestor != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__requestor=requestor)
             else:
                 q = q.filter(requestor=requestor)
 
         if approver != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__actualapprover=approver)
             else:
                 q = q.filter(actualapprover=approver)
 
         if department != '':
-            if report == '2':
+            if report == '2' or report == '3':
                 q = q.filter(ofmain__department=department)
             else:
                 q = q.filter(department=department)
 
-        list = q
+        if report == '3':
+            list = q.values('chartofaccount__accountcode',
+                                 'chartofaccount__description',
+                                 'bankaccount__code',
+                                 'branch__code',
+                                 'department__departmentname',
+                                 'employee__firstname',
+                                 'employee__lastname',
+                                 'supplier__name',
+                                 'customer__name',
+                                 'balancecode') \
+                .annotate(Sum('debitamount'), Sum('creditamount')) \
+                .order_by('-balancecode',
+                          '-chartofaccount__accountcode')
+
+        else:
+            list = q
+
         if list:
-            total = list.aggregate(total_amount=Sum('amount'))
-        #     if report == '2' or report == '4':
-        #         total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            if report == '3':
+                total = list.aggregate(total_debit=Sum('debitamount__sum'), total_credit=Sum('creditamount__sum'))
+                print total
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
+
+
+            #total = [] #list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         context = {
             "title": title,
@@ -2683,6 +2709,8 @@ class GeneratePDF(View):
             return Render.render('operationalfund/report/report_1.html', context)
         elif report == '2':
             return Render.render('operationalfund/report/report_2.html', context)
+        elif report == '3':
+            return Render.render('operationalfund/report/report_3.html', context)
         else:
             return Render.render('operationalfund/report/report_1.html', context)
 

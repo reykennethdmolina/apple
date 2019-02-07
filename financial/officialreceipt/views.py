@@ -1764,26 +1764,11 @@ class GenerateExcel(View):
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
-            # total = {}
-            # total['amount'] = dataset['amount'].sum()
-            # total['cashinbank'] = dataset['cashinbank'].sum()
-            # total['diff'] = dataset['diff'].sum()
-            # total['outputvat'] = dataset['outputvat'].sum()
-            # total['amountdue'] = dataset['amountdue'].sum()
         elif report == '6':
             list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
-            # total = {}
-            # total['amount'] = dataset['amount'].sum()
-            # total['debitamount'] = dataset['debitamount'].sum()
-            # total['creditamount'] = dataset['creditamount'].sum()
-            # total['diff'] = dataset['totaldiff'].sum()
         else:
             list = q
-            # if list:
-            #     total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
-            #     if report == '2' or report == '4':
-            #         total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
 
         output = io.BytesIO()
 
@@ -1854,21 +1839,47 @@ class GenerateExcel(View):
 
             totaldebit = 0
             totalcredit = 0
+            list = list.values('ormain__ornum', 'ormain__ordate', 'ormain__particulars', 'ormain__payee_name', 'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount', 'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
 
-            for data in list:
-                worksheet.write(row, col, data.ornum)
-                worksheet.write(row, col + 1, data.ordate, formatdate)
-                worksheet.write(row, col + 2, data.particular)
-                worksheet.write(row, col + 3, data.accounttitle)
-                worksheet.write(row, col + 4, float(format(data.subsledger, '.2f')))
-                worksheet.write(row, col + 5, float(format(data.debit, '.2f')))
-                worksheet.write(row, col + 6, float(format(data.credit, '.2f')))
-
-
+            for ornum, detail in dataset.fillna('NaN').groupby(['ormain__ornum', 'ormain__ordate', 'ormain__payee_name', 'ormain__particulars', 'status']):
+                worksheet.write(row, col, ornum[0])
+                worksheet.write(row, col+1, ornum[1], formatdate)
+                if ornum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col+2, ornum[2])
+                worksheet.write(row, col+3, ornum[3])
                 row += 1
-                totaldebit += data.debit
-                totalcredit += data.credit
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch+' '+bankaccount+' '+department)
+                    if ornum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
 
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
 
             worksheet.write(row, col + 4, 'Total')
             worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
@@ -1926,24 +1937,52 @@ class GenerateExcel(View):
             row = 4
             col = 0
 
-
             totaldebit = 0
             totalcredit = 0
+            list = list.values('ormain__ornum', 'ormain__ordate', 'ormain__particulars', 'ormain__payee_name',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
 
-            for data in list:
-                worksheet.write(row, col, data.ornum)
-                worksheet.write(row, col + 1, data.ordate, formatdate)
-                worksheet.write(row, col + 2, data.particular)
-                worksheet.write(row, col + 3, data.accounttitle)
-                worksheet.write(row, col + 4, float(format(data.subsledger, '.2f')))
-                worksheet.write(row, col + 5, float(format(data.debit, '.2f')))
-                worksheet.write(row, col + 6, float(format(data.credit, '.2f')))
-
-
+            for ornum, detail in dataset.fillna('NaN').groupby(
+                    ['ormain__ornum', 'ormain__ordate', 'ormain__payee_name', 'ormain__particulars', 'status']):
+                worksheet.write(row, col, ornum[0])
+                worksheet.write(row, col + 1, ornum[1], formatdate)
+                if ornum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, ornum[2])
+                worksheet.write(row, col + 3, ornum[3])
                 row += 1
-                totaldebit += data.debit
-                totalcredit += data.credit
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if ornum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
 
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
 
             worksheet.write(row, col + 4, 'Total')
             worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))

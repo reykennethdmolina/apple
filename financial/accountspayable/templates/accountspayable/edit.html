@@ -284,6 +284,9 @@
                                     {% if form.apstatus.value == "D" %}
                                     <option value="D">Disapproved</option>
                                     {% endif %}
+                                    {% if form.apstatus.value == "R" %}
+                                    <option value="R">Ready for Posting</option>
+                                    {% endif %}
                                 </select>
                             </div>
                             <div class="form-group col-sm-5">
