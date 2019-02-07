@@ -2518,10 +2518,10 @@ def gopostliq(request):
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 7, # Jhun 7
-                    actualapprover_id = 7, # Jhun 7
-                    approverremarks = 'Auto approved from Operational Fund Posting',
-                    responsedate = datetime.datetime.now(),
-                    jvstatus = 'A',
+                    #actualapprover_id = 7, # Jhun 7
+                    #approverremarks = 'Auto approved from Operational Fund Posting',
+                    #responsedate = datetime.datetime.now(),
+                    jvstatus = 'F',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,
