@@ -69,6 +69,7 @@ class Chartofaccount(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='chartofaccount_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    is_wtax = models.IntegerField(default=0)
 
     # added for debitcreditmemo
     reftype_enable = models.CharField(max_length=1, choices=YESNO_CHOICES, default='N')
