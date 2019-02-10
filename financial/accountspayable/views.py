@@ -48,6 +48,9 @@ from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
+from collections import namedtuple
+from django.db import connection
+import pandas as pd
 
 
 class IndexView(AjaxListView):
@@ -2166,6 +2169,9 @@ class GeneratePDF(View):
                 q = q.filter(ap_date__gte=dfrom)
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
+        elif report == '5':
+            title = "Accounts Payable Listing Subject to W/TAX"
+            query = query_wtax(dfrom, dto)
 
         if aptype != '':
             if report == '2' or report == '4':
@@ -2220,11 +2226,26 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
 
-        list = q
+        if report == '5':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                credit = df['creditamount'].sum()
+                debit = df['debitamount'].sum()
+
+
+        else:
+            list = q
         if list:
-            total = list.aggregate(total_amount=Sum('amount'))
+
             if report == '2' or report == '4':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '5':
+                total = {'credit': credit, 'debit': debit }
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
 
         context = {
             "title": title,
@@ -2244,6 +2265,8 @@ class GeneratePDF(View):
             return Render.render('accountspayable/report/report_3.html', context)
         elif report == '4':
             return Render.render('accountspayable/report/report_4.html', context)
+        elif report == '5':
+            return Render.render('accountspayable/report/report_5.html', context)
         else:
             return Render.render('accountspayable/report/report_1.html', context)
 
@@ -2273,6 +2296,44 @@ def searchforposting(request):
         }
 
     return JsonResponse(data)
+
+def query_wtax(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    wtax = Chartofaccount.objects.filter(isdeleted=0, is_wtax=1)
+    string = ''
+    for w in wtax:
+        string += str(w.id)+','
+
+    #print string[:-1]
+
+    query = "SELECT m.apnum, m.apdate, m.payeecode, m.payeename, m.particulars, " \
+            "d.chartofaccount_id, d.balancecode, d.debitamount, d.creditamount, " \
+            "c.accountcode, c.description, dept.code AS deptcode " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN apdetail AS d ON d.apmain_id = m.id " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = d.chartofaccount_id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = d.department_id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.status != 'C' " \
+            "AND m.id IN (SELECT DISTINCT apmain_id FROM apdetail WHERE chartofaccount_id IN ("+string[:-1]+")) " \
+            "ORDER BY m.apdate, m.apnum, d.balancecode DESC;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
 
 @csrf_exempt
 def digibanker(request):

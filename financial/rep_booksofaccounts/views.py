@@ -61,7 +61,7 @@ class GeneratePDF(View):
 
         if report == '1':
             title = "GENERAL JOURNAL BOOK - DETAILED ENTRIES"
-            q = Jvdetail.objects.all().filter(isdeleted=0).order_by('jv_date', 'jv_num', '-balancecode', 'item_counter')
+            q = Jvdetail.objects.all().filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C').order_by('jv_date', 'jv_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(jv_date__gte=dfrom)
             if dto != '':
@@ -69,7 +69,7 @@ class GeneratePDF(View):
             total = q.exclude(jvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '2':
             title = "GENERAL JOURNAL BOOK - SUMMARY ENTRIES"
-            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+            q = Jvdetail.objects.all().filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C')
             if dfrom != '':
                 q = q.filter(jv_date__gte=dfrom)
             if dto != '':
@@ -84,7 +84,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '3':
             title = "GENERAL JOURNAL BOOK - SUBSIDIARY ENTRIES"
-            q = Jvdetail.objects.all().filter(isdeleted=0).exclude(jvmain__status='C')
+            q = Jvdetail.objects.all().filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C')
             if dfrom != '':
                 q = q.filter(jv_date__gte=dfrom)
             if dto != '':
@@ -98,7 +98,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '4':
             title = "CASH DISBURSEMENT BOOK - DETAILED ENTRIES"
-            q = Cvdetail.objects.all().filter(isdeleted=0).order_by('cv_date', 'cv_num', '-balancecode', 'item_counter')
+            q = Cvdetail.objects.all().filter(isdeleted=0,cvmain__cvstatus='R').exclude(cvmain__status='C').order_by('cv_date', 'cv_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(cv_date__gte=dfrom)
             if dto != '':
@@ -106,7 +106,7 @@ class GeneratePDF(View):
             total = q.exclude(cvmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '5':
             title = "CASH DISBURSEMENT BOOK - SUMMARY ENTRIES"
-            q = Cvdetail.objects.all().filter(isdeleted=0).exclude(cvmain__status='C')
+            q = Cvdetail.objects.all().filter(isdeleted=0,cvmain__cvstatus='R').exclude(cvmain__status='C')
             if dfrom != '':
                 q = q.filter(cv_date__gte=dfrom)
             if dto != '':
@@ -121,7 +121,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '6':
             title = "CASH DISBURSEMENT BOOK - SUBSIDIARY ENTRIES"
-            q = Cvdetail.objects.all().filter(isdeleted=0).exclude(cvmain__status='C')
+            q = Cvdetail.objects.all().filter(isdeleted=0,cvmain__cvstatus='R').exclude(cvmain__status='C')
             if dfrom != '':
                 q = q.filter(cv_date__gte=dfrom)
             if dto != '':
@@ -137,7 +137,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '7':
             title = "CASH RECEIPTS BOOK - DETAILED ENTRIES"
-            q = Ordetail.objects.all().filter(isdeleted=0).order_by('or_date', 'or_num', '-balancecode', 'item_counter')
+            q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='R').exclude(ormain__status='C').order_by('or_date', 'or_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
@@ -145,7 +145,7 @@ class GeneratePDF(View):
             total = q.exclude(ormain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '8':
             title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
-            q = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
+            q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='F').exclude(ormain__status='C')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
@@ -160,7 +160,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '9':
             title = "CASH RECEIPTS BOOK - SUBSIDIARY ENTRIES"
-            q = Ordetail.objects.all().filter(isdeleted=0).exclude(ormain__status='C')
+            q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='R').exclude(ormain__status='C')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
@@ -176,15 +176,15 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '10':
             title = "SCHEDULE OF ACCURAL - AP TRADE - DETAILED ENTRIES"
-            q = Apdetail.objects.all().filter(isdeleted=0).order_by('ap_date', 'ap_num', '-balancecode', 'item_counter')
+            q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C').order_by('ap_date', 'ap_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
             if dto != '':
                 q = q.filter(ap_date__lte=dto)
             total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '11':
-            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
-            q = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+            title = "SCHEDULE OF ACCRUAL - AP TRADE - SUMMARY ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
             if dto != '':
@@ -196,10 +196,12 @@ class GeneratePDF(View):
                           creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('chartofaccount__accountcode')
+
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+
         elif report == '12':
-            title = "SCHEDULE OF ACCURAL - AP TRADE - SUBSIDIARY ENTRIES"
-            q = Apdetail.objects.all().filter(isdeleted=0).exclude(apmain__status='C')
+            title = "SCHEDULE OF ACCRUAL - AP TRADE - SUBSIDIARY ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
             if dto != '':
@@ -214,8 +216,8 @@ class GeneratePDF(View):
 
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '13':
-            title = "SCHEDULE OF ACCURAL - AP TRADE (with Branch) - SUMMARY ENTRIES"
-            q = Apdetail.objects.all().filter(isdeleted=0,department__isnull=False)\
+            title = "SCHEDULE OF ACCRUAL - AP TRADE (with Branch) - SUMMARY ENTRIES"
+            q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R',department__isnull=False)\
                 .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank)\
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
             if dfrom != '':
@@ -227,7 +229,7 @@ class GeneratePDF(View):
                 .order_by('department__code')
             totald = q.aggregate(Sum('debitamount__sum'))
 
-            q2 = Apdetail.objects.all().filter(isdeleted=0, department__isnull=False).exclude(creditamount=0) \
+            q2 = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R', department__isnull=False).exclude(creditamount=0) \
                 .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
             if dfrom != '':
@@ -239,7 +241,7 @@ class GeneratePDF(View):
                 .order_by('department__code')
             totalc = q2.aggregate(Sum('creditamount__sum'))
 
-            cdebit = Apdetail.objects.all().filter(isdeleted=0) \
+            cdebit = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R') \
                 .filter((Q(chartofaccount__accountcode__startswith='1') | Q(
                 chartofaccount__accountcode__startswith='2'))).exclude(apmain__status='C') \
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
@@ -253,7 +255,7 @@ class GeneratePDF(View):
                 order_by('chartofaccount__accountcode')
             total_debit = cdebit.aggregate(Sum('debitamount__sum'))
 
-            ccredit = Apdetail.objects.all().filter(isdeleted=0)\
+            ccredit = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R')\
                 .filter((Q(chartofaccount__accountcode__startswith='1')|Q(chartofaccount__accountcode__startswith='2'))).exclude(apmain__status='C')\
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
@@ -267,7 +269,7 @@ class GeneratePDF(View):
             total_credit = ccredit.aggregate(Sum('creditamount__sum'))
 
         else:
-            q = Jvdetail.objects.filter(isdeleted=0).order_by('jv_date', 'jv_num')[:0]
+            q = Jvdetail.objects.filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C').order_by('jv_date', 'jv_num')[:0]
 
         list = q
         context = {
@@ -306,7 +308,7 @@ class GeneratePDF(View):
             context['list2'] = q2
             context['chart_credit'] = ccredit
             context['chart_debit'] = cdebit
-            context['totalamount'] = (totald['debitamount__sum__sum'] + total_debit['debitamount__sum__sum']) - (totalc['creditamount__sum__sum'] + total_credit['creditamount__sum__sum'])
+            context['totalamount'] = (totald['debitamount__sum__sum'] + total_debit['debitamount__sum__sum']) # - (totalc['creditamount__sum__sum'] + total_credit['creditamount__sum__sum'])
             return Render.render('rep_booksofaccounts/report_13.html', context)
         else:
             return Render.render('rep_booksofaccounts/report_1.html', context)

@@ -461,6 +461,7 @@ class UpdateView(UpdateView):
             num = self.object.cvnum
             secretkey = self.request.POST['secretkey']
             cvmaindate = self.object.cvdate
+            print cvmaindate
 
             updatedetail(source, mainid, num, secretkey, self.request.user, cvmaindate)
         else:

@@ -477,13 +477,13 @@ class UpdateView(UpdateView):
                                             'wtax', 'vatrate', 'atcrate', 'fxrate', 'wtaxrate'])
 
             if self.request.POST['postatus'] == 'F':
-                self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
+                #self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
                 self.object.save()
             else:
-                self.object.postatus = self.request.POST['postatus']
-                self.object.approverresponse = self.request.POST['postatus']
-                self.object.responsedate = datetime.datetime.now()
-                self.object.actualapprover = self.request.user
+                #self.object.postatus = self.request.POST['postatus']
+                #self.object.approverresponse = self.request.POST['postatus']
+                #self.object.responsedate = datetime.datetime.now()
+                #self.object.actualapprover = self.request.user
                 if self.request.POST['postatus'] == 'D':
                     self.object.isdeleted = 0
                     self.object.status = 'C'

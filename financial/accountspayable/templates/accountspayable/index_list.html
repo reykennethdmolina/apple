@@ -10,6 +10,7 @@
                 <th><span>Date</span></th>
                 <th><span>Type</span></th>
                 <th><span>Payee</span></th>
+                <th><span>Particulars</span></th>
                 <th><span>Amount</span></th>
                 <th><span>Approver</span></th>
                 <th><span>Created by</span></th>
@@ -27,6 +28,7 @@
                 <td>{{ data.apdate|date:'Y-m-d' }}</td>
                 <td>{{ data.aptype.description }}</td>
                 <td>{{ data.payeename }}</td>
+                <td style="width:300px;">{{ data.particulars }}</td>
                 <td style="text-align: right;">{{ data.amount|floatformat:2|intcomma }}</td>
                 <td>{% if data.actualapprover %}{{ data.actualapprover.first_name }}&nbsp;{{ data.actualapprover.last_name }}{% elif data.designatedapprover %}{{ data.designatedapprover.first_name }}&nbsp;{{ data.designatedapprover.last_name }}{% else %}-- no approver assigned yet --{% endif %}</td>
                 <td>{{ data.enterby }}</td>
