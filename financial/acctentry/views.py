@@ -1283,11 +1283,16 @@ def savebreakdownentry(user, num, mainid, detailid, tempdetailid, dtype, data_ta
 
 def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
 
+    print ormaindate
+    print 'sulod'
+
     data_table = validatetable(source)
 
     detailinfo = ''
     exec("detailinfo = " + data_table['str_detailtemp'].title() + ".objects.all()")
     detailinfo = detailinfo.filter(secretkey=secretkey).order_by('item_counter')
+
+    print detailinfo
 
     counter = 1
     for row in detailinfo:
@@ -1298,7 +1303,11 @@ def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
                 exec("detail = " + data_table['str_detail'].title() + ".objects.get(pk=row." + data_table['str_detail'] + ")")
 
                 detail.item_counter = counter
+                # detail date
                 detail.or_date = ormaindate
+                detail.cv_date = ormaindate
+                detail.jv_date = ormaindate
+                detail.ap_date = ormaindate
                 detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
                 # Return None if object is empty
                 detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
