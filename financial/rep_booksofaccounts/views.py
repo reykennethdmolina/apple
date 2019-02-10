@@ -216,7 +216,15 @@ class GeneratePDF(View):
 
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '13':
+            totald = {}
+            total_debit = {}
+            totalc = {}
+            total_credit = {}
             title = "SCHEDULE OF ACCRUAL - AP TRADE (with Branch) - SUMMARY ENTRIES"
+            totald['debitamount__sum__sum'] = 0
+            total_debit['debitamount__sum__sum'] = 0
+            totalc['creditamount__sum__sum'] = 0
+            total_credit['creditamount__sum__sum'] = 0
             q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R',department__isnull=False)\
                 .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank)\
                 .exclude(chartofaccount=Companyparameter.objects.first().coa_aptrade)
@@ -269,7 +277,7 @@ class GeneratePDF(View):
             total_credit = ccredit.aggregate(Sum('creditamount__sum'))
 
         else:
-            q = Jvdetail.objects.filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C').order_by('jv_date', 'jv_num')[:0]
+            q = Jvdetail.objects.filter(isdeleted=0,jvmain__jvstatus='R').exclude(jvmain__status='C').order_by('jv_date', 'jv_num')[:0]
 
         list = q
         context = {
@@ -308,7 +316,24 @@ class GeneratePDF(View):
             context['list2'] = q2
             context['chart_credit'] = ccredit
             context['chart_debit'] = cdebit
-            context['totalamount'] = (totald['debitamount__sum__sum'] + total_debit['debitamount__sum__sum']) # - (totalc['creditamount__sum__sum'] + total_credit['creditamount__sum__sum'])
+
+            totalcc = totalc['creditamount__sum__sum']
+            if totalc['creditamount__sum__sum'] is None:
+                totalcc = 0
+
+            totaldd = totald['debitamount__sum__sum']
+            if totald['debitamount__sum__sum'] is None:
+                totaldd = 0
+
+            total_ddebit = total_debit['debitamount__sum__sum']
+            if total_debit['debitamount__sum__sum'] is None:
+                total_ddebit = 0
+
+            total_ccredit = total_credit['creditamount__sum__sum']
+            if total_credit['creditamount__sum__sum'] is None:
+                total_ccredit = 0
+
+            context['totalamount'] = (totaldd + total_ddebit) - (totalcc + total_ccredit)
             return Render.render('rep_booksofaccounts/report_13.html', context)
         else:
             return Render.render('rep_booksofaccounts/report_1.html', context)
