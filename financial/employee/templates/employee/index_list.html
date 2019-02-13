@@ -9,6 +9,7 @@
                 <th><span>First Name</span></th>
                 <th><span>Middle Name</span></th>
                 <th><span>Last Name</span></th>
+                <th><span>Supplier</span></th>
                 <th style="text-align: center"><span>MGT. Level</span></th>
                 <th class="text-center"><span>Action</span></th>
             </tr>
@@ -21,6 +22,7 @@
                 <td>{{ data.firstname }}</td>
                 <td>{{ data.middlename }}</td>
                 <td>{{ data.lastname }}</td>
+                <td>{{ data.supplier.code }} - {{ data.supplier.name }}</td>
                 <td align="center">{{ data.managementlevel.level|default:'-' }}</td>
                 <td class="text-center">
                     <div class="iconlist-wrap auto-0">

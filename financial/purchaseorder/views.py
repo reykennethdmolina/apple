@@ -92,7 +92,7 @@ class CreateView(CreateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['designatedapprover'] = User.objects.filter(is_active=1).exclude(username='admin'). \
             order_by('first_name')
-        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').exclude(firstname='').order_by('lastname')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('pk')
         context['invitem'] = Inventoryitem.objects.filter(isdeleted=0).order_by('description')

@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^importreppcv/$', views.importreppcv, name='importreppcv'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf2/$', views.GeneratePDF.as_view(), name='pdf2'),
+    url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     url(r'^generatedefaultentries/$', views.generatedefaultentries, name='generatedefaultentries'),
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^gopost/$', views.gopost, name='gopost'),

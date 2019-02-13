@@ -1,9 +1,23 @@
 {% for item in data %}
 <tr>
-  <th><input type="checkbox" class="check" value={{ item.id }}></th>
+  {% if item.oftype.code != 'LIQ' %}
+    {% if item.requestor.supplier != None %}
+    <th><input type="checkbox" class="check" value={{ item.id }}></th>
+    {% else %}
+    <th><i class="icon fa-question text-warning" aria-hidden="true"></i></th>
+    {% endif %}
+  {% else %}
+    <th><input type="checkbox" class="check" value={{ item.id }}></th>
+  {% endif %}
   <td>{{ item.ofnum }}</td>
   <td>{{ item.ofdate|date:'Y-m-d' }}</td>
-  <td>{{ item.requestor_name }}</td>
-  <td>{{ item.oftype.code }}</td>
+  <td>{{ item.requestor_name }} {{ item.oftype.code }}</td>
+  {% if item.oftype.code != 'LIQ' %}
+    {% if item.requestor.supplier != None %}
+      <td>{{ item.requestor.supplier.name }}</td>
+    {% else %}
+      <td class="text-danger">No Supplier</td>
+    {% endif %}
+  {% endif %}
 </tr>
 {% endfor %}

@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from department.models import Department
+from supplier.models import Supplier
 from budgetapproverlevels.models import Budgetapproverlevels
 from django.views.decorators.csrf import csrf_exempt
 from . models import Employee
@@ -76,7 +77,7 @@ class UpdateView(UpdateView):
     model = Employee
     template_name = 'employee/edit.html'
     fields = ['code', 'department', 'firstname', 'middlename', 'lastname', 'email', 'cellphone_subsidize_amount',
-              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver']
+              'managementlevel', 'revolving', 'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('employee.change_employee'):
@@ -91,17 +92,22 @@ class UpdateView(UpdateView):
         self.object.save(update_fields=['department', 'firstname',
                                         'middlename', 'lastname', 'email', 'multiplestatus',
                                         'modifyby', 'modifydate', 'cellphone_subsidize_amount', 'managementlevel', 'revolving',
-                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver'])
+                                        'jv_approver', 'ap_approver', 'cv_approver', 'or_approver', 'cs_approver', 'supplier'])
         return HttpResponseRedirect('/employee')
 
     def get_context_data(self, **kwargs):
         context = super(UpdateView, self).get_context_data(**kwargs)
-        context['department'] = Department.objects.\
-            filter(isdeleted=0).order_by('departmentname')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         if self.request.POST.get('department', False):
             context['department'] = Department.objects.get(pk=self.request.POST['department'], isdeleted=0)
         elif self.object.department:
             context['department'] = Department.objects.get(pk=self.object.department.id, isdeleted=0)
+
+        context['supplier'] = Supplier.objects.filter(isdeleted=0).order_by('name')
+        if self.request.POST.get('supllier', False):
+            context['supplier'] = Supplier.objects.get(pk=self.request.POST['supllier'], isdeleted=0)
+        elif self.object.supplier:
+            context['supplier'] = Supplier.objects.get(pk=self.object.supplier.id, isdeleted=0)
 
         context['managementlevel'] = Budgetapproverlevels.objects.filter(isdeleted=0).order_by('level')
         return context

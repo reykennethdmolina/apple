@@ -103,7 +103,7 @@
                                 <option value="A">Approved</option>
                                 <option value="D">Disapproved</option>
                                 <option value="I">In Process</option>
-                                <option value="R">Released</option>
+                                <option value="R">Ready for Posting/Released</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-2">
@@ -191,6 +191,25 @@ $(function(){
         var vat = $('#vat').val();
         var bankaccount = $('#bankaccount').val();
         url = "{% url 'accountspayable:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&aptype="+aptype+"&apsubtype="+apsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&apstatus="+apstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
+        $('#result').prop('src', url);
+    });
+
+    $('#generatexls').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var aptype = $('#aptype').val();
+        var apsubtype = $('#apsubtype').val();
+        var payee = $('#payee').val();
+        var branch = $('#branch').val();
+        var approver = $('#approver').val();
+        var apstatus = $('#apstatus').val();
+        var status = $('#status').val();
+        var atc = $('#atc').val();
+        var inputvattype = $('#inputvattype').val();
+        var vat = $('#vat').val();
+        var bankaccount = $('#bankaccount').val();
+        url = "{% url 'accountspayable:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&aptype="+aptype+"&apsubtype="+apsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&apstatus="+apstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
         $('#result').prop('src', url);
     });
 

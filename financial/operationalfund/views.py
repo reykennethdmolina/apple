@@ -835,7 +835,7 @@ class UpdateViewCashier(UpdateView):
         context['oftype'] = Oftype.objects.filter(isdeleted=0).order_by('pk')
         context['ofsubtype'] = Ofsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['branch'] = Branch.objects.filter(isdeleted=0).order_by('description')
-        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').order_by('lastname')
+        context['employee'] = Employee.objects.filter(isdeleted=0, status='A').exclude(firstname='').order_by('lastname')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('departmentname')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('pk')
         context['vat'] = Vat.objects.filter(isdeleted=0, status='A').order_by('pk')
@@ -2262,17 +2262,20 @@ def gopost(request):
                     billingremarks += str(item.payee_name) + ' billing period (' + str(item.periodfrom) + '-' + str(item.periodto) + '), '
 
                 #main = Apmain.objects.get(pk=6939)
+                employee = Employee.objects.get(pk=of.requestor_id)
+                supplier = Supplier.objects.get(pk=employee.supplier_id)
+
                 main = Apmain.objects.create(
                     apnum = apnum,
                     apdate = pdate,
-                    aptype_id = 19, # Operational Fund
+                    aptype_id = 14, # Non-UB
                     apsubtype_id = 10, # Cellphone Subsidy
                     branch_id = 5, # Head Office
                     inputvattype_id = 3, # Service
                     creditterm_id = 2, # 90 Days 2
-                    payee_id = of.requestor_id,
-                    payeecode = of.requestor_code,
-                    payeename = of.requestor_name,
+                    payee_id=supplier.id,
+                    payeecode=supplier.code,
+                    payeename=supplier.name,
                     vat_id = 8, # NA 8
                     vatcode = 'VATNA', # NA 8
                     vatrate = 0,
@@ -2382,17 +2385,20 @@ def gopostreim(request):
 
                 billingremarks = '';
 
+                employee = Employee.objects.get(pk=of.requestor_id)
+                supplier = Supplier.objects.get(pk=employee.supplier_id)
+
                 main = Apmain.objects.create(
                     apnum = apnum,
                     apdate = pdate,
-                    aptype_id = 19, # Operational Fund
+                    aptype_id = 14, # Non-UB
                     apsubtype_id = 11, # Reimbursement
                     branch_id = 5, # Head Office
                     inputvattype_id = 3, # Service
                     creditterm_id = 2, # 90 Days 2
-                    payee_id = of.requestor_id,
-                    payeecode = of.requestor_code,
-                    payeename = of.requestor_name,
+                    payee_id = supplier.id,
+                    payeecode = supplier.code,
+                    payeename = supplier.name,
                     vat_id = 8, # NA 8
                     vatcode = 'VATNA', # NA 8
                     vatrate = 0,
@@ -2506,7 +2512,7 @@ def gopostliq(request):
                     jvnum = jvnum,
                     jvdate = pdate,
                     jvtype_id = 5, # Operational Fund
-                    jvsubtype_id = 9, # Reimbursement
+                    jvsubtype_id = 19, # Reimbursement
                     branch_id = 5, # Head Office
                     # inputvattype_id = 3, # Service
                     # creditterm_id = 2, # 90 Days 2

@@ -15,11 +15,11 @@
                         <div class="input-daterange datarange">
                             <div class="input-group">
                                 <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control input-sm datepickerfrom" id="posting_date_from">
+                                <input type="text" class="form-control input-sm datepickerfrom" id="postingliq_date_from">
                             </div>
                             <div class="input-group">
                                 <span class="input-group-addon input-sm">to</span>
-                                <input type="text" class="form-control input-sm datepickerto" id="posting_date_to">
+                                <input type="text" class="form-control input-sm datepickerto" id="postingliq_date_to">
                             </div>
 
                         </div>
@@ -41,7 +41,6 @@
                           <td scope="row">OF Num</td>
                           <td scope="row">OF Date</td>
                           <td scope="row">Requestor</td>
-                          <td scope="row">Approver</td>
                         </tr>
                       </thead>
                         <tbody class="postingresult">
@@ -68,8 +67,8 @@
                 url: "{% url 'operationalfund:searchforpostingLiq' %}",
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                       'dfrom': $('#posting_date_from').val(),
-                       'dto': $('#posting_date_to').val(),
+                       'dfrom': $('#postingliq_date_from').val(),
+                       'dto': $('#postingliq_date_to').val(),
                        },
                 success: function(response){
                     $(".postingresult").html(response['viewhtml']);

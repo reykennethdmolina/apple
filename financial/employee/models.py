@@ -34,6 +34,7 @@ class Employee(models.Model):
     modifyby = models.ForeignKey(User, default=1, related_name='employee_modify')
     modifydate = models.DateTimeField(auto_now_add=True)
     isdeleted = models.IntegerField(default=0)
+    supplier = models.ForeignKey('supplier.Supplier', related_name='createbykensupplier_id', null=True, blank=True)
 
     cellphone_subsidize_amount = models.DecimalField(default=0.00, null=True, blank=True, decimal_places=2,
                                                      max_digits=18)
