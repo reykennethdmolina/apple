@@ -80,7 +80,7 @@ class IndexView(TemplateView):
         poapvtrans = Poapvtransaction.objects.filter(status='A').order_by('-pomain', '-podetail', '-apmain')
         apvcvtrans = []
         for data in poapvtrans:
-            apmain = get_object_or_None(Apvcvtransaction, apmain=data.apmain)
+            apmain = get_object_or_None(Apvcvtransaction, apmain=data.apmain_id)
             if apmain:
                 if apmain.new_apmain:
                     apvcvtrans.append({
@@ -90,14 +90,17 @@ class IndexView(TemplateView):
                         'ap_to_cv_date': '',
                         'ap_or_cv_amt': apmain.cvamount
                     })
-                elif apmain.cvmain:
-                    apvcvtrans.append({
-                        'ap_to_ap_num': '',
-                        'ap_to_ap_date': '',
-                        'ap_to_cv_num': apmain.cvmain.cvnum,
-                        'ap_to_cv_date': apmain.cvmain.cvdate,
-                        'ap_or_cv_amt': apmain.cvamount
-                    })
+                elif apmain.cvmain_id:
+                    cvmain = Cvmain.objects.filter(pk=apmain.cvmain_id).first()
+                    print cvmain
+                    if cvmain is not None:
+                        apvcvtrans.append({
+                            'ap_to_ap_num': '',
+                            'ap_to_ap_date': '',
+                            'ap_to_cv_num': cvmain.cvnum,
+                            'ap_to_cv_date': cvmain.cvdate,
+                            'ap_or_cv_amt': apmain.cvamount
+                        })
                 else:
                     apvcvtrans.append({
                         'ap_to_ap_num': '',
