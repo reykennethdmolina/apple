@@ -115,7 +115,7 @@
                                 <div class="price-price teal-a400" id="formupload">
                                     <div class="col-md-4 select_holder" id="transtype_holder">
                                         <label class="control-label small" for="transtype">Transaction Type:</label>
-                                        <select class="form-control input-sm" multiple="" style="width: 100%" id="transtype">
+                                        <select class="form-control input-sm" style="width: 100%" id="id_transtype">
                                             <option value="ap" label="AP">Accounts Payable</option>
                                             <option value="cv" label="CV">Check Voucher</option>
                                             <option value="jv" label="JV">Journal Voucher</option>
@@ -524,12 +524,12 @@
             posting(0);
         });
 
-        $('#id_transtype').select2({
-            maximumSelectionLength: 1,
-            templateSelection: function(item) {
-                return $(item.element).attr('label');
-            }
-        });
+        <!--$('#id_transtype').select2({-->
+            <!--maximumSelectionLength: 1,-->
+            <!--templateSelection: function(item) {-->
+                <!--return $(item.element).attr('label');-->
+            <!--}-->
+        <!--});-->
 
         function posttransition(tr_content, tr_after, reply, item_count, message, elapsed, udlist, udtype, ublist, ubtype){
             tr_content.find('.tr_transition').hide();

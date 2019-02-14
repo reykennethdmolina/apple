@@ -56,10 +56,15 @@ def verifytransactions(request):
                 status_undept = 0
 
                 validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom - timedelta(days=1))
+                #validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom)
+                #print datefrom
+                #print datefrom - timedelta(days=1)
 
                 if request.POST['type'] == 'ap':
+                    print 'ap'
                     batchkey = newbatchkey
-                    if 'ap' in request.POST.getlist('id_transtype[]'):
+                    #if 'ap' in request.POST.getlist('id_transtype[]'):
+                    if 'ap' in request.POST.getlist('id_transtype'):
                         if datetime.today().date() > datefrom and validate_date.filter(doctype='AP').count() > 0:
                             unbalanced = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A',
                                                                  apmain__postby__isnull=True,
@@ -115,8 +120,9 @@ def verifytransactions(request):
                         status_skipped = 1
 
                 elif request.POST['type'] == 'cv':
+                    print 'cv'
                     batchkey = request.POST['batchkey']
-                    if 'cv' in request.POST.getlist('id_transtype[]'):
+                    if 'cv' in request.POST.getlist('id_transtype'):
                         if datetime.today().date() > datefrom and validate_date.filter(doctype='CV').count() > 0:
                             unbalanced = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A',
                                                                  cvmain__postby__isnull=True,
@@ -168,8 +174,9 @@ def verifytransactions(request):
                         status_skipped = 1
 
                 elif request.POST['type'] == 'jv':
+                    print 'jv'
                     batchkey = request.POST['batchkey']
-                    if 'jv' in request.POST.getlist('id_transtype[]'):
+                    if 'jv' in request.POST.getlist('id_transtype'):
                         if datetime.today().date() > datefrom and validate_date.filter(doctype='JV').count() > 0:
                             unbalanced = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A',
                                                                  jvmain__postby__isnull=True,
@@ -221,8 +228,9 @@ def verifytransactions(request):
                         status_skipped = 1
 
                 elif request.POST['type'] == 'or':
+                    print 'or'
                     batchkey = request.POST['batchkey']
-                    if 'or' in request.POST.getlist('id_transtype[]'):
+                    if 'or' in request.POST.getlist('id_transtype'):
                         if datetime.today().date() > datefrom and validate_date.filter(doctype='OR').count() > 0:
                             unbalanced = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A',
                                                                  ormain__postby__isnull=True,
