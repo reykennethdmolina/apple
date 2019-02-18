@@ -128,7 +128,7 @@
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvprefix|upper }}{{ item.jvnum|upper }}</td>
             <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvdate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.particular }}</td>
-            <td style="text-align:left;vertical-align:top;width:100px">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
+            <td style="text-align:right;vertical-align:top;width:100px">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
         </tr>
     {% endfor %}
     <tr>
