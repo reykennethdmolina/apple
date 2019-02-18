@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     url(r'^generatedefaultentries/$', views.generatedefaultentries, name='generatedefaultentries'),
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
+    url(r'^searchfordigibanker/$', views.searchfordigibanker, name='searchfordigibanker'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^digibanker/$', views.digibanker, name='digibanker'),

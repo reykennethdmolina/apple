@@ -72,6 +72,12 @@ $(function () {
         $('#checkAll').prop("checked", false);
         $('#postdate').val('');
     });
+    $('#digibanker').on('click', function() {
+        $('#digibankerresult').html('');
+        $('#checkAll').prop("checked", false);
+        $('#batchnumber').val('');
+        $('#postingdate').val('');
+    });
     // ajax search and pagination
     $('#searchBtn').on('click', function(){
         $('.shade').fadeIn();

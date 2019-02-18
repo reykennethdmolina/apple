@@ -53,6 +53,7 @@ from django.db import connection
 import pandas as pd
 import io
 import xlsxwriter
+from django.conf import settings
 
 
 class IndexView(AjaxListView):
@@ -99,6 +100,8 @@ class IndexView(AjaxListView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('code')
         context['creditterm'] = Creditterm.objects.filter(isdeleted=0).order_by('daysdue')
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname')
+        creator = Apmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
         context['pk'] = 0
 
         return context
@@ -2775,29 +2778,37 @@ def digibanker(request):
     print 'digibanker'
     #MC 01 1218181 PHP 0111007943003 20181218 0000100361172 00193
 
-    text_file = open("accountspayable/txtfile/digibanker.txt", "w")
+    #text_file = open("accountspayable/txtfile/digibanker.txt", "w")
+    text_file = open("static/digibanker/digibanker.txt", "w")
 
-    batchnum = '170120191'
+    bnum = request.POST['batchnumber']
+    pdate = request.POST['postingdate']
+
+    batchnum = bnum
     currency = 'PHP'
     fundacct = '0111007943003'
-    postingdate = '20181218'
+    postingdate = pdate
     totalamount = 0
     totalno = 0
 
-    aptype = 13 # SB
-    disburbank = 0601 # DELA ROSA
+    ids = request.POST.getlist('ids[]')
+    print ids
 
-    detail = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
-    print detail
+    aptype = 13 # SB
+    disburbank = '0601' # DELA ROSA
+
+    detail = Apmain.objects.filter(pk__in=ids).filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+
     detaildata = ""
     for item in detail:
         transamount = str(item.amount).replace('.', '').rjust(13, '0')[:13]
         payeename = item.payeename.ljust(40, ' ')[:40]
         particulars = 'AP'+str(item.apnum)+'::'+str(item.payeecode)+'::'+str(item.payeename)+'::'+str(item.refno)+'::'+str(item.particulars)
-        particulars = particulars.ljust(2400, ' ')[:2400]
+        #particulars = particulars.rstrip('\r\n').ljust(2400, ' ')[:2400]
+        particulars = ' '.join(particulars.splitlines())
         totalamount += item.amount
         totalno += 1
-        detaildata += "MC01"+str(currency)+str(transamount)+str(payeename)+str(particulars)+"\n"
+        detaildata += "MC10"+str(currency)+str(disburbank)+str(transamount)+str(payeename)+str(particulars)+"\n"
 
     header = "MC01" + str(batchnum) + str(currency) + str(fundacct) + str(postingdate) + str(totalamount).replace('.', '').rjust(13, '0')[:13] + str(totalno).rjust(5, '0')[:5] + "\n"
     text_file.writelines(header)
@@ -2805,4 +2816,65 @@ def digibanker(request):
 
     text_file.close()
 
+    print 'url'
+    baseurl = request.build_absolute_uri()
+    print baseurl
+    fileurl = baseurl.replace("accountspayable", "static")+'digibanker.txt'
+    print fileurl
+
+    data = {'status': 'success', 'fileurl': fileurl}
+
+    return JsonResponse(data)
+    # file_name = 'digibanker'
+    #
+    # response = HttpResponse(
+    #     text_file,
+    #     content_type='application/octet-stream'
+    # )
+    # response['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    #
+    # return response
+
+    # file_name = 'digibanker'+str(datetime.datetime.now())
+    # path_to_file = 'accountspayable/txtfile/digibanker'
+    # response = HttpResponse(mimetype='application/force-download')
+    # response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(file_name)
+    # response['X-Sendfile'] = smart_str(path_to_file)
+    # return response
+
     #return Render.render('accountspayable/report/report_1.html')
+
+
+@csrf_exempt
+def searchfordigibanker(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+        creator = request.POST['creator']
+
+        aptype = 13
+
+        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+
+        if dfrom != '':
+            q = q.filter(apdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(apdate__lte=dto)
+
+        if creator != '':
+            q = q.filter(enterby_id=creator)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('accountspayable/digibankerposting.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)

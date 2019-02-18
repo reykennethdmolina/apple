@@ -3,7 +3,7 @@
         width: 100% !important;
     }
 </style>
-<div id="postingModal" class="modal fade" role="dialog">
+<div id="digibankerModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="shade"><div class="loader two-color"></div></div>
         <div class="modal-content">
@@ -24,26 +24,40 @@
 
                         </div>
                     </div>
+                    <div class="form-group col-sm-7 margin-bottom-0">
+                        <label class="control-label small">Created By</label><br>
+                        <select class="form-control input-sm" id="creator">
+                            <option value="">-- All --</option>
+                            {% for creator in creator %}
+                                <option value="{{ creator.id }}">{{ creator.username }} - {{ creator.first_name }} {{ creator.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="form-group col-sm-4 margin-bottom-0">
                         <label class="control-label small"></label><br>
                         <button type="button" class="btn btn-info btn-sm" id="digibanker_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
                     </div>
                 </div>
-                <br><strong>Accounts Payable  Ready for Posting</strong>
-                <button type="button" class="btn btn-round btn-success btn-sm" id="gopost">Ready for Posting</button>
+                <br><strong class="text-success">APV TYPE: SB | STATUS: READY FOR POSTING</strong>
+                <br><strong>Accounts Payable for Digibanker</strong>
+
+                <br><input type="text" id="batchnumber" style="width:150px;" placeholder="BATCHNUMBER" maxlength="9" maxlength="9"> MMDDYYYYC
+                <br><input type="text" id="postingdate" style="width:150px;" placeholder="POSTING DATE" maxlength="8" maxlength="8"> YYYYMMDD
+                <button type="submit" class="btn btn-round btn-success btn-sm" id="goextract">Extract Data</button>
                 <br><br>
                 <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
                     <table class="table table-sm">
                       <thead>
                         <tr>
-                          <th scope="row"><input type="checkbox" id="checkAll"></th>
+                          <th scope="row"><input type="checkbox" id="checkAlldigi"></th>
                           <td scope="row">AP Num</td>
                           <td scope="row">AP Date</td>
+                          <td scope="row">Payee</td>
                           <td scope="row">Creator</td>
                           <td scope="row">Approver</td>
                         </tr>
                       </thead>
-                        <tbody id="postingresult">
+                        <tbody id="digibankerresult">
 
                         </tbody>
                     </table>
@@ -57,55 +71,67 @@
 <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
 <script>
     $(function() {
-        <!--$('#apposting_search').on('click', function() {-->
-            <!--loadData();-->
-        <!--});-->
+        $('#digibanker_search').on('click', function() {
+            loadData();
+        });
 
-        <!--function loadData()-->
-        <!--{-->
-            <!--$.ajax({-->
-                <!--url: "{% url 'accountspayable:searchforposting' %}",-->
-                <!--type: "post",-->
-                <!--data: {'csrfmiddlewaretoken': "{{csrf_token}}",-->
-                       <!--'dfrom': $('#posting_apdate_from').val(),-->
-                       <!--'dto': $('#posting_apdate_to').val(),-->
-                       <!--},-->
-                <!--success: function(response){-->
-                    <!--$("#postingresult").html(response['viewhtml']);-->
-                <!--}, error: function(response) {-->
-                    <!--console.debug(response);-->
-                <!--}-->
-            <!--});-->
-        <!--}-->
-        <!--$("#checkAll").click(function () {-->
-            <!--$(".check").prop('checked', $(this).prop('checked'));-->
-        <!--});-->
+        function loadData()
+        {
+            $.ajax({
+                url: "{% url 'accountspayable:searchfordigibanker' %}",
+                type: "post",
+                data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                       'dfrom': $('#digibanker_apdate_from').val(),
+                       'dto': $('#digibanker_apdate_to').val(),
+                       'creator': $('#creator').val(),
+                       },
+                success: function(response){
+                    $("#digibankerresult").html(response['viewhtml']);
+                }, error: function(response) {
+                    console.debug(response);
+                }
+            });
+        }
 
-        <!--$('#gopost').on('click', function() {-->
-            <!--var selected_value = [];-->
-            <!--$(".check:checked").each(function(){-->
-                <!--selected_value.push($(this).val());-->
-            <!--});-->
+        $("#checkAlldigi").click(function () {
+            $(".check").prop('checked', $(this).prop('checked'));
+        });
 
-            <!--if (!Array.isArray(selected_value) || !selected_value.length) {-->
-                <!--alert('No selected item!');-->
-            <!--} else {-->
-                <!--$.ajax({-->
-                    <!--url: "{% url 'accountspayable:gopost' %}",-->
-                    <!--type: "post",-->
-                    <!--data: {'csrfmiddlewaretoken': "{{csrf_token}}",-->
-                           <!--'ids': selected_value,-->
-                           <!--},-->
-                    <!--success: function(response){-->
-                        <!--loadData();-->
-                        <!--alert('Data set for posting is success. This window will reload!');-->
-                        <!--location.reload();-->
-                    <!--}, error: function(response) {-->
-                        <!--console.debug(response);-->
-                    <!--}-->
-                <!--});-->
-            <!--}-->
-        <!--});-->
+        $('#goextract').on('click', function() {
+            var selected_value = [];
+            var batchnumber = $('#batchnumber').val();
+            var postingdate = $('#postingdate').val();
+            $(".check:checked").each(function(){
+                selected_value.push($(this).val());
+            });
+
+            if (!Array.isArray(selected_value) || !selected_value.length) {
+                alert('No selected item!');
+            } else {
+            if (batchnumber == '' || postingdate == '') {
+                    alert('Please fill Posting Date and Batch Number');
+                } else {
+
+                    $.ajax({
+                        url: "{% url 'accountspayable:digibanker' %}",
+                        type: "post",
+                        data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                               'ids': selected_value,
+                               'batchnumber': batchnumber,
+                               'postingdate': postingdate,
+                               },
+                        success: function(response){
+                            alert('Data Extracted Success');
+                            setTimeout(function(){
+                                window.open(response['fileurl']);
+                            },10000);
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
+            }
+        });
 
     });
 </script>
