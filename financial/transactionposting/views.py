@@ -55,9 +55,14 @@ def verifytransactions(request):
                 status_invaliddate = 0
                 status_undept = 0
 
+                print 'hoy'
                 validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom - timedelta(days=1))
-                #validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom)
                 #print datefrom
+                #print 'datefrom'
+                #validate_date = Logs_posted.objects.filter(status='P', dateto__gte=datefrom)
+                #print 'validate'
+                #print validate_date
+
                 #print datefrom - timedelta(days=1)
 
                 if request.POST['type'] == 'ap':
@@ -1085,7 +1090,7 @@ def posttransactions(request):
         if percentage >= 100:
             percentage = 100
 
-            for data in request.POST.getlist('id_transtype[]'):
+            for data in request.POST.getlist('id_transtype'):
                 Logs_posted.objects.create(datefrom=datetime.strptime(request.POST['datefrom'], "%Y-%m-%d").date(),
                                            dateto=datetime.strptime(request.POST['dateto'], "%Y-%m-%d").date(),
                                            transactioncount=items.count(),
