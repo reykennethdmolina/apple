@@ -67,12 +67,13 @@ class IndexView(AjaxListView):
     def get_queryset(self):
 
         if self.request.user.is_superuser:
-            query = Apmain.objects.all().filter(isdeleted=0)
+            query = Apmain.objects.all()
         else:
             # user_employee = get_object_or_None(Employee, user=self.request.user)
-            query = Apmain.objects.filter(designatedapprover=self.request.user.id) | Apmain.objects.filter(
-                enterby=self.request.user.id)
-            query = query.filter(isdeleted=0)
+            #query = Apmain.objects.filter(designatedapprover=self.request.user.id) | Apmain.objects.filter(
+             #   enterby=self.request.user.id)
+            #query = query.filter(isdeleted=0)
+            query = Apmain.objects.all()
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
@@ -2178,6 +2179,13 @@ class GeneratePDF(View):
             title = "Accounts Payable Listing Subject to W/TAX"
             query = query_wtax(dfrom, dto)
             q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '6':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            print aplist
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
 
         if aptype != '':
             if report == '2' or report == '4':
@@ -2734,6 +2742,62 @@ def searchforposting(request):
         }
 
     return JsonResponse(data)
+
+def getAPList(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    inputvat = 274 # 1940000000 INPUT VAT
+
+    query = "SELECT m.apnum, m.apdate, m.payeename, m.particulars, " \
+            "d.balancecode, d.chartofaccount_id, d.apmain_id " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN apdetail AS d ON d.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.status != 'C' " \
+            "AND d.chartofaccount_id = "+str(274)+" " \
+            "ORDER BY m.apnum;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.apmain_id) + ','
+
+    return list[:-1]
+
+
+def getEFO():
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT id, accountcode, description, main, clas, item, SUBSTR(sub, 1, 2) AS sub " \
+            "FROM chartofaccount " \
+            "WHERE (main = 5) OR (main = 1 AND clas = 5 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 7 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 1 AND item = 9) " \
+            "OR (main = 1 AND clas = 1 AND item = 8) " \
+            "OR (main = 1 AND clas = 6)"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.id) + ','
+
+    return list[:-1]
 
 def query_wtax(dfrom, dto):
     # print "Summary"

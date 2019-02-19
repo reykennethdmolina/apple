@@ -52,11 +52,11 @@ class IndexView(AjaxListView):
     def get_queryset(self):
 
         if self.request.user.is_superuser:
-            query = Jvmain.objects.all().filter(isdeleted=0)
+            query = Jvmain.objects.all() #.filter(isdeleted=0)
         else:
             #user_employee = get_object_or_None(Employee, user=self.request.user)
-            query = Jvmain.objects.filter(designatedapprover=self.request.user.id) | Jvmain.objects.filter(enterby=self.request.user.id)
-            query = query.filter(isdeleted=0)
+            #query = Jvmain.objects.filter(designatedapprover=self.request.user.id) | Jvmain.objects.filter(enterby=self.request.user.id)
+            query = Jvmain.objects.all()
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))

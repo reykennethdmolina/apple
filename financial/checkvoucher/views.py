@@ -49,6 +49,8 @@ from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
+from django.db import connection
+from collections import namedtuple
 
 
 @method_decorator(login_required, name='dispatch')
@@ -61,11 +63,11 @@ class IndexView(AjaxListView):
     def get_queryset(self):
 
         if self.request.user.is_superuser:
-            query = Cvmain.objects.all().filter(isdeleted=0)
+            query = Cvmain.objects.all() #.filter(isdeleted=0)
         else:
             #user_employee = get_object_or_None(Employee, user=self.request.user)
-            query = Cvmain.objects.filter(designatedapprover=self.request.user.id) | Cvmain.objects.filter(enterby=self.request.user.id)
-            query = query.filter(isdeleted=0)
+            #query = Cvmain.objects.filter(designatedapprover=self.request.user.id) | Cvmain.objects.filter(enterby=self.request.user.id)
+            query = Cvmain.objects.all()
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
@@ -1899,6 +1901,16 @@ class GeneratePDF(View):
             if dto != '':
                 q = q.filter(cv_date__lte=dto)
 
+        elif report == '5':
+            title = "Check Voucher Transaction Listing Subject To Input VAT"
+            cvlist = getCVList(dfrom, dto)
+            efo = getEFO()
+            print cvlist
+
+            #query = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0,status__in=['A','C']).order_by('cv_num', 'cv_date', 'item_counter')
+
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+
         if cvtype != '':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__cvtype__exact=cvtype)
@@ -2005,3 +2017,67 @@ def searchforposting(request):
         }
 
     return JsonResponse(data)
+
+
+def getCVList(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    inputvat = 274 # 1940000000 INPUT VAT
+
+    query = "SELECT m.cvnum, m.cvdate, m.payee_name, m.particulars, " \
+            "d.balancecode, d.chartofaccount_id, d.cvmain_id " \
+            "FROM cvmain AS m " \
+            "LEFT OUTER JOIN cvdetail AS d ON d.cvmain_id = m.id " \
+            "WHERE DATE(m.cvdate) >= '"+str(dfrom)+"' AND DATE(m.cvdate) <= '"+str(dto)+"' " \
+            "AND m.cvstatus IN ('A', 'R') " \
+            "AND m.status != 'C' " \
+            "AND d.chartofaccount_id = "+str(274)+" " \
+            "ORDER BY m.cvnum;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.cvmain_id) + ','
+
+    return list[:-1]
+
+
+def getEFO():
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT id, accountcode, description, main, clas, item, SUBSTR(sub, 1, 2) AS sub " \
+            "FROM chartofaccount " \
+            "WHERE (main = 5) OR (main = 1 AND clas = 5 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 7 AND SUBSTR(sub, 1, 2) = 10) " \
+            "OR (main = 1 AND clas = 1 AND item = 9) " \
+            "OR (main = 1 AND clas = 1 AND item = 8) " \
+            "OR (main = 1 AND clas = 6)"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.id) + ','
+
+    return list[:-1]
+    #return result
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
