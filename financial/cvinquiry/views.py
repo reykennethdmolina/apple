@@ -362,7 +362,7 @@ class GenerateExcel(View):
             worksheet.write(row, col + 13, data.cvmain.vat.code)
             worksheet.write(row, col + 14, data.cvmain.vatrate)
             if data.cvmain.inputvattype:
-                worksheet.write(row, col + 15, data.cvmain.inputvattype.code)
+                worksheet.write(row, col + 15, data.cvmain.inputvattype.description)
             worksheet.write(row, col + 16, data.cvmain.deferredvat)
             worksheet.write(row, col + 17, data.cvmain.atc.code)
             worksheet.write(row, col + 18, data.cvmain.atcrate)
