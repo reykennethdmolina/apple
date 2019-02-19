@@ -1,10 +1,22 @@
+{% load humanize %}
 {% for item in data %}
 <tr>
-  <th><input type="checkbox" class="check" value={{ item.id }}></th>
-  <td>{{ item.apnum }}</td>
-  <td style="width:100px">{{ item.apdate|date:'Y-m-d' }}</td>
-  <td>{{ item.payeename }}</td>
-  <td>{{ item.enterby }}</td>
-  <td>{{ item.actualapprover.first_name }}&nbsp;{{ item.actualapprover.last_name }}</td>
+  <td>{{ forloop.counter }}</td>
+  <td><input type="checkbox" class="check" value={{ item.apmain.id }}></td>
+  <td>{{ item.apmain.apnum }}</td>
+  <td style="width:100px">{{ item.apmain.apdate|date:'Y-m-d' }}</td>
+  <td>{{ item.apmain.payeename }}</td>
+  <td>{{ item.apmain.enterby }}</td>
+  <td style="text-align:right">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
 </tr>
 {% endfor %}
+
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td><b>Total</b></td>
+  <td style="text-align:right"><b>{{ total.creditamount__sum|default:""|floatformat:2|intcomma }}</b></td>
+</tr>

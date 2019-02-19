@@ -2797,16 +2797,22 @@ def digibanker(request):
     aptype = 13 # SB
     disburbank = '0601' # DELA ROSA
 
-    detail = Apmain.objects.filter(pk__in=ids).filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+    #detail = Apmain.objects.filter(pk__in=ids).filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+
+    #q = Apmain.objects.filter(aptype_id=aptype, isdeleted=0, status='A', apstatus='R').values_list('id',flat=True).order_by('apnum', 'apdate')
+
+    aptrade = 285  # ACCOUNTS PAYABLE-TRADE
+
+    detail = Apdetail.objects.filter(apmain_id__in=ids, chartofaccount_id=aptrade).order_by('ap_num', 'ap_date')
 
     detaildata = ""
     for item in detail:
-        transamount = str(item.amount).replace('.', '').rjust(13, '0')[:13]
-        payeename = item.payeename.ljust(40, ' ')[:40]
-        particulars = 'AP'+str(item.apnum)+'::'+str(item.payeecode)+'::'+str(item.payeename)+'::'+str(item.refno)+'::'+str(item.particulars)
+        transamount = str(item.creditamount).replace('.', '').rjust(13, '0')[:13]
+        payeename = item.apmain.payeename.ljust(40, ' ')[:40]
+        particulars = 'AP'+str(item.apmain.apnum)+'::'+str(item.apmain.payeecode)+'::'+str(item.apmain.payeename)+'::'+str(item.apmain.refno)+'::'+str(item.apmain.particulars)
         #particulars = particulars.rstrip('\r\n').ljust(2400, ' ')[:2400]
         particulars = ' '.join(particulars.splitlines())
-        totalamount += item.amount
+        totalamount += item.creditamount
         totalno += 1
         detaildata += "MC10"+str(currency)+str(disburbank)+str(transamount)+str(payeename)+str(particulars)+"\n"
 
@@ -2855,7 +2861,8 @@ def searchfordigibanker(request):
 
         aptype = 13
 
-        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+        #xx = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
+        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').values_list('id', flat=True).order_by('apnum', 'apdate')
 
         if dfrom != '':
             q = q.filter(apdate__gte=dfrom)
@@ -2865,8 +2872,18 @@ def searchfordigibanker(request):
         if creator != '':
             q = q.filter(enterby_id=creator)
 
+
+        aptrade = 285 #ACCOUNTS PAYABLE-TRADE
+
+        list = Apdetail.objects.filter(apmain_id__in=set(q), chartofaccount_id=aptrade).order_by('ap_num', 'ap_date')
+
+        total = list.aggregate(Sum('creditamount'))
+
+        print total
+
         context = {
-            'data': q
+            'data': list,
+            'total': total,
         }
         data = {
             'status': 'success',
