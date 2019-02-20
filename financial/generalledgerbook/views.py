@@ -905,7 +905,12 @@ def excel_trail_balance(result, report, type, year, month):
                 worksheet.write(row, col + 3, float(format(data.summary_end_amount, '.2f')))
                 total_beg_credit += float(format(data.summary_end_amount, '.2f'))
         else:
-            if data.summary_end_code == 'D':
+            if data.accountcode == '5327600000':
+                print data.accountcode
+                print 'hoy'
+                print data.summary_year_to_date_code
+
+            if data.summary_year_to_date_code == 'D':
                 worksheet.write(row, col + 2, float(format(data.summary_year_to_date_amount, '.2f')))
                 worksheet.write(row, col + 3, float(format(0.00, '.2f')))
                 total_beg_debit += float(format(data.summary_year_to_date_amount, '.2f'))
