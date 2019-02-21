@@ -2183,7 +2183,14 @@ class GeneratePDF(View):
             title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT"
             aplist = getAPList(dfrom, dto)
             efo = getEFO()
-            print aplist
+            query = query_apsubjecttovat(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '7':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT Summary"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
 
             q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
 
@@ -2248,16 +2255,27 @@ class GeneratePDF(View):
                 df = pd.DataFrame(query)
                 credit = df['creditamount'].sum()
                 debit = df['debitamount'].sum()
-
-
+        elif report == '6' or report == '7':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
         else:
             list = q
+
         if list:
 
             if report == '2' or report == '4':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '5':
                 total = {'credit': credit, 'debit': debit }
+            elif report == '6' or report == '7':
+                total = {'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit, 'efodebit':efodebit}
             else:
                 total = list.aggregate(total_amount=Sum('amount'))
 
@@ -2281,6 +2299,10 @@ class GeneratePDF(View):
             return Render.render('accountspayable/report/report_4.html', context)
         elif report == '5':
             return Render.render('accountspayable/report/report_5.html', context)
+        elif report == '6':
+            return Render.render('accountspayable/report/report_6.html', context)
+        elif report == '7':
+            return Render.render('accountspayable/report/report_7.html', context)
         else:
             return Render.render('accountspayable/report/report_1.html', context)
 
@@ -2344,6 +2366,20 @@ class GenerateExcel(View):
             title = "Accounts Payable Listing Subject to W/TAX"
             query = query_wtax(dfrom, dto)
             q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '6':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovat(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '7':
+            title = "Accounts Payable Voucher Transaction Listing Subject To Input VAT Summary"
+            aplist = getAPList(dfrom, dto)
+            efo = getEFO()
+            query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
+
+            q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
 
         if aptype != '':
             if report == '2' or report == '4':
@@ -2406,16 +2442,27 @@ class GenerateExcel(View):
                 df = pd.DataFrame(query)
                 credit = df['creditamount'].sum()
                 debit = df['debitamount'].sum()
-
-
+        elif report == '6' or report == '7':
+            list = query
+            credit = 0
+            debit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
         else:
             list = q
+
         if list:
 
             if report == '2' or report == '4':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '5':
-                total = {'credit': credit, 'debit': debit}
+                total = [] #{'credit': credit, 'debit': debit}
+            elif report == '6' or report == '7':
+                total = [] #{'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit, 'efodebit':efodebit}
             else:
                 total = list.aggregate(total_amount=Sum('amount'))
 
@@ -2644,7 +2691,7 @@ class GenerateExcel(View):
         elif report == '5':
             # header
             worksheet.write('A4', 'AP Number', bold)
-            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('B4', 'Code', bold)
             worksheet.write('C4', 'Payee/Particular', bold)
             worksheet.write('D4', 'Subs Ledger', bold)
             worksheet.write('E4', 'Debit', bold)
@@ -2658,7 +2705,7 @@ class GenerateExcel(View):
 
             dataset = pd.DataFrame(list)
 
-            for apnum, detail in dataset.fillna('NaN').groupby(['apnum', 'apdate', 'payeename', 'particulars', 'status']):
+            for apnum, detail in dataset.fillna('NaN').groupby(['apnum', 'payeecode', 'payeename', 'particulars', 'status']):
                 worksheet.write(row, col, apnum[0])
                 worksheet.write(row, col + 1, apnum[1], formatdate)
                 if apnum[4] == 'C':
@@ -2673,20 +2720,20 @@ class GenerateExcel(View):
                 bankaccount = ''
                 department = ''
                 for sub, data in detail.iterrows():
-                    worksheet.write(row, col + 2, data['accountcode'])
-                    worksheet.write(row, col + 3, data['description'])
+                    worksheet.write(row, col + 1, data['accountcode'])
+                    worksheet.write(row, col + 2, data['description'])
 
                     if data['deptcode'] != 'NaN':
                         department = data['deptcode']
-                    worksheet.write(row, col + 4, department)
+                    worksheet.write(row, col + 3, department)
                     if apnum[4] == 'C':
+                        worksheet.write(row, col + 4, float(format(0, '.2f')))
                         worksheet.write(row, col + 5, float(format(0, '.2f')))
-                        worksheet.write(row, col + 6, float(format(0, '.2f')))
                         debit = 0
                         credit = 0
                     else:
-                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
-                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        worksheet.write(row, col + 4, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 5, float(format(data['creditamount'], '.2f')))
                         debit = data['debitamount']
                         credit = data['creditamount']
 
@@ -2694,13 +2741,107 @@ class GenerateExcel(View):
                     totaldebit += debit
                     totalcredit += credit
 
-            worksheet.write(row, col + 4, 'Total')
-            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
-            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalcredit, '.2f')))
 
 
             filename = "aptransactionsubjecttowtax.xlsx"
+        elif report == '6':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee/Particular', bold)
+            worksheet.write('D4', 'Type', bold)
+            worksheet.write('E4', 'E F O Debit', bold)
+            worksheet.write('F4', 'E F O Credit', bold)
+            worksheet.write('G4', 'Input VAT Debit', bold)
+            worksheet.write('H4', 'Input VAT Credit', bold)
+            worksheet.write('I4', 'VAT Rate', bold)
 
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.apnum)
+                worksheet.write(row, col + 1, data.apdate, formatdate)
+                worksheet.write(row, col + 2, data.payeename)
+                worksheet.write(row, col + 3, data.inputvat)
+                worksheet.write(row, col + 4, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 8, data.inputvatrate)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 7, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "aptransactionsubjecttoinputvat.xlsx"
+        elif report == '7':
+            # header
+            worksheet.write('A4', 'Payee/Particular', bold)
+            worksheet.write('B4', 'Type', bold)
+            worksheet.write('C4', 'E F O Debit', bold)
+            worksheet.write('D4', 'E F O Credit', bold)
+            worksheet.write('E4', 'Input VAT Debit', bold)
+            worksheet.write('F4', 'Input VAT Credit', bold)
+            worksheet.write('G4', 'VAT Rate', bold)
+            worksheet.write('H4', 'Address', bold)
+            worksheet.write('I4', 'TIN', bold)
+
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.payeename)
+                worksheet.write(row, col + 1, data.inputvat)
+                worksheet.write(row, col + 2, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 3, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 4, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 6, data.inputvatrate)
+                worksheet.write(row, col + 7, data.address)
+                worksheet.write(row, col + 8, data.tin)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 1, 'Total')
+            worksheet.write(row, col + 2, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 3, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "aptransactionsubjecttoinputvatsummary.xlsx"
 
         workbook.close()
 
@@ -2798,6 +2939,98 @@ def getEFO():
         list += str(r.id) + ','
 
     return list[:-1]
+
+def query_apsubjecttovatsummary(dfrom, dto, aplist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+
+    query = "SELECT z.*, CONCAT(IFNULL(sup.address1, ''), ' ', IFNULL(sup.address2, '')) AS address, sup.tin " \
+            "FROM ( " \
+            "SELECT m.apnum, m.apdate, m.payeecode, m.payeename, m.particulars, inv.code AS inputvat,  " \
+            "SUM(IFNULL(efo.debitamount, 0)) AS efodebitamount, SUM(IFNULL(efo.creditamount, 0)) AS efocreditamount, " \
+            "SUM(IFNULL(inputvat.debitamount, 0)) AS inputvatdebitamount, SUM(IFNULL(inputvat.creditamount, 0)) AS inputvatcreditamount, " \
+            "ROUND((SUM(IFNULL(inputvat.debitamount, 0)) - SUM(IFNULL(inputvat.creditamount, 0))) / (SUM(IFNULL(efo.debitamount, 0)) - SUM(IFNULL(efo.creditamount, 0))) * 100) AS inputvatrate " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS efo ON efo.apmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS inputvat ON inputvat.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+aplist+") " \
+            "GROUP BY m.payeecode, inv.code " \
+            "ORDER BY m.payeename) AS z " \
+            "LEFT OUTER JOIN supplier AS sup ON sup.code = z.payeecode;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_apsubjecttovat(dfrom, dto, aplist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+
+    query = "SELECT m.apnum, m.apdate, m.payeename, m.particulars, inv.code AS inputvat, " \
+            "IFNULL(efo.debitamount, 0) AS efodebitamount, IFNULL(efo.creditamount, 0) AS efocreditamount, " \
+            "IFNULL(inputvat.debitamount, 0) AS inputvatdebitamount, IFNULL(inputvat.creditamount, 0) AS inputvatcreditamount, " \
+            "ROUND((IFNULL(inputvat.debitamount, 0) - IFNULL(inputvat.creditamount, 0)) / (IFNULL(efo.debitamount, 0) - IFNULL(efo.creditamount, 0)) * 100) AS inputvatrate " \
+            "FROM apmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS efo ON efo.apmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.apmain_id, d.ap_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM apdetail AS d " \
+            "WHERE d.apmain_id IN ("+aplist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.apmain_id " \
+            "ORDER BY d.ap_num, d.ap_date " \
+            ") AS inputvat ON inputvat.apmain_id = m.id " \
+            "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
+            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+aplist+") " \
+            "ORDER BY m.apnum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
 
 def query_wtax(dfrom, dto):
     # print "Summary"
