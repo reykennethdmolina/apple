@@ -2896,7 +2896,7 @@ def getAPList(dfrom, dto):
             "FROM apmain AS m " \
             "LEFT OUTER JOIN apdetail AS d ON d.apmain_id = m.id " \
             "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
-            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.apstatus IN ('R') " \
             "AND m.status != 'C' " \
             "AND d.chartofaccount_id = "+str(274)+" " \
             "ORDER BY m.apnum;"
@@ -2973,7 +2973,7 @@ def query_apsubjecttovatsummary(dfrom, dto, aplist, efo):
             "ORDER BY d.ap_num, d.ap_date " \
             ") AS inputvat ON inputvat.apmain_id = m.id " \
             "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
-            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.apstatus IN ('R') " \
             "AND m.status != 'C' " \
             "AND m.id IN ("+aplist+") " \
             "GROUP BY m.payeecode, inv.code " \
@@ -3019,7 +3019,7 @@ def query_apsubjecttovat(dfrom, dto, aplist, efo):
             "ORDER BY d.ap_num, d.ap_date " \
             ") AS inputvat ON inputvat.apmain_id = m.id " \
             "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
-            "AND m.apstatus IN ('A', 'R') " \
+            "AND m.apstatus IN ('R') " \
             "AND m.status != 'C' " \
             "AND m.id IN ("+aplist+") " \
             "ORDER BY m.apnum"
