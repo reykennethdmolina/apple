@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^manualcvautoentry/$', views.manualcvautoentry, name='manualcvautoentry'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),

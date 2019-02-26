@@ -2257,8 +2257,10 @@ class GeneratePDF(View):
                 debit = df['debitamount'].sum()
         elif report == '6' or report == '7':
             list = query
-            credit = 0
-            debit = 0
+            inputcredit = 0
+            inputdebit = 0
+            efocredit = 0
+            efodebit = 0
             if list:
                 df = pd.DataFrame(query)
                 inputcredit = df['inputvatcreditamount'].sum()
@@ -2269,7 +2271,6 @@ class GeneratePDF(View):
             list = q
 
         if list:
-
             if report == '2' or report == '4':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '5':
@@ -2947,6 +2948,9 @@ def query_apsubjecttovatsummary(dfrom, dto, aplist, efo):
 
     aptrade = 274
 
+    if not aplist:
+        aplist = '0'
+
     query = "SELECT z.*, CONCAT(IFNULL(sup.address1, ''), ' ', IFNULL(sup.address2, '')) AS address, sup.tin " \
             "FROM ( " \
             "SELECT m.apnum, m.apdate, m.payeecode, m.payeename, m.particulars, inv.code AS inputvat,  " \
@@ -2994,6 +2998,9 @@ def query_apsubjecttovat(dfrom, dto, aplist, efo):
     cursor = connection.cursor()
 
     aptrade = 274
+
+    if not aplist:
+        aplist = '0'
 
     query = "SELECT m.apnum, m.apdate, m.payeename, m.particulars, inv.code AS inputvat, " \
             "IFNULL(efo.debitamount, 0) AS efodebitamount, IFNULL(efo.creditamount, 0) AS efocreditamount, " \

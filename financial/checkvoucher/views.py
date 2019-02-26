@@ -51,6 +51,9 @@ from django.template.loader import get_template
 from django.http import HttpResponse
 from django.db import connection
 from collections import namedtuple
+import pandas as pd
+import io
+import xlsxwriter
 
 
 @method_decorator(login_required, name='dispatch')
@@ -1553,7 +1556,6 @@ def reportresultquery(request):
 
     return query, report_type, report_total, pcv, report_xls
 
-
 @csrf_exempt
 def reportresultxlsx(request):
     # imports and workbook config
@@ -1900,14 +1902,18 @@ class GeneratePDF(View):
                 q = q.filter(cv_date__gte=dfrom)
             if dto != '':
                 q = q.filter(cv_date__lte=dto)
-
         elif report == '5':
             title = "Check Voucher Transaction Listing Subject To Input VAT"
             cvlist = getCVList(dfrom, dto)
             efo = getEFO()
-            print cvlist
+            query = query_cvsubjecttovat(dfrom, dto, cvlist, efo)
 
-            #query = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0,status__in=['A','C']).order_by('cv_num', 'cv_date', 'item_counter')
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+        elif report == '6':
+            title = "Check Voucher Transaction Listing Subject To Input VAT Summary"
+            cvlist = getCVList(dfrom, dto)
+            efo = getEFO()
+            query = query_cvsubjecttovatsummary(dfrom, dto, cvlist, efo)
 
             q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
 
@@ -1964,11 +1970,29 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
 
-        list = q
+        elif report == '5' or report == '6':
+            print 'pasok'
+            list = query
+            inputcredit = 0
+            inputdebit = 0
+            efocredit = 0
+            efodebit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
+        else:
+            list = q
+
         if list:
-            total = list.aggregate(total_amount=Sum('amount'))
             if report == '2' or report == '4':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '5' or report == '6':
+                total = {'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit, 'efodebit':efodebit}
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
 
         context = {
             "title": title,
@@ -1988,8 +2012,588 @@ class GeneratePDF(View):
             return Render.render('checkvoucher/report/report_3.html', context)
         elif report == '4':
             return Render.render('checkvoucher/report/report_4.html', context)
+        elif report == '5':
+            return Render.render('checkvoucher/report/report_5.html', context)
+        elif report == '6':
+            return Render.render('checkvoucher/report/report_6.html', context)
         else:
             return Render.render('checkvoucher/report/report_1.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        cvtype = request.GET['cvtype']
+        cvsubtype = request.GET['cvsubtype']
+        payee = request.GET['payee']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        cvstatus = request.GET['cvstatus']
+        status = request.GET['status']
+        atc = request.GET['atc']
+        inputvattype = request.GET['inputvattype']
+        vat = request.GET['vat']
+        bankaccount = request.GET['bankaccount']
+        title = "Check Voucher List"
+        list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
+
+        if report == '1':
+            title = "Check Voucher Transaction List - Summary"
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+            if dfrom != '':
+                q = q.filter(cvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(cvdate__lte=dto)
+        elif report == '2':
+            title = "Check Voucher Transaction List"
+            q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0).order_by('cv_num', 'cv_date',
+                                                                                       'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Check Voucher Transaction List - Summary"
+            q = Cvmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('cvnum', 'cvdate')
+            if dfrom != '':
+                q = q.filter(cvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(cvdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Check Voucher Transaction List"
+            q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0, status__in=['A', 'C']).order_by('cv_num',
+                                                                                                              'cv_date',
+                                                                                                              'item_counter')
+            if dfrom != '':
+                q = q.filter(cv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(cv_date__lte=dto)
+        elif report == '5':
+            title = "Check Voucher Transaction Listing Subject To Input VAT"
+            cvlist = getCVList(dfrom, dto)
+            efo = getEFO()
+            query = query_cvsubjecttovat(dfrom, dto, cvlist, efo)
+
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+        elif report == '6':
+            title = "Check Voucher Transaction Listing Subject To Input VAT Summary"
+            cvlist = getCVList(dfrom, dto)
+            efo = getEFO()
+            query = query_cvsubjecttovatsummary(dfrom, dto, cvlist, efo)
+
+            q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
+
+        if cvtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvtype__exact=cvtype)
+            else:
+                q = q.filter(cvtype=cvtype)
+        if cvsubtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvsubtype__exact=cvsubtype)
+            else:
+                q = q.filter(cvsubtype=cvsubtype)
+        if payee != 'null':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__payee_code__exact=payee)
+            else:
+                q = q.filter(payee_code=payee)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__actualapprover__exact=approver)
+            else:
+                q = q.filter(actualapprover=approver)
+        if cvstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__cvstatus__exact=cvstatus)
+            else:
+                q = q.filter(cvstatus=cvstatus)
+        if status != '':
+            q = q.filter(status=status)
+        if atc != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__atc__exact=atc)
+            else:
+                q = q.filter(atc=atc)
+        if inputvattype != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__inputvattype__exact=inputvattype)
+            else:
+                q = q.filter(inputvattype=inputvattype)
+        if vat != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__vat__exact=vat)
+            else:
+                q = q.filter(vat=vat)
+        if bankaccount != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__bankaccount__exact=bankaccount)
+            else:
+                q = q.filter(bankaccount=bankaccount)
+
+        elif report == '5' or report == '6':
+            print 'pasok'
+            list = query
+            inputcredit = 0
+            inputdebit = 0
+            efocredit = 0
+            efodebit = 0
+            if list:
+                df = pd.DataFrame(query)
+                inputcredit = df['inputvatcreditamount'].sum()
+                inputdebit = df['inputvatdebitamount'].sum()
+                efocredit = df['efocreditamount'].sum()
+                efodebit = df['efodebitamount'].sum()
+        else:
+            list = q
+
+        if list:
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '5' or report == '6':
+                total = {'inputcredit': inputcredit, 'inputdebit': inputdebit, 'efocredit': efocredit,
+                         'efodebit': efodebit}
+            else:
+                total = list.aggregate(total_amount=Sum('amount'))
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        filename = "cvreport.xlsx"
+
+        if report == '1':
+            # header
+            worksheet.write('A4', 'CV Number', bold)
+            worksheet.write('B4', 'CV Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.cvnum)
+                worksheet.write(row, col + 1, data.cvdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+                worksheet.write(row, col + 3, data.particulars)
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            #print float(format(totalamount, '.2f'))
+            #print total['total_amount']
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "cvtransactionlistsummary.xlsx"
+
+        elif report == '2':
+            worksheet.write('A4', 'CV Number', bold)
+            worksheet.write('B4', 'CV Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('cvmain__cvnum', 'cvmain__cvdate', 'cvmain__particulars', 'cvmain__payee_name',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for cvnum, detail in dataset.fillna('NaN').groupby(
+                    ['cvmain__cvnum', 'cvmain__cvdate', 'cvmain__payee_name', 'cvmain__particulars', 'status']):
+                worksheet.write(row, col, cvnum[0])
+                worksheet.write(row, col + 1, cvnum[1], formatdate)
+                if cvnum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, cvnum[2])
+                worksheet.write(row, col + 3, cvnum[3])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if cvnum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+            filename = "cvtransactionlist.xlsx"
+
+        elif report == '3':
+            # header
+            worksheet.write('A4', 'CV Number', bold)
+            worksheet.write('B4', 'CV Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.cvnum)
+                worksheet.write(row, col + 1, data.cvdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.payee_name)
+                worksheet.write(row, col + 3, data.particulars)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "unpostedcvtransactionlistsummary.xlsx"
+
+        elif report == '4':
+            # header
+            worksheet.write('A4', 'CV Number', bold)
+            worksheet.write('B4', 'CV Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('cvmain__cvnum', 'cvmain__cvdate', 'cvmain__particulars', 'cvmain__payee_name',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for cvnum, detail in dataset.fillna('NaN').groupby(
+                    ['cvmain__cvnum', 'cvmain__cvdate', 'cvmain__particulars', 'cvmain__payee_name', 'status']):
+                worksheet.write(row, col, cvnum[0])
+                worksheet.write(row, col + 1, cvnum[1], formatdate)
+                if cvnum[4] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, cvnum[2])
+                worksheet.write(row, col + 3, cvnum[3])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if cvnum[4] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+
+            filename = "unpostedcvtransactionlist.xlsx"
+
+        elif report == '5':
+            # header
+            worksheet.write('A4', 'CV Number', bold)
+            worksheet.write('B4', 'CV Date', bold)
+            worksheet.write('C4', 'Payee/Particular', bold)
+            worksheet.write('D4', 'Type', bold)
+            worksheet.write('E4', 'E F O Debit', bold)
+            worksheet.write('F4', 'E F O Credit', bold)
+            worksheet.write('G4', 'Input VAT Debit', bold)
+            worksheet.write('H4', 'Input VAT Credit', bold)
+            worksheet.write('I4', 'VAT Rate', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.cvnum)
+                worksheet.write(row, col + 1, data.cvdate, formatdate)
+                worksheet.write(row, col + 2, data.payee_name)
+                worksheet.write(row, col + 3, data.inputvat)
+                worksheet.write(row, col + 4, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 8, data.inputvatrate)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 7, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "cvtransactionsubjecttoinputvat.xlsx"
+        elif report == '6':
+            # header
+            worksheet.write('A4', 'Payee/Particular', bold)
+            worksheet.write('B4', 'Type', bold)
+            worksheet.write('C4', 'E F O Debit', bold)
+            worksheet.write('D4', 'E F O Credit', bold)
+            worksheet.write('E4', 'Input VAT Debit', bold)
+            worksheet.write('F4', 'Input VAT Credit', bold)
+            worksheet.write('G4', 'VAT Rate', bold)
+            worksheet.write('H4', 'Address', bold)
+            worksheet.write('I4', 'TIN', bold)
+
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+
+            for data in list:
+                worksheet.write(row, col, data.payee_name)
+                worksheet.write(row, col + 1, data.inputvat)
+                worksheet.write(row, col + 2, float(format(data.efodebitamount, '.2f')))
+                worksheet.write(row, col + 3, float(format(data.efocreditamount, '.2f')))
+                worksheet.write(row, col + 4, float(format(data.inputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.inputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 6, data.inputvatrate)
+                worksheet.write(row, col + 7, data.address)
+                worksheet.write(row, col + 8, data.tin)
+
+                totalefodebit += data.efodebitamount
+                totalefocredit += data.efocreditamount
+                totalinputdebit += data.inputvatdebitamount
+                totalinputcredit += data.inputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 1, 'Total')
+            worksheet.write(row, col + 2, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 3, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalinputcredit, '.2f')))
+
+
+            filename = "cvtransactionsubjecttoinputvatsummary.xlsx"
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+        
+def query_cvsubjecttovat(dfrom, dto, cvlist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+    if not cvlist:
+        cvlist = '0'
+
+    query = "SELECT m.cvnum, m.cvdate, m.payee_name, m.particulars, inv.code AS inputvat, " \
+            "IFNULL(efo.debitamount, 0) AS efodebitamount, IFNULL(efo.creditamount, 0) AS efocreditamount, " \
+            "IFNULL(inputvat.debitamount, 0) AS inputvatdebitamount, IFNULL(inputvat.creditamount, 0) AS inputvatcreditamount, " \
+            "ROUND((IFNULL(inputvat.debitamount, 0) - IFNULL(inputvat.creditamount, 0)) / (IFNULL(efo.debitamount, 0) - IFNULL(efo.creditamount, 0)) * 100) AS inputvatrate " \
+            "FROM cvmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.cvmain_id, d.cv_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM cvdetail AS d " \
+            "WHERE d.cvmain_id IN ("+cvlist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.cvmain_id " \
+            "ORDER BY d.cv_num, d.cv_date " \
+            ") AS efo ON efo.cvmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.cvmain_id, d.cv_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM cvdetail AS d " \
+            "WHERE d.cvmain_id IN ("+cvlist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.cvmain_id " \
+            "ORDER BY d.cv_num, d.cv_date" \
+            ") AS inputvat ON inputvat.cvmain_id = m.id " \
+            "WHERE DATE(m.cvdate) >= '"+str(dfrom)+"' AND DATE(m.cvdate) <= '"+str(dto)+"' " \
+            "AND m.cvstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+cvlist+") " \
+            "ORDER BY m.cvnum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_cvsubjecttovatsummary(dfrom, dto, cvlist, efo):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    aptrade = 274
+
+    if not cvlist:
+        cvlist = '0'
+
+    query = "SELECT z.*, CONCAT(IFNULL(sup.address1, ''), ' ', IFNULL(sup.address2, '')) AS address, sup.tin " \
+            "FROM ( " \
+            "SELECT m.cvnum, m.cvdate, m.payee_code, m.payee_name, m.particulars, inv.code AS inputvat, " \
+            "SUM(IFNULL(efo.debitamount, 0)) AS efodebitamount, SUM(IFNULL(efo.creditamount, 0)) AS efocreditamount, " \
+            "SUM(IFNULL(inputvat.debitamount, 0)) AS inputvatdebitamount, SUM(IFNULL(inputvat.creditamount, 0)) AS inputvatcreditamount, " \
+            "ROUND((SUM(IFNULL(inputvat.debitamount, 0)) - SUM(IFNULL(inputvat.creditamount, 0))) / (SUM(IFNULL(efo.debitamount, 0)) - SUM(IFNULL(efo.creditamount, 0))) * 100) AS inputvatrate " \
+            "FROM cvmain AS m " \
+            "LEFT OUTER JOIN inputvattype AS invt ON invt.id = m.inputvattype_id " \
+            "LEFT OUTER JOIN inputvat AS inv ON inv.inputvattype_id = invt.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.cvmain_id, d.cv_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM cvdetail AS d " \
+            "WHERE d.cvmain_id IN ("+cvlist+") " \
+            "AND d.chartofaccount_id IN ("+efo+") " \
+            "GROUP BY d.cvmain_id " \
+            "ORDER BY d.cv_num, d.cv_date " \
+            ") AS efo ON efo.cvmain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.cvmain_id, d.cv_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM cvdetail AS d " \
+            "WHERE d.cvmain_id IN ("+cvlist+") " \
+            "AND d.chartofaccount_id = '"+str(aptrade)+"' " \
+            "GROUP BY d.cvmain_id " \
+            "ORDER BY d.cv_num, d.cv_date " \
+            ") AS inputvat ON inputvat.cvmain_id = m.id " \
+            "WHERE DATE(m.cvdate) >= '"+str(dfrom)+"' AND DATE(m.cvdate) <= '"+str(dto)+"' " \
+            "AND m.cvstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+cvlist+") " \
+            "GROUP BY m.payee_code, inv.code " \
+            "ORDER BY m.payee_name) AS z " \
+            "LEFT OUTER JOIN supplier AS sup ON sup.code = z.payee_code;"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
 
 @csrf_exempt
 def searchforposting(request):

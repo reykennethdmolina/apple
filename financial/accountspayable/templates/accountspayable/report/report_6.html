@@ -135,7 +135,7 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.apprefix|upper }}{{ item.apnum|upper }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.apnum|upper }}</td>
             <td style="text-align:left;width:120px;vertical-align:top;">{{ item.apdate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;width:290px;">{{ item.payeename }}</td>
             <td style="text-align:left;vertical-align:top;width:70px;">{{ item.inputvat }}</td>
