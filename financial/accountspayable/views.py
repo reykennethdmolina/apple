@@ -1095,6 +1095,8 @@ class ReportView(ListView):
         context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
         context['outputvat'] = Outputvat.objects.filter(isdeleted=0).order_by('code')
         context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
+        creator = Apmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
 
         return context
 
@@ -2144,6 +2146,7 @@ class GeneratePDF(View):
         inputvattype = request.GET['inputvattype']
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
         title = "Accounts Payable Voucher List"
         list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
 
@@ -2193,59 +2196,71 @@ class GeneratePDF(View):
             query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
 
             q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '8':
+            title = "Accounts Payable Voucher Transaction List - AP Trade"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,chartofaccount_id=285).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
 
         if aptype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__aptype__exact=aptype)
             else:
                 q = q.filter(aptype=aptype)
         if apsubtype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apsubtype__exact=apsubtype)
             else:
                 q = q.filter(apsubtype=apsubtype)
         if payee != 'null':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__payeecode__exact=payee)
             else:
                 q = q.filter(payeecode=payee)
         if branch != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__branch__exact=branch)
             else:
                 q = q.filter(branch=branch)
         if approver != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__actualapprover__exact=approver)
             else:
                 q = q.filter(actualapprover=approver)
         if apstatus != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apstatus__exact=apstatus)
             else:
                 q = q.filter(apstatus=apstatus)
         if status != '':
             q = q.filter(status=status)
         if atc != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__atc__exact=atc)
             else:
                 q = q.filter(atc=atc)
         if inputvattype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__inputvattype__exact=inputvattype)
             else:
                 q = q.filter(inputvattype=inputvattype)
         if vat != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__vat__exact=vat)
             else:
                 q = q.filter(vat=vat)
         if bankaccount != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__bankaccount__exact=bankaccount)
             else:
                 q = q.filter(bankaccount=bankaccount)
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
 
         if report == '5':
             list = query
@@ -2271,7 +2286,7 @@ class GeneratePDF(View):
             list = q
 
         if list:
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '5':
                 total = {'credit': credit, 'debit': debit }
@@ -2304,6 +2319,8 @@ class GeneratePDF(View):
             return Render.render('accountspayable/report/report_6.html', context)
         elif report == '7':
             return Render.render('accountspayable/report/report_7.html', context)
+        elif report == '8':
+            return Render.render('accountspayable/report/report_8.html', context)
         else:
             return Render.render('accountspayable/report/report_1.html', context)
 
