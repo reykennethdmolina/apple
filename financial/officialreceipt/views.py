@@ -1499,9 +1499,6 @@ class GeneratePDF(View):
             title = "Official Receipt Output VAT"
             orlist = getORList(dfrom, dto)
             arr = getARR()
-            print orlist
-            print 'arr'
-            print arr
 
             query = query_orwithoutputvat(dfrom, dto, orlist, arr)
 
@@ -2245,14 +2242,14 @@ class GenerateExcel(View):
         elif report == '8':
             worksheet.write('A4', 'OR Number', bold)
             worksheet.write('B4', 'OR Date', bold)
-            worksheet.write('B4', 'Gov Status', bold)
-            worksheet.write('C4', 'Payee/Particular', bold)
-            worksheet.write('D4', 'Type', bold)
-            worksheet.write('E4', 'AR / Revenue Debit', bold)
-            worksheet.write('F4', 'AR / Revenue Credit', bold)
-            worksheet.write('G4', 'Output VAT Debit', bold)
-            worksheet.write('H4', 'Output VAT Credit', bold)
-            worksheet.write('I4', 'VAT Rate', bold)
+            worksheet.write('C4', 'Gov Status', bold)
+            worksheet.write('D4', 'Payee/Particular', bold)
+            worksheet.write('E4', 'Type', bold)
+            worksheet.write('F4', 'AR / Revenue Debit', bold)
+            worksheet.write('G4', 'AR / Revenue Credit', bold)
+            worksheet.write('H4', 'Output VAT Debit', bold)
+            worksheet.write('I4', 'Output VAT Credit', bold)
+            worksheet.write('J4', 'VAT Rate', bold)
 
             row = 4
             col = 0
@@ -2262,32 +2259,173 @@ class GenerateExcel(View):
             totalinputdebit = 0
             totalinputcredit = 0
 
-            # for data in list:
-            #     worksheet.write(row, col, data.cvnum)
-            #     worksheet.write(row, col + 1, data.cvdate, formatdate)
-            #     worksheet.write(row, col + 2, data.payee_name)
-            #     worksheet.write(row, col + 3, data.inputvat)
-            #     worksheet.write(row, col + 4, float(format(data.efodebitamount, '.2f')))
-            #     worksheet.write(row, col + 5, float(format(data.efocreditamount, '.2f')))
-            #     worksheet.write(row, col + 6, float(format(data.inputvatdebitamount, '.2f')))
-            #     worksheet.write(row, col + 7, float(format(data.inputvatcreditamount, '.2f')))
-            #     worksheet.write(row, col + 8, data.inputvatrate)
-            #
-            #     totalefodebit += data.efodebitamount
-            #     totalefocredit += data.efocreditamount
-            #     totalinputdebit += data.inputvatdebitamount
-            #     totalinputcredit += data.inputvatcreditamount
-            #
-            #     row += 1
-            #
-            # worksheet.write(row, col + 3, 'Total')
-            # worksheet.write(row, col + 4, float(format(totalefodebit, '.2f')))
-            # worksheet.write(row, col + 5, float(format(totalefocredit, '.2f')))
-            # worksheet.write(row, col + 6, float(format(totalinputdebit, '.2f')))
-            # worksheet.write(row, col + 7, float(format(totalinputcredit, '.2f')))
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                worksheet.write(row, col + 2, data.government)
+                worksheet.write(row, col + 3, data.payee_name)
+                worksheet.write(row, col + 4, data.ortype)
+                worksheet.write(row, col + 5, float(format(data.arrdebitamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.arrcreditamount, '.2f')))
+                worksheet.write(row, col + 7, float(format(data.outputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 8, float(format(data.outputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 9, data.outputvatrate)
+
+                totalefodebit += data.arrdebitamount
+                totalefocredit += data.arrcreditamount
+                totalinputdebit += data.outputvatdebitamount
+                totalinputcredit += data.outputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 7, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 8, float(format(totalinputcredit, '.2f')))
 
             filename = "ortransactionoutputvat.xlsx"
 
+        elif report == '9':
+            worksheet.write('A4', 'Payee/Particular', bold)
+            worksheet.write('B4', 'Gov Status', bold)
+            worksheet.write('C4', 'Type', bold)
+            worksheet.write('D4', 'AR / Revenue Debit', bold)
+            worksheet.write('E4', 'AR / Revenue Credit', bold)
+            worksheet.write('F4', 'Output VAT Debit', bold)
+            worksheet.write('G4', 'Output VAT Credit', bold)
+            worksheet.write('H4', 'VAT Rate', bold)
+            worksheet.write('I4', 'Address', bold)
+            worksheet.write('J4', 'TIN', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+            for data in list:
+                worksheet.write(row, col, data.payee_name)
+                worksheet.write(row, col + 1, data.government)
+                worksheet.write(row, col + 2, data.ortype)
+                worksheet.write(row, col + 3, float(format(data.arrdebitamount, '.2f')))
+                worksheet.write(row, col + 4, float(format(data.arrcreditamount, '.2f')))
+                worksheet.write(row, col + 5, float(format(data.outputvatdebitamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.outputvatcreditamount, '.2f')))
+                worksheet.write(row, col + 7, data.outputvatrate)
+                worksheet.write(row, col + 8, data.address)
+                worksheet.write(row, col + 9, data.tin)
+
+                totalefodebit += data.arrdebitamount
+                totalefocredit += data.arrcreditamount
+                totalinputdebit += data.outputvatdebitamount
+                totalinputcredit += data.outputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 2, 'Total')
+            worksheet.write(row, col + 3, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 5, float(format(totalinputdebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalinputcredit, '.2f')))
+
+            filename = "ortransactionoutputvatsummary.xlsx"
+
+        elif report == '10':
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('C4', 'Gov Status', bold)
+            worksheet.write('D4', 'Payee/Particular', bold)
+            worksheet.write('E4', 'Type', bold)
+            worksheet.write('F4', 'Cash In Bank Debit', bold)
+            worksheet.write('G4', 'Cash In Bank Credit', bold)
+            worksheet.write('H4', 'Output VAT Debit', bold)
+            worksheet.write('I4', 'Output VAT Credit', bold)
+            worksheet.write('J4', 'VAT Rate', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+            for data in list:
+                worksheet.write(row, col, data.ornum)
+                worksheet.write(row, col + 1, data.ordate, formatdate)
+                worksheet.write(row, col + 2, data.government)
+                worksheet.write(row, col + 3, data.payee_name)
+                worksheet.write(row, col + 4, data.ortype)
+                worksheet.write(row, col + 5, float(format(data.arrdebitamount, '.2f')))
+                worksheet.write(row, col + 6, float(format(data.arrcreditamount, '.2f')))
+                worksheet.write(row, col + 7, '')
+                worksheet.write(row, col + 8, '')
+                worksheet.write(row, col + 9, '')
+
+                totalefodebit += data.arrdebitamount
+                totalefocredit += data.arrcreditamount
+                totalinputdebit += data.outputvatdebitamount
+                totalinputcredit += data.outputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 7, '')
+            worksheet.write(row, col + 8, '')
+
+            filename = "ortransactionwithoutoutputvat.xlsx"
+
+        elif report == '11':
+            worksheet.write('A4', 'Payee/Particular', bold)
+            worksheet.write('B4', 'Gov Status', bold)
+            worksheet.write('C4', 'Type', bold)
+            worksheet.write('D4', 'Cash In Bank Debit', bold)
+            worksheet.write('E4', 'Cash In Bank Credit', bold)
+            worksheet.write('F4', 'Output VAT Debit', bold)
+            worksheet.write('G4', 'Output VAT Credit', bold)
+            worksheet.write('H4', 'VAT Rate', bold)
+            worksheet.write('I4', 'Address', bold)
+            worksheet.write('J4', 'TIN', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+            for data in list:
+                worksheet.write(row, col, data.payee_name)
+                worksheet.write(row, col + 1, data.government)
+                worksheet.write(row, col + 2, data.ortype)
+                worksheet.write(row, col + 3, float(format(data.arrdebitamount, '.2f')))
+                worksheet.write(row, col + 4, float(format(data.arrcreditamount, '.2f')))
+                worksheet.write(row, col + 5, '')
+                worksheet.write(row, col + 6, '')
+                worksheet.write(row, col + 7, '')
+                worksheet.write(row, col + 8, data.address)
+                worksheet.write(row, col + 9, data.tin)
+
+                totalefodebit += data.arrdebitamount
+                totalefocredit += data.arrcreditamount
+                totalinputdebit += data.outputvatdebitamount
+                totalinputcredit += data.outputvatcreditamount
+
+                row += 1
+
+            worksheet.write(row, col + 2, 'Total')
+            worksheet.write(row, col + 3, float(format(totalefodebit, '.2f')))
+            worksheet.write(row, col + 4, float(format(totalefocredit, '.2f')))
+            worksheet.write(row, col + 5, '')
+            worksheet.write(row, col + 6, '')
+
+            filename = "ortransactionwithoutoutputvatsummary.xlsx"
 
         workbook.close()
 

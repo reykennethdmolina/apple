@@ -137,7 +137,8 @@
     {% for item in list %}
         <tr>
             <td style="text-align:left;vertical-align:top;width:250px;">{{ item.payee_name }}</td>
-            <td style="text-align:left;vertical-align:top;width:70px;">{{ item.inputvat }}</td>
+            <td style="text-align:left;vertical-align:top;width:70px;">{{ item.government }}</td>
+            <td style="text-align:left;vertical-align:top;width:70px;">{{ item.ortype }}</td>
             <td style="text-align:right;vertical-align:top;width:120px;">{{ item.arrdebitamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:120px;">{{ item.arrcreditamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;vertical-align:top;width:120px;">{{ item.outputvatdebitamount|default:""|floatformat:2|intcomma }}</td>

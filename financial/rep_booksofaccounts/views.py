@@ -175,7 +175,7 @@ class GeneratePDF(View):
 
             total = q.aggregate(Sum('debitamount__sum'), Sum('creditamount__sum'))
         elif report == '10':
-            title = "SCHEDULE OF ACCURAL - AP TRADE - DETAILED ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER - DETAILED ENTRIES"
             q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C').order_by('ap_date', 'ap_num', '-balancecode', 'item_counter')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
@@ -183,7 +183,7 @@ class GeneratePDF(View):
                 q = q.filter(ap_date__lte=dto)
             total = q.exclude(apmain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '11':
-            title = "SCHEDULE OF ACCRUAL - AP TRADE - SUMMARY ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES"
             q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
@@ -200,7 +200,7 @@ class GeneratePDF(View):
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
 
         elif report == '12':
-            title = "SCHEDULE OF ACCRUAL - AP TRADE - SUBSIDIARY ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER - SUBSIDIARY ENTRIES"
             q = Apdetail.objects.all().filter(isdeleted=0,apmain__apstatus='R').exclude(apmain__status='C')
             if dfrom != '':
                 q = q.filter(ap_date__gte=dfrom)
@@ -220,7 +220,7 @@ class GeneratePDF(View):
             total_debit = {}
             totalc = {}
             total_credit = {}
-            title = "SCHEDULE OF ACCRUAL - AP TRADE (with Branch) - SUMMARY ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER (with Branch) - SUMMARY ENTRIES"
             totald['debitamount__sum__sum'] = 0
             total_debit['debitamount__sum__sum'] = 0
             totalc['creditamount__sum__sum'] = 0
@@ -406,7 +406,7 @@ class GeneratePDFCashInBank(View):
                 .order_by('bankaccount__code')
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '11':
-            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES"
             subtitle = "Summary of Cash In Bank"
             q = Apdetail.objects.all().filter(isdeleted=0,chartofaccount=cashinbank).exclude(apmain__status='C')
             if dfrom != '':
@@ -509,7 +509,7 @@ class GeneratePDFDepartment(View):
                 .order_by('department__code')
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '11':
-            title = "SCHEDULE OF ACCURAL - AP TRADE - SUMMARY ENTRIES"
+            title = "ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES"
             subtitle = "Summary of Department"
             q = Apdetail.objects.all().filter(isdeleted=0, department__isnull=False) \
                 .exclude(apmain__status='C').exclude(chartofaccount=Companyparameter.objects.first().coa_cashinbank) \
