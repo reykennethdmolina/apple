@@ -1494,6 +1494,9 @@ def updatedetail(source, mainid, num, secretkey, by_user, ormaindate):
 
             detail.item_counter = counter
             detail.or_date = ormaindate
+            detail.cv_date = ormaindate
+            detail.jv_date = ormaindate
+            detail.ap_date = ormaindate
             detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
             # Return None if object is empty
             detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)
