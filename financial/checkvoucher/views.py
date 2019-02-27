@@ -1970,7 +1970,7 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
 
-        elif report == '5' or report == '6':
+        if report == '5' or report == '6':
             print 'pasok'
             list = query
             inputcredit = 0
@@ -2637,7 +2637,7 @@ def getCVList(dfrom, dto):
             "WHERE DATE(m.cvdate) >= '"+str(dfrom)+"' AND DATE(m.cvdate) <= '"+str(dto)+"' " \
             "AND m.cvstatus IN ('A', 'R') " \
             "AND m.status != 'C' " \
-            "AND d.chartofaccount_id = "+str(274)+" " \
+            "AND d.chartofaccount_id = "+str(inputvat)+" " \
             "ORDER BY m.cvnum;"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog

@@ -2899,7 +2899,7 @@ def getAPList(dfrom, dto):
             "WHERE DATE(m.apdate) >= '"+str(dfrom)+"' AND DATE(m.apdate) <= '"+str(dto)+"' " \
             "AND m.apstatus IN ('R') " \
             "AND m.status != 'C' " \
-            "AND d.chartofaccount_id = "+str(274)+" " \
+            "AND d.chartofaccount_id = "+str(inputvat)+" " \
             "ORDER BY m.apnum;"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog

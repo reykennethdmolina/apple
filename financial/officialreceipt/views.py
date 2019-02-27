@@ -1495,6 +1495,40 @@ class GeneratePDF(View):
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
+        elif report == '8':
+            title = "Official Receipt Output VAT"
+            orlist = getORList(dfrom, dto)
+            arr = getARR()
+            print orlist
+            print 'arr'
+            print arr
+
+            query = query_orwithoutputvat(dfrom, dto, orlist, arr)
+
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '9':
+            title = "Official Receipt Output VAT Summary"
+            orlist = getORList(dfrom, dto)
+            arr = getARR()
+
+            query = query_orwithoutputvatsummary(dfrom, dto, orlist, arr)
+
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '10':
+            title = "Official Receipt Without Output VAT"
+            orlist = getORNoOutputVatList(dfrom, dto)
+            arr = getARR()
+
+            query = query_ornooutputvat(dfrom, dto, orlist, arr)
+
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '11':
+            title = "Official Receipt Without Output VAT Summary"
+            orlist = getORNoOutputVatList(dfrom, dto)
+            arr = getARR()
+
+            query = query_ornooutputvatsummary(dfrom, dto, orlist, arr)
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
 
         if ortype != '':
             if report == '2' or report == '4':
@@ -1586,13 +1620,31 @@ class GeneratePDF(View):
             total['debitamount'] = dataset['debitamount'].sum()
             total['creditamount'] = dataset['creditamount'].sum()
             total['diff'] = dataset['totaldiff'].sum()
+        elif report == '8' or report == '9' or report == '10' or report == '11':
+            print 'pasok'
+            list = query
+            outputcredit = 0
+            outputdebit = 0
+            arrcredit = 0
+            ardebit = 0
+            if list:
+                df = pd.DataFrame(query)
+                outputcredit = df['outputvatcreditamount'].sum()
+                outputdebit = df['outputvatdebitamount'].sum()
+                arrcredit = df['arrcreditamount'].sum()
+                arrdebit = df['arrdebitamount'].sum()
         else:
             list = q
-            if list:
-                #total = list.aggregate(total_amount=Sum('amount'))
-                total = list.filter(~Q(status = 'C')).aggregate(total_amount=Sum('amount'))
-                if report == '2' or report == '4':
-                    total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        if list:
+            #total = list.aggregate(total_amount=Sum('amount'))
+
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+            elif report == '8' or report == '9' or report == '10' or report == '11':
+                total = {'outputcredit': outputcredit, 'outputdebit': outputdebit, 'arrcredit': arrcredit, 'arrdebit':arrdebit}
+            else:
+                total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
 
         context = {
             "title": title,
@@ -1620,6 +1672,14 @@ class GeneratePDF(View):
             return Render.render('officialreceipt/report/report_6.html', context)
         elif report == '7':
             return Render.render('officialreceipt/report/report_7.html', context)
+        elif report == '8':
+            return Render.render('officialreceipt/report/report_8.html', context)
+        elif report == '9':
+            return Render.render('officialreceipt/report/report_9.html', context)
+        elif report == '10':
+            return Render.render('officialreceipt/report/report_10.html', context)
+        elif report == '11':
+            return Render.render('officialreceipt/report/report_11.html', context)
         else:
             return Render.render('officialreceipt/report/report_1.html', context)
         
@@ -1697,8 +1757,37 @@ class GenerateExcel(View):
                 q = q.filter(ordate__gte=dfrom)
             if dto != '':
                 q = q.filter(ordate__lte=dto)
+        elif report == '8':
+            title = "Official Receipt Output VAT"
+            orlist = getORList(dfrom, dto)
+            arr = getARR()
 
+            query = query_orwithoutputvat(dfrom, dto, orlist, arr)
 
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '9':
+            title = "Official Receipt Output VAT Summary"
+            orlist = getORList(dfrom, dto)
+            arr = getARR()
+
+            query = query_orwithoutputvatsummary(dfrom, dto, orlist, arr)
+
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '10':
+            title = "Official Receipt Without Output VAT"
+            orlist = getORNoOutputVatList(dfrom, dto)
+            arr = getARR()
+
+            query = query_ornooutputvat(dfrom, dto, orlist, arr)
+
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
+        elif report == '11':
+            title = "Official Receipt Without Output VAT Summary"
+            orlist = getORNoOutputVatList(dfrom, dto)
+            arr = getARR()
+
+            query = query_ornooutputvatsummary(dfrom, dto, orlist, arr)
+            q = Ormain.objects.filter(isdeleted=0).order_by('ordate', 'ornum')
 
         if ortype != '':
             if report == '2' or report == '4':
@@ -1767,6 +1856,19 @@ class GenerateExcel(View):
         elif report == '6':
             list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
+        elif report == '8' or report == '9' or report == '10' or report == '11':
+            print 'pasok'
+            list = query
+            outputcredit = 0
+            outputdebit = 0
+            arrcredit = 0
+            ardebit = 0
+            if list:
+                df = pd.DataFrame(query)
+                outputcredit = df['outputvatcreditamount'].sum()
+                outputdebit = df['outputvatdebitamount'].sum()
+                arrcredit = df['arrcreditamount'].sum()
+                arrdebit = df['arrdebitamount'].sum()
         else:
             list = q
 
@@ -2140,6 +2242,52 @@ class GenerateExcel(View):
             worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
             filename = "officialreceiptregister.xlsx"
 
+        elif report == '8':
+            worksheet.write('A4', 'OR Number', bold)
+            worksheet.write('B4', 'OR Date', bold)
+            worksheet.write('B4', 'Gov Status', bold)
+            worksheet.write('C4', 'Payee/Particular', bold)
+            worksheet.write('D4', 'Type', bold)
+            worksheet.write('E4', 'AR / Revenue Debit', bold)
+            worksheet.write('F4', 'AR / Revenue Credit', bold)
+            worksheet.write('G4', 'Output VAT Debit', bold)
+            worksheet.write('H4', 'Output VAT Credit', bold)
+            worksheet.write('I4', 'VAT Rate', bold)
+
+            row = 4
+            col = 0
+
+            totalefodebit = 0
+            totalefocredit = 0
+            totalinputdebit = 0
+            totalinputcredit = 0
+
+            # for data in list:
+            #     worksheet.write(row, col, data.cvnum)
+            #     worksheet.write(row, col + 1, data.cvdate, formatdate)
+            #     worksheet.write(row, col + 2, data.payee_name)
+            #     worksheet.write(row, col + 3, data.inputvat)
+            #     worksheet.write(row, col + 4, float(format(data.efodebitamount, '.2f')))
+            #     worksheet.write(row, col + 5, float(format(data.efocreditamount, '.2f')))
+            #     worksheet.write(row, col + 6, float(format(data.inputvatdebitamount, '.2f')))
+            #     worksheet.write(row, col + 7, float(format(data.inputvatcreditamount, '.2f')))
+            #     worksheet.write(row, col + 8, data.inputvatrate)
+            #
+            #     totalefodebit += data.efodebitamount
+            #     totalefocredit += data.efocreditamount
+            #     totalinputdebit += data.inputvatdebitamount
+            #     totalinputcredit += data.inputvatcreditamount
+            #
+            #     row += 1
+            #
+            # worksheet.write(row, col + 3, 'Total')
+            # worksheet.write(row, col + 4, float(format(totalefodebit, '.2f')))
+            # worksheet.write(row, col + 5, float(format(totalefocredit, '.2f')))
+            # worksheet.write(row, col + 6, float(format(totalinputdebit, '.2f')))
+            # worksheet.write(row, col + 7, float(format(totalinputcredit, '.2f')))
+
+            filename = "ortransactionoutputvat.xlsx"
+
 
         workbook.close()
 
@@ -2285,7 +2433,7 @@ def searchforposting(request):
         dfrom = request.POST['dfrom']
         dto = request.POST['dto']
 
-        q = Ormain.objects.filter(isdeleted=0,status='A',orstatus='F').order_by('ornum', 'ordate')
+        q = Ormain.objects.filter(isdeleted=0,status='A',orstatus='A').order_by('ornum', 'ordate')
         if dfrom != '':
             q = q.filter(ordate__gte=dfrom)
         if dto != '':
@@ -2341,4 +2489,264 @@ def disapprove(request):
         data = { 'status': 'error' }
 
     return JsonResponse(data)
+
+def query_orwithoutputvatsummary(dfrom, dto, orlist, arr):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    output = 320
+    if not orlist:
+        orlist = '0'
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, m.payee_code, " \
+            "CONCAT(IFNULL(m.add1, ''), ' ', IFNULL(m.add2, ''), ' ', IFNULL(m.add3, '')) AS address, m.tin, " \
+            "SUM(IFNULL(arr.debitamount, 0)) AS arrdebitamount, SUM(IFNULL(arr.creditamount, 0)) AS arrcreditamount, " \
+            "SUM(IFNULL(outputvat.debitamount, 0)) AS outputvatdebitamount, SUM(IFNULL(outputvat.creditamount, 0)) AS outputvatcreditamount," \
+            "ROUND((SUM(IFNULL(outputvat.debitamount, 0)) - SUM(IFNULL(outputvat.creditamount, 0))) / (SUM(IFNULL(arr.debitamount, 0)) - SUM(IFNULL(arr.creditamount, 0))) * 100) AS outputvatrate " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ortype AS ort ON ort.id = m.ortype_id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id IN ("+str(arr)+") " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS arr ON arr.ormain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(output)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS outputvat ON outputvat.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+str(orlist)+") " \
+            "GROUP BY m.payee_code, m.payee_name ORDER BY m.payee_name, ort.code, m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_orwithoutputvat(dfrom, dto, orlist, arr):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    output = 320
+    if not orlist:
+        orlist = '0'
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, " \
+            "IFNULL(arr.debitamount, 0) AS arrdebitamount, IFNULL(arr.creditamount, 0) AS arrcreditamount, " \
+            "IFNULL(outputvat.debitamount, 0) AS outputvatdebitamount, IFNULL(outputvat.creditamount, 0) AS outputvatcreditamount, " \
+            "ROUND((IFNULL(outputvat.debitamount, 0) - IFNULL(outputvat.creditamount, 0)) / (IFNULL(arr.debitamount, 0) - IFNULL(arr.creditamount, 0)) * 100) AS outputvatrate " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ortype AS ort ON ort.id = m.ortype_id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id IN ("+str(arr)+") " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS arr ON arr.ormain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(output)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS outputvat ON outputvat.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+str(orlist)+") " \
+            "ORDER BY m.payee_name, ort.code, m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_ornooutputvat(dfrom, dto, orlist, arr):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    cashinbank = 30
+    if not orlist:
+        orlist = '0'
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, " \
+            "IFNULL(arr.debitamount, 0) AS arrdebitamount, IFNULL(arr.creditamount, 0) AS arrcreditamount, " \
+            "IFNULL(outputvat.debitamount, 0) AS outputvatdebitamount, IFNULL(outputvat.creditamount, 0) AS outputvatcreditamount, " \
+            "ROUND((IFNULL(outputvat.debitamount, 0) - IFNULL(outputvat.creditamount, 0)) / (IFNULL(arr.debitamount, 0) - IFNULL(arr.creditamount, 0)) * 100) AS outputvatrate " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ortype AS ort ON ort.id = m.ortype_id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(cashinbank)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS arr ON arr.ormain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(cashinbank)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS outputvat ON outputvat.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+str(orlist)+") " \
+            "ORDER BY m.payee_name, ort.code, m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def query_ornooutputvatsummary(dfrom, dto, orlist, arr):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    cashinbank = 30
+    if not orlist:
+        orlist = '0'
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, ort.code AS ortype, m.government, m.payee_code, " \
+            "CONCAT(IFNULL(m.add1, ''), ' ', IFNULL(m.add2, ''), ' ', IFNULL(m.add3, '')) AS address, m.tin, " \
+            "SUM(IFNULL(arr.debitamount, 0)) AS arrdebitamount, SUM(IFNULL(arr.creditamount, 0)) AS arrcreditamount, " \
+            "SUM(IFNULL(outputvat.debitamount, 0)) AS outputvatdebitamount, SUM(IFNULL(outputvat.creditamount, 0)) AS outputvatcreditamount," \
+            "ROUND((SUM(IFNULL(outputvat.debitamount, 0)) - SUM(IFNULL(outputvat.creditamount, 0))) / (SUM(IFNULL(arr.debitamount, 0)) - SUM(IFNULL(arr.creditamount, 0))) * 100) AS outputvatrate " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ortype AS ort ON ort.id = m.ortype_id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(cashinbank)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS arr ON arr.ormain_id = m.id " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT d.ormain_id, d.or_num, SUM(d.debitamount) AS debitamount, SUM(d.creditamount) AS creditamount, d.chartofaccount_id " \
+            "FROM ordetail AS d " \
+            "WHERE d.ormain_id IN ("+str(orlist)+") " \
+            "AND d.chartofaccount_id = "+str(cashinbank)+" " \
+            "GROUP BY d.ormain_id " \
+            "ORDER BY d.or_num, d.or_date " \
+            ") AS outputvat ON outputvat.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND m.id IN ("+str(orlist)+") " \
+            "GROUP BY m.payee_code, m.payee_name ORDER BY m.payee_name, ort.code, m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+def getORList(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    outputvat = 320 # 2146000000 OUTPUT VAT PAYABLE
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, " \
+            "d.balancecode, d.chartofaccount_id, d.ormain_id " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND d.chartofaccount_id = "+str(outputvat)+" " \
+            "ORDER BY m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.ormain_id) + ','
+
+    return list[:-1]
+
+def getORNoOutputVatList(dfrom, dto):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    outputvat = 320 # 2146000000 OUTPUT VAT PAYABLE
+
+    query = "SELECT m.ornum, m.ordate, m.payee_name, m.particulars, " \
+            "d.balancecode, d.chartofaccount_id, d.ormain_id " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND m.orstatus IN ('R') " \
+            "AND m.status != 'C' " \
+            "AND d.chartofaccount_id != "+str(outputvat)+" " \
+            "ORDER BY m.ornum"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.ormain_id) + ','
+
+    return list[:-1]
+
+
+def getARR():
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT id, accountcode, description, main, clas, item, SUBSTR(sub, 1, 2) AS sub " \
+            "FROM chartofaccount  " \
+            "WHERE (main = 1 AND clas = 1 AND item = 2 AND cont = 1) OR (main = 4 AND clas = 1 AND item = 1)"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    list = ''
+    for r in result:
+        list += str(r.id) + ','
+
+    return list[:-1]
+    #return result
 
