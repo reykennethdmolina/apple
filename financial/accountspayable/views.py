@@ -2346,6 +2346,7 @@ class GenerateExcel(View):
         inputvattype = request.GET['inputvattype']
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
         title = "Accounts Payable Voucher List"
         list = Apmain.objects.filter(isdeleted=0).order_by('apnum')[:0]
 
@@ -2398,59 +2399,71 @@ class GenerateExcel(View):
             query = query_apsubjecttovatsummary(dfrom, dto, aplist, efo)
 
             q = Apmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('apnum', 'apdate')
+        elif report == '8':
+            title = "Accounts Payable Voucher Transaction List - AP Trade"
+            q = Apdetail.objects.select_related('apmain').filter(isdeleted=0,chartofaccount_id=285).order_by('ap_num', 'ap_date', 'item_counter')
+            if dfrom != '':
+                q = q.filter(ap_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(ap_date__lte=dto)
 
         if aptype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__aptype__exact=aptype)
             else:
                 q = q.filter(aptype=aptype)
         if apsubtype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apsubtype__exact=apsubtype)
             else:
                 q = q.filter(apsubtype=apsubtype)
         if payee != 'null':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__payeecode__exact=payee)
             else:
                 q = q.filter(payeecode=payee)
         if branch != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__branch__exact=branch)
             else:
                 q = q.filter(branch=branch)
         if approver != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__actualapprover__exact=approver)
             else:
                 q = q.filter(actualapprover=approver)
         if apstatus != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apstatus__exact=apstatus)
             else:
                 q = q.filter(apstatus=apstatus)
         if status != '':
             q = q.filter(status=status)
         if atc != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__atc__exact=atc)
             else:
                 q = q.filter(atc=atc)
         if inputvattype != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__inputvattype__exact=inputvattype)
             else:
                 q = q.filter(inputvattype=inputvattype)
         if vat != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__vat__exact=vat)
             else:
                 q = q.filter(vat=vat)
         if bankaccount != '':
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__bankaccount__exact=bankaccount)
             else:
                 q = q.filter(bankaccount=bankaccount)
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(apmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
 
         if report == '5':
             list = query
@@ -2475,7 +2488,7 @@ class GenerateExcel(View):
 
         if list:
 
-            if report == '2' or report == '4':
+            if report == '2' or report == '4' or report == '8':
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '5':
                 total = [] #{'credit': credit, 'debit': debit}
@@ -2860,6 +2873,42 @@ class GenerateExcel(View):
 
 
             filename = "aptransactionsubjecttoinputvatsummary.xlsx"
+        if report == '8':
+            # header
+            worksheet.write('A4', 'AP Number', bold)
+            worksheet.write('B4', 'AP Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Net Amount', bold)
+
+            row = 5
+            col = 0
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.apmain.apnum)
+                worksheet.write(row, col + 1, data.apmain.apdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, data.apmain.payeename)
+                worksheet.write(row, col + 3, data.apmain.particulars)
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.creditamount, '.2f')))
+                    amount = data.creditamount
+
+                row += 1
+                totalamount += amount
+
+            # print float(format(totalamount, '.2f'))
+            # print total['total_amount']
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "aptransactionlistaptradesummary.xlsx"
 
         workbook.close()
 

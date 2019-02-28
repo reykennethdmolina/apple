@@ -138,6 +138,10 @@ class Temp_ormain(models.Model):
     enterby = models.CharField(null=True, blank=True, max_length=500)
     enterdate = models.CharField(null=True, blank=True, max_length=500)
     status = models.CharField(null=True, blank=True, max_length=500)
+    add1 = models.CharField(null=True, blank=True, max_length=500)
+    add2 = models.CharField(null=True, blank=True, max_length=500)
+    add3 = models.CharField(null=True, blank=True, max_length=500)
+    tin = models.CharField(null=True, blank=True, max_length=500)
 
     class Meta:
         db_table = 'temp_ormain'
