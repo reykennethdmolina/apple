@@ -596,6 +596,10 @@ def exportsave(request):
                         status=data.status,
                         enterby=data.enterby,
                         enterdate=data.enterdate,
+                        add1=data.address1,
+                        add2=data.address2,
+                        add3=data.address3,
+                        tin=data.tin,
                         postingremarks='Processing...',
                     )
                     temp_ormain.save()
@@ -832,6 +836,10 @@ def exportsave(request):
                         importornum=temp_ormain.orno,
                         importdate=temp_ormain.importdate,
                         importordate=temp_ormain.ordate,
+                        add1=temp_ormain.add1,
+                        add2=temp_ormain.add2,
+                        add3=temp_ormain.add3,
+                        tin=temp_ormain.tin,
                         adtype=Adtype.objects.get(code=temp_ormain.adtypecode),
                         transaction_type='A',
                         outputvattype=Outputvattype.objects.get(code='OVT-S'),

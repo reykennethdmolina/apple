@@ -1655,7 +1655,7 @@ class GeneratePDF(View):
             "dto": dto,
             "datefrom": datetime.datetime.strptime(dfrom, '%Y-%m-%d'),
             "dateto": datetime.datetime.strptime(dto, '%Y-%m-%d'),
-            "username": request.user,
+            "username": request.user, 
         }
         if report == '1':
             return Render.render('officialreceipt/report/report_1.html', context)
