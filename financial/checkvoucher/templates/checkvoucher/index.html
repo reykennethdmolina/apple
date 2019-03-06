@@ -34,6 +34,12 @@
                             </span>
                         </div>
                     </div>
+                    <!--<button class="btn btn-info btn-sm" data-toggle='modal' id="digibanker" data-target='#digibankerModal'>-->
+                        <!--<i class="icon fa-globe" aria-hidden="true"></i> Import Digibanker-->
+                    <!--</button>-->
+                    <a href="{% url 'checkvoucher:digibanker' %}" class="btn btn-info btn-sm">
+                        <i class="icon fa-globe" aria-hidden="true"></i> Import Digibanker
+                    </a>
                     <!-- pagination and search end -->
                     {% if perms.checkvoucher.can_postcv %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
@@ -93,6 +99,12 @@
                 $('.shade').fadeIn();
                 setCookie('keysearch_{{ request.resolver_match.app_name }}', $('#searchFilter').val());
                 $('#dummy').trigger('click');
+            });
+            $('#digibanker').on('click', function() {
+                $('#digibankerresult').html('');
+                $('#checkAll').prop("checked", false);
+                $('#batchnumber').val('');
+                $('#postingdate').val('');
             });
         });
     </script>

@@ -1,0 +1,229 @@
+{% extends 'base-form.html' %}
+{% block page-title %} Digibanker Importing {% endblock page-title %}
+{% block extra_css %}
+    {% load static %}
+    <style>
+        #or_step_upload, #or_step_final{
+            display: none;
+        }
+        .table_result{
+            height: 300px;
+            overflow: scroll;
+            padding: 0px;
+        }
+        .table_detail{
+            border-top: none !important;
+        }
+        .price-list{
+            background-color: white;
+        }
+        .price-list .price-price{
+            font-size: 14px !important;
+            text-align: left;
+            color: #76838f !important;
+        }
+        .price-title.bg-teal-a400:before {
+            background: #00bfa5;
+        }
+        .price-list .price-title{
+            padding-top: 5px;
+            letter-spacing: 1px;
+        }
+        .price-title:before {
+            position: relative;
+            display: block;
+            width: 14px;
+            height: 14px;
+            content: '';
+            top: 42px;
+            transform: rotate(45deg);
+            text-align: center;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .price-footer{
+            margin-top: 40px;
+        }
+        .fa-spin {
+          -webkit-animation: fa-spin 2s infinite linear;
+          animation: fa-spin 2s infinite linear;
+        }
+        @-webkit-keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+        @keyframes fa-spin {
+          0% {
+            -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+          }
+          100% {
+            -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+          }
+        }
+    </style>
+{% endblock extra_css %}
+{% block page-content %}
+<div id="or_step_verify">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <form method="post" id="data" enctype="multipart/form-data" style="height:10px">
+                        <div class="col-md-12">
+                            <div class="price-list margin-sm-0">
+                                <div class="price-header">
+                                    <div class="price-title bg-teal-a400">STEP 1: FILE UPLOAD</div>
+                                    <div class="price-price teal-a400" id="formupload">
+                                        <div class="form-group col-sm-3">
+
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label class="control-label small">Digibanker File</label>
+                                            <input type="file" id="or_file" class="form-control input-sm upload" name="or_file">
+                                        </div>
+                                        <div class="form-group col-sm-3">
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-footer">
+                                    <button type="button" class="btn btn-info waves-effect waves-light" id="or_upload">
+                                        <i class="icon fa-cloud-upload font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        Upload and Verify
+                                    </button>
+                                    <button type="button" disabled="disabled" class="btn btn-info" style="display: none;" id="or_upload_loading">
+                                        <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                        VERIFYING ...
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+<br><br>
+<div id="upload-success" class="custom-alert success">Upload successful!</div>
+<div id="upload-success-2" class="custom-alert success">Importing successful!</div>
+<div id="upload-error" class="custom-alert danger">File upload failed!</div>
+<div id="upload-file-error" class="custom-alert danger">File/Invalid error!</div>
+<div id="upload-file-large" class="custom-alert danger">File too large! (>3mb)</div>
+<div id="upload-error-artype" class="custom-alert danger">Invalid AR Type</div>
+{% endblock page-content %}
+{% block extra_js %}
+<script>
+    $(function(){
+        $(document).on('click', '#or_upload', function(e){
+            $('#or_upload').fadeOut(300);
+            $('#or_export').fadeOut(300);
+            $('#or_step_upload').fadeOut(300);
+            $('#or_step_final').fadeOut(300);
+            $('#or_upload_loading').delay(300).fadeIn(300, function() {
+                $("form#data").submit();
+            });
+        });
+
+        $("form#data").submit(function(){
+            if ($('#or_file').get(0).files.length === 0) {
+                customAlert($('#upload-file-error'));
+                showUploadForm();
+            }
+            else{
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: "{% url 'checkvoucher:fileupload' %}",
+                    type: 'POST',
+                    data: formData,
+                    async: false,
+                    success: function (data) {
+                        proceedinit = true;
+                        switch(data['result']){
+                            case 1:
+
+                                console.log(data['batchkey']);
+
+                                $.ajax({
+                                url: "{% url 'checkvoucher:exportsave' %}",
+                                type: "post",
+                                data: {'batchkey': data['batchkey']},
+                                success: function(data){
+                                    switch(data['result']) {
+                                        case 1:
+                                            customAlert($('#upload-success-2'));
+                                            $('#or_step_final').fadeIn(300);
+                                            $('#or_export_loading').fadeOut(300);
+                                            $('#upload_total2').text(data['successcount'] + " out of " + data['totalcount']);
+                                            $('#upload_rate2').text(parseFloat(data['rate']).toFixed(2).toString() + "%");
+                                            $('#final_debit').text(parseFloat(data['successdebit']).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                                            $('#final_credit').text(parseFloat(data['successcredit']).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                                            $('#final_unbalanced').text((parseFloat(data['successdebit']) - parseFloat(data['successcredit'])).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                                            $('#or_step_upload').find('.price-title').removeClass('bg-teal-a400').addClass('bg-grey-600');
+                                            $('html, body').delay(300).animate({scrollTop: $('#or_step_final').offset().top -80 }, 'slow');
+                                            break;
+                                        case 2:
+                                            customAlert($('#upload-error'));
+                                            break;
+                                        default:
+                                    }
+
+                                }, error: function(response) {
+                                    console.debug(response);
+                                }
+                            });
+
+
+                                break;
+                            case 2:
+                                customAlert($('#upload-error'));
+                                break;
+                            case 3:
+                                customAlert($('#upload-file-error'));
+                                break;
+                            case 4:
+                                customAlert($('#upload-file-large'));
+                                break;
+                            case 5:
+                                customAlert($('#upload-file-error'));
+                                break;
+                            case 6:
+                                customAlert($('#upload-error-artype'));
+                                break;
+                            case 7:
+                                customAlert($('#upload-file-error'));
+                                alert("Error in OR# " + data['check'] + ". Please check your file!");
+                                break;
+                            default:
+                        }
+                        showUploadForm();
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+            return false;
+        });
+
+
+        function showUploadForm(){
+            $('#or_upload_loading').fadeOut(300);
+            $('#or_upload').delay(300).fadeIn(300);
+        }
+    });
+</script>
+{% endblock extra_js %}

@@ -374,3 +374,37 @@ class Cvdetailbreakdowntemp(models.Model):
 
     def status_verbose(self):
         return dict(Cvdetailbreakdowntemp.STATUS_CHOICES)[self.status]
+
+
+class Temp_digibanker(models.Model):
+    item = models.IntegerField()
+    apnum = models.CharField(max_length=500, null=True, blank=True)
+    mcno = models.CharField(max_length=500, null=True, blank=True)
+    branch = models.CharField(max_length=500, null=True, blank=True)
+    payeename = models.CharField(max_length=500, null=True, blank=True)
+    amount =  models.DecimalField(decimal_places=2, max_digits=18, default=0.00)
+    status = models.CharField(max_length=500, null=True, blank=True)
+    remarks = models.CharField(max_length=500, null=True, blank=True)
+    reason = models.CharField(max_length=500, null=True, blank=True)
+    payeetype = models.CharField(max_length=500, null=True, blank=True)
+    acctno = models.CharField(max_length=500, null=True, blank=True)
+    refno = models.CharField(max_length=500, null=True, blank=True)
+    mcdate = models.CharField(max_length=500, null=True, blank=True)
+    otherdetail = models.CharField(max_length=500, null=True, blank=True)
+    keyinfo = models.CharField(max_length=500, null=True, blank=True)
+    otherremarks = models.CharField(max_length=500, null=True, blank=True)
+    batchkey = models.CharField(max_length=500, null=True, blank=True)
+    importdate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'temp_digibanker'
+        ordering = ['-pk']
+        # permissions = (("view_jvmain", "Can view jvmain"),)
+
+
+    def __str__(self):
+        return self.pk
+
+    def __unicode__(self):
+        return unicode(self.pk)
+

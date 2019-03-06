@@ -1613,10 +1613,10 @@ class GeneratePDF(View):
             list = raw_query(2, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax,vat, outputvat, bankaccount, status)
             dataset = pd.DataFrame(list)
             total = {}
-            total['amount'] = dataset['amount'].sum()
+            #total['amount'] = dataset['amount'].sum()
             total['debitamount'] = dataset['debitamount'].sum()
             total['creditamount'] = dataset['creditamount'].sum()
-            total['diff'] = dataset['totaldiff'].sum()
+            #total['diff'] = dataset['totaldiff'].sum()
         elif report == '8' or report == '9' or report == '10' or report == '11':
             print 'pasok'
             list = query
