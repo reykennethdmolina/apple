@@ -1640,6 +1640,8 @@ class GeneratePDF(View):
                 total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
             elif report == '8' or report == '9' or report == '10' or report == '11':
                 total = {'outputcredit': outputcredit, 'outputdebit': outputdebit, 'arrcredit': arrcredit, 'arrdebit':arrdebit}
+            elif report == '5' or report == '6':
+                print 'do nothing'
             else:
                 total = list.filter(~Q(status='C')).aggregate(total_amount=Sum('amount'))
 
