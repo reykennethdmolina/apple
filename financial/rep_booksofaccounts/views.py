@@ -286,6 +286,8 @@ class GeneratePDF(View):
             "company": company,
             "list": list,
             "total": total,
+            "datefrom": dfrom,
+            "dateto": dto,
             "username": request.user,
         }
         if report == '1':
@@ -434,6 +436,8 @@ class GeneratePDFCashInBank(View):
             "company": company,
             "list": list,
             "total": total,
+            "datefrom": dfrom,
+            "dateto": dto,
             "username": request.user,
         }
         if report == '2':
@@ -541,6 +545,8 @@ class GeneratePDFDepartment(View):
             "list": list,
             "total": total,
             "report": report,
+            "datefrom": dfrom,
+            "dateto": dto,
             "username": request.user,
         }
         if report == '2':

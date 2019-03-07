@@ -96,15 +96,18 @@
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
+                <td width="50%"></td>
             </tr>
             <tr>
                 <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                <td width="50%"></td>
             </tr>
            <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+                <td width="85%"><p class="title">{{ title|upper }} for the period {{ datefrom }} to {{ dateto }}</p></td>
+                <td width="15%"></td>
             </tr>
         </table>
 
