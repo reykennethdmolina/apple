@@ -564,6 +564,8 @@ class UpdateView(UpdateView):
             mainid = self.object.id
             num = self.object.apnum
             secretkey = self.request.POST['secretkey']
+            print self.object.apdate
+            print 'apdate'
             apmaindate = self.object.apdate
 
             updatedetail(source, mainid, num, secretkey, self.request.user, apmaindate)
