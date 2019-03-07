@@ -2802,7 +2802,7 @@ def exportsave(request):
 
                 main = Cvmain.objects.create(
                     cvnum=str(cvnum),
-                    cvdate=pdate,
+                    cvdate=str(checkdate),
                     cvtype_id=8,  # PAID-SB
                     cvsubtype_id=5,  # Digibanker
                     branch_id=5,  # Head Office
@@ -2836,6 +2836,8 @@ def exportsave(request):
                 ''' Update APMAIN '''
                 apmain = Apmain.objects.filter(apnum=data.apnum).first()
                 apmain.digicvmain_id = main.id
+                apmain.cvamount = main.amount
+                apmain.isfullycv = 1
                 apmain.save()
 
                 ''' Accounts Payable Trade '''

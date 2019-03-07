@@ -176,6 +176,7 @@ class CreateView(CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class UpdateView(UpdateView):
+    print 'yes'
     model = Jvmain
     template_name = 'journalvoucher/edit.html'
     fields = ['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch', 'currency', 'department',
@@ -298,79 +299,87 @@ class UpdateView(UpdateView):
         context['datainfo'] = self.object
         return context
 
-    def form_valid(self, form):
-        if self.request.POST['originaljvstatus'] != 'R':
-            self.object = form.save(commit=False)
-            self.object.modifyby = self.request.user
-            self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch',
-                                            'currency', 'department', 'designatedapprover', 'jvstatus', 'fxrate'])
+    # def form_valid(self, form):
+    #     print 'hey'
 
-            if self.object.jvstatus == 'F':
-                self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
-                self.object.save(update_fields=['designatedapprover'])
-
-            # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
-            # remove approval details if JVSTATUS is not APPROVED/DISAPPROVED
-            if self.object.jvstatus == 'A' or self.object.jvstatus == 'D':
-                if self.object.responsedate is None or self.object.approverresponse is None or self.object. \
-                        actualapprover is None:
-                    print self.object.responsedate
-                    print self.object.approverresponse
-                    print self.object.actualapprover
-                    self.object.responsedate = None
-                    self.object.approverremarks = None
-                    self.object.approverresponse = None
-                    self.object.actualapprover = None
-                    self.object.jvstatus = 'F'
-                    self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
-                                                    'actualapprover', 'jvstatus'])
-            elif self.object.jvstatus == 'F':
-                self.object.responsedate = None
-                self.object.approverremarks = None
-                self.object.approverresponse = None
-                self.object.actualapprover = None
-                self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
-                                                'actualapprover'])
-
-            # revert status from RELEASED to Approved if no release date is saved
-            # remove release details if JVSTATUS is not RELEASED
-            if self.object.jvstatus == 'R' and self.object.releasedate is None:
-                self.object.releaseby = None
-                self.object.releasedate = None
-                self.object.jvstatus = 'A'
-                self.object.save(update_fields=['releaseby', 'releasedate', 'jvstatus'])
-            elif self.object.jvstatus != 'R':
-                self.object.releaseby = None
-                self.object.releasedate = None
-                self.object.save(update_fields=['releaseby', 'releasedate'])
-
-            # accounting entry starts here..
-            source = 'jvdetailtemp'
-            mainid = self.object.id
-            num = self.object.jvnum
-            secretkey = self.request.POST['secretkey']
-            jvmaindate = self.object.jvdate
-
-            updatedetail(source, mainid, num, secretkey, self.request.user, jvmaindate)
-
-            totaldebitamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
-                Sum('debitamount'))
-            totalcreditamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
-                Sum('creditamount'))
-
-            if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
-                self.object.amount = totaldebitamount['debitamount__sum']
-                self.object.save(update_fields=['amount'])
-            else:
-                print "Debit and Credit amounts are not equal. JV Amount is not saved."
-
-        else:
-            self.object.modifyby = self.request.user
-            self.object.modifydate = datetime.datetime.now()
-            self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
-
-        return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')
+    # def form_valid(self, form):
+    #
+    #     if self.request.POST['originaljvstatus'] != 'R':
+    #         self.object = form.save(commit=False)
+    #         self.object.modifyby = self.request.user
+    #         self.object.modifydate = datetime.datetime.now()
+    #         print 'hoy kahoy'
+    #         self.object.save(update_fields=['jvdate', 'jvtype', 'jvsubtype', 'refnum', 'particular', 'branch',
+    #                                         'currency', 'department', 'designatedapprover', 'jvstatus', 'fxrate'])
+    #
+    #         if self.object.jvstatus == 'F':
+    #             self.object.designatedapprover = User.objects.get(pk=self.request.POST['designatedapprover'])
+    #             self.object.save(update_fields=['designatedapprover'])
+    #
+    #         # revert status from APPROVED/DISAPPROVED to For Approval if no response date or approver response is saved
+    #         # remove approval details if JVSTATUS is not APPROVED/DISAPPROVED
+    #         if self.object.jvstatus == 'A' or self.object.jvstatus == 'D':
+    #             if self.object.responsedate is None or self.object.approverresponse is None or self.object. \
+    #                     actualapprover is None:
+    #                 print self.object.responsedate
+    #                 print self.object.approverresponse
+    #                 print self.object.actualapprover
+    #                 self.object.responsedate = None
+    #                 self.object.approverremarks = None
+    #                 self.object.approverresponse = None
+    #                 self.object.actualapprover = None
+    #                 self.object.jvstatus = 'F'
+    #                 self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+    #                                                 'actualapprover', 'jvstatus'])
+    #         elif self.object.jvstatus == 'F':
+    #             self.object.responsedate = None
+    #             self.object.approverremarks = None
+    #             self.object.approverresponse = None
+    #             self.object.actualapprover = None
+    #             self.object.save(update_fields=['responsedate', 'approverremarks', 'approverresponse',
+    #                                             'actualapprover'])
+    #
+    #         # revert status from RELEASED to Approved if no release date is saved
+    #         # remove release details if JVSTATUS is not RELEASED
+    #         if self.object.jvstatus == 'R' and self.object.releasedate is None:
+    #             self.object.releaseby = None
+    #             self.object.releasedate = None
+    #             self.object.jvstatus = 'A'
+    #             self.object.save(update_fields=['releaseby', 'releasedate', 'jvstatus'])
+    #         elif self.object.jvstatus != 'R':
+    #             self.object.releaseby = None
+    #             self.object.releasedate = None
+    #             self.object.save(update_fields=['releaseby', 'releasedate'])
+    #
+    #         # accounting entry starts here..
+    #         source = 'jvdetailtemp'
+    #         mainid = self.object.id
+    #         num = self.object.jvnum
+    #         secretkey = self.request.POST['secretkey']
+    #         jvmaindate = self.object.jvdate
+    #
+    #         print 'hoy'
+    #         print jvmaindate
+    #
+    #         updatedetail(source, mainid, num, secretkey, self.request.user, jvmaindate)
+    #
+    #         totaldebitamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+    #             Sum('debitamount'))
+    #         totalcreditamount = Jvdetail.objects.filter(isdeleted=0).filter(jvmain_id=self.object.id).aggregate(
+    #             Sum('creditamount'))
+    #
+    #         if totaldebitamount['debitamount__sum'] == totalcreditamount['creditamount__sum']:
+    #             self.object.amount = totaldebitamount['debitamount__sum']
+    #             self.object.save(update_fields=['amount'])
+    #         else:
+    #             print "Debit and Credit amounts are not equal. JV Amount is not saved."
+    #
+    #     else:
+    #         self.object.modifyby = self.request.user
+    #         self.object.modifydate = datetime.datetime.now()
+    #         self.object.save(update_fields=['modifyby', 'modifydate', 'remarks'])
+    #
+    #     return HttpResponseRedirect('/journalvoucher/'+str(self.object.pk)+'/update')
 
 
 @method_decorator(login_required, name='dispatch')
