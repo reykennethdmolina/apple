@@ -23,4 +23,8 @@ urlpatterns = [
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
+    #url(r'^digibanker/$', views.digibanker, name='digibanker'),
+    url(r'^digibanker/$', views.DigibankerView.as_view(), name='digibanker'),
+    url(r'^fileupload/$', views.fileupload, name='fileupload'),
+    url(r'^exportsave/$', views.exportsave, name='exportsave'),
 ]

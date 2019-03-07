@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.utils.decorators import method_decorator
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail, updateallquery, \
     validatetable, deleteallquery
-from accountspayable.models import Apmain
+from accountspayable.models import Apmain, Apdetail
 from ataxcode.models import Ataxcode
 from bankaccount.models import Bankaccount
 from bankbranchdisburse.models import Bankbranchdisburse
@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from endless_pagination.views import AjaxListView
-from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp
+from . models import Cvmain, Cvdetail, Cvdetailtemp, Cvdetailbreakdown, Cvdetailbreakdowntemp, Temp_digibanker
 from acctentry.views import generatekey, querystmtdetail, querytotaldetail, savedetail, updatedetail
 from django.template.loader import render_to_string
 from easy_pdf.views import PDFTemplateView
@@ -53,7 +53,19 @@ from django.db import connection
 from collections import namedtuple
 import pandas as pd
 import io
+from django.shortcuts import render
+import os
 import xlsxwriter
+import logging
+from django.core.urlresolvers import reverse
+from acctentry.views import generatekey
+from num2words import num2words
+from datetime import timedelta
+
+
+upload_directory = 'processing_or/imported_main/'
+upload_d_directory = 'processing_or/imported_detail/'
+upload_size = 3
 
 
 @method_decorator(login_required, name='dispatch')
@@ -2685,3 +2697,206 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+@method_decorator(login_required, name='dispatch')
+class DigibankerView(TemplateView):
+    template_name = 'checkvoucher/digibanker.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+        return context
+
+@csrf_exempt
+def fileupload(request):
+    if request.method == 'POST':
+
+        if request.FILES['or_file'] \
+                and request.FILES['or_file'].name.endswith('.csv'):  # 3
+            if request.FILES['or_file']._size < float(upload_size) * 1024 * 1024:
+                csv_file = request.FILES["or_file"]
+
+                file_data = csv_file.read().decode("utf-8")
+
+                lines = file_data.split("\n")
+
+                counter = 0
+                batchkey = generatekey(1)
+                for line in lines[:-1]:
+                    fields = line.split(",")
+
+                    apdata = fields[6].split("::")
+
+
+                    Temp_digibanker.objects.create(
+                        item=str(fields[0]),
+                        apnum=str(apdata[0][2:]),
+                        mcno=str(fields[1]),
+                        branch=str(fields[2]),
+                        payeename=str(fields[3]),
+                        amount=fields[4],
+                        status=str(fields[5]),
+                        remarks=str(fields[6]),
+                        payeetype=str(fields[8]),
+                        acctno=str(fields[9]),
+                        refno=str(fields[10]),
+                        mcdate=str(fields[11]),
+                        batchkey=str(batchkey)
+                    )
+                    counter += 1
+
+                data = {
+                    'result': 1,
+                    'batchkey': batchkey
+                }
+                return JsonResponse(data)
+            else:
+                data = {
+                    'result': 4
+                }
+            return JsonResponse(data)
+
+@csrf_exempt
+def exportsave(request):
+    if request.method == 'POST':
+        # data-result definition:
+        #   1: success
+        #   2: failed - artype error
+
+        print request.POST['batchkey']
+
+        digibanker = getTempDigibanker(request.POST['batchkey']) #Temp_digibanker.objects.filter(batchkey=request.POST['batchkey'])
+
+        aptrade = 285  # ACCOUNTS PAYABLE-TRADE
+        cashinbank = 30  # CASH IN BANK
+        pdate = datetime.datetime.now()
+
+        for data in digibanker:
+
+            apdata = Apdetail.objects.filter(ap_num=data.apnum, chartofaccount_id=aptrade).first()
+            checkno = data.mcno
+            checkdate = data.checkdate
+            refno = 'APV'+data.apnum+' '+data.refno
+
+            try:
+                cvnumlast = Cvmain.objects.all().latest('cvnum')
+                latestcvnum = str(cvnumlast)
+                print latestcvnum
+                if latestcvnum[0:4] == str(datetime.datetime.now().year):
+                    cvnum = str(datetime.datetime.now().year)
+                    last = str(int(latestcvnum[4:]) + 1)
+                    last = last.rjust(6, '0')
+                    cvnum += last
+                else:
+                    cvnum = str(datetime.datetime.now().year) + '000001'
+            except Cvmain.DoesNotExist:
+                cvnum = str(datetime.datetime.now().year) + '000001'
+
+            print 'cvnum'
+
+            amountinwords = num2words(data.amount)
+
+            # apdata.digicvmain_id:
+            print apdata.apmain.digicvmain_id
+
+            if apdata.apmain.digicvmain_id is None:
+
+                main = Cvmain.objects.create(
+                    cvnum=str(cvnum),
+                    cvdate=pdate,
+                    cvtype_id=8,  # PAID-SB
+                    cvsubtype_id=5,  # Digibanker
+                    branch_id=5,  # Head Office
+                    cvstatus = 'A',
+                    checknum = str(checkno),
+                    checkdate = str(checkdate),
+                    payee_code = apdata.apmain.payeecode,
+                    payee_name = apdata.apmain.payeename,
+                    payee_id = apdata.apmain.payee_id,
+                    currency_id= apdata.apmain.currency_id,
+                    atc_id = apdata.apmain.atax_id,
+                    fxrate= apdata.apmain.fxrate,
+                    refnum=refno,
+                    deferredvat = apdata.apmain.deferred,
+                    bankaccount_id = 22, #SB
+                    particulars=data.remarks,
+                    amount=data.amount,
+                    amountinwords=amountinwords,
+                    designatedapprover_id=15,  # Angela
+                    actualapprover_id = 15, # Angela
+                    vat_id = apdata.apmain.vat_id,
+                    inputvattype_id = apdata.apmain.inputvattype_id,
+                    approverremarks = 'Auto approved from Digibanker Import File',
+                    responsedate = datetime.datetime.now(),
+                    enterby_id=request.user.id,
+                    enterdate=datetime.datetime.now(),
+                    modifyby_id=request.user.id,
+                    modifydate=datetime.datetime.now()
+                )
+
+                ''' Update APMAIN '''
+                apmain = Apmain.objects.filter(apnum=data.apnum).first()
+                apmain.digicvmain_id = main.id
+                apmain.save()
+
+                ''' Accounts Payable Trade '''
+                Cvdetail.objects.create(
+                    item_counter=1,
+                    cv_num=str(cvnum),
+                    cv_date=pdate,
+                    cvmain_id=main.id,
+                    debitamount=data.amount,
+                    balancecode='D',
+                    amount=data.amount,
+                    chartofaccount_id=aptrade,
+                    enterby_id=request.user.id,
+                    enterdate=datetime.datetime.now(),
+                    modifyby_id=request.user.id,
+                    modifydate=datetime.datetime.now()
+                )
+
+                ''' Cash In Bank '''
+                Cvdetail.objects.create(
+                    item_counter=2,
+                    cv_num=str(cvnum),
+                    cv_date=pdate,
+                    cvmain_id=main.id,
+                    creditamount=data.amount,
+                    balancecode='C',
+                    amount=data.amount,
+                    chartofaccount_id=cashinbank,
+                    bankaccount_id=22, #SB
+                    enterby_id=request.user.id,
+                    enterdate=datetime.datetime.now(),
+                    modifyby_id=request.user.id,
+                    modifydate=datetime.datetime.now()
+                )
+            else:
+                print 'already imported'
+
+            Temp_digibanker.objects.filter(batchkey=request.POST['batchkey']).delete()
+
+        data = {
+            'result': 1
+        }
+
+        return JsonResponse(data)
+
+def getTempDigibanker(batchkey):
+    # print "Summary"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+
+    query = "SELECT *, STR_TO_DATE(mcdate, '%m/%d/%Y') AS checkdate FROM temp_digibanker WHERE batchkey = '"+str(batchkey)+"' ORDER BY item ASC"
+
+    # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog
+    # print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+
+
