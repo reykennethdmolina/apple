@@ -3,7 +3,7 @@
         width: 100% !important;
     }
 </style>
-<div id="postingModal" class="modal fade" role="dialog">
+<div id="approvalModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="shade"><div class="loader two-color"></div></div>
         <div class="modal-content">
@@ -15,35 +15,35 @@
                         <div class="input-daterange datarange">
                             <div class="input-group">
                                 <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control input-sm datepickerfrom" id="posting_ordate_from">
+                                <input type="text" class="form-control input-sm datepickerfrom" id="approval_ordate_from">
                             </div>
                             <div class="input-group">
                                 <span class="input-group-addon input-sm">to</span>
-                                <input type="text" class="form-control input-sm datepickerto" id="posting_ordate_to">
+                                <input type="text" class="form-control input-sm datepickerto" id="approval_ordate_to">
                             </div>
 
                         </div>
                     </div>
                     <div class="form-group col-sm-4 margin-bottom-0">
                         <label class="control-label small"></label><br>
-                        <button type="button" class="btn btn-info btn-sm" id="orposting_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
+                        <button type="button" class="btn btn-info btn-sm" id="orapproval_search"><i class="icon fa-search" aria-hidden="true"></i>&nbsp;&nbsp;Search</button>
                     </div>
                 </div>
                 <br><strong>Official Receipt Ready for Posting</strong>
-                <button type="button" class="btn btn-round btn-success btn-sm" id="gopost">Ready for Posting</button>
+                <button type="button" class="btn btn-round btn-success btn-sm" id="goapprove">Batch Approved</button>
                 <br><br>
                 <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
                     <table class="table table-sm">
                       <thead>
                         <tr>
-                          <th scope="row"><input type="checkbox" id="checkAll"></th>
+                          <th scope="row"><input type="checkbox" id="checkAllAPP"></th>
                           <td scope="row">OR Num</td>
                           <td scope="row">OR Date</td>
                           <td scope="row">Creator</td>
-                          <td scope="row">Approver</td>
+                          <td scope="row">Amount</td>
                         </tr>
                       </thead>
-                        <tbody id="postingresult">
+                        <tbody id="approvalresult">
 
                         </tbody>
                     </table>
@@ -57,31 +57,31 @@
 <script src="{% static 'js/ajaxselect2.js' %}" type="text/javascript"></script>
 <script>
     $(function() {
-        $('#orposting_search').on('click', function() {
+        $('#orapproval_search').on('click', function() {
             loadData();
         });
 
         function loadData()
         {
             $.ajax({
-                url: "{% url 'officialreceipt:searchforposting' %}",
+                url: "{% url 'officialreceipt:searchforapproval' %}",
                 type: "post",
                 data: {'csrfmiddlewaretoken': "{{csrf_token}}",
-                       'dfrom': $('#posting_ordate_from').val(),
-                       'dto': $('#posting_ordate_to').val(),
+                       'dfrom': $('#approval_ordate_from').val(),
+                       'dto': $('#approval_ordate_to').val(),
                        },
                 success: function(response){
-                    $("#postingresult").html(response['viewhtml']);
+                    $("#approvalresult").html(response['viewhtml']);
                 }, error: function(response) {
                     console.debug(response);
                 }
             });
         }
-        $("#checkAll").click(function () {
+        $("#checkAllAPP").click(function () {
             $(".check").prop('checked', $(this).prop('checked'));
         });
 
-        $('#gopost').on('click', function() {
+        $('#goapprove').on('click', function() {
             var selected_value = [];
             $(".check:checked").each(function(){
                 selected_value.push($(this).val());
@@ -91,7 +91,7 @@
                 alert('No selected item!');
             } else {
                 $.ajax({
-                    url: "{% url 'officialreceipt:gopost' %}",
+                    url: "{% url 'officialreceipt:goapprove' %}",
                     type: "post",
                     data: {'csrfmiddlewaretoken': "{{csrf_token}}",
                            'ids': selected_value,

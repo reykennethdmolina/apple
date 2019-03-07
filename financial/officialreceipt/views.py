@@ -2540,9 +2540,25 @@ def gopost(request):
         release = Ormain.objects.filter(pk__in=ids).update(orstatus='R',
                                                            releaseby=User.objects.get(pk=request.user.id),
                                                            releasedate= str(datetime.datetime.now()),
+                                                        responsedate = str(datetime.datetime.now())
+        )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def goapprove(request):
+
+    if request.method == 'POST':
+        ids = request.POST.getlist('ids[]')
+        release = Ormain.objects.filter(pk__in=ids).update(orstatus='A',
                                                         responsedate = str(datetime.datetime.now()),
-                                                        approverremarks = 'Auto Approved',
-                                                        actualapprover = User.objects.get(pk=request.user.id)
+                                                        approverremarks = 'Batch Approved',
+                                                        actualapprover = User.objects.get(pk=request.user.id),
+                                                        designatedapprover = User.objects.get(pk=request.user.id)
         )
 
         data = {'status': 'success'}
@@ -2585,6 +2601,33 @@ def searchforposting(request):
         data = {
             'status': 'success',
             'viewhtml': render_to_string('officialreceipt/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def searchforapproval(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Ormain.objects.filter(isdeleted=0,status='A',orstatus='F').order_by('ordate', 'ornum')
+        if dfrom != '':
+            q = q.filter(ordate__gte=dfrom)
+        if dto != '':
+            q = q.filter(ordate__lte=dto)
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('officialreceipt/approvalresult.html', context),
         }
     else:
         data = {

@@ -36,6 +36,9 @@
                     </div>
                     <!-- pagination and search end -->
                     {% if perms.officialreceipt.can_postor %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="approval" data-target='#approvalModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Batch Approval
+                        </button>
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="posting" data-target='#postingModal'>
                             <i class="icon fa-lock" aria-hidden="true"></i> Ready For Posting
                         </button>
@@ -79,6 +82,7 @@
 </div>
 {% include "officialreceipt/search.html" %}
 {% include "officialreceipt/posting.html" %}
+{% include "officialreceipt/approval.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}
@@ -96,6 +100,12 @@
                 $('#postingresult').html('');
                 $('#checkAll').prop("checked", false);
                 $('#postdate').val('');
+            });
+
+            $('#approval').on('click', function() {
+                $('#approvalresult').html('');
+                $('#checkAllAPP').prop("checked", false);
+                //$('#postdate').val('');
             });
 
             // ajax search and pagination
