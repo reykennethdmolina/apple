@@ -2844,7 +2844,7 @@ def exportsave(request):
                 Cvdetail.objects.create(
                     item_counter=1,
                     cv_num=str(cvnum),
-                    cv_date=pdate,
+                    cv_date=str(checkdate),
                     cvmain_id=main.id,
                     debitamount=data.amount,
                     balancecode='D',

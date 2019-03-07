@@ -94,8 +94,8 @@
                                 <span class="help-block form-error">{{ form.jvnum.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2">
-                                <label class="control-label" for="id_jvdate">JV Date</label>
-                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker month" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.jvdate.value %}{{ form.jvdate.value|date:'Y-m-d' }}{% else %}{% now "Y-m-d" %}{% endif %}">
+                                <label class="control-label" for="id_jvdate">JV Date</label>{{ form.jvdate.value }}
+                                <input type="text" class="form-control input-sm date-yyyymmdd datepicker" readonly="readonly" style="padding: 5px 10px; background: white;" id="id_jvdate" name="jvdate" placeholder="YYYY-MM-DD" data-validation="required" value="{% if form.jvdate.value %}{{ form.jvdate.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
                                 <span class="help-block form-error">{{ form.jvdate.errors.as_text }}</span>
                             </div>
                             <div class="form-group col-sm-2 {{ form.jvtype.errors|yesno:'has-error,' }}">
@@ -162,7 +162,7 @@
                             </div>
                             <div class="form-group col-sm-3">
                                 <label class="control-label" for="id_jvstatus">JV Status</label>
-                                <select class="form-control input-sm" data-validation="required">
+                                <select class="form-control input-sm" data-validation="required" id="id_jvstatus" name="jvstatus">
                                     {% if form.jvstatus.value == "F" %}
                                     <option value="F">For Approval</option>
                                     {% endif %}
@@ -268,15 +268,20 @@
                     <!-- Accounting Entry End -->
                 </div>
             </div>
+            <div class="col-md-12 small">
+                <div class="col-sm-1">Created&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.0 }}</b></div>
+                <div class="col-sm-1">Modified&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.2 }}</b></div>
+                <div class="col-sm-1">Posted&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.4|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Closed&nbsp;by:</div><div class="col-sm-2"><b>{{ footers.6|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Create&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.1 }}</b></div>
+                <div class="col-sm-1">Modify&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.3 }}</b></div>
+                <div class="col-sm-1">Post&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.5|default:'N/A' }}</b></div>
+                <div class="col-sm-1">Close&nbsp;date:</div><div class="col-sm-2"><b>{{ footers.7|default:'N/A' }}</b></div>
+            </div>
         </div>
     </div>
 </div>
-<div class="col-sm-12 padding-left-0 padding-right-0">
-    <div class="col-sm-3"><strong>Created By: </strong> {{ datainfo.enterby }} {{ datainfo.enterdate }}</div>
-    <div class="col-sm-3"><strong>Modified By: </strong>{{ datainfo.modifyby }} {{ datainfo.modifydate }}</div>
-    <div class="col-sm-3"><strong>Posted By: </strong>{{ datainfo.postby|default:'' }} {{ datainfo.postdate|default:'' }}</div>
-    <div class="col-sm-3"><strong>Closed By: </strong>{{ datainfo.closeby|default:'' }} {{ datainfo.closedate|default:'' }}</div>
-</div>
+
 <div class="clearfix"></div>
 <div id="repCSVModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
