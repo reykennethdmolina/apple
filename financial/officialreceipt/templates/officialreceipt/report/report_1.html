@@ -15,14 +15,14 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.5cm;
+                height: 5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5cm; left: 1cm; width: 19.5cm; height: 21.5cm;
+                top: 6cm; left: 1cm; width: 19.5cm; height: 21.5cm;
             }
         }
         body{
@@ -97,15 +97,22 @@
             </tr>
             <tr>
                 <td width="50%"><p>{{ company.address2 }}</p></td>
+                <td width="50%"></td>
             </tr>
             <tr>
                 <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                <td width="50%"></td>
             </tr>
            <tr>
                 <td width="50%"></td>
             </tr>
             <tr>
-                <td width="75%"><p class="title">{{ title|upper }}</p></td>
+                <td width="80%"><p class="title">{{ title|upper }}</p></td>
+                <td width="10%"></td>
+            </tr>
+           <tr>
+                <td width="80%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
+                <td width="10%"></td>
             </tr>
         </table>
 
