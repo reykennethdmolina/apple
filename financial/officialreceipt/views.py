@@ -2908,7 +2908,7 @@ def getORNoOutputVatList(dfrom, dto):
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             "AND m.orstatus IN ('R') " \
             "AND m.status != 'C' " \
-            "AND d.m.id NOT IN (" \
+            "AND m.id NOT IN (" \
             "SELECT DISTINCT m.id " \
             "FROM ormain AS m " \
             "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
