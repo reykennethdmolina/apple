@@ -107,7 +107,7 @@
                                 <option value="A">Approved</option>
                                 <option value="D">Disapproved</option>
                                 <option value="I">In Process</option>
-                                <option value="R">Released</option>
+                                <option value="R">Released / Ready for Posting</option>
                             </select>
                         </div>
                         <div class="form-group col-sm-2">
@@ -148,6 +148,21 @@ $(function(){
         var jvstatus = $('#jvstatus').val();
         var status = $('#status').val();
         url = "{% url 'journalvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&jvtype="+jvtype+"&jvsubtype="+jvsubtype+"&department="+department+"&branch="+branch+"&approver="+approver+"&jvstatus="+jvstatus+"&status="+status;
+        $('#result').prop('src', url);
+    });
+
+    $('#generatexls').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var jvtype = $('#jvtype').val();
+        var jvsubtype = $('#jvsubtype').val();
+        var department = $('#department').val();
+        var branch = $('#branch').val();
+        var approver = $('#approver').val();
+        var jvstatus = $('#jvstatus').val();
+        var status = $('#status').val();
+        url = "{% url 'journalvoucher:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&jvtype="+jvtype+"&jvsubtype="+jvsubtype+"&department="+department+"&branch="+branch+"&approver="+approver+"&jvstatus="+jvstatus+"&status="+status;
         $('#result').prop('src', url);
     });
 });

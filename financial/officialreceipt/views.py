@@ -1443,6 +1443,7 @@ class GeneratePDF(View):
         outputvat = request.GET['outputvat']
         bankaccount = request.GET['bankaccount']
         status = request.GET['status']
+        orstatus = request.GET['orstatus']
         title = "Official Receipt List"
         list = Ormain.objects.filter(isdeleted=0).order_by('ornum')[:0]
 
@@ -1599,6 +1600,12 @@ class GeneratePDF(View):
             else:
                 q = q.filter(status=status)
             print 'status'
+        if orstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__orstatus__exact=orstatus)
+            else:
+                q = q.filter(orstatus=orstatus)
+            print 'orstatus'
 
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
@@ -1704,6 +1711,7 @@ class GenerateExcel(View):
         outputvat = request.GET['outputvat']
         bankaccount = request.GET['bankaccount']
         status = request.GET['status']
+        orstatus = request.GET['orstatus']
         title = "Official Receipt List"
         list = Ormain.objects.filter(isdeleted=0).order_by('ornum')[:0]
 
@@ -1848,6 +1856,12 @@ class GenerateExcel(View):
                 q = q.filter(ormain__status__exact=status)
             else:
                 q = q.filter(status=status)
+        if orstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(ormain__orstatus__exact=orstatus)
+            else:
+                q = q.filter(orstatus=orstatus)
+            print 'orstatus'
 
         if report == '5':
             list = raw_query(1, company, dfrom, dto, ortype, artype, payee, collector, branch, product, adtype, wtax, vat, outputvat, bankaccount, status)
@@ -2894,7 +2908,12 @@ def getORNoOutputVatList(dfrom, dto):
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             "AND m.orstatus IN ('R') " \
             "AND m.status != 'C' " \
-            "AND d.chartofaccount_id != "+str(outputvat)+" " \
+            "AND d.m.id NOT IN (" \
+            "SELECT DISTINCT m.id " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON d.ormain_id = m.id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            "AND d.chartofaccount_id = "+str(outputvat)+") " \
             "ORDER BY m.ornum"
 
     # to determine the query statement, copy in dos prompt (using mark and copy) and execute in sqlyog

@@ -169,6 +169,17 @@
                             </select>
                         </div>
                         <div class="form-group col-sm-2">
+                            <label class="control-label small">OR Status</label>
+                            <select class="form-control input-sm" id="orstatus">
+                                <option value="">-- Select --</option>
+                                <option value="F">For Approval</option>
+                                <option value="A">Approved</option>
+                                <option value="D">Disapproved</option>
+                                <option value="I">In Process</option>
+                                <option value="R">Released / Ready for Posting</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-2">
                             <label class="control-label small">Status</label>
                             <select class="form-control input-sm" id="status">
                                 <option value="">-- Select --</option>
@@ -181,7 +192,7 @@
                 </div>
             </div>
             <div class="col-md-12" style="min-height: 800px;">
-                <iframe src="{% url 'officialreceipt:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&ortype=&artype=&payee=null&branch=&collector=&product=&adtype=&wtax=&vat=&outputvat=&bankaccount=&status=" id="result" height="1200px" width="100%"></iframe>
+                <iframe src="{% url 'officialreceipt:pdf2' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&ortype=&artype=&payee=null&branch=&collector=&product=&adtype=&wtax=&vat=&outputvat=&bankaccount=&status=&orstatus=" id="result" height="1200px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -211,7 +222,8 @@ $(function(){
         var vat = $('#vat').val();
         var outputvat = $('#outputvat').val();
         var bankaccount = $('#bankaccount').val();
-        url = "{% url 'officialreceipt:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
+        var orstatus = $('#orstatus').val();
+        url = "{% url 'officialreceipt:pdf2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat+"&orstatus="+orstatus;
         $('#result').prop('src', url);
     });
 
@@ -232,7 +244,8 @@ $(function(){
         var vat = $('#vat').val();
         var outputvat = $('#outputvat').val();
         var bankaccount = $('#bankaccount').val();
-        url = "{% url 'officialreceipt:excel2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat;
+        var orstatus = $('#orstatus').val();
+        url = "{% url 'officialreceipt:excel2' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&ortype="+ortype+"&artype="+artype+"&payee="+payee+"&branch="+branch+"&collector="+collector+"&product="+product+"&status="+status+"&adtype="+adtype+"&wtax="+wtax+"&vat="+vat+"&bankaccount="+bankaccount+"&outputvat="+outputvat+"&orstatus="+orstatus;
         $('#result').prop('src', url);
     });
 

@@ -39,6 +39,11 @@ from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
 from django.http import HttpResponse
+import pandas as pd
+import io
+from django.shortcuts import render
+import os
+import xlsxwriter
 
 
 class IndexView(AjaxListView):
@@ -1797,6 +1802,332 @@ class GeneratePDF(View):
             return Render.render('journalvoucher/report/report_4.html', context)
         else:
             return Render.render('journalvoucher/report/report_1.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        context = []
+        report = request.GET['report']
+        dfrom = request.GET['from']
+        dto = request.GET['to']
+        jvtype = request.GET['jvtype']
+        jvsubtype = request.GET['jvsubtype']
+        department = request.GET['department']
+        branch = request.GET['branch']
+        approver = request.GET['approver']
+        jvstatus = request.GET['jvstatus']
+        status = request.GET['status']
+        title = "Journal Voucher List"
+        list = Jvmain.objects.filter(isdeleted=0).order_by('jvnum')[:0]
+
+        if report == '1':
+            title = "Journal Voucher Transaction List - Summary"
+            q = Jvmain.objects.filter(isdeleted=0).order_by('jvnum', 'jvdate')
+            if dfrom != '':
+                q = q.filter(jvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(jvdate__lte=dto)
+        elif report == '2':
+            title = "Journal Voucher Transaction List"
+            q = Jvdetail.objects.select_related('jvmain').filter(isdeleted=0).order_by('jv_num', 'jv_date',
+                                                                                       'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+        elif report == '3':
+            title = "Unposted Journal Voucher Transaction List - Summary"
+            q = Jvmain.objects.filter(isdeleted=0, status__in=['A', 'C']).order_by('jvnum', 'jvdate')
+            if dfrom != '':
+                q = q.filter(jvdate__gte=dfrom)
+            if dto != '':
+                q = q.filter(jvdate__lte=dto)
+        elif report == '4':
+            title = "Unposted Journal Voucher Transaction List"
+            q = Jvdetail.objects.select_related('jvmain').filter(isdeleted=0, status__in=['A', 'C']).order_by('jv_num',
+                                                                                                              'jv_date',
+                                                                                                              'item_counter')
+            if dfrom != '':
+                q = q.filter(jv_date__gte=dfrom)
+            if dto != '':
+                q = q.filter(jv_date__lte=dto)
+
+        if jvtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvtype__exact=jvtype)
+            else:
+                q = q.filter(jvtype=jvtype)
+        if jvsubtype != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvsubtype__exact=jvsubtype)
+            else:
+                q = q.filter(jvsubtype=jvsubtype)
+        if department != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__department__exact=department)
+            else:
+                q = q.filter(department=department)
+        if branch != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__branch__exact=branch)
+            else:
+                q = q.filter(branch=branch)
+        if approver != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__actualapprover__exact=approver)
+            else:
+                q = q.filter(actualapprover=approver)
+        if jvstatus != '':
+            if report == '2' or report == '4':
+                q = q.filter(jvmain__jvstatus__exact=jvstatus)
+            else:
+                q = q.filter(jvstatus=jvstatus)
+        if status != '':
+            q = q.filter(status=status)
+
+        list = q
+        if list:
+            total = list.aggregate(total_amount=Sum('amount'))
+            if report == '2' or report == '4':
+                total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', str(title), bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        filename = "jvreport.xlsx"
+
+        if report == '1':
+            # header
+            worksheet.write('A4', 'JV Number', bold)
+            worksheet.write('B4', 'JV Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.jvnum)
+                worksheet.write(row, col + 1, data.jvdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, '')
+                worksheet.write(row, col + 3, data.particular)
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "jvtransactionlistsummary.xlsx"
+
+        elif report == '2':
+            worksheet.write('A4', 'JV Number', bold)
+            worksheet.write('B4', 'JV Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('jvmain__jvnum', 'jvmain__jvdate', 'jvmain__particular',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for jvnum, detail in dataset.fillna('NaN').groupby(
+                    ['jvmain__jvnum', 'jvmain__jvdate', 'jvmain__particular', 'status']):
+                worksheet.write(row, col, jvnum[0])
+                worksheet.write(row, col + 1, jvnum[1], formatdate)
+                if jvnum[3] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, '')
+                worksheet.write(row, col + 3, jvnum[2])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if jvnum[3] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+            filename = "jvtransactionlist.xlsx"
+
+        elif report == '3':
+            # header
+            worksheet.write('A4', 'JV Number', bold)
+            worksheet.write('B4', 'JV Date', bold)
+            worksheet.write('C4', 'Payee', bold)
+            worksheet.write('D4', 'Particulars', bold)
+            worksheet.write('E4', 'Amount', bold)
+
+            row = 5
+            col = 0
+
+            totalamount = 0
+            amount = 0
+            for data in list:
+                worksheet.write(row, col, data.jvnum)
+                worksheet.write(row, col + 1, data.jvdate, formatdate)
+                if data.status == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, '')
+                worksheet.write(row, col + 3, data.particular)
+
+                if data.status == 'C':
+                    worksheet.write(row, col + 4, float(format(0, '.2f')))
+                    amount = 0
+                else:
+                    worksheet.write(row, col + 4, float(format(data.amount, '.2f')))
+                    amount = data.amount
+
+                row += 1
+                totalamount += amount
+
+            worksheet.write(row, col + 3, 'Total')
+            worksheet.write(row, col + 4, float(format(totalamount, '.2f')))
+
+            filename = "unpostedjvtransactionlistsummary.xlsx"
+
+        elif report == '4':
+            # header
+            worksheet.write('A4', 'JV Number', bold)
+            worksheet.write('B4', 'JV Date', bold)
+            worksheet.write('C4', 'Particular', bold)
+            worksheet.write('D4', 'Account Title', bold)
+            worksheet.write('E4', 'Subs Ledger', bold)
+            worksheet.write('F4', 'Debit', bold)
+            worksheet.write('G4', 'Credit', bold)
+
+            row = 4
+            col = 0
+
+            totaldebit = 0
+            totalcredit = 0
+            list = list.values('jvmain__jvnum', 'jvmain__jvdate', 'jvmain__particular',
+                               'chartofaccount__accountcode', 'chartofaccount__description', 'status', 'debitamount',
+                               'creditamount', 'branch__code', 'bankaccount__code', 'department__code')
+            dataset = pd.DataFrame.from_records(list)
+
+            for jvnum, detail in dataset.fillna('NaN').groupby(
+                    ['jvmain__jvnum', 'jvmain__jvdate', 'jvmain__particular', 'status']):
+                worksheet.write(row, col, jvnum[0])
+                worksheet.write(row, col + 1, jvnum[1], formatdate)
+                if jvnum[3] == 'C':
+                    worksheet.write(row, col + 2, 'C A N C E L L E D')
+                else:
+                    worksheet.write(row, col + 2, '')
+                worksheet.write(row, col + 3, jvnum[2])
+                row += 1
+                debit = 0
+                credit = 0
+                branch = ''
+                bankaccount = ''
+                department = ''
+                for sub, data in detail.iterrows():
+                    worksheet.write(row, col + 2, data['chartofaccount__accountcode'])
+                    worksheet.write(row, col + 3, data['chartofaccount__description'])
+                    if data['branch__code'] != 'NaN':
+                        branch = data['branch__code']
+                    if data['bankaccount__code'] != 'NaN':
+                        bankaccount = data['bankaccount__code']
+                    if data['department__code'] != 'NaN':
+                        department = data['department__code']
+                    worksheet.write(row, col + 4, branch + ' ' + bankaccount + ' ' + department)
+                    if jvnum[3] == 'C':
+                        worksheet.write(row, col + 5, float(format(0, '.2f')))
+                        worksheet.write(row, col + 6, float(format(0, '.2f')))
+                        debit = 0
+                        credit = 0
+                    else:
+                        worksheet.write(row, col + 5, float(format(data['debitamount'], '.2f')))
+                        worksheet.write(row, col + 6, float(format(data['creditamount'], '.2f')))
+                        debit = data['debitamount']
+                        credit = data['creditamount']
+
+                    row += 1
+                    totaldebit += debit
+                    totalcredit += credit
+
+            worksheet.write(row, col + 4, 'Total')
+            worksheet.write(row, col + 5, float(format(totaldebit, '.2f')))
+            worksheet.write(row, col + 6, float(format(totalcredit, '.2f')))
+
+
+            filename = "unpostedjvtransactionlist.xlsx"
+
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
 
 @csrf_exempt
 def searchforposting(request):

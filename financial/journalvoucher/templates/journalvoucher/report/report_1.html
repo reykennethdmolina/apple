@@ -112,8 +112,8 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:100px">JV Num</th>
-                    <th style="text-align:left;width:100px">JV Date</th>
+                    <th style="text-align:left;width:150px">JV Num</th>
+                    <th style="text-align:left;width:120px">JV Date</th>
                     <th style="text-align:left;">Particulars</th>
                     <th style="text-align:left;width:150px">Amount</th>
                 </tr>
@@ -125,8 +125,8 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvprefix|upper }}{{ item.jvnum|upper }}</td>
-            <td style="text-align:left;width:100px;vertical-align:top;">{{ item.jvdate|date:'Y-m-d' }}</td>
+            <td style="text-align:left;width:150px;vertical-align:top;">{{ item.jvprefix|upper }}{{ item.jvnum|upper }}</td>
+            <td style="text-align:left;width:120px;vertical-align:top;">{{ item.jvdate|date:'Y-m-d' }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.particular }}</td>
             <td style="text-align:right;vertical-align:top;width:100px">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
         </tr>
