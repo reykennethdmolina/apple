@@ -114,16 +114,10 @@
             <td align="center" style="margin-right: 20px;">
                 <div class="sign_here">{{ cvmain.enterdate|date:'Y-m-d' }}</div>
             </td>
-            <td width="20%"><b>Date approved</b></td>
+            <td width="20%" style="border-left: 2px solid black;"><b>Received by</b></td>
             <td width="5%"><b>:</b></td>
-            <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
-                <div class="sign_here">
-                    {% if cvmain.actualapprover and cvmain.approverresponse == 'A' %}
-                        {{ cvmain.responsedate|date:'Y-m-d' }}
-                    {% else %}
-                        &nbsp;
-                    {% endif %}
-                </div>
+            <td align="center" style="margin-right: 20px;">
+                <div class="sign_here"> .</div>
             </td>
         </tr>
     </table>
