@@ -2489,8 +2489,23 @@ def gopostliq(request):
 
         if data:
             for of in data:
+                # try:
+                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                #     latestapnum = str(apnumlast)
+                #     print latestapnum
+                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
+                #         apnum = str(datetime.datetime.now().year)
+                #         last = str(int(latestapnum[4:]) + 1)
+                #         zero_addon = 6 - len(last)
+                #         for x in range(0, zero_addon):
+                #             apnum += '0'
+                #         apnum += last
+                #     else:
+                #         apnum = str(datetime.datetime.now().year) + '000001'
+                # except Apmain.DoesNotExist:
+                #     apnum = str(datetime.datetime.now().year) + '000001'
                 try:
-                    jvnumlast = Jvmain.objects.all().latest('jvnum')
+                    jvnumlast = Jvmain.objects.filter(jvnum__length=10).latest('jvnum')
                     latestjvnum = str(jvnumlast)
                     print latestjvnum
                     if latestjvnum[0:4] == str(datetime.datetime.now().year):
@@ -2499,12 +2514,14 @@ def gopostliq(request):
                         zero_addon = 6 - len(last)
                         for x in range(0, zero_addon):
                             jvnum += '0'
-                            jvnum += last
+                        jvnum += last
                     else:
                         jvnum = str(datetime.datetime.now().year) + '000001'
                 except Jvmain.DoesNotExist:
                     jvnum = str(datetime.datetime.now().year) + '000001'
 
+                print 'hoy'
+                print jvnum
 
                 billingremarks = '';
 
