@@ -61,6 +61,7 @@ from django.core.urlresolvers import reverse
 from acctentry.views import generatekey
 from num2words import num2words
 from datetime import timedelta
+from string import digits
 
 
 upload_directory = 'processing_or/imported_main/'
@@ -2725,11 +2726,13 @@ def fileupload(request):
                     fields = line.split(",")
 
                     apdata = fields[6].split("::")
+                    apnum = ''.join(c for c in str(apdata[0][2:]) if c in digits)
 
+                    print apnum
 
                     Temp_digibanker.objects.create(
                         item=str(fields[0]),
-                        apnum=str(apdata[0][2:]),
+                        apnum=apnum,
                         mcno=str(fields[1]),
                         branch=str(fields[2]),
                         payeename=str(fields[3]),
@@ -2796,7 +2799,7 @@ def exportsave(request):
             amountinwords = num2words(data.amount)
 
             # apdata.digicvmain_id:
-            print apdata.apmain.digicvmain_id
+            #print apdata.apmain.digicvmain_id
 
             if apdata.apmain.digicvmain_id is None:
 
