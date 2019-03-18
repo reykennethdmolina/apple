@@ -145,7 +145,7 @@ class GeneratePDF(View):
             total = q.exclude(ormain__status='C').aggregate(Sum('debitamount'), Sum('creditamount'))
         elif report == '8':
             title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
-            q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='F').exclude(ormain__status='C')
+            q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='R').exclude(ormain__status='C')
             if dfrom != '':
                 q = q.filter(or_date__gte=dfrom)
             if dto != '':
@@ -158,6 +158,7 @@ class GeneratePDF(View):
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('chartofaccount__accountcode')
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+
         elif report == '9':
             title = "CASH RECEIPTS BOOK - SUBSIDIARY ENTRIES"
             q = Ordetail.objects.all().filter(isdeleted=0,ormain__orstatus='R').exclude(ormain__status='C')
@@ -388,6 +389,7 @@ class GeneratePDFCashInBank(View):
                           creditdifference=Case(When(creditamount__sum__lt=F('debitamount__sum'), then=Value(0)),
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('bankaccount__code')
+
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
         elif report == '8':
             title = "CASH RECEIPTS BOOK - SUMMARY ENTRIES"
@@ -407,6 +409,7 @@ class GeneratePDFCashInBank(View):
                                                 default=Sum('creditamount') - Sum('debitamount'))) \
                 .order_by('bankaccount__code')
             total = q.aggregate(Sum('debitdifference'), Sum('creditdifference'))
+
         elif report == '11':
             title = "ACCOUNTS PAYABLE VOUCHER - SUMMARY ENTRIES"
             subtitle = "Summary of Cash In Bank"
