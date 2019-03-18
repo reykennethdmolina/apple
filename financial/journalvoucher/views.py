@@ -395,7 +395,7 @@ class UpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('checkvoucher.change_cvmain') or self.object.isdeleted == 1:
+        if not request.user.has_perm('journalvoucher.change_jvmain') or self.object.isdeleted == 1:
             raise Http404
         return super(UpdateView, self).dispatch(request, *args, **kwargs)
 
