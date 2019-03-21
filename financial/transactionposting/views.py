@@ -28,6 +28,19 @@ class IndexView(ListView):
     template_name = 'transactionposting/index.html'
     context_object_name = 'data_list'
 
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+
+        company = Companyparameter.objects.all().first()
+        yearend_year = company.year_end_date
+        context['yearend_year'] = yearend_year.year
+        context['today_year'] = datetime.today().year
+        context['toclose_year'] = yearend_year.year + 1
+        context['count'] = datetime.today().year - company.year_end_date.year
+        context['param'] = company
+
+        return context
+
 
 @csrf_exempt
 def verifytransactions(request):

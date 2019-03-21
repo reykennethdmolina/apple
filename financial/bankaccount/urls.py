@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/delete/$', views.DeleteView.as_view(), name='delete'),
     url(r'^get_branch/$', views.get_branch, name='get_branch'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^pdf2/$', views.GeneratePDF2.as_view(), name='pdf2'),
 ]

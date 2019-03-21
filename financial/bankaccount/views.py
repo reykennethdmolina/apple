@@ -153,3 +153,33 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('bankaccount/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDF2(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+
+        debit = 0
+        credit = 0
+        grandtotal = 0
+        for l in list:
+            print l.run_amount
+            if l.run_code == 'D':
+                debit += l.run_amount
+            else:
+                credit += l.run_amount
+
+        grandtotal = abs(debit - credit)
+
+        total = {'debit': debit, 'credit': credit, 'grandtotal': grandtotal}
+
+        context = {
+            "title": "Cash In Bank Balances",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "username": request.user,
+        }
+        return Render.render('bankaccount/cashinbankbalances.html', context)

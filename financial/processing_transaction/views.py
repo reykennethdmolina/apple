@@ -176,6 +176,7 @@ def importtransdata(request):
                 newapv.apsubtype = Apsubtype.objects.get(code='IPO')
                 newapv.apnum = apnum
                 newapv.apprefix = 'AP'
+                #newapv.apdate = datetime.date.today()
                 newapv.apdate = datetime.date.today()
                 newapv.apstatus = 'F'
                 newapv.payee_id = referencepo.supplier.id

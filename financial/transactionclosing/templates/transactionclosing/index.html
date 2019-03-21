@@ -114,7 +114,39 @@
 <div id="trans_step_verify">
     <div class="container-fluid">
         <div class="row">
+            {% if count == 2 and closingyearmonth == 12 %}
             <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="col-md-4">
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">Year End Closing {{ closingyear }} <span style="color: #ffce85"></span></div>
+                                <div class="price-price teal-a400" id="formupload_yearend">
+                                    <div class="col-md-12">
+                                        <div class="pie_progress" role="progressbar" data-barcolor="#3daf2c" data-barsize="20" aria-valuenow="0" style="width: 100%">
+                                            <div class="pie_progress__content"></div>
+                                        </div>
+                                    </div>
+
+                                    <br>
+
+                                </div>
+                            </div>
+                            <div class="price-footer">
+                                <button type="button" class="btn btn-block btn-info waves-effect waves-light" id="trans_close_yearend">
+                                    <i class="icon fa-shield font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>YEAR END CLOSING
+                                </button>
+                                <button type="button" disabled="disabled" class="btn btn-block btn-info" style="display: none;" id="trans_close_loading_yearend">
+                                    <i class="icon fa-spinner fa-spin font-16 margin-right-10" aria-hidden="true" style="vertical-align: middle"></i>
+                                    YEAR END CLOSING ...
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-md-12" >
                 <div class="page-wrap">
                     <div class="col-md-4">
                         <div class="price-list margin-sm-0">
@@ -150,6 +182,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             <div class="clearfix"></div>
         </div>
     </div>
@@ -180,6 +213,45 @@
 
             proc_validate();
         });
+
+         $(document).on('click', '#trans_close_yearend', function(){
+            $('#trans_close_yearend').hide();
+            $('#trans_close_loading_yearend').fadeIn();
+
+            $('.ribbon-box p').html('');
+            $('.pie_progress').asPieProgress('go', 0);
+            $('.pie_progress__content').text('0%');
+
+            proc_validate_yearend();
+        });
+
+        function proc_validate_yearend(){
+            $.ajax({
+                url: "{% url 'transactionclosing:yearend_init' %}",
+                type: "post",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}"
+                },
+                success: function(response) {
+                    if(response.status == 'success'){
+                        if(response.message == ''){
+                            $('.pie_progress').asPieProgress('go', 10);
+                            $('.pie_progress__content').text('10%');
+                        }
+                        else{
+                            $('.ribbon-box p').html(response.message);
+                            endload();
+                        }
+                        alert('Year End Closing Complete');
+                        location.reload();
+                    }
+                    else{
+                        endload();
+                    }
+                }
+            });
+        }
 
         function proc_validate(){
             $.ajax({
@@ -337,7 +409,10 @@
 
         function endload(){
             $('#trans_close_loading').hide();
+            $('#trans_close_loading_yearend').hide();
             $('#trans_close').fadeIn();
+            $('#trans_close_yearend').fadeIn();
+            location.reload();
         }
 	});
     </script>

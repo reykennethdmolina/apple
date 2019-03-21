@@ -11,12 +11,15 @@ from journalvoucher.models import Jvmain, Jvdetail, Jvdetailbreakdown
 from officialreceipt.models import Ormain, Ordetail, Ordetailbreakdown
 from subledger.models import Subledger
 from chartofaccount.models import Chartofaccount
+from bankaccount.models import Bankaccount
 from branch.models import Branch
 from jvtype.models import Jvtype
 from jvsubtype.models import Jvsubtype
 from currency.models import Currency
 from subledgersummary.models import Subledgersummary
-import datetime, calendar
+import calendar
+import datetime
+#from datetimex import datetime
 from django.db.models import Sum, F
 
 
@@ -26,8 +29,18 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        closingdate = Companyparameter.objects.all().first()
-        context['closingdate'] = closingdate.last_closed_date + relativedelta(months=1)
+        # closingdate = Companyparameter.objects.all().first()
+
+        company = Companyparameter.objects.all().first()
+        yearend_year = company.year_end_date
+        context['yearend_year'] = yearend_year.year
+        context['today_year'] = datetime.datetime.now().year
+        context['toclose_year'] = yearend_year.year + 1
+        context['count'] = datetime.datetime.now().year - company.year_end_date.year
+        context['param'] = company
+        context['closingdate'] = company.last_closed_date + relativedelta(months=1)
+        context['closingyear'] = company.last_closed_date.year
+        context['closingyearmonth'] = company.last_closed_date.month
         return context
 
 
@@ -43,6 +56,7 @@ def proc_validate(request):
         val_date = val_date + relativedelta(months=1)
 
         val_count = Apmain.objects.filter(apdate__month=val_date.month, apdate__year=val_date.year).exclude(status='C').exclude(status='O').exclude(apstatus='D').count()
+
         if val_count > 0:
             val_message += "All Accounts Payable must be released!<br>"
 
@@ -269,10 +283,33 @@ def proc_currentearnings(request):
             year_to_date_amount = chart_item.first().year_to_date_amount
 
         # ************************ end code, year code
+
+        #tdate =
+
+        ytd_amount = 0
+        ytd_code = 'D'
+
+        if balcode == chart_item.first().year_to_date_code:
+            ytd_amount = float(year_to_date_amount) + float(income)
+            ytd_code = balcode
+        else:
+            ytd_amount = abs(float(year_to_date_amount) - float(income))
+            ytd_code = balcode
+
+        lastday = calendar.monthrange(dt.year, dt.month)[1]
+
+        date_time_str = str(dt.year)+'-'+str(dt.month)+'-'+str(lastday)
+        print date_time_str
+        tdate = datetime.datetime.strptime(date_time_str, '%Y-%m-%d')
+
         chart_item.update(end_amount=abs(float(income)),
                           end_code = balcode,
-                          year_to_date_code = balcode,
-                          year_to_date_amount=float(year_to_date_amount) + abs(float(income)))
+                          end_date = tdate,
+                          year_to_date_code = ytd_code,
+                          year_to_date_date = tdate,
+                          year_to_date_amount=ytd_amount)
+
+
 
         data = {
             'status': 'success',
@@ -497,3 +534,70 @@ def proc_updateclosing(request):
         }
 
     return JsonResponse(data)
+
+
+@csrf_exempt
+def yearend_init(request):
+    print 'Initialization'
+
+    param = Companyparameter.objects.all()
+
+    ''' Init Current Earnings'''
+    curearn = Chartofaccount.objects.filter(id=param.first().coa_currentearnings_id)
+    curearn.update(end_amount=0,end_code=curearn.first().balancecode,end_date=curearn.first().year_to_date_date)
+
+    ''' Init Retained Earnings'''
+    retearn = Chartofaccount.objects.filter(id=param.first().coa_retainedearnings_id)
+    run_amt = 0
+    run_code = retearn.first().balancecode
+    run_date = curearn.first().year_to_date_date
+
+    if retearn.first().end_code == curearn.first().year_to_date_code:
+        run_amt = retearn.first().end_amount + curearn.first().year_to_date_amount
+        run_code = curearn.first().year_to_date_code
+    else:
+        run_amt = abs(retearn.first().end_amount - curearn.first().year_to_date_amount)
+        if retearn.first().end_amount >= curearn.first().year_to_date_amount:
+            run_code = retearn.first().end_code
+        else:
+            run_code = curearn.first().year_to_date_code
+
+    retearn.update(end_amount=run_amt, end_code=run_code, end_date=run_date)
+
+    ''' Process Real Accounts '''
+
+    real = Chartofaccount.objects.filter(main__in=[1,2,3]).order_by('accountcode')
+
+    for data in real:
+        chart = Chartofaccount.objects.filter(pk=data.id)
+        chart.update(beginning_amount=chart.first().end_amount,beginning_code=chart.first().end_code,beginning_date=chart.first().end_date,
+                     year_to_date_amount=0,year_to_date_code=chart.first().balancecode,year_to_date_date=chart.first().end_date)
+
+    ''' Process Nominal Accounts '''
+
+    nominal = Chartofaccount.objects.filter(main__in=[4, 5, 6, 7, 8, 9]).order_by('accountcode')
+
+    for data in nominal:
+        chart2 = Chartofaccount.objects.filter(pk=data.id)
+        chart2.update(beginning_amount=0, beginning_code=chart.first().balancecode,beginning_date=chart.first().end_date,
+                      end_amount=0, end_code=chart.first().balancecode, end_date=chart.first().end_date,
+                     year_to_date_amount=0, year_to_date_code=chart.first().balancecode,year_to_date_date=chart.first().end_date)
+
+    ''' Process Bank Account Accounts '''
+
+    bankaccount = Bankaccount.objects.all()
+
+    for data in bankaccount:
+        bank = Bankaccount.objects.filter(pk=data.id)
+        bank.update(beg_amount=bank.first().run_amount, beg_code=bank.first().run_code,
+                      beg_date=bank.first().run_date)
+
+    ''' Update Year End Date  '''
+    param.update(year_end_date=param.first().last_closed_date)
+
+    data = {
+            'status': 'success',
+        }
+
+    return JsonResponse(data)
+

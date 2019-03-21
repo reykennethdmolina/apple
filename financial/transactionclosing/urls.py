@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^proc_generalledgersummary/$', views.proc_generalledgersummary, name='proc_generalledgersummary'),
     url(r'^proc_zeroout/$', views.proc_zeroout, name='proc_zeroout'),
     url(r'^proc_updateclosing/$', views.proc_updateclosing, name='proc_updateclosing'),
+    url(r'^yearend_init/$', views.yearend_init, name='yearend_init'),
 ]
 

@@ -106,6 +106,22 @@
 <div id="trans_step_verify">
     <div class="container-fluid">
         <div class="row">
+            {% if count == 2 %}
+            <div class="col-md-12">
+                <div class="page-wrap">
+                    <div class="col-md-12">
+                        <div class="price-list margin-sm-0">
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">LAST YEAR END CLOSED {{ yearend_year|upper }}</div>
+                            </div>
+                            <div class="price-header">
+                                <div class="price-title bg-teal-a400">NEED TO CLOSE WHOLE YEAR OF JAN-DEC {{ toclose_year|upper }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else  %}
             <div class="col-md-12">
                 <div class="page-wrap">
                     <div class="col-md-12">
@@ -153,11 +169,14 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             <div class="clearfix"></div>
         </div>
     </div>
 </div>
 <br><br>
+{% if count == 2 %}
+{% else %}
 <div id="trans_step_post">
     <div class="container-fluid">
         <div class="row">
@@ -362,6 +381,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 {% endblock page-content %}
 {% block extra_js %}

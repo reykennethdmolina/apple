@@ -89,6 +89,7 @@ class Companyparameter(models.Model):
 
     # closing
     last_closed_date = models.DateField(null=True)
+    year_end_date = models.DateField(null=True)
     income_tax_rate = models.IntegerField(null=True)
     coa_provisionincometax = models.ForeignKey('chartofaccount.Chartofaccount', related_name='param_provisionincometax',
                                                blank=True, null=True)

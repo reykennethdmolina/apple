@@ -7,6 +7,7 @@ from subledgersummary.models import Subledgersummary
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from companyparameter.models import Companyparameter
+from chartofaccount.models import Chartofaccount
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.http import JsonResponse
@@ -78,6 +79,12 @@ class GeneratePDF(View):
             prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
             result = query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
             print "income statement"
+        elif report == 'YETB':
+            title = "Year End Trial Balance"
+            #current_month = datetime.date(int(year), int(month), 10).strftime("%B")
+            #prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+            result = Chartofaccount.objects.filter(accounttype='P').order_by('accountcode')
+            print "year end trial balance"
         else:
             print "no pdf"
 
@@ -229,6 +236,8 @@ class GeneratePDF(View):
             return Render.render('generalledgerbook/report_2.html', context)
         elif report == 'IS':
             return Render.render('generalledgerbook/report_3.html', context)
+        elif report == 'YETB':
+            return Render.render('generalledgerbook/report_3.html', context)
         else:
             return Render.render('generalledgerbook/report_1.html', context)
 
@@ -281,6 +290,10 @@ def excel(request):
         prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
         result = query_income_statement(type, retained_earnings, current_earnings, year, month, prevyear, prevmonth)
         return excel_income_statement(result, report, type, year, month, current_month, prev_month, year, prevyear)
+    elif report == 'YETB':
+        result = Chartofaccount.objects.filter(accounttype='P', isdeleted=0).order_by('accountcode')
+        return excel_year_end_trial_balance(result)
+
     else:
         print "no report"
 
@@ -342,6 +355,27 @@ def generate(request):
         #test = dataset.groupby(['group_code']).sum().sum(level=['group_code']).unstack('Groups').fillna(0).reset_index()
         #print test
         viewhtml = render_to_string('generalledgerbook/income_statement.html', context)
+    elif report == 'YETB':
+        title = "Year End Trial Balance"
+        # current_month = datetime.date(int(year), int(month), 10).strftime("%B")
+        # prev_month = datetime.date(int(prevyear), int(prevmonth), 10).strftime("%B")
+        result = Chartofaccount.objects.filter(accounttype='P',isdeleted=0).exclude(main__in=[4,5,6,7,8,9]).order_by('accountcode')
+
+        debit = 0
+        credit = 0
+        for l in result:
+            print l.beginning_amount
+            if l.beginning_code == 'D':
+                debit += l.beginning_amount
+            else:
+                credit += l.beginning_amount
+
+        context['debit'] = debit
+        context['credit'] = credit
+        context['result'] = result
+        context['today'] = timezone.now(),
+
+        viewhtml = render_to_string('generalledgerbook/year_end_trail_balance.html', context)
     else:
         print "no report"
 
@@ -1461,6 +1495,71 @@ def excel_income_statement(result, report, type, year, month, current_month, pre
 
     response = HttpResponse(output.read(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response['Content-Disposition'] = "attachment; filename=" + file_name
+
+    output.close()
+
+    return response
+
+def excel_year_end_trial_balance(result):
+    #mon = datetime.date(int(year), int(month), 10).strftime("%B")
+
+    file_name = "year_endtrial_balance.xlsx"
+
+    output = io.BytesIO()
+
+    workbook = Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    # variables
+    bold = workbook.add_format({'bold': 1})
+
+    # header
+    worksheet.write('A1', 'Account Code', bold)
+    worksheet.write('B1', 'Chart of Account', bold)
+    worksheet.write('C1', 'Debit Amount', bold)
+    worksheet.write('D1', 'Credit Amount', bold)
+
+    # Start from the first cell. Rows and columns are zero indexed.
+    row = 1
+    col = 0
+    debit = 0
+    credit = 0
+    # for l in result:
+    #     print l.beginning_amount
+    #     if l.beginning_code == 'D':
+    #         debit += l.beginning_amount
+    #     else:
+    #         credit += l.beginning_amount
+
+    # Iterate over the data and write it out row by row.
+    for data in result:
+        worksheet.write(row, col, data.accountcode)
+        worksheet.write(row, col + 1, data.description)
+        if data.beginning_code == 'D':
+            worksheet.write(row, col + 2, float(format(data.beginning_amount, '.2f')))
+            worksheet.write(row, col + 3, float(format(0, '.2f')))
+            debit += data.beginning_amount
+        else:
+            worksheet.write(row, col + 2, float(format(0, '.2f')))
+            worksheet.write(row, col + 3, float(format(data.beginning_amount, '.2f')))
+            credit += data.beginning_amount
+
+        row += 1
+
+    # Write a total using a formula. subtotal
+    worksheet.write(row, col+1, 'Total')
+    worksheet.write(row, col + 2, float(format(debit, '.2f')))
+    worksheet.write(row, col + 3, float(format(credit, '.2f')))
+
+
+    # worksheet.write(row, 1, '=SUM(B1:B4)')
+    workbook.close()
+
+    output.seek(0)
+
+    response = HttpResponse(output.read(),
+                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response['Content-Disposition'] = "attachment; filename="+file_name
 
     output.close()
 
