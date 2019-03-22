@@ -2774,7 +2774,7 @@ def exportsave(request):
         pdate = datetime.datetime.now()
 
         for data in digibanker:
-
+            print data.apnum
             apdata = Apdetail.objects.filter(ap_num=data.apnum, chartofaccount_id=aptrade).first()
             checkno = data.mcno
             checkdate = data.checkdate
@@ -2801,7 +2801,7 @@ def exportsave(request):
             # apdata.digicvmain_id:
             #print apdata.apmain.digicvmain_id
 
-            if apdata.apmain.digicvmain_id is None:
+            if apdata.apmain.digicvmain_id is None or apdata.apmain.digicvmain_id == 0:
 
                 main = Cvmain.objects.create(
                     cvnum=str(cvnum),
@@ -2875,10 +2875,12 @@ def exportsave(request):
                     modifyby_id=request.user.id,
                     modifydate=datetime.datetime.now()
                 )
+
+                print 'done'
             else:
                 print 'already imported'
 
-            Temp_digibanker.objects.filter(batchkey=request.POST['batchkey']).delete()
+            #Temp_digibanker.objects.filter(batchkey=request.POST['batchkey']).delete()
 
         data = {
             'result': 1
