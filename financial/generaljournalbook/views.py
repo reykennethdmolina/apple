@@ -394,7 +394,7 @@ def query_summary(chart, chart2, toyear, tomonth, fromyear, frommonth):
             "WHERE chart.accounttype = 'P' AND chart.isdeleted = 0 " \
             "AND subs.year >= "+str(fromyear)+" AND subs.year <= "+str(toyear)+" " \
             "AND subs.month >= "+str(frommonth)+" AND subs.month <= "+str(tomonth)+" "+condition+" " \
-            "ORDER BY chart.accountcode, subs.year, subs.month LIMIT 100"
+            "ORDER BY chart.accountcode, subs.year, subs.month"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
@@ -879,6 +879,236 @@ class GenerateExcel(View):
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+
+@method_decorator(login_required, name='dispatch')
+class TransactionView(TemplateView):
+    template_name = 'generaljournalbook/transaction.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+        context['chart'] = Chartofaccount.objects.filter(isdeleted=0, accounttype='P').order_by('accountcode')
+
+        return context
+
+#@csrf_exempt
+def transgenerate(request):
+    dto = request.GET["dto"]
+    dfrom = request.GET["dfrom"]
+    chart = request.GET["chart"]
+    transtatus = request.GET["transtatus"]
+    status = request.GET["status"]
+
+    context = {}
+
+    print "transaction listing"
+
+    context['result'] = query_transaction(dto, dfrom, chart, transtatus, status)
+    context['dto'] = dto
+    context['dfrom'] = dfrom
+    viewhtml = render_to_string('generaljournalbook/transaction_result.html', context)
+
+
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml,
+    }
+    return JsonResponse(data)
+
+
+def query_transaction(dto, dfrom, chart, transtatus, status):
+    print "Transaction Query"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    chart_condition = ''
+    chart_transtatus_ap = ''
+    chart_transtatus_cv = ''
+    chart_transtatus_jv = ''
+    chart_transtatus_or = ''
+    chart_status = ''
+    if chart != '':
+        chart_condition = "AND d.chartofaccount_id = '" + str(chart) + "'"
+    if transtatus != '':
+        chart_transtatus_ap = "AND m.apstatus = '" + str(transtatus) + "'"
+        chart_transtatus_cv = "AND m.cvstatus = '" + str(transtatus) + "'"
+        chart_transtatus_jv = "AND m.jvstatus = '" + str(transtatus) + "'"
+        chart_transtatus_or = "AND m.orstatus = '" + str(transtatus) + "'"
+    if status != '':
+        chart_status = "AND m.status = '" + str(status) + "'"
+    # elif chart != '' and chart2 == '':
+    #     condition = "AND chart.accountcode = '" + str(chart) + "'"
+    # elif chart2 != '' and chart == '':
+    #     condition = "AND chart.accountcode = '" + str(chart2) + "'"
+
+    query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, z.debitamount, z.creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
+            "emp.code AS empcode, CONCAT(IFNULL(emp.firstname, ''), ' ', IFNULL(emp.lastname, '')) AS employee, inpvat.code AS inpvatcode, inpvat.description AS inputvat, " \
+            "outvat.code AS outvatcode, outvat.description AS outputvat, prod.code AS prodcode, prod.description AS product, " \
+            "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax " \
+            "FROM ( " \
+            "SELECT 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.apstatus, m.status	 " \
+            "FROM apdetail AS d " \
+            "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+            "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' " \
+            +str(chart_condition)+" "+str(chart_transtatus_ap)+" "+str(chart_status)+"" \
+            "UNION " \
+            "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.cvstatus, m.status	 " \
+            "FROM cvdetail AS d " \
+            "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+            "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' " \
+            +str(chart_condition)+" "+str(chart_transtatus_cv)+" "+str(chart_status)+"" \
+            "UNION " \
+            "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.jvstatus, m.status	 " \
+            "FROM jvdetail AS d " \
+            "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+            "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
+            +str(chart_condition)+" "+str(chart_transtatus_jv)+" "+str(chart_status)+"" \
+            "UNION " \
+            "SELECT 'OR' AS tran, d.item_counter, d.or_num, d.or_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status	" \
+            "FROM ordetail AS d " \
+            "LEFT OUTER JOIN ormain AS m ON m.id = d.ormain_id " \
+            "WHERE DATE(d.or_date) >= '"+str(dfrom)+"' AND DATE(d.or_date) <= '"+str(dto)+"' " \
+            +str(chart_condition)+" "+str(chart_transtatus_or)+" "+str(chart_status)+") AS z " \
+            "LEFT OUTER JOIN bankaccount AS bank ON bank.id = z.bankaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS chart ON chart.id = z.chartofaccount_id " \
+            "LEFT OUTER JOIN customer AS cust ON cust.id = z.customer_id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = z.department_id " \
+            "LEFT OUTER JOIN employee AS emp ON emp.id = z.employee_id " \
+            "LEFT OUTER JOIN inputvat AS inpvat ON inpvat.id = z.inputvat_id " \
+            "LEFT OUTER JOIN outputvat AS outvat ON outvat.id = z.outputvat_id " \
+            "LEFT OUTER JOIN product AS prod ON prod.id = z.product_id " \
+            "LEFT OUTER JOIN supplier AS supp ON supp.id = z.supplier_id " \
+            "LEFT OUTER JOIN vat AS vat ON vat.id = z.vat_id " \
+            "LEFT OUTER JOIN wtax AS wtax ON wtax.id = z.wtax_id " \
+            "ORDER BY z.tran, z.ap_num, z.ap_date, z.item_counter"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+@method_decorator(login_required, name='dispatch')
+class TransExcel(View):
+    def get(self, request):
+
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        chart = request.GET["chart"]
+        transtatus = request.GET["transtatus"]
+        status = request.GET["status"]
+
+        print "transaction listing"
+
+        result = query_transaction(dto, dfrom, chart, transtatus, status)
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'MM/DD/YYYY'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'GENERAL LEDGER TRANSACTION LISTING', bold)
+        worksheet.write('A2', 'AS OF ' + str(dfrom) + ' to ' + str(dto), bold)
+
+        # header
+        worksheet.write('A4', 'Type', bold)
+        worksheet.write('B4', 'Number', bold)
+        worksheet.write('C4', 'Date', bold)
+        worksheet.write('D4', 'Account Code', bold)
+        worksheet.write('E4', 'Chart of Account', bold)
+        worksheet.write('F4', 'Debit', bold)
+        worksheet.write('G4', 'Credit', bold)
+        worksheet.write('H4', 'Transaction Status', bold)
+        worksheet.write('I4', 'Status', bold)
+        worksheet.write('J4', 'Bank Account', bold)
+        worksheet.write('K4', 'Customer Code', bold)
+        worksheet.write('L4', 'Customer', bold)
+        worksheet.write('M4', 'Supplier Code', bold)
+        worksheet.write('N4', 'Supplier', bold)
+        worksheet.write('O4', 'Department Code', bold)
+        worksheet.write('P4', 'Department', bold)
+        worksheet.write('Q4', 'Employee Code', bold)
+        worksheet.write('R4', 'Employee', bold)
+        worksheet.write('S4', 'Product Code', bold)
+        worksheet.write('T4', 'Product', bold)
+        worksheet.write('U4', 'VAT Code', bold)
+        worksheet.write('V4', 'VAT', bold)
+        worksheet.write('W4', 'WTAX Code', bold)
+        worksheet.write('X4', 'WTAX', bold)
+        worksheet.write('Y4', 'Input VAT Code', bold)
+        worksheet.write('Z4', 'Input VAT', bold)
+        worksheet.write('AA4', 'Output VAT Code', bold)
+        worksheet.write('AB4', 'Output VAT', bold)
+
+
+        row = 5
+        col = 0
+
+        #print result
+
+        for data in result:
+            worksheet.write(row, col, data.tran)
+            worksheet.write(row, col + 1, data.tnum)
+            worksheet.write(row, col + 2, data.tdate, formatdate)
+            worksheet.write(row, col + 3, data.accountcode)
+            worksheet.write(row, col + 4, data.chartofaccount)
+            worksheet.write(row, col + 5, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 6, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 7, data.transtatus)
+            worksheet.write(row, col + 8, data.status)
+            worksheet.write(row, col + 9, data.bank)
+            worksheet.write(row, col + 10, data.custcode)
+            worksheet.write(row, col + 11, data.customer)
+            worksheet.write(row, col + 12, data.suppcode)
+            worksheet.write(row, col + 13, data.supplier)
+            worksheet.write(row, col + 14, data.deptcode)
+            worksheet.write(row, col + 15, data.department)
+            worksheet.write(row, col + 16, data.empcode)
+            worksheet.write(row, col + 17, data.employee)
+            worksheet.write(row, col + 18, data.prodcode)
+            worksheet.write(row, col + 19, data.product)
+            worksheet.write(row, col + 20, data.vatcode)
+            worksheet.write(row, col + 21, data.vat)
+            worksheet.write(row, col + 22, data.wtaxcode)
+            worksheet.write(row, col + 23, data.wtax)
+            worksheet.write(row, col + 24, data.inpvatcode)
+            worksheet.write(row, col + 25, data.inputvat)
+            worksheet.write(row, col + 26, data.outvatcode)
+            worksheet.write(row, col + 27, data.outputvat)
+            row += 1
+
+
+        workbook.close()
+
+        # Set up the Http response.
+        filename = "transaction_listing.xlsx"
+
+        # Rewind the buffer.
+
+        output.seek(0)
+
+        response = HttpResponse(
+        output,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
