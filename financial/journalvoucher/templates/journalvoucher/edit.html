@@ -172,6 +172,9 @@
                                     {% if form.jvstatus.value == "D" %}
                                     <option value="D">Disapproved</option>
                                     {% endif %}
+                                    {% if form.jvstatus.value == "R" %}
+                                    <option value="R">Ready for Posting</option>
+                                    {% endif %}
                                 </select>
                             </div>
                         </div>
