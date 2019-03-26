@@ -168,6 +168,9 @@
                                         {% if form.cvstatus.value == "D" %}
                                         <option value="D">Disapproved</option>
                                         {% endif %}
+                                        {% if form.jvstatus.value == "R" %}
+                                        <option value="R">Ready for Posting</option>
+                                        {% endif %}
                                     </select>
                                     <span class="help-block form-error">{{ form.cvstatus.errors.as_text }}</span>
                                 </div>
