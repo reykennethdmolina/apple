@@ -56,7 +56,7 @@ class CreateView(CreateView):
     template_name = 'supplier/create.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
               'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
-              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype']
+              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype', 'account_number']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.add_supplier'):
@@ -95,7 +95,7 @@ class UpdateView(UpdateView):
     template_name = 'supplier/edit.html'
     fields = ['code', 'name', 'address1', 'address2', 'address3', 'tin', 'telno', 'faxno',
               'zipcode', 'contactperson', 'creditterm', 'inputvattype', 'deferredvat',
-              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype']
+              'vat', 'atc', 'currency', 'industry', 'suppliertype', 'bankaccount', 'bankbranchdisburse', 'paytype', 'account_number']
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('supplier.change_supplier'):
@@ -114,7 +114,7 @@ class UpdateView(UpdateView):
                                         'creditterm', 'inputvattype', 'deferredvat', 'vat',
                                         'atc', 'currency', 'fxrate', 'vatrate', 'atcrate',
                                         'industry', 'suppliertype', 'modifyby', 'modifydate',
-                                        'bankaccount', 'bankbranchdisburse', 'paytype'])
+                                        'bankaccount', 'bankbranchdisburse', 'paytype', 'account_number'])
         return HttpResponseRedirect('/supplier')
 
     def get_context_data(self, **kwargs):

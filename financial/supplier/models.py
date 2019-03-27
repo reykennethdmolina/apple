@@ -74,6 +74,7 @@ class Supplier(models.Model):
     ccc_code3 = models.CharField(max_length=10, null=True, blank=True)
     serv_code = models.CharField(max_length=10, null=True, blank=True)
     remarks = models.CharField(max_length=250, blank=True, null=True)
+    account_number = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         db_table = 'supplier'

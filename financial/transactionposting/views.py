@@ -95,25 +95,41 @@ def verifytransactions(request):
                                         'apmain__pk').order_by('apmain__apnum') \
                                 .exclude(margin=0)
 
+                            # undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A',
+                            #                                  apmain__postby__isnull=True, apmain__postdate__isnull=True) \
+                            #     .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
+                            #     .filter(department__isnull=False) \
+                            #     .exclude(
+                            #     department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
+                            #                                                                   F(
+                            #                                                                       'chartofaccount__clas')))
+
+                            undept_count = 0
+                            undept_id = []
                             undept = Apdetail.objects.filter(apmain__apstatus='R', apmain__status='A',
                                                              apmain__postby__isnull=True, apmain__postdate__isnull=True) \
-                                .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                                .filter(apmain__apdate__gte=datefrom, apmain__apdate__lte=dateto)
 
-                            for data in undept:
-                                print str(data.department.expchartofaccount.accountcode) + '--' + str(
-                                    data.chartofaccount.main) + str(data.chartofaccount.clas)
+                            for item in undept:
+                                # print str(item.id) + ' ' + str(item.department_id) + ' ' + str(item.chartofaccount_id) + ' ' + str(item.chartofaccount.accountcode) + ' ' + str(item.chartofaccount.department_enable)
+                                if item.department_id is not None and item.chartofaccount.department_enable == 'N':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+                                elif item.department_id is None and item.chartofaccount.department_enable == 'Y':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
+                            # for data in undept:
+                            #     print str(data.department.expchartofaccount.accountcode) + '--' + str(
+                            #         data.chartofaccount.main) + str(data.chartofaccount.clas)
+
+                            if unbalanced.count() == 0 and undept_count == 0:
                                 item_count, batchkey = logap(datefrom, dateto, newbatchkey, request.user)
                                 status_success = 1
-                            elif undept.count() != 0:
+                            elif undept_count != 0:
                                 ud_list = []
                                 ud_type = 'AP'
+                                undept = Apdetail.objects.filter(id__in=undept_id)
                                 for data in undept:
                                     ud_list.append(['/accountspayable/' + str(data.apmain.pk) + '/update',
                                                     data.apmain.apnum,
@@ -153,21 +169,37 @@ def verifytransactions(request):
                                         'cvmain__pk').order_by('cvmain__cvnum') \
                                 .exclude(margin=0)
 
+                            # undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A',
+                            #                                  cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
+                            #     .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
+                            #     .filter(department__isnull=False) \
+                            #     .exclude(
+                            #     department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
+                            #                                                                   F(
+                            #                                                                       'chartofaccount__clas')))
+
+                            undept_count = 0
+                            undept_id = []
                             undept = Cvdetail.objects.filter(cvmain__cvstatus='R', cvmain__status='A',
                                                              cvmain__postby__isnull=True, cvmain__postdate__isnull=True) \
-                                .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                                .filter(cvmain__cvdate__gte=datefrom, cvmain__cvdate__lte=dateto)
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
+                            for item in undept:
+                                # print str(item.id) + ' ' + str(item.department_id) + ' ' + str(item.chartofaccount_id) + ' ' + str(item.chartofaccount.accountcode) + ' ' + str(item.chartofaccount.department_enable)
+                                if item.department_id is not None and item.chartofaccount.department_enable == 'N':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+                                elif item.department_id is None and item.chartofaccount.department_enable == 'Y':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+
+                            if unbalanced.count() == 0 and undept_count == 0:
                                 item_count, batchkey = logcv(datefrom, dateto, batchkey, request.user)
                                 status_success = 1
-                            elif undept.count() != 0:
+                            elif undept_count != 0:
                                 ud_list = []
                                 ud_type = 'CV'
+                                undept = Cvdetail.objects.filter(id__in=undept_id)
                                 for data in undept:
                                     ud_list.append(['/checkvoucher/' + str(data.cvmain.pk) + '/update',
                                                     data.cvmain.cvnum,
@@ -207,24 +239,43 @@ def verifytransactions(request):
                                         'jvmain__pk').order_by('jvmain__jvnum') \
                                 .exclude(margin=0)
 
-                            undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A',
-                                                             jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
-                                .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
+                            # undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A', jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
+                            #     .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto) \
+                            #     .filter(department__isnull=False) \
+                            #     .exclude(
+                            #     department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
+                            #                                                                   F('chartofaccount__clas')))
+                            undept_count = 0
+                            undept_id = []
+                            undept = Jvdetail.objects.filter(jvmain__jvstatus='R', jvmain__status='A',jvmain__postby__isnull=True, jvmain__postdate__isnull=True) \
+                                .filter(jvmain__jvdate__gte=datefrom, jvmain__jvdate__lte=dateto)
+
+                            for item in undept:
+                                #print str(item.id) + ' ' + str(item.department_id) + ' ' + str(item.chartofaccount_id) + ' ' + str(item.chartofaccount.accountcode) + ' ' + str(item.chartofaccount.department_enable)
+                                if item.department_id is not None and item.chartofaccount.department_enable == 'N':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+                                elif item.department_id is None and item.chartofaccount.department_enable == 'Y':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+
+                            if unbalanced.count() == 0 and undept_count == 0:
                                 item_count, batchkey = logjv(datefrom, dateto, batchkey, request.user)
                                 status_success = 1
-                            elif undept.count() != 0:
+                            #elif undept.count() != 0:
+                            elif undept_count != 0:
                                 ud_list = []
                                 ud_type = 'JV'
+                                undept = Jvdetail.objects.filter(id__in=undept_id)
                                 for data in undept:
+                                    #print data.id
+                                    #print data.chartofaccount_id
+                                    #print data.jv_num
+                                    #print data.department_id
+                                    #print data.department
                                     ud_list.append(['/journalvoucher/' + str(data.jvmain.pk) + '/update',
-                                                    data.jvmain.jvnum,
+                                                    data.jvmain.jvnum+' item:'+str(data.item_counter),
                                                     data.jvmain.jvdate,
                                                     ])
                                 status_undept = 1
@@ -261,21 +312,37 @@ def verifytransactions(request):
                                         'ormain__pk').order_by('ormain__ornum') \
                                 .exclude(margin=0)
 
+                            # undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A',
+                            #                                  ormain__postby__isnull=True, ormain__postdate__isnull=True) \
+                            #     .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
+                            #     .filter(department__isnull=False) \
+                            #     .exclude(
+                            #     department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
+                            #                                                                   F(
+                            #                                                                       'chartofaccount__clas')))
+
+                            undept_count = 0
+                            undept_id = []
                             undept = Ordetail.objects.filter(ormain__orstatus='R', ormain__status='A',
                                                              ormain__postby__isnull=True, ormain__postdate__isnull=True) \
-                                .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto) \
-                                .filter(department__isnull=False) \
-                                .exclude(
-                                department__expchartofaccount__accountcode__startswith=Concat(F('chartofaccount__main'),
-                                                                                              F(
-                                                                                                  'chartofaccount__clas')))
+                                .filter(ormain__ordate__gte=datefrom, ormain__ordate__lte=dateto)
 
-                            if unbalanced.count() == 0 and undept.count() == 0:
+                            for item in undept:
+                                if item.department_id is not None and item.chartofaccount.department_enable == 'N':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+                                elif item.department_id is None and item.chartofaccount.department_enable == 'Y':
+                                    undept_count += 1
+                                    undept_id.append(item.id)
+
+                            if unbalanced.count() == 0 and undept_count == 0:
                                 item_count, batchkey = logor(datefrom, dateto, batchkey, request.user)
                                 status_success = 1
-                            elif undept.count() != 0:
+                            elif undept_count != 0:
+                                undept = Ordetail.objects.filter(id__in=undept_id)
                                 ud_list = []
                                 ud_type = 'OR'
+                                undept = Ordetail.objects.filter(id__in=undept_id)
                                 for data in undept:
                                     ud_list.append(['/officialreceipt/' + str(data.ormain.pk) + '/update',
                                                     data.ormain.ornum,

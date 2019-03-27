@@ -133,19 +133,25 @@
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <br><span class="text-name-profile text-info"">Bank&nbsp;Account&nbsp;:</span>
+                                            <br><span class="text-name-profile text-info">Bank&nbsp;Account&nbsp;:</span>
                                             <span class="detail-profile" style="float: left;">{% if object.bankaccount %}{{ object.bankaccount.code }} [{{ object.bankaccount.bank.description }} - {{ object.bankaccount.bankaccounttype.description }}, {{ object.bankaccount.bankbranch.description }}]{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info"">Branch&nbsp;Disburse&nbsp;:</span>
+                                            <br><span class="text-name-profile text-info">Account&nbsp;Number&nbsp;:</span>
+                                            <span class="detail-profile" style="float: left;">{{ object.account_number|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="first-name-profile">
+                                            <span class="text-name-profile text-info">Branch&nbsp;Disburse&nbsp;:</span>
                                             <span class="detail-profile" style="float: left;">{% if object.bankbranchdisburse %}[{{ object.bankbranchdisburse.branch }}] {{ object.bankbranchdisburse.bank.code }}, {{ object.bankbranchdisburse.address1 }}{% else %}N/A{% endif %}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                         <div class="first-name-profile">
-                                            <span class="text-name-profile text-info"">Payment&nbsp;Type&nbsp;:</span>
+                                            <span class="text-name-profile text-info">Payment&nbsp;Type&nbsp;:</span>
                                             <span class="detail-profile" style="float: left;">{{ object.paytype.description|default:'N/A' }}</span>
                                         </div>
                                     </div>
