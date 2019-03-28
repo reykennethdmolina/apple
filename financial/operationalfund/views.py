@@ -2559,7 +2559,7 @@ def gopostrev(request):
                     ataxrate = 0,
                     duedate = pdate,
                     refno = of.ofnum,
-                    particulars = 'Reimbursement '+str(of.requestor_name)+' '+str(billingremarks),
+                    particulars = 'Revolving Fund '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 15, # Angela
