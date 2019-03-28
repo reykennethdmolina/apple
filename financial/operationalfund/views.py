@@ -2544,7 +2544,7 @@ def gopostrev(request):
                     apnum = apnum,
                     apdate = pdate,
                     aptype_id = 14, # Non-UB
-                    apsubtype_id = 11, # Reimbursement
+                    apsubtype_id = 1, # Revolving
                     branch_id = 5, # Head Office
                     inputvattype_id = 3, # Service
                     creditterm_id = 2, # 90 Days 2
