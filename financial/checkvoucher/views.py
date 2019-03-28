@@ -2905,5 +2905,125 @@ def getTempDigibanker(batchkey):
     return result
 
 
+@csrf_exempt
+def searchforacp(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+        creator = request.POST['creator']
+
+        cvtype = 10
+
+        q = Cvmain.objects.filter(cvtype_id=cvtype,isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
+
+        if dfrom != '':
+            q = q.filter(cvdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(cvdate__lte=dto)
+
+        if creator != '':
+            q = q.filter(enterby_id=creator)
+
+        total = q.aggregate(Sum('amount'))
+
+        print total
+
+        context = {
+            'data': q,
+            'total': total,
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('checkvoucher/acpresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateACPExcel(View):
+    def get(self, request):
+
+        #ids = request.GET['ids[]']
+        ids = request.GET['ids']
+        print ids
+
+        list = Cvmain.objects.filter(id__in=[6120,6121],isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
+
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'cv_num', bold)
+        worksheet.write('B1', 'cv_date', bold)
+        worksheet.write('C1', 'cv_type', bold)
+        worksheet.write('D1', 'smf_code', bold)
+        worksheet.write('E1', 'cv_payee', bold)
+        worksheet.write('F1', 'cv_bnacc', bold)
+        worksheet.write('G1', 'cv_ref', bold)
+        worksheet.write('H1', 'cv_cknum', bold)
+        worksheet.write('I1', 'cv_ckdate', bold)
+        worksheet.write('J1', 'cv_amt_d', bold)
+        worksheet.write('K1', 'cv_fx', bold)
+        worksheet.write('L1', 'cv_amt_p', bold)
+        worksheet.write('M1', 'cv_part1', bold)
+        worksheet.write('N1', 'cv_part2', bold)
+        worksheet.write('O1', 'cv_part3', bold)
+        worksheet.write('P1', 'baf_at', bold)
+        worksheet.write('Q1', 'baf_an', bold)
+        worksheet.write('R1', 'remarks', bold)
+
+        filename = "acpextract.xlsx"
+
+        row = 1
+        col = 0
+        for data in list:
+            worksheet.write(row, col, data.cvnum)
+            worksheet.write(row, col + 1, data.cvdate, formatdate)
+            worksheet.write(row, col + 2, 'A')
+            worksheet.write(row, col + 3, data.payee_code)
+            worksheet.write(row, col + 4, data.payee_name)
+            worksheet.write(row, col + 5, data.bankaccount.code)
+            worksheet.write(row, col + 6, data.refnum)
+            worksheet.write(row, col + 7, data.checknum)
+            worksheet.write(row, col + 8, data.checkdate, formatdate)
+            worksheet.write(row, col + 9, '')
+            worksheet.write(row, col + 10, '')
+            worksheet.write(row, col + 11, data.amount)
+            worksheet.write(row, col + 12, data.particulars)
+            worksheet.write(row, col + 13, '')
+            worksheet.write(row, col + 14, '')
+            worksheet.write(row, col + 15, data.bankaccount.bankaccounttype.code)
+            worksheet.write(row, col + 16, data.bankaccount.accountnumber)
+            worksheet.write(row, col + 17, data.payee.account_number)
+
+            row += 1
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+
 
 

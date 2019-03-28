@@ -34,9 +34,10 @@
                             </span>
                         </div>
                     </div>
-                    <!--<button class="btn btn-info btn-sm" data-toggle='modal' id="digibanker" data-target='#digibankerModal'>-->
-                        <!--<i class="icon fa-globe" aria-hidden="true"></i> Import Digibanker-->
-                    <!--</button>-->
+                    <!-- pagination and search end -->
+                    <button class="btn btn-info btn-sm" data-toggle='modal' id="acp" data-target='#acpModal'>
+                        <i class="icon fa-list-alt" aria-hidden="true"></i> ACP
+                    </button>
                     <a href="{% url 'checkvoucher:digibanker' %}" class="btn btn-info btn-sm">
                         <i class="icon fa-globe" aria-hidden="true"></i> Import Digibanker
                     </a>
@@ -81,6 +82,7 @@
 </div>
 {% include "checkvoucher/search.html" %}
 {% include "checkvoucher/posting.html" %}
+{% include "checkvoucher/acp.html" %}
 {% endblock page-content %}
 {% block extra_js %}
     {% load staticfiles %}

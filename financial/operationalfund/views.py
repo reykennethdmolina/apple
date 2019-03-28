@@ -2198,6 +2198,35 @@ def searchforpostingReim(request):
     return JsonResponse(data)
 
 @csrf_exempt
+def searchforpostingRev(request):
+    if request.method == 'POST':
+
+        dfrom = request.POST['dfrom']
+        dto = request.POST['dto']
+
+        q = Ofmain.objects.filter(isdeleted=0,status='A',ofstatus='R',oftype_id=2).exclude(apmain_id__isnull=False).order_by('ofnum', 'ofdate')
+        if dfrom != '':
+            q = q.filter(ofdate__gte=dfrom)
+        if dto != '':
+            q = q.filter(ofdate__lte=dto)
+
+        print q
+
+        context = {
+            'data': q
+        }
+        data = {
+            'status': 'success',
+            'viewhtml': render_to_string('operationalfund/postingresult.html', context),
+        }
+    else:
+        data = {
+            'status': 'error',
+        }
+
+    return JsonResponse(data)
+
+@csrf_exempt
 def searchforpostingLiq(request):
     if request.method == 'POST':
 
@@ -2287,8 +2316,8 @@ def gopost(request):
                     particulars = 'Cellphone Subsidy '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 9, # Raffy Esturas 9
-                    actualapprover_id = 9, # Raffy Esturas 9
+                    designatedapprover_id = 15, # Angela
+                    actualapprover_id = 15, # Angela
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'A',
@@ -2410,8 +2439,8 @@ def gopostreim(request):
                     particulars = 'Reimbursement '+str(of.requestor_name)+' '+str(billingremarks),
                     currency_id = 1,
                     fxrate = 1,
-                    designatedapprover_id = 9, # Raffy Esturas 9
-                    actualapprover_id = 9, # Raffy Esturas 9
+                    designatedapprover_id = 15, # Angela
+                    actualapprover_id = 15, # Angela
                     approverremarks = 'Auto approved from Operational Fund Posting',
                     responsedate = datetime.datetime.now(),
                     apstatus = 'A',
@@ -2473,6 +2502,129 @@ def gopostreim(request):
 
     return JsonResponse(data)
 
+
+@csrf_exempt
+def gopostrev(request):
+
+    if request.method == 'POST':
+        from django.db.models import CharField
+        from django.db.models.functions import Length
+
+        CharField.register_lookup(Length, 'length')
+
+        ids = request.POST.getlist('ids[]')
+        pdate = request.POST['postdate']
+
+        data = Ofmain.objects.filter(pk__in=ids).filter(isdeleted=0,status='A',ofstatus='R')
+
+        if data:
+            for of in data:
+                try:
+                    apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
+                    latestapnum = str(apnumlast)
+                    print latestapnum
+                    if latestapnum[0:4] == str(datetime.datetime.now().year):
+                        apnum = str(datetime.datetime.now().year)
+                        last = str(int(latestapnum[4:]) + 1)
+                        zero_addon = 6 - len(last)
+                        for x in range(0, zero_addon):
+                            apnum += '0'
+                        apnum += last
+                    else:
+                        apnum = str(datetime.datetime.now().year) + '000001'
+                except Apmain.DoesNotExist:
+                    apnum = str(datetime.datetime.now().year) + '000001'
+
+                billingremarks = '';
+
+                employee = Employee.objects.get(pk=of.requestor_id)
+                supplier = Supplier.objects.get(pk=employee.supplier_id)
+
+                main = Apmain.objects.create(
+                    apnum = apnum,
+                    apdate = pdate,
+                    aptype_id = 14, # Non-UB
+                    apsubtype_id = 11, # Reimbursement
+                    branch_id = 5, # Head Office
+                    inputvattype_id = 3, # Service
+                    creditterm_id = 2, # 90 Days 2
+                    payee_id = supplier.id,
+                    payeecode = supplier.code,
+                    payeename = supplier.name,
+                    vat_id = 8, # NA 8
+                    vatcode = 'VATNA', # NA 8
+                    vatrate = 0,
+                    atax_id = 66, # NO ATC 66
+                    ataxcode = 'WX000', # NO ATC 66
+                    ataxrate = 0,
+                    duedate = pdate,
+                    refno = of.ofnum,
+                    particulars = 'Reimbursement '+str(of.requestor_name)+' '+str(billingremarks),
+                    currency_id = 1,
+                    fxrate = 1,
+                    designatedapprover_id = 15, # Angela
+                    actualapprover_id = 15, # Angela
+                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    responsedate = datetime.datetime.now(),
+                    apstatus = 'A',
+                    enterby_id = request.user.id,
+                    enterdate = datetime.datetime.now(),
+                    modifyby_id = request.user.id,
+                    modifydate = datetime.datetime.now()
+                )
+
+
+                detail = Ofdetail.objects.filter(ofmain=of.pk).order_by('item_counter')
+                counter = 1
+                amount = 0
+                for item  in detail:
+                    amount += item.debitamount
+                    Apdetail.objects.create(
+                        apmain_id = main.id,
+                        ap_num = main.apnum,
+                        ap_date = main.apdate,
+                        item_counter = counter,
+                        debitamount = item.debitamount,
+                        creditamount = item.creditamount,
+                        balancecode = item.balancecode,
+                        customerbreakstatus = item.customerbreakstatus,
+                        supplierbreakstatus = item.supplierbreakstatus,
+                        employeebreakstatus = item.employeebreakstatus,
+                        ataxcode_id = item.ataxcode_id,
+                        bankaccount_id = item.bankaccount_id,
+                        branch_id = item.branch_id,
+                        chartofaccount_id = item.chartofaccount_id,
+                        customer_id = item.customer_id,
+                        department_id = item.department_id,
+                        employee_id = item.employee_id,
+                        inputvat_id = item.inputvat_id,
+                        outputvat_id = item.outputvat_id,
+                        product_id = item.product_id,
+                        unit_id = item.unit_id,
+                        vat_id = item.vat_id,
+                        wtax_id = item.wtax_id,
+                        status='A',
+                        enterby_id = request.user.id,
+                        enterdate = datetime.datetime.now(),
+                        modifyby_id = request.user.id,
+                        modifydate = datetime.datetime.now()
+                    )
+                    counter += 1
+
+                main.amount = amount
+                main.save()
+
+                ofmain = Ofmain.objects.filter(id=of.pk).update(
+                    apmain_id = main.id,
+                    remarks = str(of.remarks)+' REV - AP '+str( main.apnum),
+                )
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
 @csrf_exempt
 def gopostliq(request):
 
@@ -2489,21 +2641,7 @@ def gopostliq(request):
 
         if data:
             for of in data:
-                # try:
-                #     apnumlast = Apmain.objects.filter(apnum__length=10).latest('apnum')
-                #     latestapnum = str(apnumlast)
-                #     print latestapnum
-                #     if latestapnum[0:4] == str(datetime.datetime.now().year):
-                #         apnum = str(datetime.datetime.now().year)
-                #         last = str(int(latestapnum[4:]) + 1)
-                #         zero_addon = 6 - len(last)
-                #         for x in range(0, zero_addon):
-                #             apnum += '0'
-                #         apnum += last
-                #     else:
-                #         apnum = str(datetime.datetime.now().year) + '000001'
-                # except Apmain.DoesNotExist:
-                #     apnum = str(datetime.datetime.now().year) + '000001'
+
                 try:
                     jvnumlast = Jvmain.objects.filter(jvnum__length=10).latest('jvnum')
                     latestjvnum = str(jvnumlast)
@@ -2529,23 +2667,18 @@ def gopostliq(request):
                     jvnum = jvnum,
                     jvdate = pdate,
                     jvtype_id = 5, # Operational Fund
-                    jvsubtype_id = 19, # Reimbursement
+                    jvsubtype_id = 19, # Operational Fund - Liquidation
                     branch_id = 5, # Head Office
-                    # inputvattype_id = 3, # Service
-                    # creditterm_id = 2, # 90 Days 2
-                    # payee_id = of.requestor_id,
-                    # payeecode = of.requestor_code,
-                    # payeename = of.requestor_name,
                     department_id = of.department_id, # NA 8
                     refnum = of.ofnum,
-                    particular = 'Reimbursement '+str(of.requestor_code)+' '+str(of.requestor_name),
+                    particular = 'Liquidation '+str(of.requestor_code)+' '+str(of.requestor_name),
                     currency_id = 1,
                     fxrate = 1,
                     designatedapprover_id = 7, # Jhun 7
-                    #actualapprover_id = 7, # Jhun 7
-                    #approverremarks = 'Auto approved from Operational Fund Posting',
-                    #responsedate = datetime.datetime.now(),
-                    jvstatus = 'F',
+                    actualapprover_id = 7, # Jhun 7
+                    approverremarks = 'Auto approved from Operational Fund Posting',
+                    responsedate = datetime.datetime.now(),
+                    jvstatus = 'A',
                     enterby_id = request.user.id,
                     enterdate = datetime.datetime.now(),
                     modifyby_id = request.user.id,

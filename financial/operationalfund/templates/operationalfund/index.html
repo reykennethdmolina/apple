@@ -44,6 +44,11 @@
                     </select>
                     </div>
                     <!-- pagination and search end -->
+                    {% if perms.operationalfund.can_postrevtoap %}
+                        <button class="btn btn-info btn-sm" data-toggle='modal' id="postingRev" data-target='#postingRevModal'>
+                            <i class="icon fa-lock" aria-hidden="true"></i> Post REV to AP
+                        </button>
+                    {% endif %}
                     {% if perms.operationalfund.can_postliqtojv %}
                         <button class="btn btn-info btn-sm" data-toggle='modal' id="postingLiq" data-target='#postingLiqModal'>
                             <i class="icon fa-lock" aria-hidden="true"></i> Post LIQ to JV
@@ -100,6 +105,7 @@
 {% include "operationalfund/search.html" %}
 {% include "operationalfund/posting.html" %}
 {% include "operationalfund/postingreim.html" %}
+{% include "operationalfund/postingrev.html" %}
 {% include "operationalfund/postingliq.html" %}
 {% endblock page-content %}
 {% block extra_js %}

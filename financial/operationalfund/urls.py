@@ -31,8 +31,10 @@ urlpatterns = [
 
     url(r'^searchforposting/$', views.searchforposting, name='searchforposting'),
     url(r'^searchforpostingReim/$', views.searchforpostingReim, name='searchforpostingReim'),
+    url(r'^searchforpostingRev/$', views.searchforpostingRev, name='searchforpostingRev'),
     url(r'^searchforpostingLiq/$', views.searchforpostingLiq, name='searchforpostingLiq'),
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gopostreim/$', views.gopostreim, name='gopostreim'),
+    url(r'^gopostrev/$', views.gopostrev, name='gopostrev'),
     url(r'^gopostliq/$', views.gopostliq, name='gopostliq'),
 ]

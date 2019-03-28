@@ -20,7 +20,7 @@ import reportlab
 from reportlab.lib.pagesizes import legal, landscape
 from reportlab.lib.units import inch
 import io
-import xlsxwriter
+from xlsxwriter.workbook import Workbook
 from reportlab.pdfgen import canvas
 from financial.utils import Render
 from django.utils import timezone
