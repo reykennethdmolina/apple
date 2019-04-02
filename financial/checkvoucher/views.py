@@ -2987,7 +2987,7 @@ class GenerateACPExcel(View):
         worksheet.write('Q1', 'baf_an', bold)
         worksheet.write('R1', 'remarks', bold)
 
-        filename = "acpextract.xlsx"
+        filename = "acpextract.csv"
 
         row = 1
         col = 0
