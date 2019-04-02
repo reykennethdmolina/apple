@@ -2987,7 +2987,7 @@ class GenerateACPExcel(View):
         worksheet.write('Q1', 'baf_an', bold)
         worksheet.write('R1', 'remarks', bold)
 
-        filename = "acpextract.csv"
+        filename = "acpextract.xls"
 
         row = 1
         col = 0
@@ -3021,7 +3021,7 @@ class GenerateACPExcel(View):
         # Set up the Http response.
         response = HttpResponse(
             output,
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            content_type='application/vnd.ms-excel'
         )
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 

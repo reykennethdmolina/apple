@@ -1138,14 +1138,19 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                 subtotal_variance = 0
                 subtotal_cur = subgroup.groupby('maingroup_code')['current_amount_abs'].sum()
                 subtotal_prev = subgroup.groupby('maingroup_code')['prev_amount_abs'].sum()
+                current_percentage = 0
+                previous_percentage = 0
                 for data, sub in subgroup.iterrows():
                     worksheet.write(row, col, str(sub['subgroup_code']))
                     worksheet.write(row, col + 1, str(sub['subgroup_desc']))
                     worksheet.write(row, col + 3, float(format(sub['current_amount_abs'], '.2f')))
                     worksheet.write(row, col + 4, float(format(sub['prev_amount_abs'], '.2f')))
 
-                    current_percentage = float(format(sub['current_amount_abs'], '.2f')) / float(subtotal_cur) * 100
-                    previous_percentage = float(format(sub['prev_amount_abs'], '.2f')) / float(subtotal_prev) * 100
+                    if float(subtotal_cur) > 0:
+                        current_percentage = float(format(sub['current_amount_abs'], '.2f')) / float(subtotal_cur) * 100
+
+                    if float(subtotal_prev) > 0:
+                        previous_percentage = float(format(sub['prev_amount_abs'], '.2f')) / float(subtotal_prev) * 100
 
                     variance = float(format(sub['current_amount_abs'], '.2f')) - float(format(sub['prev_amount_abs'], '.2f'))
 
@@ -1174,7 +1179,11 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
 
                 subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(format(total_current, '.2f')) * 100
                 subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(format(total_previous, '.2f')) * 100
-                subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
+
+                if float(subtotal_previous) != 0:
+                    subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
+                else:
+                    subtotal_var = 0
 
                 worksheet.write(row, col + 5, float(format(subtotal_current_percentage, '.2f')))
                 worksheet.write(row, col + 6, float(format(subtotal_previous_percentage, '.2f')))
