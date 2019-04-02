@@ -198,8 +198,8 @@ class CreateView(CreateView):
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')
         context['pk'] = 0
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).order_by('first_name')
-        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain=None).order_by('enterdate')
-        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, cvmain=None).order_by('enterdate')
+        context['reprfvmain'] = Reprfvmain.objects.filter(isdeleted=0, apmain__isnull=True).order_by('enterdate')
+        context['reppcvmain'] = Reppcvmain.objects.filter(isdeleted=0, apmain__isnull=True).order_by('enterdate')
 
         #lookup
         context['apsubtype'] = Apsubtype.objects.filter(isdeleted=0).order_by('pk')

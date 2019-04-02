@@ -107,6 +107,8 @@ class IndexView(AjaxListView):
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
         context['designatedapprover'] = Employee.objects.filter(isdeleted=0, cv_approver=1).order_by('firstname')
+        creator = Cvmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
         context['pk'] = 0
         # data for lookup
 
@@ -2950,9 +2952,8 @@ class GenerateACPExcel(View):
 
         #ids = request.GET['ids[]']
         ids = request.GET['ids']
-        print ids
 
-        list = Cvmain.objects.filter(id__in=[6120,6121],isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
+        list = Cvmain.objects.filter(id__in=ids,isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
 
         output = io.BytesIO()
 
