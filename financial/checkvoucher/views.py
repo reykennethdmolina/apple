@@ -2953,7 +2953,9 @@ class GenerateACPExcel(View):
         #ids = request.GET['ids[]']
         ids = request.GET['ids']
 
-        list = Cvmain.objects.filter(id__in=ids,isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
+        id_val = ids.split(',')
+
+        list = Cvmain.objects.filter(id__in=id_val,isdeleted=0,status='A',cvstatus='R').order_by('cvnum', 'cvdate')
 
         output = io.BytesIO()
 

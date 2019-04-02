@@ -1,0 +1,22 @@
+{% load humanize %}
+{% for item in data %}
+<tr>
+  <td>{{ forloop.counter }}</td>
+  <td><input type="checkbox" class="check" value={{ item.id }}></td>
+  <td>{{ item.cvnum }}</td>
+  <td style="width:100px">{{ item.cvdate|date:'Y-m-d' }}</td>
+  <td>{{ item.payee_name }}</td>
+  <td>{{ item.payee.account_number }}</td>
+  <td style="text-align:right">{{ item.amount|default:""|floatformat:2|intcomma }}</td>
+</tr>
+{% endfor %}
+
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td><b>Total</b></td>
+  <td style="text-align:right"><b>{{ total.amount__sum|default:"0.00"|floatformat:2|intcomma }}</b></td>
+</tr>
