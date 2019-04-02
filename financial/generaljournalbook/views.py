@@ -974,7 +974,7 @@ def query_transaction(dto, dfrom, chart, transtatus, status):
             "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_jv)+" "+str(chart_status)+"" \
             "UNION " \
-            "SELECT 'OR' AS tran, d.item_counter, d.or_num, d.or_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
+            "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status	" \
             "FROM ordetail AS d " \
