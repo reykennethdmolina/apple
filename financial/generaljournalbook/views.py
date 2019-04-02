@@ -977,8 +977,8 @@ def query_transaction(dto, dfrom, chart, transtatus, status):
             "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, " \
             "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
             "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status	" \
-            "FROM ordetail AS d " \
-            "LEFT OUTER JOIN ormain AS m ON m.id = d.ormain_id " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             +str(chart_condition)+" "+str(chart_transtatus_or)+" "+str(chart_status)+") AS z " \
             "LEFT OUTER JOIN bankaccount AS bank ON bank.id = z.bankaccount_id " \
