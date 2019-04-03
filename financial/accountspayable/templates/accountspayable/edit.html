@@ -105,6 +105,37 @@
                             </button>
                         </a>
                     {% endif %}
+
+                    {% if object.actualapprover_id == user.id or object.designatedapprover.id == user.id or user.is_superuser %}
+                        {% if object.apstatus != 'R' %}
+
+                            {% if object.apstatus == 'A' or object.apstatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="trandisapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Disapproved
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if object.apstatus == 'A' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranposting" class="btn btn-round btn-warning btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-unlock-alt" aria-hidden="true"></i>&nbsp; Ready for Posting
+                                </button>
+                            </a>
+                            {% endif %}
+
+                            {% if object.apstatus == 'D' or object.apstatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranapproved" class="btn btn-round btn-success btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Approved
+                                </button>
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
                 </div>
                 <div class="panel-body" id="ap_panel">
                     <form autocomplete="off" id="form-b" method="post">
@@ -990,5 +1021,66 @@
     <script type="text/javascript">
         $('.select2').select2({});
         ajaxselect2("supplier_payee", "id_payee");
+
+        $("#trandisapproved").on('click', function() {
+
+            var con = confirm('Are you sure you want to disapproved this transaction?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'accountspayable:disapprove' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction disapproved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $("#tranapproved").on('click', function() {
+
+            var con = confirm('Are you sure you want to approved this transaction?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'accountspayable:approve' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction approved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $("#tranposting").on('click', function() {
+
+            var con = confirm('Are you sure you want to set this transaction ready for posting?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'accountspayable:posting' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction approved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
     </script>
 {% endblock extra_js %}

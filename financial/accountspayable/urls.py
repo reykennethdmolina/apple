@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/pdf/$', views.Pdf.as_view(), name='pdf'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^disapprove/$', views.disapprove, name='disapprove'),
+    url(r'^posting/$', views.posting, name='posting'),
     url(r'^release/$', views.release, name='release'),
     url(r'^importreprfv/$', views.importreprfv, name='importreprfv'),
     url(r'^importreppcv/$', views.importreppcv, name='importreppcv'),
@@ -23,4 +24,5 @@ urlpatterns = [
     url(r'^gopost/$', views.gopost, name='gopost'),
     url(r'^gounpost/$', views.gounpost, name='gounpost'),
     url(r'^digibanker/$', views.digibanker, name='digibanker'),
+    #url(r'^(?P<pk>[0-9]+)/disapproved/$', views.DisapprovedView.as_view(), name='disapproved'),
 ]

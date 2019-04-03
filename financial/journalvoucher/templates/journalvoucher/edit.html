@@ -79,6 +79,36 @@
                             </button>
                         </a>
                     {% endif %}
+                    {% if object.actualapprover_id == user.id or object.designatedapprover.id == user.id or user.is_superuser %}
+                        {% if object.jvstatus != 'R' %}
+
+                            {% if object.jvstatus == 'A' or object.jvstatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="trandisapproved" class="btn btn-round btn-danger btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Disapproved
+                                </button>
+                            </a>
+                            {% endif %}
+                            {% if object.jvstatus == 'A' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranposting" class="btn btn-round btn-warning btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-unlock-alt" aria-hidden="true"></i>&nbsp; Ready for Posting
+                                </button>
+                            </a>
+                            {% endif %}
+
+                            {% if object.jvstatus == 'D' or object.jvstatus == 'F' %}
+                            <a href="#" class="floatright">
+                                <button type="button" id="tranapproved" class="btn btn-round btn-success btn-sm waves-effect
+                                waves-light get_report">
+                                    <i class="icon fa-check" aria-hidden="true"></i>&nbsp; Approved
+                                </button>
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
                 </div>
                 <div class="panel-body" id="jv_panel">
                     <form autocomplete="off" id="form-b" method="post">
@@ -623,6 +653,66 @@
 
             });
             $('.select2').select2({});
+
+            $("#trandisapproved").on('click', function() {
+
+            var con = confirm('Are you sure you want to disapproved this transaction?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'journalvoucher:disapprove' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction disapproved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $("#tranapproved").on('click', function() {
+
+            var con = confirm('Are you sure you want to approved this transaction?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'journalvoucher:approve' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction approved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
+
+        $("#tranposting").on('click', function() {
+
+            var con = confirm('Are you sure you want to set this transaction ready for posting?');
+
+            if (con) {
+                var id = {{ object.pk }};
+                 $.ajax({
+                    url: "{% url 'journalvoucher:posting' %}",
+                    type: "post",
+                    data: {'id': id, 'reason': 'Transaction approved'},
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(response) {
+                        console.debug(response);
+                    }
+                });
+            }
+        });
         });
     </script>
 {% endblock extra_js %}

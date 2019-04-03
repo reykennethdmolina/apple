@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^importrepcsv/$', views.importrepcsv, name='importrepcsv'),
     url(r'^approve/$', views.approve, name='approve'),
     url(r'^disapprove/$', views.disapprove, name='disapprove'),
+    url(r'^posting/$', views.posting, name='posting'),
     url(r'^release/$', views.release, name='release'),
     url(r'^report/$', views.ReportView.as_view(), name='report'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),

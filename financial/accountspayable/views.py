@@ -794,6 +794,18 @@ def disapprove(request):
     return JsonResponse(data)
 
 @csrf_exempt
+def posting(request):
+    if request.method == 'POST':
+        release = Apmain.objects.filter(pk=request.POST['id']).update(apstatus='R',releaseby=User.objects.get(pk=request.user.id),releasedate= str(datetime.datetime.now()))
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error' }
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
 def gopost(request):
 
     if request.method == 'POST':
