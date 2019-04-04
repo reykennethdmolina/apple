@@ -275,7 +275,7 @@ def verifytransactions(request):
                                     #print data.department_id
                                     #print data.department
                                     ud_list.append(['/journalvoucher/' + str(data.jvmain.pk) + '/update',
-                                                    data.jvmain.jvnum+' item:'+str(data.item_counter),
+                                                    data.jvmain.jvnum+' item:'+str(data.chartofaccount.accountcode),
                                                     data.jvmain.jvdate,
                                                     ])
                                 status_undept = 1
