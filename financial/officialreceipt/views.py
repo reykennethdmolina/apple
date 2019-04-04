@@ -1621,8 +1621,12 @@ class GeneratePDF(View):
             dataset = pd.DataFrame(list)
             total = {}
             #total['amount'] = dataset['amount'].sum()
-            total['debitamount'] = dataset['debitamount'].sum()
-            total['creditamount'] = dataset['creditamount'].sum()
+            if list:
+                total['debitamount'] = dataset['debitamount'].sum()
+                total['creditamount'] = dataset['creditamount'].sum()
+            else:   
+                total['debitamount'] = 0
+                total['creditamount'] = 0
             #total['diff'] = dataset['totaldiff'].sum()
         elif report == '8' or report == '9' or report == '10' or report == '11':
             print 'pasok'
