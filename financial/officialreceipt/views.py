@@ -1624,7 +1624,7 @@ class GeneratePDF(View):
             if list:
                 total['debitamount'] = dataset['debitamount'].sum()
                 total['creditamount'] = dataset['creditamount'].sum()
-            else:   
+            else:
                 total['debitamount'] = 0
                 total['creditamount'] = 0
             #total['diff'] = dataset['totaldiff'].sum()
