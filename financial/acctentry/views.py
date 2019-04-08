@@ -1155,7 +1155,9 @@ def updatedetailtemp(table, dataid, datastring):
 
     return cursor.execute(stmt)
 
-def savedetail(source, mainid, num, secretkey, by_user):
+def savedetail(source, mainid, num, secretkey, by_user, ormaindate):
+    print ormaindate
+    print 'sulod'
 
     data_table = validatetable(source)
 
@@ -1178,6 +1180,11 @@ def savedetail(source, mainid, num, secretkey, by_user):
         exec("detail." + data_table['sal'] + "_date = row." + data_table['sal'] + "_date")
 
         detail.item_counter = counter
+        detail.or_date = ormaindate
+        detail.cv_date = ormaindate
+        detail.jv_date = ormaindate
+        detail.ap_date = ormaindate
+        print 'upadte detail date'
         detail.chartofaccount = Chartofaccount.objects.get(pk=row.chartofaccount)
         # Return None if object is empty
         detail.bankaccount = get_object_or_None(Bankaccount, pk=row.bankaccount)

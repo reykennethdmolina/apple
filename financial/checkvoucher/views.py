@@ -227,7 +227,8 @@ class CreateView(CreateView):
         mainid = self.object.id
         num = self.object.cvnum
         secretkey = self.request.POST['secretkey']
-        savedetail(source, mainid, num, secretkey, self.request.user)
+        cvmaindate = self.object.cvdate
+        savedetail(source, mainid, num, secretkey, self.request.user, cvmaindate)
 
         # save cvmain in reppcvmain, reppcvdetail, ofmain
         for i in range(len(self.request.POST.getlist('pcv_checkbox'))):

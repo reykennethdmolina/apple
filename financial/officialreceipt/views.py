@@ -266,7 +266,9 @@ class CreateView(CreateView):
         mainid = self.object.id
         num = self.object.ornum
         secretkey = self.request.POST['secretkey']
-        savedetail(source, mainid, num, secretkey, self.request.user)
+
+        ormaindate = self.object.ordate
+        savedetail(source, mainid, num, secretkey, self.request.user, ormaindate)
 
         return HttpResponseRedirect('/officialreceipt/' + str(self.object.id) + '/update')
 

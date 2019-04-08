@@ -265,7 +265,10 @@ class CreateView(CreateView):
         mainid = self.object.id
         num = self.object.apnum
         secretkey = self.request.POST['secretkey']
-        savedetail(source, mainid, num, secretkey, self.request.user)
+
+        apmaindate = self.object.apdate
+
+        savedetail(source, mainid, num, secretkey, self.request.user, apmaindate)
 
         # save apmain in reprfvmain, reprfvdetail, ofmain
         for i in range(len(self.request.POST.getlist('rfv_checkbox'))):

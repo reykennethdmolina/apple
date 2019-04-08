@@ -155,7 +155,12 @@ class CreateView(CreateView):
         mainid = self.object.id
         num = self.object.jvnum
         secretkey = self.request.POST['secretkey']
-        savedetail(source, mainid, num, secretkey, self.request.user)
+
+        jvmaindate = self.object.jvdate
+
+        savedetail(source, mainid, num, secretkey, self.request.user, jvmaindate)
+
+        #updatedetail(source, mainid, num, secretkey, self.request.user, jvmaindate)
 
         # save jvmain in ofmain
         for i in range(len(self.request.POST.getlist('csv_checkbox'))):
