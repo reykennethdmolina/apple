@@ -15,14 +15,14 @@
                 left: 1cm;
                 right: 1cm;
                 top: 1cm;
-                height: 4.5cm;
+                height: 5.5cm;
             }
             @frame footer_frame {
                 -pdf-frame-content: footer_content;
                 left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
             }
             @frame content_frame {
-                top: 5.5cm; left: 1cm; width: 19.5cm; height: 21cm;
+                top: 6cm; left: 1cm; width: 19.5cm; height: 21cm;
             }
         }
         body{
@@ -110,6 +110,9 @@
             <tr>
                 <td width="90%"><p class="title">{{ title|upper }}</p></td>
                 <td width="10%"></td>
+            </tr>
+           <tr>
+                <td width="75%"><p>for the period {{ datefrom|date:'M d, Y' }} to {{ dateto|date:'M d, Y' }}</p></td>
             </tr>
         </table>
 
