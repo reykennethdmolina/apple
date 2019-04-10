@@ -3080,13 +3080,35 @@ class GenerateExcel(View):
             col = 0
             debit = 0
             credit = 0
+            bankacount = ''
+            branch = ''
+            department = ''
+            firstname = ''
+            lastname = ''
+            supplier = ''
+            customer = ''
 
             for data in list:
-                print data
-                #print data['chartofaccount__accountcode']
+
+                if data['bankaccount__code']:
+                    bankacount = data['bankaccount__code']
+                if data['branch__code']:
+                    branch = data['branch__code']
+                if data['department__departmentname']:
+                    department = data['department__departmentname']
+                if data['employee__firstname']:
+                    firstname = data['employee__firstname']
+                if data['employee__lastname']:
+                    lastname = data['employee__lastname']
+                if data['supplier__name']:
+                    supplier = data['supplier__name']
+                if data['customer__name']:
+                    customer = data['customer__name']
+
                 worksheet.write(row, col, data['chartofaccount__accountcode'])
                 worksheet.write(row, col + 1, data['chartofaccount__description'])
-                worksheet.write(row, col + 2, str(data['bankaccount__code'])+ ' ' +str(data['branch__code'])+ ' ' +str(data['department__departmentname'])+ ' ' +str(data['employee__firstname'])+ ' ' +str(data['employee__lastname'])+ ' ' +str(data['supplier__name'])+ ' ' +str(data['customer__name']))
+                #worksheet.write(row, col + 2, str(data['bankaccount__code'])+ ' ' +str(data['branch__code'])+ ' ' +str(data['department__departmentname'])+ ' ' +str(data['employee__firstname'])+ ' ' +str(data['employee__lastname'])+ ' ' +str(data['supplier__name'])+ ' ' +str(data['customer__name']))
+                worksheet.write(row, col + 2, str(bankacount)+ ' ' +str(branch)+ ' ' +str(department)+ ' ' +str(firstname)+ ' ' +str(lastname)+ ' ' +str(supplier)+ ' ' +str(customer))
                 worksheet.write(row, col + 3, float(format(data['debitamount__sum'], '.2f')))
                 worksheet.write(row, col + 4, float(format(data['creditamount__sum'], '.2f')))
                 debit += data['debitamount__sum']
