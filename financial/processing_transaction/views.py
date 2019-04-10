@@ -610,7 +610,8 @@ def importtransdata(request):
                     updateapv.isfullycv = 1
                 updateapv.save()
 
-                apv_detail = Apdetail.objects.filter(apmain=data, status='A')
+                #apv_detail = Apdetail.objects.filter(apmain=data, status='A')
+                apv_detail = Apdetail.objects.filter(apmain=data)
                 for detail in apv_detail:
                     if detail.balancecode == 'C' and detail.chartofaccount.id == Companyparameter.objects.get(code='PDI').coa_aptrade_id:
                         aptrade_debit_amount += detail.creditamount
