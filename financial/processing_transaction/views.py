@@ -56,8 +56,8 @@ class IndexView(TemplateView):
                                                                        Q(pomain__supplier_name__icontains=keysearch))
             elif self.request.GET['selectprocess'] == 'apvtocv' or self.request.GET['selectprocess'] == 'apvtoapv':
                 # added FOR APPROVAL status, making all active APVs eligible for importation regardless of status
-                context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R') | Q(apstatus='F')
-                                                                    ), isdeleted=0, isfullycv=0, status='A').\
+                #context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R') | Q(apstatus='F')), isdeleted=0, isfullycv=0, status='A').\
+                context['data_list'] = Apmain.objects.all().filter((Q(apstatus='A') | Q(apstatus='R') | Q(apstatus='F')), isdeleted=0, isfullycv=0).\
                     order_by('payeename', 'vat_id', 'apnum',)
                 if 'datefrom' in self.request.GET and self.request.GET['datefrom']:
                     context['data_list'] = context['data_list'].filter(apdate__gte=self.request.GET['datefrom'])
