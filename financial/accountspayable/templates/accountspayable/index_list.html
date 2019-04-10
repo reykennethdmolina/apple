@@ -40,7 +40,11 @@
                         {% endif %}"
                         id="status{{ data.id }}">
                     <b> {% if data.status != 'C' %}
-                        {{ data.get_apstatus_display }}
+                            {% if data.status == 'O' %}
+                            POSTED
+                            {% else %}
+                            {{ data.get_apstatus_display }}
+                            {% endif %}
                         {% else %}
                         <span class="text-danger">CANCELLED</span>
                         {% endif %}
