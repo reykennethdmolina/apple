@@ -99,7 +99,7 @@
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if pomain.actualapprover and pomain.approverresponse == 'A' %}
+                    {% if pomain.actualapprover %}
                         SGD {{ pomain.actualapprover.first_name }}&nbsp;{{ pomain.actualapprover.last_name }}
                     {% else %}
                         {{ pomain.designatedapprover.first_name }}&nbsp;{{ pomain.designatedapprover.last_name }}
@@ -118,10 +118,10 @@
             <td width="5%"><b>:</b></td>
             <td align="center" style="margin-right: 20px;border-right: 2px solid black;">
                 <div class="sign_here">
-                    {% if pomain.actualapprover and pomain.approverresponse == 'A' %}
+                    {% if pomain.actualapprover %}
                         {{ pomain.responsedate|date:'Y-m-d' }}
                     {% else %}
-                        &nbsp;
+                        .
                     {% endif %}
                 </div>
             </td>
