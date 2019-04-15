@@ -1466,10 +1466,13 @@ def approve(request):
 
 @csrf_exempt
 def disapprove(request):
+    print 'pasok'
     if request.method == 'POST':
         approval = Pomain.objects.get(pk=request.POST['id'])
+
         if (approval.postatus != 'R' and approval.status != 'O'):
             approval.postatus = 'D'
+
             approval.responsedate = str(datetime.datetime.now())
             approval.approverremarks = str(approval.approverremarks) +';'+ request.POST['reason']
             approval.actualapprover = User.objects.get(pk=request.user.id)
