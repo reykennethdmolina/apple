@@ -49,6 +49,7 @@
                             </button>
                         </a>
                     </div>
+
                 </h3>
                 <div style="padding-top: 10px; padding-right: 10px; padding-bottom: 50px;">
                     {% if perms.journalvoucher.delete_jvmain and object.jvstatus == 'F' and object.isdeleted == 0 and object.status == 'A' %}
@@ -391,6 +392,8 @@
 <div id="zero-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must not be zero.</div>
 <div id="not-equal-debit-credit-error" class="custom-alert danger">Debit and Credit amounts must be equal.</div>
 <div id="unbalanced-entries-error" class="custom-alert danger">You have unbalanced entry(ies). Please review your entry(ies).</div>
+test
+{{ pk }}
 {% include "journalvoucher/search.html" %}
 {% endblock page-content %}
 {% block extra_js %}

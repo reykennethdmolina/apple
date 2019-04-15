@@ -507,6 +507,9 @@ class UpdateView(UpdateView):
         context['repcsv_total_amount'] = jv_main_aggregate['amount__sum']
         context['originaljvstatus'] = Jvmain.objects.get(pk=self.object.id).jvstatus
 
+        # lookup
+        context['pk'] = self.object.pk
+
         contextdatatable = {
             # to be used by accounting entry on load
             'tabledetailtemp': 'jvdetailtemp',

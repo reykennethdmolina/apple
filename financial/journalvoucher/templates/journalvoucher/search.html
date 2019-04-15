@@ -384,7 +384,7 @@
                     "</td>" +
                     "<td>" + cachedText + "</td>" +
                 "</tr>");
-            if(cachedID == {{ pk }}){
+            if(cachedID == {{ pk }}) {
                 dummyurl = "#";
                 $('#cache_table tbody tr:last td:first a').remove();
                 $('#cache_table tbody tr:last td:first').html("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + cachedID).parent().addClass('info');
@@ -397,6 +397,7 @@
 
         function cachednavlink(){            
             nav_exist = 0;
+
             if (JSON.parse(retrieveItems) != null){
                 // value assignment
                 for (var i = 0; i < JSON.parse(retrieveItems).length; i++) {
@@ -424,6 +425,7 @@
 
                 if(nav_exist == 1) $('.nav_btn').show();
                 else $('.nav_btn').hide();
+                console.log('asdasd');
             }
         }
         // caching end
