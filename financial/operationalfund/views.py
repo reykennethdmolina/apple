@@ -637,7 +637,7 @@ class UpdateViewUser(UpdateView):
                     if self.request.POST['oftype'] == '6':
                         self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name', 'refnum', 'cashadv_amount'])
                     else:
-                        self.object.save(update_fields=['ofdate', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name'])
+                        self.object.save(update_fields=['ofdate', 'amount', 'particulars', 'designatedapprover', 'modifyby', 'modifydate', 'requestor', 'requestor_code', 'requestor_name', 'department', 'department_code', 'department_name'])
 
         return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate')
 
