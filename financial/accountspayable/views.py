@@ -3249,7 +3249,7 @@ def searchfordigibanker(request):
         aptype = 13
 
         #xx = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').order_by('apnum', 'apdate')
-        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,status='A',apstatus='R').values_list('id', flat=True).order_by('apnum', 'apdate')
+        q = Apmain.objects.filter(aptype_id=aptype,isdeleted=0,apstatus='R').values_list('id', flat=True).order_by('apnum', 'apdate')
 
         if dfrom != '':
             q = q.filter(apdate__gte=dfrom)
