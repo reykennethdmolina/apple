@@ -29,10 +29,10 @@ class Poapvtransaction(models.Model):  # can also be Pocvtransaction
         return reverse('poapvtransaction:index', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.pomain
+        return unicode(self.pk)
 
     def __unicode__(self):
-        return self.pomain
+        return unicode(self.pk)
 
 
 class Poapvdetailtemp(models.Model):  # can also be Pocvdetailtemp
@@ -111,7 +111,7 @@ class Apvcvtransaction(models.Model):
         return reverse('apvcvtransaction:index', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.apmain
+        return unicode(self.pk)
 
     def __unicode__(self):
-        return self.apmain
+        return unicode(self.pk)

@@ -202,6 +202,17 @@
                                                              {% endif %}"><b>{{ object.get_status_display }}</b></span>
                                             </div>
                                         </div>
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="first-name-profile">
+                                                <span class="text-info row col-md-2 margin-right-90"><b>Transaction</b></span>
+                                                <span class="text-info row col-md-2"><b>: </b></span>
+                                                {% if object.isfullyapv == 1 %}
+                                                <span class="text-danger"><b>CLOSED</b></span>
+                                                {% else %}
+                                                <span class="text-success"><b>OPEN</b></span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -285,6 +296,27 @@
             </div>
         </div>
         <div class="row col-md-4">
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Reference Transaction</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="ref" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body">
+                                    Accounts Payable Voucher
+                                    <div class="master-degree small">
+                                        {% for data in aptrans %}
+                                            <a href="{% url 'accountspayable:detail' data.apmain.id %}" target="_blank">AP#{{ data.apmain.apnum }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
@@ -396,6 +428,7 @@
                                     </div>
                                     <div class="master-degree">
                                         <div class="iconlist">
+                                            {% if object.isfullyapv != 1 %}
                                             {% if perms.purchaseorder.change_pomain and object.isdeleted == 0 %}
                                                 <a href="{% url 'purchaseorder:update' object.pk %}" data-toggle="tooltip" data-placement="right" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                                                     <button type="button" class="btn btn-floating btn-success btn-sm waves-effect waves-float waves-light">
@@ -409,6 +442,7 @@
                                                         <i class="icon_trash" aria-hidden="true"></i>
                                                     </button>
                                                 </a>
+                                            {% endif %}
                                             {% endif %}
                                         </div>
                                     </div>

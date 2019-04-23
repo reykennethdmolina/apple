@@ -67,6 +67,7 @@ class DetailView(DetailView):
         context['podetail'] = Podetail.objects.filter(isdeleted=0).filter(pomain=self.kwargs['pk']).\
             order_by('item_counter')
         context['podata'] = Podata.objects.filter(isdeleted=0, pomain=self.kwargs['pk'])
+        context['aptrans'] = Poapvtransaction.objects.filter(pomain_id=self.object.pk)
         return context
 
 

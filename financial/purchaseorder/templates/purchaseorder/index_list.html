@@ -33,15 +33,17 @@
                         {% elif data.postatus == 'R' %} text-success
                         {% endif %}"
                     id="status{{ data.id }}">
+
                     <b> {% if data.status != 'C' %}
                         {{ data.get_postatus_display }}
                         {% else %}
                         <span class="text-danger">CANCELLED</span>
                         {% endif %}
                     </b>
+
                 </td>
                 <td style="width: 100px;">
-                    <div class="text-center">
+                    <div class="text-center">{% if data.isfullyapv != 1 %}
                     {% if data.actualapprover_id == user.id or data.designatedapprover.id == user.id or user.is_superuser %}
                         {% if data.status == 'O' %}
                             <button class="btn btns-icon btn-info btn-round waves-effect waves-light">
@@ -62,6 +64,9 @@
                             {% endif %}
                         {% endif %}
                     {% endif %}
+                        {% else %}
+                    <span class="text-danger">CLOSED</span>
+                   {% endif %}
                     </div>
                 </td>
                 <td style="width: 100px; padding-left: 13px">
@@ -70,10 +75,12 @@
                         <a href="{% url 'purchaseorder:detail' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to View" title="" aria-describedby="tooltip850155">
                             <i class="icon md-view-list" style="font-size: 20px;" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
+                        {% if data.isfullyapv != 1 %}
                         {% if perms.purchaseorder.change_pomain and data.isdeleted == 0 %}
                         <a href="{% url 'purchaseorder:update' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Edit" title="" aria-describedby="tooltip850155">
                             <i class="icon md-edit" style="font-size: 20px;" aria-hidden="true">&nbsp;&nbsp;</i>
                         </a>
+                        {% endif %}
                         {% endif %}
                         {% if perms.purchaseorder.delete_pomain and data.postatus == 'F' and data.isdeleted == 0 and data.status == 'A' %}
                         <a href="{% url 'purchaseorder:delete' data.pk %}" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-original-title="Click to Delete" title="" aria-describedby="tooltip850155">

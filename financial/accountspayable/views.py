@@ -15,7 +15,7 @@ from currency.models import Currency
 from apsubtype.models import Apsubtype
 from aptype.models import Aptype
 from operationalfund.models import Ofmain, Ofitem, Ofdetail
-from processing_transaction.models import Poapvtransaction
+from processing_transaction.models import Poapvtransaction, Apvcvtransaction
 from purchaseorder.models import Pomain, Podetail
 from replenish_rfv.models import Reprfvmain, Reprfvdetail
 from replenish_pcv.models import Reppcvmain, Reppcvdetail
@@ -169,6 +169,10 @@ class DetailView(DetailView):
         context['totalpayment'] = aptrade_total['creditamount__sum']
         context['wtaxamount'] = wtax_total['creditamount__sum']
         context['wtaxrate'] = self.object.ataxrate
+        context['potrans'] = Poapvtransaction.objects.filter(apmain_id=self.object.pk)
+        context['cvtrans'] = Apvcvtransaction.objects.filter(apmain_id=self.object.pk)
+
+        #print context['potrans']
 
         return context
 

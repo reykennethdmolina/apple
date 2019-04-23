@@ -145,7 +145,7 @@ class Prfpotransaction(models.Model):
         return reverse('purchaseorder:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.pomain.ponum
+        return self.pomainz
 
     def __unicode__(self):
         return self.pomain.ponum

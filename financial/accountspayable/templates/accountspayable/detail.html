@@ -214,6 +214,33 @@
             <div class="col-md-12">
                 <div class="nav-tabs nav-tabs-animate border-profile">
                     <ul class="nav nav-tabs nav-profile">
+                        <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Reference Transaction</a></li>
+                    </ul>
+                    <div class="tab-content padding-top-0">
+                        <div class="tab-pane active" id="ref" role="tabpanel">
+                            <div class="panel top-profile skill-profile margin-bottom-25">
+                                <div class="panel-body">
+                                    Purchase Order
+                                    <div class="master-degree small">
+                                        {% for data in potrans %}
+                                            <a href="{% url 'purchaseorder:detail' data.pomain.id %}" target="_blank">PO#{{ data.pomain.ponum }}</a>
+                                        {% endfor %}
+                                    </div>
+                                    Check Voucher
+                                    <div class="master-degree small">
+                                        {% for data in cvtrans %}
+                                            <a href="{% url 'checkvoucher:detail' data.cvmain.id %}" target="_blank">CV#{{ data.cvmain.cvnum }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="nav-tabs nav-tabs-animate border-profile">
+                    <ul class="nav nav-tabs nav-profile">
                         <li role="presentation" class="active"><a data-toggle="tab" href="#profiles" aria-controls="profiles" role="tab">Revolving Fund Replenishment</a></li>
                     </ul>
                     <div class="tab-content padding-top-0">

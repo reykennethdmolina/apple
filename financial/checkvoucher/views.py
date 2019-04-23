@@ -143,6 +143,7 @@ class DetailView(DetailView):
         context['atc'] = Ataxcode.objects.filter(isdeleted=0).order_by('pk')
         context['inputvattype'] = Inputvattype.objects.filter(isdeleted=0).order_by('pk')
         context['currency'] = Currency.objects.filter(isdeleted=0).order_by('pk')
+        context['aptrans'] = Apvcvtransaction.objects.filter(cvmain_id=self.object.pk)
         context['pk'] = self.object.pk
         # data for lookup
 
