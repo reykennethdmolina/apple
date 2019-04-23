@@ -192,7 +192,7 @@
                         <div class="form-group col-sm-2 {{ form.payee_type.errors|yesno:'has-error,' }}">
                             <label class="control-label">Payee Type</label>
                             <select class="form-control input-sm class-adv payee-type" data-validation="required" id="id_payee_adv" name="payee_adv">
-                                <option value="AG" {% if form.payee_type.value == "AG" %} selected="selected" {% endif %}>Agency</option>
+                                <option value="Y" {% if form.payee_type.value == "Y" %} selected="selected" {% endif %}>Agency</option>
                                 <option value="C" {% if form.payee_type.value == "C" %} selected="selected" {% endif %}>Client</option>
                             </select>
                             <select class="form-control input-sm class-cir payee-type" data-validation="required" id="id_payee_cir" name="payee_cir">

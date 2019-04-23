@@ -22,7 +22,7 @@ class Ormain(models.Model):
     collector_name = models.CharField(max_length=250)
     branch = models.ForeignKey('branch.Branch', related_name='ormain_branch_id')
     PAYEE_TYPE_CHOICES = (
-        ('AG', 'Agency'),
+        ('Y', 'Agency'),
         ('C', 'Client'),
         ('A', 'Agent'),
     )
