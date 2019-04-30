@@ -292,30 +292,30 @@ def importtransdata(request):
                 if data.invitem.inventoryitemclass.inventoryitemtype.code == 'FA' or data.invitem.inventoryitemclass.\
                         inventoryitemtype.code == 'SI':
                     inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
-                    if data.department:
-                        department_expchartofaccount_accountcode_prefix = str(
-                            Chartofaccount.objects.get(pk=Department.objects.get(
-                                pk=data.department.id).expchartofaccount_id).accountcode)[:2]
-                        if str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale.
-                                       accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
-                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
-                                get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
-                        elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).
-                                         chartexpgenandadmin.
-                                         accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
-                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
-                                get(pk=data.invitem.inventoryitemclass.id).chartexpgenandadmin_id
-                        elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp.
-                                         accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
-                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
-                                get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp_id
-                        else:
-                            inventory_entry.chartofaccount = Inventoryitemclass.objects.\
-                                get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
-                        inventory_entry.department = data.department.id
-                    else:
-                        inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
-                    print 'SI'
+                    # if data.department:
+                    #     department_expchartofaccount_accountcode_prefix = str(
+                    #         Chartofaccount.objects.get(pk=Department.objects.get(
+                    #             pk=data.department.id).expchartofaccount_id).accountcode)[:2]
+                    #     if str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale.
+                    #                    accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                    #         inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                    #             get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
+                    #     elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).
+                    #                      chartexpgenandadmin.
+                    #                      accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                    #         inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                    #             get(pk=data.invitem.inventoryitemclass.id).chartexpgenandadmin_id
+                    #     elif str(Inventoryitemclass.objects.get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp.
+                    #                      accountcode)[:2] == department_expchartofaccount_accountcode_prefix:
+                    #         inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                    #             get(pk=data.invitem.inventoryitemclass.id).chartexpsellexp_id
+                    #     else:
+                    #         inventory_entry.chartofaccount = Inventoryitemclass.objects.\
+                    #             get(pk=data.invitem.inventoryitemclass.id).chartexpcostofsale_id
+                    #     inventory_entry.department = data.department.id
+                    # else:
+                    #     inventory_entry.chartofaccount = data.invitem.inventoryitemclass.chartofaccountinventory_id
+                    # print 'SI'
                 elif data.invitem.inventoryitemclass.inventoryitemtype.code == 'SV':
                     if data.department:
                         department_expchartofaccount_accountcode_prefix = str(
