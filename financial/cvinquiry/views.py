@@ -24,6 +24,8 @@ import io
 import xlsxwriter
 import datetime
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(ListView):
@@ -45,6 +47,126 @@ class IndexView(ListView):
         context['wtax'] = Wtax.objects.filter(isdeleted=0).order_by('code')
 
         return context
+
+@method_decorator(login_required, name='dispatch')
+class StatusView(ListView):
+    model = Cvmain
+    template_name = 'cvinquiry/status_index.html'
+    context_object_name = 'data_list'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        context['bankaccount'] = Bankaccount.objects.filter(isdeleted=0).order_by('code')
+
+        return context
+
+def transgenerate(request):
+    dto = request.GET["dto"]
+    dfrom = request.GET["dfrom"]
+    bankaccount = request.GET["bankaccount"]
+    payeename = request.GET["payeename"]
+    stat = request.GET["stat"]
+    cvnum = request.GET["cvnum"]
+    checkno = request.GET["checkno"]
+
+    context = {}
+
+    print "transaction listing"
+
+    cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+    q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0,chartofaccount=cashinbank).filter(~Q(status='C')).order_by('cv_date', 'cv_num', 'item_counter')
+
+    if dfrom != '':
+        q = q.filter(cv_date__gte=dfrom)
+    if dto != '':
+        q = q.filter(cv_date__lte=dto)
+    if bankaccount != '':
+        q = q.filter(bankaccount_id=bankaccount)
+    if payeename != '':
+        q = q.filter(cvmain__payee_name__icontains=payeename)
+    if cvnum != '':
+        q = q.filter(cv_num=cvnum)
+    if checkno != '':
+        q = q.filter(cvmain__checknum=checkno)
+
+    if stat == '1':
+        q = q.filter(cvmain__received=1)
+    elif stat == '2':
+        q = q.filter(cvmain__received=0)
+    elif stat == '3':
+        q = q.filter(cvmain__claimed=1)
+    elif stat == '4':
+        q = q.filter(cvmain__claimed=0)
+
+    context['result'] = q #query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeename)
+    context['dto'] = dto
+    context['dfrom'] = dfrom
+    viewhtml = render_to_string('cvinquiry/transaction_result.html', context)
+
+
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml,
+    }
+    return JsonResponse(data)
+
+@csrf_exempt
+def tagreceived(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        stat = request.POST['stat']
+
+        if (stat == '1'):
+            data = Cvmain.objects.filter(id=id).update(received=1,received_by=User.objects.get(pk=request.user.id),received_date= str(datetime.datetime.now()))
+        else:
+            print 'none'
+            data = Cvmain.objects.filter(id=id).update(received=0, received_by=None,received_date=None)
+
+        data = Cvmain.objects.filter(id=id).first()
+
+
+        data = {'status': 'success', 'received_by': str(data.received_by), 'received_date': data.received_date}
+    else:
+        data = { 'status': 'error', 'data': null }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def tagclaimed(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        stat = request.POST['stat']
+
+        if (stat == '1'):
+            data = Cvmain.objects.filter(id=id).update(claimed=1,claimed_by=User.objects.get(pk=request.user.id),claimed_date= str(datetime.datetime.now()))
+        else:
+            print 'none'
+            data = Cvmain.objects.filter(id=id).update(claimed=0, claimed_by=None,claimed_date=None)
+
+        data = Cvmain.objects.filter(id=id).first()
+
+
+        data = {'status': 'success', 'claimed_by': str(data.claimed_by), 'claimed_date': data.claimed_date}
+    else:
+        data = { 'status': 'error', 'data': null }
+
+    return JsonResponse(data)\
+
+@csrf_exempt
+def savecashierremarks(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        remarks = request.POST['remarks']
+
+        print remarks
+
+        data = Cvmain.objects.filter(id=id).update(cashier_remarks=remarks)
+
+        data = {'status': 'success'}
+    else:
+        data = { 'status': 'error'}
+
+    return JsonResponse(data)
 
 @method_decorator(login_required, name='dispatch')
 class Generate(View):

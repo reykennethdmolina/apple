@@ -12,6 +12,7 @@
                     <th>Type</th>
                     <th>Number</th>
                     <th>Date</th>
+                    <th>Particulars</th>
                     <th>Account Code</th>
                     <th>Decription</th>
                     <th>Debit Amount</th>
@@ -24,6 +25,7 @@
                 <td class="text-left">{{ item.tran }}</td>
                 <td class="text-left">{{ item.tnum }}</td>
                 <td class="text-left">{{ item.tdate }}</td>
+                <td class="text-left">{{ item.payee_name }}</td>
                 <td class="text-left">{{ item.accountcode }}</td>
                 <td class="text-left">{{ item.chartofaccount }}</td>
                 <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>

@@ -80,6 +80,14 @@ class Cvmain(models.Model):
     isdeleted = models.IntegerField(default=0)
     print_ctr = models.IntegerField(default=0)
 
+    received = models.IntegerField(default=0)
+    received_by = models.ForeignKey(User, default=1, related_name='cvmain_received', null=True)
+    received_date = models.DateTimeField(null=True, blank=True)
+    claimed = models.IntegerField(default=0)
+    claimed_by = models.ForeignKey(User, default=1, related_name='cvmain_claimed', null=True)
+    claimed_date = models.DateTimeField(null=True, blank=True)
+    cashier_remarks = models.TextField()
+
     class Meta:
         db_table = 'cvmain'
         ordering = ['-pk']
