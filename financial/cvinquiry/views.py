@@ -169,6 +169,120 @@ def savecashierremarks(request):
     return JsonResponse(data)
 
 @method_decorator(login_required, name='dispatch')
+class GenerateExcelStatus(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        bankaccount = request.GET["bankaccount"]
+        payeename = request.GET["payeename"]
+        stat = request.GET["stat"]
+        cvnum = request.GET["cvnum"]
+        checkno = request.GET["checkno"]
+
+        context = {}
+
+        print "transaction listing"
+
+        cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+        q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0, chartofaccount=cashinbank).filter(~Q(status='C')).order_by('cv_date', 'cv_num', 'item_counter')
+
+        if dfrom != '':
+            q = q.filter(cv_date__gte=dfrom)
+        if dto != '':
+            q = q.filter(cv_date__lte=dto)
+        if bankaccount != '':
+            q = q.filter(bankaccount_id=bankaccount)
+        if payeename != '':
+            q = q.filter(cvmain__payee_name__icontains=payeename)
+        if cvnum != '':
+            q = q.filter(cv_num=cvnum)
+        if checkno != '':
+            q = q.filter(cvmain__checknum=checkno)
+
+        if stat == '1':
+            q = q.filter(cvmain__received=1)
+        elif stat == '2':
+            q = q.filter(cvmain__received=0)
+        elif stat == '3':
+            q = q.filter(cvmain__claimed=1)
+        elif stat == '4':
+            q = q.filter(cvmain__claimed=0)
+
+        title = "Check Voucher Inquiry List"
+
+        list = q
+
+        if list:
+            total = []
+            total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'PHILIPPINE DAILY INQUIRER, INC.', bold)
+        worksheet.write('A2', 'CHECK VOUCHER STATUS INQUIRY LIST', bold)
+        worksheet.write('A3', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        # header
+        worksheet.write('A4', 'Bank', bold)
+        worksheet.write('B4', 'Check Number', bold)
+        worksheet.write('C4', 'Check Date', bold)
+        worksheet.write('D4', 'CV Number', bold)
+        worksheet.write('E4', 'CV Date', bold)
+        worksheet.write('F4', 'Payee', bold)
+        worksheet.write('G4', 'Date Claimed', bold)
+        worksheet.write('H4', 'Amount', bold)
+
+
+        row = 5
+        col = 0
+        total = 0
+
+        for data in list:
+            if data.bankaccount:
+                worksheet.write(row, col, data.bankaccount.code)
+            worksheet.write(row, col + 1, data.cvmain.checknum)
+            worksheet.write(row, col + 2, data.cvmain.checkdate, formatdate)
+            worksheet.write(row, col + 3, data.cv_num)
+            worksheet.write(row, col + 4, data.cv_date, formatdate)
+            worksheet.write(row, col + 5, data.cvmain.payee_name)
+            worksheet.write(row, col + 6, data.cvmain.claimed_date, formatdate)
+            worksheet.write(row, col + 7, float(format(data.creditamount, '.2f')))
+            total += data.creditamount
+
+            row += 1
+
+        worksheet.write(row, col + 6, 'TOTAL', bold)
+        worksheet.write(row, col + 7, float(format(total, '.2f')), bold)
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "cvstatusinquiry.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
+
+@method_decorator(login_required, name='dispatch')
 class Generate(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()

@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
     url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
+    url(r'^excelstatus/$', views.GenerateExcelStatus.as_view(), name='excelstatus'),
     url(r'^tagreceived/$', views.tagreceived, name='tagreceived'),
     url(r'^tagclaimed/$', views.tagclaimed, name='tagclaimed'),
     url(r'^savecashierremarks/$', views.savecashierremarks, name='savecashierremarks'),
