@@ -133,11 +133,18 @@
         $('#excel').on('click', function() {
             var dfrom = $('#dfrom').val();
             var dto = $('#dto').val();
-            var chart = $('#chart').val();
-            var transtatus = $('#transtatus').val();
-            var status = $('#status').val();
+            var bankaccount = $('#bankaccount').val();
+            var payeename = $('#payeename').val();
+            var stat = $('.stat:checked').val();
+            var cvnum = $('#cvnum').val();
+            var checkno = $('#checkno').val();
 
-            url = "{% url 'generaljournalbook:transexcel' %}"+"?chart="+chart+"&transtatus="+transtatus+"&status="+status+"&dfrom="+dfrom+"&dto="+dto;
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date and Chart of Account must not be empty');
+                return false;
+            }
+
+            url = "{% url 'cvinquiry:excelstatus' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno;
             window.open(url);
         });
 

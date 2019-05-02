@@ -183,6 +183,7 @@ class GenerateExcelStatus(View):
         checkno = request.GET["checkno"]
 
         context = {}
+        title = "List of Check Voucher - All"
 
         print "transaction listing"
 
@@ -204,14 +205,16 @@ class GenerateExcelStatus(View):
 
         if stat == '1':
             q = q.filter(cvmain__received=1)
+            title = "List of Check Voucher - Recieved"
         elif stat == '2':
             q = q.filter(cvmain__received=0)
+            title = "List of Check Voucher - Unrecieved"
         elif stat == '3':
             q = q.filter(cvmain__claimed=1)
+            title = "List of Check Voucher - Claimed"
         elif stat == '4':
             q = q.filter(cvmain__claimed=0)
-
-        title = "Check Voucher Inquiry List"
+            title = "List of Check Voucher - Unclaimed"
 
         list = q
 
@@ -233,7 +236,8 @@ class GenerateExcelStatus(View):
         # title
         worksheet.write('A1', 'PHILIPPINE DAILY INQUIRER, INC.', bold)
         worksheet.write('A2', 'CHECK VOUCHER STATUS INQUIRY LIST', bold)
-        worksheet.write('A3', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+        worksheet.write('A3', str(title), bold)
+        worksheet.write('A4', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
 
         # header
         worksheet.write('A4', 'Bank', bold)
