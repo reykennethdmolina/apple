@@ -74,6 +74,9 @@
                                 <a class="btn btn-primary waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 30%;">
                                     <i class="icon fa-file-search-o" aria-hidden="true"></i>&nbsp;&nbsp;Search
                                 </a>
+                                <a class="btn btn-danger waves-effect waves-dark" id="pdf" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-pdf" aria-hidden="true"></i>&nbsp;&nbsp;PDF
+                                </a>
                                 <a class="btn btn-info waves-effect waves-dark" id="excel" style="margin-top: 22px; width: 30%;">
                                     <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
                                 </a>
@@ -129,6 +132,25 @@
     <script src="{% static 'financial-layout/assets/js/panel/panel.min.js' %}"></script>
     <script>
     $(function () {
+
+        $('#pdf').click(function(){
+
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+            var bankaccount = $('#bankaccount').val();
+            var payeename = $('#payeename').val();
+            var stat = $('.stat:checked').val();
+            var cvnum = $('#cvnum').val();
+            var checkno = $('#checkno').val();
+
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date and Chart of Account must not be empty');
+                return false;
+            }
+
+            url = "{% url 'cvinquiry:pdf2' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno;
+            window.open(url , "_blank");
+        });
 
         $('#excel').on('click', function() {
             var dfrom = $('#dfrom').val();

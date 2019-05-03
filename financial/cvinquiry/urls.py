@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^tagreceived/$', views.tagreceived, name='tagreceived'),
     url(r'^tagclaimed/$', views.tagclaimed, name='tagclaimed'),
     url(r'^savecashierremarks/$', views.savecashierremarks, name='savecashierremarks'),
+    url(r'^pdf2/$', views.GeneratePDF2.as_view(), name='pdf2'),
     # url(r'^(?P<pk>[0-9]+)/$', views.DetailView.as_view(), name='detail'),
     # url(r'^create/$', views.CreateView.as_view(), name='create'),
     # url(r'^(?P<pk>[0-9]+)/update/$', views.UpdateView.as_view(), name='update'),

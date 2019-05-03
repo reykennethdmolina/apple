@@ -456,6 +456,72 @@ class GeneratePDF(View):
 
 
 @method_decorator(login_required, name='dispatch')
+class GeneratePDF2(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        q = []
+        total = []
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        bankaccount = request.GET["bankaccount"]
+        payeename = request.GET["payeename"]
+        stat = request.GET["stat"]
+        cvnum = request.GET["cvnum"]
+        checkno = request.GET["checkno"]
+
+        context = {}
+        title = "List of Check Voucher - All"
+
+        print "transaction listing"
+
+        cashinbank = Companyparameter.objects.first().coa_cashinbank_id
+        q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0, chartofaccount=cashinbank).filter(~Q(status='C')).order_by('cv_date', 'cv_num', 'item_counter')
+
+        if dfrom != '':
+            q = q.filter(cv_date__gte=dfrom)
+        if dto != '':
+            q = q.filter(cv_date__lte=dto)
+        if bankaccount != '':
+            q = q.filter(bankaccount_id=bankaccount)
+        if payeename != '':
+            q = q.filter(cvmain__payee_name__icontains=payeename)
+        if cvnum != '':
+            q = q.filter(cv_num=cvnum)
+        if checkno != '':
+            q = q.filter(cvmain__checknum=checkno)
+
+        if stat == '1':
+            q = q.filter(cvmain__received=1)
+            title = "List of Check Voucher - Recieved"
+        elif stat == '2':
+            q = q.filter(cvmain__received=0)
+            title = "List of Check Voucher - Unrecieved"
+        elif stat == '3':
+            q = q.filter(cvmain__claimed=1)
+            title = "List of Check Voucher - Claimed"
+        elif stat == '4':
+            q = q.filter(cvmain__claimed=0)
+            title = "List of Check Voucher - Unclaimed"
+
+        list = q
+
+        if list:
+            total = []
+            total = list.aggregate(total_debit=Sum('debitamount'), total_credit=Sum('creditamount'))
+
+        context = {
+            "title": title,
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "total": total,
+            "username": request.user,
+        }
+
+        return Render.render('cvinquiry/transaction_pdf.html', context)
+
+
+@method_decorator(login_required, name='dispatch')
 class GenerateExcel(View):
     def get(self, request):
         company = Companyparameter.objects.all().first()
