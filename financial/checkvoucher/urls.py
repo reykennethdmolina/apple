@@ -29,5 +29,6 @@ urlpatterns = [
     url(r'^fileupload/$', views.fileupload, name='fileupload'),
     url(r'^exportsave/$', views.exportsave, name='exportsave'),
     url(r'^searchforacp/$', views.searchforacp, name='searchforacp'),
-    url(r'^acp/$', views.GenerateACPExcel.as_view(), name='acp'),
+    #url(r'^acp/$', views.GenerateACPExcel.as_view(), name='acp'),
+    url(r'^acp/$', views.acpdigibanker, name='acp'),
 ]

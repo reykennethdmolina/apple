@@ -3039,6 +3039,61 @@ class GenerateACPExcel(View):
 
         return response
 
+@csrf_exempt
+def acpdigibanker(request):
+
+    print 'ACP Digibanker'
+    # AC 01 1218181 PHP 0111007943003 20181218 0000100361172 00193
+    #
+    # #text_file = open("accountspayable/txtfile/digibanker.txt", "w")
+    text_file = open("static/digibanker/acpdigibanker.txt", "w")
+
+    bnum = request.POST['batchnumber']
+    pdate = request.POST['postingdate']
+    funding = request.POST['funding']
+
+    batchnum = bnum
+    currency = 'PHP'
+    fundacct = funding.replace('-', '')
+    postingdate = pdate
+    totalamount = 0
+    totalno = 0
+    #
+    ids = request.POST.getlist('ids[]')
+
+    cvtype = 10
+
+    cashinbank = 30  # ACCOUNTS PAYABLE-TRADE
+
+    detail = Cvdetail.objects.filter(cvmain_id__in=ids, chartofaccount_id=cashinbank).order_by('cv_num', 'cv_date')
+
+    detaildata = ""
+    for item in detail:
+        print item.cvmain.payee.account_number
+        transamount = str(item.creditamount).replace('.', '').rjust(13, '0')[:13]
+        baccount = item.cvmain.payee.account_number.replace('-', '').ljust(16, ' ')[:16]
+        particulars = 'CV'+str(item.cvmain.cvnum)+'::'+str(item.cvmain.payee_code)+'::'+str(item.cvmain.payee_name)+'::'+str(item.cvmain.checknum)+'::'+str(item.cvmain.particulars)
+        particulars = ' '.join(particulars.splitlines())
+        totalamount += item.creditamount
+        totalno += 1
+        detaildata += "AC10     "+str(currency)+str(baccount)+str(transamount)+str(particulars)+"\n"
+
+    header = "AC01" + str(batchnum) + str(currency) + str(fundacct) + str(postingdate) + str(totalamount).replace('.', '').rjust(13, '0')[:13] + str(totalno).rjust(5, '0')[:5] + "\n"
+    text_file.writelines(header)
+    text_file.writelines(detaildata)
+
+    text_file.close()
+
+    print 'url'
+    baseurl = request.build_absolute_uri()
+    print baseurl
+    fileurl = baseurl.replace("checkvoucher/acp", "static/digibanker/")+'acpdigibanker.txt'
+    print fileurl
+
+    data = {'status': 'success', 'fileurl': fileurl}
+
+    return JsonResponse(data)
+
 
 
 

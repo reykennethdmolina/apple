@@ -41,6 +41,16 @@
                 <br><strong class="text-success">CV TYPE: ACP | STATUS: READY FOR POSTING</strong>
                 <br><strong></strong>
 
+                <label class="control-label small">Funding Account</label><br>
+                <select class="form-control input-sm col-6" id="funding" style="width:100px;">
+                    <option value="">-- Select --</option>
+                    {% for bankaccount in bankaccount %}
+                        <option value="{{ bankaccount.accountnumber }}">{{ bankaccount.code }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <br><input type="text" id="batchnumber" style="width:150px;" placeholder="BATCHNUMBER" maxlength="9" maxlength="9"> MMDDYYYYC
+                <br><input type="text" id="postingdate" style="width:150px;" placeholder="POSTING DATE" maxlength="8" maxlength="8"> YYYYMMDD
                 <button type="submit" class="btn btn-round btn-success btn-sm" id="goextract">Extract Data</button>
                 <br><br>
                 <div class="well well-sm pre-scrollable" style="margin-bottom: 0px;min-height:400px;">
@@ -49,6 +59,7 @@
                         <tr>
                           <th scope="row">#</th>
                           <th scope="row"><input type="checkbox" id="checkAllacp"></th>
+                            <td scope="row">Bank</td>
                           <td scope="row">CV Num</td>
                           <td scope="row">CV Date</td>
                           <td scope="row">Payee</td>
@@ -97,22 +108,43 @@
         });
 
         $('#goextract').on('click', function() {
-            var selected_id = '';
+
             var selected_value = [];
+            var batchnumber = $('#batchnumber').val();
+            var postingdate = $('#postingdate').val();
+            var funding = $('#funding').val();
             $(".check:checked").each(function(){
                 selected_value.push($(this).val());
-                selected_id += $(this).val()+',';
             });
 
             if (!Array.isArray(selected_value) || !selected_value.length) {
                 alert('No selected item!');
-                return false;
             } else {
+            if (batchnumber == '' || postingdate == '' || funding == '') {
+                    alert('Please fill Posting Date, Batch Number and Funding Account');
+                } else {
 
-                url = "{% url 'checkvoucher:acp' %}"+"?ids="+selected_value;
-                window.location.assign(url);
-
+                    $.ajax({
+                        url: "{% url 'checkvoucher:acp' %}",
+                        type: "post",
+                        data: {'csrfmiddlewaretoken': "{{csrf_token}}",
+                               'ids': selected_value,
+                               'batchnumber': batchnumber,
+                               'postingdate': postingdate,
+                               'funding': funding,
+                               },
+                        success: function(response){
+                            alert('Data Extracted Success');
+                            setTimeout(function(){
+                                window.open(response['fileurl']);
+                            },10000);
+                        }, error: function(response) {
+                            console.debug(response);
+                        }
+                    });
+                }
             }
+
         });
 
     });

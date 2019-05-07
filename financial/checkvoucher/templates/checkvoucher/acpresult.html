@@ -2,7 +2,11 @@
 {% for item in data %}
 <tr>
   <td>{{ forloop.counter }}</td>
-  <td><input type="checkbox" class="check" value={{ item.id }}></td>
+  <td>
+    {% if item.payee.account_number %}
+    <input type="checkbox" class="check" value={{ item.id }}></td>
+    {% endif %}
+  <td>{{ item.bankaccount.code }}</td>
   <td>{{ item.cvnum }}</td>
   <td style="width:100px">{{ item.cvdate|date:'Y-m-d' }}</td>
   <td>{{ item.payee_name }}</td>
@@ -12,6 +16,7 @@
 {% endfor %}
 
 <tr>
+  <td></td>
   <td></td>
   <td></td>
   <td></td>
