@@ -115,9 +115,9 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;width:180px">AP Num</th>
+                    <th style="text-align:left;width:200px">AP Num</th>
                     <th style="text-align:left;width:150px">AP Date</th>
-                    <th style="text-align:left;width:300px;">Payee</th>
+                    <th style="text-align:left;width:270px;">Payee</th>
                     <th style="text-align:left;">Particulars</th>
                     <th style="text-align:right;width:180px;">Net Amount</th>
                 </tr>
@@ -130,9 +130,9 @@
     <tbody>
     {% for item in list %}
         <tr>
-            <td style="text-align:left;width:180px;vertical-align:top;">{{ forloop.counter }}  {{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
+            <td style="text-align:left;width:200px;vertical-align:top;">{{ forloop.counter }}  {{ item.apmain.apprefix|upper }}{{ item.apmain.apnum|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.apmain.apdate|date:'Y-m-d' }}</td>
-            <td style="text-align:left;vertical-align:top;width:300px;">{{ item.apmain.payeename }}</td>
+            <td style="text-align:left;vertical-align:top;width:270px;">{{ item.apmain.payeename }}</td>
             <td style="text-align:left;vertical-align:top;">{{ item.apmain.particulars }}</td>
             <td style="text-align:right;vertical-align:top;width:180px;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
         </tr>
