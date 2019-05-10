@@ -183,7 +183,7 @@ class GenerateExcelStatus(View):
         checkno = request.GET["checkno"]
 
         context = {}
-        title = "List of Check Voucher - All"
+        title = "List of Check Status - All"
 
         print "transaction listing"
 
@@ -205,16 +205,16 @@ class GenerateExcelStatus(View):
 
         if stat == '1':
             q = q.filter(cvmain__received=1)
-            title = "List of Check Voucher - Recieved"
+            title = "List of Check Status - Recieved"
         elif stat == '2':
             q = q.filter(cvmain__received=0)
-            title = "List of Check Voucher - Unrecieved"
+            title = "List of Check Status - Unrecieved"
         elif stat == '3':
             q = q.filter(cvmain__claimed=1)
-            title = "List of Check Voucher - Claimed"
+            title = "List of Check Status - Claimed"
         elif stat == '4':
             q = q.filter(cvmain__claimed=0)
-            title = "List of Check Voucher - Unclaimed"
+            title = "List of Check Status - Unclaimed"
 
         list = q
 
@@ -470,7 +470,7 @@ class GeneratePDF2(View):
         checkno = request.GET["checkno"]
 
         context = {}
-        title = "List of Check Voucher - All"
+        title = "List of Check Status - All"
 
         print "transaction listing"
 
@@ -492,16 +492,16 @@ class GeneratePDF2(View):
 
         if stat == '1':
             q = q.filter(cvmain__received=1)
-            title = "List of Check Voucher - Recieved"
+            title = "List of Check Status - Recieved"
         elif stat == '2':
             q = q.filter(cvmain__received=0)
-            title = "List of Check Voucher - Unrecieved"
+            title = "List of Check Status - Unrecieved"
         elif stat == '3':
             q = q.filter(cvmain__claimed=1)
-            title = "List of Check Voucher - Claimed"
+            title = "List of Check Status - Claimed"
         elif stat == '4':
             q = q.filter(cvmain__claimed=0)
-            title = "List of Check Voucher - Unclaimed"
+            title = "List of Check Status - Unclaimed"
 
         list = q
 
