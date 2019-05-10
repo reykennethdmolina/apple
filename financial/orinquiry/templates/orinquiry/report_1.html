@@ -116,8 +116,8 @@
                 <tr>
                     <th style="text-align:left;width:150px">OR Number</th>
                     <th style="text-align:left;width:150px">OR Date</th>
-                    <th style="text-align:left;width:450px">Particulars</th>
-                    <th style="text-align:left;width:150px"> </th>
+                    <th style="text-align:left;width:400px">Particulars</th>
+                    <th style="text-align:left;width:200px">Subsidiary Legder</th>
                     <th style="text-align:right;width:150px">Debit</th>
                     <th style="text-align:right;width:150px">Credit</th>
                 </tr>
@@ -133,7 +133,7 @@
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.or_num|upper }}</td>
             <td style="text-align:left;width:150px;vertical-align:top;">{{ item.or_date|date:'Y-m-d' }}</td>
             <td style="text-align:left;width:450px;vertical-align:top;">{{ item.ormain.particulars }}</td>
-            <td style="text-align:right;width:150px;vertical-align:top;">{{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }}</td>
+            <td style="text-align:left;width:200px;vertical-align:top;">{{ item.ormain.payee_name }} {{ item.branch.code|default:""|upper }} {{ item.bankaccount.code|default:""|upper }} {{ item.department.code|default:""|upper }}</td>
             <td style="text-align:right;width:150px;vertical-align:top;">{{ item.debitamount|default:""|floatformat:2|intcomma }}</td>
             <td style="text-align:right;width:150px;vertical-align:top;">{{ item.creditamount|default:""|floatformat:2|intcomma }}</td>
         </tr>
