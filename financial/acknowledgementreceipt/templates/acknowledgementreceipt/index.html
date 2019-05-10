@@ -1,5 +1,5 @@
 {% extends 'base-form.html' %}
-{% block page-title %} Acknowledgement Receipt {% endblock page-title %}
+{% block page-title %} Non-VAT Acknowledgement Receipt {% endblock page-title %}
 {% block extra_css %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'financial-layout/assets/plugin/select2/css/select2.css' %}" />
@@ -52,7 +52,7 @@
                     {% endif %}
                     {% if perms.acknowledgementreceipt.add_armain %}
                         <a href="{% url 'acknowledgementreceipt:create' %}"><button type="button" class="btn btn-success btn-sm waves-effect waves-light">
-                            <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;New Acknowledgement Receipt
+                            <i class="icon fa-plus-square" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Non-VAT New Acknowledgement Receipt
                         </button></a>
                     {% endif  %}
                 </div>

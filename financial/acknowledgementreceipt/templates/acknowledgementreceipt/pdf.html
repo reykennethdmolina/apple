@@ -5,7 +5,7 @@
     {% load humanize %}
     {% load pdf_filters %}
     <meta charset="UTF-8">
-    <title>Acknowledgement Receipt</title>
+    <title>Non-VAT Acknowledgement Receipt</title>
     <style>
         @page {
             size: {{ pagesize }} {{ orientation }};
@@ -69,7 +69,7 @@
         <tr>
             <td><img id="logo" src="{{ logo | get64 }}"/><br></td>
             <td width="500px">
-                <p class="title center"><br>ACKNOWLEDGEMENT RECEIPT</p>
+                <p class="title center"><br>NON-VAT ACKNOWLEDGEMENT RECEIPT</p>
             </td>
             <td>
                 <p class="right number">AR No. {{ armain.arnum }}</p>
