@@ -5,6 +5,8 @@ from companyparameter.models import Companyparameter
 from django.db import connection
 from accountexpensebalance.models import Accountexpensebalance
 from department.models import Department
+from departmentbudget.models import Departmentbudget
+from chartofaccount.models import Chartofaccount
 from product.models import Product
 from utils.mixins import ReportContentMixin
 from easy_pdf.views import PDFTemplateView
@@ -15,7 +17,7 @@ import datetime
 from financial.utils import Render
 from django.utils import timezone
 from django.template.loader import get_template
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import pandas as pd
 from datetime import timedelta
 import io
@@ -35,6 +37,80 @@ class IndexView(TemplateView):
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
 
         return context
+
+@method_decorator(login_required, name='dispatch')
+class DeptBudgetInquiry(TemplateView):
+    model = Accountexpensebalance
+    template_name = 'budgetreport/inquiry/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
+        context['chart'] = Chartofaccount.objects.filter(isdeleted=0, accounttype='P').order_by('accountcode')
+        context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
+
+        return context
+
+def transgenerate(request):
+    dto = request.GET["dto"]
+    dfrom = request.GET["dfrom"]
+    chart = request.GET["chart"]
+    department = request.GET["department"]
+
+    context = {}
+
+    print "transaction listing"
+
+    ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+    todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+    toyear = todate.year
+    tomonth = todate.month
+    nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+    fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+    fromyear = fromdate.year
+    frommonth = fromdate.month
+
+    budget = Departmentbudget.objects.filter(isdeleted=0,year=toyear,chartofaccount_id=chart)
+
+    if department != '':
+        budget = budget.filter(department_id=department)
+        print 'department'
+
+    #budget = getBudget(tomonth, item)
+    totalbudget = 0
+    for item in budget:
+        budgetdata = getBudget(tomonth, item)
+        totalbudget += budgetdata[1]
+
+    data = query_transaction(dto, dfrom, chart, department)
+
+    debit = 0
+    credit = 0
+    total = 0
+    totalvariance = 0
+    for item in data:
+        debit += item.debitamount
+        credit += item.creditamount
+
+    total = float(debit) - float(credit)
+    totalvariance = float(totalbudget) - float(total)
+
+    context['result'] = data
+    context['dto'] = dto
+    context['dfrom'] = dfrom
+    context['debit'] = debit
+    context['credit'] = credit
+    context['total'] = total
+    viewhtml = render_to_string('budgetreport/inquiry/transaction_result.html', context)
+
+
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml,
+        'totalbudget': totalbudget,
+        'totalactual': total,
+        'totalvariance': totalvariance,
+    }
+    return JsonResponse(data)
 
 @method_decorator(login_required, name='dispatch')
 class GeneratePDF(View):
@@ -519,6 +595,75 @@ def query_bugdet_status_by_department(filter, type, fromyear, frommonth, toyear,
             "ORDER BY z.deptcode, z.accountcode , z.chartgroup, z.chartsubgroup"
 
     print query
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
+def query_transaction(dto, dfrom, chart, department):
+    print "Transaction Query Department Budget"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    chart_condition = ''
+    department_condition = ''
+
+    if chart != '':
+        chart_condition = "AND d.chartofaccount_id = '" + str(chart) + "'"
+    if department != '':
+        department_condition = "AND d.department_id = '" + str(department) + "'"
+
+    query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, z.debitamount, z.creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, " \
+            "z.particulars, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
+            "emp.code AS empcode, CONCAT(IFNULL(emp.firstname, ''), ' ', IFNULL(emp.lastname, '')) AS employee, inpvat.code AS inpvatcode, inpvat.description AS inputvat, " \
+            "outvat.code AS outvatcode, outvat.description AS outputvat, prod.code AS prodcode, prod.description AS product, " \
+            "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax " \
+            "FROM ( " \
+            "SELECT 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, m.particulars, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.apstatus, m.status " \
+            "FROM apdetail AS d " \
+            "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+            "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' AND m.apstatus = 'R' AND m.status = 'O' " \
+            +str(chart_condition)+" "+str(department_condition)+"" \
+            "UNION " \
+            "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, m.particulars, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.cvstatus, m.status	" \
+            "FROM cvdetail AS d " \
+            "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+            "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' AND m.cvstatus = 'R' AND m.status = 'O' " \
+            +str(chart_condition)+" "+str(department_condition)+"" \
+            "UNION " \
+            "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, m.particular," \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.jvstatus, m.status " \
+            "FROM jvdetail AS d " \
+            "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+            "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' AND m.jvstatus = 'R' AND m.status = 'O' " \
+            +str(chart_condition)+" "+str(department_condition)+"" \
+            "UNION " \
+            "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.ataxcode_id, m.particulars, " \
+            "d.bankaccount_id, d.branch_id, d.chartofaccount_id, d.customer_id, d.department_id, d.employee_id, d.inputvat_id, " \
+            "d.outputvat_id, d.product_id, d.supplier_id, d.vat_id, d.wtax_id, m.orstatus, m.status " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' AND m.orstatus = 'R' AND m.status = 'O' " \
+            +str(chart_condition)+" "+str(department_condition)+") AS z " \
+            "LEFT OUTER JOIN bankaccount AS bank ON bank.id = z.bankaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS chart ON chart.id = z.chartofaccount_id " \
+            "LEFT OUTER JOIN customer AS cust ON cust.id = z.customer_id " \
+            "LEFT OUTER JOIN department AS dept ON dept.id = z.department_id " \
+            "LEFT OUTER JOIN employee AS emp ON emp.id = z.employee_id " \
+            "LEFT OUTER JOIN inputvat AS inpvat ON inpvat.id = z.inputvat_id " \
+            "LEFT OUTER JOIN outputvat AS outvat ON outvat.id = z.outputvat_id " \
+            "LEFT OUTER JOIN product AS prod ON prod.id = z.product_id " \
+            "LEFT OUTER JOIN supplier AS supp ON supp.id = z.supplier_id " \
+            "LEFT OUTER JOIN vat AS vat ON vat.id = z.vat_id " \
+            "LEFT OUTER JOIN wtax AS wtax ON wtax.id = z.wtax_id " \
+            "ORDER BY z.tran, z.ap_num, z.ap_date, z.item_counter"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
