@@ -21,7 +21,7 @@
             </thead>
             <tbody>
             {% for item in result %}
-            <tr>
+            <tr {% if item.creditamount != 0 %} style="color:red" {% endif %}>
                 <td class="text-left">{{ forloop.counter }}</td>
                 <td class="text-left">{{ item.tdate }}</td>
                 <td class="text-left">{{ item.tran }}</td>

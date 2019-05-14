@@ -45,7 +45,7 @@ class DeptBudgetInquiry(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
-        context['chart'] = Chartofaccount.objects.filter(isdeleted=0, accounttype='P').order_by('accountcode')
+        context['chart'] = Chartofaccount.objects.filter(isdeleted=0, accounttype='P', main=5).order_by('accountcode')
         context['department'] = Department.objects.filter(isdeleted=0).order_by('code')
 
         return context
@@ -69,7 +69,11 @@ def transgenerate(request):
     fromyear = fromdate.year
     frommonth = fromdate.month
 
-    budget = Departmentbudget.objects.filter(isdeleted=0,year=toyear,chartofaccount_id=chart)
+    budget = Departmentbudget.objects.filter(isdeleted=0,year=toyear)
+
+    if chart != '':
+        budget = budget.filter(chartofaccount_id=chart)
+        print 'budget'
 
     if department != '':
         budget = budget.filter(department_id=department)
@@ -662,10 +666,145 @@ def query_transaction(dto, dfrom, chart, department):
             "LEFT OUTER JOIN product AS prod ON prod.id = z.product_id " \
             "LEFT OUTER JOIN supplier AS supp ON supp.id = z.supplier_id " \
             "LEFT OUTER JOIN vat AS vat ON vat.id = z.vat_id " \
-            "LEFT OUTER JOIN wtax AS wtax ON wtax.id = z.wtax_id " \
+            "LEFT OUTER JOIN wtax AS wtax ON wtax.id = z.wtax_id WHERE chart.main = 5 " \
             "ORDER BY z.tran, z.ap_num, z.ap_date, z.item_counter"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
     return result
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateTransExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        chartofaccount = []
+        dept = []
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        chart = request.GET["chart"]
+        department = request.GET["department"]
+
+        context = {}
+
+        print "transaction listing"
+
+        ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+        todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        toyear = todate.year
+        tomonth = todate.month
+        nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+        fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+        fromyear = fromdate.year
+        frommonth = fromdate.month
+
+        budget = Departmentbudget.objects.filter(isdeleted=0, year=toyear)
+
+        if chart != '':
+            budget = budget.filter(chartofaccount_id=chart)
+            chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
+            print 'budget'
+
+        if department != '':
+            budget = budget.filter(department_id=department)
+            dept = Department.objects.filter(isdeleted=0, id__exact=department).first()
+            print 'department'
+
+        # budget = getBudget(tomonth, item)
+        totalbudget = 0
+        for item in budget:
+            budgetdata = getBudget(tomonth, item)
+            totalbudget += budgetdata[1]
+
+        title = "Department Budget"
+
+        result = query_transaction(dto, dfrom, chart, department)
+
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'DEPARTMENT BUDGET', bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        if chartofaccount and  dept:
+            worksheet.write('A3', 'Chart of Account', bold)
+            worksheet.write('B3', chartofaccount.accountcode, bold)
+            worksheet.write('C3', chartofaccount.description, bold)
+            worksheet.write('A4', 'Department', bold)
+            worksheet.write('B4', dept.code, bold)
+            worksheet.write('C4', dept.departmentname, bold)
+        elif chartofaccount:
+            worksheet.write('A3', 'Chart of Account', bold)
+            worksheet.write('B3', chartofaccount.accountcode, bold)
+            worksheet.write('C3', chartofaccount.description, bold)
+        elif dept:
+            worksheet.write('A3', 'Department', bold)
+            worksheet.write('B3', dept.code, bold)
+            worksheet.write('C3', dept.departmentname, bold)
+        else:
+            worksheet.write('A3', 'ALL Transaction', bold)
+
+        # header
+        worksheet.write('A6', 'Date', bold)
+        worksheet.write('B6', 'Type', bold)
+        worksheet.write('C6', 'Number', bold)
+        worksheet.write('D6', 'Dept', bold)
+        worksheet.write('E6', 'Particulars', bold)
+        worksheet.write('F6', 'Debit Amount', bold)
+        worksheet.write('G6', 'Credit Amount', bold)
+
+        row = 7
+        col = 0
+        debit = 0
+        credit = 0
+        total = 0
+        totalvariance = 0
+
+        for data in result:
+            debit += data.debitamount
+            credit += data.creditamount
+            worksheet.write(row, col, data.tdate, formatdate)
+            worksheet.write(row, col + 1, data.tran)
+            worksheet.write(row, col + 2, data.tnum)
+            worksheet.write(row, col + 3, data.deptcode)
+            worksheet.write(row, col + 4, data.particulars)
+            worksheet.write(row, col + 5, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 6, float(format(data.creditamount, '.2f')))
+
+            row += 1
+
+        total = float(debit) - float(credit)
+        totalvariance = float(totalbudget) - float(total)
+
+        worksheet.write('A5', 'Budget Amount', bold)
+        worksheet.write('B5', float(format(totalbudget, '.2f')), bold)
+        worksheet.write('C5', 'Actual Amount', bold)
+        worksheet.write('D5', float(format(total, '.2f')), bold)
+        worksheet.write('E5', 'Variance Amount', bold)
+        worksheet.write('F5', float(format(totalvariance, '.2f')), bold)
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "departmentbudget.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response

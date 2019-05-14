@@ -126,10 +126,14 @@
             var dfrom = $('#dfrom').val();
             var dto = $('#dto').val();
             var chart = $('#chart').val();
-            var transtatus = $('#transtatus').val();
-            var status = $('#status').val();
+            var department = $('#department').val();
 
-            url = "{% url 'generaljournalbook:transexcel' %}"+"?chart="+chart+"&transtatus="+transtatus+"&status="+status+"&dfrom="+dfrom+"&dto="+dto;
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
+                return false;
+            }
+
+            url = "{% url 'budgetreport:transexcel' %}"+"?dfrom="+dfrom+"&dto="+dto+"&chart="+chart+"&department="+department;
             window.open(url);
         });
 
@@ -140,8 +144,8 @@
             var department = $('#department').val();
 
 
-            if (dfrom == '' || dto == '' || chart == '') {
-                alert('Transaction Date and Chart of Account must not be empty');
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
                 return false;
             }
 
@@ -160,9 +164,16 @@
                 },
                 success: function(response) {
                     $("#iframe_preview").html(response['viewhtml']);
-                    $("#totalbudget").text(response['totalbudget'].toFixed(2));
-                    $("#totalactual").text(response['totalactual'].toFixed(2));
-                    $("#totalvariance").text(response['totalvariance'].toFixed(2));
+                    $("#totalbudget").text(response['totalbudget'].toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    $("#totalactual").text(response['totalactual'].toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    var totalvariance = response['totalvariance'];
+                    if (totalvariance < 0) {
+                        $("#totalvariance").text(Math.abs(response['totalvariance']).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')).css("color", "red");;
+                        console.log('negative');
+                    } else {
+                        $("#totalvariance").text(response['totalvariance'].toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                        console.log('positive');
+                    }
                 }
             });
         });

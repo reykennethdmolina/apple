@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
     url(r'^deptbud/$', views.DeptBudgetInquiry.as_view(), name='deptbudinq'),
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
+    url(r'^transexcel/$', views.GenerateTransExcel.as_view(), name='transexcel'),
     #url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
 ]
