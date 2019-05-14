@@ -787,6 +787,18 @@ class GenerateTransExcel(View):
         total = float(debit) - float(credit)
         totalvariance = float(totalbudget) - float(total)
 
+        worksheet.write(row, col + 4, 'Total', bold)
+        worksheet.write(row, col + 5, float(format(debit, '.2f')), bold)
+        worksheet.write(row, col + 6, float(format(credit, '.2f')), bold)
+
+        worksheet.write(row+1, col + 4, 'NET Amount', bold)
+        if debit > credit:
+            worksheet.write(row+1, col + 5, float(format(total, '.2f')), bold)
+            worksheet.write(row+1, col + 6, float(format(0, '.2f')), bold)
+        else:
+            worksheet.write(row + 1, col + 5, float(format(0, '.2f')), bold)
+            worksheet.write(row + 1, col + 6, float(format(total, '.2f')), bold)
+
         worksheet.write('A5', 'Budget Amount', bold)
         worksheet.write('B5', float(format(totalbudget, '.2f')), bold)
         worksheet.write('C5', 'Actual Amount', bold)
