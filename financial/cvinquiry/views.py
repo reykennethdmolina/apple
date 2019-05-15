@@ -63,6 +63,8 @@ class StatusView(ListView):
 def transgenerate(request):
     dto = request.GET["dto"]
     dfrom = request.GET["dfrom"]
+    dto2 = request.GET["dto2"]
+    dfrom2 = request.GET["dfrom2"]
     bankaccount = request.GET["bankaccount"]
     payeename = request.GET["payeename"]
     stat = request.GET["stat"]
@@ -80,6 +82,10 @@ def transgenerate(request):
         q = q.filter(cv_date__gte=dfrom)
     if dto != '':
         q = q.filter(cv_date__lte=dto)
+    if dfrom2 != '':
+        q = q.filter(cvmain__received_date__date__gte=dfrom2)
+    if dto2 != '':
+        q = q.filter(cvmain__received_date__date__lte=dto2)
     if bankaccount != '':
         q = q.filter(bankaccount_id=bankaccount)
     if payeename != '':
@@ -176,6 +182,8 @@ class GenerateExcelStatus(View):
         total = []
         dto = request.GET["dto"]
         dfrom = request.GET["dfrom"]
+        dto2 = request.GET["dto2"]
+        dfrom2 = request.GET["dfrom2"]
         bankaccount = request.GET["bankaccount"]
         payeename = request.GET["payeename"]
         stat = request.GET["stat"]
@@ -194,6 +202,10 @@ class GenerateExcelStatus(View):
             q = q.filter(cv_date__gte=dfrom)
         if dto != '':
             q = q.filter(cv_date__lte=dto)
+        if dfrom2 != '':
+            q = q.filter(cvmain__received_date__date__gte=dfrom2)
+        if dto2 != '':
+            q = q.filter(cvmain__received_date__date__lte=dto2)
         if bankaccount != '':
             q = q.filter(bankaccount_id=bankaccount)
         if payeename != '':
@@ -463,6 +475,8 @@ class GeneratePDF2(View):
         total = []
         dto = request.GET["dto"]
         dfrom = request.GET["dfrom"]
+        dto2 = request.GET["dto2"]
+        dfrom2 = request.GET["dfrom2"]
         bankaccount = request.GET["bankaccount"]
         payeename = request.GET["payeename"]
         stat = request.GET["stat"]
@@ -481,6 +495,10 @@ class GeneratePDF2(View):
             q = q.filter(cv_date__gte=dfrom)
         if dto != '':
             q = q.filter(cv_date__lte=dto)
+        if dfrom2 != '':
+            q = q.filter(cvmain__received_date__date__gte=dfrom2)
+        if dto2 != '':
+            q = q.filter(cvmain__received_date__date__lte=dto2)
         if bankaccount != '':
             q = q.filter(bankaccount_id=bankaccount)
         if payeename != '':
