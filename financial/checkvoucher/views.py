@@ -3071,7 +3071,8 @@ def acpdigibanker(request):
     for item in detail:
         print item.cvmain.payee.account_number
         transamount = str(item.creditamount).replace('.', '').rjust(13, '0')[:13]
-        baccount = item.cvmain.payee.account_number.replace('-', '').ljust(16, ' ')[:16]
+        baccount = item.cvmain.payee.account_number.replace('-', '').l
+        just(16, ' ')[:16]
         particulars = 'CV'+str(item.cvmain.cvnum)+'::'+str(item.cvmain.payee_code)+'::'+str(item.cvmain.payee_name)+'::'+str(item.cvmain.checknum)+'::'+str(item.cvmain.particulars)
         particulars = ' '.join(particulars.splitlines())
         totalamount += item.creditamount
