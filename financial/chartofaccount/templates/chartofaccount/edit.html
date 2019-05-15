@@ -242,7 +242,7 @@
                                             <select id="id_subgroup" name="subgroup" class="form-control" data-validation="required">
                                                 <option value="">-- Select --</option>
                                                 {% for subgroup in subgroup %}
-                                                    <option value="{{ subgroup.id }}" {% if form.subgroup.value|add:0 == subgroup.id %} selected="selected" {% endif %}>{{ subgroup.description }}</option>
+                                                    <option value="{{ subgroup.id }}" {% if form.subgroup.value|add:0 == subgroup.id %} selected="selected" {% endif %}>{{ subgroup.code }} - {{ subgroup.description }}</option>
                                                 {% endfor %}
                                             </select>
                                             <span class="help-block form-error">{{ form.subgroup.errors.as_text }}</span>

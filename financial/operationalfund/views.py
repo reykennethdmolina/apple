@@ -54,6 +54,7 @@ from financial.utils import Render
 import io
 import xlsxwriter
 import pandas as pd
+from django.core.mail import send_mail
 
 
 @method_decorator(login_required, name='dispatch')
@@ -354,6 +355,10 @@ class CreateViewUser(CreateView):
 
                     self.object.amount = totalamount
                     self.object.save()
+
+                    ''' Send Email Notifacation '''
+                    sendNotif(self.object)
+
                     return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
                 else:
                     return HttpResponseRedirect('/operationalfund/usercreate/')
@@ -3137,3 +3142,19 @@ class GenerateExcel(View):
         return response
 
 
+def sendNotif(object):
+
+    receiver = Employee.objects.filter(isdeleted=0, status='A',id=object.designatedapprover_id).first()
+    print 'send email notification'
+    subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
+    message = 'Hi Sir, \n\n' \
+              'Requestor '+str(object.requestor_name)+' has filed Operational Fund Request for your approval. \n\n' \
+              'Click link here: http://128.1.44.21/operationalfund'
+    email_from = 'inq-noreply@inquirer.com.ph'
+    recipient_list = [receiver.email]
+    send_mail( subject, message, email_from, recipient_list )
+
+    print 'email sent'
+
+    #return true
+    #return redirect('redirect to a new page')
