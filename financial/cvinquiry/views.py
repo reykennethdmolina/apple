@@ -65,6 +65,8 @@ def transgenerate(request):
     dfrom = request.GET["dfrom"]
     dto2 = request.GET["dto2"]
     dfrom2 = request.GET["dfrom2"]
+    dto3 = request.GET["dto3"]
+    dfrom3 = request.GET["dfrom3"]
     bankaccount = request.GET["bankaccount"]
     payeename = request.GET["payeename"]
     stat = request.GET["stat"]
@@ -86,6 +88,10 @@ def transgenerate(request):
         q = q.filter(cvmain__received_date__date__gte=dfrom2)
     if dto2 != '':
         q = q.filter(cvmain__received_date__date__lte=dto2)
+    if dfrom3 != '':
+        q = q.filter(cvmain__claimed_date__date__gte=dfrom3)
+    if dto3 != '':
+        q = q.filter(cvmain__claimed_date__date__lte=dto3)
     if bankaccount != '':
         q = q.filter(bankaccount_id=bankaccount)
     if payeename != '':
@@ -184,6 +190,8 @@ class GenerateExcelStatus(View):
         dfrom = request.GET["dfrom"]
         dto2 = request.GET["dto2"]
         dfrom2 = request.GET["dfrom2"]
+        dto3 = request.GET["dto3"]
+        dfrom3 = request.GET["dfrom3"]
         bankaccount = request.GET["bankaccount"]
         payeename = request.GET["payeename"]
         stat = request.GET["stat"]
@@ -206,6 +214,10 @@ class GenerateExcelStatus(View):
             q = q.filter(cvmain__received_date__date__gte=dfrom2)
         if dto2 != '':
             q = q.filter(cvmain__received_date__date__lte=dto2)
+        if dfrom3 != '':
+            q = q.filter(cvmain__claimed_date__date__gte=dfrom3)
+        if dto3 != '':
+            q = q.filter(cvmain__claimed_date__date__lte=dto3)
         if bankaccount != '':
             q = q.filter(bankaccount_id=bankaccount)
         if payeename != '':
@@ -258,8 +270,9 @@ class GenerateExcelStatus(View):
         worksheet.write('D4', 'CV Number', bold)
         worksheet.write('E4', 'CV Date', bold)
         worksheet.write('F4', 'Payee', bold)
-        worksheet.write('G4', 'Date Claimed', bold)
-        worksheet.write('H4', 'Amount', bold)
+        worksheet.write('G4', 'Date Received', bold)
+        worksheet.write('H4', 'Date Claimed', bold)
+        worksheet.write('I4', 'Amount', bold)
 
 
         row = 5
@@ -274,14 +287,15 @@ class GenerateExcelStatus(View):
             worksheet.write(row, col + 3, data.cv_num)
             worksheet.write(row, col + 4, data.cv_date, formatdate)
             worksheet.write(row, col + 5, data.cvmain.payee_name)
-            worksheet.write(row, col + 6, data.cvmain.claimed_date, formatdate)
-            worksheet.write(row, col + 7, float(format(data.creditamount, '.2f')))
+            worksheet.write(row, col + 6, data.cvmain.received_date, formatdate)
+            worksheet.write(row, col + 7, data.cvmain.claimed_date, formatdate)
+            worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
             total += data.creditamount
 
             row += 1
 
-        worksheet.write(row, col + 6, 'TOTAL', bold)
-        worksheet.write(row, col + 7, float(format(total, '.2f')), bold)
+        worksheet.write(row, col + 7, 'TOTAL', bold)
+        worksheet.write(row, col + 8, float(format(total, '.2f')), bold)
 
         workbook.close()
 
@@ -477,6 +491,8 @@ class GeneratePDF2(View):
         dfrom = request.GET["dfrom"]
         dto2 = request.GET["dto2"]
         dfrom2 = request.GET["dfrom2"]
+        dto3 = request.GET["dto3"]
+        dfrom3 = request.GET["dfrom3"]
         bankaccount = request.GET["bankaccount"]
         payeename = request.GET["payeename"]
         stat = request.GET["stat"]
@@ -499,6 +515,10 @@ class GeneratePDF2(View):
             q = q.filter(cvmain__received_date__date__gte=dfrom2)
         if dto2 != '':
             q = q.filter(cvmain__received_date__date__lte=dto2)
+        if dfrom3 != '':
+            q = q.filter(cvmain__claimed_date__date__gte=dfrom3)
+        if dto3 != '':
+            q = q.filter(cvmain__claimed_date__date__lte=dto3)
         if bankaccount != '':
             q = q.filter(bankaccount_id=bankaccount)
         if payeename != '':

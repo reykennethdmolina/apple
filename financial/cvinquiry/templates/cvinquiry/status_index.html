@@ -97,6 +97,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group col-sm-3">
+                                <label class="control-label small">Claimed Date</label><br>
+                                <div class="input-daterange datarange">
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm"><i class="icon md-calendar" aria-hidden="true"></i></span>
+                                        <input type="text" class="form-control input-sm datepickerfrom" id="dfrom3">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-sm">to</span>
+                                        <input type="text" class="form-control input-sm datepickerto" id="dto3">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group col-sm-2">
                                 <label class="control-label small">CV Num</label><br>
                                 <input type="text" class="form-control input-sm" id="cvnum">
@@ -105,6 +118,8 @@
                                 <label class="control-label small">Check No.</label><br>
                                 <input type="text" class="form-control input-sm" id="checkno">
                             </div>
+                        </div>
+                        <div class="form-group col-sm-12">
                             <div class="form-group col-sm-5">
                                 <label class="control-label small">----- Select Filter -----</label><br>
                                 <label class="checkbox-inline"><input type="radio" style="opacity:90;height:auto" name="stat" class="stat" value="0" checked>All</label>
@@ -152,6 +167,8 @@
             var dto = $('#dto').val();
             var dfrom2 = $('#dfrom2').val();
             var dto2 = $('#dto2').val();
+            var dfrom3 = $('#dfrom3').val();
+            var dto3 = $('#dto3').val();
             var bankaccount = $('#bankaccount').val();
             var payeename = $('#payeename').val();
             var stat = $('.stat:checked').val();
@@ -163,7 +180,7 @@
                 <!--return false;-->
             <!--}-->
 
-            url = "{% url 'cvinquiry:pdf2' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno+"&dfrom2="+dfrom2+"&dto2="+dto2;
+            url = "{% url 'cvinquiry:pdf2' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno+"&dfrom2="+dfrom2+"&dto2="+dto2+"&dfrom3="+dfrom3+"&dto3="+dto3;
             window.open(url , "_blank");
         });
 
@@ -172,6 +189,8 @@
             var dto = $('#dto').val();
             var dfrom2 = $('#dfrom2').val();
             var dto2 = $('#dto2').val();
+            var dfrom3 = $('#dfrom3').val();
+            var dto3 = $('#dto3').val();
             var bankaccount = $('#bankaccount').val();
             var payeename = $('#payeename').val();
             var stat = $('.stat:checked').val();
@@ -183,7 +202,7 @@
                 <!--return false;-->
             <!--}-->
 
-            url = "{% url 'cvinquiry:excelstatus' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno+"&dfrom2="+dfrom2+"&dto2="+dto2;
+            url = "{% url 'cvinquiry:excelstatus' %}"+"?dfrom="+dfrom+"&dto="+dto+"&bankaccount="+bankaccount+"&payeename="+payeename+"&stat="+stat+"&cvnum="+cvnum+"&checkno="+checkno+"&dfrom2="+dfrom2+"&dto2="+dto2+"&dfrom3="+dfrom3+"&dto3="+dto3;
             window.open(url);
         });
 
@@ -192,6 +211,8 @@
             var dto = $('#dto').val();
             var dfrom2 = $('#dfrom2').val();
             var dto2 = $('#dto2').val();
+            var dfrom3 = $('#dfrom3').val();
+            var dto3 = $('#dto3').val();
             var bankaccount = $('#bankaccount').val();
             var payeename = $('#payeename').val();
             var stat = $('.stat:checked').val();
@@ -216,6 +237,8 @@
                     'dto': dto,
                     'dfrom2': dfrom2,
                     'dto2': dto2,
+                    'dfrom3': dfrom3,
+                    'dto3': dto3,
                     'bankaccount': bankaccount,
                     'payeename': payeename,
                     'stat': stat,
