@@ -440,7 +440,9 @@ class GeneratePDF(View):
             chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
 
         if supplier != 'null':
-            q = q.filter(supplier__exact=supplier)
+            #q = q.filter(supplier__exact=supplier)
+            q = q.filter(cvmain__payee_id=supplier)
+            print 'hoy'
         if customer != 'null':
             q = q.filter(customer__exact=customer)
         if employee != 'null':
@@ -601,7 +603,9 @@ class GenerateExcel(View):
             chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
 
         if supplier != 'null':
-            q = q.filter(supplier__exact=supplier)
+            #q = q.filter(supplier__exact=supplier)
+            q = q.filter(cvmain__payee_id=supplier)
+            print 'hoy'
         if customer != 'null':
             q = q.filter(customer__exact=customer)
         if employee != 'null':
