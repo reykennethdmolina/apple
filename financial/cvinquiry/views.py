@@ -351,7 +351,9 @@ class Generate(View):
             chartofaccount = Chartofaccount.objects.filter(isdeleted=0, id__exact=chart).first()
 
         if supplier != 'null':
-            q = q.filter(supplier__exact=supplier)
+            #q = q.filter(supplier__exact=supplier)
+            q = q.filter(cvmain__payee_id=supplier)
+            print 'hoy'
         if customer != 'null':
             q = q.filter(customer__exact=customer)
         if employee != 'null':
@@ -502,7 +504,7 @@ class GeneratePDF2(View):
         context = {}
         title = "List of Check Status - All"
 
-        print "transaction listing" 
+        print "transaction listing"
 
         cashinbank = Companyparameter.objects.first().coa_cashinbank_id
         q = Cvdetail.objects.select_related('cvmain').filter(isdeleted=0, chartofaccount=cashinbank).filter(~Q(status='C')).order_by('cv_date', 'cv_num', 'item_counter')
