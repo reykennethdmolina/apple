@@ -26,6 +26,7 @@ from acctentry.views import generatekey
 from processing_transaction.models import Poapvtransaction
 from dateutil.relativedelta import relativedelta
 import datetime
+from annoying.functions import get_object_or_None
 
 # pagination and search
 from endless_pagination.views import AjaxListView
