@@ -3147,7 +3147,7 @@ def sendNotif(object):
     receiver = Employee.objects.filter(isdeleted=0, status='A',id=object.designatedapprover_id).first()
     print 'send email notification'
     subject = 'OPERATIONAL FUND APPROVER NOTIFICATION'
-    message = 'Hi Sir, \n\n' \
+    message = 'Hello Approver, \n\n' \
               'Requestor '+str(object.requestor_name)+' has filed Operational Fund Request for your approval. \n\n' \
               'Click link here: http://128.1.44.21/operationalfund'
     email_from = 'inq-noreply@inquirer.com.ph'
