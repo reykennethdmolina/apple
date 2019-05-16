@@ -46,7 +46,23 @@ class IndexView(AjaxListView):
     # pagination and search
     page_template = 'purchaseorder/index_list.html'
     def get_queryset(self):
-        query = Pomain.objects.all().filter(isdeleted=0)
+
+        if self.request.user.has_perm('purchaseorder.approve_assignedpo') and not self.request.user.has_perm('purchaseorder.approve_allpo'):
+            user_employee = get_object_or_None(Employee, user=self.request.user)
+            if user_employee is not None:
+                query = Pomain.objects.filter(designatedapprover=user_employee) | Pomain.objects.filter(enterby=self.request.user.id)
+                query = query.filter(isdeleted=0)
+                #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
+                #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+                #query = query.union(query2).order_by('~id')
+            else:
+                query = Pomain.objects.all().filter(isdeleted=0)
+        else:
+            if self.request.user.has_perm('purchaseorder.approve_allpo'):
+                query = Pomain.objects.all().filter(isdeleted=0)
+            else:
+                query = Pomain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
             query = query.filter(Q(ponum__icontains=keysearch) |
