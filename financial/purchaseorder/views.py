@@ -54,7 +54,7 @@ class IndexView(AjaxListView):
             if user_employee is not None:
                 print 'yes'
                 print user_employee.id
-                query = Pomain.objects.filter(designatedapprover_id=user_employee.id) | Pomain.objects.filter(enterby_id=self.request.user.id)
+                query = Pomain.objects.filter(designatedapprover_id=self.request.user.id) | Pomain.objects.filter(enterby_id=self.request.user.id)
                 print 'yes 2'
                 query = query.filter(isdeleted=0)
                 #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
@@ -67,7 +67,7 @@ class IndexView(AjaxListView):
             if self.request.user.has_perm('purchaseorder.approve_allpo'):
                 query = Pomain.objects.all().filter(isdeleted=0)
             else:
-                query = Pomain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+                query = Pomain.objects.all().filter(isdeleted=0, enterby_id=self.request.user.id)
 
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
