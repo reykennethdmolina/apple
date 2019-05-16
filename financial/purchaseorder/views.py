@@ -50,13 +50,18 @@ class IndexView(AjaxListView):
 
         if self.request.user.has_perm('purchaseorder.approve_assignedpo') and not self.request.user.has_perm('purchaseorder.approve_allpo'):
             user_employee = get_object_or_None(Employee, user=self.request.user)
+            print 'hey'
             if user_employee is not None:
-                query = Pomain.objects.filter(designatedapprover=user_employee) | Pomain.objects.filter(enterby=self.request.user.id)
+                print 'yes'
+                print user_employee.id
+                query = Pomain.objects.filter(designatedapprover_id=user_employee.id) | Pomain.objects.filter(enterby_id=self.request.user.id)
+                print 'yes 2'
                 query = query.filter(isdeleted=0)
                 #query = Ofmain.objects.all().filter(isdeleted=0, designatedapprover=user_employee)
                 #query2 = Ofmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
                 #query = query.union(query2).order_by('~id')
             else:
+                print 'no'
                 query = Pomain.objects.all().filter(isdeleted=0)
         else:
             if self.request.user.has_perm('purchaseorder.approve_allpo'):
