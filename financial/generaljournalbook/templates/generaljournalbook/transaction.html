@@ -90,21 +90,36 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-sm-2">
-                            <label class="control-label small">Payee Code</label><br>
-                            <input type="text" class="form-control input-sm" id="payeecode">
+                        <div class="col-md-12">
+                            <div class="form-group col-sm-2">
+                                <label class="control-label small">Payee Code</label><br>
+                                <input type="text" class="form-control input-sm" id="payeecode">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Payee Name</label><br>
+                                <input type="text" class="form-control input-sm" id="payeename">
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <a class="btn btn-primary waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-search-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
+                                </a>
+                                <a class="btn btn-info waves-effect waves-dark" id="excel" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
+                                </a>
+                            </div>
                         </div>
-                        <div class="form-group col-sm-4">
-                            <label class="control-label small">Payee Name</label><br>
-                            <input type="text" class="form-control input-sm" id="payeename">
-                        </div>
-                        <div class="form-group col-sm-3">
-                            <a class="btn btn-primary waves-effect waves-dark" id="generate" style="margin-top: 22px; width: 30%;">
-                                <i class="icon fa-file-search-o" aria-hidden="true"></i>&nbsp;&nbsp;Generate
-                            </a>
-                            <a class="btn btn-info waves-effect waves-dark" id="excel" style="margin-top: 22px; width: 30%;">
-                                <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
-                            </a>
+                    </div>
+                    <div class="row" style="border: 2px dotted #ccc">
+                        <div class="col-md-12">
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Beg Balance: <span id="begbal"></span></label><br>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">End Balance: <span id="endbal"></span></label><br>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label class="control-label small">Balance Code: <span id="endcode"></span></label><br>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,8 +159,15 @@
             var chart = $('#chart').val();
             var transtatus = $('#transtatus').val();
             var status = $('#status').val();
+            var payeecode = $('#payeecode').val();
+            var payeename = $('#payeename').val();
 
-            url = "{% url 'generaljournalbook:transexcel' %}"+"?chart="+chart+"&transtatus="+transtatus+"&status="+status+"&dfrom="+dfrom+"&dto="+dto;
+            if (dfrom == '' || dto == '' || chart == '') {
+                alert('Transaction Date and Chart of Account must not be empty');
+                return false;
+            }
+
+            url = "{% url 'generaljournalbook:transexcel' %}"+"?chart="+chart+"&transtatus="+transtatus+"&status="+status+"&dfrom="+dfrom+"&dto="+dto+"&payeecode="+payeecode+"&payeename="+payeename;
             window.open(url);
         });
 
@@ -158,8 +180,8 @@
             var payeecode = $('#payeecode').val();
             var payeename = $('#payeename').val();
 
-            if (dfrom == '' || dto == '') {
-                alert('Transaction Date must not be empty');
+            if (dfrom == '' || dto == '' || chart == '') {
+                alert('Transaction Date and Chart of Account must not be empty');
                 return false;
             }
 
@@ -181,6 +203,9 @@
                 },
                 success: function(response) {
                     $("#iframe_preview").html(response['viewhtml']);
+                    $("#begbal").text(response['begbal'].toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    $("#endbal").text(response['endbal'].toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                    $("#endcode").text(response['endcode']);
                 }
             });
         });
