@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^get_branch/$', views.get_branch, name='get_branch'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
     url(r'^pdf2/$', views.GeneratePDF2.as_view(), name='pdf2'),
+    url(r'^inquiry/$', views.InquiryView.as_view(), name='inquiry'),
+    url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
 ]
