@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^pdf2/$', views.GeneratePDF2.as_view(), name='pdf2'),
     url(r'^inquiry/$', views.InquiryView.as_view(), name='inquiry'),
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
+    url(r'^transexcel/$', views.GenerateTransExcel.as_view(), name='transexcel'),
 ]

@@ -22,6 +22,8 @@ from companyparameter.models import Companyparameter
 from django.template.loader import render_to_string
 from django.db.models.lookups import MonthTransform as Month, YearTransform as Year
 from datetime import timedelta
+import io
+import xlsxwriter
 
 
 # Create your views here.
@@ -255,11 +257,6 @@ def transgenerate(request):
         adtransnet = float(adtrans.debitamount) - float(adtrans.creditamount)
         adtranscode = adtrans.balcode
 
-    print adtransnet
-    print adtranscode
-    print begbal.beg_code
-    print begbal.beg_amount
-
     begcode = 'D'
     if begbal:
         if begbal.beg_code != adtranscode:
@@ -413,4 +410,166 @@ def namedtuplefetchall(cursor):
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
+
+@method_decorator(login_required, name='dispatch')
+class GenerateTransExcel(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+        bankaccount = request.GET["bankaccount"]
+
+        context = {}
+
+        print "transaction listing"
+
+        ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+        todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        toyear = todate.year
+        tomonth = todate.month
+        nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+        fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+        adfromdate = datetime.datetime.strptime(dfrom, "%Y-%m-%d") - timedelta(days=1)
+        fromyear = fromdate.year
+        frommonth = fromdate.month
+
+        prevdate = datetime.date(int(fromyear), int(frommonth), 10) - timedelta(days=15)
+        prevyear = prevdate.year
+        prevmonth = prevdate.month
+
+        if prevmonth != 12:
+            prevyear = prevdate.year - 1
+
+        begbalamount = 0
+        endbalamount = 0
+        endcode = 'D'
+
+        cashinbank = 30
+
+        data = query_transaction(dto, dfrom, cashinbank, bankaccount)
+
+        totaldebit = 0
+        totalcredit = 0
+        netamount = 0
+        netcode = 'C'
+        for item in data:
+            totaldebit += item.debitamount
+            totalcredit += item.creditamount
+
+        if totaldebit >= totalcredit:
+            netcode = 'D'
+        netamount = totaldebit - totalcredit
+        print netamount
+
+        begbal = Bankaccountsummary.objects.filter(year=prevyear, bankaccount_id=bankaccount).first()
+        adtrans = query_sumtransaction(adfromdate, str(nfrom.year) + '-01-01', cashinbank, bankaccount)
+        adtransnet = 0
+        adtranscode = 'D'
+        for adtrans in adtrans:
+            adtransnet = float(adtrans.debitamount) - float(adtrans.creditamount)
+            adtranscode = adtrans.balcode
+
+        begcode = 'D'
+        if begbal:
+            if begbal.beg_code != adtranscode:
+                begbalamount = float(begbal.beg_amount) - float(abs(adtransnet))
+            else:
+                begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
+            if begbal.beg_amount >= adtransnet:
+                begcode = begbal.beg_code
+            else:
+                begcode = begbal.adtranscode
+
+        if begcode == 'C':
+            endbalamount = (float(begbalamount) * -1) + float(netamount)
+        else:
+            endbalamount = float(begbalamount) + float(netamount)
+
+        if float(endbalamount) < 0:
+            endcode = 'C'
+
+        result = query_transaction(dto, dfrom, cashinbank, bankaccount)
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # variables
+        bold = workbook.add_format({'bold': 1})
+        formatdate = workbook.add_format({'num_format': 'yyyy/mm/dd'})
+        centertext = workbook.add_format({'bold': 1, 'align': 'center'})
+
+        # title
+        worksheet.write('A1', 'BANK ACCOUNT INQUIRY', bold)
+        worksheet.write('A2', 'AS OF '+str(dfrom)+' to '+str(dto), bold)
+
+        worksheet.write('A3', 'BEG BALANCE', bold)
+        worksheet.write('B3', float(format(begbalamount, '.2f')), bold)
+        worksheet.write('C3', 'END BALANCE', bold)
+        worksheet.write('D3', float(format(endbalamount, '.2f')), bold)
+
+        # header
+        worksheet.write('A5', 'Type', bold)
+        worksheet.write('B5', 'Number', bold)
+        worksheet.write('C5', 'Date', bold)
+        worksheet.write('D5', 'Particulars', bold)
+        worksheet.write('E5', 'Account Code', bold)
+        worksheet.write('F5', 'Description', bold)
+        worksheet.write('G5', 'Debit Amount', bold)
+        worksheet.write('H5', 'Credit Amount', bold)
+
+        row = 5
+        col = 0
+
+        for data in result:
+
+            worksheet.write(row, col + 1, data.tran, formatdate)
+            worksheet.write(row, col + 2, data.tnum, formatdate)
+            worksheet.write(row, col + 3, data.tdate, formatdate)
+            worksheet.write(row, col + 4, data.particulars)
+            worksheet.write(row, col + 5, data.accountcode)
+            worksheet.write(row, col + 6, data.chartofaccount)
+            worksheet.write(row, col + 7, float(format(data.debitamount, '.2f')))
+            worksheet.write(row, col + 8, float(format(data.creditamount, '.2f')))
+
+            row += 1
+
+        # total = float(debit) - float(credit)
+        # totalvariance = float(totalbudget) - float(total)
+        #
+        worksheet.write(row, col + 6, 'Total', bold)
+        worksheet.write(row, col + 7, float(format(totaldebit, '.2f')), bold)
+        worksheet.write(row, col + 8, float(format(totalcredit, '.2f')), bold)
+
+        worksheet.write(row+1, col + 6, 'NET Amount', bold)
+        if totaldebit > totalcredit:
+            worksheet.write(row+1, col + 7, float(format(netamount, '.2f')), bold)
+            worksheet.write(row+1, col + 8, float(format(0, '.2f')), bold)
+        else:
+            worksheet.write(row + 1, col + 7, float(format(0, '.2f')), bold)
+            worksheet.write(row + 1, col + 8, float(format(netamount, '.2f')), bold)
+
+        # worksheet.write('A5', 'Budget Amount', bold)
+        # worksheet.write('B5', float(format(totalbudget, '.2f')), bold)
+        # worksheet.write('C5', 'Actual Amount', bold)
+        # worksheet.write('D5', float(format(total, '.2f')), bold)
+        # worksheet.write('E5', 'Variance Amount', bold)
+        # worksheet.write('F5', float(format(totalvariance, '.2f')), bold)
+
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = "bankaccountinquiry.xlsx"
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
 

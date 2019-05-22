@@ -121,14 +121,14 @@
         $('#excel').on('click', function() {
             var dfrom = $('#dfrom').val();
             var dto = $('#dto').val();
-            var bankaccount = $('#chart').val();
+            var bankaccount = $('#bankaccount').val();
 
             if (dfrom == '' || dto == '' || bankaccount == '') {
                 alert('Transaction Date and Bank Account must not be empty');
                 return false;
             }
 
-            url = "{% url 'generaljournalbook:transexcel' %}"+"?chart="+chart+"&transtatus="+transtatus+"&status="+status+"&dfrom="+dfrom+"&dto="+dto+"&payeecode="+payeecode+"&payeename="+payeename;
+            url = "{% url 'bankaccount:transexcel' %}"+"?bankaccount="+bankaccount+"&dfrom="+dfrom+"&dto="+dto;
             window.open(url);
         });
 
