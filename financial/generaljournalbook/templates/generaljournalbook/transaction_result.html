@@ -14,9 +14,10 @@
                     <th>Date</th>
                     <th style="width:350px;">Particulars</th>
                     <th>Account Code</th>
-                    <th>Decription</th>
+                    <th>Description</th>
                     <th>Debit Amount</th>
                     <th>Credit Amount</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,9 +28,10 @@
                 <td class="text-left">{{ item.tdate }}</td>
                 <td class="text-left">{{ item.particulars }}</td>
                 <td class="text-left">{{ item.accountcode }}</td>
-                <td class="text-left">{{ item.chartofaccount }}</td>
+                <td class="text-left">{{ item.chartofaccount }} {{ item.payee_name }}</td>
                 <td class="text-right">{{ item.debitamount|floatformat:2|intcomma }}</td>
                 <td class="text-right">{{ item.creditamount|floatformat:2|intcomma }}</td>
+                <td class="text-left">{{ item.status }}</td>
             </tr>
             {% endfor %}
             </tbody>
