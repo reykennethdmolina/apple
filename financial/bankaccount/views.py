@@ -332,7 +332,7 @@ def query_sumtransaction(dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             + str(chart_condition) + " " + str(chart_bankaccount)+") AS z "
-    #print query
+    print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -482,6 +482,7 @@ class GenerateTransExcel(View):
 
         if begcode == 'C':
             endbalamount = (float(begbalamount) * -1) + float(netamount)
+            begbalamount = (float(begbalamount) * -1)
         else:
             endbalamount = float(begbalamount) + float(netamount)
 
