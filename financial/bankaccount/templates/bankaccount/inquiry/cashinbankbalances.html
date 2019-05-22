@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LETTER PORTRAIT;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 4.5cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5cm; left: 1cm; width: 19.5cm; height: 23cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+            </tr>
+           <tr>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="75%"><p class="title">{{ title|upper }} AS OF {{ today|date:'F d, Y'|upper }}</p></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align:left;width:150px">Bank Account</th>
+                    <th style="text-align:left;width:350px">Bank Description</th>
+                    <th style="text-align:right;width:180px">Debit</th>
+                    <th style="text-align:right;width:180px">Credit</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<table id="content-data">
+    <tbody>
+    {% for item in list %}
+        <tr>
+            <td style="text-align:left;width:150px">{{ item.code|upper }}</td>
+            <td style="text-align:left;width:350px">{{ item.bankcode|upper }} {{ item.bankaccounttype }} #{{ item.accountnumber }}</td>
+            {% if item.endcode == 'D' %}
+                <td style="text-align:right;width:180px">{{ item.endamount|default:""|floatformat:2|intcomma }}</td>
+                <td style="text-align:right;width:180px"></td>
+            {% else %}
+                <td style="text-align:right;width:180px"></td>
+                <td style="text-align:right;width:180px">{{ item.endamount|default:""|floatformat:2|intcomma }}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    <tr>
+        <th style="text-align:left;width:150px"></th>
+        <th style="text-align:righ;width:350px">Total</th>
+        <th style="text-align:right;width:180px">{{ total.debit|default:""|floatformat:2|intcomma }}</th>
+        <th style="text-align:right;width:180px">{{ total.credit|default:""|floatformat:2|intcomma }}</th>
+    </tr>
+    <tr style="font-size:15px    ">
+        <th style="text-align:left;width:150px"></th>
+        <th style="text-align:righ;width:350px">Grand Total</th>
+        {% if total.debit > total.credit %}
+            <th style="text-align:right;width:180px">{{ total.grandtotal|default:""|floatformat:2|intcomma }}</th>
+            <th></th>
+        {% else %}
+            <th></th>
+            <th style="text-align:right;width:180px">{{ total.grandtotal|default:""|floatformat:2|intcomma }}</th>
+        {% endif %}
+    </tr>
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
+
+</body>
+</html>

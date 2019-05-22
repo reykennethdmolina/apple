@@ -73,6 +73,9 @@
                                 <a class="btn btn-info waves-effect waves-dark" id="excel" style="margin-top: 22px; width: 30%;">
                                     <i class="icon fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Excel
                                 </a>
+                                <a class="btn btn-primary waves-effect waves-dark" id="generatesummary" style="margin-top: 22px; width: 30%;">
+                                    <i class="icon fa-file-search-o" aria-hidden="true"></i>&nbsp;&nbsp;Summary
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -130,6 +133,20 @@
 
             url = "{% url 'bankaccount:transexcel' %}"+"?bankaccount="+bankaccount+"&dfrom="+dfrom+"&dto="+dto;
             window.open(url);
+        });
+
+        $('#generatesummary').on('click', function() {
+            var dfrom = $('#dfrom').val();
+            var dto = $('#dto').val();
+
+            if (dfrom == '' || dto == '') {
+                alert('Transaction Date must not be empty');
+                return false;
+            }
+
+            url = "{% url 'bankaccount:summarytranspdf' %}"+"?dfrom="+dfrom+"&dto="+dto;
+            window.open(url, '_blank');
+
         });
 
         $('#generate').on('click', function() {

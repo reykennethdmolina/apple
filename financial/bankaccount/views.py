@@ -278,6 +278,7 @@ def transgenerate(request):
 
     context['result'] = query_transaction(dto, dfrom, cashinbank, bankaccount)
     context['dfrom'] = dfrom
+    context['dto'] = dto
     context['totaldebit'] = totaldebit
     context['totalcredit'] = totalcredit
     context['netamount'] = abs(netamount)
@@ -332,7 +333,7 @@ def query_sumtransaction(dto, dfrom, chart, bankaccount):
             "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
             "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
             + str(chart_condition) + " " + str(chart_bankaccount)+") AS z "
-    print query
+    #print query
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
 
@@ -537,9 +538,6 @@ class GenerateTransExcel(View):
 
             row += 1
 
-        # total = float(debit) - float(credit)
-        # totalvariance = float(totalbudget) - float(total)
-        #
         worksheet.write(row, col + 6, 'Total', bold)
         worksheet.write(row, col + 7, float(format(totaldebit, '.2f')), bold)
         worksheet.write(row, col + 8, float(format(totalcredit, '.2f')), bold)
@@ -551,13 +549,6 @@ class GenerateTransExcel(View):
         else:
             worksheet.write(row + 1, col + 7, float(format(0, '.2f')), bold)
             worksheet.write(row + 1, col + 8, float(format(netamount, '.2f')), bold)
-
-        # worksheet.write('A5', 'Budget Amount', bold)
-        # worksheet.write('B5', float(format(totalbudget, '.2f')), bold)
-        # worksheet.write('C5', 'Actual Amount', bold)
-        # worksheet.write('D5', float(format(total, '.2f')), bold)
-        # worksheet.write('E5', 'Variance Amount', bold)
-        # worksheet.write('F5', float(format(totalvariance, '.2f')), bold)
 
         workbook.close()
 
@@ -573,4 +564,120 @@ class GenerateTransExcel(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return response
+
+
+@method_decorator(login_required, name='dispatch')
+class GenerateSummaryTransPDF(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        dto = request.GET["dto"]
+        dfrom = request.GET["dfrom"]
+
+        print "transaction listing"
+
+        ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+        todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+        toyear = todate.year
+        tomonth = todate.month
+        nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+        fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+        adfromdate = datetime.datetime.strptime(dfrom, "%Y-%m-%d") - timedelta(days=1)
+        fromyear = fromdate.year
+        frommonth = fromdate.month
+
+        prevdate = datetime.date(int(fromyear), int(frommonth), 10) - timedelta(days=15)
+        prevyear = prevdate.year
+        prevmonth = prevdate.month
+
+        if prevmonth != 12:
+            prevyear = prevdate.year - 1
+
+        cashinbank = 30
+        data = query_cashinbanktransaction(prevyear, dto, str(nfrom.year) + '-01-01', cashinbank, '')
+
+        debit = 0
+        credit = 0
+        grandtotal = 0
+        for l in data:
+            if l.endcode == 'D':
+                debit += l.endamount
+            else:
+                credit += l.endamount
+
+        grandtotal = abs(debit - credit)
+
+        total = {'debit': debit, 'credit': credit, 'grandtotal': grandtotal}
+
+        context = {
+            "title": "Cash In Bank Balances",
+            "today": datetime.datetime.strptime(dto, "%Y-%m-%d"),
+            "company": company,
+            "list": data,
+            "total": total,
+            "username": request.user,
+        }
+        return Render.render('bankaccount/inquiry/cashinbankbalances.html', context)
+
+def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
+    dfrom  = str(dfrom)[0:11]
+    print "Transaction Query"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    chart_condition = ''
+    chart_bankaccount = ''
+
+    if chart != '':
+        chart_condition = "AND m.status = 'O' AND d.chartofaccount_id = '" + str(chart) + "'"
+    if bankaccount != '':
+        chart_bankaccount = "AND d.bankaccount_id = '" + str(bankaccount) + "'"
+
+    query = "SELECT b.id, bank.code AS bankcode, bankaccounttype.description AS bankaccounttype, b.code, b.bankaccounttype_id, bs.accountnumber, IFNULL(bs.beg_amount, 0) AS beg_amount, bs.beg_code, bs.year, " \
+            "IFNULL(adtran.debitamount, 0) AS debitamount, IFNULL(adtran.creditamount, 0) AS creditamount, IFNULL(adtran.balcode, 'D') AS balcode, " \
+            "IFNULL(adtran.netamount, 0) AS netamount, " \
+            "IF (bs.beg_code = 'D' && IFNULL(adtran.balcode, 'D') = 'D' || bs.beg_code = 'C' && IFNULL(adtran.balcode, 'D') = 'C', (ABS(IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)), (IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)) AS endamount," \
+            "IF ((IFNULL(bs.beg_amount, 0) + IFNULL(adtran.netamount, 0)) > 0, 'D', 'C') AS endcode " \
+            "FROM bankaccount AS b " \
+            "LEFT OUTER JOIN bankaccountsummary AS bs ON (bs.bankaccount_id = b.id AND bs.year = "+str(prevyear)+") " \
+            "LEFT OUTER JOIN ( " \
+            "SELECT IFNULL(SUM(z.debitamount), 0) AS debitamount, IFNULL(SUM(z.creditamount), 0) AS creditamount, " \
+            "(IFNULL(SUM(z.debitamount), 0) -  IFNULL(SUM(z.creditamount), 0)) AS netamount, " \
+            "IF (IFNULL(SUM(z.debitamount), 0) >= IFNULL(SUM(z.creditamount), 0), 'D', 'C') AS balcode, z.bankaccount_id " \
+            "FROM ( " \
+            "SELECT 'AP' AS tran, d.item_counter, d.ap_num, d.ap_date, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
+            "FROM apdetail AS d " \
+            "LEFT OUTER JOIN apmain AS m ON m.id = d.apmain_id " \
+            "WHERE DATE(d.ap_date) >= '"+str(dfrom)+"' AND DATE(d.ap_date) <= '"+str(dto)+"' " \
+            +str(chart_condition)+" "+str(chart_bankaccount)+"" \
+            "UNION " \
+            "SELECT 'CV' AS tran, d.item_counter, d.cv_num, d.cv_date, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
+            "FROM cvdetail AS d " \
+            "LEFT OUTER JOIN cvmain AS m ON m.id = d.cvmain_id " \
+            "WHERE DATE(d.cv_date) >= '"+str(dfrom)+"' AND DATE(d.cv_date) <= '"+str(dto)+"' " \
+            + str(chart_condition) + " " + str(chart_bankaccount) + "" \
+            "UNION " \
+            "SELECT 'JV' AS tran, d.item_counter, d.jv_num, d.jv_date, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
+            "FROM jvdetail AS d " \
+            "LEFT OUTER JOIN jvmain AS m ON m.id = d.jvmain_id " \
+            "WHERE DATE(d.jv_date) >= '"+str(dfrom)+"' AND DATE(d.jv_date) <= '"+str(dto)+"' " \
+            + str(chart_condition) + " " + str(chart_bankaccount) + "" \
+            "UNION " \
+            "SELECT 'OR' AS tran, d.item_counter, m.ornum, m.ordate, d.debitamount, d.creditamount, d.balancecode, d.bankaccount_id " \
+            "FROM ormain AS m " \
+            "LEFT OUTER JOIN ordetail AS d ON m.id = d.ormain_id " \
+            "WHERE DATE(m.ordate) >= '"+str(dfrom)+"' AND DATE(m.ordate) <= '"+str(dto)+"' " \
+            + str(chart_condition) + " " + str(chart_bankaccount) + "" \
+            ") AS z " \
+            "GROUP BY z.bankaccount_id ) AS adtran ON adtran.bankaccount_id = b.id " \
+            "LEFT OUTER JOIN bankaccounttype AS bankaccounttype ON bankaccounttype.id = b.bankaccounttype_id " \
+            "LEFT OUTER JOIN bank AS bank ON bank.id = b.bank_id " \
+            "WHERE b.isdeleted = 0 ORDER BY b.code"
+
+    #print query
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    return result
+
+
 
