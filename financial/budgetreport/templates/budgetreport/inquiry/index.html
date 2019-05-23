@@ -133,7 +133,7 @@
                 return false;
             }
 
-            url = "{% url 'budgetreport:summarytranspdf' %}"+"?dfrom="+dfrom+"&dto="+dto+"&chart="+chart+"&department="+department;
+            url = "{% url 'budgetreport:transexcel' %}"+"?dfrom="+dfrom+"&dto="+dto+"&chart="+chart+"&department="+department;
             window.open(url);
         });
 
