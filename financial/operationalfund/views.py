@@ -357,7 +357,7 @@ class CreateViewUser(CreateView):
                     self.object.save()
 
                     ''' Send Email Notifacation '''
-                    sendNotif(self.object)
+                    #sendNotif(self.object)
 
                     return HttpResponseRedirect('/operationalfund/' + str(self.object.id) + '/userupdate/')
                 else:
