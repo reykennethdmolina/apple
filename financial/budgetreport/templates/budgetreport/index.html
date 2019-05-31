@@ -21,21 +21,22 @@
                         <div class="form-group col-sm-3">
                             <label class="control-label small">Report Type</label>
                             <select class="form-control input-sm" id="report_type">
-                                <option value="1">Budget Performance On Fixed Operating Expenses</option>
-                                <option value="2">Budget Status by Department/Section</option>
-                                <option value="3">Budget Status by Group</option>
-                                <option value="4">Budget Status by Product</option>
-                                <option value="5">Budget Status Summary by Group</option>
-                                <option value="6">Scheduled of Budget</option>
+                                <option value="1">Budget Status by Department/Section</option>
+                                <!--<option value="1">Budget Performance On Fixed Operating Expenses</option>-->
+                                <!--<option value="2">Budget Status by Department/Section</option>-->
+                                <!--<option value="3">Budget Status by Group</option>-->
+                                <!--<option value="4">Budget Status by Product</option>-->
+                                <!--<option value="5">Budget Status Summary by Group</option>-->
+                                <!--<option value="6">Scheduled of Budget</option>-->
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
-                            <label class="control-label small">Pick Filter</label>
+                            <label class="control-label small">Expense</label>
                             <select class="form-control input-sm" id="filter">
                                 <option value="">-- Select --</option>
-                                <option value="1">Cost of Sales</option>
-                                <option value="2">General & Administrative</option>
-                                <option value="2">Selling</option>
+                                {% for data in expense %}
+                                    <option value="{{ data.id }}">{{ data.accountcode }} - {{ data.description }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-group col-sm-3">
@@ -123,7 +124,30 @@ $(function(){
         var department = $('#department').val();
         var product = $('#product').val();
 
+        if (date_from == '' || date_to == '' || filter == '') {
+            alert('Transaction Date and Expense must not be empty');
+            return false;
+        }
+
         url = "{% url 'budgetreport:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&filter="+filter+"&type="+type+"&department="+department+"&product="+product;
+        $('#result').prop('src', url);
+    });
+
+    $('#generatexls').click(function(){
+        var report = $('#report_type').val();
+        var date_from = $('#dfrom').val();
+        var date_to = $('#dto').val();
+        var filter = $('#filter').val();
+        var type = $("#type[type='radio']:checked").val();
+        var department = $('#department').val();
+        var product = $('#product').val();
+
+        if (date_from == '' || date_to == '' || filter == '') {
+            alert('Transaction Date and Expense must not be empty');
+            return false;
+        }
+
+        url = "{% url 'budgetreport:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&filter="+filter+"&type="+type+"&department="+department+"&product="+product;
         $('#result').prop('src', url);
     });
 
