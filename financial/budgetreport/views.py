@@ -868,10 +868,10 @@ class GeneratePDF(View):
         if report == '1':
             if type == '2':
                 list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
-                title = "Budget Report - Department/Section - Detailed"
+                title = "Schedule of Expenses - Department/Section - Detailed"
             else:
                 list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
-                title = "Budget Report - Department/Section - Summary"
+                title = "Schedule of Expenses - Department/Section - Summary"
 
         context = {
             "title": title,
@@ -946,19 +946,19 @@ class GenerateExcel(View):
             typetext = "Detailed"
 
         list = []
-        filename = "departmentbudget.xlsx"
+        filename = "schedexpensesdepartmentbudget.xlsx"
 
         if report == '1':
             if type == '2':
                 list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
-                title = "Budget Report - Department/Section - Detailed"
-                filename = "budgetreport-department-detailed.xlsx"
+                title = "Schedule of Expenses - Department/Section - Detailed"
+                filename = "schedexpenses-budgetreport-department-detailed.xlsx"
             else:
                 list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
-                title = "Budget Report - Department/Section - Summary"
-                filename = "budgetreport-department-summary.xlsx"
+                title = "Schedule of Expenses - Department/Section - Summary"
+                filename = "schedexpenses-budgetreport-department-summary.xlsx"
 
         # Create an in-memory output file for the new workbook.
         output = io.BytesIO()
@@ -991,100 +991,32 @@ class GenerateExcel(View):
 
             row = 6
             col = 0
-            if type == '1':
-                print 'summary'
-                for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
 
-                    worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
-                    row += 1
-
-                    totalcuramount = 0
-                    totalprevamount = 0
-                    totalytdamount = 0
-                    totalvaramount = 0
-                    totalvarpercent = 0
-                    for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
-                        worksheet.write(row, col, str(group[0]), bold)
-                        row += 1
-                        for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
-                            worksheet.write(row, col, '  '+str(head[0]), bold)
-                            row += 1
-                            subcuramount = 0
-                            subprevamount = 0
-                            subytdamount = 0
-                            subvaramount = 0
-                            subvarpercent = 0
-                            for data, item in headgroup.iterrows():
-                                worksheet.write(row, col, '   '+str(item.csubheaddescription))
-                                worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
-                                worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
-                                worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
-                                worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
-                                worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
-                                subcuramount += item.curamount
-                                subprevamount += item.prevamount
-                                subytdamount += item.ytdamount
-                                subvaramount += item.varamount
-                                row += 1
-
-                            if subprevamount > 0:
-                                subvarpercent = (subvaramount/subprevamount) * 100
-
-                            worksheet.write(row, col, '  Subtotal - '+str(head[0]))
-                            worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
-                            worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
-                            worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
-                            worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
-                            worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
-
-                            totalcuramount += subcuramount
-                            totalprevamount += subprevamount
-                            totalytdamount += subytdamount
-                            totalvaramount += subvaramount
-
-                            row += 1
-
-                    if totalprevamount > 0:
-                        totalvarpercent = (totalvaramount / totalprevamount) * 100
-
-                    worksheet.write(row, col, 'Total - ' + str(group[0]))
-                    worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
-                    worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
-                    worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
-                    worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
-                    worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
-                    row += 1
-                    row += 1
-            else:
-                print 'detailed'
-                for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
-
-                    worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
-                    row += 1
-
-                    totalcuramount = 0
-                    totalprevamount = 0
-                    totalytdamount = 0
-                    totalvaramount = 0
-                    totalvarpercent = 0
-                    for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
-                        worksheet.write(row, col, str(group[0]), bold)
+                        worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
                         row += 1
 
-                        for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
-                            worksheet.write(row, col, '  '+str(head[0]), bold)
+                        totalcuramount = 0
+                        totalprevamount = 0
+                        totalytdamount = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
                             row += 1
-
-                            subcuramount = 0
-                            subprevamount = 0
-                            subytdamount = 0
-                            subvaramount = 0
-                            subvarpercent = 0
-                            for subhead, subheadgroup in headgroup.fillna('NaN').groupby(['csubheadtitle', 'csubheaddescription']):
-                                worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  '+str(head[0]), bold)
                                 row += 1
-                                for data, item in subheadgroup.iterrows():
-                                    worksheet.write(row, col, '    ' + str(item.description))
+                                subcuramount = 0
+                                subprevamount = 0
+                                subytdamount = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                for data, item in headgroup.iterrows():
+                                    worksheet.write(row, col, '   '+str(item.csubheaddescription))
                                     worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
                                     worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
                                     worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
@@ -1096,26 +1028,27 @@ class GenerateExcel(View):
                                     subvaramount += item.varamount
                                     row += 1
 
-                            if subprevamount > 0:
-                                subvarpercent = (subvaramount/subprevamount) * 100
+                                if subprevamount > 0:
+                                    subvarpercent = (subvaramount/subprevamount) * 100
 
-                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
-                            worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
-                            worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
-                            worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
-                            worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
-                            worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+                                worksheet.write(row, col, '  Subtotal - '+str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
 
-                            totalcuramount += subcuramount
-                            totalprevamount += subprevamount
-                            totalytdamount += subytdamount
-                            totalvaramount += subvaramount
-                            row += 1
+                                totalcuramount += subcuramount
+                                totalprevamount += subprevamount
+                                totalytdamount += subytdamount
+                                totalvaramount += subvaramount
+
+                                row += 1
 
                         if totalprevamount > 0:
                             totalvarpercent = (totalvaramount / totalprevamount) * 100
 
-                        worksheet.write(row, col, '  Total - ' + str(group[0]))
+                        worksheet.write(row, col, 'Total - ' + str(group[0]))
                         worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
                         worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
                         worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
@@ -1123,6 +1056,74 @@ class GenerateExcel(View):
                         worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
                         row += 1
                         row += 1
+                else:
+                    print 'detailed'
+                    for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+
+                        worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
+                        row += 1
+
+                        totalcuramount = 0
+                        totalprevamount = 0
+                        totalytdamount = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  '+str(head[0]), bold)
+                                row += 1
+
+                                subcuramount = 0
+                                subprevamount = 0
+                                subytdamount = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                for subhead, subheadgroup in headgroup.fillna('NaN').groupby(['csubheadtitle', 'csubheaddescription']):
+                                    worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                    row += 1
+                                    for data, item in subheadgroup.iterrows():
+                                        worksheet.write(row, col, '    ' + str(item.description))
+                                        worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
+                                        worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
+                                        worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
+                                        worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
+                                        worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
+                                        subcuramount += item.curamount
+                                        subprevamount += item.prevamount
+                                        subytdamount += item.ytdamount
+                                        subvaramount += item.varamount
+                                        row += 1
+
+                                if subprevamount > 0:
+                                    subvarpercent = (subvaramount/subprevamount) * 100
+
+                                worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+
+                                totalcuramount += subcuramount
+                                totalprevamount += subprevamount
+                                totalytdamount += subytdamount
+                                totalvaramount += subvaramount
+                                row += 1
+
+                            if totalprevamount > 0:
+                                totalvarpercent = (totalvaramount / totalprevamount) * 100
+
+                            worksheet.write(row, col, '  Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                            row += 1
+                            row += 1
 
         workbook.close()
 

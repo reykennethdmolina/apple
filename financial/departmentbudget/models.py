@@ -64,10 +64,10 @@ class Departmentbudget(models.Model):
         return reverse('departmentbudget:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.code
+        return unicode(self.pk)
 
     def __unicode__(self):
-        return self.code
+        return unicode(self.pk)
 
     def status_verbose(self):
         return dict(Departmentbudget.STATUS_CHOICES)[self.status]

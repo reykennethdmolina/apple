@@ -347,6 +347,10 @@ def fileupload(request):
                             for line in textFile:
                                 orcount += 1
                                 data = line.split("\t")
+
+                                print 'len'
+                                print len(data)
+
                                 for n, i in enumerate(data):
                                     data[n] = data[n].replace('"', '')
 
@@ -622,94 +626,96 @@ def exportsave(request):
                         if temp_ormain.accounttype == 'a':
                             # transfer ordetails
                             ordetail = Logs_ordetail.objects.filter(importstatus='S', batchkey=request.POST['batchkey'], orno=data.orno)
-                            for data_d in ordetail:
-                                Temp_ordetail.objects.create(
-                                    orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                    adtypecode=data_d.adtype,
-                                    amount=data_d.assignamount,
-                                    vatamount=data_d.assignvatamount,
-                                    creditamount=data_d.assignamount,
-                                    balancecode='C',
-                                    chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
-                                    payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
-                                    payeename=data.payeename,
-                                    batchkey=data.batchkey,
-                                    postingremarks='Processing...',
-                                ).save()
+                            totalamount = 0
+                            if ordetail:
+                                for data_d in ordetail:
+                                    Temp_ordetail.objects.create(
+                                        orno=data_d.orno,
+                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                        adtypecode=data_d.adtype,
+                                        amount=data_d.assignamount,
+                                        vatamount=data_d.assignvatamount,
+                                        creditamount=data_d.assignamount,
+                                        balancecode='C',
+                                        chartofaccountcode=Adtype.objects.get(code=data_d.adtype).chartofaccount_arcode.pk,
+                                        payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                                        payeename=data.payeename,
+                                        batchkey=data.batchkey,
+                                        postingremarks='Processing...',
+                                    ).save()
 
-                                if data_d.vatrate > 0:
-                                    vatable = float(vatable) + float(data_d.assignamount)
-                                elif data_d.vatcode == 'VE':
-                                    vatexempt = float(vatexempt) + float(data_d.assignamount)
-                                elif data_d.vatcode == 'ZE':
-                                    vatzerorated = float(vatzerorated) + float(data_d.assignamount)
+                                    if data_d.vatrate > 0:
+                                        vatable = float(vatable) + float(data_d.assignamount)
+                                    elif data_d.vatcode == 'VE':
+                                        vatexempt = float(vatexempt) + float(data_d.assignamount)
+                                    elif data_d.vatcode == 'ZE':
+                                        vatzerorated = float(vatzerorated) + float(data_d.assignamount)
 
-                                # do vat here
-                                Temp_ordetail.objects.create(
-                                    orno=data_d.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                    creditamount=data_d.assignvatamount,
-                                    balancecode='C',
-                                    chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                                    vatrate=float(data_d.vatrate),
-                                    vatcode=data_d.vatcode,
-                                    outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
-                                    payeecode=temp_ormain.payeecode,
-                                    batchkey=data.batchkey,
-                                    postingremarks='Processing...',
-                                ).save()
+                                    # do vat here
+                                    Temp_ordetail.objects.create(
+                                        orno=data_d.orno,
+                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                        creditamount=data_d.assignvatamount,
+                                        balancecode='C',
+                                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                        vatrate=float(data_d.vatrate),
+                                        vatcode=data_d.vatcode,
+                                        outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                        payeecode=temp_ormain.payeecode,
+                                        batchkey=data.batchkey,
+                                        postingremarks='Processing...',
+                                    ).save()
 
-                                vatamount = float(vatamount) + float(data_d.assignvatamount)
+                                    vatamount = float(vatamount) + float(data_d.assignvatamount)
 
-                                remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
-                                totalamount = format(float(data_d.assignamount) + float(data_d.assignvatamount), ',')
-                                remainingamount = float(format(remainingamount, '.2f'))
+                                    remainingamount = remainingamount - (float(data_d.assignamount) + float(data_d.assignvatamount))
+                                    totalamount = format(float(data_d.assignamount) + float(data_d.assignvatamount), ',')
+                                    remainingamount = float(format(remainingamount, '.2f'))
 
-                            # transfer leftovers
-                            if remainingamount > 0:
-                                log_remarks = "Has partially applied: <b>" + str(totalamount) + "</b><br>"
-                                leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
-                                leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
-                                Temp_ordetail.objects.create(
-                                    orno=data.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                    adtypecode=data.adtype,
-                                    amount=leftover_amount,
-                                    vatamount=leftover_vatamount,
-                                    creditamount=leftover_amount,
-                                    balancecode='C',
-                                    chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
-                                    payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
-                                    payeename=data.payeename,
-                                    batchkey=data.batchkey,
-                                    postingremarks='Processing...',
-                                ).save()
-                                if data_d.vatrate > 0:
-                                    vatable = float(vatable) + float(leftover_amount)
-                                elif data_d.vatcode == 'VE':
-                                    vatexempt = float(vatexempt) + float(leftover_amount)
-                                elif data_d.vatcode == 'ZE':
-                                    vatzerorated = float(vatzerorated) + float(leftover_amount)
+                                # transfer leftovers
+                                if remainingamount > 0:
+                                    log_remarks = "Has partially applied: <b>" + str(totalamount) + "</b><br>"
+                                    leftover_amount = float(format(remainingamount / (1 + (float(data.vatrate) * 0.01)), '.2f'))
+                                    leftover_vatamount = float(format(leftover_amount * (float(data.vatrate) * 0.01), '.2f'))
+                                    Temp_ordetail.objects.create(
+                                        orno=data.orno,
+                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                        adtypecode=data.adtype,
+                                        amount=leftover_amount,
+                                        vatamount=leftover_vatamount,
+                                        creditamount=leftover_amount,
+                                        balancecode='C',
+                                        chartofaccountcode=Adtype.objects.get(code=data.adtype).chartofaccount_arcode.pk,
+                                        payeecode=data.clientcode if data.payeetype == 'C' else data.agencycode,
+                                        payeename=data.payeename,
+                                        batchkey=data.batchkey,
+                                        postingremarks='Processing...',
+                                    ).save()
+                                    if data_d.vatrate > 0:
+                                        vatable = float(vatable) + float(leftover_amount)
+                                    elif data_d.vatcode == 'VE':
+                                        vatexempt = float(vatexempt) + float(leftover_amount)
+                                    elif data_d.vatcode == 'ZE':
+                                        vatzerorated = float(vatzerorated) + float(leftover_amount)
 
-                                # do vat here
-                                Temp_ordetail.objects.create(
-                                    orno=data.orno,
-                                    ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                                    creditamount=leftover_vatamount,
-                                    balancecode='C',
-                                    chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
-                                    vatrate=data.vatrate,
-                                    vatcode=data.vatcode,
-                                    outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
-                                    payeecode=temp_ormain.payeecode,
-                                    batchkey=data.batchkey,
-                                    postingremarks='Processing...',
-                                ).save()
-                                vatamount = float(vatamount) + float(leftover_vatamount)
+                                    # do vat here
+                                    Temp_ordetail.objects.create(
+                                        orno=data.orno,
+                                        ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                        creditamount=leftover_vatamount,
+                                        balancecode='C',
+                                        chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_outputvat.pk,
+                                        vatrate=data.vatrate,
+                                        vatcode=data.vatcode,
+                                        outputvatcode=Outputvat.objects.get(outputvattype__code='OVT-S').code,
+                                        payeecode=temp_ormain.payeecode,
+                                        batchkey=data.batchkey,
+                                        postingremarks='Processing...',
+                                    ).save()
+                                    vatamount = float(vatamount) + float(leftover_vatamount)
 
-                            else:
-                                log_remarks = "Has fully applied: <b>" + str(totalamount) + "</b><br>"
+                                else:
+                                    log_remarks = "Has fully applied: <b>" + str(totalamount) + "</b><br>"
 
                         # accounttype = 'S' (subscription) and sub type is 1
                         elif temp_ormain.subscription == '1':
