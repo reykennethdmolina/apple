@@ -867,11 +867,25 @@ class GeneratePDF(View):
 
         if report == '1':
             if type == '2':
-                list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Detailed"
             else:
-                list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Summary"
+        elif report == '2':
+            if type == '2':
+                list = query_scheduled_expense_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Department Group - Detailed"
+            else:
+                list = query_scheduled_expense_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Department Group - Summary"
+        elif report == '3':
+            if type == '2':
+                list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses -  Group - Detailed"
+            else:
+                list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Group - Summary"
 
         context = {
             "title": title,
@@ -890,10 +904,24 @@ class GeneratePDF(View):
         if report == '1':
             if type == '2':
                 print 'detail'
-                return Render.render('budgetreport/department_detail.html', context)
+                return Render.render('budgetreport/schedule_expenses_department_section_detail.html', context)
             else:
                 print 'summary'
-                return Render.render('budgetreport/department_summary.html', context)
+                return Render.render('budgetreport/schedule_expenses_department_section_summary.html', context)
+        elif report == '2':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/schedule_expenses_department_group_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/schedule_expenses_department_group_summary.html', context)
+        elif report == '3':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/schedule_expenses_group_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/schedule_expenses_group_summary.html', context)
         else:
             return Render.render('budgetreport/department_summary.html', context)
 
@@ -950,15 +978,37 @@ class GenerateExcel(View):
 
         if report == '1':
             if type == '2':
-                list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Detailed"
                 filename = "schedexpenses-budgetreport-department-detailed.xlsx"
             else:
-                list = query_department_budget(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Summary"
                 filename = "schedexpenses-budgetreport-department-summary.xlsx"
+        elif report == '2':
+            if type == '2':
+                list = query_scheduled_expense_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                                               prevyear, prevmonth)
+                title = "Schedule of Expenses - Department Group - Detailed"
+                filename = "schedexpenses-budgetreport-department-group-detailed.xlsx"
+            else:
+                list = query_scheduled_expense_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                                               prevyear, prevmonth)
+                title = "Schedule of Expenses - Department Group - Summary"
+                filename = "schedexpenses-budgetreport-department-group-summary.xlsx"
+        elif report == '3':
+            if type == '2':
+                list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                                               prevyear, prevmonth)
+                title = "Schedule of Expenses - Group - Detailed"
+                filename = "schedexpenses-budgetreport-group-detailed.xlsx"
+            else:
+                list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
+                                               prevyear, prevmonth)
+                title = "Schedule of Expenses - Group - Summary"
+                filename = "schedexpenses-budgetreport-group-summary.xlsx"
 
         # Create an in-memory output file for the new workbook.
         output = io.BytesIO()
@@ -999,14 +1049,14 @@ class GenerateExcel(View):
                         worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
                         row += 1
 
-                        totalcuramount = 0
-                        totalprevamount = 0
-                        totalytdamount = 0
-                        totalvaramount = 0
-                        totalvarpercent = 0
                         for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
                             worksheet.write(row, col, str(group[0]), bold)
                             row += 1
+                            totalcuramount = 0
+                            totalprevamount = 0
+                            totalytdamount = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
                             for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
                                 worksheet.write(row, col, '  '+str(head[0]), bold)
                                 row += 1
@@ -1045,16 +1095,16 @@ class GenerateExcel(View):
 
                                 row += 1
 
-                        if totalprevamount > 0:
-                            totalvarpercent = (totalvaramount / totalprevamount) * 100
+                            if totalprevamount > 0:
+                                totalvarpercent = (totalvaramount / totalprevamount) * 100
 
-                        worksheet.write(row, col, 'Total - ' + str(group[0]))
-                        worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
-                        worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
-                        worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
-                        worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
-                        worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
-                        row += 1
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                            row += 1
                         row += 1
                 else:
                     print 'detailed'
@@ -1063,15 +1113,15 @@ class GenerateExcel(View):
                         worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
                         row += 1
 
-                        totalcuramount = 0
-                        totalprevamount = 0
-                        totalytdamount = 0
-                        totalvaramount = 0
-                        totalvarpercent = 0
                         for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
                             worksheet.write(row, col, str(group[0]), bold)
                             row += 1
 
+                            totalcuramount = 0
+                            totalprevamount = 0
+                            totalytdamount = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
                             for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
                                 worksheet.write(row, col, '  '+str(head[0]), bold)
                                 row += 1
@@ -1125,6 +1175,301 @@ class GenerateExcel(View):
                             row += 1
                             row += 1
 
+        elif report == '2':
+
+            # header
+            worksheet.merge_range('B5:D5', '-------------------- actual --------------------', bold)
+
+            worksheet.write('A6', '', bold)
+            worksheet.write('B6', str(nfrommonth), bold)
+            worksheet.write('C6', str(prevmon), bold)
+            worksheet.write('D6', 'year-to-date', bold)
+            worksheet.write('E6', 'variance over/(under)', bold)
+            worksheet.write('F6', 'variance(%) over/(under)', bold)
+
+            row = 6
+            col = 0
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for dept, department in df.fillna('NaN').groupby(['groupname']):
+                        worksheet.write(row, col, str(dept), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            totalcuramount = 0
+                            totalprevamount = 0
+                            totalytdamount = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(
+                                    ['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  ' + str(head[0]), bold)
+                                row += 1
+                                subcuramount = 0
+                                subprevamount = 0
+                                subytdamount = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                for data, item in headgroup.iterrows():
+                                    worksheet.write(row, col, '   ' + str(item.csubheaddescription))
+                                    worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
+                                    subcuramount += item.curamount
+                                    subprevamount += item.prevamount
+                                    subytdamount += item.ytdamount
+                                    subvaramount += item.varamount
+                                    row += 1
+
+                                if subprevamount > 0:
+                                    subvarpercent = (subvaramount / subprevamount) * 100
+
+                                worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+
+                                totalcuramount += subcuramount
+                                totalprevamount += subprevamount
+                                totalytdamount += subytdamount
+                                totalvaramount += subvaramount
+
+                                row += 1
+
+                        if totalprevamount > 0:
+                            totalvarpercent = (totalvaramount / totalprevamount) * 100
+
+                        worksheet.write(row, col, 'Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                        row += 1
+                        row += 1
+                else:
+                    print 'detailed'
+                    for dept, department in df.fillna('NaN').groupby(['groupname']):
+
+                        worksheet.write(row, col, str(dept), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            totalcuramount = 0
+                            totalprevamount = 0
+                            totalytdamount = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(
+                                    ['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  ' + str(head[0]), bold)
+                                row += 1
+
+                                subcuramount = 0
+                                subprevamount = 0
+                                subytdamount = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                for subhead, subheadgroup in headgroup.fillna('NaN').groupby(
+                                        ['csubheadtitle', 'csubheaddescription']):
+                                    worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                    row += 1
+                                    for data, item in subheadgroup.iterrows():
+                                        worksheet.write(row, col, '    ' + str(item.description))
+                                        worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
+                                        worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
+                                        worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
+                                        worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
+                                        worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
+                                        subcuramount += item.curamount
+                                        subprevamount += item.prevamount
+                                        subytdamount += item.ytdamount
+                                        subvaramount += item.varamount
+                                        row += 1
+
+                                if subprevamount > 0:
+                                    subvarpercent = (subvaramount / subprevamount) * 100
+
+                                worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+
+                                totalcuramount += subcuramount
+                                totalprevamount += subprevamount
+                                totalytdamount += subytdamount
+                                totalvaramount += subvaramount
+                                row += 1
+
+                            if totalprevamount > 0:
+                                totalvarpercent = (totalvaramount / totalprevamount) * 100
+
+                            worksheet.write(row, col, '  Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                            row += 1
+                            row += 1
+
+        elif report == '3':
+
+            # header
+            worksheet.merge_range('B5:D5', '-------------------- actual --------------------', bold)
+
+            worksheet.write('A6', '', bold)
+            worksheet.write('B6', str(nfrommonth), bold)
+            worksheet.write('C6', str(prevmon), bold)
+            worksheet.write('D6', 'year-to-date', bold)
+            worksheet.write('E6', 'variance over/(under)', bold)
+            worksheet.write('F6', 'variance(%) over/(under)', bold)
+
+            row = 6
+            col = 0
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totalcuramount = 0
+                        totalprevamount = 0
+                        totalytdamount = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subcuramount = 0
+                            subprevamount = 0
+                            subytdamount = 0
+                            subvaramount = 0
+                            subvarpercent = 0
+                            for data, item in headgroup.iterrows():
+                                worksheet.write(row, col, '   ' + str(item.csubheaddescription))
+                                worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
+                                worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
+                                worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
+                                worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
+                                subcuramount += item.curamount
+                                subprevamount += item.prevamount
+                                subytdamount += item.ytdamount
+                                subvaramount += item.varamount
+                                row += 1
+
+                            if subprevamount > 0:
+                                subvarpercent = (subvaramount / subprevamount) * 100
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                            worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                            worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+
+                            totalcuramount += subcuramount
+                            totalprevamount += subprevamount
+                            totalytdamount += subytdamount
+                            totalvaramount += subvaramount
+
+                            row += 1
+
+                        if totalprevamount > 0:
+                            totalvarpercent = (totalvaramount / totalprevamount) * 100
+
+                        worksheet.write(row, col, 'Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                        row += 1
+                        row += 1
+
+                else:
+                    print 'detailed'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totalcuramount = 0
+                        totalprevamount = 0
+                        totalytdamount = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(
+                                ['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subcuramount = 0
+                            subprevamount = 0
+                            subytdamount = 0
+                            subvaramount = 0
+                            subvarpercent = 0
+                            for subhead, subheadgroup in headgroup.fillna('NaN').groupby(
+                                    ['csubheadtitle', 'csubheaddescription']):
+                                worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                row += 1
+                                for data, item in subheadgroup.iterrows():
+                                    worksheet.write(row, col, '    ' + str(item.description))
+                                    worksheet.write(row, col + 1, float(format(item.curamount, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.prevamount, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.ytdamount, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.varamount, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.varpercent, '.2f')))
+                                    subcuramount += item.curamount
+                                    subprevamount += item.prevamount
+                                    subytdamount += item.ytdamount
+                                    subvaramount += item.varamount
+                                    row += 1
+
+                            if subprevamount > 0:
+                                subvarpercent = (subvaramount / subprevamount) * 100
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subcuramount, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subprevamount, '.2f')))
+                            worksheet.write(row, col + 3, float(format(subytdamount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subvaramount, '.2f')))
+                            worksheet.write(row, col + 5, float(format(subvarpercent, '.2f')))
+
+                            totalcuramount += subcuramount
+                            totalprevamount += subprevamount
+                            totalytdamount += subytdamount
+                            totalvaramount += subvaramount
+                            row += 1
+
+                        if totalprevamount > 0:
+                            totalvarpercent = (totalvaramount / totalprevamount) * 100
+
+                        worksheet.write(row, col, '  Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totalcuramount, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totalprevamount, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totalytdamount, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totalvaramount, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
+                        row += 1
+                        row += 1
+
+
         workbook.close()
 
         # Rewind the buffer.
@@ -1140,8 +1485,8 @@ class GenerateExcel(View):
 
         return response
 
-def query_department_budget(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
-    print "Transaction Query Department Budget"
+def query_scheduled_expense_deptsection(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Scheduled Expense"
     ''' Create query '''
     cursor = connection.cursor()
 
@@ -1151,9 +1496,9 @@ def query_department_budget(type, expense, department, product, fromyear, frommo
     product_condition = ''
 
     if type == '2':
-        type_condition = "GROUP BY d.code, z.description"
+        type_condition = "GROUP BY d.code, z.cgroupdescription, z.description"
     else:
-        type_condition = "GROUP BY d.code, z.csubheadtitle"
+        type_condition = "GROUP BY d.code, z.cgroupdescription, z.csubheadtitle"
 
     if expense != '':
         expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
@@ -1163,7 +1508,6 @@ def query_department_budget(type, expense, department, product, fromyear, frommo
 
     if department != '':
         department_condition = "AND a.department_id = '" + str(department) + "'"
-        #department_condition = "AND a.department_id IN (96, 3)"
 
     print 'start'
     query = "SELECT d.code AS dcode, d.departmentname, d.product_id, d.expchartofaccount_id, SUM(IF(z.code = 'C', z.amount * -1, z.amount)) AS curamount, SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount)) AS prevamount, SUM(z.ytdamount) AS ytdamount, " \
@@ -1212,8 +1556,166 @@ def query_department_budget(type, expense, department, product, fromyear, frommo
             "GROUP BY c.accountcode " \
             ") AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
-            "WHERE d.isdeleted = 0 "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_scheduled_expense_deptgroup(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Scheduled Expense"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY d.groupname, z.cgroupdescription, z.description"
+    else:
+        type_condition = "GROUP BY d.groupname, z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.groupname, d.product_id, d.expchartofaccount_id, SUM(IF(z.code = 'C', z.amount * -1, z.amount)) AS curamount, SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount)) AS prevamount, SUM(z.ytdamount) AS ytdamount, " \
+            "(SUM(IF(z.code = 'C', z.amount * -1, z.amount)) - SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) AS varamount, " \
+            "IFNULL(ROUND(((SUM(IF(z.code = 'C', z.amount * -1, z.amount)) - SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) / SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) * 100, 2), 0) AS varpercent, " \
+            "z.accountcode, z.title, z.description, " \
+            "z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, a.amount, 0 AS prevamount, 0 AS ytdamount, a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(fromyear)+" AND a.month = "+str(frommonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS curamount, a.amount, 0 AS ytdamount, a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(prevyear)+" AND a.month = "+str(prevmonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS curamount, 0 AS amount, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS ytdamount,a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(fromyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            ") AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
+    
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_scheduled_expense_group(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Scheduled Expense"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY z.cgroupdescription, z.description"
+    else:
+        type_condition = "GROUP BY z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.groupname, d.product_id, d.expchartofaccount_id, SUM(IF(z.code = 'C', z.amount * -1, z.amount)) AS curamount, SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount)) AS prevamount, SUM(z.ytdamount) AS ytdamount, " \
+            "(SUM(IF(z.code = 'C', z.amount * -1, z.amount)) - SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) AS varamount, " \
+            "IFNULL(ROUND(((SUM(IF(z.code = 'C', z.amount * -1, z.amount)) - SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) / SUM(IF(z.code = 'C', z.prevamount * -1, z.prevamount))) * 100, 2), 0) AS varpercent, " \
+            "z.accountcode, z.title, z.description, " \
+            "z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, a.amount, 0 AS prevamount, 0 AS ytdamount, a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(fromyear)+" AND a.month = "+str(frommonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS curamount, a.amount, 0 AS ytdamount, a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(prevyear)+" AND a.month = "+str(prevmonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS curamount, 0 AS amount, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS ytdamount,a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(fromyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            ") AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY z.accountcode, z.year ASC, z.month DESC"
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
