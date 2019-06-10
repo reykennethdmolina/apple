@@ -122,12 +122,21 @@
             <div class="col-md-12">
                 <div class="row">
                     <div class="form-group col-sm-12" style="padding-left: 0px; padding-right: 0px;">
-                        <div class="form-group col-sm-5">
+                        <div class="form-group col-sm-2">
                             <label class="control-label small">ATAX Code</label>
                             <select class="form-control input-sm" id="atc">
                                 <option value="">-- Select --</option>
                                 {% for data in atc %}
                                     <option value="{{ data.id }}">{{ data.code }} - {{ data.description }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label class="control-label small">Creator</label>
+                            <select class="form-control input-sm" id="creator">
+                                <option value="">-- Select --</option>
+                                {% for data in creator %}
+                                    <option value="{{ data.id }}">{{ data.first_name }} {{ data.last_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -162,7 +171,7 @@
                 </div>
             </div>
             <div class="col-md-12" style="min-height: 800px;">
-                <iframe src="{% url 'checkvoucher:pdf' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&cvtype=&cvsubtype=&payee=null&branch=&approver=&cvstatus=&status=&atc=&inputvattype=&vat=&bankaccount" id="result" height="1200px" width="100%"></iframe>
+                <iframe src="{% url 'checkvoucher:pdf' %}?report=0&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&cvtype=&cvsubtype=&payee=null&branch=&approver=&cvstatus=&status=&atc=&inputvattype=&vat=&bankaccount&=creator" id="result" height="1200px" width="100%"></iframe>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -191,7 +200,8 @@ $(function(){
         var inputvattype = $('#inputvattype').val();
         var vat = $('#vat').val();
         var bankaccount = $('#bankaccount').val();
-        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
+        var creator = $('#creator').val();
+        url = "{% url 'checkvoucher:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator;
         $('#result').prop('src', url);
     });
 
@@ -210,7 +220,8 @@ $(function(){
         var inputvattype = $('#inputvattype').val();
         var vat = $('#vat').val();
         var bankaccount = $('#bankaccount').val();
-        url = "{% url 'checkvoucher:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount;
+        var creator = $('#creator').val();
+        url = "{% url 'checkvoucher:excel' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&cvtype="+cvtype+"&cvsubtype="+cvsubtype+"&payee="+payee+"&branch="+branch+"&approver="+approver+"&cvstatus="+cvstatus+"&status="+status+"&atc="+atc+"&inputvattype="+inputvattype+"&vat="+vat+"&bankaccount="+bankaccount+"&creator="+creator;
         $('#result').prop('src', url);
     });
 

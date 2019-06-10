@@ -648,6 +648,8 @@ class ReportView(ListView):
         #context['inputvat'] = Inputvat.objects.filter(isdeleted=0).order_by('code')
         #context['ataxcode'] = Ataxcode.objects.filter(isdeleted=0).order_by('code')
         context['user'] = User.objects.filter(is_active=1).order_by('first_name')
+        creator = Cvmain.objects.filter(isdeleted=0).values_list('enterby_id', flat=True)
+        context['creator'] = User.objects.filter(id__in=set(creator)).order_by('first_name', 'last_name')
 
         return context
 
@@ -1899,7 +1901,9 @@ class GeneratePDF(View):
         inputvattype = request.GET['inputvattype']
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
         title = "Check Voucher List"
+        subtype = ""
         list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
 
         if report == '1':
@@ -1950,11 +1954,13 @@ class GeneratePDF(View):
                 q = q.filter(cvmain__cvtype__exact=cvtype)
             else:
                 q = q.filter(cvtype=cvtype)
+            subtype = Cvtype.objects.filter(pk=cvtype).first()
         if cvsubtype != '':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__cvsubtype__exact=cvsubtype)
             else:
                 q = q.filter(cvsubtype=cvsubtype)
+
         if payee != 'null':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__payee_code__exact=payee)
@@ -1998,6 +2004,12 @@ class GeneratePDF(View):
             else:
                 q = q.filter(bankaccount=bankaccount)
 
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
+
         if report == '5' or report == '6':
             print 'pasok'
             list = query
@@ -2024,6 +2036,7 @@ class GeneratePDF(View):
 
         context = {
             "title": title,
+            "subtype": subtype,
             "today": timezone.now(),
             "company": company,
             "list": list,
@@ -2068,6 +2081,7 @@ class GenerateExcel(View):
         inputvattype = request.GET['inputvattype']
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
+        creator = request.GET['creator']
         title = "Check Voucher List"
         list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
 
@@ -2169,6 +2183,12 @@ class GenerateExcel(View):
                 q = q.filter(cvmain__bankaccount__exact=bankaccount)
             else:
                 q = q.filter(bankaccount=bankaccount)
+
+        if creator != '':
+            if report == '2' or report == '4' or report == '8':
+                q = q.filter(cvmain__enterby_id=creator)
+            else:
+                q = q.filter(enterby_id=creator)
 
         elif report == '5' or report == '6':
             print 'pasok'
