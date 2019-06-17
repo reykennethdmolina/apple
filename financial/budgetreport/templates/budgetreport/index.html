@@ -28,7 +28,7 @@
                                 <option value="5">Budget Status by Department/Section</option>
                                 <option value="6">Budget Status by Department Group</option>
                                 <option value="7">Budget Status by Group</option>
-                                <option value="8">Budget Status by Product</option>
+                                <!--<option value="8">Budget Status by Product</option>-->
                                 <!--<option value="1">Budget Performance On Fixed Operating Expenses</option>-->
                                 <!--<option value="2">Budget Status by Department/Section</option>-->
                                 <!--<option value="3">Budget Status by Group</option>-->
@@ -91,7 +91,7 @@
                             <select class="form-control input-sm" id="department">
                                 <option value="">-- Select --</option>
                                 {% for data in department %}
-                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }}</option>
+                                    <option value="{{ data.id }}">{{ data.code }} - {{ data.departmentname }} ( {{ data.product.code }} - {{ data.product.description }} )</option>
                                 {% endfor %}
                             </select>
                         </div>

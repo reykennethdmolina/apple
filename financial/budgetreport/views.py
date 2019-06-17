@@ -887,6 +887,28 @@ class GeneratePDF(View):
                 list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
                 title = "Schedule of Expenses - Group - Summary"
 
+        elif report == '5':
+            if type == '2':
+                list = query_budget_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department/Section - Detailed"
+            else:
+                list = query_budget_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department/Section - Summary"
+        elif report == '6':
+            if type == '2':
+                list = query_budget_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department Group - Detailed"
+            else:
+                list = query_budget_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department Group - Summary"
+        elif report == '7':
+            if type == '2':
+                list = query_budget_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Group - Detailed"
+            else:
+                list = query_budget_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Group - Summary"
+
         context = {
             "title": title,
             "subtitle": subtitle,
@@ -922,6 +944,28 @@ class GeneratePDF(View):
             else:
                 print 'summary'
                 return Render.render('budgetreport/schedule_expenses_group_summary.html', context)
+
+        elif report == '5':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/budget_department_section_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/budget_department_section_summary.html', context)
+        elif report == '6':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/budget_department_group_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/budget_department_group_summary.html', context)
+        elif report == '7':
+            if type == '2':
+                print 'detail'
+                return Render.render('budgetreport/budget_group_detail.html', context)
+            else:
+                print 'summary'
+                return Render.render('budgetreport/budget_group_summary.html', context)
         else:
             return Render.render('budgetreport/department_summary.html', context)
 
@@ -981,12 +1025,12 @@ class GenerateExcel(View):
                 list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Detailed"
-                filename = "schedexpenses-budgetreport-department-detailed.xlsx"
+                filename = "schedexpenses-budgetreport-department-section-detailed.xlsx"
             else:
                 list = query_scheduled_expense_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Department/Section - Summary"
-                filename = "schedexpenses-budgetreport-department-summary.xlsx"
+                filename = "schedexpenses-budgetreport-department-section-summary.xlsx"
         elif report == '2':
             if type == '2':
                 list = query_scheduled_expense_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth,
@@ -1010,6 +1054,34 @@ class GenerateExcel(View):
                 title = "Schedule of Expenses - Group - Summary"
                 filename = "schedexpenses-budgetreport-group-summary.xlsx"
 
+        elif report == '5':
+            if type == '2':
+                list = query_budget_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department/Section - Detailed"
+                filename = "budgetstatus-department-section-detailed.xlsx"
+            else:
+                list = query_budget_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department/Section - Summary"
+                filename = "budgetstatus-department-section-summary.xlsx"
+        elif report == '6':
+            if type == '2':
+                list = query_budget_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department Group - Detailed"
+                filename = "budgetstatus-department-group-detailed.xlsx"
+            else:
+                list = query_budget_deptgroup(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Department Group - Summary"
+                filename = "budgetstatus-department-group-summary.xlsx"
+        elif report == '7':
+            if type == '2':
+                list = query_budget_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Group - Detailed"
+                filename = "budgetstatus-group-detailed.xlsx"
+            else:
+                list = query_budget_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+                title = "Budget Status - Group - Summary"
+                filename = "budgetstatus-group-summary.xlsx"
+
         # Create an in-memory output file for the new workbook.
         output = io.BytesIO()
 
@@ -1024,13 +1096,13 @@ class GenerateExcel(View):
         # title
         worksheet.write('A1', str(title), bold)
         worksheet.write('A2', str(filtertext), bold)
-        worksheet.write('A3', 'for the period ending '+str(dto), bold)
+        worksheet.write('A3', 'for the period of '+str(dfrom)+' to'+str(dto), bold)
 
         df = pd.DataFrame(list)
         if report == '1':
 
             # header
-            worksheet.merge_range   ('B5:D5', '-------------------- actual --------------------', bold)
+            worksheet.merge_range('B5:D5', '-------------------- actual --------------------', bold)
 
             worksheet.write('A6', '', bold)
             worksheet.write('B6', str(nfrommonth), bold)
@@ -1469,6 +1541,778 @@ class GenerateExcel(View):
                         row += 1
                         row += 1
 
+        elif report == '5':
+
+            # header
+            worksheet.write('A5', '', bold)
+            worksheet.write('B5', '', bold)
+            worksheet.merge_range('C5:E5', '---------- current month ----------', bold)
+            worksheet.merge_range('F5:I5', '---------- current year -- year to date ----------', bold)
+            worksheet.merge_range('J5:L5', '------- last year -- year to date -------', bold)
+
+
+            worksheet.write('A6', '', bold)
+            worksheet.write('B6', 'budget', bold)
+            worksheet.write('C6', 'actual', bold)
+            worksheet.write('D6', 'variance over/(under)', bold)
+            worksheet.write('E6', 'variance(%) over/(under)', bold)
+            worksheet.write('F6', 'budget', bold)
+            worksheet.write('G6', 'actual', bold)
+            worksheet.write('H6', 'variance over/(under)', bold)
+            worksheet.write('I6', 'variance(%) over/(under)', bold)
+            worksheet.write('J6', 'actual', bold)
+            worksheet.write('K6', 'variance over/(under)', bold)
+            worksheet.write('L6', 'variance(%) over/(under)', bold)
+
+            row = 7
+            col = 0
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+
+                        worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+                            totalbudget = 0
+                            totalactual = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            totalcur_budytd = 0
+                            totalcur_actualytd = 0
+                            totalcur_varamount = 0
+                            totalcur_varpercent = 0
+                            totallast_actualytd = 0
+                            totallast_varamount = 0
+                            totallast_varpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  '+str(head[0]), bold)
+                                row += 1
+                                subbudget = 0
+                                subactual = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                subcur_budytd = 0
+                                subcur_actualytd = 0
+                                subcur_varamount = 0
+                                subcur_varpercent = 0
+                                sublast_actualytd = 0
+                                sublast_varamount = 0
+                                sublast_varpercent = 0
+                                for data, item in headgroup.iterrows():
+                                    worksheet.write(row, col, '   '+str(item.csubheaddescription))
+                                    worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                    worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                    worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                    worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                    worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                    worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                    worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                    subbudget += item.budget
+                                    subactual += item.actual
+                                    subvaramount += item.varamount
+                                    subcur_budytd += item.cur_budytd
+                                    subcur_actualytd += item.cur_actualytd
+                                    subcur_varamount += item.cur_varamount
+                                    sublast_actualytd += item.last_actualytd
+                                    sublast_varamount += item.last_varamount
+                                    row += 1
+
+                                if subvaramount > 0:
+                                    subvarpercent = (subvaramount/subbudget) * 100
+                                if subcur_varamount > 0:
+                                    subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
+                                if sublast_varamount > 0:
+                                    sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
+
+                                worksheet.write(row, col, '  Subtotal - '+str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                                worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                                worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                                worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                                worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                                totalbudget += subbudget
+                                totalactual += subactual
+                                totalvaramount += subvaramount
+                                totalvarpercent += subvarpercent
+                                totalcur_budytd += subcur_budytd
+                                totalcur_actualytd += subcur_actualytd
+                                totalcur_varamount += subcur_varamount
+                                totalcur_varpercent += subcur_varpercent
+                                totallast_actualytd += sublast_actualytd
+                                totallast_varamount += sublast_varamount
+                                totallast_varpercent += sublast_varpercent
+
+                                row += 1
+
+                            if totalvarpercent > 0:
+                                totalvarpercent = (totalvaramount / totalbudget) * 100
+                            if totalcur_varpercent > 0:
+                                totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                            if totallast_varpercent > 0:
+                                totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                            worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                            row += 1
+                        row += 1
+                else:
+                    print 'detailed'
+                    for dept, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+
+                        worksheet.write(row, col, str(dept[0])+'-'+str(dept[1]), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            totalbudget = 0
+                            totalactual = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            totalcur_budytd = 0
+                            totalcur_actualytd = 0
+                            totalcur_varamount = 0
+                            totalcur_varpercent = 0
+                            totallast_actualytd = 0
+                            totallast_varamount = 0
+                            totallast_varpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  '+str(head[0]), bold)
+                                row += 1
+
+                                subbudget = 0
+                                subactual = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                subcur_budytd = 0
+                                subcur_actualytd = 0
+                                subcur_varamount = 0
+                                subcur_varpercent = 0
+                                sublast_actualytd = 0
+                                sublast_varamount = 0
+                                sublast_varpercent = 0
+                                for subhead, subheadgroup in headgroup.fillna('NaN').groupby(['csubheadtitle', 'csubheaddescription']):
+                                    worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                    row += 1
+                                    for data, item in subheadgroup.iterrows():
+                                        worksheet.write(row, col, '   ' + str(item.description))
+                                        worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                        worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                        worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                        worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                        worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                        worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                        worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                        worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                        worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                        worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                        worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                        subbudget += item.budget
+                                        subactual += item.actual
+                                        subvaramount += item.varamount
+                                        subcur_budytd += item.cur_budytd
+                                        subcur_actualytd += item.cur_actualytd
+                                        subcur_varamount += item.cur_varamount
+                                        sublast_actualytd += item.last_actualytd
+                                        sublast_varamount += item.last_varamount
+                                        row += 1
+
+                                if subvaramount > 0:
+                                    subvarpercent = (subvaramount/subbudget) * 100
+                                if subcur_varamount > 0:
+                                    subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
+                                if sublast_varamount > 0:
+                                    sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
+
+                                worksheet.write(row, col, '  Subtotal - '+str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                                worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                                worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                                worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                                worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                                totalbudget += subbudget
+                                totalactual += subactual
+                                totalvaramount += subvaramount
+                                totalvarpercent += subvarpercent
+                                totalcur_budytd += subcur_budytd
+                                totalcur_actualytd += subcur_actualytd
+                                totalcur_varamount += subcur_varamount
+                                totalcur_varpercent += subcur_varpercent
+                                totallast_actualytd += sublast_actualytd
+                                totallast_varamount += sublast_varamount
+                                totallast_varpercent += sublast_varpercent
+
+                                row += 1
+
+                            if totalvarpercent > 0:
+                                totalvarpercent = (totalvaramount / totalbudget) * 100
+                            if totalcur_varpercent > 0:
+                                totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                            if totallast_varpercent > 0:
+                                totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                            worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                            row += 1
+                        row += 1
+
+        elif report == '6':
+
+            # header
+            worksheet.write('A5', '', bold)
+            worksheet.write('B5', '', bold)
+            worksheet.merge_range('C5:E5', '---------- current month ----------', bold)
+            worksheet.merge_range('F5:I5', '---------- current year -- year to date ----------', bold)
+            worksheet.merge_range('J5:L5', '------- last year -- year to date -------', bold)
+
+            worksheet.write('A6', '', bold)
+            worksheet.write('B6', 'budget', bold)
+            worksheet.write('C6', 'actual', bold)
+            worksheet.write('D6', 'variance over/(under)', bold)
+            worksheet.write('E6', 'variance(%) over/(under)', bold)
+            worksheet.write('F6', 'budget', bold)
+            worksheet.write('G6', 'actual', bold)
+            worksheet.write('H6', 'variance over/(under)', bold)
+            worksheet.write('I6', 'variance(%) over/(under)', bold)
+            worksheet.write('J6', 'actual', bold)
+            worksheet.write('K6', 'variance over/(under)', bold)
+            worksheet.write('L6', 'variance(%) over/(under)', bold)
+
+            row = 7
+            col = 0
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for dept, department in df.fillna('NaN').groupby(['groupname']):
+                        worksheet.write(row, col, str(dept), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            totalbudget = 0
+                            totalactual = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            totalcur_budytd = 0
+                            totalcur_actualytd = 0
+                            totalcur_varamount = 0
+                            totalcur_varpercent = 0
+                            totallast_actualytd = 0
+                            totallast_varamount = 0
+                            totallast_varpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(
+                                    ['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  ' + str(head[0]), bold)
+                                row += 1
+                                subbudget = 0
+                                subactual = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                subcur_budytd = 0
+                                subcur_actualytd = 0
+                                subcur_varamount = 0
+                                subcur_varpercent = 0
+                                sublast_actualytd = 0
+                                sublast_varamount = 0
+                                sublast_varpercent = 0
+                                for data, item in headgroup.iterrows():
+                                    worksheet.write(row, col, '   ' + str(item.csubheaddescription))
+                                    worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                    worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                    worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                    worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                    worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                    worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                    worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                    subbudget += item.budget
+                                    subactual += item.actual
+                                    subvaramount += item.varamount
+                                    subcur_budytd += item.cur_budytd
+                                    subcur_actualytd += item.cur_actualytd
+                                    subcur_varamount += item.cur_varamount
+                                    sublast_actualytd += item.last_actualytd
+                                    sublast_varamount += item.last_varamount
+                                    row += 1
+
+                                if subvaramount > 0:
+                                    subvarpercent = (subvaramount/subbudget) * 100
+                                if subcur_varamount > 0:
+                                    subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
+                                if sublast_varamount > 0:
+                                    sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
+
+                                worksheet.write(row, col, '  Subtotal - '+str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                                worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                                worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                                worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                                worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                                totalbudget += subbudget
+                                totalactual += subactual
+                                totalvaramount += subvaramount
+                                totalvarpercent += subvarpercent
+                                totalcur_budytd += subcur_budytd
+                                totalcur_actualytd += subcur_actualytd
+                                totalcur_varamount += subcur_varamount
+                                totalcur_varpercent += subcur_varpercent
+                                totallast_actualytd += sublast_actualytd
+                                totallast_varamount += sublast_varamount
+                                totallast_varpercent += sublast_varpercent
+
+                                row += 1
+
+                            if totalvarpercent > 0:
+                                totalvarpercent = (totalvaramount / totalbudget) * 100
+                            if totalcur_varpercent > 0:
+                                totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                            if totallast_varpercent > 0:
+                                totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                            worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                            row += 1
+                        row += 1
+                else:
+                    print 'detailed'
+                    for dept, department in df.fillna('NaN').groupby(['groupname']):
+
+                        worksheet.write(row, col, str(dept), bold)
+                        row += 1
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            totalbudget = 0
+                            totalactual = 0
+                            totalvaramount = 0
+                            totalvarpercent = 0
+                            totalcur_budytd = 0
+                            totalcur_actualytd = 0
+                            totalcur_varamount = 0
+                            totalcur_varpercent = 0
+                            totallast_actualytd = 0
+                            totallast_varamount = 0
+                            totallast_varpercent = 0
+                            for head, headgroup in subgroup.fillna('NaN').groupby(
+                                    ['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  ' + str(head[0]), bold)
+                                row += 1
+
+                                subbudget = 0
+                                subactual = 0
+                                subvaramount = 0
+                                subvarpercent = 0
+                                subcur_budytd = 0
+                                subcur_actualytd = 0
+                                subcur_varamount = 0
+                                subcur_varpercent = 0
+                                sublast_actualytd = 0
+                                sublast_varamount = 0
+                                sublast_varpercent = 0
+                                for subhead, subheadgroup in headgroup.fillna('NaN').groupby(
+                                        ['csubheadtitle', 'csubheaddescription']):
+                                    worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                    row += 1
+                                    for data, item in subheadgroup.iterrows():
+                                        worksheet.write(row, col, '    ' + str(item.description))
+                                        worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                        worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                        worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                        worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                        worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                        worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                        worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                        worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                        worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                        worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                        worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                        subbudget += item.budget
+                                        subactual += item.actual
+                                        subvaramount += item.varamount
+                                        subcur_budytd += item.cur_budytd
+                                        subcur_actualytd += item.cur_actualytd
+                                        subcur_varamount += item.cur_varamount
+                                        sublast_actualytd += item.last_actualytd
+                                        sublast_varamount += item.last_varamount
+                                        row += 1
+
+                                if subvaramount > 0:
+                                    subvarpercent = (subvaramount/subbudget) * 100
+                                if subcur_varamount > 0:
+                                    subcur_varpercent = (subcur_varamount/subcur_actualytd) * 100
+                                if sublast_varamount > 0:
+                                    sublast_varpercent = (sublast_varamount/sublast_actualytd) * 100
+
+                                worksheet.write(row, col, '  Subtotal - '+str(head[0]))
+                                worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                                worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                                worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                                worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                                worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                                worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                                worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                                worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                                worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                                totalbudget += subbudget
+                                totalactual += subactual
+                                totalvaramount += subvaramount
+                                totalvarpercent += subvarpercent
+                                totalcur_budytd += subcur_budytd
+                                totalcur_actualytd += subcur_actualytd
+                                totalcur_varamount += subcur_varamount
+                                totalcur_varpercent += subcur_varpercent
+                                totallast_actualytd += sublast_actualytd
+                                totallast_varamount += sublast_varamount
+                                totallast_varpercent += sublast_varpercent
+
+                                row += 1
+
+                            if totalvarpercent > 0:
+                                totalvarpercent = (totalvaramount / totalbudget) * 100
+                            if totalcur_varpercent > 0:
+                                totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                            if totallast_varpercent > 0:
+                                totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                            worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                            row += 1
+                        row += 1
+
+        elif report == '7':
+
+            # header
+            worksheet.write('A5', '', bold)
+            worksheet.write('B5', '', bold)
+            worksheet.merge_range('C5:E5', '---------- current month ----------', bold)
+            worksheet.merge_range('F5:I5', '---------- current year -- year to date ----------', bold)
+            worksheet.merge_range('J5:L5', '------- last year -- year to date -------', bold)
+
+            worksheet.write('A6', '', bold)
+            worksheet.write('B6', 'budget', bold)
+            worksheet.write('C6', 'actual', bold)
+            worksheet.write('D6', 'variance over/(under)', bold)
+            worksheet.write('E6', 'variance(%) over/(under)', bold)
+            worksheet.write('F6', 'budget', bold)
+            worksheet.write('G6', 'actual', bold)
+            worksheet.write('H6', 'variance over/(under)', bold)
+            worksheet.write('I6', 'variance(%) over/(under)', bold)
+            worksheet.write('J6', 'actual', bold)
+            worksheet.write('K6', 'variance over/(under)', bold)
+            worksheet.write('L6', 'variance(%) over/(under)', bold)
+
+            row = 7
+            col = 0
+            if list:
+                if type == '1':
+                    print 'summary'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totalbudget = 0
+                        totalactual = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        totalcur_budytd = 0
+                        totalcur_actualytd = 0
+                        totalcur_varamount = 0
+                        totalcur_varpercent = 0
+                        totallast_actualytd = 0
+                        totallast_varamount = 0
+                        totallast_varpercent = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subbudget = 0
+                            subactual = 0
+                            subvaramount = 0
+                            subvarpercent = 0
+                            subcur_budytd = 0
+                            subcur_actualytd = 0
+                            subcur_varamount = 0
+                            subcur_varpercent = 0
+                            sublast_actualytd = 0
+                            sublast_varamount = 0
+                            sublast_varpercent = 0
+                            for data, item in headgroup.iterrows():
+                                worksheet.write(row, col, '   ' + str(item.csubheaddescription))
+                                worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                subbudget += item.budget
+                                subactual += item.actual
+                                subvaramount += item.varamount
+                                subcur_budytd += item.cur_budytd
+                                subcur_actualytd += item.cur_actualytd
+                                subcur_varamount += item.cur_varamount
+                                sublast_actualytd += item.last_actualytd
+                                sublast_varamount += item.last_varamount
+                                row += 1
+
+                            if subvaramount > 0:
+                                subvarpercent = (subvaramount / subbudget) * 100
+                            if subcur_varamount > 0:
+                                subcur_varpercent = (subcur_varamount / subcur_actualytd) * 100
+                            if sublast_varamount > 0:
+                                sublast_varpercent = (sublast_varamount / sublast_actualytd) * 100
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                            worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                            totalbudget += subbudget
+                            totalactual += subactual
+                            totalvaramount += subvaramount
+                            totalvarpercent += subvarpercent
+                            totalcur_budytd += subcur_budytd
+                            totalcur_actualytd += subcur_actualytd
+                            totalcur_varamount += subcur_varamount
+                            totalcur_varpercent += subcur_varpercent
+                            totallast_actualytd += sublast_actualytd
+                            totallast_varamount += sublast_varamount
+                            totallast_varpercent += sublast_varpercent
+
+                            row += 1
+
+                            if totalvarpercent > 0:
+                                totalvarpercent = (totalvaramount / totalbudget) * 100
+                            if totalcur_varpercent > 0:
+                                totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                            if totallast_varpercent > 0:
+                                totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                            worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                            row += 1
+                        row += 1
+
+                else:
+                    print 'detailed'
+                    for group, subgroup in df.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                        worksheet.write(row, col, str(group[0]), bold)
+                        row += 1
+
+                        totalbudget = 0
+                        totalactual = 0
+                        totalvaramount = 0
+                        totalvarpercent = 0
+                        totalcur_budytd = 0
+                        totalcur_actualytd = 0
+                        totalcur_varamount = 0
+                        totalcur_varpercent = 0
+                        totallast_actualytd = 0
+                        totallast_varamount = 0
+                        totallast_varpercent = 0
+                        for head, headgroup in subgroup.fillna('NaN').groupby(
+                                ['csubgrouptitle', 'csubgroupdescription']):
+                            worksheet.write(row, col, '  ' + str(head[0]), bold)
+                            row += 1
+
+                            subbudget = 0
+                            subactual = 0
+                            subvaramount = 0
+                            subvarpercent = 0
+                            subcur_budytd = 0
+                            subcur_actualytd = 0
+                            subcur_varamount = 0
+                            subcur_varpercent = 0
+                            sublast_actualytd = 0
+                            sublast_varamount = 0
+                            sublast_varpercent = 0
+                            for subhead, subheadgroup in headgroup.fillna('NaN').groupby(
+                                    ['csubheadtitle', 'csubheaddescription']):
+                                worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                row += 1
+                                for data, item in subheadgroup.iterrows():
+                                    worksheet.write(row, col, '    ' + str(item.description))
+                                    worksheet.write(row, col + 1, float(format(item.budget, '.2f')))
+                                    worksheet.write(row, col + 2, float(format(item.actual, '.2f')))
+                                    worksheet.write(row, col + 3, float(format(item.varamount, '.2f')))
+                                    worksheet.write(row, col + 4, float(format(item.varpercent, '.2f')))
+                                    worksheet.write(row, col + 5, float(format(item.cur_budytd, '.2f')))
+                                    worksheet.write(row, col + 6, float(format(item.cur_actualytd, '.2f')))
+                                    worksheet.write(row, col + 7, float(format(item.cur_varamount, '.2f')))
+                                    worksheet.write(row, col + 8, float(format(item.cur_varpercent, '.2f')))
+                                    worksheet.write(row, col + 9, float(format(item.last_actualytd, '.2f')))
+                                    worksheet.write(row, col + 10, float(format(item.last_varamount, '.2f')))
+                                    worksheet.write(row, col + 11, float(format(item.last_varpercent, '.2f')))
+                                    subbudget += item.budget
+                                    subactual += item.actual
+                                    subvaramount += item.varamount
+                                    subcur_budytd += item.cur_budytd
+                                    subcur_actualytd += item.cur_actualytd
+                                    subcur_varamount += item.cur_varamount
+                                    sublast_actualytd += item.last_actualytd
+                                    sublast_varamount += item.last_varamount
+                                    row += 1
+
+                            if subvaramount > 0:
+                                subvarpercent = (subvaramount / subbudget) * 100
+                            if subcur_varamount > 0:
+                                subcur_varpercent = (subcur_varamount / subcur_actualytd) * 100
+                            if sublast_varamount > 0:
+                                sublast_varpercent = (sublast_varamount / sublast_actualytd) * 100
+
+                            worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                            worksheet.write(row, col + 1, float(format(subbudget, '.2f')))
+                            worksheet.write(row, col + 2, float(format(subactual, '.2f')))
+                            worksheet.write(row, col + 3, float(format(subvaramount, '.2f')))
+                            worksheet.write(row, col + 4, float(format(subvarpercent, '.2f')))
+                            worksheet.write(row, col + 5, float(format(subcur_budytd, '.2f')))
+                            worksheet.write(row, col + 6, float(format(subcur_actualytd, '.2f')))
+                            worksheet.write(row, col + 7, float(format(subcur_varamount, '.2f')))
+                            worksheet.write(row, col + 8, float(format(subcur_varpercent, '.2f')))
+                            worksheet.write(row, col + 9, float(format(sublast_actualytd, '.2f')))
+                            worksheet.write(row, col + 10, float(format(sublast_actualytd, '.2f')))
+                            worksheet.write(row, col + 11, float(format(sublast_varpercent, '.2f')))
+
+                            totalbudget += subbudget
+                            totalactual += subactual
+                            totalvaramount += subvaramount
+                            totalvarpercent += subvarpercent
+                            totalcur_budytd += subcur_budytd
+                            totalcur_actualytd += subcur_actualytd
+                            totalcur_varamount += subcur_varamount
+                            totalcur_varpercent += subcur_varpercent
+                            totallast_actualytd += sublast_actualytd
+                            totallast_varamount += sublast_varamount
+                            totallast_varpercent += sublast_varpercent
+
+                            row += 1
+
+                        if totalvarpercent > 0:
+                            totalvarpercent = (totalvaramount / totalbudget) * 100
+                        if totalcur_varpercent > 0:
+                            totalcur_varpercent = (totalcur_varamount / totalcur_actualytd) * 100
+                        if totallast_varpercent > 0:
+                            totallast_varpercent = (totallast_varamount / totallast_actualytd) * 100
+
+                        worksheet.write(row, col, 'Total - ' + str(group[0]))
+                        worksheet.write(row, col + 1, float(format(totalbudget, '.2f')))
+                        worksheet.write(row, col + 2, float(format(totalactual, '.2f')))
+                        worksheet.write(row, col + 3, float(format(totalvaramount, '.2f')))
+                        worksheet.write(row, col + 4, float(format(totalvarpercent, '.2f')))
+                        worksheet.write(row, col + 5, float(format(totalcur_budytd, '.2f')))
+                        worksheet.write(row, col + 6, float(format(totalcur_actualytd, '.2f')))
+                        worksheet.write(row, col + 7, float(format(totalcur_varamount, '.2f')))
+                        worksheet.write(row, col + 8, float(format(totalcur_varpercent, '.2f')))
+                        worksheet.write(row, col + 9, float(format(totallast_actualytd, '.2f')))
+                        worksheet.write(row, col + 10, float(format(totallast_varamount, '.2f')))
+                        worksheet.write(row, col + 11, float(format(totallast_varpercent, '.2f')))
+                        row += 1
+                    row += 1
+
+        else:
+            print 'do nothing'
 
         workbook.close()
 
@@ -1715,6 +2559,393 @@ def query_scheduled_expense_group(type, expense, department, product, fromyear, 
             ") AS z " \
             "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
             "WHERE d.isdeleted = 0 AND z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY z.accountcode, z.year ASC, z.month DESC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_budget_deptsection(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    lastyear = prevyear - 1
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY d.code, z.cgroupdescription, z.description"
+    else:
+        type_condition = "GROUP BY d.code, z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.groupname, d.product_id, d.expchartofaccount_id, " \
+            "SUM(IF(z.code = 'C', z.budget * -1, z.budget)) AS budget, SUM(IF(z.code = 'C', z.actual * -1, z.actual)) AS actual, " \
+            "(SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) AS varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) / SUM(IF(z.code = 'C', z.budget * -1, z.budget)))) * 100, 2), 0) AS varpercent, " \
+            "SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)) AS cur_budytd, SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) AS cur_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) AS cur_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) / SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)))) * 100, 2), 0) AS cur_varpercent, " \
+            "SUM(IF(z.code = 'C', z.last_budytd * -1, z.last_budytd)) AS last_budytd, " \
+            "SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) AS last_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) AS last_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) / SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)))) * 100, 2), 0) AS last_varpercent, " \
+            "z.accountcode, z.title, z.description, " \
+            "z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN IFNULL(deptbud.mjan, 0) " \
+            "WHEN a.month = 2 THEN IFNULL(deptbud.mfeb, 0) " \
+            "WHEN a.month = 3 THEN IFNULL(deptbud.mmar, 0) " \
+            "WHEN a.month = 4 THEN IFNULL(deptbud.mapr, 0) " \
+            "WHEN a.month = 5 THEN IFNULL(deptbud.mmay, 0) " \
+            "WHEN a.month = 6 THEN IFNULL(deptbud.mjun, 0) " \
+            "WHEN a.month = 7 THEN IFNULL(deptbud.mjul, 0) " \
+            "WHEN a.month = 8 THEN IFNULL(deptbud.maug, 0) " \
+            "WHEN a.month = 9 THEN IFNULL(deptbud.msep, 0) " \
+            "WHEN a.month = 10 THEN IFNULL(deptbud.moct, 0) " \
+            "WHEN a.month = 11 THEN IFNULL(deptbud.mnov, 0) " \
+            "WHEN a.month = 12 THEN IFNULL(deptbud.mdec, 0) " \
+            "ELSE 0 " \
+            "END budget, " \
+            "a.amount AS actual, 0 AS cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month = "+str(tomonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN SUM(IFNULL(deptbud.mjan, 0)) " \
+            "WHEN a.month = 2 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0))) " \
+            "WHEN a.month = 3 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0))) " \
+            "WHEN a.month = 4 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0))) " \
+            "WHEN a.month = 5 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0))) " \
+            "WHEN a.month = 6 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0))) " \
+            "WHEN a.month = 7 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))) " \
+            "WHEN a.month = 8 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0))) " \
+            "WHEN a.month = 9 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))) " \
+            "WHEN a.month = 10 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))) " \
+            "WHEN a.month = 11 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))) " \
+            "WHEN a.month = 12 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))+ SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))  + SUM(IFNULL(deptbud.mdec, 0))) " \
+            "ELSE 0 " \
+            "END cur_budytd, " \
+            "SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS cur_actualytd, " \
+            "0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode) AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_budget_deptgroup(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    lastyear = prevyear - 1
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY d.groupname, z.cgroupdescription, z.description"
+    else:
+        type_condition = "GROUP BY d.groupname, z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.groupname, d.product_id, d.expchartofaccount_id, " \
+            "SUM(IF(z.code = 'C', z.budget * -1, z.budget)) AS budget, SUM(IF(z.code = 'C', z.actual * -1, z.actual)) AS actual, " \
+            "(SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) AS varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) / SUM(IF(z.code = 'C', z.budget * -1, z.budget)))) * 100, 2), 0) AS varpercent, " \
+            "SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)) AS cur_budytd, SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) AS cur_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) AS cur_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) / SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)))) * 100, 2), 0) AS cur_varpercent, " \
+            "SUM(IF(z.code = 'C', z.last_budytd * -1, z.last_budytd)) AS last_budytd, " \
+            "SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) AS last_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) AS last_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) / SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)))) * 100, 2), 0) AS last_varpercent, " \
+            "z.accountcode, z.title, z.description, " \
+            "z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN IFNULL(deptbud.mjan, 0) " \
+            "WHEN a.month = 2 THEN IFNULL(deptbud.mfeb, 0) " \
+            "WHEN a.month = 3 THEN IFNULL(deptbud.mmar, 0) " \
+            "WHEN a.month = 4 THEN IFNULL(deptbud.mapr, 0) " \
+            "WHEN a.month = 5 THEN IFNULL(deptbud.mmay, 0) " \
+            "WHEN a.month = 6 THEN IFNULL(deptbud.mjun, 0) " \
+            "WHEN a.month = 7 THEN IFNULL(deptbud.mjul, 0) " \
+            "WHEN a.month = 8 THEN IFNULL(deptbud.maug, 0) " \
+            "WHEN a.month = 9 THEN IFNULL(deptbud.msep, 0) " \
+            "WHEN a.month = 10 THEN IFNULL(deptbud.moct, 0) " \
+            "WHEN a.month = 11 THEN IFNULL(deptbud.mnov, 0) " \
+            "WHEN a.month = 12 THEN IFNULL(deptbud.mdec, 0) " \
+            "ELSE 0 " \
+            "END budget, " \
+            "a.amount AS actual, 0 AS cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month = "+str(tomonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN SUM(IFNULL(deptbud.mjan, 0)) " \
+            "WHEN a.month = 2 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0))) " \
+            "WHEN a.month = 3 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0))) " \
+            "WHEN a.month = 4 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0))) " \
+            "WHEN a.month = 5 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0))) " \
+            "WHEN a.month = 6 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0))) " \
+            "WHEN a.month = 7 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))) " \
+            "WHEN a.month = 8 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0))) " \
+            "WHEN a.month = 9 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))) " \
+            "WHEN a.month = 10 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))) " \
+            "WHEN a.month = 11 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))) " \
+            "WHEN a.month = 12 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))+ SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))  + SUM(IFNULL(deptbud.mdec, 0))) " \
+            "ELSE 0 " \
+            "END cur_budytd, " \
+            "SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS cur_actualytd, " \
+            "0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode) AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY d.code, z.accountcode, z.year ASC, z.month DESC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_budget_group(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    lastyear = prevyear - 1
+
+    type_condition = ''
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY z.cgroupdescription, z.description"
+    else:
+        type_condition = "GROUP BY z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.groupname, d.product_id, d.expchartofaccount_id, " \
+            "SUM(IF(z.code = 'C', z.budget * -1, z.budget)) AS budget, SUM(IF(z.code = 'C', z.actual * -1, z.actual)) AS actual, " \
+            "(SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) AS varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.actual * -1, z.actual)) - SUM(IF(z.code = 'C', z.budget * -1, z.budget))) / SUM(IF(z.code = 'C', z.budget * -1, z.budget)))) * 100, 2), 0) AS varpercent, " \
+            "SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)) AS cur_budytd, SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) AS cur_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) AS cur_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd)) - SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd))) / SUM(IF(z.code = 'C', z.cur_budytd * -1, z.cur_budytd)))) * 100, 2), 0) AS cur_varpercent, " \
+            "SUM(IF(z.code = 'C', z.last_budytd * -1, z.last_budytd)) AS last_budytd, " \
+            "SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) AS last_actualytd, " \
+            "(SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) AS last_varamount, " \
+            "IFNULL(ROUND((((SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)) - SUM(IF(z.code = 'C', z.cur_actualytd * -1, z.cur_actualytd))) / SUM(IF(z.code = 'C', z.last_actualytd * -1, z.last_actualytd)))) * 100, 2), 0) AS last_varpercent, " \
+            "z.accountcode, z.title, z.description, " \
+            "z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN IFNULL(deptbud.mjan, 0) " \
+            "WHEN a.month = 2 THEN IFNULL(deptbud.mfeb, 0) " \
+            "WHEN a.month = 3 THEN IFNULL(deptbud.mmar, 0) " \
+            "WHEN a.month = 4 THEN IFNULL(deptbud.mapr, 0) " \
+            "WHEN a.month = 5 THEN IFNULL(deptbud.mmay, 0) " \
+            "WHEN a.month = 6 THEN IFNULL(deptbud.mjun, 0) " \
+            "WHEN a.month = 7 THEN IFNULL(deptbud.mjul, 0) " \
+            "WHEN a.month = 8 THEN IFNULL(deptbud.maug, 0) " \
+            "WHEN a.month = 9 THEN IFNULL(deptbud.msep, 0) " \
+            "WHEN a.month = 10 THEN IFNULL(deptbud.moct, 0) " \
+            "WHEN a.month = 11 THEN IFNULL(deptbud.mnov, 0) " \
+            "WHEN a.month = 12 THEN IFNULL(deptbud.mdec, 0) " \
+            "ELSE 0 " \
+            "END budget, " \
+            "a.amount AS actual, 0 AS cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month = "+str(tomonth)+" "+str(department_condition)+" " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "CASE " \
+            "WHEN a.month = 1 THEN SUM(IFNULL(deptbud.mjan, 0)) " \
+            "WHEN a.month = 2 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0))) " \
+            "WHEN a.month = 3 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0))) " \
+            "WHEN a.month = 4 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0))) " \
+            "WHEN a.month = 5 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0))) " \
+            "WHEN a.month = 6 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0))) " \
+            "WHEN a.month = 7 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))) " \
+            "WHEN a.month = 8 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0))) " \
+            "WHEN a.month = 9 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))) " \
+            "WHEN a.month = 10 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))) " \
+            "WHEN a.month = 11 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0)) + SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))) " \
+            "WHEN a.month = 12 THEN (SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mfeb, 0)) + SUM(IFNULL(deptbud.mmar, 0)) + SUM(IFNULL(deptbud.mapr, 0)) + SUM(IFNULL(deptbud.mmay, 0)) + SUM(IFNULL(deptbud.mjun, 0)) + SUM(IFNULL(deptbud.mjul, 0))+ SUM(IFNULL(deptbud.maug, 0)) + SUM(IFNULL(deptbud.msep, 0))  + SUM(IFNULL(deptbud.moct, 0))  + SUM(IFNULL(deptbud.mnov, 0))  + SUM(IFNULL(deptbud.mdec, 0))) " \
+            "ELSE 0 " \
+            "END cur_budytd, " \
+            "SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS cur_actualytd, " \
+            "0 AS last_budytd, 0 AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN departmentbudget AS deptbud ON (deptbud.chartofaccount_id = a.chartofaccount_id AND deptbud.year = 2018 AND deptbud.department_id = a.department_id) " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            "UNION " \
+            "SELECT a.year, a.month, 0 AS budget, 0 AS amount, " \
+            "0 cur_budytd, 0 AS cur_actualytd, 0 AS last_budytd, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS last_actualytd, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(lastyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode) AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
             "ORDER BY z.accountcode, z.year ASC, z.month DESC"
 
     cursor.execute(query)

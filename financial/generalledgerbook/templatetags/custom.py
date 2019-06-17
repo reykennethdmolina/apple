@@ -145,7 +145,7 @@ def sum_amount(list):
     print "hello"
     return sum([d.amount for d in list])
 
-# Budget Report
+# Schedule of Expense
 @register.filter
 def total_budcuramount(list):
     return sum(row.curamount for row in list)
@@ -166,6 +166,73 @@ def total_budvaramount(list):
 def total_budvarpercent(list):
     varamount = sum(row.varamount for row in list)
     prevamount = sum(row.prevamount for row in list)
+
+    if prevamount == 0:
+        return 0
+    else:
+        return (varamount / prevamount) * 100
+
+# Budget Report
+@register.filter
+def total_bud_budgetamount(list):
+    return sum(row.budget for row in list)
+
+@register.filter
+def total_bud_actualamount(list):
+    return sum(row.actual for row in list)
+
+@register.filter
+def total_bud_varamount(list):
+    return sum(row.varamount for row in list)
+
+@register.filter
+def total_bud_varpercent(list):
+    varamount = sum(row.varamount for row in list)
+    prevamount = sum(row.budget for row in list)
+
+    if prevamount == 0:
+        return 0
+    else:
+        return (varamount / prevamount) * 100
+
+@register.filter
+def total_bud_curytd_budgetamount(list):
+    return sum(row.cur_budytd for row in list)
+
+@register.filter
+def total_bud_curytd_actualamount(list):
+    return sum(row.cur_actualytd for row in list)
+
+@register.filter
+def total_bud_curytd_varamount(list):
+    return sum(row.cur_varamount for row in list)
+
+@register.filter
+def total_bud_curytd_varpercent(list):
+    varamount = sum(row.cur_varamount for row in list)
+    prevamount = sum(row.cur_budytd for row in list)
+
+    if prevamount == 0:
+        return 0
+    else:
+        return (varamount / prevamount) * 100
+
+@register.filter
+def total_bud_lastytd_budgetamount(list):
+    return sum(row.last_budytd for row in list)
+
+@register.filter
+def total_bud_lastytd_actualamount(list):
+    return sum(row.last_actualytd for row in list)
+
+@register.filter
+def total_bud_lastytd_varamount(list):
+    return sum(row.last_varamount for row in list)
+
+@register.filter
+def total_bud_lastytd_varpercent(list):
+    varamount = sum(row.last_varamount for row in list)
+    prevamount = sum(row.last_actualytd for row in list)
 
     if prevamount == 0:
         return 0
