@@ -1902,6 +1902,7 @@ class GeneratePDF(View):
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
         creator = request.GET['creator']
+        checknum = request.GET['checknum']
         title = "Check Voucher List"
         subtype = ""
         list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
@@ -2010,6 +2011,12 @@ class GeneratePDF(View):
             else:
                 q = q.filter(enterby_id=creator)
 
+        if checknum != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__checknum__exact=checknum)
+            else:
+                q = q.filter(checknum=checknum)
+
         if report == '5' or report == '6':
             print 'pasok'
             list = query
@@ -2082,6 +2089,7 @@ class GenerateExcel(View):
         vat = request.GET['vat']
         bankaccount = request.GET['bankaccount']
         creator = request.GET['creator']
+        checknum = request.GET['checknum']
         title = "Check Voucher List"
         list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
 
@@ -2183,6 +2191,12 @@ class GenerateExcel(View):
                 q = q.filter(cvmain__bankaccount__exact=bankaccount)
             else:
                 q = q.filter(bankaccount=bankaccount)
+
+        if checknum != '':
+            if report == '2' or report == '4':
+                q = q.filter(cvmain__checknum__exact=checknum)
+            else:
+                q = q.filter(checknum=checknum)
 
         if creator != '':
             if report == '2' or report == '4' or report == '8':
