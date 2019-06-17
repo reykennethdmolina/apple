@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load humanize %}
+    {% load pdf_filters %}
+    {% load custom %}
+    <meta charset="UTF-8">
+    <title>{{ report_type }} {{ report_subtype }}</title>
+    <style>
+        @page {
+            size: LEGAL LANDSCAPE;
+            @frame header_frame {
+                -pdf-frame-content: header_content;
+                left: 1cm;
+                right: 1cm;
+                top: 1cm;
+                height: 6cm;
+            }
+            @frame footer_frame {
+                -pdf-frame-content: footer_content;
+                left: 1cm; right: 1cm; bottom: -3cm; height: 4cm;
+            }
+            @frame content_frame {
+                top: 5.8cm; left: 1cm; width: 33.5cm; height: 14.5cm;
+            }
+        }
+        body{
+            font-size: 12px;
+            font-family: 'Times New Roman';
+        }
+        .title{
+            font-size: 130%;
+            font-weight: bold;
+            font-family: 'Times New Roman';
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+        }
+        .table th {
+            vertical-align: top;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size:15px;
+        }
+        .table td {
+            padding: 1px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table thead th {
+            vertical-align: bottom;
+            border-bottom: 2px solid #000;
+        }
+        .table tbody + tbody {
+            border-top: 2px solid #000;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header_content">
+    <div class="card">
+       <table>
+            <tr>
+                <td width="50%"><p class="title">{{ company.description|upper }}</p></td>
+                <td width="50%"><p class="center">{{ today|date:'M d, Y h:i:s A'}}</p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address1 }}</p></td>
+                <td width="25%"><p class="center">page: <pdf:pagenumber /> of <pdf:pagecount />   </p></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>{{ company.address2 }}</p></td>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="50%"><p>VAT REG TIN: {{ company.tinnum }}</p></td>
+                <td width="50%"></td>
+            </tr>
+            <tr>
+                <td width="50%"></td>
+                <td width="50%"></td>
+            </tr>
+           <tr>
+                <td width="85%"><p class="title" style="font-size:15px;">{{ title|upper }}</p></td>
+                <td width="10%"></td>
+            </tr>
+            <tr>
+                <td width="85%"><p class="title" style="font-size:13px;">{{ filtertext|upper }} - for the period of {{ curdate|date:'F d, Y' }} to {{ asof|date:'F d, Y' }}</p></td>
+                <td width="10%"></td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="text-align:center;width:160px"></th>
+                    <th colspan="4" style="text-align:center;width:400px">---------- current month ----------</th>
+                    <th colspan="4" style="text-align:center;width:400px">---------- current year -- year to date ----------</th>
+                    <th colspan="3" style="text-align:center;width:300px">------- last year -- year to date -------</th>
+                </tr>
+                <tr style="border-bottom: 2px solid #000;">
+                    <th style="text-align:center;width:350px;font-size:11px"></th>
+                    <th style="text-align:center;width:120px;font-size:11px"><br>budget</th>
+                    <th style="text-align:center;width:120px;font-size:11px"><br>actual</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance over/(under)</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance(%) over/(under)</th>
+                    <th style="text-align:center;width:120px;font-size:11px"><br>budget</th>
+                    <th style="text-align:center;width:120px;font-size:11px"><br>actual</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance over/(under)</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance(%) over/(under)</th>
+                    <th style="text-align:center;width:120px;font-size:11px"><br>actual</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance over/(under)</th>
+                    <th style="text-align:center;width:120px;font-size:11px">variance(%) over/(under)</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<table id="content-data">
+    <tbody>
+
+    <!-- Group Header -->
+
+    {% regroup list by groupname as data %}
+
+    {% for deptgroup in data %}
+
+    <tr>
+        <td colspan="12" style="font-size:15px;"><b>{{ deptgroup.list.0.groupname }}</b></td>
+    </tr>
+
+        {% regroup deptgroup.list by cgroupdescription as data %}
+
+        {% for group in data %}
+
+        <tr>
+            <td colspan="12" style="font-size:14px;"><b>{{ group.grouper }}</b></td>
+        </tr>
+
+            {% regroup group.list by csubgroupdescription as subdata %}
+
+            {% for subgroup in subdata %}
+
+            <tr>
+                <td colspan="12" style="font-size:13px;margin-left:15px;"><b>{{ subgroup.grouper }}</b></td>
+            </tr>
+
+                {% regroup subgroup.list by csubheaddescription as title %}
+
+                {% for titlegroup in title %}
+
+                <tr>
+                    <td colspan="12" style="font-size:12px;margin-left:20px;"><b>{{ titlegroup.grouper }}</b></td>
+                </tr>
+
+                    {% for item in titlegroup.list %}
+
+                    <tr>
+                        <td style="font-size:10px;width:350px;margin-left:25px;">{{ item.description }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.budget|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.actual|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.varamount|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.varpercent|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.cur_budytd|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.cur_actualytd|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.cur_varamount|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.cur_varpercent|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.last_actualytd|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.last_varamount|default:''|floatformat:2|intcomma|to_negative }}</td>
+                        <td style="font-size:10px;width:120px;text-align:right">{{ item.last_varpercent|default:''|floatformat:2|intcomma|to_negative }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+                <tr>
+                    <td></td>
+                    <td colspan="11" style="border-top:2px solid #000"></td>
+                </tr>
+                <tr>
+                    <td style="font-size:12px;margin-left:15px;width:350px;">sub-total - {{ subgroup.grouper }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_budgetamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_varamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_varpercent|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_curytd_budgetamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_curytd_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_curytd_varamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_curytd_varpercent|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_lastytd_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_lastytd_varamount|floatformat:2|intcomma|to_negative }}</td>
+                    <td style="font-size:12px;margin-left:15px;width:120px;text-align:right;">{{ subgroup.list|total_bud_lastytd_varpercent|floatformat:2|intcomma|to_negative }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td colspan="11" style="border-top:1px solid #000"></td>
+                </tr>
+                <tr>
+                    <td colspan="12"></td>
+                </tr>
+
+            {% endfor %}
+
+            <tr>
+                <td></td>
+                <td colspan="11" style="border-top:2px solid #000"></td>
+            </tr>
+            <tr>
+                <td style="font-size:13px;margin-left:15px;width:350px;">Total - {{ group.grouper }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_budgetamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_varamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_varpercent|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_curytd_budgetamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_curytd_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_curytd_varamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_curytd_varpercent|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_lastytd_actualamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_lastytd_varamount|floatformat:2|intcomma|to_negative }}</td>
+                <td style="font-size:13px;margin-left:15px;width:120px;text-align:right;">{{ group.list|total_bud_lastytd_varpercent|floatformat:2|intcomma|to_negative }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="11" style="border-top:2px solid #000"></td>
+            </tr>
+            <tr>
+                <td colspan="12"></td>
+            </tr>
+
+        {% endfor %}
+    <tr>
+        <td colspan="12" style="font-size:15px;"></td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div id="footer_content" style="text-align:right">
+    <p class="right">{{ company.report_footer14 }} / {{ username  }}</p>
+</div>
