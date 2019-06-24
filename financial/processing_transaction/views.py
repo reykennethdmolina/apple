@@ -92,6 +92,7 @@ class IndexView(TemplateView):
                     })
                 elif apmain.cvmain_id:
                     cvmain = Cvmain.objects.filter(pk=apmain.cvmain_id).first()
+                    print 'cv'
                     print cvmain
                     if cvmain is not None:
                         apvcvtrans.append({
@@ -120,8 +121,8 @@ class IndexView(TemplateView):
         context['data'] = zip(poapvtrans, apvcvtrans)
 
         # APV-based report
-        apvcv = Apvcvtransaction.objects.filter(status='A').order_by('-apmain')
-        context['data2'] = apvcv
+        #apvcv = Apvcvtransaction.objects.filter(status='A').order_by('-apmain')
+        #context['data2'] = apvcv
 
         if self.request.GET:
             context['selectprocess'] = self.request.GET['selectprocess']
