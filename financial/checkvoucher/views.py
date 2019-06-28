@@ -2094,6 +2094,7 @@ class GenerateExcel(View):
         list = Cvmain.objects.filter(isdeleted=0).order_by('cvnum')[:0]
 
         if report == '1':
+            print 'hey pasok 1'
             title = "Check Voucher Transaction List - Summary"
             q = Cvmain.objects.filter(isdeleted=0).order_by('cvnum', 'cvdate')
             if dfrom != '':
@@ -2198,13 +2199,14 @@ class GenerateExcel(View):
             else:
                 q = q.filter(checknum=checknum)
 
+
         if creator != '':
             if report == '2' or report == '4' or report == '8':
                 q = q.filter(cvmain__enterby_id=creator)
             else:
                 q = q.filter(enterby_id=creator)
 
-        elif report == '5' or report == '6':
+        if report == '5' or report == '6':
             print 'pasok'
             list = query
             inputcredit = 0
@@ -2218,6 +2220,7 @@ class GenerateExcel(View):
                 efocredit = df['efocreditamount'].sum()
                 efodebit = df['efodebitamount'].sum()
         else:
+            print 'nasa q'
             list = q
 
         if list:
@@ -2245,7 +2248,9 @@ class GenerateExcel(View):
 
         filename = "cvreport.xlsx"
 
+        print q
         if report == '1':
+
             # header
             worksheet.write('A4', 'CV Number', bold)
             worksheet.write('B4', 'CV Date', bold)
