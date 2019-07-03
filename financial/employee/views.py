@@ -220,3 +220,17 @@ class GeneratePDF(View):
             "username": request.user,
         }
         return Render.render('employee/list.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class GeneratePDFCP(View):
+    def get(self, request):
+        company = Companyparameter.objects.all().first()
+        list = Employee.objects.filter(isdeleted=0,cellphone_subsidize_amount__gt=0).order_by('lastname', 'firstname', 'middlename')
+        context = {
+            "title": "Employee Master List with Cellphone Subsidy",
+            "today": timezone.now(),
+            "company": company,
+            "list": list,
+            "username": request.user,
+        }
+        return Render.render('employee/list_cp.html', context)

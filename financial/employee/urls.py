@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^saveuseremployee/$', views.saveUserEmployee, name='saveuseremployee'),
     url(r'^unassignuseremployee/$', views.unassignUserEmployee, name='unassignuseremployee'),
     url(r'^pdf/$', views.GeneratePDF.as_view(), name='pdf'),
+    url(r'^pdfcp/$', views.GeneratePDFCP.as_view(), name='pdfcp'),
 ]
