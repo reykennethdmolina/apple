@@ -266,8 +266,8 @@ def transgenerate(request):
         if begbal.beg_amount >= adtransnet:
             begcode = begbal.beg_code
         else:
-            begcode = begbal.adtranscode
-
+            begcode = adtranscode
+    
     if begcode == 'C':
         endbalamount = (float(begbalamount) * -1) + float(netamount)
     else:
