@@ -258,16 +258,25 @@ def transgenerate(request):
         adtranscode = adtrans.balcode
 
     begcode = 'D'
+    bbamount = 0
     if begbal:
-        if begbal.beg_code != adtranscode:
-            begbalamount = float(begbal.beg_amount) - float(abs(adtransnet))
+        if begbal.beg_amount is None:
+            bbamount = 0
         else:
-            begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
+            bbamount = begbal.beg_amount
+            
+        if begbal.beg_code != adtranscode:
+            print 'dito'
+            begbalamount = float(bbamount) - float(abs(adtransnet))
+        else:
+            print 'dito ba'
+            begbalamount = float(bbamount) + float(abs(adtransnet))
+            #begbalamount = float(begbal.beg_amount) + float(abs(adtransnet))
         if begbal.beg_amount >= adtransnet:
             begcode = begbal.beg_code
         else:
             begcode = adtranscode
-    
+
     if begcode == 'C':
         endbalamount = (float(begbalamount) * -1) + float(netamount)
     else:
