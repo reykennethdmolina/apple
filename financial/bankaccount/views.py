@@ -264,7 +264,7 @@ def transgenerate(request):
             bbamount = 0
         else:
             bbamount = begbal.beg_amount
-            
+
         if begbal.beg_code != adtranscode:
             print 'dito'
             begbalamount = float(bbamount) - float(abs(adtransnet))

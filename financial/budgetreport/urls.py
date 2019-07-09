@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^deptbud/$', views.DeptBudgetInquiry.as_view(), name='deptbudinq'),
     url(r'^transgenerate/$', views.transgenerate, name='transgenerate'),
     url(r'^transexcel/$', views.GenerateTransExcel.as_view(), name='transexcel'),
+    url(r'^generate/$', views.generate, name='generate'),
     #url(r'^excel/$', views.GenerateExcel.as_view(), name='excel'),
 ]

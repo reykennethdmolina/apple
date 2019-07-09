@@ -128,7 +128,13 @@
                                     "<td><input type='number' name='temp_quantity' form='form-b' step='any' class='form-control input-sm temp_quantity' value='" + $("#id_quantity").val() + "'></td>" +
                                     "<td>" +
                                         "<select class='form-control input-sm' required style='width: 100%' id='id_temp_item_um' name='temp_item_um' form='form-b'>" +
-                                            "{% for unitofmeasure in unitofmeasure %} <option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>{% endfor %}" +
+                                            "{% for unitofmeasure in unitofmeasure %}" +
+                                            "{% if unitofmeasure.id == 8 %}" +
+                                            "<option value='{{ unitofmeasure.code }}' selected='selected'   >{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>" +
+                                            "{% else %}" +
+                                            "<option value='{{ unitofmeasure.code }}'>{{ unitofmeasure.description }} ({{ unitofmeasure.code }})</option>" +
+                                            "{% endif %}" +
+                                            "{% endfor %}" +
                                         "</select>" +
                                     "</td>" +
                                     "<td>" +

@@ -614,7 +614,7 @@ def savedetailtemp(request):
                         .raw('SELECT inv.unitcost, '
                                     'inv.code, '
                                     'inv.description, '
-                                    'inv.id, '
+                                    'inv.id, inv.unitofmeasure_id, '
                                     'um.code AS um_code '
                             'FROM inventoryitem inv '
                             'LEFT JOIN unitofmeasure um '
@@ -624,13 +624,18 @@ def savedetailtemp(request):
                                 'inv.id = ' + request.POST['inv_id'])
 
         for data in invdetail:
+            x = Inventoryitem.objects.get(pk=request.POST['inv_id'])
+
             prfdata = [data.code,
                        data.description,
                        data.um_code,
                        data.unitcost,
-                       data.id]
+                       data.id,
+                       data.unitofmeasure_id]
 
             department = Department.objects.get(pk=request.POST['department'], isdeleted=0)
+
+
 
             detailtemp = Prfdetailtemp()
             detailtemp.invitem_code = data.code
@@ -641,8 +646,8 @@ def savedetailtemp(request):
             detailtemp.department_name = department.departmentname
             detailtemp.department = Department.objects.get(pk=request.POST['department'])
             detailtemp.remarks = request.POST['remarks']
-            detailtemp.invitem_unitofmeasure = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure
-            detailtemp.invitem_unitofmeasure_code = Inventoryitem.objects.get(pk=request.POST['inv_id']).unitofmeasure.code
+            detailtemp.invitem_unitofmeasure = x.unitofmeasure
+            detailtemp.invitem_unitofmeasure_code = x.unitofmeasure.code
             detailtemp.currency = Currency.objects.get(pk=request.POST['currency'], isdeleted=0, status='A')
             detailtemp.status = 'A'
             detailtemp.enterdate = datetime.datetime.now()

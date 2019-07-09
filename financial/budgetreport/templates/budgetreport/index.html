@@ -109,6 +109,7 @@
             </div>
             <div class="col-md-12" style="min-height: 800px;">
                 <iframe src="{% url 'budgetreport:pdf' %}?report=1&from={% now 'Y-m-d' %}&to={% now 'Y-m-d' %}&filter=1&type=1&department=&product=" id="result" height="1200px" width="100%"></iframe>
+                <div id="iframe" frameborder="0" scrolling="yes"></div>
             </div>
             <div class="clearfix"></div>
         </div>
@@ -136,8 +137,33 @@ $(function(){
             return false;
         }
 
-        url = "{% url 'budgetreport:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&filter="+filter+"&type="+type+"&department="+department+"&product="+product;
-        $('#result').prop('src', url);
+        if (report == 4) {
+            $.ajax({
+                url: "{% url 'budgetreport:generate' %}",
+                type: "get",
+                dataType: "json",
+                data: {
+                    'csrfmiddlewaretoken': "{{csrf_token}}",
+                    'report':  report,
+                    'from':  date_from,
+                    'to':  date_to,
+                    'filter':  filter,
+                    'type':  type,
+                    'department':  department,
+                    'product':  product,
+                },
+                success: function(response) {
+                $('#iframe').show();
+                $('#result').hide();
+                $("#iframe").html(response['viewhtml']);
+                }
+            });
+        } else {
+            url = "{% url 'budgetreport:pdf' %}"+"?report="+report+"&from="+date_from+"&to="+date_to+"&filter="+filter+"&type="+type+"&department="+department+"&product="+product;
+            $('#iframe').hide();
+            $('#result').show();
+            $('#result').prop('src', url);
+        }
     });
 
     $('#generatexls').click(function(){

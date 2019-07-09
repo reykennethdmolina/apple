@@ -24,6 +24,7 @@ import io
 import xlsxwriter
 import datetime
 from django.template.loader import render_to_string
+from operator import itemgetter
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
@@ -887,6 +888,23 @@ class GeneratePDF(View):
                 list = query_scheduled_expense_group(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
                 title = "Schedule of Expenses - Group - Summary"
 
+        # elif report == '4':
+        #     if type == '2':
+        #         list = query_sched_expense_row(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+        #         list = query_sched_expense_column(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+        #         title = "Schedule of Expenses - Detailed"
+        #     else:
+        #
+        #         list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+        #         dept = {}
+        #         col_dept = ''
+        #         for c in list_dept:
+        #             if col_dept != c.dcode:
+        #                 dept.update({c.id: c.departmentname, c.dcode: c.dcode})
+        #             col_dept = c.dcode
+        #         listx = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear,tomonth, prevyear, prevmonth)
+        #         title = "Schedule of Expenses - Summary"
+
         elif report == '5':
             if type == '2':
                 list = query_budget_deptsection(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
@@ -968,6 +986,125 @@ class GeneratePDF(View):
                 return Render.render('budgetreport/budget_group_summary.html', context)
         else:
             return Render.render('budgetreport/department_summary.html', context)
+
+@csrf_exempt
+def generate(request):
+    company = Companyparameter.objects.all().first()
+    list = []
+    total = []
+    report = request.GET['report']
+    filter = request.GET['filter']
+    type = request.GET['type']
+    dfrom = request.GET['from']
+    dto = request.GET['to']
+    department = request.GET['department']
+    product = request.GET['product']
+    title = "Budget Monitoring Report"
+    subtitle = ""
+    typetext = "Summary"
+    filtertext = "Cost of Sales"
+
+    ndto = datetime.datetime.strptime(dto, "%Y-%m-%d")
+    todate = datetime.date(int(ndto.year), int(ndto.month), 10)
+    toyear = todate.year
+    tomonth = todate.month
+    nfrom = datetime.datetime.strptime(dfrom, "%Y-%m-%d")
+    fromdate = datetime.date(int(nfrom.year), int(nfrom.month), 10)
+    fromyear = fromdate.year
+    frommonth = fromdate.month
+
+    prevdate = datetime.date(int(fromyear), int(frommonth), 10) - timedelta(days=15)
+    prevyear = prevdate.year
+    prevmonth = prevdate.month
+
+    if filter == '527':
+        filtertext = "Cost of Sales"
+    elif filter == '643':
+        filtertext = "General & Administrative"
+    elif filter == '745':
+        filtertext = "Selling Expense"
+    else:
+        filtertext = "All"
+
+    if type == '1':
+        typetext = "Summary"
+    else:
+        typetext = "Detailed"
+
+    list = []
+    viewhtml = ''
+
+    context = {
+        "subtitle": subtitle,
+        "asof": ndto,
+        "prevdate": prevdate,
+        "curdate": nfrom,
+        "company": company,
+        "list": list,
+        "filtertext": filtertext,
+        "typetext": typetext,
+        "total": total,
+        "username": request.user,
+    }
+
+
+    if report == '4':
+        if type == '2':
+            list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear,
+                                                 tomonth, prevyear, prevmonth)
+            dept = {}
+            deptname = {}
+            col_dept = ''
+            counter = 1
+            for c in list_dept:
+                if col_dept != c.dcode:
+                    dept.update({c.id: c.departmentname})
+                    deptname.update({c.id: c.departmentname})
+                    counter += 1
+                col_dept = c.dcode
+
+            dept = sorted(dept.items(), key=lambda kv: (kv[0]))
+            deptname = sorted(deptname.items(), key=lambda kv: (kv[0]))
+
+            list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            title = "Schedule of Expenses - Detailed"
+            context['title'] = title
+            context['list'] = list
+            context['dept'] = deptname
+            context['counter'] = counter + 1
+            context['counterminus'] = counter
+            viewhtml = render_to_string('budgetreport/schedule_expenses_detail.html', context)
+        else:
+
+            list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            dept = {}
+            deptname = {}
+            col_dept = ''
+            counter = 1
+            for c in list_dept:
+                if col_dept != c.dcode:
+                    dept.update({c.id: c.departmentname})
+                    deptname.update({c.id: c.departmentname})
+                    counter += 1
+                col_dept = c.dcode
+
+            dept = sorted(dept.items(), key=lambda kv: (kv[0]))
+            deptname = sorted(deptname.items(), key=lambda kv: (kv[0]))
+
+            list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth)
+            title = "Schedule of Expenses - Summary"
+            context['title'] = title
+            context['list'] = list
+            context['dept'] = deptname
+            context['counter'] = counter + 1
+            context['counterminus'] = counter
+            viewhtml = render_to_string('budgetreport/schedule_expenses_summary.html', context)
+
+    data = {
+        'status': 'success',
+        'viewhtml': viewhtml,
+    }
+    return JsonResponse(data)
 
 @method_decorator(login_required, name='dispatch')
 class GenerateExcel(View):
@@ -1053,6 +1190,34 @@ class GenerateExcel(View):
                                                prevyear, prevmonth)
                 title = "Schedule of Expenses - Group - Summary"
                 filename = "schedexpenses-budgetreport-group-summary.xlsx"
+
+        elif report == '4':
+            list_dept = query_sched_expense_dept(type, filter, department, product, fromyear, frommonth, toyear,
+                                                 tomonth, prevyear, prevmonth)
+            dept = {}
+            deptname = {}
+            col_dept = ''
+            counter = 1
+            for c in list_dept:
+                if col_dept != c.dcode:
+                    dept.update({c.id: c.departmentname})
+                    deptname.update({c.id: c.departmentname})
+                    counter += 1
+                col_dept = c.dcode
+
+            dept = sorted(dept.items(), key=lambda kv: (kv[0]))
+            deptname = sorted(deptname.items(), key=lambda kv: (kv[0]))
+
+            if type == '2':
+                list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear,
+                                               tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Detailed"
+                filename = "schedexpenses-detailed.xlsx"
+            else:
+                list = query_sched_expense_row(dept, type, filter, department, product, fromyear, frommonth, toyear,
+                                               tomonth, prevyear, prevmonth)
+                title = "Schedule of Expenses - Summary"
+                filename = "schedexpenses-summary.xlsx"
 
         elif report == '5':
             if type == '2':
@@ -1540,6 +1705,21 @@ class GenerateExcel(View):
                         worksheet.write(row, col + 5, float(format(totalvarpercent, '.2f')))
                         row += 1
                         row += 1
+
+        elif report == '4':
+
+            # header
+            worksheet.write('A5', '', bold)
+            rowh = 5
+            colh = 1
+            for key, val in dept:
+                worksheet.write(rowh,colh, val, bold)
+                colh += 1
+
+            row = 6
+            col = 0
+            if list:
+                print 'ah'
 
         elif report == '5':
 
@@ -2950,5 +3130,109 @@ def query_budget_group(type, expense, department, product, fromyear, frommonth, 
 
     cursor.execute(query)
     result = namedtuplefetchall(cursor)
+    print 'end'
+    return result
+
+def query_sched_expense_row(dept, type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    str_col = ''
+    str_total = ''
+    str_left = ''
+    str_con = ''
+    type_condition = ''
+
+    if type == '2':
+        type_condition = "GROUP BY cgroup.description, ch.description"
+    else:
+        type_condition = "GROUP BY cgroup.description, csubhead.title"
+
+    counter = 1
+    #for id, d in dept.items():
+    for id, d in dept:
+        str_col += "SUM(IFNULL(col"+str(counter)+".amount, 0)) AS col"+str(counter)+", "
+        str_total += "SUM(IFNULL(col"+str(counter)+".amount, 0)) + "
+        str_left += "LEFT OUTER JOIN " \
+                    "(SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, a.code, a.chartofaccount_id, a.department_id " \
+                    "FROM accountexpensebalance AS a " \
+                    "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" AND a.department_id = "+str(id)+" " \
+                    "GROUP BY a.chartofaccount_id) AS col"+str(counter)+" ON col"+str(counter)+".chartofaccount_id = c.id "
+        str_con += "IFNULL(col"+str(counter)+".amount, 0) + "
+        counter += 1
+
+    str_total = "("+str(str_total)+" 0 ) AS col"+str(counter)+", "
+    print 'start'
+    query = "SELECT '' AS dcode, ch.main, ch.clas, ch.item, ch.cont, ch.sub, ch.title AS chtitle, ch.description AS chdescription, ch.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription, c.accountcode, c.description, "+str(str_col)+" "+str(str_total)+" c.id " \
+            "FROM chartofaccount AS c "+str(str_left)+" " \
+            "LEFT OUTER JOIN chartofaccount AS ch ON ch.id = c.id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = ch.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = ch.main AND csubgroup.clas = ch.clas AND csubgroup.item = ch.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = ch.main AND csubhead.clas = ch.clas AND csubhead.item = ch.item AND csubhead.cont = ch.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE c.main = 5 AND ("+str(str_con)+" 0) != 0 "+" "+str(type_condition)+" " \
+            "ORDER BY c.accountcode"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
+    #print query
+
+    print 'end'
+    return result
+
+def query_sched_expense_dept(type, expense, department, product, fromyear, frommonth, toyear, tomonth, prevyear, prevmonth):
+    print "Transaction Query Budget Report"
+    ''' Create query '''
+    cursor = connection.cursor()
+
+    type_condition = "GROUP BY d.code, z.cgroupdescription, z.description"
+    department_condition = ''
+    expense_condition = ''
+    product_condition = ''
+
+    # if type == '2':
+    #     type_condition = "GROUP BY z.cgroupdescription, z.description"
+    # else:
+    #     type_condition = "GROUP BY z.cgroupdescription, z.csubheadtitle"
+
+    if expense != '':
+        expense_condition = "AND d.expchartofaccount_id = '" + str(expense) + "'"
+
+    if product != '':
+        product_condition = "AND d.product_id = '" + str(product) + "'"
+
+    if department != '':
+        department_condition = "AND a.department_id = '" + str(department) + "'"
+
+    print 'start'
+    query = "SELECT d.code AS dcode, d.departmentname, d.id, d.groupname, d.classification, d.product_id, d.expchartofaccount_id, SUM(IF(z.code = 'C', z.amount * -1, z.amount)) AS amount, " \
+            "z.accountcode, z.title, z.description, z.cgrouptitle, z.cgroupdescription, z.csubgrouptitle, z.csubgroupdescription, z.csubheadtitle, z.csubheaddescription " \
+            "FROM ( " \
+            "SELECT a.year, a.month, SUM(IF(a.code = 'C', a.amount * -1, a.amount)) AS amount, " \
+            "a.code, a.chartofaccount_id, a.department_id, " \
+            "c.main, c.clas, c.item, c.cont, c.sub, " \
+            "c.accountcode, c.title, c.description, c.accounttype, " \
+            "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
+            "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
+            "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription " \
+            "FROM accountexpensebalance AS a " \
+            "LEFT OUTER JOIN chartofaccount AS c ON c.id = a.chartofaccount_id " \
+            "LEFT OUTER JOIN chartofaccount AS cgroup ON (cgroup.main = c.main AND cgroup.clas = c.clas AND cgroup.item = 0 AND cgroup.cont = 0 AND cgroup.sub = 000000 AND cgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubgroup ON (csubgroup.main = c.main AND csubgroup.clas = c.clas AND csubgroup.item = c.item AND csubgroup.cont = 0 AND csubgroup.sub = 000000 AND csubgroup.accounttype = 'T') " \
+            "LEFT OUTER JOIN chartofaccount AS csubhead ON (csubhead.main = c.main AND csubhead.clas = c.clas AND csubhead.item = c.item AND csubhead.cont = c.cont AND csubhead.sub = CONCAT(SUBSTR(c.sub, 1, 1),'','00000')) " \
+            "WHERE a.year = "+str(toyear)+" AND a.month >= 1 AND a.month <= "+str(tomonth)+" "+str(department_condition)+" " \
+            "GROUP BY c.accountcode " \
+            ") AS z " \
+            "LEFT OUTER JOIN department AS d ON d.id = z.department_id " \
+            "WHERE z.main = '5' "+str(expense_condition)+" "+str(product_condition)+" "+" "+str(type_condition)+" " \
+            "ORDER BY d.departmentname DESC, z.accountcode, z.year ASC, z.month DESC"
+
+    cursor.execute(query)
+    result = namedtuplefetchall(cursor)
+
     print 'end'
     return result
