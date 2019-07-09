@@ -80,8 +80,12 @@ class IndexView(TemplateView):
         poapvtrans = Poapvtransaction.objects.filter(status='A').order_by('-pomain', '-podetail', '-apmain')
         apvcvtrans = []
         for data in poapvtrans:
-            apmain = get_object_or_None(Apvcvtransaction, apmain=data.apmain_id)
-            if apmain:
+            #print data.apmain_id
+            #apmain = get_object_or_None(Apvcvtransaction, apmain=data.apmain_id)
+            apmain = Apvcvtransaction.objects.filter(apmain_id=data.apmain_id).first()
+            #if apmain:
+            if apmain is not None:
+                print 'pasok'
                 if apmain.new_apmain:
                     apvcvtrans.append({
                         'ap_to_ap_num': apmain.new_apmain.apnum,
@@ -122,7 +126,7 @@ class IndexView(TemplateView):
 
         # APV-based report
         #apvcv = Apvcvtransaction.objects.filter(status='A').order_by('-apmain')
-        #context['data2'] = apvcv
+            #context['data2'] = apvcv
 
         if self.request.GET:
             context['selectprocess'] = self.request.GET['selectprocess']
