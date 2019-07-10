@@ -1715,11 +1715,41 @@ class GenerateExcel(View):
             for key, val in dept:
                 worksheet.write(rowh,colh, val, bold)
                 colh += 1
+            worksheet.write(rowh, colh, 'TOTAL', bold)
 
             row = 6
             col = 0
             if list:
-                print 'ah'
+                if type == '1':
+                    print 'summary'
+                    for deptx, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
+                            row += 1
+
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  '+str(head[0]), bold)
+                                row += 1
+
+                                for data, item in headgroup.iterrows():
+                                    worksheet.write(row, col, '      '+str(item.csubheaddescription))
+                                    colh = 1
+                                    total = 0
+                                    for key, val in dept:
+                                        x = eval('item.col'+str(colh))
+                                        worksheet.write(row, colh, float(format(x, '.2f')))
+                                        colh += 1
+                                        total +=x
+                                    worksheet.write(row, colh, float(format(total, '.2f')))
+                                    row += 1
+
+                                worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                row += 1
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            row += 1
+
 
         elif report == '5':
 
@@ -3164,7 +3194,7 @@ def query_sched_expense_row(dept, type, expense, department, product, fromyear, 
 
     str_total = "("+str(str_total)+" 0 ) AS col"+str(counter)+", "
     print 'start'
-    query = "SELECT '' AS dcode, ch.main, ch.clas, ch.item, ch.cont, ch.sub, ch.title AS chtitle, ch.description AS chdescription, ch.accounttype, " \
+    query = "SELECT '' AS dcode, '' AS departmentname, ch.main, ch.clas, ch.item, ch.cont, ch.sub, ch.title AS chtitle, ch.description AS chdescription, ch.accounttype, " \
             "cgroup.title AS cgrouptitle, cgroup.description AS cgroupdescription, " \
             "csubgroup.title AS csubgrouptitle, csubgroup.description AS csubgroupdescription, " \
             "csubhead.title AS csubheadtitle, csubhead.description AS csubheaddescription, c.accountcode, c.description, "+str(str_col)+" "+str(str_total)+" c.id " \

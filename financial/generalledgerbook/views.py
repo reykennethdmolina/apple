@@ -1111,6 +1111,10 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     variance = 0
     gtotal_current = 0
     gtotal_previous = 0
+    gtotal_variance = 0
+    gtotal_previous_percentage = 0
+    gtotal_var = 0
+    prev_liab_equity_percentage = 0
 
     dataset = pd.DataFrame(result)
     curdata = dataset.groupby('this_code')['current_amount'].sum()
@@ -1140,6 +1144,8 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                 subtotal_prev = subgroup.groupby('maingroup_code')['prev_amount_abs'].sum()
                 current_percentage = 0
                 previous_percentage = 0
+                subtotal_current_percentage = 0
+                subtotal_previous_percentage = 0
                 for data, sub in subgroup.iterrows():
                     worksheet.write(row, col, str(sub['subgroup_code']))
                     worksheet.write(row, col + 1, str(sub['subgroup_desc']))
@@ -1155,7 +1161,10 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                     variance = float(format(sub['current_amount_abs'], '.2f')) - float(format(sub['prev_amount_abs'], '.2f'))
 
                     if float(variance) != 0:
-                        variance_percentage = float(variance) / float(format(sub['prev_amount_abs'], '.2f')) * 100
+                        if sub['prev_amount_abs'] != 0:
+                            variance_percentage = float(variance) / float(format(sub['prev_amount_abs'], '.2f')) * 100
+                        else:
+                            variance_percentage = 0
                     else:
                         variance_percentage = 0
 
@@ -1177,8 +1186,15 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                 worksheet.write(row, col + 3, float(format(subtotal_current, '.2f')))
                 worksheet.write(row, col + 4, float(format(subtotal_previous, '.2f')))
 
-                subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(format(total_current, '.2f')) * 100
-                subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(format(total_previous, '.2f')) * 100
+                if float(total_current) != 0:
+                    subtotal_current_percentage = float(format(subtotal_current, '.2f')) / float(format(total_current, '.2f')) * 100
+                else:
+                    total_current = 0
+
+                if float(total_previous) != 0:
+                    subtotal_previous_percentage = float(format(subtotal_previous, '.2f')) / float(format(total_previous, '.2f')) * 100
+                else:
+                    total_previous = 0
 
                 if float(subtotal_previous) != 0:
                     subtotal_var = float(format(subtotal_variance, '.2f')) / float(format(subtotal_previous, '.2f')) * 100
@@ -1196,9 +1212,20 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
                 worksheet.write(row, col + 3, float(format(total_current, '.2f')))
                 worksheet.write(row, col + 4, float(format(total_previous, '.2f')))
 
-                total_current_percentage = float(format(total_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
-                total_previous_percentage = float(format(total_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
-                total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
+                if float(gtotal_current) != 0:
+                    total_current_percentage = float(format(total_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
+                else:
+                    total_current_percentage = 0
+
+                if float(gtotal_previous) != 0:
+                    total_previous_percentage = float(format(total_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+                else:
+                    total_previous_percentage = 0
+
+                if float(total_previous) != 0:
+                    total_var = float(format(total_variance, '.2f')) / float(format(total_previous, '.2f')) * 100
+                else:
+                    total_var = 0
 
                 worksheet.write(row, col + 5, float(format(total_current_percentage, '.2f')))
                 worksheet.write(row, col + 6, float(format(total_previous_percentage, '.2f')))
@@ -1211,13 +1238,16 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
             worksheet.write(row, col + 3, float(format(gtotal_current, '.2f')))
             worksheet.write(row, col + 4, float(format(gtotal_previous, '.2f')))
 
-            gtotal_current_percentage = float(format(gtotal_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
-            gtotal_previous_percentage = float(format(gtotal_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
-            gtotal_variance = float(format(gtotal_current, '.2f')) - float(format(gtotal_previous, '.2f'))
-            gtotal_var = float(format(gtotal_variance, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+            if float(gtotal_current) != 0:
+                gtotal_current_percentage = float(format(gtotal_current, '.2f')) / float(format(gtotal_current, '.2f')) * 100
+            if float(gtotal_previous) != 0:
+                gtotal_previous_percentage = float(format(gtotal_previous, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
+                gtotal_variance = float(format(gtotal_current, '.2f')) - float(format(gtotal_previous, '.2f'))
+            if float(gtotal_previous) != 0:
+                gtotal_var = float(format(gtotal_variance, '.2f')) / float(format(gtotal_previous, '.2f')) * 100
 
             worksheet.write(row, col + 5, float(format(gtotal_current_percentage, '.2f')))
-            worksheet.write(row, col + 6, float(format(total_previous_percentage, '.2f')))
+            worksheet.write(row, col + 6, float(format(gtotal_previous_percentage, '.2f')))
             worksheet.write(row, col + 7, float(format(gtotal_variance, '.2f')))
             worksheet.write(row, col + 8, float(format(gtotal_var, '.2f')))
             row += 1
@@ -1226,10 +1256,23 @@ def excel_balance_sheet(result, report, type, year, month, current_month, prev_m
     worksheet.write(row, col + 3, float(format(cur_liab_equity, '.2f')))
     worksheet.write(row, col + 4, float(format(prev_liab_equity, '.2f')))
 
-    cur_liab_equity_percentage = float(format(cur_liab_equity, '.2f')) / float(format(cur_liab_equity, '.2f')) * 100
-    prev_liab_equity_percentage = float(format(prev_liab_equity, '.2f')) / float(format(prev_liab_equity, '.2f')) * 100
+    if float(cur_liab_equity) != 0:
+        cur_liab_equity_percentage = float(format(cur_liab_equity, '.2f')) / float(format(cur_liab_equity, '.2f')) * 100
+    else:
+        cur_liab_equity_percentage = 0
+
+    if float(prev_liab_equity) != 0:
+        prev_liab_equity_percentage = float(format(prev_liab_equity, '.2f')) / float(format(prev_liab_equity, '.2f')) * 100
+    else:
+        prev_liab_equity = 0
+
     liab_equity_variance = float(format(cur_liab_equity, '.2f')) - float(format(prev_liab_equity, '.2f'))
-    liab_equity_var = float(format(liab_equity_variance, '.2f')) / float(format(prev_liab_equity, '.2f')) * 100
+
+    if float(prev_liab_equity) != 0:
+        liab_equity_var = float(format(liab_equity_variance, '.2f')) / float(format(prev_liab_equity, '.2f')) * 100
+    else:
+        liab_equity_var = 0
+
     worksheet.write(row, col + 5, float(format(cur_liab_equity_percentage, '.2f')))
     worksheet.write(row, col + 6, float(format(prev_liab_equity_percentage, '.2f')))
     worksheet.write(row, col + 7, float(format(liab_equity_variance, '.2f')))

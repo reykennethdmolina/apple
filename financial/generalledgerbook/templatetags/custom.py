@@ -238,3 +238,15 @@ def total_bud_lastytd_varpercent(list):
         return 0
     else:
         return (varamount / prevamount) * 100
+
+@register.filter
+def passitem(item, counter):
+    if item:
+        val = 'item.col'+str(counter)
+        return eval(val)
+
+@register.filter
+def subtotalpassitem(item, counter):
+    if item:
+        val = 'sum(row.col' + str(counter) + ' for row in item)'
+        return eval(val)
