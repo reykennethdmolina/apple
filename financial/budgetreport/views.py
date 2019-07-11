@@ -1712,8 +1712,13 @@ class GenerateExcel(View):
             worksheet.write('A5', '', bold)
             rowh = 5
             colh = 1
+            subtotal = []
+            grandtotal = []
+            grandgrandtotal = 0
             for key, val in dept:
                 worksheet.write(rowh,colh, val, bold)
+                subtotal.append(0)
+                grandtotal.append(0)
                 colh += 1
             worksheet.write(rowh, colh, 'TOTAL', bold)
 
@@ -1732,24 +1737,89 @@ class GenerateExcel(View):
                                 worksheet.write(row, col, '  '+str(head[0]), bold)
                                 row += 1
 
+                                totaltotal = 0
                                 for data, item in headgroup.iterrows():
                                     worksheet.write(row, col, '      '+str(item.csubheaddescription))
                                     colh = 1
                                     total = 0
                                     for key, val in dept:
                                         x = eval('item.col'+str(colh))
+                                        subtotal[colh - 1] += x
+                                        grandtotal[colh - 1] += x
                                         worksheet.write(row, colh, float(format(x, '.2f')))
                                         colh += 1
                                         total +=x
                                     worksheet.write(row, colh, float(format(total, '.2f')))
+                                    totaltotal += total
+                                    grandgrandtotal += total
                                     row += 1
 
                                 worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                colh = 0
+                                for key, val in dept:
+                                    worksheet.write(row, colh + 1, float(format(subtotal[colh], '.2f')))
+                                    subtotal[colh] = 0
+                                    colh += 1
+                                worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')))
                                 row += 1
 
                             worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            colh = 0
+                            for key, val in dept:
+                                worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')))
+                                colh += 1
+                            worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')))
+                            row += 1
+                else:
+                    print 'detailed'
+                    print 'summary'
+                    for deptx, department in df.fillna('NaN').groupby(['dcode', 'departmentname']):
+
+                        for group, subgroup in department.fillna('NaN').groupby(['cgrouptitle', 'cgroupdescription']):
+                            worksheet.write(row, col, str(group[0]), bold)
                             row += 1
 
+                            for head, headgroup in subgroup.fillna('NaN').groupby(['csubgrouptitle', 'csubgroupdescription']):
+                                worksheet.write(row, col, '  ' + str(head[0]), bold)
+                                row += 1
+
+                                for subhead, subheadgroup in headgroup.fillna('NaN').groupby(['csubheadtitle', 'csubheaddescription']):
+                                    worksheet.write(row, col, '    ' + str(subhead[0]), bold)
+                                    row += 1
+
+                                    totaltotal = 0
+                                    for data, item in subheadgroup.iterrows():
+                                        worksheet.write(row, col, '      ' + str(item.csubheaddescription))
+                                        colh = 1
+                                        total = 0
+                                        for key, val in dept:
+                                            x = eval('item.col' + str(colh))
+                                            subtotal[colh - 1] += x
+                                            grandtotal[colh - 1] += x
+                                            worksheet.write(row, colh, float(format(x, '.2f')))
+                                            colh += 1
+                                            total += x
+                                        worksheet.write(row, colh, float(format(total, '.2f')))
+                                        totaltotal += total
+                                        grandgrandtotal += total
+                                        row += 1
+
+                                worksheet.write(row, col, '  Subtotal - ' + str(head[0]))
+                                colh = 0
+                                for key, val in dept:
+                                    worksheet.write(row, colh + 1, float(format(subtotal[colh], '.2f')))
+                                    subtotal[colh] = 0
+                                    colh += 1
+                                worksheet.write(row, colh + 1, float(format(totaltotal, '.2f')))
+                                row += 1
+
+                            worksheet.write(row, col, 'Total - ' + str(group[0]))
+                            colh = 0
+                            for key, val in dept:
+                                worksheet.write(row, colh + 1, float(format(grandtotal[colh], '.2f')))
+                                colh += 1
+                            worksheet.write(row, colh + 1, float(format(grandgrandtotal, '.2f')))
+                            row += 1
 
         elif report == '5':
 
