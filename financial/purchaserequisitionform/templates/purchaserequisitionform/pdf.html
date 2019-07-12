@@ -206,7 +206,7 @@
                 <tr>
                     <td width="25%" style="vertical-align: top"><b>Remarks</b></td>
                     <td width="10%" style="vertical-align: top"><b>:</b></td>
-                    <td style="vertical-align: top">{{ prfmain.remarks|default:'N/A' }}</td>
+                    <td style="vertical-align: top">{{ prfmain.particulars|default:'N/A' }}x</td>
                 </tr>
             </table>
         </td>
@@ -237,7 +237,7 @@
             <td width="12%" style="padding-top: 5px;">{{ data.remarks|default:'N/A' }}</td>
             <td width="15%" style="padding-top: 5px;">{{ data.rfdetail.rfmain.rfnum|default:'N/A' }}</td>
             <td width="5%" style="padding-top: 5px;">{{ data.invitem_unitofmeasure_code }}</td>
-            <td width="16%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{% if data.netamount > 0.00 %}{{ data.netamount|floatformat:2|intcomma }}{% else %}-- no amt yet --{% endif %}</td>
+            <td width="16%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{% if data.amount > 0.00 %}{{ data.amount|floatformat:2|intcomma }}{% else %}-- no amt yet --{% endif %}</td>
             <td width="7%" style="padding-top: 5px; text-align: right; padding-right: 5px;">{{ data.quantity }}</td>
         </tr>
     {% endfor %}
