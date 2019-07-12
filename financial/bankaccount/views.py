@@ -247,7 +247,6 @@ def transgenerate(request):
     if totaldebit >= totalcredit:
         netcode = 'D'
     netamount = totaldebit - totalcredit
-    print netamount
 
     begbal =Bankaccountsummary.objects.filter(year=prevyear, bankaccount_id=bankaccount).first()
     adtrans = query_sumtransaction(adfromdate, str(nfrom.year)+'-01-01', cashinbank, bankaccount)
@@ -280,10 +279,13 @@ def transgenerate(request):
     if begcode == 'C':
         endbalamount = (float(begbalamount) * -1) + float(netamount)
     else:
-        endbalamount = float(begbalamount) + float(netamount)
+        endbalamount = float(abs(begbalamount)) + float(netamount)
 
     if float(endbalamount) < 0:
         endcode = 'C'
+
+    print endbalamount
+    print endcode
 
     context['result'] = query_transaction(dto, dfrom, cashinbank, bankaccount)
     context['dfrom'] = dfrom
@@ -488,13 +490,14 @@ class GenerateTransExcel(View):
             if begbal.beg_amount >= adtransnet:
                 begcode = begbal.beg_code
             else:
-                begcode = begbal.adtranscode
+                begcode = adtranscode
 
         if begcode == 'C':
             endbalamount = (float(begbalamount) * -1) + float(netamount)
             begbalamount = (float(begbalamount) * -1)
         else:
-            endbalamount = float(begbalamount) + float(netamount)
+            endbalamount = float(abs(begbalamount)) + float(netamount)
+            begbalamount = float(abs(begbalamount))
 
         if float(endbalamount) < 0:
             endcode = 'C'
