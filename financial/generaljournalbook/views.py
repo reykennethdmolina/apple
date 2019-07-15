@@ -926,14 +926,15 @@ def transgenerate(request):
     endbalamount = 0
     endcode = ''
 
-    begbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=prevyear, month=prevmonth).first();
-    if begbal:
-        begbalamount = begbal.end_amount
+    if chart != '':
+        begbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=prevyear, month=prevmonth).first();
+        if begbal:
+            begbalamount = begbal.end_amount
 
-    endbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=toyear, month=tomonth).first();
-    if endbal:
-        endbalamount = endbal.end_amount
-        endcode = endbal.end_code
+        endbal =Subledgersummary.objects.filter(chartofaccount_id=chart, year=toyear, month=tomonth).first();
+        if endbal:
+            endbalamount = endbal.end_amount
+            endcode = endbal.end_code
 
     context['result'] = query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeename)
     context['dto'] = dto
@@ -983,7 +984,7 @@ def query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeenam
         chart_payeename1 = "AND m.payeename LIKE '%" + str(payeename) + "%'"
         chart_payeename2 = "AND m.payee_name LIKE '%" + str(payeename) + "%'"
 
-    query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, z.debitamount, z.creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
+    query = "SELECT z.tran, z.item_counter, z.ap_num AS tnum, z.ap_date AS tdate, IFNULL(z.debitamount, 0) AS debitamount, IFNULL(z.creditamount, 0) AS creditamount, z.balancecode, z.apstatus AS transtatus, z.status AS status, bank.code AS bank, chart.accountcode, chart.description AS chartofaccount, cust.code AS custcode, cust.name AS customer, dept.code AS deptcode, dept.departmentname AS department, " \
             "emp.code AS empcode, CONCAT(IFNULL(emp.firstname, ''), ' ', IFNULL(emp.lastname, '')) AS employee, inpvat.code AS inpvatcode, inpvat.description AS inputvat, " \
             "outvat.code AS outvatcode, outvat.description AS outputvat, prod.code AS prodcode, prod.description AS product, " \
             "supp.code AS suppcode, supp.name AS supplier, vat.code AS vatcode, vat.description AS vat, wtax.code AS wtaxcode, wtax.description AS wtax, z.payeecode AS payee_code, z.payeename AS payee_name, z.particulars " \
@@ -1069,14 +1070,15 @@ class TransExcel(View):
         endbalamount = 0
         endcode = ''
 
-        begbal = Subledgersummary.objects.filter(chartofaccount_id=chart, year=prevyear, month=prevmonth).first();
-        if begbal:
-            begbalamount = begbal.end_amount
+        if chart != '':
+            begbal = Subledgersummary.objects.filter(chartofaccount_id=chart, year=prevyear, month=prevmonth).first();
+            if begbal:
+                begbalamount = begbal.end_amount
 
-        endbal = Subledgersummary.objects.filter(chartofaccount_id=chart, year=toyear, month=tomonth).first();
-        if endbal:
-            endbalamount = endbal.end_amount
-            endcode = endbal.end_code
+            endbal = Subledgersummary.objects.filter(chartofaccount_id=chart, year=toyear, month=tomonth).first();
+            if endbal:
+                endbalamount = endbal.end_amount
+                endcode = endbal.end_code
 
         result = query_transaction(dto, dfrom, chart, transtatus, status, payeecode, payeename)
 
