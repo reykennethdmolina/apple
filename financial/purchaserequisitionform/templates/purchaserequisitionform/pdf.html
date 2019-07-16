@@ -242,7 +242,8 @@
         </tr>
     {% endfor %}
         <tr>
-        <td colspan="8" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td colspan="7" align="right" style="padding-top: 5px; padding-left: 5px;"><b>TOTAL:</b></td>
+        <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ detail_total_amount|intcomma }}</b></td>
         <td style="text-align: right; padding-right: 5px; padding-top: 5px;"><b>{{ detail_total_quantity|intcomma }}</b></td>
     </tr>
 </table>

@@ -499,8 +499,9 @@ class Pdf(PDFTemplateView):
         context['parameter'] = Companyparameter.objects.get(code='PDI', isdeleted=0, status='A')
 
         prf_detail_aggregate = Prfdetail.objects.filter(prfmain=self.kwargs['pk'], isdeleted=0, status='A').\
-            aggregate(Sum('quantity'))
+            aggregate(Sum('quantity'), Sum('amount'))
         context['detail_total_quantity'] = prf_detail_aggregate['quantity__sum']
+        context['detail_total_amount'] = prf_detail_aggregate['amount__sum']
 
         context['pagesize'] = 'Letter'
         context['orientation'] = 'portrait'

@@ -610,17 +610,18 @@ def exportsave(request):
 
                     if (temp_ormain.accounttype == 'a' or temp_ormain.accounttype == 's') and temp_ormain.status.upper() == 'A':
                         # cash in bank
-                        Temp_ordetail.objects.create(
-                            orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            debitamount=data.amount,
-                            balancecode='D',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
-                            bankaccountcode=data.bankaccount,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
-                        remainingamount = float(data.amount)
+                        if data.bankaccount != 'EXDEAL': # handle exdeal
+                            Temp_ordetail.objects.create(
+                                orno=data.orno,
+                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                debitamount=data.amount,
+                                balancecode='D',
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                                bankaccountcode=data.bankaccount,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
+                            remainingamount = float(data.amount)
 
                         # accounttype = (a/r)
                         if temp_ormain.accounttype == 'a':
@@ -731,18 +732,19 @@ def exportsave(request):
 
                     elif temp_ormain.status.upper() == 'A': # if account type = 'R or D' (r/e)
                         # cash in bank
-                        Temp_ordetail.objects.create(
-                            orno=data.orno,
-                            ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
-                            debitamount=data.amount,
-                            balancecode='D',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
-                            bankaccountcode=data.bankaccount,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
-                        remainingamount = float(data.amount)
-                        remainingamount = float(format(remainingamount, '.2f'))
+                        if data.bankaccount != 'EXDEAL':  # handle exdeal
+                            Temp_ordetail.objects.create(
+                                orno=data.orno,
+                                ordate=datetime.strptime(data.ordate, '%m/%d/%Y'),
+                                debitamount=data.amount,
+                                balancecode='D',
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                                bankaccountcode=data.bankaccount,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
+                            remainingamount = float(data.amount)
+                            remainingamount = float(format(remainingamount, '.2f'))
 
                         log_remarks = "Has fully applied: <b>" + str(format(remainingamount, ',')) + "</b><br>"
 
@@ -988,16 +990,17 @@ def exportsave(request):
 
                     if temp_ormain.status.upper() == 'A':
                         # cash in bank
-                        Temp_ordetail.objects.create(
-                            orno=data.orno,
-                            ordate=temp_ordate,
-                            debitamount=data.amount,
-                            balancecode='D',
-                            chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
-                            bankaccountcode=data.bankaccount,
-                            batchkey=data.batchkey,
-                            postingremarks='Processing...',
-                        ).save()
+                        if data.bankaccount != 'EXDEAL':  # handle exdeal
+                            Temp_ordetail.objects.create(
+                                orno=data.orno,
+                                ordate=temp_ordate,
+                                debitamount=data.amount,
+                                balancecode='D',
+                                chartofaccountcode=Companyparameter.objects.get(code='PDI').coa_cashinbank.pk,
+                                bankaccountcode=data.bankaccount,
+                                batchkey=data.batchkey,
+                                postingremarks='Processing...',
+                            ).save()
 
                         if str(temp_ormain.subscription.strip()) == '1':
                             # transfer ordetails
