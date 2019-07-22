@@ -44,6 +44,7 @@ import io
 from django.shortcuts import render
 import os
 import xlsxwriter
+from datetime import datetime, timedelta
 
 
 class IndexView(AjaxListView):
@@ -126,6 +127,15 @@ class CreateView(CreateView):
         #Employee.objects.filter(isdeleted=0, jv_approver=1).order_by('firstname') #User.objects.filter(is_active=1).exclude(username='admin').order_by('first_name')
         context['ofcsvmain'] = Ofmain.objects.filter(isdeleted=0, oftype__code='CSV', jvmain=None, ofstatus='O')\
             .order_by('id')   # on-hand CSVs that do not have JVs yet
+
+
+        #print timezone.now()
+        yearending = datetime.now() - timedelta(days=365)
+        prevyear = yearending.year
+        #prevmonth = prevdate.month
+        ##prevmon = prevdate.strftime("%B")
+
+        context['yearend'] = str(prevyear)+'-12-31'
 
         #lookup
         context['pk'] = 0

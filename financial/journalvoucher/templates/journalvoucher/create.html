@@ -293,6 +293,17 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
+            $('#id_jvtype').change(function() {
+                var id = $(this).val();
+
+                if (id == 6) {
+                    $('#id_jvdate').val("{{ yearend }}");
+                    $('#id_jvdate').removeClass('date-yyyymmdd datepicker closemonth');
+                } else {
+                    $('#id_jvdate').val("{% now "Y-m-d" %}");
+                }
+            });
+
             var sd = $('#id_jvdate').data('mindate');
             var d = new Date(sd);
             d.setDate(d.getDate());
