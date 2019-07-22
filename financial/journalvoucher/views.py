@@ -34,6 +34,7 @@ from customer.models import Customer
 from annoying.functions import get_object_or_None
 from dateutil.relativedelta import relativedelta
 import datetime
+from datetime import timedelta
 from django.utils.dateformat import DateFormat
 from financial.utils import Render
 from django.utils import timezone
@@ -44,7 +45,6 @@ import io
 from django.shortcuts import render
 import os
 import xlsxwriter
-from datetime import datetime, timedelta
 
 
 class IndexView(AjaxListView):
@@ -130,7 +130,7 @@ class CreateView(CreateView):
 
 
         #print timezone.now()
-        yearending = datetime.now() - timedelta(days=365)
+        yearending = datetime.datetime.now() - timedelta(days=365)
         prevyear = yearending.year
         #prevmonth = prevdate.month
         ##prevmon = prevdate.strftime("%B")
