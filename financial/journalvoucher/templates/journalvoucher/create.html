@@ -54,7 +54,14 @@
                                 <label class="control-label" for="id_jvtype">JV Type</label>
                                 <select class="form-control input-sm" data-validation="required" id="id_jvtype" name="jvtype">
                                     {% for data in jvtype %}
+                                        {% if data.id == 6 %}
+                                            {% if user.is_superuser %}
+                                                <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                            {% endif %}
+                                        {% else %}
                                         <option value="{{ data.id }}" {% if form.jvtype.value|add:0 == data.id %} selected="selected" {% endif %}>{{ data.description }}</option>
+                                        {% endif %}
+
                                     {% endfor %}
                                 </select>
                                 <span class="help-block form-error">{{ form.jvtype.errors.as_text }}</span>
