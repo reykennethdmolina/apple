@@ -55,6 +55,7 @@ def ajaxSelect(request):
                                                   Q(name__icontains=request.GET['q']))
 
         elif request.GET['table'] == "chartofaccount":
+            print 'pasok'
             items = Chartofaccount.objects.all().filter(Q(accountcode__startswith=request.GET['q']) |
                                                         Q(description__startswith=request.GET['q'].upper())).order_by('accountcode')
         elif request.GET['table'] == "chartofaccount_posting":
@@ -155,6 +156,7 @@ def ajaxSelect(request):
                                   'um': data.unitofmeasure.id,
                                   'code': data.code,
                                   'type': data.inventoryitemclass.inventoryitemtype.code,
+                                  'typecode': data.inventoryitemclass.code,
                                   'itemtype': data.inventoryitemclass.inventoryitemtype.code})
             else:
                 listitems.append({'text': newtext, 'id': data.id})
@@ -675,6 +677,7 @@ def ajaxSelect2(request):
                                   'um': data.unitofmeasure.id,
                                   'code': data.code,
                                   'type': data.inventoryitemclass.inventoryitemtype.code,
+                                  'typecode': data.inventoryitemclass.code,
                                   'itemtype': data.inventoryitemclass.inventoryitemtype.code})
             else:
                 listitems.append({'text': newtext, 'id': data.code})
