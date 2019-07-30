@@ -459,7 +459,7 @@
             total = $('.tblItemCounter').length;
             $('.tblItemContainer').each(function(index) {
                 var itemType = $(this).find('.tblItemCode').data('type');
-                if(itemType == 'SI'){
+                if(itemType == 'SIX'){
                     $(this).find('.tblInputExpirationDate').removeClass('datepicker').removeClass('week');
                     $(this).find('.tblInputExpirationDate').addClass('datepicker').addClass('week');
                     $(this).find('.tblInputExpirationDate').css('background-color', 'white');
@@ -471,15 +471,13 @@
                     d.setDate(d.getDate()-7);
                     $('.datepicker.week').datepicker('setStartDate', d);
 
-                    //var itemTypeCode = $(this).find('.tblItemCode').data('typecode');
-                    //console.log(itemTypeCode);
                     $(this).find('.tblSelectEmployee').find('option').remove();
                     $(this).find('.tblSelectEmployee').html('<option value=""></option>');
                     $(this).find('.tblSelectEmployee').css('background-color', '#eee');
                     $(this).find('.tblInputSerialNum').prop('readonly', true);
                     $(this).find('.tblInputAssetNum').prop('readonly', true);
                 }
-                else if(itemType == 'FA'){
+                else if(itemType == 'FA' || itemType == 'SI'){
                     $(this).find('.tblInputExpirationDate').removeClass('datepicker').removeClass('week').removeClass('date-yyyymmdd');
                     $(this).find('.tblInputExpirationDate').datepicker('destroy');
                     $(this).find('.tblInputExpirationDate').removeClass('hasDatepicker').removeAttr('id');
