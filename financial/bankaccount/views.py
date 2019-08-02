@@ -646,9 +646,8 @@ def query_cashinbanktransaction(prevyear, dto, dfrom, chart, bankaccount):
 
     query = "SELECT b.id, bank.code AS bankcode, bankaccounttype.description AS bankaccounttype, b.code, b.bankaccounttype_id, bs.accountnumber, IFNULL(bs.beg_amount, 0) AS beg_amount, bs.beg_code, bs.year, " \
             "IFNULL(adtran.debitamount, 0) AS debitamount, IFNULL(adtran.creditamount, 0) AS creditamount, IFNULL(adtran.balcode, 'D') AS balcode, " \
-            "IFNULL(adtran.netamount, 0) AS netamount, " \
-            "IF (bs.beg_code = 'D' && IFNULL(adtran.balcode, 'D') = 'D' || bs.beg_code = 'C' && IFNULL(adtran.balcode, 'D') = 'C', (ABS(IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)), ABS((ABS(IFNULL(adtran.netamount, 0))) - IFNULL(bs.beg_amount, 0))) AS endamount, " \
-            "IF (bs.beg_code = 'D' && IFNULL(adtran.balcode, 'D') = 'D' || bs.beg_code = 'C' && IFNULL(adtran.balcode, 'D') = 'C', bs.beg_code, IF(IFNULL(bs.beg_amount, 0) > IFNULL(adtran.netamount, 0), bs.beg_code, 'D')) AS endcode " \
+            "IFNULL(adtran.netamount, 0) AS netamount, IF (bs.beg_code = 'D' && IFNULL(adtran.balcode, 'D') = 'D' || bs.beg_code = 'C' && IFNULL(adtran.balcode, 'D') = 'C', (ABS(IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)), ABS(IFNULL(adtran.netamount, 0)) + IFNULL(bs.beg_amount, 0)) AS endamount, "\
+            "IF ((IFNULL(bs.beg_amount, 0) + IFNULL(adtran.netamount, 0)) > 0, 'D', 'C') AS endcode " \
             "FROM bankaccount AS b " \
             "LEFT OUTER JOIN bankaccountsummary AS bs ON (bs.bankaccount_id = b.id AND bs.year = "+str(prevyear)+") " \
             "LEFT OUTER JOIN ( " \

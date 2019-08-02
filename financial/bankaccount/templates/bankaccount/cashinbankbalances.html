@@ -126,12 +126,12 @@
         <tr>
             <td style="text-align:left;width:150px">{{ item.code|upper }}</td>
             <td style="text-align:left;width:350px">{{ item.bank.code|upper }} {{ item.bankaccounttype.description }} #{{ item.accountnumber }}</td>
-            {% if item.run_code == 'D' %}
-                <td style="text-align:right;width:180px">{{ item.run_amount|default:""|floatformat:2|intcomma }}</td>
+            {% if item.endcode == 'D' %}
+                <td style="text-align:right;width:180px">{{ item.endamount|default:""|floatformat:2|intcomma }}</td>
                 <td style="text-align:right;width:180px"></td>
             {% else %}
                 <td style="text-align:right;width:180px"></td>
-                <td style="text-align:right;width:180px">{{ item.run_amount|default:""|floatformat:2|intcomma }}</td>
+                <td style="text-align:right;width:180px">{{ item.endamount|default:""|floatformat:2|intcomma }}</td>
             {% endif %}
         </tr>
     {% endfor %}
