@@ -138,12 +138,15 @@ def fileupload(request):
                                                                      name=data[31],
                                                                      enterby=request.user,
                                                                      modifyby=request.user)
-
+                                    accttype = data[3].lower()
+                                    if data[3].lower() == 'd':
+                                        accttype = 'r'
                                     Logs_ormain.objects.create(
                                         orno=data[0],
                                         ordate=data[1],
                                         prno=data[2],
-                                        accounttype=data[3].lower(),
+                                        ##accounttype=data[3].lower(),
+                                        accounttype=accttype,
                                         collector=unicode_escape(data[4]),
                                         collectordesc=unicode_escape(data[31]),
                                         payeetype=data[5],
@@ -391,6 +394,9 @@ def fileupload(request):
                                                                  agenttype=Agenttype.objects.get(code='OTHERS'),
                                                                  enterby=request.user,
                                                                  modifyby=request.user)
+                                    accttype = data[3].lower()
+                                    if data[3].lower() == 'b':
+                                        accttype = 's'
                                     Logs_ormain.objects.create(
                                         orno=data[0],
                                         ordate=data[1],
@@ -399,7 +405,8 @@ def fileupload(request):
                                         amountinwords=data[12],
                                         bankaccount=data[13],
                                         particulars=unicode_escape(data[14]),
-                                        accounttype=data[3].lower(),
+                                        ##accounttype=data[3].lower(),
+                                        accounttype=accttype,
                                         vatcode='VE',
                                         vatrate=0,
                                         artype='C',
@@ -791,6 +798,8 @@ def exportsave(request):
                     # temp ormain to ormain
                     if temp_ormain.accounttype == 'd':
                         ortype_accounttype = 'r'
+                    ##elif temp_ormain.accounttype == 'b':
+                    ##    ortype_accounttype = 's'
                     else:
                         ortype_accounttype = temp_ormain.accounttype
 
