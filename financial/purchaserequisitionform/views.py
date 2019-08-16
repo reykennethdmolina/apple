@@ -41,10 +41,10 @@ class IndexView(AjaxListView):
     # pagination and search
     page_template = 'purchaserequisitionform/index_list.html'
     def get_queryset(self):
-        print self.request.user.has_perm('puchaserequisitionform.view_assignrf')
+        print self.request.user.has_perm('puchaserequisitionform.view_assignprf')
         print 'test'
         if self.request.user.has_perm('puchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
-                'puchaserequisitionform.view_allassignrf'):
+                'puchaserequisitionform.view_allassignprf'):
             # print self.request.user.id
             user_employee = get_object_or_None(Employee, user_id=self.request.user.id)
             # print 'hey'
