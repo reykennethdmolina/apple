@@ -41,12 +41,38 @@ class IndexView(AjaxListView):
     # pagination and search
     page_template = 'purchaserequisitionform/index_list.html'
     def get_queryset(self):
-        query = Prfmain.objects.all().filter(isdeleted=0)
+        print self.request.user.has_perm('puchaserequisitionform.view_assignrf')
+        print 'test'
+        if self.request.user.has_perm('puchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
+                'requisitionform.view_allassignrf'):
+            # print self.request.user.id
+            user_employee = get_object_or_None(Employee, user_id=self.request.user.id)
+            # print 'hey'
+            if user_employee is not None:
+                query = Prfmain.objects.filter(designatedapprover_id=self.request.user.id) | Prfmain.objects.filter(
+                    enterby=self.request.user.id)
+                query = query.filter(isdeleted=0)
+
+            else:
+                query = Prfmain.objects.all().filter(isdeleted=0)
+        else:
+            if self.request.user.has_perm('puchaserequisitionform.view_assignprf'):
+                query = Prfmain.objects.all().filter(isdeleted=0)
+            else:
+                query = Prfmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
+
         if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
             keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
-            query = query.filter(Q(prfnum__icontains=keysearch) |
-                                 Q(prfdate__icontains=keysearch) |
+            query = query.filter(Q(rfnum__icontains=keysearch) |
+                                 Q(rfdate__icontains=keysearch) |
                                  Q(particulars__icontains=keysearch))
+
+        # query = Prfmain.objects.all().filter(isdeleted=0)
+        # if self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name):
+        #     keysearch = str(self.request.COOKIES.get('keysearch_' + self.request.resolver_match.app_name))
+        #     query = query.filter(Q(prfnum__icontains=keysearch) |
+        #                          Q(prfdate__icontains=keysearch) |
+        #                          Q(particulars__icontains=keysearch))
         return query
 
 
