@@ -44,7 +44,7 @@ class IndexView(AjaxListView):
         print self.request.user.has_perm('puchaserequisitionform.view_assignrf')
         print 'test'
         if self.request.user.has_perm('puchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
-                'requisitionform.view_allassignrf'):
+                'puchaserequisitionform.view_allassignrf'):
             # print self.request.user.id
             user_employee = get_object_or_None(Employee, user_id=self.request.user.id)
             # print 'hey'
