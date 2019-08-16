@@ -43,8 +43,8 @@ class IndexView(AjaxListView):
     def get_queryset(self):
         print self.request.user.has_perm('puchaserequisitionform.view_assignprf')
         print 'test'
-        if self.request.user.has_perm('puchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
-                'puchaserequisitionform.view_allassignprf'):
+        if self.request.user.has_perm('purchaserequisitionform.view_assignprf') and not self.request.user.has_perm(
+                'purchaserequisitionform.view_allassignprf'):
             # print self.request.user.id
             user_employee = get_object_or_None(Employee, user_id=self.request.user.id)
             # print 'hey'
@@ -56,7 +56,7 @@ class IndexView(AjaxListView):
             else:
                 query = Prfmain.objects.all().filter(isdeleted=0)
         else:
-            if self.request.user.has_perm('puchaserequisitionform.view_assignprf'):
+            if self.request.user.has_perm('purchaserequisitionform.view_assignprf'):
                 query = Prfmain.objects.all().filter(isdeleted=0)
             else:
                 query = Prfmain.objects.all().filter(isdeleted=0, enterby=self.request.user.id)
