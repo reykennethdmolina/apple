@@ -602,7 +602,7 @@ def exportsave(request):
                         modifyby=temp_jvmain.importby,
                         importedjvnum=temp_jvmain.importedjvnum,
                         #designatedapprover=request.user,
-                        designatedapprover_id=7,
+                        designatedapprover_id=226,
                     )
                     finaljvmain.save()
                 else:
@@ -626,7 +626,7 @@ def exportsave(request):
                         modifyby=temp_jvmain.importby,
                         importedjvnum=temp_jvmain.importedjvnum,
                         #designatedapprover=request.user,
-                        designatedapprover_id=7,
+                        designatedapprover_id=226,
                     )
                     finaljvmain.save()
 
