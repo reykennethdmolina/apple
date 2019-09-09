@@ -2247,9 +2247,9 @@ class GeneratePDF(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4' or report == '8':
-                q = q.filter(apmain__actualapprover__exact=approver)
+                q = q.filter(apmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if apstatus != '':
             if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apstatus__exact=apstatus)
@@ -2450,9 +2450,9 @@ class GenerateExcel(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4' or report == '8':
-                q = q.filter(apmain__actualapprover__exact=approver)
+                q = q.filter(apmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if apstatus != '':
             if report == '2' or report == '4' or report == '8':
                 q = q.filter(apmain__apstatus__exact=apstatus)

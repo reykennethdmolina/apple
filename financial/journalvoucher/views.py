@@ -1794,9 +1794,9 @@ class GeneratePDF(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4':
-                q = q.filter(jvmain__actualapprover__exact=approver)
+                q = q.filter(jvmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if jvstatus != '':
             if report == '2' or report == '4':
                 q = q.filter(jvmain__jvstatus__exact=jvstatus)
@@ -1906,9 +1906,9 @@ class GenerateExcel(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4':
-                q = q.filter(jvmain__actualapprover__exact=approver)
+                q = q.filter(jvmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if jvstatus != '':
             if report == '2' or report == '4':
                 q = q.filter(jvmain__jvstatus__exact=jvstatus)

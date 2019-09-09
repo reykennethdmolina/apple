@@ -1974,9 +1974,9 @@ class GeneratePDF(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4':
-                q = q.filter(cvmain__actualapprover__exact=approver)
+                q = q.filter(cvmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if cvstatus != '':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__cvstatus__exact=cvstatus)
@@ -2162,9 +2162,9 @@ class GenerateExcel(View):
                 q = q.filter(branch=branch)
         if approver != '':
             if report == '2' or report == '4':
-                q = q.filter(cvmain__actualapprover__exact=approver)
+                q = q.filter(cvmain__designatedapprover__exact=approver)
             else:
-                q = q.filter(actualapprover=approver)
+                q = q.filter(designatedapprover=approver)
         if cvstatus != '':
             if report == '2' or report == '4':
                 q = q.filter(cvmain__cvstatus__exact=cvstatus)
