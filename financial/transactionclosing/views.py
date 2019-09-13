@@ -10,8 +10,9 @@ from checkvoucher.models import Cvmain, Cvdetail, Cvdetailbreakdown
 from journalvoucher.models import Jvmain, Jvdetail, Jvdetailbreakdown
 from officialreceipt.models import Ormain, Ordetail, Ordetailbreakdown
 from subledger.models import Subledger
+from accountexpensebalance.models import Accountexpensebalance
 from chartofaccount.models import Chartofaccount
-from bankaccount.models import Bankaccount
+from bankaccount.models import Bankaccount, Bankaccountsummary
 from branch.models import Branch
 from jvtype.models import Jvtype
 from jvsubtype.models import Jvsubtype
@@ -25,6 +26,26 @@ from django.db.models import Sum, F
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
+    template_name = 'transactionclosing/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        # closingdate = Companyparameter.objects.all().first()
+
+        company = Companyparameter.objects.all().first()
+        yearend_year = company.year_end_date
+        context['yearend_year'] = yearend_year.year
+        context['today_year'] = datetime.datetime.now().year
+        context['toclose_year'] = yearend_year.year + 1
+        context['count'] = datetime.datetime.now().year - company.year_end_date.year
+        context['param'] = company
+        context['closingdate'] = company.last_closed_date + relativedelta(months=1)
+        context['closingyear'] = company.last_closed_date.year
+        context['closingyearmonth'] = company.last_closed_date.month
+        return context
+
+@method_decorator(login_required, name='dispatch')
+class YearEndAdjustmentView(TemplateView):
     template_name = 'transactionclosing/index.html'
 
     def get_context_data(self, **kwargs):
@@ -290,7 +311,7 @@ def proc_currentearnings(request):
         ytd_code = 'D'
 
         if balcode == chart_item.first().year_to_date_code:
-            ytd_amount = float(year_to_date_amount) + float(income)
+            ytd_amount = abs(float(year_to_date_amount) + float(income))
             ytd_code = balcode
         else:
             ytd_amount = abs(float(year_to_date_amount) - float(income))
@@ -612,3 +633,573 @@ def yearend_init(request):
 
     return JsonResponse(data)
 
+@method_decorator(login_required, name='dispatch')
+class YearEndAdjustmentView(TemplateView):
+    template_name = 'yearendadjustment/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(YearEndAdjustmentView, self).get_context_data(**kwargs)
+        # closingdate = Companyparameter.objects.all().first()
+
+        company = Companyparameter.objects.all().first()
+        yearend_year = company.year_end_date
+
+        ddate = str(yearend_year.year)+'-12-31'
+        jvlist = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='A', jvstatus='R').order_by('jvnum')
+        jv_id = jvlist.values_list('id', flat=True)
+
+        jv_detail = Jvdetail.objects.filter(status='A', jvmain_id__in=jv_id).values('chartofaccount__accountcode', 'chartofaccount__description')\
+            .annotate(debitamount_sum=Sum('debitamount'),creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
+
+
+        context['jv'] = jvlist
+        context['count'] = len(jvlist)
+        context['detail'] = jv_detail
+        context['jvtotal'] = jvlist.aggregate(amount=Sum('amount'))
+        context['detailtotal'] = jv_detail.aggregate(debitamount=Sum('debitamount_sum'),creditamount=Sum('creditamount_sum'))
+        context['adjustment_year'] = yearend_year.year
+        return context
+
+@csrf_exempt
+def proc_yearendadjustment(request):
+    print 'Initialization'
+
+    company = Companyparameter.objects.all().first()
+    yearend_year = company.year_end_date
+
+    ddate = str(yearend_year.year) + '-12-31'
+    jvlist = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='A', jvstatus='R').order_by('jvnum')
+
+    dec_cur_debit_amt = 0
+    dec_cur_credit_amt = 0
+    dec_cur_code = 'D'
+    dec_cur_amount = 0
+
+    if len(jvlist) != 0:
+
+        error = 0
+        for jv in jvlist:
+            jv_detail = Jvdetail.objects.filter(status='A', jvmain_id=jv.id).values('jvmain_id').aggregate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount'))
+
+            #  checking unequal debit and credit
+            if jv_detail['debitamount_sum'] != jv_detail['creditamount_sum']:
+                remarks = 'JV#'+str(jv.jvnum)+' accounting entry is not equal. Please check entry'
+                data = {'status': 'error', 'remarks': remarks}
+                error = 1
+                return JsonResponse(data)
+
+            #  checking unmatch expenses
+            detail = Jvdetail.objects.all().filter(status='A', jvmain_id=jv.id, chartofaccount__main=5)
+            for d in detail:
+                #print d.jv_num
+                if str(d.chartofaccount.accountcode)[0:2] != str(d.department.expchartofaccount)[0:2]:
+                    if d.department.code != 'IGC':
+                        remarks = 'JV#' + str(d.jv_num) + ' account '+str(d.chartofaccount.accountcode)+' unmacthed expense account vs department'
+                        data = {'status': 'error', 'remarks': remarks}
+                        error = 1
+                        return JsonResponse(data)
+
+
+        if error == 0:
+            # update jvmain and jvdetails
+            for jv in jvlist:
+                main = Jvmain.objects.get(pk=jv.id)
+                main.status = 'O'
+                main.postby = request.user
+                main.postdate = datetime.datetime.now()
+                main.closeby = request.user
+                main.closedate = datetime.datetime.now()
+                main.save()
+
+                # update details
+                detail = Jvdetail.objects.all().filter(status='A', jvmain_id=jv.id)
+                for data in detail:
+                    print 'updating '+str(data.jv_num)
+                    Jvdetail.objects.filter(pk=data.id).update(status='O', postby=request.user, postdate=datetime.datetime.now(),
+                                                            closeby=request.user, closedate=datetime.datetime.now())
+                    # Insert data in subsidiary ledger
+                    Subledger.objects.create(
+                        chartofaccount=data.chartofaccount,
+                        item_counter=data.item_counter,
+                        document_type='JV',
+                        document_id=data.pk,
+                        document_num=data.jv_num,
+                        document_date=data.jv_date,
+                        subtype=data.jvmain.jvtype,
+                        bankaccount=data.bankaccount,
+                        department=data.department,
+                        employee=data.employee,
+                        customer=data.customer,
+                        product=data.product,
+                        branch=data.branch,
+                        unit=data.unit,
+                        inputvat=data.inputvat,
+                        outputvat=data.outputvat,
+                        ataxcode=data.ataxcode,
+                        atccode=data.ataxcode.code if data.ataxcode else None,
+                        atcrate=data.ataxcode.rate if data.ataxcode else None,
+                        vat=data.vat,
+                        vatcode=data.vat.code if data.vat else None,
+                        vatrate=data.vat.rate if data.vat else None,
+                        wtax=data.wtax,
+                        wtaxcode=data.wtax.code if data.wtax else None,
+                        wtaxrate=data.wtax.rate if data.wtax else None,
+                        balancecode=data.balancecode,
+                        amount=data.debitamount if data.balancecode == 'D' else data.creditamount,
+                        particulars=data.jvmain.particular,
+                        remarks=data.jvmain.remarks,
+                        document_status=data.jvmain.status,
+                        document_branch=data.jvmain.branch,
+                        document_amount=data.jvmain.amount,
+                        document_currency=data.jvmain.currency,
+                        document_fxrate=data.jvmain.fxrate,
+                        enterby=d.enterby,
+                        modifyby=d.modifyby,
+                    )
+
+        #Compute for net of total debits and total credits of additional JV
+        jvlist2 = Jvmain.objects.all().filter(jvdate=ddate, jvtype_id=6, status='O', jvstatus='R').order_by('jvnum')
+        jv_id = jvlist2.values_list('id', flat=True)
+
+        detail = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id).values('chartofaccount_id','chartofaccount__main','chartofaccount__clas','chartofaccount__item',
+                                                                                    'chartofaccount__cont','chartofaccount__sub',
+                                                                                    'chartofaccount__accountcode','chartofaccount__description') \
+                            .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
+
+        for d in detail:
+
+            # Update/Insert Subledgersummary Adjustment Year December
+            subledgersummary = Subledgersummary.objects.filter(chartofaccount_id=d['chartofaccount_id'],year=str(yearend_year.year),month=12).first()
+
+            if subledgersummary:
+                subledsum_end_amount = 0
+                subledsum_end_code = 'D'
+                newsubledsum_end_amount = 0
+                subledsum_ytd_amount = 0
+                subledsum_ytd_code = 'D'
+                newsubledsum_ytd_amount = 0
+                subledsum_jv_totalcredit = 0
+                subledsum_jv_totaldebit = 0
+
+                if subledgersummary.end_code == 'C':
+                    subledsum_end_amount = subledgersummary.end_amount * -1
+                else:
+                    subledsum_end_amount = subledgersummary.end_amount
+
+                newsubledsum_end_amount = subledsum_end_amount + (d['debitamount_sum'] - d['creditamount_sum'])
+                if d['creditamount_sum']:
+                    subledsum_jv_totalcredit = subledgersummary.journal_voucher_credit_total + d['creditamount_sum']
+                else:
+                    subledsum_jv_totalcredit = subledgersummary.journal_voucher_credit_total
+                if d['debitamount_sum']:
+                    subledsum_jv_totaldebit = subledgersummary.journal_voucher_debit_total + d['debitamount_sum']
+                else:
+                    subledsum_jv_totaldebit = subledgersummary.journal_voucher_debit_total
+
+                if newsubledsum_end_amount < 0:
+                    subledsum_end_code = 'C'
+
+                if subledgersummary.year_to_date_code == 'C':
+                    subledsum_ytd_amount = subledgersummary.year_to_date_amount * -1
+                else:
+                    subledsum_ytd_amount = subledgersummary.year_to_date_amount
+
+                newsubledsum_ytd_amount = subledsum_ytd_amount + (d['debitamount_sum'] - d['creditamount_sum'])
+
+                if newsubledsum_ytd_amount < 0:
+                    subledsum_ytd_code = 'C'
+
+                subledgersummary.end_amount = abs(newsubledsum_end_amount)
+                subledgersummary.end_code = subledsum_end_code
+                subledgersummary.end_date = str(yearend_year.year) + '-12-31'
+                subledgersummary.year_to_date_amount = abs(newsubledsum_ytd_amount)
+                subledgersummary.year_to_date_code = subledsum_ytd_code
+                subledgersummary.year_to_date_date = str(yearend_year.year) + '-12-31'
+                subledgersummary.journal_voucher_debit_total = subledsum_jv_totaldebit
+                subledgersummary.journal_voucher_credit_total = subledsum_jv_totalcredit
+                subledgersummary.save()
+            else:
+                subledsum_end_amount = 0
+                subledsum_end_code = 'D'
+                newsubledsum_end_amount = 0
+                subledsum_ytd_amount = 0
+                subledsum_ytd_code = 'D'
+                newsubledsum_ytd_amount = 0
+                subledsum_jv_totalcredit = 0
+                subledsum_jv_totaldebit = 0
+
+                newsubledsum_end_amount = (d['debitamount_sum'] - d['creditamount_sum'])
+                newsubledsum_ytd_amount = (d['debitamount_sum'] - d['creditamount_sum'])
+                subledsum_jv_totalcredit = d['debitamount_sum']
+                subledsum_jv_totaldebit = d['creditamount_sum']
+
+                if newsubledsum_end_amount < 0:
+                    subledsum_end_code = 'C'
+
+                if newsubledsum_ytd_amount < 0:
+                    subledsum_ytd_code = 'C'
+
+                Subledgersummary.objects.create(year=str(yearend_year.year), month=12, chartofaccount_id=d['chartofaccount_id'],
+                                                beginning_amount=abs(newsubledsum_end_amount), beginning_code=subledsum_end_code,beginning_date=str(yearend_year.year) + '-12-31',
+                                                end_amount=abs(newsubledsum_end_amount), end_code=subledsum_end_code,end_date=str(yearend_year.year) + '-12-31',
+                                                year_to_date_amount=abs(newsubledsum_ytd_amount), year_to_date_code=subledsum_ytd_code,year_to_date_date=str(yearend_year.year) + '-12-31',
+                                                journal_voucher_debit_total = subledsum_jv_totaldebit, journal_voucher_credit_total=subledsum_jv_totalcredit)
+                print 'new ata ito'
+
+
+            # update chart main 1,2,3
+            if d['chartofaccount__main'] == 1 or d['chartofaccount__main'] == 2 or d['chartofaccount__main'] == 3:
+
+                chart = Chartofaccount.objects.filter(pk=d['chartofaccount_id']).first()
+                beg_amount = 0
+                beg_code = 'D'
+                end_amount = 0
+                end_code = 'D'
+                new_beg_amount = 0
+                new_end_amount = 0
+
+                if chart.beginning_code == 'C':
+                    beg_amount = chart.beginning_amount * -1
+                else:
+                    beg_amount = chart.beginning_amount
+
+                new_beg_amount = beg_amount + (d['debitamount_sum'] - d['creditamount_sum'])
+
+                if new_beg_amount < 0:
+                    beg_code = 'C'
+
+                if chart.end_code == 'C':
+                    end_amount = chart.end_amount * -1
+                else:
+                    end_amount = chart.end_amount
+
+                new_end_amount = end_amount + (d['debitamount_sum'] - d['creditamount_sum'])
+
+                if new_end_amount < 0:
+                    end_code = 'C'
+
+                print str(chart.accountcode) + ' update beg and end'
+
+                chart.beginning_amount = abs(new_beg_amount)
+                chart.beginning_code = beg_code
+                chart.beginning_date = str(yearend_year.year) + '-12-31'
+                chart.end_amount = abs(new_end_amount)
+                chart.end_code = end_code
+                chart.end_date = str(yearend_year.year) + '-12-31'
+                chart.save()
+
+                # for cash in bank
+                if d['chartofaccount_id'] == company.coa_cashinbank_id:
+                    print 'hello cash in bank'
+                    # update bank account file
+                    jv_cash = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id, chartofaccount_id=company.coa_cashinbank_id).values('bankaccount_id', 'bankaccount__code')\
+                        .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount'))\
+                        .order_by('bankaccount_id')
+
+                    for c in jv_cash:
+                        bankacount = Bankaccount.objects.filter(pk=c['bankaccount_id']).first()
+
+                        bankaccount_beg_amount = 0
+                        bankaccount_beg_code = 'D'
+                        bankaccount_end_amount = 0
+                        bankaccount_end_code = 'D'
+                        bankaccount_new_beg_amount = 0
+                        bankaccount_new_end_amount = 0
+
+                        if bankacount.beg_code == 'C':
+                            bankaccount_beg_amount = bankacount.beg_amount * -1
+                        else:
+                            bankaccount_beg_amount = bankacount.beg_amount
+
+                        bankaccount_new_beg_amount = bankaccount_beg_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+
+                        if bankaccount_new_beg_amount < 0:
+                            bankaccount_beg_code = 'C'
+
+                        if bankacount.run_code == 'C':
+                            bankaccount_end_amount = bankacount.run_amount * -1
+                        else:
+                            bankaccount_end_amount = bankacount.run_amount
+
+                        bankaccount_end_amount = bankaccount_end_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+
+                        if bankaccount_end_amount < 0:
+                            bankaccount_end_code = 'C'
+
+                        print str(bankacount.code) + ' update beg and run'
+
+                        bankacount.beg_amount = abs(bankaccount_new_beg_amount)
+                        bankacount.beg_code = bankaccount_beg_code
+                        bankacount.beg_date = str(yearend_year.year) + '-12-31'
+                        bankacount.run_amount = abs(bankaccount_end_amount)
+                        bankacount.run_code = bankaccount_end_code
+                        bankacount.run_date = str(yearend_year.year) + '-12-31'
+                        bankacount.save()
+
+                        #update Bank account summary
+                        bankaccountsum = Bankaccountsummary.objects.filter(bankaccount_id=c['bankaccount_id'], year=str(yearend_year.year)).first()
+
+                        if bankaccountsum:
+
+                            bankaccountsum_ytd_amount = 0
+                            bankaccountsum_ytd_code = 'D'
+
+                            if bankaccountsum.year_to_date_code == 'C':
+                                bankaccountsum_ytd_amount = bankaccountsum.year_to_date_amount * -1
+                            else:
+                                bankaccountsum_ytd_amount = bankaccountsum.year_to_date_amount
+
+                                bankaccountsum_ytd_amount = bankaccountsum_ytd_amount + (c['debitamount_sum'] - c['creditamount_sum'])
+
+                            if bankaccountsum_ytd_code < 0:
+                                bankaccountsum_ytd_code = 'C'
+
+                            bankaccountsum.beg_amount = abs(bankaccount_new_beg_amount)
+                            bankaccountsum.beg_code = bankaccount_beg_code
+                            bankaccountsum.beg_date = str(yearend_year.year) + '-12-31'
+                            bankaccountsum.year_to_date_amount = abs(bankaccountsum_ytd_amount)
+                            bankaccountsum.year_to_date_code = bankaccountsum_ytd_code
+                            bankaccountsum.year_to_date_date = str(yearend_year.year) + '-12-31'
+                            bankaccountsum.save()
+                            print 'meron'
+                        else:
+                            Bankaccountsummary.objects.create(year=str(yearend_year.year), code=bankacount.code, accountnumber=bankacount.accountnumber, bankaccount_id=bankacount.id,
+                                                              beg_amount=abs(bankaccount_new_beg_amount), beg_code=bankaccount_beg_code, beg_date=str(yearend_year.year) + '-12-31',
+                                                              year_to_date_amount=abs(bankaccount_new_beg_amount),year_to_date_code=bankaccount_beg_code,year_to_date_date=str(yearend_year.year) + '-12-31')
+                            print 'wala'
+
+                else:
+                    print 'ordinary'
+            else:
+                dec_cur_debit_amt += d['debitamount_sum']
+                dec_cur_credit_amt += d['creditamount_sum']
+
+        detailexpense = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id, chartofaccount__main=5).values('chartofaccount_id','chartofaccount__main', 'chartofaccount__clas',
+                                                                                 'chartofaccount__item', 'chartofaccount__cont', 'chartofaccount__sub',
+                                                                                'chartofaccount__accountcode','chartofaccount__description', 'department__code', 'department__id')\
+            .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
+
+        for de in detailexpense:
+            acctexp = Accountexpensebalance.objects.filter(chartofaccount_id=de['chartofaccount_id'], department_id=de['department__id'], year=str(yearend_year.year), month=12).first()
+
+            acctexpamount = 0
+            acctexpcode = 'D'
+
+
+            if acctexp:
+                acctexpamount = acctexp.amount + (de['debitamount_sum'] - de['creditamount_sum'])
+                if acctexpamount < 0:
+                    acctexpcode = 'C'
+
+                acctexp.amount = abs(acctexpamount)
+                acctexp.code = acctexpcode
+                acctexp.modifyby = request.user
+                acctexp.modifydate = datetime.datetime.now()
+                acctexp.save()
+
+                print 'exist'
+            else:
+                acctexpamount = (de['debitamount_sum'] - de['creditamount_sum'])
+                if acctexpamount < 0:
+                    acctexpcode = 'C'
+
+                Accountexpensebalance.objects.create(year=str(yearend_year.year), month=12, date=str(yearend_year.year) + '-12-31',
+                                                     chartofaccount_id=de['chartofaccount_id'], department_id=de['department__id'],
+                                                     amount=abs(acctexpamount), code=acctexpcode)
+                print 'new'
+            #print str(acctexp)
+            #print str(de['chartofaccount_id'])+' '+str(de['department__id'])+' '+str(de['department__code'])+' '+str(de['debitamount_sum'])+' '+str(de['creditamount_sum'])
+
+        detailothers = Jvdetail.objects.filter(status='O', jvmain_id__in=jv_id).values('chartofaccount_id','chartofaccount__main','chartofaccount__clas',
+                                                                                 'chartofaccount__item','chartofaccount__cont','chartofaccount__sub',
+                                                                                 'chartofaccount__accountcode','chartofaccount__description') \
+            .annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')
+
+        for deo in detailothers:
+            # update chart main 1,2,3
+            if deo['chartofaccount__main'] == 1 or deo['chartofaccount__main'] == 2 or deo['chartofaccount__main'] == 3:
+                print 'the month'
+                for i in range(company.last_closed_date.month):
+                    subledgersummary = Subledgersummary.objects.filter(chartofaccount_id=deo['chartofaccount_id'],year=str(company.last_closed_date.year), month=str(i + 1)).first()
+
+                    if subledgersummary:
+                        subledsum_end_amount = 0
+                        subledsum_end_code = 'D'
+                        newsubledsum_end_amount = 0
+                        subledsum_ytd_amount = 0
+                        subledsum_ytd_code = 'D'
+                        newsubledsum_ytd_amount = 0
+                        subledsum_jv_totalcredit = 0
+                        subledsum_jv_totaldebit = 0
+
+                        if subledgersummary.end_code == 'C':
+                            subledsum_end_amount = subledgersummary.end_amount * -1
+                        else:
+                            subledsum_end_amount = subledgersummary.end_amount
+
+                        newsubledsum_end_amount = subledsum_end_amount + (deo['debitamount_sum'] - deo['creditamount_sum'])
+                        if deo['creditamount_sum']:
+                            subledsum_jv_totalcredit = subledgersummary.journal_voucher_credit_total + deo['creditamount_sum']
+                        else:
+                            subledsum_jv_totalcredit = subledgersummary.journal_voucher_credit_total
+                        if deo['debitamount_sum']:
+                            subledsum_jv_totaldebit = subledgersummary.journal_voucher_debit_total + deo['debitamount_sum']
+                        else:
+                            subledsum_jv_totaldebit = subledgersummary.journal_voucher_debit_total
+
+                        if newsubledsum_end_amount < 0:
+                            subledsum_end_code = 'C'
+
+                        if subledgersummary.year_to_date_code == 'C':
+                            subledsum_ytd_amount = subledgersummary.year_to_date_amount * -1
+                        else:
+                            subledsum_ytd_amount = subledgersummary.year_to_date_amount
+
+                        newsubledsum_ytd_amount = subledsum_ytd_amount + (deo['debitamount_sum'] - deo['creditamount_sum'])
+
+                        if newsubledsum_ytd_amount < 0:
+                            subledsum_ytd_code = 'C'
+
+                        subledgersummary.end_amount = abs(newsubledsum_end_amount)
+                        subledgersummary.end_code = subledsum_end_code
+                        subledgersummary.end_date = str(yearend_year.year) + '-12-31'
+                        subledgersummary.year_to_date_amount = abs(newsubledsum_ytd_amount)
+                        subledgersummary.year_to_date_code = subledsum_ytd_code
+                        subledgersummary.year_to_date_date = str(yearend_year.year) + '-12-31'
+                        subledgersummary.save()
+                    else:
+                        subledsum_end_amount = 0
+                        subledsum_end_code = 'D'
+                        newsubledsum_end_amount = 0
+                        subledsum_ytd_amount = 0
+                        subledsum_ytd_code = 'D'
+                        newsubledsum_ytd_amount = 0
+                        subledsum_jv_totalcredit = 0
+                        subledsum_jv_totaldebit = 0
+
+                        newsubledsum_end_amount = (deo['debitamount_sum'] - deo['creditamount_sum'])
+                        newsubledsum_ytd_amount = (deo['debitamount_sum'] - deo['creditamount_sum'])
+                        subledsum_jv_totalcredit = deo['debitamount_sum']
+                        subledsum_jv_totaldebit = deo['creditamount_sum']
+
+                        if newsubledsum_end_amount < 0:
+                            subledsum_end_code = 'C'
+
+                        if newsubledsum_ytd_amount < 0:
+                            subledsum_ytd_code = 'C'
+
+                        Subledgersummary.objects.create(year=str(company.last_closed_date.year), month=str(i + 1),
+                                                        chartofaccount_id=deo['chartofaccount_id'],
+                                                        beginning_amount=abs(newsubledsum_end_amount),
+                                                        beginning_code=subledsum_end_code,
+                                                        beginning_date=str(yearend_year.year) + '-12-31',
+                                                        end_amount=abs(newsubledsum_end_amount),
+                                                        end_code=subledsum_end_code,
+                                                        end_date=str(yearend_year.year) + '-12-31',
+                                                        year_to_date_amount=abs(newsubledsum_ytd_amount),
+                                                        year_to_date_code=subledsum_ytd_code,
+                                                        year_to_date_date=str(yearend_year.year) + '-12-31')
+
+        # update december current earnings
+        dec_cur_amount = dec_cur_debit_amt - dec_cur_credit_amt
+
+        print dec_cur_amount
+
+        if dec_cur_amount < 0:
+            dec_cur_code = 'C'
+
+        subledgersummary_cur = Subledgersummary.objects.filter(chartofaccount_id=company.coa_currentearnings_id,year=str(yearend_year.year), month=12).first()
+
+        if subledgersummary_cur:
+            print 'subledgersummary_cur'
+            subledsum_end_amount = 0
+            subledsum_end_code = 'D'
+            newsubledsum_end_amount = 0
+            subledsum_ytd_amount = 0
+            subledsum_ytd_code = 'D'
+            newsubledsum_ytd_amount = 0
+
+            if subledgersummary_cur.end_code == 'C':
+                subledsum_end_amount = subledgersummary_cur.end_amount * -1
+            else:
+                subledsum_end_amount = subledgersummary_cur.end_amount
+            print subledsum_end_amount
+            newsubledsum_end_amount = subledsum_end_amount + dec_cur_amount
+
+            if newsubledsum_end_amount < 0:
+                subledsum_end_code = 'C'
+
+            if subledgersummary_cur.year_to_date_code == 'C':
+                subledsum_ytd_amount = subledgersummary_cur.year_to_date_amount * -1
+            else:
+                subledsum_ytd_amount = subledgersummary_cur.year_to_date_amount
+            print subledsum_ytd_amount
+            newsubledsum_ytd_amount = subledsum_ytd_amount + dec_cur_amount
+
+            if newsubledsum_ytd_amount < 0:
+                subledsum_ytd_code = 'C'
+
+            print 'start updating'
+            subledgersummary_cur.end_amount = abs(newsubledsum_end_amount)
+            subledgersummary_cur.end_code = subledsum_end_code
+            subledgersummary_cur.end_date = str(yearend_year.year) + '-12-31'
+            subledgersummary_cur.year_to_date_amount = abs(newsubledsum_ytd_amount)
+            subledgersummary_cur.year_to_date_code = subledsum_ytd_code
+            subledgersummary_cur.year_to_date_date = str(yearend_year.year) + '-12-31'
+            subledgersummary_cur.save()
+            print 'end updating'
+
+        # update retained earning dec
+        chart_ret = Chartofaccount.objects.filter(id=company.coa_retainedearnings_id).first()
+
+        beg_ret_amount = 0
+        beg_new_ret_amount = 0
+        beg_ret_code = 'D'
+        end_ret_amount = 0
+        end_new_ret_amount = 0
+        end_ret_code = 'D'
+
+        if chart_ret:
+            if chart_ret.beginning_code == 'C':
+                beg_ret_amount = chart_ret.beginning_amount * -1
+            else:
+                beg_ret_amount = chart_ret.beginning_amount
+
+            beg_new_ret_amount = beg_ret_amount + dec_cur_amount
+
+            if beg_new_ret_amount < 0:
+                beg_ret_code = 'C'
+
+            chart_ret.beginning_amount = abs(beg_new_ret_amount)
+            chart_ret.beginning_code = beg_ret_code
+            chart_ret.beginning_date = str(yearend_year.year) + '-12-31'
+            chart_ret.end_amount = abs(beg_new_ret_amount)
+            chart_ret.end_code = beg_ret_code
+            chart_ret.end_date = str(yearend_year.year) + '-12-31'
+            chart_ret.save()
+
+            # update other month
+            for i in range(company.last_closed_date.month):
+                subledgersummary = Subledgersummary.objects.filter(chartofaccount_id=company.coa_retainedearnings_id,year=str(company.last_closed_date.year),month=str(i + 1)).first()
+
+                if subledgersummary:
+                    subledgersummary.beginning_amount = abs(beg_new_ret_amount)
+                    subledgersummary.beginning_code = beg_ret_code
+                    subledgersummary.beginning_date = str(yearend_year.year) + '-12-31'
+                    subledgersummary.end_amount = abs(beg_new_ret_amount)
+                    subledgersummary.end_code = beg_ret_code
+                    subledgersummary.save()
+
+
+        print 'tuloy'
+
+        data = {'status': 'success'}
+    else:
+        data = {'status': 'error'}
+
+    return JsonResponse(data)
+
+    #jv_id = jvlist.values_list('id',flat=True)
+
+    #jv_detail = Jvdetail.objects.filter(status='A', jvmain_id__in=jv_id).values('chartofaccount_id','chartofaccount__accountcode','chartofaccount__description') \
+        #.annotate(debitamount_sum=Sum('debitamount'), creditamount_sum=Sum('creditamount')).order_by('chartofaccount__accountcode')

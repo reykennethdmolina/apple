@@ -13,5 +13,7 @@ urlpatterns = [
     url(r'^proc_zeroout/$', views.proc_zeroout, name='proc_zeroout'),
     url(r'^proc_updateclosing/$', views.proc_updateclosing, name='proc_updateclosing'),
     url(r'^yearend_init/$', views.yearend_init, name='yearend_init'),
+    url(r'^yearend_adjustment/$', views.YearEndAdjustmentView.as_view(), name='yearend_adjustment'),
+    url(r'^proc_yearendadjustment/$', views.proc_yearendadjustment, name='proc_yearendadjustment'),
 ]
 

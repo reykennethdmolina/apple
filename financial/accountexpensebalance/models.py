@@ -39,10 +39,10 @@ class Accountexpensebalance(models.Model):
         return reverse('accountexpensebalance:detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.year
+        return str(self.year)
 
     def __unicode__(self):
-        return self.year
+        return str(self.year)
 
     def status_verbose(self):
         return dict(Accountexpensebalance.STATUS_CHOICES)[self.status]
