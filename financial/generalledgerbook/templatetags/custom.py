@@ -250,3 +250,14 @@ def subtotalpassitem(item, counter):
     if item:
         val = 'sum(row.col' + str(counter) + ' for row in item)'
         return eval(val)
+
+@register.filter
+def diff(debit, credit):
+    if debit:
+        return debit - credit
+    elif credit:
+        return debit - credit
+    else:
+        return 0
+    #print list.creditamount_sum
+    #return list.debitamount_sum - list.creditamount_sum
